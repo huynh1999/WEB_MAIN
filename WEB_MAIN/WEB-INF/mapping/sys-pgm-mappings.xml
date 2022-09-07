@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### 사용자관리 Start ####  -->
+    <!-- 사용자관리 화면. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="SYS_AUT_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sys.aut.user.event.SYS_AUT_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SYS_AUT_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- 사용자관리 화면 데이터. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="SYS_AUT_0010GS.clt" screen="SYS_AUT_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.sys.aut.user.event.SYS_AUT_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+	<!--Office Hierarchy 화면 조회  -->
+    <url-mapping url="SYS_OFC_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sys.aut.user.event.SYS_OFC_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SYS_OFC_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!--Office Hierarchy 데이터 조회  -->
+    <url-mapping url="SYS_OFC_0010GS.clt" screen="SYS_OFC_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.sys.aut.user.event.SYS_OFC_0010HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <event-mapping>
+        <event-class>com.clt.apps.fis.sys.aut.user.event.UserEvent</event-class>
+        <service-action-class>com.clt.apps.fis.sys.aut.user.UserSC</service-action-class>
+    </event-mapping>
+    <!--Office Hierarchy   -->
+	
+	<!-- Log4j 설정 파일 -->
+    <url-mapping url="SYS_LOG_0010.clt" useFlowHandler="true">    
+        <web-action-class>com.clt.apps.fis.sys.aut.user.event.SYS_LOG_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SYS_LOG_0010.screen"/>
+          <handler-result result="ERROR"   screen="Error.screen"/>
+          <!-- 5.0 버젼 <handler-result result="FAIL"    screen="FailIndex.screen"/>-->
+        </flow-handler>
+    </url-mapping>
+    <!-- Log4j 설정 파일 -->	
+    
+</mappings>

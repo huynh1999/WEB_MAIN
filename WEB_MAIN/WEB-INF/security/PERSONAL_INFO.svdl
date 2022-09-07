@@ -1,0 +1,94 @@
+<?xml version="1.0"?> 
+<ruleset>
+	<name>Personal Info</name>
+	<path>/PERSONAL_INFO</path>
+	<extraHeaderAction>ignore</extraHeaderAction>
+	<extraCookieAction>continue</extraCookieAction>
+	<extraParameterAction>fatal</extraParameterAction>
+
+	<rule>
+		<name>JSESSIONID</name>
+		<type>cookie</type>
+		<regex>^[A-F0-9]{32}$</regex>
+		<malformedAction>continue</malformedAction>
+		<missingAction>ignore</missingAction>
+	</rule>
+ 	
+	<rule>
+		<name>referer</name>
+		<type>header</type>
+		<regex>^http.*$</regex>
+		<malformedAction>continue</malformedAction>
+		<malformedMessage>Session cookie tampering deteted</malformedMessage>
+		<missingAction>ignore</missingAction>
+	</rule>
+	<rule>
+		<name>user_id</name>
+		<type>parameter</type>
+		<regex>^[\w]</regex>
+		<malformedAction>continue</malformedAction>
+		<malformedMessage>Please correct your id</malformedMessage>
+		<missingMessage>You must enter a id</missingMessage>
+		<missingAction>continue</missingAction>
+	</rule>
+ 	
+	<rule>
+		<name>user_pwd</name>
+		<type>parameter</type>
+		<regex>^[0-9]</regex>
+		<malformedAction>continue</malformedAction>
+		<malformedMessage>Please correct your password</malformedMessage>
+		<missingAction>continue</missingAction>
+		<missingMessage>You must enter a password</missingMessage>
+		<hidden>true</hidden>
+	</rule>
+ 	
+    <rule>
+        <name>first_name</name>
+        <type>parameter</type>
+        <regex>^[\w]</regex>
+        <malformedAction>continue</malformedAction>
+        <malformedMessage>Please correct your firstname</malformedMessage>
+        <missingMessage>You must enter a id</missingMessage>
+        <missingAction>continue</missingAction>
+    </rule>
+    
+    <rule>
+        <name>last_name</name>
+        <type>parameter</type>
+        <regex>^[\w]</regex>
+        <malformedAction>continue</malformedAction>
+        <malformedMessage>Please correct your lastname</malformedMessage>
+        <missingMessage>You must enter a id</missingMessage>
+        <missingAction>continue</missingAction>
+    </rule>
+    
+    <rule>
+        <name>birth_day</name>
+        <type>parameter</type>
+        <regex>^[\w]</regex>
+        <malformedAction>continue</malformedAction>
+        <malformedMessage>Please correct your birthday</malformedMessage>
+        <missingMessage>You must enter a id</missingMessage>
+        <missingAction>continue</missingAction>
+    </rule>
+
+    <rule>
+        <name>user_email</name>
+        <type>parameter</type>
+        <regex>^[\w]</regex>
+        <malformedAction>continue</malformedAction>
+        <malformedMessage>Please correct your Email address</malformedMessage>
+        <missingMessage>You must enter a id</missingMessage>
+        <missingAction>continue</missingAction>
+    </rule>
+    <rule>
+        <name>user_phone</name>
+        <type>parameter</type>
+        <regex>^[\w]</regex>
+        <malformedAction>continue</malformedAction>
+        <malformedMessage>Please correct your phone number</malformedMessage>
+        <missingMessage>You must enter a id</missingMessage>
+        <missingAction>continue</missingAction>
+    </rule>
+</ruleset>

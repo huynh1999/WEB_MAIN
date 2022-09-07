@@ -1,0 +1,1397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### CMM관련 프로그램  Start ####  -->
+    
+    <!-- Partner pop 조회   -->
+    <url-mapping url="CMM_POP_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0010GS.clt" screen="CMM_POP_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0010HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <url-mapping url="CMM_POP_0011.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0011.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>  
+    
+    <url-mapping url="CMM_POP_0340.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0340HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0340.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0340GS.clt" screen="CMM_POP_0340GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0340HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.mcm.partner.event.MdmPartnerEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.mcm.partner.MdmPartnerSC</service-action-class>
+    </event-mapping> 
+    
+    <!-- Country List pop 조회   -->
+    <url-mapping url="CMM_POP_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0020GS.clt" screen="CMM_POP_0020GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0020HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <!-- Country List pop 조회   -->
+    <url-mapping url="CMM_POP_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0030GS.clt" screen="CMM_POP_0030GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0030HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.mcm.location.event.MdmLocationEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.mcm.location.MdmLocationSC</service-action-class>
+    </event-mapping>
+    
+    
+    <!-- Currency List pop 조회   -->
+    <url-mapping url="CMM_POP_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.currency.event.CMM_POP_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0040GS.clt" screen="CMM_POP_0040GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.currency.event.CMM_POP_0040HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.currency.event.MdmCurrencyEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.currency.MdmCurrencySC</service-action-class>
+    </event-mapping>
+    
+    <!-- Office Tree pop 조회   -->
+    <url-mapping url="CMM_POP_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.office.event.CMM_POP_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0050.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0050GS.clt" screen="CMM_POP_0050GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.office.event.CMM_POP_0050HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <!-- Office Grid pop 조회   -->
+    <url-mapping url="CMM_POP_0150.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.office.event.CMM_POP_0150HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0150.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0150GS.clt" screen="CMM_POP_0150GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.office.event.CMM_POP_0150HTMLAction</web-action-class>
+    </url-mapping> 
+	  
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.mcm.office.event.MdmOfficeEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.mcm.office.MdmOfficeSC</service-action-class>
+    </event-mapping>
+    
+    <!-- user id List pop 조회   -->
+    <url-mapping url="CMM_POP_0060.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sys.aut.user.event.CMM_POP_0060HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0060.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0060GS.clt" screen="CMM_POP_0060GS.screen" >
+        <web-action-class>com.clt.apps.fis.sys.aut.user.event.CMM_POP_0060HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.sys.aut.user.event.UserEvent</event-class>
+        <service-action-class>com.clt.apps.fis.sys.aut.user.UserSC</service-action-class>
+    </event-mapping>
+    
+    <!-- freight List pop 조회   -->
+    <url-mapping url="CMM_POP_0070.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.CMM_POP_0070HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0070.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0070GS.clt" screen="CMM_POP_0070GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.CMM_POP_0070HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <!-- freight List mapping pop 조회   -->
+    <url-mapping url="CMM_POP_0075.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.CMM_POP_0075HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0075.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0075GS.clt" screen="CMM_POP_0075GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.CMM_POP_0075HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.freight.event.MdmFreightEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.freight.MdmFreightSC</service-action-class>
+    </event-mapping>
+    
+    <!-- container List pop 조회   -->
+    <url-mapping url="CMM_POP_0080.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.container.event.CMM_POP_0080HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0080.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0080GS.clt" screen="CMM_POP_0080GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.container.event.CMM_POP_0080HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.container.event.MdmContainerEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.container.MdmContainerSC</service-action-class>
+    </event-mapping>
+    
+    
+    
+    <!-- Bank Pop Up   -->
+    <url-mapping url="CMM_POP_0090.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.bank.event.CMM_POP_0090HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0090.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Bank Pop Up   -->
+     <url-mapping url="CMM_POP_0090GS.clt" screen="CMM_POP_0090GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.bank.event.CMM_POP_0090HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.mcm.bank.event.MdmBankEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.mcm.bank.MdmBankSC</service-action-class>
+    </event-mapping>
+    
+    
+    
+    <!-- workflow List pop 조회   -->
+    <url-mapping url="CMM_POP_0100.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.workflow.event.CMM_POP_0100HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0100.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0100GS.clt" screen="CMM_POP_0100GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.workflow.event.CMM_POP_0100HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.workflow.event.CmmWorkflowEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.workflow.CmmWorkflowSC</service-action-class>
+    </event-mapping>
+    
+     <!-- commodity List pop 조회   -->
+    <url-mapping url="CMM_POP_0110.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.commodity.event.CMM_POP_0110HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0110.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0110GS.clt" screen="CMM_POP_0110GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.commodity.event.CMM_POP_0110HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.commodity.event.MdmCommodityEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.commodity.MdmCommoditySC</service-action-class>
+    </event-mapping>
+    
+    
+    <!-- warehouse List pop 조회   -->
+    <url-mapping url="CMM_POP_0250.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.warehouse.event.CMM_POP_0250HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0250.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0250GS.clt" screen="CMM_POP_0250GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.warehouse.event.CMM_POP_0250HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.packages.event.MdmPackagesEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.packages.MdmPackagesSC</service-action-class>
+    </event-mapping>
+    
+    <!-- cargo status List pop 조회   -->
+    <url-mapping url="CMM_POP_0130.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.status.event.CMM_POP_0130HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0130.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0130GS.clt" screen="CMM_POP_0130GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.status.event.CMM_POP_0130HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.status.event.MdmStatusEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.status.MdmStatusSC</service-action-class>
+    </event-mapping>
+    
+     <!-- vessel pop 조회   -->
+    <url-mapping url="CMM_POP_0140.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.vessel.event.CMM_POP_0140HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0140.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0140GS.clt" screen="CMM_POP_0140GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.vessel.event.CMM_POP_0140HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.vessel.event.MdmVesselEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.vessel.MdmVesselSC</service-action-class>
+    </event-mapping>
+    
+    <!--  house bl pop search pop   -->   
+    <url-mapping url="CMM_POP_0170.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0170HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0170.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0170GS.clt" screen="CMM_POP_0170GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0170HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--  PO Item pop search pop   -->   
+    <url-mapping url="CMM_POP_0400.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0400HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0400.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0400GS.clt" screen="CMM_POP_0400GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0400HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--  PO pop search pop   -->   
+    <url-mapping url="CMM_POP_0500.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.booking.event.CMM_POP_0500HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0500.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0500GS.clt" screen="CMM_POP_0500GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.booking.event.CMM_POP_0500HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.housebl.event.CmmPopHouseBlEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.housebl.CmmPopHouseBlSC</service-action-class>
+    </event-mapping>
+    
+    <!--  master bl pop search pop   -->   
+    <url-mapping url="CMM_POP_0180.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.masterbl.event.CMM_POP_0180HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0180.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0180GS.clt" screen="CMM_POP_0180GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.masterbl.event.CMM_POP_0180HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.masterbl.event.CmmPopMasterBlEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.masterbl.CmmPopMasterBlSC</service-action-class>
+    </event-mapping>
+    
+    <!--  srno pop search pop   -->   
+    <url-mapping url="CMM_POP_0190.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.srno.event.CMM_POP_0190HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0190.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0190GS.clt" screen="CMM_POP_0190GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.srno.event.CMM_POP_0190HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.srno.event.CmmPopSrNoEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.srno.CmmPopSrNoSC</service-action-class>
+    </event-mapping>
+    
+    <!--  work_order pop search pop   -->   
+    <url-mapping url="CMM_POP_0200.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.workorder.event.CMM_POP_0200HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0200.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0200GS.clt" screen="CMM_POP_0200GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.workorder.event.CMM_POP_0200HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--  work_order pop search pop   -->   
+    <url-mapping url="CMM_POP_0350.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.workorder.event.CMM_POP_0350HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0350.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0350GS.clt" screen="CMM_POP_0350GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.workorder.event.CMM_POP_0350HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.workorder.event.CmmPopWorkOrderEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.workorder.CmmPopWorkOrderSC</service-action-class>
+    </event-mapping>
+    
+    <!--  booking pop search pop   -->   
+    <url-mapping url="CMM_POP_0210.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.booking.event.CMM_POP_0210HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0210.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0210GS.clt" screen="CMM_POP_0210GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.booking.event.CMM_POP_0210HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Carrier booking search popup 2016.11.02	  -->
+    <url-mapping url="CMM_POP_0280.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.booking.event.CMM_POP_0280HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0280.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0280GS.clt" screen="CMM_POP_0280GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.booking.event.CMM_POP_0280HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Carrier booking Reject/Cancel Reason popup 2016.12.14	  -->
+    <url-mapping url="CMM_POP_0290.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.booking.event.CMM_POP_0290HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0290.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.booking.event.CmmPopBookingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.booking.CmmPopBookingSC</service-action-class>
+    </event-mapping>
+
+	
+    <!-- 환률 관련 시작  -->
+    <!-- 재무환율 조회   -->
+    <url-mapping url="CMM_POP_0230.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.exchangemgt.event.CMM_POP_0230HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0230.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- 재무환율 데이터 조회   -->
+    <url-mapping url="CMM_POP_0230GS.clt" screen="CMM_POP_0230GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.exchangemgt.event.CMM_POP_0230HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Invoice 환율 조회   -->
+    <url-mapping url="CMM_POP_0220.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.exchangemgt.event.CMM_POP_0220HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0220.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Invoice 환율 데이터 조회   -->
+    <url-mapping url="CMM_POP_0220GS.clt" screen="CMM_POP_0220GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.exchangemgt.event.CMM_POP_0220HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.exchangemgt.event.PopExchangeEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.exchangemgt.PopExchangeMgtSC</service-action-class>
+    </event-mapping>
+    <!-- 환률 관련 종료  -->
+    
+    <!-- invoice pop search pop   -->   
+    <url-mapping url="CMM_POP_0240.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.inv.event.CMM_POP_0240HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0240.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0240GS.clt" screen="CMM_POP_0240GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.inv.event.CMM_POP_0240HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- bl search pop   -->   
+    <url-mapping url="CMM_POP_0270.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.inv.event.CMM_POP_0270HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0270.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0270GS.clt" screen="CMM_POP_0270GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.inv.event.CMM_POP_0270HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.inv.event.CmmPopInvoiceEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.inv.CmmPopInvoiceSC</service-action-class>
+    </event-mapping>
+    
+    
+    
+    <!-- GL CODE List pop 조회   -->
+    <url-mapping url="CMM_POP_0260.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.CMM_POP_0260HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0260.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0260GS.clt" screen="CMM_POP_0260GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.CMM_POP_0260HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0261.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.CMM_POP_0261HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0261.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0261GS.clt" screen="CMM_POP_0261GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.CMM_POP_0261HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.gl.event.MdmGlEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.gl.MdmGlSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="CMM_POP_0261_NEW.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.CMM_POP_0261_NEWHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0261_NEW.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0261GS_NEW.clt" screen="CMM_POP_0261GS_NEW.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.CMM_POP_0261_NEWHTMLAction</web-action-class>
+    </url-mapping>
+    
+	<url-mapping url="RPT_PRN_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0010HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0010.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0020HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0020.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0030HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0040HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0040.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0050HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0050.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0060.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0060HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0060.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0070.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0070HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0070.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0080.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0080HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0080.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0090.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0090HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0090.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0100.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0100HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0100.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0110.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0110HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0110.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0120.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0120HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0120.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="RPT_PRN_0130.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0130HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0130.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0140.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0140HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0140.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0150.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0150HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0150.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0150GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0150HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0150GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0160.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0160HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0160.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0170.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0170HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0170.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0180.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0180HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0180.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0180GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0180HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0180GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0181GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0180HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0181GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0182GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0180HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0182GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0183GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0180HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0183GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0190.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0190HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0190.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0190GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0190HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0190GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0191GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0190HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0191GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0200.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0200HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0200.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0200GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0200HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0200GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0201GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0200HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0201GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- //#1906 [PATENT] SHIPMENT DETAIL 화면 수정 요청 -->
+    <url-mapping url="RPT_PRN_0202GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0200HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0202GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0210.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0210HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0210.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0210GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0210HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0210GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0211GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0210HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0211GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0212GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0210HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0212GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0230.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0230HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0230.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0240.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0240HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0240.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0241.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0241HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0241.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+        <url-mapping url="RPT_PRN_0242.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0242HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0242.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0250.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0250HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0250.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+            
+    <url-mapping url="RPT_PRN_0260.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0260HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0260.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0260GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0260HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0260GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0261GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0260HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0261GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+        
+    <url-mapping url="bank_draft_01.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.BANK_DRAFTHTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="bank_draft_01.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0221.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0221HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0221.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>    
+        
+    <event-mapping>
+        <event-class>com.clt.apps.fis.rpt.event.RptPrintEvent</event-class>
+        <service-action-class>com.clt.apps.fis.rpt.RptPrintSC</service-action-class>
+    </event-mapping>
+    
+    
+    <url-mapping url="TMP_POP_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.template.event.TMP_POP_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="TMP_POP_0020.screen"/>
+            <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.template.event.TmpPopEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.template.TmpPopSC</service-action-class>
+    </event-mapping>
+       
+
+	<!--  2011.10.17 Kim,Jin-Hyuk STATE POPUP    -->
+	<url-mapping url="CMM_POP_0310.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0310HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0310.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0310GS.clt" screen="CMM_POP_0310GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0310HTMLAction</web-action-class>
+    </url-mapping>   
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.mcm.location.event.MdmLocationEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.mcm.location.MdmLocationSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="RPT_RD_0010.clt" screen="RPT_RD_0010.screen"/>
+    <url-mapping url="RPT_RD_0020.clt" screen="RPT_RD_0020.screen"/>
+	<url-mapping url="RPT_RD_0030.clt" screen="RPT_RD_0030.screen"/>
+    <url-mapping url="RPT_RD_0040.clt" screen="RPT_RD_0040.screen"/>
+    <url-mapping url="RPT_RD_0050.clt" screen="RPT_RD_0050.screen"/>
+    <url-mapping url="RPT_RD_0051.clt" screen="RPT_RD_0051.screen"/>
+    <url-mapping url="RPT_RD_0070.clt" screen="RPT_RD_0070.screen"/>
+
+    <url-mapping url="RPT_FAX_0010.clt" screen="RPT_FAX_0010.screen"/>
+    <url-mapping url="RPT_FAX_0020.clt" screen="RPT_FAX_0020.screen"/>
+    <!-- #27546 [BINEX] Arrival Notice Mail/Fax 전송 시 수신자 설정 -->
+    <url-mapping url="RPT_MAIL_0010.clt" screen="RPT_MAIL_0010.screen"/>
+    
+    <url-mapping url="RPT_FAX_0011.fax" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_FAX_0010HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_FAX_0011.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_FAX_0010GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_FAX_0010HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_FAX_0010GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_FAX_0010_2GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_FAX_0010HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_FAX_0010_2GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RPT_FAX_0020GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_FAX_0020HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_FAX_0020GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <!-- #27546 [BINEX] Arrival Notice Mail/Fax 전송 시 수신자 설정 -->
+    <url-mapping url="RPT_MAIL_0010GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_MAIL_0010HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_MAIL_0010GS.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+
+    <!-- Ocean Import > House B/L > Delivery Order (팝업)   -->
+    <url-mapping url="CMM_POP_0320.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0320HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0320.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>    
+    
+    <!-- B/L Copy (팝업)   -->
+    <url-mapping url="CMM_POP_0330.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0330.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>    
+    
+    <!-- Other > Other Operation > Other Sales List > Delivery Order (팝업)   -->
+    <url-mapping url="CMM_POP_0321.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0321HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0321.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping> 
+    
+    <!-- Other > Other Operation > Other Sales List > Delivery Order (팝업)   -->
+    <url-mapping url="CMM_POP_0322.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0322HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0322.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- insert Master BL from House BL	  -->
+    <url-mapping url="CMM_POP_0450.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0450HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0450.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0450GS.clt" screen="CMM_POP_0450GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0450HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0451.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0451HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0451.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0451GS.clt" screen="CMM_POP_0451GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0451HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0452.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0452HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0452.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0452GS.clt" screen="CMM_POP_0452GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0452HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0453.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0453HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0453.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0453GS.clt" screen="CMM_POP_0453GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0453HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Contact Person pop 조회   -->
+    <url-mapping url="CMM_POP_0360.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0360HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0360.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0360GS.clt" screen="CMM_POP_0360GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0360HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <url-mapping url="RPT_RD_0011.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_RD_0011HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_RD_0011.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    
+    <url-mapping url="RPT_RD_0031.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_RD_0031HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_RD_0031.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Customized Report pop 조회   -->
+    <url-mapping url="CMM_POP_0370.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.CMM_POP_0370HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0370.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+            <handler-result result="EXCEL"   screen="ExcelDownload.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0370GS.clt" screen="CMM_POP_0370GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.CMM_POP_0370HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="RPT_PRN_0220.clt" screen="RPT_PRN_0220.screen"/>
+    
+    <url-mapping url="CMM_POP_0380.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0380HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0380.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0380GS.clt" screen="CMM_POP_0380GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0380HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0390.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0390HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0390.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0390GS.clt" screen="CMM_POP_0390GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0390HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Trade Partner Group List pop 조회  LSY #51932 [ZEN] Trade partner group 컬럼 추가 -->
+    <url-mapping url="CMM_POP_0410.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0410HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0410.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0410GS.clt" screen="CMM_POP_0410GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0410HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <!-- UN Location Code 조회  -->
+    <url-mapping url="CMM_POP_0420.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0420HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0420.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0420GS.clt" screen="CMM_POP_0420GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0420HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <!-- RoleBtnAssignPop 조회   -->
+    <url-mapping url="RoleBtnAssignPop.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleBtnAssignPopHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RoleBtnAssignPop.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+        <!-- RoleBtnAssignPop 조회   -->
+    <url-mapping url="RoleCopyPop.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleCopyPopHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RoleCopyPop.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="RoleBtnAssignPopGS.clt" screen="RoleBtnAssignPopGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleBtnAssignPopHTMLAction</web-action-class>
+    </url-mapping>   
+    
+    <!-- CO Load Entry print   -->    
+    <url-mapping url="RPT_PRN_0022.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0022HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="RPT_PRN_0022.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_MSG_0010.clt" screen="CMM_MSG_0010.screen" >
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_MSG_0010.screen"/>
+          <handler-result result="FAIL"    screen="CMM_MSG_0010.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Wave Order List Selection (S) -->
+    <url-mapping url="WaveOrderSelectPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.warehouse.event.WaveOrderSelectPopHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WaveOrderSelectPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWaveSimpleNewOrderLGS.clt" screen="searchWaveSimpleNewOrderLGS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.warehouse.event.WaveOrderSelectPopHTMLAction</web-action-class>
+    </url-mapping>   
+    <!-- Wave Order List Selection (E) -->
+    
+    <!-- Shipment Split (S) -->
+    <url-mapping url="LPShipSplitWaveSmp.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LPShipSplitWaveSmpHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="LPShipSplitWaveSmp.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="addLPSplitShipWaveSimpleGS.clt" screen="addLPSplitShipWaveSimpleGS.screen" >
+        <web-action-class>com.clt.apps.fis.wms.common.event.LPShipSplitWaveSmpHTMLAction</web-action-class>
+    </url-mapping>  
+    <!-- Shipment Split (E) -->
+    
+    <!-- Deposit/Payment (Automatic Process) -->
+    <url-mapping url="CMM_POP_0430.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0430.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>    
+    
+    <!-- Team List pop 조회   -->
+    <url-mapping url="CMM_POP_0600.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.team.event.CMM_POP_0600HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0600.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0600GS.clt" screen="CMM_POP_0600GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.team.event.CMM_POP_0600HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.team.event.CmmPopTeamEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.team.CmmPopTeamSC</service-action-class>
+    </event-mapping>
+    
+    <!-- booking Copy (팝업)   -->
+    <url-mapping url="CMM_POP_0700.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0700.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>       
+    
+    <!--  consolidation pop search pop   -->   
+    <url-mapping url="CMM_POP_0440.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0440HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0440.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0440GS.clt" screen="CMM_POP_0440GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0440HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0460.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.housebl.event.CMM_POP_0460HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0460.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+        
+    <!--  booking split pop search pop   -->   
+    <url-mapping url="CMM_POP_0510.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.booking.event.CMM_POP_0510HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0510.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0510GS.clt" screen="CMM_POP_0510GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.booking.event.CMM_POP_0510HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- #1307 [Starway/Starcluser] EDI with Hyundai Glovis America (Weight Ratio) -->
+    <url-mapping url="CMM_POP_0800.clt" screen="CMM_POP_0800.screen" >
+    </url-mapping>  
+
+	<!-- #2177 [ACROCARGO] OCEAN IMPORT DISCLAIMER / GUARANTEE OF CHARGES -->
+	<url-mapping url="RPT_PRN_0270.clt" useFlowHandler="true">
+		<web-action-class>com.clt.apps.fis.rpt.event.RPT_PRN_0270HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+			<handler-result result="SUCCESS" screen="RPT_PRN_0270.screen"/>
+			<handler-result result="FAIL"    screen="FailIndex.screen"/>
+		</flow-handler>
+	</url-mapping>
+  
+    <!-- #2504 [PATENT]Debit Note & AP for billing code based invoices --> 
+    <url-mapping url="CMM_POP_0900.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0900HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0900.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>  
+    <url-mapping url="CMM_POP_0900GS.clt" screen="CMM_POP_0900GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.partner.event.CMM_POP_0900HTMLAction</web-action-class>
+    </url-mapping>    
+    
+    <!--  warehouse work_order pop search pop   -->   
+    <url-mapping url="CMM_POP_0470.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.workorder.event.CMM_POP_0470HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="CMM_POP_0470.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CMM_POP_0470GS.clt" screen="CMM_POP_0470GS.screen" >
+        <web-action-class>com.clt.apps.fis.cmm.pop.workorder.event.CMM_POP_0470HTMLAction</web-action-class>
+    </url-mapping>
+  
+  	<!-- Air Import > Master AWB > AIM AWB List > Transfer Request (팝업)   -->
+    <url-mapping url="CMM_POP_0480.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.masterbl.event.CMM_POP_0480HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0480.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Lane code 조회 2018.01.16   -->
+    <url-mapping url="CMM_POP_0490.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0490HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0490.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0490GS.clt" screen="CMM_POP_0490GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.mcm.location.event.CMM_POP_0490HTMLAction</web-action-class>
+    </url-mapping> 
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.mcm.location.event.MdmLocationEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.mcm.location.MdmLocationSC</service-action-class>
+    </event-mapping>    
+    
+    <!-- Report Management Popup  -->
+    <url-mapping url="ReportSetPop.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.report.event.ReportSetPopHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ReportSetPop.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--New GL CODE List pop 조회   -->
+    <url-mapping url="CMM_POP_0260_NW.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.CMM_POP_0260_NWHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_0260_NW.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="CMM_POP_0260_NWGS.clt" screen="CMM_POP_0260_NWGS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.CMM_POP_0260_NWHTMLAction</web-action-class>
+    </url-mapping>
+  
+      <!-- Warehouse >    -->
+    <url-mapping url="CMM_POP_1000.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.pop.wms.event.CMM_POP_1000HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_POP_1000.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>    
+  
+      <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.pop.wms.event.CmmPopWmsEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.pop.wms.CmmPopWmsSC</service-action-class>
+    </event-mapping>
+</mappings>

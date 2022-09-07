@@ -1,0 +1,10 @@
+@charset "utf-8";
+
+/************************ [ IECC - Internet Explorer ONLY ] ************************/
+/* [MAIN] */
+.main_task, .main_notice {height:46%}
+/* Device ~ 1024 */
+@media screen and (max-width:1024px){
+    /* [MAIN] */
+    .main_task, .main_notice_wrap {height:45%}
+}

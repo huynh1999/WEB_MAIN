@@ -1,0 +1,2745 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="cmm.popup">
+
+	<typeAlias alias="WorkOrderPopVO" 	type="com.clt.apps.fis.cmm.pop.workorder.dto.WorkOrderPopVO"/>
+	<typeAlias alias="ConsolVO"       type="com.clt.apps.fis.see.bmd.booking.dto.ConsolidationVO"/>
+	
+	<!-- Trade user id List pop select    -->
+    <select id="selectCMM_POP_0060_LIST" resultClass="com.clt.apps.opusbase.user.dto.UsrVO">
+        SELECT a.usrid,
+               a.eng_usr_nm,
+               a.locl_usr_nm,
+               a.ofc_cd,
+               b.ofc_eng_nm,
+               a.dept_cd,
+               <!-- #6407 [Binex-LA] Volume & Profit Report Issue (#2447) --> 
+    		   c.CD_NM AS team_nm            
+         FROM tb_usr a 
+         INNER JOIN tb_ofc b 
+         ON a.ofc_cd = b.ofc_cd 
+         LEFT OUTER JOIN TB_COM_CD_DTL c 
+         ON a.TEAM_CD = c.CD_VAL AND c.COM_CD = 'C133'
+         WHERE a.usr_tp = 'I'
+         <isNotNull property="USE_YN">
+			<isEqual property="USE_YN" compareValue="Y">
+				  AND a.use_flg='Y'
+			</isEqual>
+			<isEqual property="USE_YN" compareValue="N">
+				  AND a.use_flg='N'
+			</isEqual>
+		</isNotNull>
+		   AND a.delt_flg = 'N'
+           AND b.delt_flg = 'N'
+           AND a.usrid != 'cltmaster'
+		<dynamic prepend="AND">
+			<isNotNull prepend="AND" property="s_user_name">
+				( a.eng_usr_nm LIKE #s_user_name# OR a.locl_usr_nm LIKE #s_user_name#)
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_office_name">
+				b.ofc_eng_nm LIKE #s_office_name#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_team_nm">
+				c.CD_NM LIKE #s_team_nm# AND c.USE_FLG = 'Y'
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- Trade currency List pop select count    -->
+    <select id="selectCMM_POP_0060_CNT" resultClass="Integer">
+        SELECT count(*)
+		FROM   tb_usr a 
+		INNER JOIN tb_ofc b 
+		ON a.ofc_cd = b.ofc_cd 
+		LEFT OUTER JOIN TB_COM_CD_DTL c 
+		ON a.TEAM_CD = c.CD_VAL AND c.COM_CD = 'C133'
+		WHERE  a.usr_tp = 'I'
+		<isNotNull property="USE_YN">
+			<isEqual property="USE_YN" compareValue="Y">
+				  AND a.use_flg='Y'
+			</isEqual>
+			<isEqual property="USE_YN" compareValue="N">
+				  AND a.use_flg='N'
+			</isEqual>
+		</isNotNull>
+		  AND  a.delt_flg = 'N' AND b.delt_flg = 'N'
+		  AND  a.usrid != 'cltmaster'
+		<dynamic prepend="AND">
+			<isNotNull prepend="AND" property="s_user_name">
+				a.eng_usr_nm LIKE #s_user_name#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_office_name">
+				b.ofc_eng_nm  like #s_office_name#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_team_nm">
+				c.CD_NM LIKE #s_team_nm# AND c.USE_FLG = 'Y'
+			</isNotNull>
+		</dynamic>
+	</select>
+    
+    <!-- house bl Popup List select    -->
+    <select id="selectCMM_POP_0170_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.SeeHouseBLVO">
+		SELECT  TOP $topCnt$
+                bl.intg_bl_seq,   bl.bkg_no,       bl.bl_no,    
+                bl.pol_cd,        bl.pol_nod_cd,
+				bl.pod_cd,        bl.pod_nod_cd,   bl.del_cd,      
+		        mbl.bl_no AS mbl_no,            
+		        <!-- ISNULL(BLCK.BL_STS_CD1, BL.BL_STS_CD) AS BL_STS_CD,     stp.cd_nm AS bl_sts_label, -->
+		
+				bl.pol_nm, bl.pod_nm, bl.del_nm,
+				
+				bl.bl_dt_tm,
+		
+                ofc.ofc_eng_nm AS proc_ofcnm,   dpt.cd_nm AS proc_dept_nm,    
+                (SELECT
+                max(X.ENG_USR_NM) 
+            FROM
+                TB_USR X 
+            WHERE
+                X.USR_TP = 'I' 
+                AND X.USRID = bnd.issued_by) AS proc_usrnm,
+                bnd.sls_usr_nm as sls_usr_nm
+        
+          FROM  tb_intg_bl bl
+          JOIN  tb_add_info_bnd bnd
+            ON  bl.intg_bl_seq = bnd.intg_bl_seq  
+		<isNotEmpty property="bnd_clss_cd">
+		   AND  bnd.bnd_clss_cd = #bnd_clss_cd#
+		</isNotEmpty>
+		   AND   bnd.delt_flg = 'N'
+LEFT OUTER JOIN  tb_ofc ofc
+            ON  ofc.ofc_cd = bl.ref_ofc_cd
+<!-- 
+LEFT OUTER JOIN(SELECT INTG_BL_SEQ AS INTG_BL_SEQ1, BL_STS_CD AS BL_STS_CD1 FROM TB_INTG_BL_BLCK) BLCK 
+			ON BL.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1    -->        
+LEFT OUTER JOIN  tb_com_cd_dtl dpt
+            ON  dpt.cd_val = bl.dept_cd    AND  dpt.com_cd = 'C056'  AND  dpt.delt_flg = 'N'
+<!-- 
+		  JOIN  tb_com_cd_dtl stp
+		    ON  stp.cd_val = ISNULL(BLCK.BL_STS_CD1, BL.BL_STS_CD)  AND stp.com_cd = #f_sts_cd_tp# AND stp.delt_flg = 'N'  -->
+LEFT OUTER JOIN  tb_intg_bl_rlt rlt
+            ON  rlt.intg_bl_seq = bl.intg_bl_seq AND rlt.delt_flg = 'N'
+LEFT OUTER JOIN  tb_intg_bl mbl   
+            ON  mbl.intg_bl_seq = rlt.rlt_intg_bl_seq AND mbl.delt_flg = 'N'
+LEFT OUTER JOIN   tb_bl_prnr act
+            ON   bl.intg_bl_seq = act.intg_bl_seq  AND act.bl_trdp_tp_cd = 'S02' AND act.delt_flg = 'N'
+         WHERE  bl.delt_flg    = 'N'
+           AND  bl.biz_clss_cd ='H'
+           AND  bl.air_sea_clss_cd =  #air_sea_clss_cd#        
+           AND  bl.bl_no IS NOT NULL  AND bl.bl_no != ''
+		<isNotNull property="f_dpt_cd">
+			  AND   bl.dept_cd = #f_dpt_cd#
+		</isNotNull>
+		<isNotNull property="f_ofc_cd">
+			  AND   bl.ref_ofc_cd = #f_ofc_cd#
+		</isNotNull>
+        <isNotNull property="f_pic_id">
+              AND   bl.modi_usr_nm  = #f_pic_id#
+        </isNotNull>
+        <isNotEmpty property="opr_usrid">
+			  AND  BND.ISSUED_BY = #opr_usrid#
+		</isNotEmpty>
+		<isNotEmpty property="sls_usrid">
+			  AND  BND.SLS_USRID = #sls_usrid#
+		</isNotEmpty>
+		<isNotEmpty property="or_usrid">
+			  AND  (BND.ISSUED_BY = #or_usrid# or BND.SLS_USRID = #or_usrid#)
+		</isNotEmpty>        
+		<isNotNull property="f_hbl_no">
+			AND bl.bl_no LIKE  '%'+#f_hbl_no#+'%' 
+		</isNotNull>
+		<isNotNull property="f_hbl_tp_cd">
+			AND bl.hbl_tp_cd = #f_hbl_tp_cd#
+		</isNotNull>
+		<isNotNull property="f_act_shpr_nm">
+			AND act.trdp_nm LIKE '%'+#f_act_shpr_nm#+'%' 
+		</isNotNull>	
+		<isNotEmpty property="obrd_strdt">
+			AND (
+			<!-- #2031 [CARGOZONE] OEH COMMERCIAL INVOICE, PACKING LIST ON BOARD 검색 조건 BLANK -->
+			<isEqual property="f_etd_onboard" compareValue="etd">
+			     (bl.air_sea_clss_cd = 'S' AND bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #obrd_strdt# AND #obrd_enddt# ) OR			
+			</isEqual>
+			<isEqual property="f_etd_onboard" compareValue="onboard">
+			     (bl.air_sea_clss_cd = 'S' AND bnd.bnd_clss_cd = 'O' AND bl.obrd_dt_tm BETWEEN #obrd_strdt# AND #obrd_enddt# ) OR
+			</isEqual>
+			     (bl.air_sea_clss_cd = 'A' AND bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #obrd_strdt# AND #obrd_enddt# ) OR
+			     (bnd.bnd_clss_cd = 'I' AND bl.eta_dt_tm BETWEEN #obrd_strdt# AND #obrd_enddt# )
+			    )
+		</isNotEmpty>
+		<isNotEmpty property="etd_strdt">
+			AND (
+			     (bl.air_sea_clss_cd = 'S' AND bnd.bnd_clss_cd = 'O' AND bl.obrd_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# ) OR
+			     (bl.air_sea_clss_cd = 'A' AND bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# ) OR
+			     (bnd.bnd_clss_cd = 'I' AND bl.eta_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# )
+			    )
+		</isNotEmpty>
+		<isNotEmpty property="eta_strdt">
+			AND (
+			     (bl.air_sea_clss_cd = 'S' AND bnd.bnd_clss_cd = 'O' AND bl.obrd_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# ) OR
+			     (bl.air_sea_clss_cd = 'A' AND bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# ) OR
+			     (bnd.bnd_clss_cd = 'I' AND bl.eta_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# )
+			    )
+		</isNotEmpty>
+		<!-- #3051 [IMPEX] after v450, Master POP-UP Search -->
+        ORDER BY bl.post_dt DESC, bl.modi_tms desc
+    </select>
+    
+    <!-- house bl Popup List Count select    -->
+    <select id="selectCMM_POP_0170_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    	 SELECT  count(bl.intg_bl_seq)
+          FROM  tb_intg_bl bl
+          JOIN  tb_add_info_bnd bnd
+            ON  bl.intg_bl_seq = bnd.intg_bl_seq  
+		<isNotEmpty property="bnd_clss_cd">
+		   AND  bnd.bnd_clss_cd = #bnd_clss_cd#
+		</isNotEmpty>
+			AND bnd.delt_flg = 'N'
+LEFT OUTER JOIN  tb_ofc ofc
+            ON  ofc.ofc_cd = bl.ref_ofc_cd
+<!-- 
+LEFT OUTER JOIN(SELECT INTG_BL_SEQ AS INTG_BL_SEQ1, BL_STS_CD AS BL_STS_CD1 FROM TB_INTG_BL_BLCK) BLCK 
+			ON BL.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1  -->         
+LEFT OUTER JOIN tb_com_cd_dtl dpt
+            ON  dpt.cd_val = bl.dept_cd    AND  dpt.com_cd = 'C056'  AND  dpt.delt_flg = 'N'
+<!-- 
+          JOIN  tb_com_cd_dtl stp
+            ON  stp.cd_val = ISNULL(BLCK.BL_STS_CD1, BL.BL_STS_CD)  AND stp.com_cd = #f_sts_cd_tp# AND stp.delt_flg = 'N'  -->
+LEFT OUTER JOIN tb_intg_bl_rlt rlt
+            ON  rlt.intg_bl_seq = bl.intg_bl_seq AND rlt.delt_flg = 'N'
+LEFT OUTER JOIN tb_intg_bl mbl   
+            ON  mbl.intg_bl_seq = rlt.rlt_intg_bl_seq AND mbl.delt_flg = 'N'
+LEFT OUTER JOIN  tb_bl_prnr act
+            ON  bl.intg_bl_seq = act.intg_bl_seq  AND act.bl_trdp_tp_cd = 'S02' AND act.delt_flg = 'N'
+         WHERE  bl.delt_flg    = 'N'
+           AND  bl.biz_clss_cd ='H'
+           AND  bl.air_sea_clss_cd =  #air_sea_clss_cd#        
+           AND  bl.bl_no IS NOT NULL  AND bl.bl_no != ''
+        <isNotNull property="f_dpt_cd">
+              AND   bl.dept_cd = #f_dpt_cd#
+        </isNotNull>
+        <isNotNull property="f_ofc_cd">
+              AND   bl.ref_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+        <isNotNull property="f_pic_id">
+              AND   bl.modi_usr_nm  = #f_pic_id#
+        </isNotNull>
+        <isNotEmpty property="opr_usrid">
+			  AND  BND.ISSUED_BY = #opr_usrid#
+		</isNotEmpty>
+		<isNotEmpty property="sls_usrid">
+			  AND  BND.SLS_USRID = #sls_usrid#
+		</isNotEmpty>
+		<isNotEmpty property="or_usrid">
+			  AND  (BND.ISSUED_BY = #or_usrid# or BND.SLS_USRID = #or_usrid#)
+		</isNotEmpty>        
+        <isNotNull property="f_hbl_no">
+            AND bl.bl_no LIKE  '%'+#f_hbl_no#+'%' 
+        </isNotNull>
+        <isNotNull property="f_hbl_tp_cd">
+            AND bl.hbl_tp_cd = #f_hbl_tp_cd#
+        </isNotNull>
+        <isNotNull property="f_act_shpr_nm">
+            AND act.trdp_nm LIKE '%'+#f_act_shpr_nm#+'%' 
+        </isNotNull>    
+		<isNotEmpty property="obrd_strdt">
+			AND (
+			<!-- #2031 [CARGOZONE] OEH COMMERCIAL INVOICE, PACKING LIST ON BOARD 검색 조건 BLANK -->
+			<isEqual property="f_etd_onboard" compareValue="etd">
+			     (bl.air_sea_clss_cd = 'S' AND bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #obrd_strdt# AND #obrd_enddt# ) OR			
+			</isEqual>
+			<isEqual property="f_etd_onboard" compareValue="onboard">
+			     (bl.air_sea_clss_cd = 'S' AND bnd.bnd_clss_cd = 'O' AND bl.obrd_dt_tm BETWEEN #obrd_strdt# AND #obrd_enddt# ) OR
+			</isEqual>			
+			     (bl.air_sea_clss_cd = 'A' AND bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #obrd_strdt# AND #obrd_enddt# ) OR
+			     (bnd.bnd_clss_cd = 'I' AND bl.eta_dt_tm BETWEEN #obrd_strdt# AND #obrd_enddt# )
+			    )
+		</isNotEmpty>
+		<isNotEmpty property="etd_strdt">
+			AND (
+			     (bl.air_sea_clss_cd = 'S' AND bnd.bnd_clss_cd = 'O' AND bl.obrd_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# ) OR
+			     (bl.air_sea_clss_cd = 'A' AND bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# ) OR
+			     (bnd.bnd_clss_cd = 'I' AND bl.eta_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# )
+			    )
+		</isNotEmpty>
+		<isNotEmpty property="eta_strdt">
+			AND (
+			     (bl.air_sea_clss_cd = 'S' AND bnd.bnd_clss_cd = 'O' AND bl.obrd_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# ) OR
+			     (bl.air_sea_clss_cd = 'A' AND bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# ) OR
+			     (bnd.bnd_clss_cd = 'I' AND bl.eta_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# )
+			    )
+		</isNotEmpty>
+    </select>
+    
+    <!-- master bl Popup List select    -->
+    <select id="selectCMM_POP_0180_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.SeeHouseBLVO">
+		SELECT  TOP $topCnt$
+			    bl.intg_bl_seq,	       bl.bl_no mbl_no,			bl.ref_no,  	bl.ref_ofc_cd,
+			    bl.pol_cd,		       bl.pol_nod_cd,			bl.sub_bl_no,
+		        bl.pod_cd,             bl.pod_nod_cd,
+		
+				bl.pol_nm, bl.pod_nm, bl.del_nm,
+		
+		        substring(bl.etd_dt_tm, 1, 8) AS etd_dt_tm,
+				substring(bl.eta_dt_tm, 1, 8) AS eta_dt_tm,
+		        
+		        substring(bl.etd_dt_tm, 9, 12) AS etd_tm,
+				substring(bl.eta_dt_tm, 9, 12) AS eta_tm,
+		
+		        lnr.bl_trdp_tp_cd,     lnr.trdp_cd AS lnr_trdp_cd,               lnr.trdp_nm AS lnr_trdp_nm,                    
+				
+				shpr.trdp_cd AS shpr_trdp_cd,
+				shpr.trdp_nm AS shpr_trdp_nm,
+				shpr.trdp_addr AS shpr_trdp_addr,
+				
+				cnee.trdp_cd AS cnee_trdp_cd,
+				cnee.trdp_nm AS cnee_trdp_nm,
+				cnee.trdp_addr AS cnee_trdp_addr,
+				
+				prnr2.trdp_cd AS prnr_trdp_cd2,
+				prnr2.trdp_nm AS prnr_trdp_nm2,
+				prnr2.trdp_addr AS prnr_trdp_addr2,
+			
+		        ofc.ofc_eng_nm AS proc_ofcnm,   dpt.cd_nm AS proc_dept_nm,  
+		        (SELECT
+                max(X.ENG_USR_NM)
+            FROM
+                TB_USR X 
+            WHERE
+                X.USR_TP = 'I' 
+                AND X.USRID = bnd.issued_by) AS proc_usrnm,
+                bnd.sls_usr_nm as sls_usr_nm,
+                bnd.sls_usrid as sls_usrid,
+		        bl.trnk_vsl_nm, bl.trnk_voy,
+		        bl.pol_nm,
+		        bl.pod_nm,
+		        
+		        bl.it_no,
+				bl.te_dt_tm,
+				bl.it_loc,
+				bl.cfs_trdp_cd,
+				(SELECT x.eng_nm FROM tb_trdp x WHERE x.trdp_cd = bl.cfs_trdp_cd) AS cfs_trdp_nm,
+		        
+		        bl.cy_trdp_cd,
+				(SELECT x.eng_nm FROM tb_trdp x WHERE x.trdp_cd = bl.cy_trdp_cd) AS cy_trdp_nm,
+				
+		        bl.lnr_bkg_no,
+		        bl.por_cd, 
+		        bl.del_cd,
+		        bl.por_nm,
+		        bl.del_nm,
+		        bl.shp_mod_cd,
+		        bl.flt_no,
+		        
+		        bl.fm_svc_term_cd,
+		        bl.to_svc_term_cd,
+		        
+		        bl.ts1_port_cd,
+		        bl.ts1_flt_no,
+		        bl.ts2_port_cd,
+		        bl.ts2_flt_no,
+		        bl.ts3_port_cd,
+		        bl.ts3_flt_no,
+		        
+		        bl.frt_loc_cd,
+		        (SELECT x.eng_nm FROM tb_trdp x WHERE x.trdp_cd = bl.frt_loc_cd) AS frt_loc_nm,
+		        
+		        bl.f_eta_dt_tm,
+		        substring(bl.post_dt, 1, 8) AS post_dt
+		        
+				<!-- 
+				, ISNULL(bl.hbl_tp_cd, '') 	hbl_tp_cd
+				ISNULL('', '')			mrn
+				ISNULL(ntfy.trdp_cd, '') 	ntfy_trdp_cd,
+				ISNULL(ntfy.trdp_nm, '') 	ntfy_trdp_nm,
+				ISNULL(ntfy.trdp_addr, '') 	ntfy_trdp_addr,			
+				
+				ISNULL(bl.fnl_dest_loc_cd, '') 	fnl_dest_loc_cd, 
+				ISNULL(bl.fnl_dest_loc_nm, '') 	fnl_dest_loc_nm,
+				ISNULL(bl.profit_share, '') 	profit_share,
+				
+				ISNULL(convert(varchar,bl.pck_qty), '') 	pck_qty,
+				ISNULL(convert(varchar,bl.pck_ut_cd), '') 	pck_ut_cd,
+				ISNULL(convert(varchar,bl.grs_wgt), '') 	grs_wgt,
+				ISNULL(convert(varchar,bl.grs_wgt1), '') 	grs_wgt1,
+				ISNULL(convert(varchar,bl.meas), '') 		meas,
+				ISNULL(convert(varchar,bl.meas1), '') 		meas1,
+				ISNULL(CONVERT(varchar(10),convert(DATETIME, bl.bl_iss_dt), 110), '') bl_iss_dt,
+				ISNULL(prnr.trdp_cd, '') 	prnr_trdp_cd,
+				ISNULL(prnr.trdp_nm, '') 	prnr_trdp_nm,
+				ISNULL(prnr.trdp_addr, '') prnr_trdp_addr					
+				 -->
+				, ISNULL(bl.hbl_tp_cd, '')			hbl_tp_cd,
+				ISNULL(bnd.mrn_no, '')			mrn_no,
+				ISNULL(ntfy.trdp_cd, '') 	ntfy_trdp_cd,
+				ISNULL(ntfy.trdp_nm, '') 	ntfy_trdp_nm,
+				ISNULL(ntfy.trdp_addr, '') 	ntfy_trdp_addr,			
+				
+				ISNULL(bl.fnl_dest_loc_cd, '') 	fnl_dest_loc_cd, 
+				ISNULL(bl.fnl_dest_loc_nm, '') 	fnl_dest_loc_nm,
+				ISNULL(bl.profit_share, '') 	profit_share,
+				
+				ISNULL(convert(varchar,bl.pck_qty), '') 	pck_qty,
+				ISNULL(convert(varchar,bl.pck_ut_cd), '') 	pck_ut_cd,
+				ISNULL(convert(varchar,bl.grs_wgt), '') 	grs_wgt,
+				ISNULL(convert(varchar,bl.grs_wgt1), '') 	grs_wgt1,
+				ISNULL(convert(varchar,bl.meas), '') 		meas,
+				ISNULL(convert(varchar,bl.meas1), '') 		meas1,
+				ISNULL(CONVERT(varchar(10),convert(DATETIME, bl.bl_iss_dt), 110), '') bl_iss_dt,
+				ISNULL(prnr.trdp_cd, '') 	prnr_trdp_cd,
+				ISNULL(prnr.trdp_nm, '') 	prnr_trdp_nm,
+				ISNULL(prnr.trdp_addr, '') 	prnr_trdp_addr,
+				
+				ISNULL(bl.frt_term_cd, '') 		frt_term_cd,
+				ISNULL(bl.express_tp_cd, '') 	express_tp_cd,
+				ISNULL(bl.rlsd_flg, '') 		rlsd_flg,
+				ISNULL(CONVERT(varchar(10),convert(DATETIME, bl.rlsd_dt_tm), 110), '') 	rlsd_dt_tm	,
+				
+				ISNULL(CONVERT(varchar(10),convert(DATETIME, bl.bl_dt_tm), 110), '') 	bl_dt_tm	,
+				ISNULL(bl.disp_ntfy_flg, '') 	disp_ntfy_flg,
+				ISNULL(bl.cargo_tp_cd, '') 		cargo_tp_cd,
+
+				ISNULL(bl.rep_cmdt_cd, '') 		rep_cmdt_cd,
+				ISNULL(bl.rep_cmdt_nm, '') 		rep_cmdt_nm,	
+
+				ISNULL(convert(varchar,bl.grs_wgt), '') 	agent_grs_wgt,
+				ISNULL(convert(varchar,bl.grs_wgt1), '') 	agent_grs_wgt1,			
+				
+				ISNULL(convert(varchar,bl.chg_wgt), '') 	agent_chg_wgt,
+				ISNULL(convert(varchar,bl.chg_wgt1), '') 	agent_chg_wgt1,					
+				ISNULL(convert(varchar,bl.chg_wgt), '') 	chg_wgt,
+				ISNULL(convert(varchar,bl.chg_wgt1), '') 	chg_wgt1,					
+
+				ISNULL(convert(varchar,bl.vol_wgt), '') 	vol_wgt,
+				ISNULL(convert(varchar,bl.vol_meas), '') 	vol_meas,	
+				ISNULL(convert(varchar,bl.vol_meas), '') 	h_vol_meas,	
+				
+			
+				ISNULL(bl.size_ut_cd, '') 			size_ut_cd,
+				ISNULL(bl.decl_cstms_val, '') 		decl_cstms_val,
+				ISNULL(bl.rt_clss_cd, '') 			rt_clss_cd,
+				
+				<!--#2895  -->
+				CASE WHEN bl.biz_clss_cd ='M' and bnd.bnd_clss_cd='I'
+					THEN ISNULL(bl.imp_ref_no, '')
+					ELSE ISNULL(bl.prnr_ref_no,'')
+				END	prnr_ref_no,
+					
+
+					
+				ISNULL(bl.curr_cd, '') 			curr_cd
+				,bl.ccn_no	
+				,bl.mnf_fr_loc	
+				,bl.mnf_to_loc	
+				,bl.etd_por_tm
+				,bnd.fst_to_cd
+				,bnd.fst_to_nm
+				,ISNULL(iss.trdp_cd, '') 	iss_trdp_cd
+				,ISNULL(iss.trdp_nm, '') 	iss_trdp_nm
+				,ISNULL(iss.trdp_addr, '') 	iss_trdp_addr
+				<!-- #1074 [Star Cluser ATL/MIA] V440 AIH AWB Etnry, ETA of FPOE/First Port Of Entry to sync when Filing # is selected -->
+				,bl.eta_fpoe_tm     as eta_fpoe_tm
+				,bl.first_port_cd   as first_port_cd
+				,bnd.first_port_nm  as first_port_nm
+				,ISNULL(agent.trdp_cd, '') 		agent_trdp_cd
+				,ISNULL(agent.trdp_nm, '') 		agent_trdp_nm
+				,ISNULL(agent.trdp_addr, '') 	agent_trdp_addr
+				,bnd.ctrb_ofc_cd    as ctrb_ofc_cd
+				,bnd.ctrb_ratio_yn  as ctrb_ratio_yn
+				,bnd.ctrb_mgn       as ctrb_mgn
+				,bnd.ctrb_dept_cd   as ctrb_dept_cd
+				,ISNULL(bl.fnl_dest_loc_cd, '') as fnl_dest_loc_cd 
+				,ISNULL(bl.fnl_dest_loc_nm, '') as fnl_dest_loc_nm
+				,ISNULL(case when bl.sto_start_dt = '' then '' else ISNULL(CONVERT(varchar(10),convert(DATETIME,bl.sto_start_dt),110),'') end, '') as sto_start_dt
+				<!-- #3188 [GENESIS] HBL GROSS WEIGHT NOT UPDATING -->
+				,ISNULL(BL.MK_TXT, '') as mk_txt
+				,ISNULL(BL.DESC_TXT, '') as desc_txt
+				<!-- #3604 [JTC]OEH B/L Type 별 Original B/L 수 세팅 문제 -->
+				,(select CITY_NM from tb_trdp where trdp_cd = (bl.ref_ofc_cd)+'MAINCMP') AS iss_loc_nm
+				<!-- OFVFOUR-7976: [MATRIX] ADDING CS PIC ON ALL B/L ENTRY AND TRADE PARTNER ENTRY SCREEN -->
+				,bnd.cs_usr_nm as cs_usr_nm
+				,bnd.cs_usrid as cs_usrid
+		  FROM  tb_intg_bl bl
+		  JOIN  tb_add_info_bnd bnd
+		    ON  bl.intg_bl_seq = bnd.intg_bl_seq
+		    
+		  JOIN  tb_ofc ofc
+	        ON  ofc.ofc_cd = bl.ref_ofc_cd AND ofc.use_flg = 'Y' AND   ofc.delt_flg = 'N'
+		
+LEFT OUTER JOIN  tb_com_cd_dtl dpt
+            ON  dpt.cd_val = bl.dept_cd    AND  dpt.com_cd = 'C056'  AND  dpt.delt_flg = 'N'
+        
+LEFT OUTER JOIN tb_bl_prnr lnr
+		    ON  bl.intg_bl_seq = lnr.intg_bl_seq AND  lnr.bl_trdp_tp_cd = 'L01'  AND lnr.delt_flg = 'N'
+		 
+LEFT OUTER JOIN  tb_bl_prnr shpr
+            ON  bl.intg_bl_seq = shpr.intg_bl_seq  AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'
+
+LEFT OUTER JOIN  tb_bl_prnr cnee
+            ON  bl.intg_bl_seq = cnee.intg_bl_seq  AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+
+LEFT OUTER JOIN  tb_bl_prnr prnr2
+            ON  bl.intg_bl_seq = prnr2.intg_bl_seq  AND prnr2.bl_trdp_tp_cd = 'P03' AND prnr2.delt_flg = 'N'
+            
+			 <!-- jsjang 2013.7.10 요구사항 #16112 (DIRECT B/L 인 경우 HBL 에 MBL 정보 COPY)  자동연계요건 Start -->
+LEFT OUTER JOIN tb_bl_prnr ntfy 
+			ON bl.intg_bl_seq = ntfy.intg_bl_seq AND ntfy.bl_trdp_tp_cd = 'N01' AND ntfy.delt_flg = 'N'	
+LEFT OUTER JOIN tb_bl_prnr prnr 
+			 ON bl.intg_bl_seq = prnr.intg_bl_seq AND prnr.bl_trdp_tp_cd = 'P01' AND prnr.delt_flg = 'N'			
+			 <!-- jsjang 2013.7.10 요구사항 #16112 (DIRECT B/L 인 경우 HBL 에 MBL 정보 COPY)  자동연계요건 End -->            
+LEFT OUTER JOIN tb_bl_prnr iss
+             ON bl.intg_bl_seq = iss.intg_bl_seq  AND iss.bl_trdp_tp_cd = 'I01' AND iss.delt_flg = 'N' 	
+LEFT OUTER JOIN tb_bl_prnr agent
+             ON bl.intg_bl_seq = agent.intg_bl_seq  AND agent.bl_trdp_tp_cd = 'A01' AND agent.delt_flg = 'N'
+              	             		
+		 WHERE  bl.biz_clss_cd ='M' AND  bl.delt_flg = 'N'  
+           <!-- AND  bl.bl_no is not null   -->
+		   AND  bl.air_sea_clss_cd = #air_sea_clss_cd#
+		   
+		<isNotEmpty property="bnd_clss_cd">
+		   AND  bnd.bnd_clss_cd = #bnd_clss_cd#
+		</isNotEmpty>
+        <isNotNull property="f_dpt_cd">
+              AND   bl.dept_cd = #f_dpt_cd#
+        </isNotNull>
+        <isNotNull property="f_ofc_cd">
+              AND   bl.ref_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+        <isNotNull property="f_pic_id">
+              AND   bl.modi_usr_nm  like '%' + #f_pic_id# + '%'
+        </isNotNull>
+        <isNotEmpty property="opr_usrid">
+			  AND  BND.ISSUED_BY = #opr_usrid#
+		</isNotEmpty>
+		<isNotEmpty property="sls_usrid">
+			  AND  BND.SLS_USRID = #sls_usrid#
+		</isNotEmpty>
+		<isNotEmpty property="or_usrid">
+			  AND  (BND.ISSUED_BY = #or_usrid# or BND.SLS_USRID = #or_usrid#)
+		</isNotEmpty>
+		<isNotNull property="f_mbl_no">
+			AND bl.bl_no LIKE '%'+#f_mbl_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_sr_no">
+			AND bl.sr_no LIKE '%'+#f_sr_no#+'%'
+		</isNotNull>
+        <isNotNull property="etd_strdt">
+        	<isNotEmpty property="etd_strdt">
+			AND (
+			     (bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# ) OR
+			     (bnd.bnd_clss_cd = 'I' AND bl.eta_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# )
+			    )
+			</isNotEmpty>
+        </isNotNull>
+        <isNotNull property="eta_strdt">
+        	<isNotEmpty property="eta_strdt">
+			AND (
+			     (bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# ) OR
+			     (bnd.bnd_clss_cd = 'I' AND bl.eta_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# )
+			    )
+			</isNotEmpty>
+        </isNotNull>
+        <isNotNull property="f_shpr_nm">
+            AND shpr.trdp_nm LIKE '%'+#f_shpr_nm#+'%' 
+        </isNotNull>  
+        <!-- #342 - [CLA] VOLUME & PROFIT REPORT IMPROVEMENTS - DT.170913 -->
+        <isNotNull property="f_cnee_nm">
+            AND cnee.trdp_nm LIKE '%'+#f_cnee_nm#+'%' 
+        </isNotNull>  
+        <isNotNull property="f_ref_no">
+            AND bl.ref_no LIKE '%'+#f_ref_no#+'%' 
+        </isNotNull>
+        <isNotNull property="f_lnr_bkg_no">
+            AND bl.lnr_bkg_no LIKE '%'+#f_lnr_bkg_no#+'%' 
+        </isNotNull>
+        <!-- #3051 [IMPEX] after v450, Master POP-UP Search -->
+		<!-- ORDER BY bl.intg_bl_seq DESC -->
+		ORDER BY bl.post_dt desc, bl.modi_tms desc
+    </select>
+    
+    <!-- master bl Popup List Count select    -->
+    <select id="selectCMM_POP_0180_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT  count(bl.intg_bl_seq) 
+          FROM  tb_intg_bl bl
+          JOIN  tb_add_info_bnd bnd
+            ON  bl.intg_bl_seq = bnd.intg_bl_seq
+            
+          JOIN  tb_ofc ofc
+            ON  ofc.ofc_cd = bl.ref_ofc_cd AND ofc.use_flg = 'Y' AND   ofc.delt_flg = 'N'
+        
+LEFT OUTER JOIN  tb_com_cd_dtl dpt
+            ON  dpt.cd_val = bl.dept_cd    AND  dpt.com_cd = 'C056'  AND  dpt.delt_flg = 'N'
+        
+LEFT OUTER JOIN tb_bl_prnr lnr
+            ON  bl.intg_bl_seq = lnr.intg_bl_seq AND  lnr.bl_trdp_tp_cd = 'L01'  AND lnr.delt_flg = 'N'
+         
+LEFT OUTER JOIN  tb_bl_prnr shpr
+            ON  bl.intg_bl_seq = shpr.intg_bl_seq  AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'
+            <!-- #342 - [CLA] VOLUME & PROFIT REPORT IMPROVEMENTS - DT.170913 -->
+LEFT OUTER JOIN  tb_bl_prnr cnee
+            ON  bl.intg_bl_seq = cnee.intg_bl_seq  AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+            
+			 <!-- jsjang 2013.7.10 요구사항 #16112 (DIRECT B/L 인 경우 HBL 에 MBL 정보 COPY)  자동연계요건 Start -->
+LEFT OUTER JOIN tb_bl_prnr ntfy 
+			ON bl.intg_bl_seq = ntfy.intg_bl_seq AND ntfy.bl_trdp_tp_cd = 'N01' AND ntfy.delt_flg = 'N'	
+LEFT OUTER JOIN tb_bl_prnr prnr 
+			 ON bl.intg_bl_seq = prnr.intg_bl_seq AND prnr.bl_trdp_tp_cd = 'P01' AND prnr.delt_flg = 'N'			
+			 <!-- jsjang 2013.7.10 요구사항 #16112 (DIRECT B/L 인 경우 HBL 에 MBL 정보 COPY)  자동연계요건 End -->             
+        
+         WHERE  bl.biz_clss_cd ='M' AND  bl.delt_flg = 'N'  
+           <!-- AND  bl.bl_no is not null   -->
+           AND  bl.air_sea_clss_cd = #air_sea_clss_cd#
+		<isNotEmpty property="bnd_clss_cd">
+		   AND  bnd.bnd_clss_cd = #bnd_clss_cd#
+		</isNotEmpty>
+        <isNotNull property="f_dpt_cd">
+              AND   bl.dept_cd = #f_dpt_cd#
+        </isNotNull>
+        <isNotNull property="f_ofc_cd">
+              AND   bl.ref_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+        <isNotNull property="f_pic_id">
+              AND   bl.modi_usr_nm  like '%' + #f_pic_id# + '%'
+        </isNotNull>
+        <isNotEmpty property="opr_usrid">
+			  AND  BND.ISSUED_BY = #opr_usrid#
+		</isNotEmpty>
+		<isNotEmpty property="sls_usrid">
+			  AND  BND.SLS_USRID = #sls_usrid#
+		</isNotEmpty>
+		<isNotEmpty property="or_usrid">
+			  AND  (BND.ISSUED_BY = #or_usrid# or BND.SLS_USRID = #or_usrid#)
+		</isNotEmpty>
+        <isNotNull property="f_mbl_no">
+            AND bl.bl_no LIKE '%'+#f_mbl_no#+'%'
+        </isNotNull>
+        <isNotNull property="f_sr_no">
+            AND bl.sr_no LIKE '%'+#f_sr_no#+'%'
+        </isNotNull>
+
+        <isNotNull property="etd_strdt">
+        	<isNotEmpty property="etd_strdt">
+			AND (
+			     (bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# ) OR
+			     (bnd.bnd_clss_cd = 'I' AND bl.eta_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# )
+			    )
+			</isNotEmpty>
+        </isNotNull>
+        <isNotNull property="eta_strdt">
+        	<isNotEmpty property="eta_strdt">
+			AND (
+			     (bnd.bnd_clss_cd = 'O' AND bl.etd_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# ) OR
+			     (bnd.bnd_clss_cd = 'I' AND bl.eta_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# )
+			    )
+			</isNotEmpty>
+        </isNotNull>
+
+        <isNotNull property="f_shpr_nm">
+            AND shpr.trdp_nm LIKE '%'+#f_shpr_nm#+'%' 
+        </isNotNull>    
+         <!-- #342 - [CLA] VOLUME & PROFIT REPORT IMPROVEMENTS - DT.170913 -->
+        <isNotNull property="f_cnee_nm">
+            AND cnee.trdp_nm LIKE '%'+#f_cnee_nm#+'%' 
+        </isNotNull> 
+        <isNotNull property="f_ref_no">
+            AND bl.ref_no LIKE '%'+#f_ref_no#+'%' 
+        </isNotNull>
+        <isNotNull property="f_lnr_bkg_no">
+            AND bl.lnr_bkg_no LIKE '%'+#f_lnr_bkg_no#+'%' 
+        </isNotNull>
+    </select>
+    
+    <!-- srno Popup List select    -->
+    <select id="selectCMM_POP_0190_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.shippingreq.dto.ShippingReqVO">
+        SELECT  TOP $topCnt$ 
+                mbl.intg_bl_seq,   mbl.bl_no,          mbl.sr_no,        
+                mbl.etd_dt_tm,     mbl.eta_dt_tm,
+        
+                mbl.pol_cd,        mbl.pol_nm,        mbl.pol_nod_cd,
+                mbl.pod_cd,        mbl.pod_nm,        mbl.pod_nod_cd,     
+        
+		        ofc.ofc_eng_nm  AS proc_ofcnm,
+                mbl.modi_usr_nm AS proc_usrnm,       dpt.cd_nm AS proc_dept_nm,
+        
+                mbl.trnk_vsl_nm,                    mbl.trnk_voy,
+                lnr.trdp_cd  AS liner_trdp_cd,      lnr.trdp_nm  liner_trdp_nm
+        
+          FROM  tb_intg_bl mbl
+          JOIN  tb_add_info_bnd bnd 
+            ON  mbl.intg_bl_seq = bnd.intg_bl_seq  
+        
+          JOIN  tb_ofc ofc
+            ON  ofc.ofc_cd = bnd.rgst_ofc_cd
+
+LEFT OUTER JOIN  tb_com_cd_dtl dpt
+            ON  dpt.cd_val = mbl.dept_cd  AND  dpt.com_cd = 'C056'  AND  dpt.delt_flg = 'N'
+        
+LEFT OUTER JOIN tb_bl_prnr lnr
+            ON  mbl.intg_bl_seq = lnr.intg_bl_seq     
+           AND  bl_trdp_tp_cd = 'L01'       AND   bnd.delt_flg = 'N'          
+            
+         WHERE  mbl.delt_flg = 'N'            
+           AND  mbl.biz_clss_cd = 'M'       AND   mbl.air_sea_clss_cd = #air_sea_clss_cd#
+           AND  bnd.bnd_clss_cd = #bnd_clss_cd#  
+        <isNotNull property="f_dpt_cd">
+              AND   mbl.dept_cd = #f_dpt_cd#
+        </isNotNull>
+        <isNotNull property="f_ofc_cd">
+              AND   mbl.modi_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+        <isNotNull property="f_pic_id">
+              AND   mbl.modi_usrid  = #f_pic_id#
+        </isNotNull>
+        <isNotNull property="f_sr_no">
+              AND  mbl.sr_no LIKE '%'+#f_sr_no#+'%'
+        </isNotNull>        
+        <isNotNull property="f_mbl_no">
+              AND  mbl.bl_no LIKE '%'+#f_mbl_no#+'%'
+        </isNotNull>      
+        <isNotNull property="f_lnr_bkg_no">
+              AND  mbl.lnr_bkg_no LIKE '%'+#f_lnr_bkg_no#+'%'
+        </isNotNull>		
+        <isNotNull property="f_lnr_nm">
+              AND  lnr.trdp_nm LIKE '%'+#f_lnr_nm#+'%'
+        </isNotNull>            
+        <isNotNull property="etd_strdt">
+              AND  mbl.etd_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# 
+        </isNotNull>
+        ORDER BY mbl.intg_bl_seq DESC
+    </select>
+    
+    <!-- srno Popup List Count select    -->
+    <select id="selectCMM_POP_0190_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    	SELECT  count(mbl.intg_bl_seq)
+          FROM  tb_intg_bl mbl
+          JOIN  tb_add_info_bnd bnd 
+            ON  mbl.intg_bl_seq = bnd.intg_bl_seq  
+        
+        JOIN  tb_ofc ofc
+            ON  ofc.ofc_cd = bnd.rgst_ofc_cd
+		
+LEFT OUTER JOIN  tb_com_cd_dtl dpt
+            ON  dpt.cd_val = mbl.dept_cd  AND  dpt.com_cd = 'C056'  AND  dpt.delt_flg = 'N'
+        
+LEFT OUTER JOIN tb_bl_prnr lnr
+            ON  mbl.intg_bl_seq = lnr.intg_bl_seq     
+           AND  bl_trdp_tp_cd = 'L01'       AND   bnd.delt_flg = 'N'          
+            
+         WHERE  mbl.delt_flg = 'N'            
+           AND  mbl.biz_clss_cd = 'M'       AND   mbl.air_sea_clss_cd = #air_sea_clss_cd#
+           AND  bnd.bnd_clss_cd = #bnd_clss_cd#  
+        <isNotNull property="f_dpt_cd">
+              AND   mbl.dept_cd = #f_dpt_cd#
+        </isNotNull>
+        <isNotNull property="f_ofc_cd">
+              AND   mbl.modi_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+        <isNotNull property="f_pic_id">
+              AND   mbl.modi_usrid  = #f_pic_id#
+        </isNotNull>
+        <isNotNull property="f_sr_no">
+              AND  mbl.sr_no LIKE '%'+#f_sr_no#+'%'
+        </isNotNull>        
+        <isNotNull property="f_mbl_no">
+              AND  mbl.bl_no LIKE '%'+#f_mbl_no#+'%'
+        </isNotNull>      
+       <isNotNull property="f_lnr_bkg_no">
+              AND  mbl.lnr_bkg_no LIKE '%'+#f_lnr_bkg_no#+'%'
+        </isNotNull>        
+        <isNotNull property="f_lnr_nm">
+              AND  lnr.trdp_nm LIKE '%'+#f_lnr_nm#+'%'
+        </isNotNull>            
+        <isNotNull property="etd_strdt">
+              AND  mbl.etd_dt_tm BETWEEN #etd_strdt# AND #etd_enddt# 
+        </isNotNull>
+    </select>
+    
+    <!-- work order Popup List select    -->
+    <select id="selectCMM_POP_0200_LIST" parameterClass="java.util.HashMap" resultClass="WorkOrderPopVO">
+       /** CmmPopUpSQL > selectCMM_POP_0200_LIST **/
+		SELECT TOP $topCnt$ 
+			   a.intg_bl_seq,	 
+			   s.oth_seq,
+		       case when a.intg_bl_seq is not null then a.ref_no 
+		            else s.ref_no 
+		       end as ref_no,   
+		       case when a.intg_bl_seq is not null then (SELECT bl.bl_no FROM tb_intg_bl bl WHERE bl.intg_bl_seq = a.intg_bl_seq AND bl.biz_clss_cd = 'M'  AND bl.DELT_FLG = 'N' ) 
+		            else s.mbl_no 
+		       end as master_bl_no,   		
+		       case when a.intg_bl_seq is not null then (SELECT bl.bl_no FROM tb_intg_bl bl WHERE bl.intg_bl_seq = a.intg_bl_seq AND bl.biz_clss_cd = 'H'  AND bl.DELT_FLG = 'N' ) 
+		            else s.hbl_no 
+		       end as house_bl_no,   		       
+		        
+			   <!-- CASE WHEN LEN(a.etd_dt_tm) = 0 THEN ''
+				   ELSE SUBSTRING(a.etd_dt_tm, 5, 2)+'-'+ SUBSTRING(a.etd_dt_tm, 7,2)+'-'+ SUBSTRING(a.etd_dt_tm, 1, 4) 
+			   END AS etd_dt_tm,
+			   CASE WHEN LEN(a.eta_dt_tm) = 0  THEN '' 
+				    ELSE SUBSTRING(a.eta_dt_tm, 5, 2)+'-'+ SUBSTRING(a.eta_dt_tm, 7, 2) +'-'+SUBSTRING(a.eta_dt_tm, 1,4) 
+			   END AS eta_dt_tm, -->	
+		        CASE 
+					WHEN ISNULL(a.etd_dt_tm,'') !='' THEN a.etd_dt_tm
+					WHEN ISNULL(bkg.ETD_DT_TM,'') !='' then bkg.ETD_DT_TM
+				END    AS etd_dt_tm ,
+		        
+		        CASE
+					WHEN ISNULL(a.eta_dt_tm,'') != '' THEN a.eta_dt_tm
+					WHEN ISNULL(BKG.eta_dt_tm,'') != '' THEN BKG.eta_dt_tm
+				END AS eta_dt_tm,
+			   b.wo_no,
+			   b.modi_usrid,
+			   b.return_trdp_nm AS trdp_nm,
+			   (SELECT cd_nm        FROM tb_com_cd_dtl WHERE use_flg= 'Y'    AND  delt_flg   = 'N' AND  COM_CD = 'C036' AND cd_val = b.wo_tp_cd) AS wo_tp_nm,			
+			   (SELECT c.ofc_eng_nm FROM tb_ofc c      WHERE c.use_flg = 'Y' AND  c.delt_flg = 'N' AND  c.ofc_cd = d.rgst_ofc_cd) office_nm
+		 FROM  tb_pd_ord b         
+		 LEFT OUTER JOIN tb_intg_bl a
+           ON a.intg_bl_seq = b.intg_bl_seq   
+          AND a.DELT_FLG = 'N'       
+		 LEFT OUTER JOIN tb_add_info_bnd d
+           ON a.intg_bl_seq = d.intg_bl_seq                    
+   	     LEFT OUTER JOIN tb_oth_sales s
+           ON b.oth_seq = s.oth_seq                     
+          AND s.DELT_FLG = 'N'   
+         LEFT OUTER JOIN tb_bkg bkg            
+            ON b.bkg_seq = bkg.BKG_SEQ
+            AND bkg.DELT_FLG = 'N' 
+	<dynamic>
+		WHERE b.delt_flg = 'N'
+		  AND isnull(b.wo_no, '') != ''
+		
+		<!-- Booking Pickup Delivery Order 와 BL Pickup Delivery Order 구분 -->
+		<!-- BL PD 일 경우 -->
+	<isNotEqual property="biz_clss_cd" compareValue="CU">
+		<isNotEqual property="biz_clss_cd" compareValue="CA">		  
+  		<isNotNull property="bnd_clss_cd">
+  			<isNotEqual property="bnd_clss_cd" compareValue="G">
+  				  AND a.biz_clss_cd = #biz_clss_cd#
+  				  AND a.air_sea_clss_cd =  #air_sea_clss_cd#
+  				  AND b.bnd_clss_cd = d.bnd_clss_cd
+  			</isNotEqual> 
+  		   AND b.bnd_clss_cd = #bnd_clss_cd# 
+  		</isNotNull>
+  		<isNotNull property="air_sea_clss_cd">
+  		   AND isnull(b.intg_bl_seq, '') != ''
+  		</isNotNull>
+  		<isNull property="air_sea_clss_cd">
+  		   AND ( isnull(b.intg_bl_seq, '') = '' OR b.intg_bl_seq = '0' ) <!-- 20130411 OJG   -->
+  		</isNull>
+          <isNotNull property="f_ofc_cd">		  
+  		   AND b.rgst_ofc_cd = #f_ofc_cd#
+  		</isNotNull>
+          <isNotNull property="f_pic_id">
+              AND b.modi_usrid = #f_pic_id# 
+          </isNotNull>
+          <isNotNull property="f_wo_no">
+              AND b.wo_no LIKE  '%'+#f_wo_no#+'%' 
+          </isNotNull>
+          <isNotNull property="f_ref_no">
+          	<isEqual property="bnd_clss_cd" compareValue="G">
+  		 	  	AND s.ref_no LIKE  '%'+#f_ref_no#+'%'
+          	</isEqual>
+          	<isNotEqual property="bnd_clss_cd" compareValue="G">
+  		    	AND a.ref_no LIKE  '%'+#f_ref_no#+'%'
+              </isNotEqual>
+          </isNotNull>
+          <isNotNull property="f_mbl_no">
+  	    	<isEqual property="bnd_clss_cd" compareValue="G">
+  		 	  	AND s.mbl_no LIKE  '%'+#f_mbl_no#+'%'
+          	</isEqual>
+          	<isNotEqual property="bnd_clss_cd" compareValue="G">
+  		    	AND a.bl_no LIKE  '%'+#f_mbl_no#+'%'
+  		    	AND a.biz_clss_cd ='M'
+              </isNotEqual>
+          </isNotNull>
+          <isNotNull property="f_hbl_no">
+  	    	<isEqual property="bnd_clss_cd" compareValue="G">
+  		 	  	AND s.hbl_no LIKE  '%'+#f_hbl_no#+'%'
+          	</isEqual>
+          	<isNotEqual property="bnd_clss_cd" compareValue="G">
+  		    	AND a.bl_no LIKE  '%'+#f_hbl_no#+'%'
+  		    	AND a.biz_clss_cd ='H'
+              </isNotEqual>
+          </isNotNull>
+          <isNotNull property="f_trdp_nm">    
+            AND b.return_trdp_nm LIKE  '%'+#f_trdp_nm#+'%'
+          </isNotNull>
+          <isNotNull property="f_trdp_cd">    
+            AND b.return_trdp_cd = #f_trdp_cd#
+          </isNotNull>
+          <isNotNull property="f_wo_tp_cd">
+              AND b.wo_tp_cd = #f_wo_tp_cd#   
+          </isNotNull>
+          <isNotNull property="air_sea_clss_cd">
+  	        
+  	        <isEqual property="bnd_clss_cd" compareValue="O">
+  		        <isNotEqual property="etd_strdt" compareValue="">
+  		        	<isNotEqual property="etd_enddt" compareValue="">
+  		            AND a.etd_dt_tm  BETWEEN #etd_strdt#  AND  #etd_enddt#
+  		            </isNotEqual>
+  		            <isEqual property="etd_enddt" compareValue="">
+  		            <![CDATA[ AND a.etd_dt_tm  > #etd_strdt#  ]]>
+  		            </isEqual>
+  		        </isNotEqual>
+  		        <isEqual property="etd_strdt" compareValue="">
+  		            <isNotEqual property="etd_enddt" compareValue="">
+  		            <![CDATA[ AND a.etd_dt_tm  < #etd_enddt# ]]>
+  		            </isNotEqual>
+  		        </isEqual>
+  		    </isEqual>
+  
+  	        <isEqual property="bnd_clss_cd" compareValue="I">
+  		        <isNotEqual property="etd_strdt" compareValue="">
+  		        	<isNotEqual property="etd_enddt" compareValue="">
+  		            AND a.eta_dt_tm  BETWEEN #etd_strdt#  AND  #etd_enddt#
+  		            </isNotEqual>
+  		            <isEqual property="etd_enddt" compareValue="">
+  		            <![CDATA[ AND a.eta_dt_tm  > #etd_strdt#  ]]>
+  		            </isEqual>
+  		        </isNotEqual>
+  		        <isEqual property="etd_strdt" compareValue="">
+  		            <isNotEqual property="etd_enddt" compareValue="">
+  		            <![CDATA[ AND a.eta_dt_tm  < #etd_enddt# ]]>
+  		            </isNotEqual>
+  		        </isEqual>
+  		    </isEqual>
+  	        	        
+          </isNotNull>
+          <isNull property="air_sea_clss_cd">
+  	        <isNotEqual property="etd_strdt" compareValue="">
+  	        	<isNotEqual property="etd_enddt" compareValue="">
+  	            AND s.post_dt  BETWEEN #etd_strdt#  AND  #etd_enddt#
+  	            </isNotEqual>
+  	            <isEqual property="etd_enddt" compareValue="">
+  	            <![CDATA[ AND s.post_dt  > #etd_strdt#  ]]>
+  	            </isEqual>
+  	        </isNotEqual>
+  	        <isEqual property="etd_strdt" compareValue="">
+  	            <isNotEqual property="etd_enddt" compareValue="">
+  	            <![CDATA[ AND s.post_dt  < #etd_enddt# ]]>
+  	            </isNotEqual>
+  	        </isEqual>
+          </isNull>
+    	</isNotEqual>
+    </isNotEqual>
+
+	<!-- Booking Pickup Delivery Order 와 BL Pickup Delivery Order 구분 -->
+	<!-- Booking PD 일 경우 -->
+	<isEqual property="biz_clss_cd" compareValue="CU">
+      and isnull(b.bkg_seq,'') !=''
+      and bkg.biz_clss_cd = 'H'
+          <isNotEqual property="etd_strdt" compareValue="">
+	        	<isNotEqual property="etd_enddt" compareValue="">
+	            AND bkg.ETD_DT_TM  BETWEEN #etd_strdt#  AND  #etd_enddt#
+	            </isNotEqual>
+	            <isEqual property="etd_enddt" compareValue="">
+	            <![CDATA[ AND bkg.ETD_DT_TM  > #etd_strdt#  ]]>
+	            </isEqual>
+	        </isNotEqual>
+	        <isEqual property="etd_strdt" compareValue="">
+	            <isNotEqual property="etd_enddt" compareValue="">
+	            <![CDATA[ AND bkg.ETD_DT_TM  < #etd_enddt# ]]>
+	            </isNotEqual>
+	        </isEqual>
+    </isEqual>	
+  	<isEqual property="biz_clss_cd" compareValue="CA">
+      and isnull(b.bkg_seq,'') !=''
+      and bkg.biz_clss_cd = 'M'
+          <isNotEqual property="etd_strdt" compareValue="">
+	        	<isNotEqual property="etd_enddt" compareValue="">
+	            AND bkg.ETD_DT_TM  BETWEEN #etd_strdt#  AND  #etd_enddt#
+	            </isNotEqual>
+	            <isEqual property="etd_enddt" compareValue="">
+	            <![CDATA[ AND bkg.ETD_DT_TM  > #etd_strdt#  ]]>
+	            </isEqual>
+	        </isNotEqual>
+	        <isEqual property="etd_strdt" compareValue="">
+	            <isNotEqual property="etd_enddt" compareValue="">
+	            <![CDATA[ AND bkg.ETD_DT_TM  < #etd_enddt# ]]>
+	            </isNotEqual>
+	        </isEqual>
+    </isEqual>
+		ORDER BY a.intg_bl_seq DESC
+    <!-- Booking Pickup Delivery Order 와 BL Pickup Delivery Order 구분 -->
+	<!-- Booking PD 일 경우 -->
+	<isEqual property="biz_clss_cd" compareValue="CU">	
+    , bkg.bkg_seq desc
+    </isEqual>	
+    
+	<isEqual property="biz_clss_cd" compareValue="CA">	
+    , bkg.bkg_seq desc
+    </isEqual>
+    
+    
+    	   
+	</dynamic>    
+  </select>
+    
+    <!-- work order Popup List Count select    -->
+    <select id="selectCMM_POP_0200_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    	SELECT  count(*)
+         FROM  tb_pd_ord b         
+			    LEFT OUTER JOIN
+			        tb_intg_bl a             
+			            ON  a.intg_bl_seq = b.intg_bl_seq   
+			            AND a.DELT_FLG = 'N'       
+			    LEFT OUTER JOIN
+			        tb_add_info_bnd d            
+			            ON  a.intg_bl_seq = d.intg_bl_seq                    
+			    LEFT OUTER JOIN
+			        tb_oth_sales s                 
+			            ON b.oth_seq = s.oth_seq                     
+			            AND s.DELT_FLG = 'N' 
+			    LEFT OUTER JOIN tb_bkg bkg            
+                     ON b.bkg_seq = bkg.BKG_SEQ
+                     AND bkg.DELT_FLG = 'N'          
+	<dynamic>
+		WHERE b.delt_flg = 'N'
+		  AND isnull(b.wo_no, '') != ''
+		
+		<!-- Booking Pickup Delivery Order 와 BL Pickup Delivery Order 구분 -->
+		<!-- BL PD 일 경우 -->
+	<isNotEqual property="biz_clss_cd" compareValue="CU">
+		<isNotEqual property="biz_clss_cd" compareValue="CA">		  
+  		<isNotNull property="bnd_clss_cd">
+  			<isNotEqual property="bnd_clss_cd" compareValue="G">
+  				  AND a.biz_clss_cd = #biz_clss_cd#
+  				  AND a.air_sea_clss_cd =  #air_sea_clss_cd#
+  				  AND b.bnd_clss_cd = d.bnd_clss_cd
+  			</isNotEqual> 
+  		   AND b.bnd_clss_cd = #bnd_clss_cd# 
+  		</isNotNull>
+  		<isNotNull property="air_sea_clss_cd">
+  		   AND isnull(b.intg_bl_seq, '') != ''
+  		</isNotNull>
+  		<isNull property="air_sea_clss_cd">
+  		   AND ( isnull(b.intg_bl_seq, '') = '' OR b.intg_bl_seq = '0' ) <!-- 20130411 OJG   -->
+  		</isNull>
+          <isNotNull property="f_ofc_cd">		  
+  		   AND b.rgst_ofc_cd = #f_ofc_cd#
+  		</isNotNull>
+          <isNotNull property="f_pic_id">
+              AND b.modi_usrid = #f_pic_id# 
+          </isNotNull>
+          <isNotNull property="f_wo_no">
+              AND b.wo_no LIKE  '%'+#f_wo_no#+'%' 
+          </isNotNull>
+          <isNotNull property="f_ref_no">
+          	<isEqual property="bnd_clss_cd" compareValue="G">
+  		 	  	AND s.ref_no LIKE  '%'+#f_ref_no#+'%'
+          	</isEqual>
+          	<isNotEqual property="bnd_clss_cd" compareValue="G">
+  		    	AND a.ref_no LIKE  '%'+#f_ref_no#+'%'
+              </isNotEqual>
+          </isNotNull>
+          <isNotNull property="f_mbl_no">
+  	    	<isEqual property="bnd_clss_cd" compareValue="G">
+  		 	  	AND s.mbl_no LIKE  '%'+#f_mbl_no#+'%'
+          	</isEqual>
+          	<isNotEqual property="bnd_clss_cd" compareValue="G">
+  		    	AND a.bl_no LIKE  '%'+#f_mbl_no#+'%'
+  		    	AND a.biz_clss_cd ='M'
+              </isNotEqual>
+          </isNotNull>
+          <isNotNull property="f_hbl_no">
+  	    	<isEqual property="bnd_clss_cd" compareValue="G">
+  		 	  	AND s.hbl_no LIKE  '%'+#f_hbl_no#+'%'
+          	</isEqual>
+          	<isNotEqual property="bnd_clss_cd" compareValue="G">
+  		    	AND a.bl_no LIKE  '%'+#f_hbl_no#+'%'
+  		    	AND a.biz_clss_cd ='H'
+              </isNotEqual>
+          </isNotNull>
+          <isNotNull property="f_trdp_nm">    
+            AND b.return_trdp_nm LIKE  '%'+#f_trdp_nm#+'%'
+          </isNotNull>
+          <isNotNull property="f_trdp_cd">    
+            AND b.return_trdp_cd = #f_trdp_cd#
+          </isNotNull>
+          <isNotNull property="f_wo_tp_cd">
+              AND b.wo_tp_cd = #f_wo_tp_cd#   
+          </isNotNull>
+          <isNotNull property="air_sea_clss_cd">
+  	        
+  	        <isEqual property="bnd_clss_cd" compareValue="O">
+  		        <isNotEqual property="etd_strdt" compareValue="">
+  		        	<isNotEqual property="etd_enddt" compareValue="">
+  		            AND a.etd_dt_tm  BETWEEN #etd_strdt#  AND  #etd_enddt#
+  		            </isNotEqual>
+  		            <isEqual property="etd_enddt" compareValue="">
+  		            <![CDATA[ AND a.etd_dt_tm  > #etd_strdt#  ]]>
+  		            </isEqual>
+  		        </isNotEqual>
+  		        <isEqual property="etd_strdt" compareValue="">
+  		            <isNotEqual property="etd_enddt" compareValue="">
+  		            <![CDATA[ AND a.etd_dt_tm  < #etd_enddt# ]]>
+  		            </isNotEqual>
+  		        </isEqual>
+  		    </isEqual>
+  
+  	        <isEqual property="bnd_clss_cd" compareValue="I">
+  		        <isNotEqual property="etd_strdt" compareValue="">
+  		        	<isNotEqual property="etd_enddt" compareValue="">
+  		            AND a.eta_dt_tm  BETWEEN #etd_strdt#  AND  #etd_enddt#
+  		            </isNotEqual>
+  		            <isEqual property="etd_enddt" compareValue="">
+  		            <![CDATA[ AND a.eta_dt_tm  > #etd_strdt#  ]]>
+  		            </isEqual>
+  		        </isNotEqual>
+  		        <isEqual property="etd_strdt" compareValue="">
+  		            <isNotEqual property="etd_enddt" compareValue="">
+  		            <![CDATA[ AND a.eta_dt_tm  < #etd_enddt# ]]>
+  		            </isNotEqual>
+  		        </isEqual>
+  		    </isEqual>
+  	        	        
+          </isNotNull>
+          <isNull property="air_sea_clss_cd">
+  	        <isNotEqual property="etd_strdt" compareValue="">
+  	        	<isNotEqual property="etd_enddt" compareValue="">
+  	            AND s.post_dt  BETWEEN #etd_strdt#  AND  #etd_enddt#
+  	            </isNotEqual>
+  	            <isEqual property="etd_enddt" compareValue="">
+  	            <![CDATA[ AND s.post_dt  > #etd_strdt#  ]]>
+  	            </isEqual>
+  	        </isNotEqual>
+  	        <isEqual property="etd_strdt" compareValue="">
+  	            <isNotEqual property="etd_enddt" compareValue="">
+  	            <![CDATA[ AND s.post_dt  < #etd_enddt# ]]>
+  	            </isNotEqual>
+  	        </isEqual>
+          </isNull>
+    	</isNotEqual>
+    </isNotEqual>
+
+	<!-- Booking Pickup Delivery Order 와 BL Pickup Delivery Order 구분 -->
+	<!-- Booking PD 일 경우 -->
+	<isEqual property="biz_clss_cd" compareValue="CU">
+      and isnull(b.bkg_seq,'') !=''
+      and bkg.biz_clss_cd = 'H'
+          <isNotEqual property="etd_strdt" compareValue="">
+	        	<isNotEqual property="etd_enddt" compareValue="">
+	            AND bkg.ETD_DT_TM  BETWEEN #etd_strdt#  AND  #etd_enddt#
+	            </isNotEqual>
+	            <isEqual property="etd_enddt" compareValue="">
+	            <![CDATA[ AND bkg.ETD_DT_TM  > #etd_strdt#  ]]>
+	            </isEqual>
+	        </isNotEqual>
+	        <isEqual property="etd_strdt" compareValue="">
+	            <isNotEqual property="etd_enddt" compareValue="">
+	            <![CDATA[ AND bkg.ETD_DT_TM  < #etd_enddt# ]]>
+	            </isNotEqual>
+	        </isEqual>
+    </isEqual>	
+  	<isEqual property="biz_clss_cd" compareValue="CA">
+      and isnull(b.bkg_seq,'') !=''
+      and bkg.biz_clss_cd = 'M'
+          <isNotEqual property="etd_strdt" compareValue="">
+	        	<isNotEqual property="etd_enddt" compareValue="">
+	            AND bkg.ETD_DT_TM  BETWEEN #etd_strdt#  AND  #etd_enddt#
+	            </isNotEqual>
+	            <isEqual property="etd_enddt" compareValue="">
+	            <![CDATA[ AND bkg.ETD_DT_TM  > #etd_strdt#  ]]>
+	            </isEqual>
+	        </isNotEqual>
+	        <isEqual property="etd_strdt" compareValue="">
+	            <isNotEqual property="etd_enddt" compareValue="">
+	            <![CDATA[ AND bkg.ETD_DT_TM  < #etd_enddt# ]]>
+	            </isNotEqual>
+	        </isEqual>
+    </isEqual>
+ 
+	</dynamic>    
+  </select>
+    
+    
+    <!-- booking Popup List select    -->
+    <select id="selectCMM_POP_0210_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.SeeHouseBLVO">
+    	/** CmmPopUpSQL.xml > selectCMM_POP_0210_LIST **/
+    	SELECT  TOP $topCnt$
+    			bkg.bkg_no,					bkg.bkg_seq,				bkg.bkg_dt_tm, 
+		        bkg.po_no,					bkg.lc_no,					bkg.prnr_trdp_cd ,
+		        bkg.prnr_trdp_nm,			bkg.act_shpr_trdp_cd,		bkg.act_shpr_trdp_nm ,
+		        bkg.shpr_trdp_cd,			bkg.shpr_trdp_nm,			bkg.shpr_trdp_addr ,
+		        bkg.cnee_trdp_cd,			bkg.cnee_trdp_nm,			bkg.cnee_trdp_addr ,
+		        bkg.ntfy_trdp_cd,			bkg.ntfy_trdp_nm,			bkg.ntfy_trdp_addr ,
+		        bkg.exp_ref_no,				bkg.pu_trdp_cd,				bkg.pu_trdp_nm ,
+		        bkg.cgo_pu_trdp_cd,			bkg.cgo_pu_trdp_nm,			bkg.cgo_pu_trdp_addr ,
+		        bkg.rcv_wh_cd,				bkg.rcv_wh_nm,				bkg.trk_trdp_cd ,
+		        bkg.trk_trdp_nm,			bkg.cust_ref_no,			bkg.cntr_info,
+		        bkg.trnk_vsl_cd,			bkg.trnk_vsl_nm,			bkg.trnk_voy ,
+		        bkg.por_cd,					bkg.por_nod_cd,				bkg.por_nm ,
+		        bkg.pol_cd,					bkg.pol_nod_cd,				bkg.pol_nm ,
+		        bkg.pod_cd,					bkg.pod_nod_cd,				bkg.pod_nm ,
+		        bkg.del_cd,					bkg.del_nod_cd,				bkg.del_nm ,
+		        bkg.fnl_dest_loc_cd,		bkg.fnl_dest_nod_cd,		bkg.fnl_dest_loc_nm ,
+		        bkg.lnr_trdp_cd,			bkg.lnr_trdp_nm,			bkg.lnr_bkg_no ,
+		        bkg.etd_dt_tm,				bkg.eta_dt_tm,				bkg.etd_por_tm ,
+		        bkg.shp_mod_cd,				bkg.rep_cmdt_cd,			bkg.rep_cmdt_nm ,
+		        bkg.pck_qty,				bkg.pck_ut_cd,				bkg.grs_wgt_ut_cd ,
+		        bkg.grs_wgt,				bkg.grs_wgt1,				bkg.meas_ut_cd ,
+		        bkg.meas,					bkg.meas1,					bkg.fm_svc_term_cd ,
+		        bkg.to_svc_term_cd,			bkg.cargo_tp_cd,			
+		        substring(bkg.cut_off_dt,1,8) as cut_off_dt,
+		        substring(bkg.rail_cut_off_dt,1,8) as rail_cut_off_dt,
+		        substring(bkg.wh_cut_off_dt,1,8) as wh_cut_off_dt,
+		        substring(bkg.doc_cut_off_dt,1,8) as doc_cut_off_dt,
+		        bkg.sls_ofc_cd,				bkg.sls_dept_cd,			bkg.sls_usrid ,
+		        bkg.sls_usr_nm,				bkg.rmk,					bkg.dept_cd ,
+		        bkg.rgst_usrid,				bkg.rgst_ofc_cd,			bkg.rgst_tms ,
+		        bkg.modi_usrid,				bkg.modi_ofc_cd,			bkg.modi_tms ,
+		        bkg.delt_flg,				bl.bl_no AS bl_no,			ofc.ofc_eng_nm AS proc_ofcnm,   
+		        dpt.cd_nm AS proc_dept_nm,  bkg.modi_usrid AS proc_usrnm,
+		        substring(bkg.cut_off_dt,9,12) AS cut_off_tm,
+		        substring(bkg.rail_cut_off_dt,9,12) AS rail_cut_off_tm,
+		        substring(bkg.wh_cut_off_dt,9,12) AS wh_cut_off_tm,
+		        substring(bkg.doc_cut_off_dt,9,12) AS doc_cut_off_tm,
+		        <!-- #1423 HSKNAG -->
+		        bkg.asgn_usrid
+		  FROM tb_bkg bkg
+		  LEFT OUTER JOIN  tb_add_info_bnd bnd
+		    ON bnd.intg_bkg_seq = bkg.bkg_seq AND bnd.delt_flg = 'N'
+		  LEFT OUTER JOIN  tb_intg_bl bl
+		    ON bnd.intg_bl_seq = bl.intg_bl_seq AND bl.air_sea_clss_cd = 'S' AND bl.biz_clss_cd = 'H' AND bl.delt_flg = 'N'
+		
+		  LEFT OUTER JOIN  tb_ofc ofc
+		    ON ofc.ofc_cd = bkg.rgst_ofc_cd      AND ofc.delt_flg = 'N'
+		
+		  LEFT OUTER JOIN  tb_com_cd_dtl dpt
+            ON dpt.cd_val = bkg.dept_cd    AND  dpt.com_cd = 'C056'  AND  dpt.delt_flg = 'N'
+		
+	     WHERE  bkg.delt_flg = 'N'
+	       AND  bkg.biz_clss_cd = #f_biz_clss_cd#
+	       
+        <isNotNull property="f_ofc_cd">
+              AND   bkg.modi_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+		<isNotNull property="f_bkg_no">
+			AND bkg.bkg_no   LIKE '%'+#f_bkg_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_hbl_no">
+			AND bl.bl_no    LIKE '%'+#f_hbl_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_trdp_nm">	
+			AND bkg.shpr_trdp_nm LIKE '%'+#f_trdp_nm#+'%'
+		</isNotNull>
+		<isNotNull property="f_bkg_strdt">
+			AND bkg.bkg_dt_tm BETWEEN #f_bkg_strdt# AND #f_bkg_enddt#
+		</isNotNull>
+		<isEqual property="f_hbl_entry_yn" compareValue="Y">
+		    AND bkg.bkg_sts_cd = 'CF'
+		</isEqual>
+		ORDER BY bkg.bkg_seq DESC
+    </select>
+    
+    <!-- booking Popup List Count select    -->
+    <select id="selectCMM_POP_0210_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    	/** CmmPopUpSQL.xml > selectCMM_POP_0210_CNT **/
+ 	    SELECT COUNT(bkg.bkg_seq)
+          FROM tb_bkg bkg
+		  LEFT OUTER JOIN  tb_add_info_bnd bnd
+		    ON bnd.intg_bkg_seq = bkg.bkg_seq AND bnd.delt_flg = 'N'
+		  LEFT OUTER JOIN  tb_intg_bl bl
+		    ON bnd.intg_bl_seq = bl.intg_bl_seq AND bl.air_sea_clss_cd = 'S' AND bl.biz_clss_cd = 'H' AND bl.delt_flg = 'N'
+		
+		  LEFT OUTER JOIN  tb_ofc ofc
+		    ON ofc.ofc_cd = bkg.rgst_ofc_cd      AND ofc.delt_flg = 'N'
+		
+		  LEFT OUTER JOIN  tb_com_cd_dtl dpt
+            ON dpt.cd_val = bl.dept_cd    AND  dpt.com_cd = 'C056'  AND  dpt.delt_flg = 'N'
+		
+	     WHERE  bkg.delt_flg = 'N'
+	       AND  bkg.biz_clss_cd = #f_biz_clss_cd#
+	       
+        <isNotNull property="f_ofc_cd">
+              AND   bkg.modi_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+		<isNotNull property="f_bkg_no">
+			AND bkg.bkg_no   LIKE '%'+#f_bkg_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_hbl_no">
+			AND bl.bl_no    LIKE '%'+#f_hbl_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_trdp_nm">	
+			AND bkg.shpr_trdp_nm LIKE '%'+#f_trdp_nm#+'%'
+		</isNotNull>
+		<isNotNull property="f_bkg_strdt">
+			AND bkg.bkg_dt_tm BETWEEN #f_bkg_strdt# AND #f_bkg_enddt#
+		</isNotNull>
+		<isEqual property="f_hbl_entry_yn" compareValue="Y">
+		    AND bkg.bkg_sts_cd = 'CF'
+		</isEqual>
+    </select>
+    
+    <!-- INVOICE Popup Search    -->
+    <select id="selectCMM_POP_0240_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.cmm.pop.inv.dto.InvoicePopVO">
+        SELECT  TOP $topCnt$        
+                (SELECT x.eng_nm        FROM tb_trdp x
+                    WHERE x.trdp_cd = a.trdp_cd ) AS trdp_nm, a.sell_buy_tp_cd, b.inv_fm_dt, 
+                 b.inv_to_dt, b.inv_sts_cd, b.inv_no, a.trdp_cd, a.inv_seq
+		FROM tb_inv a
+		 	, (
+		 	SELECT a.inv_seq
+				, b.inv_no
+				, MAX(b.inv_fm_dt) AS inv_fm_dt
+				, MAX(b.inv_to_dt) AS inv_to_dt
+				, MAX(b.inv_sts_cd) AS inv_sts_cd
+			FROM 	tb_inv a,
+					tb_inv_dtl b
+			WHERE 	a.delt_flg = 'N' AND b.delt_flg = 'N'
+			AND    	a.inv_seq = b.inv_seq
+			AND    a.frt_ask_clss_cd IN ('BL','DV')
+			AND    a.inv_iss_flg = 'Y'
+			<isNotNull prepend="AND" property="sel_strdt">
+				<![CDATA[b.inv_fm_dt >= #sel_strdt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="sel_enddt">
+				<![CDATA[b.inv_fm_dt <= #sel_enddt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_trdp_cd">
+				a.trdp_cd = #s_trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_inv_no">
+				b.inv_no = #s_inv_no#
+			</isNotNull>
+			GROUP BY a.inv_seq, b.inv_no
+		 	) b
+		WHERE 	a.inv_seq = b.inv_seq
+    </select>
+    
+    <select id="selectCMM_POP_0240_LIST_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT    	
+			count(b.inv_no)
+		FROM tb_inv a
+		 	, (
+		 	SELECT a.inv_seq
+				, b.inv_no
+				, MAX(b.inv_sts_cd) AS inv_sts_cd
+			FROM 	tb_inv a,
+					tb_inv_dtl b
+			WHERE 	a.delt_flg = 'N' AND b.delt_flg = 'N'
+			AND    	a.inv_seq = b.inv_seq
+			AND    a.frt_ask_clss_cd IN ('BL','DV')
+			AND    a.inv_iss_flg = 'Y'				
+		  	<isNotNull prepend="AND" property="sel_strdt">
+				<![CDATA[b.inv_fm_dt >= #sel_strdt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="sel_enddt">
+				<![CDATA[b.inv_fm_dt <= #sel_enddt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_trdp_cd">
+				a.trdp_cd = #s_trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_inv_no">
+				b.inv_no = #s_inv_no#
+			</isNotNull>
+			GROUP BY a.inv_seq, b.inv_no
+		 	) b
+		WHERE 	a.inv_seq = b.inv_seq
+    </select>
+	
+	<!-- 등록된 Combined Invoice 목록을 조회함   -->
+	<select id="selectCMB_INV_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.cmm.pop.inv.dto.InvoicePopVO">
+		SELECT  inv.trdp_cd,     trd.eng_nm AS trdp_nm,     inv.sell_buy_tp_cd,   
+				inv.inv_fm_dt,   inv.inv_to_dt,          
+				inv.inv_no,      inv.inv_sts_cd
+		  FROM  tb_cmb_inv inv
+		  JOIN  tb_trdp trd
+			ON  inv.trdp_cd = trd.trdp_cd
+		 WHERE  inv.delt_flg = 'N'
+    <isNotNull property="sel_strdt">
+		   AND  inv.inv_fm_dt BETWEEN #sel_strdt# AND #sel_enddt#
+    </isNotNull>
+	<isNotNull property="s_trdp_cd">
+		   AND  inv.trdp_cd = #s_trdp_cd#
+    </isNotNull>
+	<isNotNull property="s_inv_no">
+		   AND  inv.inv_no  = #s_inv_no#
+    </isNotNull>
+		ORDER BY cmb_inv_seq DESC
+	</select>
+	
+    <!-- 등록된 Combined Invoice 목록을 갯수를 조회함   -->
+    <select id="selectCMB_INV_LIST_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT   COUNT(inv.trdp_cd)
+          FROM  tb_cmb_inv inv
+          JOIN  tb_trdp trd
+            ON  inv.trdp_cd = trd.trdp_cd
+         WHERE  inv.delt_flg = 'N'
+    <isNotNull property="sel_strdt">
+           AND  inv.inv_fm_dt BETWEEN #sel_strdt# AND #sel_enddt#
+    </isNotNull>
+    <isNotNull property="s_trdp_cd">
+           AND  inv.trdp_cd = #s_trdp_cd#
+    </isNotNull>
+    <isNotNull property="s_inv_no">
+           AND  inv.inv_no  = #s_inv_no#
+    </isNotNull>
+    </select>
+
+
+
+
+	<!-- Delivery Order (팝업)   -->
+    <select id="selectCMM_POP_0320" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+/* CmmPopUpSQL > selectCMM_POP_0320 */    
+SELECT a1.intg_bl_seq
+      ,a1.bl_no
+      ,a1.ref_no
+      ,a3.trdp_cd 	delivery_trdp_cd
+      ,a1.door_loc_nm 	delivery_trdp_nm
+      ,(case when isnull(tta.trdp_add_addr,'') != '' then tta.trdp_add_addr
+        else isnull(a3.lgl_addr,'') + 
+		(case
+		when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') != '' and isnull(a3.rep_zip,'') != '' then CHAR(13)+CHAR(10) + a3.city_nm + ', ' + a3.state_cd + ' ' + a3.rep_zip
+		when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') != '' and isnull(a3.rep_zip,'') = '' then CHAR(13)+CHAR(10) + a3.city_nm + ' ' + a3.state_cd
+		when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') = '' and isnull(a3.rep_zip,'') = '' then CHAR(13)+CHAR(10) + a3.city_nm
+		when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') = '' and isnull(a3.rep_zip,'') != '' then CHAR(13)+CHAR(10) + a3.city_nm + ', ' + a3.rep_zip
+		else '' end)
+		+ (case when a3.ofc_hr is not null then char(13)+char(13)+''+isnull(a3.ofc_hr,'') else '' end)
+		end) as delivery_trdp_addr
+      ,a4.pic_nm dest_rout_pic
+      ,a4.pic_phn dest_rout_pic_phn 
+      ,a4.pic_fax dest_rout_pic_fax
+      , isnull(a1.desc_txt,
+        '')+char(13)+char(13)+  isnull( ( select
+            REPLACE(a.a,
+            'char(13)',
+            CHAR(13))    
+        from
+            (SELECT
+                STUFF((     select
+                     replace( convert( VARCHAR, convert( MONEY, a.len_dim ), 1 ), '.00', '' )   
+                     + 'x' + 
+                     replace( convert( VARCHAR, convert( MONEY, a.wdt_dim ), 1 ), '.00', '' ) 
+                     + 'x' + 
+                     replace( convert( VARCHAR, convert( MONEY, a.hgt_dim ), 1 ), '.00', '' ) 
+                     +' '+ b.size_ut_cd+ '/'+
+                     replace( convert( VARCHAR, convert( MONEY, a.pce_qty ), 1 ), '.00', '' )  
+                     + ' char(13)'                          
+                from
+                    tb_dim a ,
+                    tb_intg_bl b 
+                where
+                    a.intg_bl_seq = b.intg_bl_seq 
+                    and a.intg_bl_seq =  a1.intg_bl_seq
+                    and a.delt_flg = 'N'        for xml path('')),
+                1,
+                0,
+                '') as a        ) a) ,
+            '') as rmk       
+      ,(SELECT do_rmk
+          FROM tb_ofc 
+         WHERE delt_flg = 'N'
+           AND ofc_cd = #ofc_cd#) do_rmk
+      ,a1.cfs_trdp_cd    as pickup_trdp_cd
+      ,cfs_trdp.eng_nm   as pickup_trdp_nm
+      ,isnull(cfs_trdp.lgl_addr,'') + 
+		(case
+		when isnull(cfs_trdp.city_nm,'') != '' and isnull(cfs_trdp.state_cd,'') != '' and isnull(cfs_trdp.rep_zip,'') != '' then CHAR(13)+CHAR(10) + cfs_trdp.city_nm + ', ' + cfs_trdp.state_cd + ' ' + cfs_trdp.rep_zip
+		when isnull(cfs_trdp.city_nm,'') != '' and isnull(cfs_trdp.state_cd,'') != '' and isnull(cfs_trdp.rep_zip,'') = '' then CHAR(13)+CHAR(10) + cfs_trdp.city_nm + ' ' + cfs_trdp.state_cd
+		when isnull(cfs_trdp.city_nm,'') != '' and isnull(cfs_trdp.state_cd,'') = '' and isnull(cfs_trdp.rep_zip,'') = '' then CHAR(13)+CHAR(10) + cfs_trdp.city_nm
+		when isnull(cfs_trdp.city_nm,'') != '' and isnull(cfs_trdp.state_cd,'') = '' and isnull(cfs_trdp.rep_zip,'') != '' then CHAR(13)+CHAR(10) + cfs_trdp.city_nm + ', ' + cfs_trdp.rep_zip
+		else '' end) as pickup_addr
+      ,cfs_pson.pic_nm   as pickup_pic
+      ,cfs_pson.pic_phn  as pickup_pic_phn 
+      ,cfs_pson.pic_fax  as pickup_fax 
+  FROM tb_intg_bl a1 
+       LEFT OUTER JOIN tb_trdp a3 ON     a3.trdp_cd = a1.door_loc_cd
+                                     AND a3.delt_flg = 'N'
+       LEFT OUTER JOIN tb_trdp_addr tta ON tta.trdp_cd = a1.door_loc_cd 
+        							AND tta.trdp_nm = a1.door_loc_nm                             
+       LEFT OUTER JOIN tb_trdp_cntc_pson a4
+           ON a4.trdp_cd = a1.door_loc_cd
+          AND a4.cntc_pson_seq = (SELECT cntc_pson_seq
+                               FROM tb_trdp_cntc_pson
+                              WHERE delt_flg = 'N'
+                                AND trdp_cd = a1.door_loc_cd
+                                AND rep_flg = 'Y')
+	  JOIN tb_add_info_bnd a5 ON a1.intg_bl_seq = a5.intg_bl_seq
+	  LEFT OUTER JOIN TB_TRDP CFS_TRDP 
+	        ON CFS_TRDP.TRDP_CD = a1.CFS_TRDP_CD
+	       AND CFS_TRDP.DELT_FLG = 'N'
+      LEFT OUTER JOIN tb_trdp_cntc_pson CFS_PSON
+            ON CFS_PSON.trdp_cd = a1.CFS_TRDP_CD
+           AND CFS_PSON.cntc_pson_seq = (SELECT cntc_pson_seq
+                               FROM tb_trdp_cntc_pson
+                              WHERE delt_flg = 'N'
+                                AND trdp_cd = a1.CFS_TRDP_CD
+                                AND rep_flg = 'Y')
+ WHERE bl_no = #f_bl_no#
+   AND a1.air_sea_clss_cd = #air_sea_clss_cd#
+   AND a1.biz_clss_cd = #biz_clss_cd#
+   AND a5.bnd_clss_cd = #bnd_clss_cd#
+   AND a1.delt_flg = 'N'
+    </select>
+    
+    <select id="selectCMM_POP_1000" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+/* CmmPopUpSQL > selectCMM_POP_1000 */    
+			/* CmmPopUpSQL > selectCMM_POP_1000 */    
+			SELECT TOP 1 ob.wob_bk_no
+				,isnull(ltrim(rtrim(ob.cust_ord_no)), '') as cust_ord_no
+				,ob.wob_bk_no
+				,ob.trucker_cd						     as trsp_trdp_cd                                
+		        ,tt.eng_nm							     as trsp_trdp_nm
+		        ,tt.eng_addr                             as trsp_trdp_addr    
+				,wh.wh_cd
+				,wh.wh_nm
+				,wh.wh_addr
+				,wh.wh_ofc_cd
+				,wh.wh_rmk
+				,ob.buyer_cd
+				,isnull(ob.buyer_nm, '')                 as buyer_nm
+				,isnull(ob.buyer_addr1, '')              as buyer_addr1
+				,dtc.PIC_NM                              as buyer_pic
+				,(select out_do_rmk from tb_ofc o where o.ofc_cd = #ofc_cd#) out_do_rmk
+				,bt.trdp_cd                              as bill_trdp_cd  
+		        ,bt.eng_nm                               as bill_trdp_nm   
+		        ,bt.eng_addr                             as bill_trdp_addr
+		        ,pt.trdp_cd                              as pck_trdp_cd  
+		        ,pt.eng_nm                               as pck_trdp_nm   
+		        ,pt.eng_addr                             as pck_trdp_addr
+				,ptc.PIC_NM								 as pck_pic
+				,ob.ref_no
+			FROM tl_wh_ob ob 
+				JOIN tl_wh wh        ON ob.wh_cd   = wh.wh_cd
+				LEFT JOIN tb_trdp pt ON pt.trdp_cd = wh.wh_ofc_cd+'MAINCMP'
+				LEFT JOIN TB_TRDP_CNTC_PSON ptc on ptc.TRDP_CD = pt.TRDP_CD and ptc.REP_FLG = 'Y' and isnull(ptc.DELT_FLG, '') = 'N'
+				LEFT JOIN tb_trdp bt ON bt.trdp_cd = #ofc_cd# + 'MAINCMP'
+		        LEFT JOIN tb_trdp tt ON tt.trdp_cd = ob.trucker_cd		
+				LEFT JOIN TB_TRDP_CNTC_PSON dtc on dtc.TRDP_CD = ob.buyer_cd and dtc.REP_FLG = 'Y' and isnull(dtc.DELT_FLG, '') = 'N'
+			WHERE 1 = 1
+   <isNotEmpty property="wob_bk_no">   
+			   AND OB.WOB_BK_NO = #wob_bk_no#
+			</isNotEmpty>
+			<isEmpty property="wob_bk_no">
+			 	 <isNotEmpty property="cust_ord_no">   
+				   AND OB.WOB_BK_NO = (select Max(WOB_BK_NO) from TL_WH_OB where CUST_ORD_NO = #cust_ord_no#)
+				 </isNotEmpty>
+			</isEmpty>
+    </select>
+    
+    
+	<!-- Delivery Order-Other (팝업)   -->
+    <select id="selectCMM_POP_0321" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+/* CmmPopUpSQL > selectCMM_POP_0321 */    
+SELECT a1.oth_seq
+      ,a1.hbl_no bl_no
+      ,a1.ref_no
+      ,a1.cust_cd
+      ,a1.cust_nm
+      ,a3.trdp_cd  delivery_trdp_cd
+      ,a3.eng_nm   delivery_trdp_nm
+      ,a3.eng_addr delivery_trdp_addr
+      ,a4.pic_nm dest_rout_pic
+      ,a4.pic_phn dest_rout_pic_phn
+      ,a4.pic_fax dest_rout_pic_fax
+      ,(SELECT do_rmk
+          FROM tb_ofc
+         WHERE delt_flg = 'N'
+           AND ofc_cd = #ofc_cd#) do_rmk
+  FROM tb_oth_sales a1 LEFT OUTER JOIN tb_bl_prnr a2 ON a2.intg_bl_seq = a1.oth_seq
+                                                   AND a2.bl_trdp_tp_cd = 'C01'
+       LEFT OUTER JOIN tb_trdp a3 ON a3.trdp_cd = a2.trdp_cd
+                                AND a3.delt_flg = 'N'
+       LEFT OUTER JOIN tb_trdp_cntc_pson a4
+       ON a4.trdp_cd = a2.trdp_cd
+     AND a4.cntc_pson_seq = (SELECT cntc_pson_seq
+                               FROM tb_trdp_cntc_pson
+                              WHERE delt_flg = 'N'
+                                AND trdp_cd = a2.trdp_cd
+                                AND rep_flg = 'Y')
+ WHERE hbl_no = #f_bl_no#
+    </select>
+    
+    
+    <!-- Delivery Order-Other (팝업)   -->
+    <select id="selectCMM_POP_0322" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* CmmPopUpSQL > selectCMM_POP_0322 */    
+		SELECT TOP 1a1.oth_seq
+		      ,a1.hbl_no bl_no
+		      ,a1.ref_no
+		      ,a1.cust_cd
+		      ,a1.cust_nm
+		      ,a3.trdp_cd  delivery_trdp_cd
+		      ,a3.eng_nm   delivery_trdp_nm
+		      ,isnull(a3.lgl_addr,'') + 
+				(case
+				when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') != '' and isnull(a3.rep_zip,'') != '' then CHAR(13)+CHAR(10) + a3.city_nm + ', ' + a3.state_cd + ' ' + a3.rep_zip
+				when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') != '' and isnull(a3.rep_zip,'') = '' then CHAR(13)+CHAR(10) + a3.city_nm + ' ' + a3.state_cd
+				when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') = '' and isnull(a3.rep_zip,'') = '' then CHAR(13)+CHAR(10) + a3.city_nm
+				when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') = '' and isnull(a3.rep_zip,'') != '' then CHAR(13)+CHAR(10) + a3.city_nm + ', ' + a3.rep_zip
+				else '' end) as delivery_trdp_addr
+		      ,a4.pic_nm dest_rout_pic
+		      ,a4.pic_phn dest_rout_pic_phn
+		      ,a4.pic_fax dest_rout_pic_fax
+		      ,(SELECT do_rmk
+		          FROM tb_ofc
+		         WHERE delt_flg = 'N'
+		           AND ofc_cd = #ofc_cd#) do_rmk
+              ,a1.ext_memo as rmk     
+		  FROM tb_oth_sales a1 
+		   LEFT OUTER JOIN tb_trdp a3 ON a3.trdp_cd = a1.door_loc_cd
+		                                AND a3.delt_flg = 'N'
+		       LEFT OUTER JOIN tb_trdp_cntc_pson a4
+		       ON a4.trdp_cd = a1.door_loc_cd
+		     AND a4.cntc_pson_seq = (SELECT cntc_pson_seq
+		                               FROM tb_trdp_cntc_pson
+		                              WHERE delt_flg = 'N'
+		                                AND trdp_cd = a1.door_loc_cd
+		                                AND rep_flg = 'Y')
+		 WHERE a1.ref_no = #f_ref_no#
+    </select>
+    
+    
+    <select id="selectCMM_POP_0350_LIST" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickDeliVO">
+		/*	CmmPopUpSQL.xml > selectCMM_POP_0350_LIST */
+		 SELECT wo.wo_no,
+				wo.intg_bl_seq,
+				wo.bnd_clss_cd,
+				wo.wo_sts_cd,
+				wo.pkup_ord_no,
+				wo.org_rout_addr,
+				wo.dest_rout_addr,
+				wo.cgo_itm_cmdt_cd,
+				wo.cgo_pck_qty,
+				wo.cgo_pck_ut_cd,
+				wo.via_rout_addr,
+				wo.trsp_trdp_cd,
+				wo.rmk,
+				wo.iss_usrid,
+				wo.iss_dt_tm,
+				wo.rgst_usrid,
+				wo.rgst_ofc_cd,
+				wo.rgst_tms,
+				wo.modi_usrid,
+				wo.modi_ofc_cd,
+				wo.modi_tms,
+				wo.delt_flg,
+				wo.trsp_trdp_nm,
+				wo.org2_rout_addr,
+				wo.org_rout_trdp_cd,
+				wo.org_rout_trdp_nm,
+				wo.dest_rout_trdp_cd,
+				wo.dest_rout_trdp_nm,
+				wo.act_wgt_k,
+				wo.act_wgt_l,
+				wo.cgo_meas_m,
+				wo.cgo_meas_f,
+				wo.bill_to_trdp_cd,
+				wo.bill_to_trdp_nm,
+				wo.bill_to_trdp_addr,
+				wo.trsp_trdp_addr,
+				wo.oth_seq,
+				wo.org_rout_dt_tm,
+				wo.org2_rout_dt_tm,
+				wo.dest_rout_dt_tm,
+				wo.via_rout_dt_tm,
+				wo.cgo_itm_cmdt_nm,
+				
+				shp.trdp_cd AS shpr_trdp_cd, shp.trdp_nm AS shpr_trdp_nm, shp.trdp_addr AS shpr_trdp_addr,
+				cne.trdp_cd AS cnee_trdp_cd, cne.trdp_nm AS cnee_trdp_nm, cne.trdp_addr AS cnee_trdp_addr,
+				ptn.trdp_cd AS prnr_trdp_cd, ptn.trdp_nm AS prnr_trdp_nm, ptn.trdp_addr AS prnr_trdp_addr
+		    FROM TB_WO wo
+				LEFT OUTER JOIN tb_bl_prnr shp
+				     ON   wo.wo_no = shp.intg_bl_seq  
+				     AND shp.bl_trdp_tp_cd = 'S01' 
+				     AND shp.delt_flg = 'N'
+				LEFT OUTER JOIN tb_bl_prnr cne
+				     ON   wo.wo_no = cne.intg_bl_seq  
+				     AND cne.bl_trdp_tp_cd = 'C01' 
+				     AND cne.delt_flg = 'N'
+				LEFT OUTER JOIN tb_bl_prnr ptn
+				     ON   wo.wo_no = ptn.intg_bl_seq  
+				     AND ptn.bl_trdp_tp_cd = 'P01' 
+				     AND ptn.delt_flg = 'N'
+		    	WHERE wo.delt_flg = 'N'
+    	<isNotEmpty property="f_wo_no">
+    	AND wo.wo_no LIKE '%' + #f_wo_no# + '%' 
+    	</isNotEmpty>
+    	ORDER BY wo.rgst_tms DESC
+	</select>
+	
+	<select id="selectCMM_POP_0350_CNT" parameterClass="HashMap" resultClass="Integer">
+	/*	CmmPopUpSQL.xml > selectCMM_POP_0350_CNT */
+	SELECT COUNT(*)
+	FROM TB_WO wo
+		LEFT OUTER JOIN tb_bl_prnr shp
+           	 ON  wo.wo_no = shp.intg_bl_seq  
+           	 AND shp.bl_trdp_tp_cd = 'S01' 
+           	 AND shp.delt_flg = 'N'
+         
+		LEFT OUTER JOIN tb_bl_prnr cne
+             ON  wo.wo_no = cne.intg_bl_seq  
+             AND cne.bl_trdp_tp_cd = 'C01' 
+             AND cne.delt_flg = 'N'
+
+		LEFT OUTER JOIN tb_bl_prnr ptn
+           	ON  wo.wo_no = ptn.intg_bl_seq  
+           	AND ptn.bl_trdp_tp_cd = 'P01' 
+           	AND ptn.delt_flg = 'N'
+    	WHERE wo.delt_flg = 'N'
+    	<isNotEmpty property="f_wo_no">
+    	  AND wo.wo_no LIKE '%' + #f_wo_no# + '%'
+    	</isNotEmpty>
+	</select>
+    
+    <select id="selectWoDim_LIST" parameterClass="HashMap" resultClass="com.clt.apps.fis.aie.bmd.housebl.dto.DimVO">
+		SELECT  LEN_DIM, WDT_DIM, HGT_DIM, PCE_QTY, DIM_SEQ
+		  FROM  TB_DIM
+		 WHERE  INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+    </select>
+    
+    <select id="selectWoDim_CNT" parameterClass="HashMap" resultClass="Integer">
+    	SELECT  COUNT(*)
+		  FROM  TB_DIM
+		 WHERE  INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+    </select>
+    
+    <!-- PO Item Popup List select    -->
+    <select id="selectCMM_POP_0400_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.list.dto.OthPurOrdItemPopVO">
+		SELECT  TOP $topCnt$
+                po.cust_po_no as cust_po_no,
+				itm.cust_itm_id as cust_itm_id,
+				custitm.item_nm as cust_itm_nm,
+				custitm.item_sys_no as item_sys_no,
+				po.shpwin_fr_dt as shpwin_fr_dt,
+				po.shpwin_to_dt as shpwin_to_dt,
+				po.org_loc_nm as org_loc_nm,
+				po.dest_loc_nm as dest_loc_nm,
+				unit.pck_nm as pck_ut_nm,
+				<isNull property="bkg_seq"> 
+				itm.pck_qty as pck_qty,
+				itm.pck_qty - ISNULL(bkg.bk_pck_qty,0) as rmn_pck_qty,
+				itm.pck_ut_cd as pck_ut_cd,
+				itm.pck_inr_qty as pck_inr_qty,
+				itm.ea_cnt as ea_cnt,
+				itm.ea_cnt - ISNULL(bkg.bk_ea_cnt,0) as rmn_ea_cnt,
+				itm.ttl_qty as ttl_qty,
+				itm.ttl_qty - ISNULL(bkg.bk_ttl_qty,0) as rmn_ttl_qty,
+				itm.cmdt_kgs_wgt as cmdt_kgs_wgt,
+				itm.cmdt_lbs_wgt as cmdt_lbs_wgt,
+				itm.cmdt_cbm_meas as cmdt_cbm_meas,
+				itm.cmdt_cft_meas as cmdt_cft_meas,	
+				itm.po_cmdt_seq as po_cmdt_seq,
+				</isNull>
+				<isNotNull property="bkg_seq"> 
+				bkg_po.pck_qty as pck_qty,
+				bkg_po.pck_qty - ISNULL(bkg.bk_pck_qty,0) as rmn_pck_qty,
+				bkg_po.pck_ut_cd as pck_ut_cd,
+				bkg_po.pck_inr_qty as pck_inr_qty,
+				bkg_po.ea_cnt as ea_cnt,
+				bkg_po.ea_cnt - ISNULL(bkg.bk_ea_cnt,0) as rmn_ea_cnt,
+				bkg_po.ttl_qty as ttl_qty,
+				bkg_po.ttl_qty - ISNULL(bkg.bk_ttl_qty,0) as rmn_ttl_qty,
+				bkg_po.cmdt_kgs_wgt as cmdt_kgs_wgt,
+				bkg_po.cmdt_lbs_wgt as cmdt_lbs_wgt,
+				bkg_po.cmdt_cbm_meas as cmdt_cbm_meas,
+				bkg_po.cmdt_cft_meas as cmdt_cft_meas,	
+				bkg_po.po_cmdt_seq as po_cmdt_seq,
+				</isNotNull>
+				cmdt.hs_grp_cd as hs_grp_cd,
+				cmdt.cmdt_cd as shp_cmdt_cd,
+				cmdt.cmdt_nm as shp_cmdt_nm,				
+				po.po_sys_no as po_sys_no
+			FROM tb_po po
+			JOIN tb_po_cmdt itm ON po.po_sys_no = itm.po_sys_no AND itm.delt_flg = 'N'
+			LEFT OUTER JOIN tl_ctrt_cust_item custitm ON itm.ctrt_no = custitm.ctrt_no AND itm.item_sys_no = custitm.item_sys_no AND itm.cust_itm_id = custitm.item_cd AND custitm.item_use_flg = 'Y'
+			LEFT OUTER JOIN tb_cmdt_cd cmdt ON custitm.hts_no = cmdt.cmdt_cd AND cmdt.delt_flg = 'N'
+			LEFT OUTER JOIN tb_pck_ut_cd unit ON itm.pck_ut_cd = unit.pck_ut_cd AND unit.use_flg = 'Y'
+			LEFT OUTER JOIN (SELECT itm.po_cmdt_seq, 
+									SUM(itm.pck_qty) as bk_pck_qty, 
+									SUM(itm.ea_cnt) as bk_ea_cnt, 
+									SUM(itm.ttl_qty) as bk_ttl_qty
+									FROM tb_shp_cmdt itm
+									JOIN tb_intg_bl bl ON itm.intg_bl_seq = bl.intg_bl_seq AND bl.delt_flg = 'N'
+									LEFT OUTER JOIN tb_add_info_bnd bnd ON bl.intg_bl_seq = bnd.intg_bl_seq AND bnd.delt_flg = 'N'
+									LEFT OUTER JOIN tb_bkg bkg ON bnd.intg_bkg_seq = bkg.bkg_seq AND bkg.delt_flg = 'N'
+									WHERE itm.delt_flg = 'N'
+									AND itm.po_cmdt_seq is not null
+									GROUP BY itm.po_cmdt_seq) bkg ON itm.po_cmdt_seq = bkg.po_cmdt_seq
+		  <isNotNull property="bkg_seq"> 
+		    JOIN tb_bkg_po bkg_po ON itm.po_sys_no = bkg_po.po_sys_no AND itm.po_cmdt_seq = bkg_po.po_cmdt_seq AND bkg_po.delt_flg = 'N'
+		  </isNotNull>
+			WHERE po.delt_flg = 'N'
+			  AND po.ord_sts_cd = 'A'
+		  <isNotEmpty property="ord_strdt"> 
+			<isNotEmpty property="ord_enddt">
+		  		AND po.ord_dt BETWEEN #ord_strdt# AND #ord_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="arr_strdt"> 
+			<isNotEmpty property="arr_enddt">
+		  		AND po.arr_dt BETWEEN #arr_strdt# AND #arr_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="cgo_rdy_strdt"> 
+			<isNotEmpty property="cgo_rdy_enddt">
+		  		AND po.cgo_rdy_dt BETWEEN #cgo_rdy_strdt# AND #cgo_rdy_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="shpwin_strdt"> 
+			<isNotEmpty property="shpwin_enddt">
+		  		<![CDATA[AND (po.shpwin_fr_dt <= #shpwin_enddt# AND po.shpwin_to_dt >= #shpwin_strdt#)]]>
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotNull prepend="AND" property="cust_po_no"> 
+		  	po.cust_po_no LIKE #cust_po_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="po_sys_no"> 
+		  	po.po_sys_no LIKE #po_sys_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="item_desc"> 
+		  	custitm.item_nm LIKE '%'+#item_desc#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="cust_trdp_cd"> 
+		  	po.cust_trdp_cd = #cust_trdp_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="cust_trdp_nm"> 
+	           po.cust_trdp_nm LIKE #cust_trdp_nm#+'%'
+	         </isNotNull>
+	         <isNotNull prepend="AND" property="vndr_trdp_cd"> 
+		  	po.vndr_trdp_cd = #vndr_trdp_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="vndr_trdp_nm"> 
+	           po.vndr_trdp_nm LIKE #vndr_trdp_nm#+'%'
+	         </isNotNull>
+	         <!-- <isNotNull prepend="AND" property="org_loc_cd"> 
+		  	po.org_loc_cd = #org_loc_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="org_loc_nm"> 
+	           po.org_loc_nm LIKE #org_loc_nm#+'%'
+	         </isNotNull>
+	         <isNotNull prepend="AND" property="dest_loc_cd"> 
+		  	po.dest_loc_cd = #dest_loc_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="dest_loc_nm"> 
+	           po.dest_loc_nm LIKE #dest_loc_nm#+'%'
+	         </isNotNull> -->
+	         <isNotNull prepend="AND" property="bkg_seq"> 
+	           bkg_po.bkg_seq = #bkg_seq#
+	         </isNotNull>
+        ORDER BY itm.po_sys_no, itm.po_cmdt_seq
+    </select>
+    
+    <!-- house bl Popup List Count select    -->
+    <select id="selectCMM_POP_0400_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    	  SELECT count(itm.po_cmdt_seq)
+    	    FROM tb_po po
+            JOIN tb_po_cmdt itm ON po.po_sys_no = itm.po_sys_no AND itm.delt_flg = 'N'
+			LEFT OUTER JOIN tl_ctrt_cust_item custitm ON itm.ctrt_no = custitm.ctrt_no AND itm.item_sys_no = custitm.item_sys_no AND itm.cust_itm_id = custitm.item_cd AND custitm.item_use_flg = 'Y'
+			LEFT OUTER JOIN tb_cmdt_cd cmdt ON custitm.hts_no = cmdt.cmdt_cd AND cmdt.delt_flg = 'N'
+			LEFT OUTER JOIN tb_pck_ut_cd unit ON itm.pck_ut_cd = unit.pck_ut_cd AND unit.use_flg = 'Y'
+			LEFT OUTER JOIN (SELECT itm.po_cmdt_seq, 
+									SUM(itm.pck_qty) as bk_pck_qty, 
+									SUM(itm.ea_cnt) as bk_ea_cnt, 
+									SUM(itm.ttl_qty) as bk_ttl_qty
+									FROM tb_shp_cmdt itm
+									JOIN tb_intg_bl bl ON itm.intg_bl_seq = bl.intg_bl_seq AND bl.delt_flg = 'N'
+									LEFT OUTER JOIN tb_add_info_bnd bnd ON bl.intg_bl_seq = bnd.intg_bl_seq AND bnd.delt_flg = 'N'
+									LEFT OUTER JOIN tb_bkg bkg ON bnd.intg_bkg_seq = bkg.bkg_seq AND bkg.delt_flg = 'N'
+									WHERE itm.delt_flg = 'N'
+									AND itm.po_cmdt_seq is not null
+									GROUP BY itm.po_cmdt_seq) bkg ON itm.po_cmdt_seq = bkg.po_cmdt_seq
+		  <isNotNull property="bkg_seq"> 
+		    JOIN tb_bkg_po bkg_po ON itm.po_sys_no = bkg_po.po_sys_no AND itm.po_cmdt_seq = bkg_po.po_cmdt_seq AND bkg_po.delt_flg = 'N'
+		  </isNotNull>
+			WHERE po.delt_flg = 'N'
+			  AND po.ord_sts_cd = 'A'
+		  <isNotEmpty property="ord_strdt"> 
+			<isNotEmpty property="ord_enddt">
+		  		AND po.ord_dt BETWEEN #ord_strdt# AND #ord_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="arr_strdt"> 
+			<isNotEmpty property="arr_enddt">
+		  		AND po.arr_dt BETWEEN #arr_strdt# AND #arr_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="cgo_rdy_strdt"> 
+			<isNotEmpty property="cgo_rdy_enddt">
+		  		AND po.cgo_rdy_dt BETWEEN #cgo_rdy_strdt# AND #cgo_rdy_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="shpwin_strdt"> 
+			<isNotEmpty property="shpwin_enddt">
+		  		<![CDATA[AND (po.shpwin_fr_dt <= #shpwin_enddt# AND po.shpwin_to_dt >= #shpwin_strdt#)]]>
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotNull prepend="AND" property="cust_po_no"> 
+		  	po.cust_po_no LIKE #cust_po_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="po_sys_no"> 
+		  	po.po_sys_no LIKE #po_sys_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="item_desc"> 
+		  	custitm.item_nm LIKE '%'+#item_desc#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="cust_trdp_cd"> 
+		  	po.cust_trdp_cd = #cust_trdp_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="cust_trdp_nm"> 
+	           po.cust_trdp_nm LIKE #cust_trdp_nm#+'%'
+	         </isNotNull>
+	         <isNotNull prepend="AND" property="vndr_trdp_cd"> 
+		  	po.vndr_trdp_cd = #vndr_trdp_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="vndr_trdp_nm"> 
+	           po.vndr_trdp_nm LIKE #vndr_trdp_nm#+'%'
+	         </isNotNull>
+	         <!-- <isNotNull prepend="AND" property="org_loc_cd"> 
+		  	po.org_loc_cd = #org_loc_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="org_loc_nm"> 
+	           po.org_loc_nm LIKE #org_loc_nm#+'%'
+	         </isNotNull>
+	         <isNotNull prepend="AND" property="dest_loc_cd"> 
+		  	po.dest_loc_cd = #dest_loc_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="dest_loc_nm"> 
+	           po.dest_loc_nm LIKE #dest_loc_nm#+'%'
+	         </isNotNull> -->
+	         <isNotNull prepend="AND" property="bkg_seq"> 
+	           bkg_po.bkg_seq = #bkg_seq#
+	         </isNotNull>
+    </select>
+    
+    <!-- PO Popup List select    -->
+    <select id="selectCMM_POP_0500_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.list.dto.OthPurOrdItemPopVO">
+		SELECT  TOP $topCnt$
+                po.cust_po_no as cust_po_no,
+				itm.cust_itm_id as cust_itm_id,
+				custitm.item_nm as cust_itm_nm,
+				po.shpwin_fr_dt as shpwin_fr_dt,
+				po.shpwin_to_dt as shpwin_to_dt,
+				po.org_loc_nm as org_loc_nm,
+				po.dest_loc_nm as dest_loc_nm,
+				itm.pck_qty as pck_qty,
+				itm.pck_qty - ISNULL(bkg.bk_pck_qty,0) as rmn_pck_qty,
+				itm.pck_ut_cd as pck_ut_cd,
+				unit.pck_nm as pck_ut_nm,
+				itm.pck_inr_qty as pck_inr_qty,
+				itm.ea_cnt as ea_cnt,
+				itm.ea_cnt - ISNULL(bkg.bk_ea_cnt,0) as rmn_ea_cnt,
+				itm.ttl_qty as ttl_qty,
+				itm.ttl_qty - ISNULL(bkg.bk_ttl_qty,0) as rmn_ttl_qty,
+				itm.cmdt_kgs_wgt as cmdt_kgs_wgt,
+				itm.cmdt_lbs_wgt as cmdt_lbs_wgt,
+				itm.cmdt_cbm_meas as cmdt_cbm_meas,
+				itm.cmdt_cft_meas as cmdt_cft_meas,	
+				itm.po_cmdt_seq as po_cmdt_seq,
+				po.po_sys_no as po_sys_no
+			FROM tb_po po
+			JOIN tb_po_cmdt itm ON po.po_sys_no = itm.po_sys_no AND itm.delt_flg = 'N'
+			LEFT OUTER JOIN tl_ctrt_cust_item custitm ON itm.ctrt_no = custitm.ctrt_no AND itm.item_sys_no = custitm.item_sys_no AND itm.cust_itm_id = custitm.item_cd AND custitm.item_use_flg = 'Y'
+			LEFT OUTER JOIN tb_pck_ut_cd unit ON itm.pck_ut_cd = unit.pck_ut_cd AND unit.use_flg = 'Y'
+			LEFT OUTER JOIN (SELECT itm.po_cmdt_seq, 
+									SUM(itm.pck_qty) as bk_pck_qty, 
+									SUM(itm.ea_cnt) as bk_ea_cnt, 
+									SUM(itm.ttl_qty) as bk_ttl_qty
+									FROM tb_bkg_po itm
+									WHERE itm.delt_flg = 'N'
+									GROUP BY itm.po_cmdt_seq) bkg ON itm.po_cmdt_seq = bkg.po_cmdt_seq
+			WHERE po.delt_flg = 'N'
+			  AND po.ord_sts_cd = 'A'
+		  <isNotEmpty property="ord_strdt"> 
+			<isNotEmpty property="ord_enddt">
+		  		AND po.ord_dt BETWEEN #ord_strdt# AND #ord_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="arr_strdt"> 
+			<isNotEmpty property="arr_enddt">
+		  		AND po.arr_dt BETWEEN #arr_strdt# AND #arr_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="cgo_rdy_strdt"> 
+			<isNotEmpty property="cgo_rdy_enddt">
+		  		AND po.cgo_rdy_dt BETWEEN #cgo_rdy_strdt# AND #cgo_rdy_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="shpwin_strdt"> 
+			<isNotEmpty property="shpwin_enddt">
+		  		<![CDATA[AND (po.shpwin_fr_dt <= #shpwin_enddt# AND po.shpwin_to_dt >= #shpwin_strdt#)]]>
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotNull prepend="AND" property="cust_po_no"> 
+		  	po.cust_po_no LIKE #cust_po_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="po_sys_no"> 
+		  	po.po_sys_no LIKE #po_sys_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="item_desc"> 
+		  	custitm.item_nm LIKE '%'+#item_desc#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="cust_trdp_cd"> 
+		  	po.cust_trdp_cd = #cust_trdp_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="cust_trdp_nm"> 
+	           po.cust_trdp_nm LIKE #cust_trdp_nm#+'%'
+	         </isNotNull>
+	         <isNotNull prepend="AND" property="vndr_trdp_cd"> 
+		  	po.vndr_trdp_cd = #vndr_trdp_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="vndr_trdp_nm"> 
+	           po.vndr_trdp_nm LIKE #vndr_trdp_nm#+'%'
+	         </isNotNull>
+	         <!-- <isNotNull prepend="AND" property="org_loc_cd"> 
+		  	po.org_loc_cd = #org_loc_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="org_loc_nm"> 
+	           po.org_loc_nm LIKE #org_loc_nm#+'%'
+	         </isNotNull>
+	         <isNotNull prepend="AND" property="dest_loc_cd"> 
+		  	po.dest_loc_cd = #dest_loc_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="dest_loc_nm"> 
+	           po.dest_loc_nm LIKE #dest_loc_nm#+'%'
+	         </isNotNull> -->
+        ORDER BY itm.po_sys_no, itm.po_cmdt_seq
+    </select>
+    
+    <!-- house bl Popup List Count select    -->
+    <select id="selectCMM_POP_0500_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    	  SELECT count(po.po_sys_no)
+    	    FROM tb_po po
+			JOIN tb_po_cmdt itm ON po.po_sys_no = itm.po_sys_no AND itm.delt_flg = 'N'
+			LEFT OUTER JOIN tl_ctrt_cust_item custitm ON itm.ctrt_no = custitm.ctrt_no AND itm.item_sys_no = custitm.item_sys_no AND itm.cust_itm_id = custitm.item_cd AND custitm.item_use_flg = 'Y'
+			LEFT OUTER JOIN tb_pck_ut_cd unit ON itm.pck_ut_cd = unit.pck_ut_cd AND unit.use_flg = 'Y'
+			LEFT OUTER JOIN (SELECT itm.po_cmdt_seq, 
+									SUM(itm.pck_qty) as bk_pck_qty, 
+									SUM(itm.ea_cnt) as bk_ea_cnt, 
+									SUM(itm.ttl_qty) as bk_ttl_qty
+									FROM tb_bkg_po itm
+									WHERE itm.delt_flg = 'N'
+									GROUP BY itm.po_cmdt_seq) bkg ON itm.po_cmdt_seq = bkg.po_cmdt_seq
+			WHERE po.delt_flg = 'N'
+			  AND po.ord_sts_cd = 'A'
+		  <isNotEmpty property="ord_strdt"> 
+			<isNotEmpty property="ord_enddt">
+		  		AND po.ord_dt BETWEEN #ord_strdt# AND #ord_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="arr_strdt"> 
+			<isNotEmpty property="arr_enddt">
+		  		AND po.arr_dt BETWEEN #arr_strdt# AND #arr_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="cgo_rdy_strdt"> 
+			<isNotEmpty property="cgo_rdy_enddt">
+		  		AND po.cgo_rdy_dt BETWEEN #cgo_rdy_strdt# AND #cgo_rdy_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="shpwin_strdt"> 
+			<isNotEmpty property="shpwin_enddt">
+		  		<![CDATA[AND (po.shpwin_fr_dt <= #shpwin_enddt# AND po.shpwin_to_dt >= #shpwin_strdt#)]]>
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotNull prepend="AND" property="cust_po_no"> 
+		  	po.cust_po_no LIKE #cust_po_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="po_sys_no"> 
+		  	po.po_sys_no LIKE #po_sys_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="item_desc"> 
+		  	custitm.item_nm LIKE '%'+#item_desc#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="cust_trdp_cd"> 
+		  	po.cust_trdp_cd = #cust_trdp_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="cust_trdp_nm"> 
+	           po.cust_trdp_nm LIKE #cust_trdp_nm#+'%'
+	         </isNotNull>
+	         <isNotNull prepend="AND" property="vndr_trdp_cd"> 
+		  	po.vndr_trdp_cd = #vndr_trdp_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="vndr_trdp_nm"> 
+	           po.vndr_trdp_nm LIKE #vndr_trdp_nm#+'%'
+	         </isNotNull>
+	         <!-- <isNotNull prepend="AND" property="org_loc_cd"> 
+		  	po.org_loc_cd = #org_loc_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="org_loc_nm"> 
+	           po.org_loc_nm LIKE #org_loc_nm#+'%'
+	         </isNotNull>
+	         <isNotNull prepend="AND" property="dest_loc_cd"> 
+		  	po.dest_loc_cd = #dest_loc_cd#
+		  </isNotNull>
+	         <isNotNull prepend="AND" property="dest_loc_nm"> 
+	           po.dest_loc_nm LIKE #dest_loc_nm#+'%'
+	         </isNotNull> -->
+    </select>
+    <insert id="addLPSplitChildShipmentWaveSimple">
+    	/*WHOutWaveSimple.addLPSplitChildShipmentWaveSimple*/
+		INSERT INTO TL_WH_PSUDO_LP_SHIP(
+					CONSOL_NO, 
+					SHIPNO, 
+					SHIPNO_SEQ, 
+					SO_NO, 
+					WOB_BK_NO, 
+					WIB_BK_NO, 
+					SAO_SYS_NO, 
+					PO_SYS_NO, 
+					ITEM_SYS_NO, 
+					LOT_ID, 
+					WH_LOC_CD, 
+					ITEM_SEQ, 
+					SAO_NO, 
+					PO_NO, 
+					ITEM_CD, 
+					ITEM_NM, 
+					LP_ITEM_EA_QTY, 
+					LOAD_ITEM_EA_QTY, 
+					LP_ITEM_CBM, 
+					LP_ITEM_CBF, 
+					LP_ITEM_GRS_KGS, 
+					LP_ITEM_GRS_LBS, 
+					LP_ITEM_NET_KGS, 
+					LP_ITEM_NET_LBS, 
+					LP_STATUS, 
+					LP_SHIP_LTNO, 
+					LP_SHIP_SEQ_LTNO, 
+					LP_OLD_ID, 
+					LP_OLD_SEQ, 
+					LP_ID, 
+					LP_SEQ, 
+					TRUCKER_CD,
+					TRUCKER_NM,
+					EQ_TPSZ_CD,
+					EQ_NO,
+					SEAL_NO,
+					DLV_ORD_NO,
+					DLV_ORD_SEQ,
+					OUTBOUND_DT,
+					OUT_PE_QTY,
+					RGST_ID, 
+					RGST_OFC_CD, 
+					RGST_SYS_DT, 
+					RGST_LOC_DT, 
+					MODI_ID, 
+					MODI_OFC_CD, 
+					MODI_SYS_DT, 
+					MODI_LOC_DT
+			)
+		      SELECT  P.CONSOL_NO,
+                     #shipno#,
+                     (SELECT ISNULL(MAX(T.SHIPNO_SEQ),0)+1 
+                      FROM TL_WH_PSUDO_LP_SHIP T
+                      WHERE T.CONSOL_NO = #consol_no#
+                      	AND T.SHIPNO    = #shipno#),
+                     P.SO_NO, 
+                     P.WOB_BK_NO, 
+                     P.WIB_BK_NO, 
+                     P.SAO_SYS_NO, 
+                     P.PO_SYS_NO, 
+                     P.ITEM_SYS_NO, 
+                     P.LOT_ID, 
+                     P.WH_LOC_CD, 
+                     P.ITEM_SEQ, 
+                     P.SAO_NO, 
+                     P.PO_NO, 
+                     P.ITEM_CD, 
+                     P.ITEM_NM, 
+                     #qty#, 
+                     0,
+                     CAST(ISNULL(#qty#,0) AS FLOAT) * ISNULL(I.PKG_LV1_QTY,0) * ISNULL(I.LV1_CBM,0), 
+                     CAST(ISNULL(#qty#,0) AS FLOAT) * ISNULL(I.PKG_LV1_QTY,0) * ISNULL(I.LV1_CBF,0),
+                     CAST(ISNULL(#qty#,0) AS FLOAT) * ISNULL(I.PKG_LV1_QTY,0) * ISNULL(I.LV1_GRS_KGS,0), 
+                     CAST(ISNULL(#qty#,0) AS FLOAT) * ISNULL(I.PKG_LV1_QTY,0) * ISNULL(I.LV1_GRS_LBS,0), 
+                     CAST(ISNULL(#qty#,0) AS FLOAT) * ISNULL(I.PKG_LV1_QTY,0) * ISNULL(I.LV1_NET_KGS,0), 
+                     CAST(ISNULL(#qty#,0) AS FLOAT) * ISNULL(I.PKG_LV1_QTY,0) * ISNULL(I.LV1_NET_LBS,0), 
+                     'G', 
+                     P.LP_SHIP_LTNO, 
+                     P.LP_SHIP_SEQ_LTNO, 
+                     P.LP_OLD_ID, 
+                     P.LP_OLD_SEQ, 
+                     P.LP_ID, 
+                     P.LP_SEQ, 
+                     P.TRUCKER_CD,
+					 P.TRUCKER_NM,
+					 P.EQ_TPSZ_CD,
+					 P.EQ_NO,
+					 P.SEAL_NO,
+					 P.DLV_ORD_NO,
+					 P.DLV_ORD_SEQ,
+					 P.OUTBOUND_DT,
+					 0,					 
+                     #user_id#, 
+                     #org_cd#, 
+                     GETDATE(), 
+                     GETDATE(),
+                     #user_id#, 
+                     #org_cd#, 
+                     GETDATE(), 
+                     GETDATE()
+                FROM TL_WH_PSUDO_LP_SHIP P
+                    ,TL_WH_OB O 
+                    ,TL_CTRT_CUST_ITEM I
+               WHERE P.WOB_BK_NO 	= O.WOB_BK_NO
+                 AND O.CTRT_NO 		= I.CTRT_NO
+                 AND P.ITEM_SYS_NO 	= I.ITEM_SYS_NO
+                 AND CONSOL_NO 		= #consol_no#
+				 AND SHIPNO 		= #shipno#
+				 AND SHIPNO_SEQ 	= #shipno_seq#
+    </insert>
+     
+    <update id="modifyLPSplitShipmentWaveSimple">
+	/*WHOutWaveSimple.modifyLPSplitShipmentWaveSimple*/
+	UPDATE TL_WH_PSUDO_LP_SHIP
+	   SET LP_STATUS    = 'S',
+	       MODI_ID      = #user_id#,
+	       MODI_SYS_DT  = GETDATE()
+	WHERE CONSOL_NO 	= #consol_no#
+	   AND SHIPNO 		= #shipno#
+	   AND SHIPNO_SEQ   = #shipno_seq#
+	   AND LP_STATUS    = 'G'
+	</update>
+	
+	<delete id="removeLPSplitShipmentWaveSimple">
+	/*WHOutWaveSimple.removeLPSplitShipmentWaveSimple*/
+	DELETE FROM TL_WH_PSUDO_LP_SHIP
+	WHERE  CONSOL_NO 	= #consol_no#
+	   AND SHIPNO 		= #shipno#
+	   AND SHIPNO_SEQ != 0
+	   AND LP_STATUS  = 'S'
+	</delete>
+	
+	<!-- Carrier booking Popup List select    -->
+    <select id="selectCMM_POP_0280_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.masterbl.dto.SeeMasterBLVO">
+    	/** CmmPopUpSQL.xml > selectCMM_POP_0280_LIST **/
+    	SELECT  TOP $topCnt$
+    			bkg.bkg_no,						bkg.bkg_seq,					bkg.bkg_dt_tm, 
+		        bkg.shpr_trdp_cd,				bkg.shpr_trdp_nm,				bkg.shpr_trdp_addr ,
+		        bkg.cnee_trdp_cd,				bkg.cnee_trdp_nm,				bkg.cnee_trdp_addr ,
+		        bkg.ntfy_trdp_cd,				bkg.ntfy_trdp_nm,				bkg.ntfy_trdp_addr ,
+		        bkg.prnr_trdp_cd ,				bkg.prnr_trdp_nm,			
+		        bkg.fwrd_agn_trdp_cd,			bkg.fwrd_agn_trdp_nm,			bkg.fwrd_agn_trdp_addr,	
+		        bkg.cust_ref_no,				bkg.cntr_info,					bkg.lnr_ctrt_no,
+		        bkg.trnk_vsl_cd,				bkg.trnk_vsl_nm,				bkg.trnk_voy ,
+		        bkg.por_cd,						bkg.por_nod_cd,					bkg.por_nm ,
+		        bkg.pol_cd,						bkg.pol_nod_cd,					bkg.pol_nm ,
+		        bkg.pod_cd,						bkg.pod_nod_cd,					bkg.pod_nm ,
+		        bkg.del_cd,						bkg.del_nod_cd,					bkg.del_nm ,
+		        bkg.fnl_dest_loc_cd,			bkg.fnl_dest_nod_cd,			bkg.fnl_dest_loc_nm ,
+		        bkg.lnr_trdp_cd,				bkg.lnr_trdp_nm,				bkg.lnr_bkg_no ,
+		        bkg.etd_dt_tm,					bkg.eta_dt_tm,					bkg.etd_por_tm ,
+		        bkg.eta_del_dt_tm,				bkg.eta_fnl_dest_dt_tm,
+		        bkg.rep_cmdt_cd,				bkg.rep_cmdt_nm ,
+		        bkg.frt_term_cd,				bkg.pck_qty,					bkg.pck_ut_cd,				
+		        bkg.grs_wgt_ut_cd,				bkg.grs_wgt,					bkg.grs_wgt1,				
+		        bkg.meas_ut_cd,					bkg.meas,						bkg.meas1,					
+		        bkg.fm_svc_term_cd,				bkg.to_svc_term_cd,				bkg.cargo_tp_cd,			
+		        bkg.rmk,						bkg.dept_cd,
+		        bkg.rgst_usrid,					bkg.rgst_ofc_cd,				bkg.rgst_tms ,
+		        bkg.modi_usrid,					bkg.modi_ofc_cd,				bkg.modi_tms ,
+		        bkg.delt_flg,					bl.bl_no AS bl_no,				ofc.ofc_eng_nm AS proc_ofcnm,
+		        case when bkg.biz_clss_cd = 'H' 
+		                then (select clp_no from tb_clp where bkg_seq = (select top 1 rlt_bkg_seq from tb_bkg_rlt where bkg_seq = bkg.bkg_seq and delt_flg = 'N' ) and delt_flg = 'N')
+		                else  (select clp_no from tb_clp where bkg_seq = bkg.bkg_seq and delt_flg = 'N')
+			    end as clp_no,
+			    bkg.hbl_tp_cd,					bkg.act_shpr_trdp_cd, 			bkg.act_shpr_trdp_nm,			    
+			    bkg.bkg_agn_trdp_cd as carr_trdp_cd,	bkg.bkg_agn_trdp_nm as carr_trdp_nm,	bkg.bkg_agn_trdp_addr as carr_trdp_addr,
+				bkg.nomi_flg,							bkg.shp_mod_cd,
+				bkg.asgn_usrid,							bkg.bkg_sts_cd,	substring(bkg.cut_off_dt,1,8) as cut_off_dt,substring(bkg.cut_off_dt,9,12) as cut_off_tm
+				<!-- Carrier Bkg 조회 필드 추가 팀장님지시사항 -->
+	           ,BKG.rcv_wh_cd
+	           ,BKG.rcv_wh_nm		
+	           ,BKG.pu_trdp_cd
+	           ,BKG.pu_trdp_nm
+	           ,substring(bkg.vgm_cut_off_dt,1,8)  as vgm_cut_off_dt
+	           ,substring(bkg.vgm_cut_off_dt,9,12) as vgm_cut_off_tm
+	           ,substring(bkg.doc_cut_off_dt,1,8)  as doc_cut_off_dt
+	           ,substring(bkg.doc_cut_off_dt,9,12) as doc_cut_off_tm
+	           ,substring(bkg.rail_cut_off_dt,1,8) as rail_cut_off_dt
+	           ,substring(bkg.rail_cut_off_dt,9,12) as rail_cut_off_tm
+	           ,substring(bkg.port_open_dt,1,8)  as port_open_dt
+	           ,substring(bkg.port_open_dt,9,12) as port_open_tm
+	           <!-- #4899 ** [Binex] Carrier Booking Entry to have Customer Ref. No., Export References No., Agent Ref. No. -->
+	           ,bkg.exp_ref_no
+	           ,bkg.prnr_ref_no
+	           <!-- #5289 [Binex] Errors when retrieving Customer Booking on OEH BL Entry -->
+	           ,bkg.obl_tp_cd
+		  FROM tb_bkg bkg
+		  LEFT OUTER JOIN  tb_add_info_bnd bnd
+		    ON bnd.intg_bkg_seq = bkg.bkg_seq AND bnd.delt_flg = 'N'
+		  LEFT OUTER JOIN  tb_intg_bl bl
+		    ON bnd.intg_bl_seq = bl.intg_bl_seq AND bl.air_sea_clss_cd = 'S' AND bl.biz_clss_cd = 'M' AND bl.delt_flg = 'N'
+		  LEFT OUTER JOIN  tb_ofc ofc
+		    ON ofc.ofc_cd = bkg.rgst_ofc_cd      AND ofc.delt_flg = 'N'
+		
+	     WHERE  bkg.delt_flg = 'N'
+	       AND  bkg.biz_clss_cd = #f_biz_clss_cd#
+	       
+        <isNotNull property="f_ofc_cd">
+              AND   bkg.modi_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+		<isNotNull property="f_bkg_strdt">
+			AND bkg.bkg_dt_tm BETWEEN #f_bkg_strdt# AND #f_bkg_enddt#
+		</isNotNull>
+		<isNotNull property="f_bkg_no">
+			AND bkg.bkg_no   LIKE '%'+#f_bkg_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_lnr_bkg_no">
+			AND bkg.lnr_bkg_no   LIKE '%'+#f_lnr_bkg_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_lnr_trdp_cd">
+              AND   bkg.lnr_trdp_cd = #f_lnr_trdp_cd#
+        </isNotNull>
+		<isNotNull property="f_lnr_trdp_nm">	
+			AND bkg.lnr_trdp_nm LIKE '%'+#f_lnr_trdp_nm#+'%'
+		</isNotNull>
+		<isEqual property="f_mbl_entry_yn" compareValue="Y">
+		    AND isnull(bkg.lnr_bkg_no,'') != ''
+		    AND bkg.bkg_sts_cd in ('CF', 'BL')
+		</isEqual>
+		ORDER BY bkg.bkg_seq DESC
+    </select>
+    
+    <!-- Carrier booking Popup List Count select    -->
+    <select id="selectCMM_POP_0280_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    	/** CmmPopUpSQL.xml > selectCMM_POP_0280_CNT **/
+ 	    SELECT COUNT(bkg.bkg_seq)
+          FROM tb_bkg bkg
+		  LEFT OUTER JOIN  tb_add_info_bnd bnd
+		    ON bnd.intg_bkg_seq = bkg.bkg_seq AND bnd.delt_flg = 'N'
+		  LEFT OUTER JOIN  tb_intg_bl bl
+		    ON bnd.intg_bl_seq = bl.intg_bl_seq AND bl.air_sea_clss_cd = 'S' AND bl.biz_clss_cd = 'M' AND bl.delt_flg = 'N'
+		  LEFT OUTER JOIN  tb_ofc ofc
+		    ON ofc.ofc_cd = bkg.rgst_ofc_cd      AND ofc.delt_flg = 'N'
+		
+	     WHERE  bkg.delt_flg = 'N'
+	       AND  bkg.biz_clss_cd = #f_biz_clss_cd#
+	       
+        <isNotNull property="f_ofc_cd">
+              AND   bkg.modi_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+		<isNotNull property="f_bkg_strdt">
+			AND bkg.bkg_dt_tm BETWEEN #f_bkg_strdt# AND #f_bkg_enddt#
+		</isNotNull>
+		<isNotNull property="f_bkg_no">
+			AND bkg.bkg_no   LIKE '%'+#f_bkg_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_lnr_bkg_no">
+			AND bkg.lnr_bkg_no   LIKE '%'+#f_lnr_bkg_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_lnr_trdp_cd">
+              AND   bkg.lnr_trdp_cd = #f_lnr_trdp_cd#
+        </isNotNull>
+		<isNotNull property="f_lnr_trdp_nm">	
+			AND bkg.lnr_trdp_nm LIKE '%'+#f_lnr_trdp_nm#+'%'
+		</isNotNull>
+		<isEqual property="f_mbl_entry_yn" compareValue="Y">
+		    AND isnull(bkg.lnr_bkg_no,'') != ''
+		    AND bkg.bkg_sts_cd in ('CF', 'BL')
+		</isEqual>
+    </select>
+    
+    	<!-- Team List pop select    -->
+    <select id="selectCMM_POP_0600_LIST" resultClass="com.clt.apps.fis.cmm.pop.team.dto.TeamVO">
+       
+		SELECT 
+			com_cd,	cd_val, cd_nm
+		FROM tb_com_cd_dtl
+		WHERE  delt_flg = 'N'
+		AND   com_cd = 'C133'	
+		<dynamic prepend="AND">
+		<isNotNull prepend="AND" property="USE_YN">
+			use_flg = #USE_YN#
+		</isNotNull>	
+		<isNotNull prepend="AND" property="s_team_code">
+			cd_val like #s_team_code#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_team_name">
+			cd_nm like #s_team_name#
+		</isNotNull>			
+		</dynamic>		
+		ORDER  BY cd_val
+		
+	</select>
+	
+	<!-- Trade cargo status List pop select count    -->
+    <select id="selectCMM_POP_0600_CNT" resultClass="Integer">
+        SELECT  	count(*)
+		FROM tb_com_cd_dtl
+		WHERE use_flg ='Y'
+		AND   delt_flg = 'N'
+		AND   com_cd = 'C133'
+		
+		<dynamic prepend="AND">		
+		<isNotNull prepend="AND" property="s_team_code">
+			cd_val like #s_team_code#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_team_name">
+			cd_nm like #s_team_name#
+		</isNotNull>			
+		</dynamic>
+		
+	</select>
+
+	<!-- Consolidation List popup    -->
+    <select id="selectCMM_POP_0440_LIST" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+    	/* CmmPopUpSQL.xml > selectCMM_POP_0440_LIST */
+		SELECT A1.*
+		  FROM (
+				SELECT ROW_NUMBER() OVER (ORDER BY B.BKG_SEQ ASC) as ROWNUM
+				     , B.CLP_NO AS PLAN_NO
+				     , (SELECT CD_NM FROM TB_COM_CD_DTL DTL WHERE COM_CD = 'C224' AND DTL.CD_VAL = B.CLP_STS_CD) AS CON_STATUS
+				     , C.BKG_NO AS CARRIER_BKG_NO
+				     , C.BKG_SEQ
+				     , E.REF_NO AS FILLING_NO
+				     , E.BL_NO AS MASTER_BL_NO
+				     , C.POL_CD
+				     , C.POL_NM
+				     , C.POD_CD
+				     , C.POD_NM
+				     , C.ETD_DT_TM
+				     , C.ETA_DT_TM
+				     , C.CNTR_INFO AS CNTR_SUM
+				     , C.TRNK_VSL_CD
+				     , C.TRNK_VSL_NM+'/'+C.TRNK_VOY AS TRNK_VSL_NM
+				     , B.MODI_USRID AS ISSUED_BY
+            		 , B.MODI_TMS AS ISSUED_AT       
+		        FROM
+		            (
+		                SELECT
+		                    CNTR.CLP_NO                    
+		                FROM
+		                    (SELECT *
+		                       FROM TB_BKG_CNTR_LIST 
+		                      WHERE DELT_FLG = 'N' 
+		                    <dynamic>
+					            <isNotEmpty property="cntr_no">
+					                AND CNTR_NO = #cntr_no#
+					            </isNotEmpty>
+					            <isNotEmpty property="ref_no">
+					                AND REF_NO = #ref_no#
+					            </isNotEmpty>
+				            </dynamic>
+		                    ) CNTR                    
+		                GROUP BY
+		                    CNTR.CLP_NO                 
+		            ) A   
+		        LEFT JOIN
+		            TB_CLP B        
+                ON A.CLP_NO = B.CLP_NO  
+				  LEFT JOIN TB_BKG C
+					ON B.BKG_SEQ = C.BKG_SEQ
+				  AND C.DELT_FLG = 'N'
+				  LEFT OUTER JOIN TB_ADD_INFO_BND D       
+				    ON D.INTG_BKG_SEQ = C.BKG_SEQ 
+				    AND D.DELT_FLG = 'N'
+				  LEFT OUTER JOIN TB_INTG_BL E       
+					ON D.INTG_BL_SEQ = E.INTG_BL_SEQ 
+					AND E.AIR_SEA_CLSS_CD = 'S' 
+					AND E.BIZ_CLSS_CD = 'M' 
+					AND E.DELT_FLG = 'N' 
+		WHERE  1=1 
+		  AND B.DELT_FLG = 'N'
+		<dynamic>
+            <isNotEmpty property="pol_cd">
+                AND C.POL_CD = #pol_cd#
+            </isNotEmpty>
+            <isNotEmpty property="pod_cd">
+                AND C.POD_CD = #pod_cd#
+            </isNotEmpty>   
+            <isNotEmpty property="plan_no">
+                AND B.CLP_NO LIKE '%'+#plan_no#+'%'
+            </isNotEmpty>  
+        </dynamic> 
+			   ) A1
+	<![CDATA[	WHERE A1.ROWNUM > #beginIdx# AND A1.ROWNUM <= #topCnt#	]]>
+		ORDER BY PLAN_NO DESC
+    </select>
+
+	<select id="selectCMM_POP_0440_CNT" resultClass="Integer">
+		SELECT COUNT(*)
+		        FROM
+		            (
+		                SELECT
+		                    CNTR.CLP_NO                    
+		                FROM
+		                    (SELECT *
+		                       FROM TB_BKG_CNTR_LIST 
+		                      WHERE DELT_FLG = 'N' 
+		                    <dynamic>
+					            <isNotEmpty property="cntr_no">
+					                AND CNTR_NO = #cntr_no#
+					            </isNotEmpty>
+					            <isNotEmpty property="ref_no">
+					                AND REF_NO = #ref_no#
+					            </isNotEmpty>
+				            </dynamic>
+		                    ) CNTR                    
+		                GROUP BY
+		                    CNTR.CLP_NO                 
+		            ) A   
+		        LEFT JOIN
+		            TB_CLP B        
+                ON A.CLP_NO = B.CLP_NO  
+				  LEFT JOIN TB_BKG C
+					ON B.BKG_SEQ = C.BKG_SEQ
+				  AND C.DELT_FLG = 'N'
+				  LEFT OUTER JOIN TB_ADD_INFO_BND D       
+				    ON D.INTG_BKG_SEQ = C.BKG_SEQ 
+				    AND D.DELT_FLG = 'N'
+				  LEFT OUTER JOIN TB_INTG_BL E       
+					ON D.INTG_BL_SEQ = E.INTG_BL_SEQ 
+					AND E.AIR_SEA_CLSS_CD = 'S' 
+					AND E.BIZ_CLSS_CD = 'M' 
+					AND E.DELT_FLG = 'N' 
+		WHERE  1=1 
+		  AND B.DELT_FLG = 'N'
+		<dynamic>
+            <isNotEmpty property="pol_cd">
+                AND C.POL_CD = #pol_cd#
+            </isNotEmpty>
+            <isNotEmpty property="pod_cd">
+                AND C.POD_CD = #pod_cd#
+            </isNotEmpty>   
+            <isNotEmpty property="f_plan_no">
+                AND B.CLP_NO LIKE '%'+#plan_no#+'%'
+            </isNotEmpty> 
+        </dynamic> 
+	</select>
+	<!-- booking split Popup List select    -->
+    <select id="selectCMM_POP_0510_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.SeeHouseBLVO">
+    	/** CmmPopUpSQL.xml > selectCMM_POP_0510_LIST **/
+    	SELECT  TOP $topCnt$
+    			bkg.bkg_no,					bkg.bkg_seq,				bkg.bkg_dt_tm, 
+		        bkg.po_no,					bkg.lc_no,					bkg.prnr_trdp_cd ,
+		        bkg.prnr_trdp_nm,			bkg.act_shpr_trdp_cd,		bkg.act_shpr_trdp_nm ,
+		        bkg.shpr_trdp_cd,			bkg.shpr_trdp_nm,			bkg.shpr_trdp_addr ,
+		        bkg.cnee_trdp_cd,			bkg.cnee_trdp_nm,			bkg.cnee_trdp_addr ,
+		        bkg.ntfy_trdp_cd,			bkg.ntfy_trdp_nm,			bkg.ntfy_trdp_addr ,
+		        bkg.exp_ref_no,				bkg.pu_trdp_cd,				bkg.pu_trdp_nm ,
+		        bkg.cgo_pu_trdp_cd,			bkg.cgo_pu_trdp_nm,			bkg.cgo_pu_trdp_addr ,
+		        bkg.rcv_wh_cd,				bkg.rcv_wh_nm,				bkg.trk_trdp_cd ,
+		        bkg.trk_trdp_nm,			bkg.cust_ref_no,			bkg.cntr_info,
+		        bkg.trnk_vsl_cd,			bkg.trnk_vsl_nm,			bkg.trnk_voy ,
+		        bkg.por_cd,					bkg.por_nod_cd,				bkg.por_nm ,
+		        bkg.pol_cd,					bkg.pol_nod_cd,				bkg.pol_nm ,
+		        bkg.pod_cd,					bkg.pod_nod_cd,				bkg.pod_nm ,
+		        bkg.del_cd,					bkg.del_nod_cd,				bkg.del_nm ,
+		        bkg.fnl_dest_loc_cd,		bkg.fnl_dest_nod_cd,		bkg.fnl_dest_loc_nm ,
+		        bkg.lnr_trdp_cd,			bkg.lnr_trdp_nm,			bkg.lnr_bkg_no ,
+		        bkg.etd_dt_tm,				bkg.eta_dt_tm,				bkg.etd_por_tm ,
+		        bkg.shp_mod_cd,				bkg.rep_cmdt_cd,			bkg.rep_cmdt_nm ,
+		        bkg.pck_qty,				bkg.pck_ut_cd,				bkg.grs_wgt_ut_cd ,
+		        bkg.grs_wgt,				bkg.grs_wgt1,				bkg.meas_ut_cd ,
+		        bkg.meas,					bkg.meas1,					bkg.fm_svc_term_cd ,
+		        bkg.to_svc_term_cd,			bkg.cargo_tp_cd,			
+		        substring(bkg.cut_off_dt,1,8) as cut_off_dt,
+		        substring(bkg.rail_cut_off_dt,1,8) as rail_cut_off_dt,
+		        substring(bkg.wh_cut_off_dt,1,8) as wh_cut_off_dt,
+		        substring(bkg.doc_cut_off_dt,1,8) as doc_cut_off_dt,
+		        bkg.sls_ofc_cd,				bkg.sls_dept_cd,			bkg.sls_usrid ,
+		        bkg.sls_usr_nm,				bkg.rmk,					bkg.dept_cd ,
+		        bkg.rgst_usrid,				bkg.rgst_ofc_cd,			bkg.rgst_tms ,
+		        bkg.modi_usrid,				bkg.modi_ofc_cd,			bkg.modi_tms ,
+		        bkg.delt_flg,				ofc.ofc_eng_nm AS proc_ofcnm,   
+		        bkg.modi_usrid AS proc_usrnm,
+		        substring(bkg.cut_off_dt,9,12) AS cut_off_tm,
+		        substring(bkg.rail_cut_off_dt,9,12) AS rail_cut_off_tm,
+		        substring(bkg.wh_cut_off_dt,9,12) AS wh_cut_off_tm,
+		        substring(bkg.doc_cut_off_dt,9,12) AS doc_cut_off_tm
+		  FROM tb_bkg bkg
+		  LEFT OUTER JOIN  tb_ofc ofc
+		    ON ofc.ofc_cd = bkg.rgst_ofc_cd      AND ofc.delt_flg = 'N'
+	     WHERE  bkg.delt_flg = 'N'
+	       AND  bkg.biz_clss_cd = #f_biz_clss_cd#
+	       
+        <isNotNull property="f_ofc_cd">
+              AND   bkg.modi_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+		<isNotNull property="f_bkg_no">
+			AND bkg.bkg_no   LIKE '%'+#f_bkg_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_bkg_strdt">
+			AND bkg.bkg_dt_tm BETWEEN #f_bkg_strdt# AND #f_bkg_enddt#
+		</isNotNull>
+		    AND bkg.bkg_sts_cd in ('CR','RD','CF')
+		ORDER BY bkg.bkg_seq DESC
+    </select>
+    
+    <!-- booking split Popup List Count select    -->
+    <select id="selectCMM_POP_0510_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    	/** CmmPopUpSQL.xml > selectCMM_POP_0510_CNT **/
+ 	    SELECT COUNT(bkg.bkg_seq)
+          FROM tb_bkg bkg
+          LEFT OUTER JOIN  tb_ofc ofc
+		    ON ofc.ofc_cd = bkg.rgst_ofc_cd      AND ofc.delt_flg = 'N'
+	     WHERE  bkg.delt_flg = 'N'
+	       AND  bkg.biz_clss_cd = #f_biz_clss_cd#
+	       
+        <isNotNull property="f_ofc_cd">
+              AND   bkg.modi_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+		<isNotNull property="f_bkg_no">
+			AND bkg.bkg_no   LIKE '%'+#f_bkg_no#+'%'
+		</isNotNull>
+		<isNotNull property="f_bkg_strdt">
+			AND bkg.bkg_dt_tm BETWEEN #f_bkg_strdt# AND #f_bkg_enddt#
+		</isNotNull>
+		    AND bkg.bkg_sts_cd in ('CR','RD','CF')
+    </select>
+    
+    <select id="selectCMM_POP_0470_LIST" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickDeliVO">
+		/*	CmmPopUpSQL.xml > selectCMM_POP_0470_LIST */
+		 SELECT top 200
+		        wo.wo_no,
+				wo.iss_dt_tm,
+				wo.trsp_trdp_cd,
+				wo.trsp_trdp_nm,
+				wo.org_rout_addr,
+				wo.org_rout_dt_tm,
+		        wo.org2_rout_dt_tm, 
+				wo.dest_rout_addr,
+				wo.dest_rout_dt_tm,
+		        wo.via_rout_dt_tm,
+				wo.intg_bl_seq
+		    FROM
+		        TB_WO wo          
+		    WHERE
+		        wo.delt_flg = 'N'                          
+		        <isNotNull property="f_wo_no">
+		            AND   wo.wo_no LIKE '%'+#f_wo_no#+'%'
+		        </isNotNull>
+				<isNotNull property="f_trsp_trdp_nm">    
+		            AND wo.trsp_trdp_nm LIKE  '%'+#f_trsp_trdp_nm#+'%'
+		        </isNotNull>
+		        <isNotNull property="f_trsp_trdp_cd">    
+		            AND wo.trsp_trdp_cd = #f_trsp_trdp_cd#
+		        </isNotNull>
+		        <isNotNull property="f_org_rout_trdp_nm">    
+		            AND wo.org_rout_trdp_nm LIKE  '%'+#f_org_rout_trdp_nm#+'%'
+		        </isNotNull>
+		        <isNotNull property="f_org_rout_trdp_cd">    
+		            AND wo.org_rout_trdp_cd = #f_org_rout_trdp_cd#
+		        </isNotNull>
+		        <isNotNull property="f_dest_rout_trdp_nm">    
+		            AND wo.dest_rout_trdp_nm LIKE  '%'+#f_dest_rout_trdp_nm#+'%'
+		        </isNotNull>
+		        <isNotNull property="f_dest_rout_trdp_cd">    
+		            AND wo.dest_rout_trdp_cd = #f_dest_rout_trdp_cd#
+		        </isNotNull>
+		        <isNotNull property="f_pkup_strdt">
+					AND CONVERT(DATETIME, wo.org_rout_dt_tm) BETWEEN CONVERT(DATETIME, #f_pkup_strdt#) AND CONVERT(DATETIME, #f_pkup_enddt#) 
+				</isNotNull>
+		        <isNotNull property="f_del_strdt">
+					AND CONVERT(DATETIME, wo.dest_rout_dt_tm) BETWEEN CONVERT(DATETIME, #f_del_strdt#) AND CONVERT(DATETIME, #f_del_enddt#)
+				</isNotNull>
+		        <isNotNull property="f_ofc_cd">
+		            AND wo.rgst_ofc_cd = #f_ofc_cd#
+		        </isNotNull>                                                                                                                 
+		    ORDER BY
+		        wo.rgst_tms DESC  
+	</select>
+	
+	<select id="selectCMM_POP_0470_CNT" parameterClass="HashMap" resultClass="Integer">
+	/*	CmmPopUpSQL.xml > selectCMM_POP_0470_CNT */
+		SELECT COUNT(*)
+		    FROM
+		        TB_WO wo          
+		    WHERE
+		        wo.delt_flg = 'N'                                                                                                                                           
+		        <isNotNull property="f_wo_no">
+		            AND   wo.wo_no LIKE '%'+#f_wo_no#+'%'
+		        </isNotNull>
+				<isNotNull property="f_trsp_trdp_nm">    
+		            AND wo.trsp_trdp_nm LIKE  '%'+#f_trsp_trdp_nm#+'%'
+		        </isNotNull>
+		        <isNotNull property="f_trsp_trdp_cd">    
+		            AND wo.trsp_trdp_cd = #f_trsp_trdp_cd#
+		        </isNotNull>
+		        <isNotNull property="f_org_rout_trdp_nm">    
+		            AND wo.org_rout_trdp_nm LIKE  '%'+#f_org_rout_trdp_nm#+'%'
+		        </isNotNull>
+		        <isNotNull property="f_org_rout_trdp_cd">    
+		            AND wo.org_rout_trdp_cd = #f_org_rout_trdp_cd#
+		        </isNotNull>
+		        <isNotNull property="f_dest_rout_trdp_nm">    
+		            AND wo.dest_rout_trdp_nm LIKE  '%'+#f_dest_rout_trdp_nm#+'%'
+		        </isNotNull>
+		        <isNotNull property="f_dest_rout_trdp_cd">    
+		            AND wo.dest_rout_trdp_cd = #f_dest_rout_trdp_cd#
+		        </isNotNull>
+		        <isNotNull property="f_pkup_strdt">
+					AND CONVERT(DATETIME, wo.org_rout_dt_tm) BETWEEN CONVERT(DATETIME, #f_pkup_strdt#) AND CONVERT(DATETIME, #f_pkup_enddt#) 
+				</isNotNull>
+		        <isNotNull property="f_del_strdt">
+					AND CONVERT(DATETIME, wo.dest_rout_dt_tm) BETWEEN CONVERT(DATETIME, #f_del_strdt#) AND CONVERT(DATETIME, #f_del_enddt#)
+				</isNotNull>
+		        <isNotNull property="f_ofc_cd">
+		            AND wo.rgst_ofc_cd = #f_ofc_cd#
+		        </isNotNull>                 
+		   
+	</select>
+	
+    <select id="getWONoInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickDeliVO">
+		/*	CmmPopUpSQL.xml > getWONoInfo */
+		 SELECT top 1 wo.wo_no,
+				wo.intg_bl_seq,
+				wo.bnd_clss_cd,
+				wo.wo_sts_cd,
+				wo.pkup_ord_no,
+				wo.org_rout_addr,
+				wo.dest_rout_addr,
+				wo.cgo_itm_cmdt_cd,
+				wo.cgo_pck_qty,
+				wo.cgo_pck_ut_cd,
+				wo.via_rout_addr,
+				wo.trsp_trdp_cd,
+				wo.rmk,
+				wo.iss_usrid,
+				wo.iss_dt_tm,
+				wo.rgst_usrid,
+				wo.rgst_ofc_cd,
+				wo.rgst_tms,
+				wo.modi_usrid,
+				wo.modi_ofc_cd,
+				wo.modi_tms,
+				wo.delt_flg,
+				wo.trsp_trdp_nm,
+				wo.org2_rout_addr,
+				wo.org_rout_trdp_cd,
+				wo.org_rout_trdp_nm,
+				wo.dest_rout_trdp_cd,
+				wo.dest_rout_trdp_nm,
+				wo.act_wgt_k,
+				wo.act_wgt_l,
+				wo.cgo_meas_m,
+				wo.cgo_meas_f,
+				wo.bill_to_trdp_cd,
+				wo.bill_to_trdp_nm,
+				wo.bill_to_trdp_addr,
+				wo.trsp_trdp_addr,
+				wo.oth_seq,
+				wo.org_rout_dt_tm,
+				wo.org2_rout_dt_tm,
+				wo.dest_rout_dt_tm,
+				wo.via_rout_dt_tm,
+				wo.cgo_itm_cmdt_nm,
+				
+				shp.trdp_cd AS shpr_trdp_cd, shp.trdp_nm AS shpr_trdp_nm, shp.trdp_addr AS shpr_trdp_addr,
+				cne.trdp_cd AS cnee_trdp_cd, cne.trdp_nm AS cnee_trdp_nm, cne.trdp_addr AS cnee_trdp_addr,
+				ptn.trdp_cd AS prnr_trdp_cd, ptn.trdp_nm AS prnr_trdp_nm, ptn.trdp_addr AS prnr_trdp_addr
+		    FROM TB_WO wo
+				LEFT OUTER JOIN tb_bl_prnr shp
+				     ON   wo.wo_no = shp.intg_bl_seq  
+				     AND shp.bl_trdp_tp_cd = 'S01' 
+				     AND shp.delt_flg = 'N'
+				LEFT OUTER JOIN tb_bl_prnr cne
+				     ON   wo.wo_no = cne.intg_bl_seq  
+				     AND cne.bl_trdp_tp_cd = 'C01' 
+				     AND cne.delt_flg = 'N'
+				LEFT OUTER JOIN tb_bl_prnr ptn
+				     ON   wo.wo_no = ptn.intg_bl_seq  
+				     AND ptn.bl_trdp_tp_cd = 'P01' 
+				     AND ptn.delt_flg = 'N'
+		    	WHERE wo.delt_flg = 'N'
+    	<isNotEmpty property="f_wo_no">
+    	AND wo.wo_no LIKE '%' + #f_wo_no# + '%' 
+    	</isNotEmpty>
+    	ORDER BY wo.MODI_TMS DESC
+	</select>
+	
+</sqlMap>    

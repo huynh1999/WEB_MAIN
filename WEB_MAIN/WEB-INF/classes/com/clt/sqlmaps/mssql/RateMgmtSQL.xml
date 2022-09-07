@@ -1,0 +1,1619 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="wms.ratemgmt">
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.RTMgmtCondDto" alias="RTMgmtCondDto"></typeAlias>
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.Grd00RTCtrtInfoDto" alias="Grd00RTCtrtInfoDto"></typeAlias>
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.Grd01RTMainListVO" alias="Grd01RTMainListVO"></typeAlias>
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.Grd02RTDetailListVO" alias="Grd02RTDetailListVO"/>
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.Grd01OthCostMgmtVO" alias="Grd01OthCostMgmtDto"></typeAlias>
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.RateLocationListDto" alias="RateLocationListDto"/>
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.RTMgmtExcelDlDto" alias="RTMgmtExcelDlDto"/>
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.RateListDto" alias="RateListDto"/>
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.BuyingRateListDto" alias="BuyingRateListDto"/>
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.RateHistoryMainDto" alias="RateHistoryMainDto"/>
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.NRAAttachmentDto" alias="NRAAttachmentDto"/>
+    <typeAlias alias="String" type="java.lang.String" ></typeAlias>
+    <typeAlias alias="HashMap" type="java.util.HashMap" ></typeAlias>
+
+    <select id="existsCtrtNo" resultClass="RTMgmtCondDto">
+        /** RateMgmtSQL.xml > existsCtrtNo **/
+        SELECT COUNT(*) AS CNT
+        FROM TL_CTRT
+        WHERE CTRT_NO = #in_ctrt_no#
+    </select>
+
+    <select id="searchRTInfo" resultClass="Grd00RTCtrtInfoDto">
+        /** RateMgmtSQL.xml > searchRTInfo **/
+        SELECT CT.CTRT_NO
+        , CT.CTRT_NM
+        , CT.SALES_OFC_CD
+        , dbo.TL_GET_ORG_NM(CT.SALES_OFC_CD) AS SALES_OFC_NM
+        , CT.SALES_PIC_ID
+        , dbo.TL_GET_PIC_NM(CT.SALES_PIC_ID) AS SALES_PIC_NM
+        , CT.CTRT_CUST_CD
+        , dbo.TL_GET_CUST_NM(CT.CTRT_CUST_CD) AS CTRT_CUST_NM
+        , CONVERT(VARCHAR(10), RGST.RGST_SYS_DT, 110) AS RGST_SYS_DT
+        , dbo.TL_GET_USER_NM(RGST.RGST_ID) AS RGST_NM
+        , CONVERT(VARCHAR(10), MODI.MODI_SYS_DT, 110) AS MODI_SYS_DT
+        , dbo.TL_GET_USER_NM(MODI.MODI_ID) AS MODI_NM
+        FROM TL_CTRT CT
+        LEFT JOIN
+        ( SELECT TOP 1 RGST_SYS_DT, RGST_ID, CTRT_NO
+        FROM TL_CTRT_RATE
+        WHERE RGST_SYS_DT = (
+        SELECT MIN(RGST_SYS_DT)
+        FROM TL_CTRT_RATE
+        WHERE CTRT_NO = #in_ctrt_no# )
+        <!--                        AND ROWNUM = 1  -->
+        ) RGST ON CT.CTRT_NO = RGST.CTRT_NO
+        LEFT JOIN ( SELECT TOP 1 MODI_SYS_DT, MODI_ID, CTRT_NO
+        FROM TL_CTRT_RATE
+        WHERE MODI_SYS_DT = (
+        SELECT MAX(MODI_SYS_DT)
+        FROM TL_CTRT_RATE
+        WHERE CTRT_NO = #in_ctrt_no# )
+        <!--                        AND ROWNUM = 1 -->
+        ) MODI ON CT.CTRT_NO = MODI.CTRT_NO
+        WHERE CT.CTRT_NO = #in_ctrt_no#
+
+    </select>
+
+
+
+    <select id="searchRTMainList" resultClass="Grd01RTMainListVO">
+        /** RateMgmtSQL.xml > searchRTMainList **/
+        SELECT CTRT_NO
+        , SB_CLS_CD
+        , RATE_NO
+        , FRT_MODE
+        , POR
+        , dbo.TL_GET_LOC_NM(POR) AS POR_NM
+        , POL
+        , dbo.TL_GET_LOC_NM(POL) AS POL_NM
+        , POD
+        , dbo.TL_GET_LOC_NM(POD) AS POD_NM
+        , DEL
+        , dbo.TL_GET_LOC_NM(DEL) AS DEL_NM
+        , SVCTERM_FR_CD
+        , SVCTERM_TO_CD
+        , SVCTERM_FR_CD
+        , SVCTERM_TO_CD
+        , DEPARTURE_CD
+        , dbo.TL_GET_LOC_NM(DEPARTURE_CD) AS DEPARTURE_NM
+        , ARRIVAL_CD
+        , dbo.TL_GET_LOC_NM(ARRIVAL_CD) AS ARRIVAL_NM
+        , ORIGIN_LOC_CD
+        , ORIGIN_LOC_NM
+        , DEST_LOC_CD
+        , DEST_LOC_NM
+        , LOC_CD
+        , LOC_NM
+        , EFF_FR_DT
+        , EFF_TO_DT
+        , COMMODITY_DESC
+        , CO_LOADER_CD
+        , dbo.TL_GET_CUST_NM(CO_LOADER_CD) AS CO_LOADER_NM
+        , CARRIER_CD
+        , dbo.TL_GET_CUST_NM(CARRIER_CD) AS CARRIER_NM
+        , PRIORITY
+        , SC_NO
+        , BULLET_NO
+        , NAMED_ACCT_FLG
+        <!-- , CONVERT(VARCHAR(10),CONVERT(DATETIME, EFF_FR_DT, 112), 110) AS EFF_FR_DT
+        , CONVERT(VARCHAR(10),CONVERT(DATETIME, EFF_TO_DT, 112), 110) AS EFF_TO_DT -->
+        , NRA_QUOTE_NO
+        , (SELECT FILE_ORG_NM  FROM TL_FILE_REP WHERE DOC_REF_NO = RATE_NO AND DOC_REF_NO2 = CTRT_NO) FILE_ORG_NM
+        , (SELECT DOC_NO       FROM TL_FILE_REP WHERE DOC_REF_NO = RATE_NO AND DOC_REF_NO2 = CTRT_NO) DOC_NO
+        , (SELECT FILE_PATH    FROM TL_FILE_REP WHERE DOC_REF_NO = RATE_NO AND DOC_REF_NO2 = CTRT_NO) FILE_PATH
+        , (SELECT FILE_SYS_NM  FROM TL_FILE_REP WHERE DOC_REF_NO = RATE_NO AND DOC_REF_NO2 = CTRT_NO) FILE_SYS_NM
+        , PUB_DT
+        <!-- , CONVERT(VARCHAR(10),PUB_UPDATE_DT, 110) AS PUB_UPDATE_DT-->
+        , dbo.TL_GET_USER_BRANCH(RGST_ID) AS BRANCH
+        FROM TL_CTRT_RATE
+        WHERE 1=1
+        AND CTRT_NO = #in_ctrt_no#
+        AND SB_CLS_CD = #in_sb_cls_cd#
+        <!-- 2015.07.14 Just use for Warehouse -->
+        <!-- AND FRT_MODE = 'W' -->
+
+        <isNotEmpty property="in_rate_no">
+            AND RATE_NO = #in_rate_no#
+        </isNotEmpty>
+
+        <isNotEqual property="sell_br_filer" compareValue="ALL">
+            AND dbo.TL_GET_USER_BRANCH(RGST_ID) = #sell_br_filer#
+        </isNotEqual>
+
+        <!--            <isNotEqual property="buy_br_filer" compareValue="ALL"> -->
+        <!--                AND dbo.TL_GET_USER_BRANCH(RGST_ID) = #buy_br_filer# -->
+        <!--            </isNotEqual> -->
+
+        <isEqual property="sell_pub_filer" compareValue="Y">
+            AND PUB_DT IS NOT NULL
+        </isEqual>
+
+        <isEqual property="sell_pub_filer" compareValue="N">
+            AND PUB_DT IS NULL
+        </isEqual>
+
+        ORDER BY LOC_CD, EFF_FR_DT, RATE_NO DESC
+    </select>
+
+
+
+    <select id="searchRTDetailList"  resultClass="Grd02RTDetailListVO">
+        /** RateMgmtSQL.xml > searchRTDetailList **/
+        SELECT A.CTRT_NO
+        , A.SB_CLS_CD
+        , A.RATE_NO
+        , A.RATE_SEQ
+        , A.CUST_CD
+        , dbo.TL_GET_CUST_NM(A.CUST_CD) AS CUST_NM
+        , A.OFC_CD
+        , A.FRT_CD
+        , A.FRT_NM
+        , A.UNIT_CD
+        , A.CURR_CD
+        , A.UNIT_PRICE
+        , A.RMK
+        , A.RATE_TP_CD
+        , A.COND_FIRST
+        , A.COND_SECOND
+        , A.EXT_RATE
+        , A.INT_RATE
+        , A.FULL_MON_RATE
+        , A.HALF_MON_RATE
+        , A.WEEK_RATE
+        , A.DAY_RATE
+        , A.DAY_OPT
+        , A.FIX_RATE_FLG
+        , A.UNIT_CD2
+        , A.ITEM_CD
+        , A.EFF_FR_DT
+        , A.EFF_TO_DT
+        FROM TL_CTRT_RATE_DTL A, TL_CTRT_RATE B
+        WHERE 1=1
+        AND A.CTRT_NO = B.CTRT_NO
+        AND A.SB_CLS_CD = B.SB_CLS_CD
+        AND A.RATE_NO = B.RATE_NO
+        AND A.CTRT_NO = #ctrt_no#
+        AND A.SB_CLS_CD = #sb_cls_cd#
+
+        <isNotEmpty property="rate_no">
+        	<isNotEqual property="rate_no" compareValue="A">
+            AND A.RATE_NO = #rate_no#
+            </isNotEqual>
+        </isNotEmpty>
+
+        <isNotEmpty property="frt_mode">
+        AND B.FRT_MODE = #frt_mode#
+        </isNotEmpty>
+
+        <!-- <isEqual property="auth_lvl" compareValue="AQ">
+             <isNotEqual property="ctrt_no" compareValue="CTSEL00000">
+             AND A.OFC_CD IN (SELECT OFFICE_CD
+                           FROM TL_ORG O
+                          WHERE O.USE_FLG = 'Y'
+                            AND O.UPPER_ORG_CD =  #org_cd#
+                         UNION
+                         SELECT OFFICE_CD
+                           FROM TL_ORG O
+                          WHERE O.USE_FLG = 'Y'
+                            AND O.OFFICE_CD =  #org_cd#
+                        )
+             </isNotEqual>
+        </isEqual>
+
+        <isEqual property="auth_lvl" compareValue="LB">
+             <isNotEqual property="ctrt_no" compareValue="CTSEL00000">
+             AND A.OFC_CD = #org_cd#
+             </isNotEqual>
+        </isEqual> -->
+
+        ORDER BY A.RATE_NO, A.RATE_SEQ
+    </select>
+    
+    <!-- #1386 [WMS4.0] Sales > Rate > Rate - In & Out [History] Error -->
+    <select id="searchRTDetailHisList"  resultClass="Grd02RTDetailListVO">
+        /** RateMgmtSQL.xml > searchRTDetailHisList **/
+        SELECT 
+	        TOP 200
+	        A.CTRT_NO
+			,A.HST_TP_CD
+			,case when A.HST_TP_CD ='I' then 'Insert'
+			     when A.HST_TP_CD ='U' then 'Update'
+			     when A.HST_TP_CD ='D' then 'Delete'
+			     else A.HST_TP_CD
+			end  HST_TP_NM             
+	        , A.SB_CLS_CD
+	        , A.RATE_NO
+	        , A.RATE_SEQ
+	        , A.CUST_CD
+	        , dbo.TL_GET_CUST_NM(A.CUST_CD) AS CUST_NM
+	        , A.OFC_CD
+	        , A.FRT_CD
+	        , A.FRT_NM
+	        , A.UNIT_CD
+	        , A.CURR_CD
+	        , A.UNIT_PRICE
+	        , A.RMK
+	        , A.RATE_TP_CD
+	        , A.COND_FIRST
+	        , A.COND_SECOND
+	        , A.EXT_RATE
+	        , A.INT_RATE
+	        , A.FULL_MON_RATE
+	        , A.HALF_MON_RATE
+	        , A.WEEK_RATE
+	        , A.DAY_RATE
+	        , A.DAY_OPT
+	        , A.FIX_RATE_FLG
+	        , A.UNIT_CD2
+	        , A.ITEM_CD
+	        , A.EFF_FR_DT
+	        , A.EFF_TO_DT
+	        , A.RGST_ID
+	        , A.RGST_SYS_DT          
+        FROM TL_CTRT_RATE_DTL_HST A, TL_CTRT_RATE B
+        WHERE 1=1
+        AND A.CTRT_NO = B.CTRT_NO
+        AND A.SB_CLS_CD = B.SB_CLS_CD
+        AND A.RATE_NO = B.RATE_NO
+        AND A.CTRT_NO = #ctrt_no#
+        AND A.SB_CLS_CD = #sb_cls_cd#
+
+        <isNotEmpty property="rate_no">
+        	<isNotEqual property="rate_no" compareValue="A">
+            AND A.RATE_NO = #rate_no#
+            </isNotEqual>
+        </isNotEmpty>
+
+        <isNotEmpty property="frt_mode">
+        AND B.FRT_MODE = #frt_mode#
+        </isNotEmpty>
+
+
+        ORDER BY A.RGST_SYS_DT DESC
+    </select>
+
+    <select id="getNextValue" parameterClass="HashMap" resultClass="String">
+        /** RateMgmtSQL.xml > getNextValue **/
+        DECLARE @PRE_FIX VARCHAR (20)
+        SET @PRE_FIX = (SELECT TOP 1 PRE_FIX FROM TB_SEQ WHERE SEQ_TYPE = 'SVR_CD')
+        select
+        ISNULL(#sb_cls_cd#, '') +
+        ISNULL(#frt_mode#, '') +
+        <isNotEmpty property="org_cd">SUBSTRING(#org_cd# ,3 ,3) +</isNotEmpty>
+        ISNULL(@PRE_FIX, '') +
+        RIGHT(CONVERT(VARCHAR(10),GETDATE(),112),2) +
+        <!-- dbo.LPAD((SEQ + 1),3,'0') AS HBL_NO -->
+        CASE ISNULL(@PRE_FIX, 'NULL')
+        WHEN 'NULL' THEN dbo.LPAD ((SEQ + 1), 4, '0')
+        ELSE dbo.LPAD ((SEQ + 1), 3, '0')
+        END
+        AS HBL_NO
+        from TB_MJR_NO_SEQ
+        where NO_TP_CD = #no_tp_cd#
+    </select>
+
+    <select id="selectNextRateSeq" resultClass="String">
+        /*RateMgmtSQL.xml > selectNextRateSeq*/
+
+        SELECT ISNULL(MAX(RATE_SEQ),0)+1
+        FROM TL_CTRT_RATE_DTL
+        WHERE CTRT_NO = #ctrt_no#
+        AND SB_CLS_CD = #sb_cls_cd#
+        AND RATE_NO = #rate_no#
+    </select>
+
+    <insert id="insertTB_MJR_NO_SEQ" parameterClass="String">
+        /** RateMgmtSQL.xml > insertTB_MJR_NO_SEQ **/
+        INSERT INTO TB_MJR_NO_SEQ(NO_TP_CD, SEQ, MAX_SEQ, PFX_VAL, DESCR) values (#value#, 1, 9999999, '', 'RATE MGMT')
+    </insert>
+    <update id="updateNextValue" parameterClass="String">
+        /** RateMgmtSQL.xml > updateNextValue **/
+        UPDATE TB_MJR_NO_SEQ SET SEQ = SEQ + 1 where NO_TP_CD = #value#
+    </update>
+
+    <select id="searchRateNo"  resultClass="String">
+        SELECT
+        #sb_cls_cd# + #frt_mode# + SUBSTRING (#org_cd#, 3, 3) +
+        CONVERT (VARCHAR(2), GETDATE(), 12) + dbo.LPAD (
+        (
+        SELECT
+        SEQ + 1
+        FROM
+        TB_MJR_NO_SEQ
+        WHERE
+        NO_TP_CD = 'RATE'
+        ),
+        4,
+        '0'
+        ) AS HBL_NO
+    </select>
+
+    <insert id="addRTMainList">
+        /** RateMgmtSQL.xml > addRTMainList **/
+        INSERT INTO TL_CTRT_RATE
+        ( CTRT_NO
+        , SB_CLS_CD
+        , RATE_NO
+        , FRT_MODE
+        , POR
+        , POL
+        , POD
+        , DEL
+        , SVCTERM_FR_CD
+        , SVCTERM_TO_CD
+        , DEPARTURE_CD
+        , ARRIVAL_CD
+        , ORIGIN_LOC_CD
+        , ORIGIN_LOC_NM
+        , DEST_LOC_CD
+        , DEST_LOC_NM
+        , LOC_CD
+        , LOC_NM
+        , COMMODITY_DESC
+        , CO_LOADER_CD
+        , CARRIER_CD
+        , SC_NO
+        , BULLET_NO
+        , PRIORITY
+        , NAMED_ACCT_FLG
+        , EFF_FR_DT
+        , EFF_TO_DT
+        , RGST_ID
+        , RGST_SYS_DT
+        , MODI_ID
+        , MODI_SYS_DT
+        , NRA_QUOTE_NO
+        , PUB_DT
+        , PUB_UPDATE_DT
+        , PUB_UPDATE_ID)
+        VALUES
+        ( #ctrt_no#
+        , #sb_cls_cd#
+        , #rate_no#
+        , #frt_mode#
+        , #por#
+        , #pol#
+        , #pod#
+        , #del#
+        , #svcterm_fr_cd#
+        , #svcterm_to_cd#
+        , #departure_cd#
+        , #arrival_cd#
+        , #origin_loc_cd#
+        , #origin_loc_nm#
+        , #dest_loc_cd#
+        , #dest_loc_nm#
+        , #loc_cd#
+        , #loc_nm#
+        , #commodity_desc#
+        , #co_loader_cd#
+        , #carrier_cd#
+        , #sc_no#
+        , #bullet_no#
+        , #priority#
+        , #named_acct_flg#
+        , REPLACE(#eff_fr_dt#,'-','')
+        , REPLACE(#eff_to_dt#,'-','')
+        , #user_id#
+        , GETDATE()
+        , #user_id#
+        , GETDATE()
+        , #nra_quote_no#
+        , #pub_dt#
+        , (CASE #pub_update_yn# WHEN 'Y' THEN GETDATE() ELSE null END)
+        , (CASE #pub_update_yn# WHEN 'Y' THEN #user_id# ELSE '' END)
+        )
+    </insert>
+
+    <update id="modifyRTMainList">
+        /** RateMgmtSQL.xml > modifyRTMainList **/
+        UPDATE TL_CTRT_RATE
+        SET FRT_MODE = #frt_mode#
+        , POR = #por#
+        , POL = #pol#
+        , POD = #pod#
+        , DEL = #del#
+        , SVCTERM_FR_CD = #svcterm_fr_cd#
+        , SVCTERM_TO_CD = #svcterm_to_cd#
+        , DEPARTURE_CD = #departure_cd#
+        , ARRIVAL_CD = #arrival_cd#
+        , ORIGIN_LOC_CD = #origin_loc_cd#
+        , ORIGIN_LOC_NM = #origin_loc_nm#
+        , DEST_LOC_CD = #dest_loc_cd#
+        , DEST_LOC_NM = #dest_loc_nm#
+        , LOC_CD = #loc_cd#
+        , LOC_NM = #loc_nm#
+        , COMMODITY_DESC = #commodity_desc#
+        , CO_LOADER_CD = #co_loader_cd#
+        , CARRIER_CD = #carrier_cd#
+        , SC_NO = #sc_no#
+        , BULLET_NO = #bullet_no#
+        , PRIORITY = #priority#
+        , NAMED_ACCT_FLG = #named_acct_flg#
+        , EFF_FR_DT = REPLACE(#eff_fr_dt#,'-','')
+        , EFF_TO_DT = REPLACE(#eff_to_dt#,'-','')
+        , MODI_ID = (CASE #ext_yn# WHEN 'Y' THEN #user_id# ELSE MODI_ID END)
+        , MODI_SYS_DT = (CASE #ext_yn# WHEN 'Y' THEN GETDATE() ELSE MODI_SYS_DT END)
+        , NRA_QUOTE_NO = #nra_quote_no#
+        , PUB_DT = #pub_dt#
+        , PUB_UPDATE_DT = (CASE #pub_update_yn# WHEN 'Y' THEN GETDATE() ELSE PUB_UPDATE_DT END)
+        , PUB_UPDATE_ID = (CASE #pub_update_yn# WHEN 'Y' THEN #user_id# ELSE PUB_UPDATE_ID END)
+        WHERE CTRT_NO = #ctrt_no#
+        AND SB_CLS_CD = #sb_cls_cd#
+        AND RATE_NO = #rate_no#
+    </update>
+
+    <delete id="removeRTMainList">
+        /** RateMgmtSQL.xml > removeRTMainList **/
+        DELETE FROM TL_CTRT_RATE
+        WHERE CTRT_NO = #ctrt_no#
+        AND SB_CLS_CD = #sb_cls_cd#
+        AND RATE_NO = #rate_no#
+    </delete>
+
+    <insert id="addRTDetailList">
+        /** RateMgmtSQL.xml > addRTDetailList **/
+        INSERT INTO TL_CTRT_RATE_DTL
+        ( CTRT_NO
+        , SB_CLS_CD
+        , RATE_NO
+        , RATE_SEQ
+        , OFC_CD
+        , CUST_CD
+        , FRT_CD
+        , FRT_NM
+        , UNIT_CD
+        , CURR_CD
+        , UNIT_PRICE
+        , RMK
+        , RGST_ID
+        , RGST_SYS_DT
+        , MODI_ID
+        , MODI_SYS_DT
+        , RATE_TP_CD
+        , COND_FIRST
+        , COND_SECOND
+        , INT_RATE
+        , FULL_MON_RATE
+        , HALF_MON_RATE
+        , WEEK_RATE
+        , DAY_RATE
+        , DAY_OPT
+        , EXT_RATE
+        , FIX_RATE_FLG
+        , UNIT_CD2
+        , ITEM_CD
+        , EFF_FR_DT
+        , EFF_TO_DT
+        )
+        VALUES
+        ( #ctrt_no#
+        , #sb_cls_cd#
+        , #rate_no#
+        , (SELECT ISNULL(MAX(RATE_SEQ),0)+1 FROM TL_CTRT_RATE_DTL WHERE CTRT_NO = #ctrt_no# AND SB_CLS_CD = #sb_cls_cd# AND RATE_NO = #rate_no#)
+        , #ofc_cd#
+        , #cust_cd#
+        , #frt_cd#
+        , #frt_nm#
+        , #unit_cd#
+        , #curr_cd#
+        , (
+        SELECT
+        ISNULL(
+        CONVERT (
+        NUMERIC (15, 3),
+        CAST (#unit_price# AS FLOAT)
+        ),
+        0
+        )
+        )
+        , #rmk#
+        , #user_id#
+        , GETDATE()
+        , #user_id#
+        , GETDATE()
+        , #rate_tp_cd#
+        , #cond_first#
+        , #cond_second#
+        , #int_rate#
+        , #full_mon_rate#
+        , #half_mon_rate#
+        , #week_rate#
+        , #day_rate#
+        , (CASE WHEN #day_opt# = '' THEN NULL ELSE #day_opt# END)
+        , #ext_rate#
+        , #fix_rate_flg#
+        , #unit_cd2#
+        , #item_cd#
+        , #eff_fr_dt#
+        , #eff_to_dt#
+        )
+    </insert>
+
+    <update id="modifyRTDetailList">
+        /** RateMgmtSQL.xml > modifyRTDetailList **/
+        UPDATE TL_CTRT_RATE_DTL
+        SET OFC_CD = #ofc_cd#
+        , CUST_CD = #cust_cd#
+        , FRT_CD = #frt_cd#
+        , FRT_NM = #frt_nm#
+        , UNIT_CD = #unit_cd#
+        , CURR_CD = #curr_cd#
+        , UNIT_PRICE = #unit_price#
+        , RMK = #rmk#
+        , MODI_ID = #user_id#
+        , MODI_SYS_DT = GETDATE()
+        , RATE_TP_CD = #rate_tp_cd#
+        , COND_FIRST = #cond_first#
+        , COND_SECOND = #cond_second#
+        , INT_RATE = #int_rate#
+        , FULL_MON_RATE = #full_mon_rate#
+        , HALF_MON_RATE = #half_mon_rate#
+        , WEEK_RATE = #week_rate#
+        , DAY_RATE = #day_rate#
+        , DAY_OPT = (CASE WHEN #day_opt# = '' THEN NULL ELSE #day_opt# END)
+        , EXT_RATE = #ext_rate#
+        , UNIT_CD2 = #unit_cd2#
+        , ITEM_CD = #item_cd#
+        , EFF_FR_DT = #eff_fr_dt#
+        , EFF_TO_DT = #eff_to_dt#
+        WHERE 1=1
+        AND CTRT_NO = #ctrt_no#
+        AND SB_CLS_CD = #sb_cls_cd#
+        AND RATE_NO = #rate_no#
+        AND RATE_SEQ = #rate_seq#
+    </update>
+
+    <delete id="removeRTDetailList">
+        /** RateMgmtSQL.xml > removeRTDetailList **/
+        DELETE FROM TL_CTRT_RATE_DTL
+        WHERE 1=1
+        AND CTRT_NO = #ctrt_no#
+        AND SB_CLS_CD = #sb_cls_cd#
+        AND RATE_NO = #rate_no#
+        <isNotEmpty property="rate_seq">
+            AND RATE_SEQ = ISNULL(#rate_seq#,RATE_SEQ)
+        </isNotEmpty>
+    </delete>
+
+
+    <insert id="addRTMainListHST">
+        /** RateMgmtSQL.xml > addRTMainListHST **/
+        INSERT INTO TL_CTRT_RATE_HST
+        ( CTRT_NO
+        , SB_CLS_CD
+        , RATE_NO
+        , HST_SEQ
+        , HST_TP_CD
+        , FRT_MODE
+        , POR
+        , POL
+        , POD
+        , DEL
+        , SVCTERM_FR_CD
+        , SVCTERM_TO_CD
+        , DEPARTURE_CD
+        , ARRIVAL_CD
+        , ORIGIN_LOC_CD
+        , ORIGIN_LOC_NM
+        , DEST_LOC_CD
+        , DEST_LOC_NM
+        , LOC_CD
+        , LOC_NM
+        , COMMODITY_DESC
+        , CO_LOADER_CD
+        , CARRIER_CD
+        , SC_NO
+        , BULLET_NO
+        , PRIORITY
+        , NAMED_ACCT_FLG
+        , EFF_FR_DT
+        , EFF_TO_DT
+        , RGST_ID
+        , RGST_SYS_DT
+        , MODI_ID
+        , MODI_SYS_DT
+        , NRA_QUOTE_NO
+        , PUB_DT
+        , PUB_UPDATE_DT
+        , PUB_UPDATE_ID)
+        SELECT CTRT_NO
+        , SB_CLS_CD
+        , RATE_NO
+        , (SELECT ISNULL(MAX(HST_SEQ),0)+1 FROM TL_CTRT_RATE_HST WHERE CTRT_NO = #ctrt_no# AND SB_CLS_CD = #sb_cls_cd# AND RATE_NO = #rate_no#)
+        , #ibflag#
+        , FRT_MODE
+        , POR
+        , POL
+        , POD
+        , DEL
+        , SVCTERM_FR_CD
+        , SVCTERM_TO_CD
+        , DEPARTURE_CD
+        , ARRIVAL_CD
+        , ORIGIN_LOC_CD
+        , ORIGIN_LOC_NM
+        , DEST_LOC_CD
+        , DEST_LOC_NM
+        , LOC_CD
+        , LOC_NM
+        , COMMODITY_DESC
+        , CO_LOADER_CD
+        , CARRIER_CD
+        , SC_NO
+        , BULLET_NO
+        , PRIORITY
+        , NAMED_ACCT_FLG
+        , EFF_FR_DT
+        , EFF_TO_DT
+        , #user_id#
+        , GETDATE()
+        , #user_id#
+        , GETDATE()
+        , NRA_QUOTE_NO
+        , PUB_DT
+        , PUB_UPDATE_DT
+        , PUB_UPDATE_ID
+        FROM TL_CTRT_RATE
+        WHERE CTRT_NO = #ctrt_no#
+        AND SB_CLS_CD = #sb_cls_cd#
+        AND RATE_NO = #rate_no#
+    </insert>
+
+    <insert id="addRTDetailListHST">
+        /** RateMgmtSQL.xml > addRTDetailListHST **/
+        INSERT INTO TL_CTRT_RATE_DTL_HST
+        ( CTRT_NO
+        , SB_CLS_CD
+        , RATE_NO
+        , RATE_SEQ
+        , HST_SEQ
+        , HST_TP_CD
+        , OFC_CD
+        , CUST_CD
+        , FRT_CD
+        , FRT_NM
+        , UNIT_CD
+        , CURR_CD
+        , UNIT_PRICE
+        , RMK
+        , RGST_ID
+        , RGST_SYS_DT
+        , MODI_ID
+        , MODI_SYS_DT
+        , UNIT_CD2
+        , ITEM_CD
+        , EFF_FR_DT
+        , EFF_TO_DT
+        , RATE_TP_CD
+        , COND_FIRST
+        , COND_SECOND
+        , INT_RATE
+        , FULL_MON_RATE
+        , HALF_MON_RATE
+        , WEEK_RATE
+        , DAY_RATE
+        , DAY_OPT
+        , EXT_RATE
+        , FIX_RATE_FLG        
+        )
+        SELECT CTRT_NO
+        , SB_CLS_CD
+        , RATE_NO
+        , RATE_SEQ
+        , (SELECT ISNULL(MAX(HST_SEQ),0)+1 FROM TL_CTRT_RATE_DTL_HST WHERE CTRT_NO = #ctrt_no# AND SB_CLS_CD = #sb_cls_cd# AND RATE_NO = #rate_no#)
+        , #ibflag#
+        , OFC_CD
+        , CUST_CD
+        , FRT_CD
+        , FRT_NM
+        , UNIT_CD
+        , CURR_CD
+        , UNIT_PRICE
+        , RMK
+        , #user_id#
+        , GETDATE()
+        , #user_id#
+        , GETDATE()
+        , UNIT_CD2
+        , ITEM_CD
+        , EFF_FR_DT
+        , EFF_TO_DT
+        , RATE_TP_CD
+        , COND_FIRST
+        , COND_SECOND
+        , INT_RATE
+        , FULL_MON_RATE
+        , HALF_MON_RATE
+        , WEEK_RATE
+        , DAY_RATE
+        , DAY_OPT
+        , EXT_RATE
+        , FIX_RATE_FLG        
+        FROM TL_CTRT_RATE_DTL
+        WHERE 1=1
+        AND CTRT_NO = #ctrt_no#
+        AND SB_CLS_CD = #sb_cls_cd#
+        AND RATE_NO = #rate_no#
+        <isNotEmpty property="rate_seq">
+            AND RATE_SEQ = ISNULL(#rate_seq#,RATE_SEQ)
+        </isNotEmpty>
+    </insert>
+
+    <select id="searchRateLoactionByCTRY" resultClass="RateLocationListDto">
+        /** RateMgmtSQL.xml > searchRateLoactionByCTRY **/
+        SELECT T.CTRY_CD AS CODE_CD
+        , T.CTRY_NM AS CODE_NM
+        FROM   TL_COUNTRY T
+        WHERE  1=1
+        <isNotEmpty property="c_code_cd">
+            AND T.CTRY_CD LIKE #c_code_cd#+'%'
+        </isNotEmpty>
+        <isNotEmpty property="c_code_nm">
+            AND UPPER(T.CTRY_NM) LIKE '%'+#c_code_nm#+'%'
+        </isNotEmpty>
+        ORDER BY T.CTRY_CD
+    </select>
+
+    <select id="searchRateLoactionByCity" resultClass="RateLocationListDto">
+        /** RateMgmtSQL.xml > searchRateLoactionByCity **/
+        SELECT T.LOC_CD AS CODE_CD
+        , T.LOC_NM AS CODE_NM
+        FROM   TL_LOC T
+        WHERE  T.USE_YN = 'Y'
+        AND    T.TERMINAL_YN IS NULL
+        AND    T.CY_YN IS NULL
+        AND    T.CFS_YN IS NULL
+        AND    T.WH_YN IS NULL
+        AND    T.RAIL_YN IS NULL
+        AND    T.DOOR_YN IS NULL
+        <isEqual property="c_sea_air_cls" compareValue="S">
+            AND    T.SEA_AIR_CLS = 'S'
+        </isEqual>
+        <isEqual property="c_sea_air_cls" compareValue="A">
+            AND    T.SEA_AIR_CLS = 'A'
+        </isEqual>
+        <isEqual property="c_sea_air_cls" compareValue="D">
+            <![CDATA[ AND ISNULL(T.SEA_AIR_CLS, ' ') <> 'A' ]]>
+        </isEqual>
+        <isNotEmpty property="c_code_cd">
+            AND    T.LOC_CD LIKE #c_code_cd#+'%'
+        </isNotEmpty>
+        <isNotEmpty property="c_code_nm">
+            AND    UPPER(T.LOC_NM) LIKE '%'+#c_code_nm#+'%'
+        </isNotEmpty>
+        ORDER BY T.LOC_CD
+    </select>
+
+    <select id="searchRateLoactionByRateGRP" resultClass="RateLocationListDto">
+        /** RateMgmtSQL.xml > searchRateLoactionByRateGRP **/
+        SELECT D.CODE_CD
+        , D.CODE_NM
+        FROM   TL_CODE_GRP G,
+        TL_CODE_DTL D
+        WHERE  G.GRP_CD = D.GRP_CD
+        AND    G.GRP_CD = 'Z11'
+        AND    G.GRP_USE_FLG = 'Y'
+        AND    D.CODE_USE_FLG = 'Y'
+        <isNotEmpty property="c_code_cd">
+            AND    D.CODE_CD LIKE #c_code_cd#+'%'
+        </isNotEmpty>
+        <isNotEmpty property="c_code_nm">
+            AND    UPPER(D.CODE_NM) LIKE '%'+#c_code_nm#+'%'
+        </isNotEmpty>
+        ORDER BY D.DISP_SEQ
+    </select>
+
+
+
+    <select id="searchExcelDl" resultClass="RTMgmtExcelDlDto">
+        /** RateMgmtSQL.xml > searchExcelDl **/
+        SELECT B.CTRT_NO
+        , B.SB_CLS_CD
+        , B.RATE_NO
+        , B.FRT_MODE
+        , TL_GET_USER_BRANCH(B.RGST_ID) AS BRANCH
+        , B.POR
+        , TL_GET_LOC_NM(B.POR) AS POR_NM
+        , B.POL
+        , TL_GET_LOC_NM(B.POL) AS POL_NM
+        , B.POD
+        , TL_GET_LOC_NM(B.POD) AS POD_NM
+        , B.DEL
+        , TL_GET_LOC_NM(B.DEL) AS DEL_NM
+        , B.SVCTERM_FR_CD
+        , B.SVCTERM_TO_CD
+        , NRA_QUOTE_NO
+        , (SELECT FILE_ORG_NM FROM TL_FILE_REP WHERE DOC_REF_NO = B.RATE_NO AND DOC_REF_NO2 = B.CTRT_NO) FILE_ORG_NM
+        , B.PUB_DT
+        , TO_CHAR(B.PUB_UPDATE_DT,'YYYY-MM-DD') AS PUB_UPDATE_DT
+        , B.DEPARTURE_CD
+        , B.ARRIVAL_CD
+        , B.ORIGIN_LOC_CD
+        , B.ORIGIN_LOC_NM
+        , B.DEST_LOC_CD
+        , B.DEST_LOC_NM
+        , B.LOC_CD
+        , B.LOC_NM
+        , B.COMMODITY_DESC
+        , B.CO_LOADER_CD
+        , TL_GET_CUST_NM(B.CO_LOADER_CD) AS CO_LOADER_NM
+        , B.CARRIER_CD
+        , TL_GET_CUST_NM(B.CARRIER_CD) AS CARRIER_NM
+        , B.PRIORITY
+        , B.SC_NO
+        , B.BULLET_NO
+        , B.NAMED_ACCT_FLG
+        , TO_CHAR(TO_DATE(B.EFF_FR_DT,'YYYYMMDD'),'YYYY-MM-DD') AS EFF_FR_DT
+        , TO_CHAR(TO_DATE(B.EFF_TO_DT,'YYYYMMDD'),'YYYY-MM-DD') AS EFF_TO_DT
+        , A.CUST_CD
+        , A.OFC_CD
+        , A.FRT_CD
+        , A.FRT_NM
+        , A.UNIT_CD
+        , A.CURR_CD
+        , A.UNIT_PRICE
+        , A.RMK
+        FROM TL_CTRT_RATE_DTL A, TL_CTRT_RATE B
+        WHERE 1=1
+        AND A.CTRT_NO (+)= B.CTRT_NO
+        AND A.SB_CLS_CD (+)= B.SB_CLS_CD
+        AND A.RATE_NO (+)= B.RATE_NO
+        AND B.CTRT_NO = #ctrt_no#
+
+        AND ( ( B.SB_CLS_CD = 'S'
+        <isNotEqual property="sell_br_filer" compareValue="ALL">
+            AND TL_GET_USER_BRANCH(B.RGST_ID) = #sell_br_filer#
+        </isNotEqual>
+
+        )
+        OR
+        ( B.SB_CLS_CD = 'B'
+        <isNotEqual property="buy_br_filer" compareValue="ALL">
+            AND TL_GET_USER_BRANCH(B.RGST_ID) = #buy_br_filer#
+        </isNotEqual>
+        <isEqual property="sell_pub_filer" compareValue="Y">
+            AND B.PUB_DT IS NOT NULL
+        </isEqual>
+        <isEqual property="" compareValue="">
+            AND B.PUB_DT IS NULL
+        </isEqual>
+        )
+        )
+        ORDER BY B.RATE_NO DESC, A.RATE_SEQ
+    </select>
+
+
+
+    <select id="searchRateList" resultClass="RateListDto">
+        /** RateMgmtSQL.xml > searchRateList **/
+        SELECT C.CTRT_NO,
+        C.CTRT_NM,
+        (CASE R.SB_CLS_CD WHEN 'S' THEN 'Sell' ELSE 'Buy' END) AS SB_CLS_NM,
+        R.RATE_NO,
+        TL_GET_COMM_NM('FT1', R.FRT_MODE) AS FRT_MODE_NM,
+        R.POR,
+        R.POL,
+        R.POD,
+        R.DEL,
+        --TL_GET_COMM_NM('B1', R.SVCTERM_FR_CD) AS SVCTERM_FR_CD,
+        --TL_GET_COMM_NM('B1', R.SVCTERM_TO_CD) AS SVCTERM_TO_CD,
+        R.SVCTERM_FR_CD,
+        R.SVCTERM_TO_CD,
+        R.DEPARTURE_CD,
+        R.ARRIVAL_CD,
+        R.ORIGIN_LOC_CD,
+        R.ORIGIN_LOC_NM,
+        R.DEST_LOC_CD,
+        R.DEST_LOC_NM,
+        R.LOC_CD,
+        R.LOC_NM,
+        D.FRT_CD,
+        D.FRT_NM,
+        D.UNIT_CD,
+        D.OFC_CD,
+        D.CUST_CD,
+        TL_GET_CUST_NM(D.CUST_CD) AS CUST_NM,
+        D.CURR_CD AS CURR_CD,
+        D.UNIT_PRICE,
+        SC_NO,
+        NRA_QUOTE_NO,
+        R.EFF_FR_DT,
+        R.EFF_TO_DT,
+        TO_CHAR(R.MODI_SYS_DT, 'YYYYMMDD') AS MODI_SYS_DT,
+        TL_GET_USER_BRANCH(R.MODI_ID) AS MODI_OFC,
+        TL_GET_USER_NM(R.MODI_ID) AS MODI_ID,
+        TO_CHAR(TO_DATE(PUB_DT,'YYYYMMDD'),'YYYY-MM-DD') AS PUB_DT,
+        TO_CHAR(PUB_UPDATE_DT,'YYYY-MM-DD') AS PUB_UPDATE_DT
+        FROM TL_CTRT C,
+        TL_CTRT_RATE R,
+        TL_CTRT_RATE_DTL D
+        WHERE C.CTRT_NO = R.CTRT_NO
+        AND R.CTRT_NO = D.CTRT_NO(+)
+        AND R.RATE_NO = D.RATE_NO(+)
+        AND R.SB_CLS_CD = D.SB_CLS_CD(+)
+        <isNotEmpty property="ctrt_no">
+            AND C.CTRT_NO = #ctrt_no#
+        </isNotEmpty>
+        <isNotEmpty property="sales_ofc_cd">
+            AND   C.SALES_OFC_CD = #sales_ofc_cd#
+        </isNotEmpty>
+        <isNotEmpty property="sales_pic_id">
+            AND   C.SALES_PIC_ID  = #sales_pic_id#
+        </isNotEmpty>
+        <isNotEmpty property="app_fr_dt">
+            <isNotEmpty property="app_to_dt">
+                <![CDATA[ AND (R.EFF_FR_DT BETWEEN REPLACE(#app_fr_dt#,'-','') AND REPLACE(#app_to_dt#,'-','') OR
+                         R.EFF_TO_DT BETWEEN REPLACE(#app_fr_dt#,'-','') AND REPLACE(#app_to_dt#,'-','') OR
+                         (ISNULL(R.EFF_FR_DT,'19000101') <= REPLACE(#app_fr_dt#,'-','') AND ISNULL(R.EFF_TO_DT,'29990101') >= REPLACE(#app_to_dt#,'-',''))
+                        ) ]]>
+            </isNotEmpty>
+        </isNotEmpty>
+        <isNotEmpty property="modi_fr_dt">
+            <![CDATA[ AND R.MODI_SYS_DT >=  ]]> TO_DATE( #modi_fr_dt#, 'YYYY-MM-DD')
+        </isNotEmpty>
+        <isNotEmpty property="modi_to_dt">
+            <![CDATA[ AND R.MODI_SYS_DT <=  ]]> TO_DATE( #modi_to_dt#, 'YYYY-MM-DD') +0.9999
+        </isNotEmpty>
+        <isNotEqual property="frt_mode" compareValue="ALL">
+            AND R.FRT_MODE = #frt_mode#
+        </isNotEqual>
+        <isEqual property="sb_cls_cd" compareValue="sb_cls_cd">
+            AND R.SB_CLS_CD = #sb_cls_cd#
+        </isEqual>
+        <isNotEmpty property="por">
+            AND R.POR = #por#
+        </isNotEmpty>
+        <isNotEmpty property="pol">
+            AND R.POL = #pol#
+        </isNotEmpty>
+        <isNotEmpty property="pod">
+            AND R.POD = #pod#
+        </isNotEmpty>
+        <isNotEmpty property="del">
+            AND R.DEL = #del#
+        </isNotEmpty>
+        <isNotEmpty property="departure_cd">
+            AND R.DEPARTURE_CD = #departure_cd#
+        </isNotEmpty>
+        <isNotEmpty property="arrival_cd">
+            AND R.ARRIVAL_CD = #arrival_cd#
+        </isNotEmpty>
+        <isNotEmpty property="ofc_cd">
+            AND D.OFC_CD = #ofc_cd#
+        </isNotEmpty>
+        <isNotEmpty property="cust_cd">
+            AND D.CUST_CD = #cust_cd#
+        </isNotEmpty>
+        <isNotEmpty property="por_ctry_cd">
+            AND R.POR like #por_ctry_cd# + '%'
+        </isNotEmpty>
+        <isNotEmpty property="pol_ctry_cd">
+            AND R.POL like #pol_ctry_cd# + '%'
+        </isNotEmpty>
+        <isNotEmpty property="pod_ctry_cd">
+            AND R.POD like #pod_ctry_cd# + '%'
+        </isNotEmpty>
+        <isNotEmpty property="del_ctry_cd">
+            AND R.DEL like #del_ctry_cd# + '%'
+        </isNotEmpty>
+        <isNotEmpty property="pub_fr_dt">
+            AND R.PUB_DT BETWEEN REPLACE(#pub_fr_dt#, '-', '')  AND REPLACE(#pub_to_dt#, '-','')
+        </isNotEmpty>
+        <isNotEmpty property="dtl_modi_fr_dt">
+            <![CDATA[ AND D.MODI_SYS_DT >=  ]]> TO_DATE( #dtl_modi_fr_dt#, 'YYYY-MM-DD')
+        </isNotEmpty>
+        <isNotEmpty property="dtl_modi_to_dt">
+            <![CDATA[ AND D.MODI_SYS_DT <  ]]> TO_DATE( #dtl_modi_to_dt#, 'YYYY-MM-DD') + 1
+        </isNotEmpty>
+        <isNotEmpty property="rgst_fr_dt">
+            <![CDATA[ AND R.RGST_SYS_DT >=  ]]> TO_DATE( #rgst_fr_dt#, 'YYYY-MM-DD')
+        </isNotEmpty>
+        <isNotEmpty property="rgst_to_dt">
+            <![CDATA[ AND R.RGST_SYS_DT <=  ]]> TO_DATE( #rgst_to_dt#, 'YYYY-MM-DD') +0.9999
+        </isNotEmpty>
+    </select>
+
+
+
+
+    <select id="searchBuyingRateList" resultClass="BuyingRateListDto">
+        /** RateMgmtSQL.xml > searchBuyingRateList **/
+        SELECT R.RATE_NO,
+        TL_GET_COMM_NM('FT1', R.FRT_MODE) AS FRT_MODE_NM,
+        R.POR,
+        R.POL,
+        R.POD,
+        R.DEL,
+        TL_GET_COMM_NM('B1', R.SVCTERM_FR_CD) AS SVCTERM_FR_CD,
+        TL_GET_COMM_NM('B1', R.SVCTERM_TO_CD) AS SVCTERM_TO_CD,
+        R.DEPARTURE_CD,
+        R.ARRIVAL_CD,
+        R.ORIGIN_LOC_CD,
+        R.ORIGIN_LOC_NM,
+        R.DEST_LOC_CD,
+        R.DEST_LOC_NM,
+        R.LOC_CD,
+        R.LOC_NM,
+        R.COMMODITY_DESC,
+        R.CO_LOADER_CD,
+        TL_GET_CUST_NM(R.CO_LOADER_CD) AS CO_LOADER_NM,
+        R.CARRIER_CD,
+        TL_GET_CUST_NM(R.CARRIER_CD) AS CARRIER_NM,
+        R.SC_NO,
+        R.BULLET_NO,
+        R.NAMED_ACCT_FLG,
+        R.EFF_FR_DT,
+        R.EFF_TO_DT,
+        D.OFC_CD,
+        D.CUST_CD,
+        TL_GET_CUST_NM(D.CUST_CD) AS CUST_NM,
+        D.FRT_CD,
+        D.FRT_NM,
+        D.UNIT_CD,
+        D.CURR_CD,
+        D.UNIT_PRICE,
+        D.RMK,
+        C.CTRT_NO,
+        C.CTRT_NM,
+        C.SALES_OFC_CD,
+        TL_GET_PIC_NM(C.SALES_PIC_ID) AS SALES_PIC_NM,
+        TO_CHAR(R.MODI_SYS_DT, 'YYYYMMDD') AS MODI_SYS_DT,
+        TL_GET_USER_NM(R.MODI_ID) AS MODI_ID,
+        TL_GET_USER_BRANCH(R.MODI_ID) AS MODI_OFC
+        FROM TL_CTRT C,
+        TL_CTRT_RATE R,
+        TL_CTRT_RATE_DTL D
+        WHERE C.CTRT_NO = R.CTRT_NO
+        AND C.CTRT_NO = D.CTRT_NO
+        AND R.RATE_NO = D.RATE_NO
+        AND R.SB_CLS_CD = 'B'
+        AND R.SB_CLS_CD = D.SB_CLS_CD
+        <isNotEqual property="frt_mode" compareValue="ALL">
+            AND R.FRT_MODE = #frt_mode#
+        </isNotEqual>
+        <isNotEmpty property="carrier_cd">
+            AND R.CARRIER_CD = #carrier_cd#
+        </isNotEmpty>
+        <isNotEmpty property="co_loader_cd">
+            AND R.CO_LOADER_CD = #co_loader_cd#
+        </isNotEmpty>
+        <isNotEmpty property="app_dt">
+            AND REPLACE(#app_dt#,'-','') BETWEEN ISNULL(R.EFF_FR_DT,'19000101') AND ISNULL(R.EFF_TO_DT,'29990101')
+        </isNotEmpty>
+        <isNotEmpty property="modi_fr_dt">
+            <![CDATA[ AND R.MODI_SYS_DT >=  ]]> TO_DATE( #modi_fr_dt#, 'YYYY-MM-DD')
+        </isNotEmpty>
+        <isNotEmpty property="modi_to_dt">
+            <![CDATA[ AND R.MODI_SYS_DT <=  ]]> TO_DATE( #modi_to_dt#, 'YYYY-MM-DD')  +0.9999
+        </isNotEmpty>
+        <isNotEmpty property="por">
+            AND R.POR = #por#
+        </isNotEmpty>
+        <isNotEmpty property="pol">
+            AND R.POL = #pol#
+        </isNotEmpty>
+        <isNotEmpty property="pod">
+            AND R.POD = #pod#
+        </isNotEmpty>
+        <isNotEmpty property="del">
+            AND R.DEL = #del#
+        </isNotEmpty>
+        <isNotEmpty property="departure_cd">
+            AND R.DEPARTURE_CD = #departure_cd#
+        </isNotEmpty>
+        <isNotEmpty property="arrival_cd">
+            AND R.ARRIVAL_CD = #arrival_cd#
+        </isNotEmpty>
+        <isNotEmpty property="ofc_cd">
+            AND D.OFC_CD = #ofc_cd#
+        </isNotEmpty>
+        <isNotEmpty property="frt_cd">
+            AND D.FRT_CD = #frt_cd#
+        </isNotEmpty>
+        <isNotEmpty property="unit_cd">
+            AND D.UNIT_CD = #unit_cd#
+        </isNotEmpty>
+        <isNotEmpty property="sc_no">
+            AND R.SC_NO = #sc_no#
+        </isNotEmpty>
+        <isNotEqual property="named_acct_flg" compareValue="ALL">
+            AND R.NAMED_ACCT_FLG = #named_acct_flg#
+        </isNotEqual>
+        <isNotEmpty property="ctrt_no">
+            AND C.CTRT_NO = #ctrt_no#
+        </isNotEmpty>
+        <isNotEmpty property="sales_ofc_cd">
+            AND C.SALES_OFC_CD = #sales_ofc_cd#
+        </isNotEmpty>
+    </select>
+
+
+
+    <select id="searchRateHistoryMain" resultClass="RateHistoryMainDto">
+        /** RateMgmtSQL.xml > searchRateHistoryMain **/
+        SELECT DISTINCT
+        R.CTRT_NO,
+        R.SB_CLS_CD,
+        D.MODI_ID,
+        dbo.TL_GET_USER_NM(R.MODI_ID) MODI_NM,
+        D.MODI_SYS_DT,
+        R.FRT_MODE,
+        CASE WHEN FRT_MODE = 'S'
+        THEN 'Footer/SEA'
+        WHEN FRT_MODE = 'A'
+        THEN 'Footer/AIR'
+        WHEN FRT_MODE = 'D'
+        THEN 'Footer/Domestic'
+        END FREIGHT_MODE,
+        D.RATE_NO,
+        D.HST_SEQ,
+        D.HST_TP_CD,
+        D.OFC_CD
+        FROM    TL_CTRT_RATE R, TL_CTRT_RATE_DTL_HST D
+        WHERE R.CTRT_NO  = #ctrt_no#
+        AND   R.CTRT_NO  = D.CTRT_NO
+        AND   R.SB_CLS_CD = D.SB_CLS_CD
+        AND   R.RATE_NO  = D.RATE_NO
+        AND   R.SB_CLS_CD = #sb_cls_cd#
+        UNION ALL
+        SELECT
+        R.CTRT_NO,
+        R.SB_CLS_CD,
+        MODI_ID,
+        dbo.TL_GET_USER_NM(R.MODI_ID),
+        MODI_SYS_DT,
+        FRT_MODE,
+        'Header',
+        R.RATE_NO,
+        R.HST_SEQ,
+        R.HST_TP_CD,
+        ''
+        FROM    TL_CTRT_RATE_HST R
+        WHERE R.CTRT_NO  = #ctrt_no#
+        AND   R.SB_CLS_CD = #sb_cls_cd#
+        ORDER BY RATE_NO ASC, MODI_SYS_DT DESC
+    </select>
+
+    <select id="searchRateHistoryHeader" resultClass="Grd01RTMainListVO">
+        /** RateMgmtSQL.xml > searchRateHistoryHeader **/
+        SELECT HST_TP_CD
+        , CTRT_NO
+        , SB_CLS_CD
+        , RATE_NO
+        , FRT_MODE
+        , POR
+        , TL_GET_LOC_NM(POR) AS POR_NM
+        , POL
+        , TL_GET_LOC_NM(POL) AS POL_NM
+        , POD
+        , TL_GET_LOC_NM(POD) AS POD_NM
+        , DEL
+        , TL_GET_LOC_NM(DEL) AS DEL_NM
+        , SVCTERM_FR_CD
+        , SVCTERM_TO_CD
+        , DEPARTURE_CD
+        , TL_GET_LOC_NM(DEPARTURE_CD) AS DEPARTURE_NM
+        , ARRIVAL_CD
+        , TL_GET_LOC_NM(ARRIVAL_CD) AS ARRIVAL_NM
+        , ORIGIN_LOC_CD
+        , ORIGIN_LOC_NM
+        , DEST_LOC_CD
+        , DEST_LOC_NM
+        , LOC_CD
+        , LOC_NM
+        , COMMODITY_DESC
+        , CO_LOADER_CD
+        , TL_GET_CUST_NM(CO_LOADER_CD) AS CO_LOADER_NM
+        , CARRIER_CD
+        , TL_GET_CUST_NM(CARRIER_CD) AS CARRIER_NM
+        , PRIORITY
+        , SC_NO
+        , BULLET_NO
+        , NAMED_ACCT_FLG
+        , TO_CHAR(TO_DATE(EFF_FR_DT,'YYYYMMDD'),'YYYY-MM-DD') AS EFF_FR_DT
+        , TO_CHAR(TO_DATE(EFF_TO_DT,'YYYYMMDD'),'YYYY-MM-DD') AS EFF_TO_DT
+        FROM TL_CTRT_RATE_HST R
+        WHERE R.CTRT_NO  = #ctrt_no#
+        AND   R.SB_CLS_CD = #sb_cls_cd#
+        AND   R.RATE_NO = #rate_no#
+        ORDER BY R.RGST_SYS_DT DESC
+    </select>
+
+    <select id="searchRateHistoryFooter" resultClass="Grd02RTDetailListVO">
+        /** RateMgmtSQL.xml > searchRateHistoryFooter **/
+        SELECT A.HST_TP_CD
+        , A.CTRT_NO
+        , A.SB_CLS_CD
+        , A.RATE_NO
+        , A.RATE_SEQ
+        , A.CUST_CD
+        , TL_GET_CUST_NM(A.CUST_CD) AS CUST_NM
+        , A.OFC_CD
+        , A.FRT_CD
+        , A.FRT_NM
+        , A.UNIT_CD
+        , A.CURR_CD
+        , A.UNIT_PRICE
+        , A.RMK
+        FROM TL_CTRT_RATE_DTL_HST A
+        WHERE 1=1
+        AND A.CTRT_NO = #ctrt_no#
+        AND A.SB_CLS_CD = #sb_cls_cd#
+        AND A.RATE_NO = #rate_no#
+        AND A.HST_SEQ = #hst_seq#
+        ORDER BY A.RGST_SYS_DT DESC
+    </select>
+
+
+
+    <select id="searchNRAFileList" resultClass="NRAAttachmentDto">
+        /** RateMgmtSQL.xml > searchNRAFileList **/
+        SELECT  R.DOC_NO
+        ,R.FILE_ORG_NM
+        ,R.FILE_PATH
+        ,R.FILE_SYS_NM
+        ,R.FILE_SIZE
+        ,TO_CHAR(R.RGST_SYS_DT,'YYYYMMDD') AS UPLOAD_DATE
+        FROM TL_FILE_REP R
+        WHERE 1=1
+        AND R.DOC_REF_NO    = #rate_no#
+        AND R.DOC_REF_NO2   = #ctrt_no#
+        AND R.DOC_REF_TP_CD = 'RT'
+        AND R.SVC_TP_CD     = 'RT'
+        AND R.DOC_TP_CD     = 'RT'
+    </select>
+
+    <select id="searchFileNo" resultClass="String">
+        /** RateMgmtSQL.xml > searchFileNo **/
+        SELECT  'HJD'+ TO_CHAR(GETDATE(),'YYMMDD')+ LPAD(TO_NUMBER(ISNULL(MAX(SUBSTR(DOC_NO, 10, 6)), 0) + 1), 6, 0) AS DOC_NO
+        FROM TL_FILE_REP
+        WHERE DOC_NO LIKE 'HJD'+TO_CHAR(GETDATE(), 'YYMMDD')+'%'
+    </select>
+
+    <delete id="removeFileNRAPRE">
+        /** RateMgmtSQL.xml > removeFileNRAPRE **/
+        DELETE FROM TL_FILE_REP
+        WHERE DOC_REF_NO  = #doc_ref_no#
+        AND DOC_REF_NO2 = #doc_ref_no2#
+    </delete>
+
+    <update id="updateNRANo">
+        /** RateMgmtSQL.xml > updateNRANo **/
+        UPDATE TL_CTRT_RATE
+        SET NRA_QUOTE_NO = #nra_quote_no#
+        ,MODI_ID      = #user_id#
+        ,MODI_SYS_DT  = GETDATE()
+        WHERE CTRT_NO   = #ctrt_no#
+        AND SB_CLS_CD = #sb_cls_cd#
+        AND RATE_NO   = #rate_no#
+    </update>
+
+    <insert id="addFileNRA">
+        /** RateMgmtSQL.xml > addFileNRA **/
+        INSERT INTO TL_FILE_REP
+        (
+        DOC_NO,
+        SVC_TP_CD,
+        DOC_REF_TP_CD,
+        DOC_REF_NO,
+        DOC_REF_NO2,
+        DOC_TP_CD,
+        FILE_PATH,
+        FILE_SYS_NM,
+        FILE_ORG_NM,
+        FILE_SIZE,
+        RGST_ID,
+        RGST_SYS_DT
+        )
+        SELECT #doc_no#,
+        #svc_tp_cd#,
+        #doc_ref_tp_cd#,
+        #doc_ref_no#,
+        #doc_ref_no2#,
+        #doc_tp_cd#,
+        FILE_URL,
+        FILE_ID,
+        CASE WHEN LENGTH(FILE_NM) > 100 THEN SUBSTR(FILE_NM, 0, 100-LENGTH(SUBSTR(FILE_NM, INSTR(FILE_NM, '.'), LENGTH(FILE_NM))) ) + SUBSTR(FILE_NM, INSTR(FILE_NM, '.'), LENGTH(FILE_NM))
+        ELSE FILE_NM
+        END,
+        FILE_CAPA,
+        #user_id#,
+        GETDATE()
+        FROM COM_UPLD_FILE
+        WHERE FILE_ID  = #fileKey#
+    </insert>
+
+    <delete id="removeFileNRA">
+        /** RateMgmtSQL.xml > removeFileNRA **/
+        DELETE FROM TL_FILE_REP
+        WHERE DOC_NO = #doc_no#
+    </delete>
+
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.Grd01OthCostMgmtVO" alias="Grd01OthCostMgmtVO"></typeAlias>
+    <select id="searchOthCostMgmtList" resultClass="Grd01OthCostMgmtVO">
+        /** RateMgmtSQL.xml > searchOthCostMgmtList **/
+        SELECT A.OTH_COST_NO
+        , A.SB_CLS_CD
+        , A.TRANS_DT
+        , A.STS_CD
+        , A.CLS_DT
+        , A.CLS_NO
+        , A.BK_NO
+        , A.BK_CLS_CD
+        , A.ORDER_REL
+        , A.OFC_CD
+        , A.WH_CD
+        , dbo.TL_GET_LOC_NM(A.WH_CD) AS WH_NM
+        , A.CTRT_NO
+        , dbo.TL_GET_CTRT_NM(A.CTRT_NO) AS CTRT_NM
+        , A.CUST_CD
+        , dbo.TL_GET_CUST_NM(A.CUST_CD) AS CUST_NM
+        , A.FRT_CD
+        , A.FRT_NM
+        , A.UNIT_CD
+        , A.EA_QTY
+        , A.CURR_CD
+        , A.RATE
+        , A.AMT
+        , A.EQ_TPSZ_CD
+        , A.EQ_NO
+        , A.SEAL_NO
+        , A.RMK
+        , A.RGST_ID
+        , A.RGST_OFC_CD
+        , A.RGST_LOC_DT
+        , A.MODI_ID
+        , A.MODI_OFC_CD
+        , A.MODI_LOC_DT
+        FROM TL_WH_OTH_COST A
+        WHERE 1 = 1
+        <!-- <isEqual property="auth_lvl" compareValue="AQ">
+        AND A.OFC_CD IN (SELECT OFFICE_CD
+                               FROM TL_ORG O
+                              WHERE O.USE_FLG = 'Y'
+                                AND O.UPPER_ORG_CD =  #org_cd#
+                              UNION
+                             SELECT OFFICE_CD
+                               FROM TL_ORG O
+                              WHERE O.USE_FLG = 'Y'
+                                AND O.OFFICE_CD =  #org_cd#
+                            )
+        </isEqual>
+        <isEqual property="auth_lvl" compareValue="LB">
+        AND A.OFC_CD = #org_cd#
+        </isEqual> -->
+        <isNotEmpty property="sel_oth_cost_no">
+            AND A.OTH_COST_NO IN (
+            <iterate property="sel_oth_cost_no_in" conjunction=",">#[]#</iterate>
+            )
+        </isNotEmpty>
+        <isEmpty property="sel_oth_cost_no">
+            <isNotEqual property="fm_trans_dt" compareValue="ALL">
+                AND A.TRANS_DT BETWEEN REPLACE(#fm_trans_dt#, '-', '') AND REPLACE(#to_trans_dt#, '-', '')
+            </isNotEqual>
+            <isNotEmpty property="wh_cd">
+                AND A.WH_CD = #wh_cd#
+            </isNotEmpty>
+            <isNotEmpty property="ctrt_no">
+                AND A.CTRT_NO = #ctrt_no#
+            </isNotEmpty>
+            <isNotEmpty property="cust_cd">
+                AND A.CUST_CD = #cust_cd#
+            </isNotEmpty>
+            <isNotEqual property="sts_cd" compareValue="ALL">
+                AND A.STS_CD = #sts_cd#
+            </isNotEqual>
+            <isNotEqual property="sb_cls_cd" compareValue="ALL">
+                AND A.SB_CLS_CD = #sb_cls_cd#
+            </isNotEqual>
+            ORDER BY A.OTH_COST_NO ASC
+        </isEmpty>
+    </select>
+
+    <insert id="createWhOthCost">
+        /** RateMgmtSQL.xml > createWhOthCost **/
+        DECLARE @WH_CD VARCHAR(20)
+        SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+        INSERT INTO TL_WH_OTH_COST
+        ( OTH_COST_NO
+        , SB_CLS_CD
+        , TRANS_DT
+        , STS_CD
+        , CLS_DT
+        , CLS_NO
+        , BK_NO
+        , BK_CLS_CD
+        , ORDER_REL
+        , OFC_CD
+        , WH_CD
+        , CTRT_NO
+        , CUST_CD
+        , FRT_CD
+        , FRT_NM
+        , UNIT_CD
+        , EA_QTY
+        , CURR_CD
+        , RATE
+        , AMT
+        , EQ_TPSZ_CD
+        , EQ_NO
+        , SEAL_NO
+        , RMK
+        , RGST_ID
+        , RGST_OFC_CD
+        , RGST_SYS_DT
+        , RGST_LOC_DT
+        , MODI_ID
+        , MODI_OFC_CD
+        , MODI_SYS_DT
+        , MODI_LOC_DT
+        )
+        VALUES
+        ( #oth_cost_no#
+        , #sb_cls_cd#
+        , REPLACE(#trans_dt#, '-', '')
+        , 'S'
+        , NULL
+        , NULL
+        , #bk_no#
+        , #bk_cls_cd#
+        , #order_rel#
+        , #ofc_cd#
+        , #wh_cd#
+        , #ctrt_no#
+        , #cust_cd#
+        , #frt_cd#
+        , #frt_nm#
+        , #unit_cd#
+        , #ea_qty#
+        , #curr_cd#
+        , #rate#
+        , #amt#
+        , #eq_tpsz_cd#
+        , #eq_no#
+        , #seal_no#
+        , #rmk#
+        , #rgst_id#
+        , #rgst_ofc_cd#
+        , GETDATE()
+        , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+        + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+        + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+        + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+        , #modi_id#
+        , #modi_ofc_cd#
+        , GETDATE()
+        , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+        + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+        + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+        + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+        )
+    </insert>
+    <update id="modifyWhOthCost">
+        /** RateMgmtSQL.xml > modifyWhOthCost **/
+        /*RT.modifyWhOthCost*/
+        DECLARE @WH_CD VARCHAR(20)
+        SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+        UPDATE TL_WH_OTH_COST
+        SET SB_CLS_CD          = #sb_cls_cd#
+        , TRANS_DT           = REPLACE(#trans_dt#, '-', '')
+        , BK_NO              = #bk_no#
+        , BK_CLS_CD          = #bk_cls_cd#
+        , ORDER_REL          = #order_rel#
+        , OFC_CD             = #ofc_cd#
+        , WH_CD              = #wh_cd#
+        , CTRT_NO            = #ctrt_no#
+        , CUST_CD            = #cust_cd#
+        , FRT_CD             = #frt_cd#
+        , FRT_NM             = #frt_nm#
+        , UNIT_CD            = #unit_cd#
+        , EA_QTY             = #ea_qty#
+        , CURR_CD            = #curr_cd#
+        , RATE               = #rate#
+        , AMT                = #amt#
+        , EQ_TPSZ_CD         = #eq_tpsz_cd#
+        , EQ_NO              = #eq_no#
+        , SEAL_NO            = #seal_no#
+        , RMK                = #rmk#
+        , MODI_ID            = #modi_id#
+        , MODI_OFC_CD        = #modi_ofc_cd#
+        , MODI_SYS_DT        = GETDATE()
+        , MODI_LOC_DT        = (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+        + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+        + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+        + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+        WHERE OTH_COST_NO        = #oth_cost_no#
+    </update>
+    <delete id="deleteWhOthCost">
+        /*RT.deleteWhOthCost*/
+        DELETE FROM TL_WH_OTH_COST
+        WHERE OTH_COST_NO = #oth_cost_no#
+    </delete>
+
+    <select id="searchRateInfoForOthCost" resultClass="Grd01OthCostMgmtVO">
+        /** RateMgmtSQL.xml > searchRateInfoForOthCost **/
+        SELECT TOP 1 DTL.CURR_CD
+        , (CASE WHEN RATE.SB_CLS_CD = 'S' THEN DTL.EXT_RATE ELSE DTL.UNIT_PRICE END) AS UNIT_PRICE
+        FROM TL_CTRT_RATE RATE
+        , TL_CTRT_RATE_DTL DTL
+        WHERE RATE.CTRT_NO = DTL.CTRT_NO
+        AND RATE.RATE_NO = DTL.RATE_NO
+        AND RATE.SB_CLS_CD = DTL.SB_CLS_CD
+        AND RATE.CTRT_NO = #ctrt_no#
+        AND RATE.SB_CLS_CD = #sb_cls_cd#
+        AND RATE.LOC_CD = #wh_cd#
+        <![CDATA[
+       AND RATE.EFF_FR_DT <= REPLACE(#trans_dt#, '-', '')
+       AND RATE.EFF_TO_DT >= REPLACE(#trans_dt#, '-', '') ]]>
+        AND DTL.OFC_CD = #ofc_cd#
+        AND DTL.CUST_CD = #cust_cd#
+        AND DTL.FRT_CD = #frt_cd#
+        AND DTL.UNIT_CD = #unit_cd#
+        <isNotEmpty property="curr_cd">
+            AND DTL.CURR_CD = #curr_cd#
+        </isNotEmpty>
+        AND DTL.RATE_TP_CD = 'OTH'
+        <!--        AND ROWNUM = 1 -->
+    </select>
+    
+    <select id="searchDupRateDtlMgmt" parameterClass="HashMap" resultClass="String">
+       /** RateMgmtSQL.xml > searchDupRateDtlMgmt **/
+       SELECT COUNT(*) 
+		 FROM TL_CTRT_RATE_DTL 
+		WHERE CUST_CD = #cust_cd#
+		AND FRT_CD = #frt_cd#
+		<isEqual property="rate_tp_cd" compareValue="IN">
+		AND RATE_TP_CD IN ('IN','IAO')
+		</isEqual>
+		<isEqual property="rate_tp_cd" compareValue="OUT">
+		AND RATE_TP_CD IN ('OUT','IAO')
+		</isEqual>
+		<isEqual property="s_unit_cd" compareValue="HP">
+			AND UNIT_CD IN ('HUT','PUT')
+		</isEqual>
+		<isNotEqual property="s_unit_cd" compareValue="HP">
+			AND UNIT_CD = #unit_cd#
+		</isNotEqual>
+		AND ITEM_CD = #item_cd#
+		AND convert(char(10),EFF_FR_DT,102) <![CDATA[ <= ]]> convert(char(10),#eff_to_dt#,102) 
+		AND convert(char(10),EFF_TO_DT,102) >= convert(char(10),#eff_fr_dt#,102) 
+    </select>
+    
+    <select id="countRateDtlEffectiveDate" parameterClass="HashMap" resultClass="String">
+       /** RateMgmtSQL.xml > countRateDtlEffectiveDate **/
+		WITH VB_TOTAL AS (
+		   SELECT count(1) allTotal, RATE_NO
+			 FROM TL_CTRT_RATE_DTL 
+			WHERE RATE_NO = #rate_no#
+			GROUP BY RATE_NO
+		)
+		SELECT A.allTotal - A.termTotal AS TOT_COUNT
+		FROM
+		(
+		SELECT count(RDT.RATE_NO) termTotal, MAX(VB.allTotal) allTotal
+			FROM TL_CTRT_RATE_DTL RDT, VB_TOTAL VB
+		WHERE RDT.RATE_NO = VB.RATE_NO
+		AND RDT.RATE_NO = #rate_no#
+		AND convert(char(10),EFF_FR_DT,102) >= convert(char(10),#eff_fr_dt#,102) 
+		AND convert(char(10),EFF_TO_DT,102) <![CDATA[ <= ]]> convert(char(10),#eff_to_dt#,102) 
+		GROUP BY RDT.RATE_NO
+		) A
+    </select>
+    
+    <select id="searchDupRateMainMgmt" parameterClass="HashMap" resultClass="String">
+       /** RateMgmtSQL.xml > searchDupRateMainMgmt **/
+       SELECT COUNT(*) 
+		 FROM TL_CTRT_RATE 
+		WHERE CTRT_NO = #ctrt_no#
+		AND LOC_CD = #loc_cd#
+		AND convert(char(10),EFF_FR_DT,102) <![CDATA[ <= ]]> convert(char(10),#eff_to_dt#,102) 
+		AND convert(char(10),EFF_TO_DT,102) >= convert(char(10),#eff_fr_dt#,102) 
+    </select>
+</sqlMap>

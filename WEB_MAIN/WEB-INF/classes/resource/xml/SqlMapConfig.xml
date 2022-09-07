@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" 
+ "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+<sqlMapConfig>
+	<settings 
+	   cacheModelsEnabled="true" 
+	   enhancementEnabled="true" 
+	   lazyLoadingEnabled="true" 
+	   maxRequests="128"  
+	   maxSessions="50" 
+	   maxTransactions="50" 
+       useStatementNamespaces="true" 
+       statementCachingEnabled="true"
+       classInfoCacheEnabled="true"
+	   />
+	<transactionManager type="JDBC">
+		<!--   <property name="UserTransaction" value="java:comp/env/UserTransaction"/>  -->
+		<dataSource type="JNDI">
+			<property name="DataSource" value="java:comp/env/jdbc/OPUSFWD"/>
+		</dataSource>
+	</transactionManager>
+                    
+    <sqlMap resource="com/clt/sqlmaps/mssql/OpusBaseSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmMcmLocationSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MdmMcmOfficeSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeContainerSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeCommoditySQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MdmCodePackagesSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeVesselSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeFreightSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeVatSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MdmMcmPartnerSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeCurrencySQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/CmmAjaxSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtCurExchangeRateSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtJobMgmtSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtHisMgtSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtEqMgtSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtAltMgtSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MgtOfcIncentiveSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MgtCtrbMarginSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/ReportMngSQL.xml"/>
+    
+	
+	<sqlMap resource="com/clt/sqlmaps/mssql/CmmPopUpSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/CmmMemoSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/BlCmmSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/AirBlSQL.xml"/>
+	
+	<sqlMap resource="com/clt/sqlmaps/mssql/SeeBmdShippingRequestSQL.xml"/>
+	
+	<sqlMap resource="com/clt/sqlmaps/mssql/SalTpmTradePartnerSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/EquManagementSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/SeeFrtFreightSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/SeeBmdShippingDocumentSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/EquInvoiceSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/SalTfmTariffMgmtSQL.xml"/>
+    
+    <sqlMap resource="com/clt/sqlmaps/mssql/AccInvReportSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/AccInvInvoiceListSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/AccInvInvoiceSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/AccJorJournalSQL.xml"/>
+    
+	<sqlMap resource="com/clt/sqlmaps/mssql/AicCmmSQL.xml"/>
+	
+	<sqlMap resource="com/clt/sqlmaps/mssql/SecWorkOrderSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/RptPrintSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/SeiDocArrivalSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/SecFrtCorrectionAdviceSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/EdiCstmSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeWarehouseSQL.xml"/>
+    
+    <sqlMap resource="com/clt/sqlmaps/mssql/TmpPopSQL.xml"/>
+    
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeSystemCodeSQL.xml"/>
+    
+    <!--    2011/09/23 AIF   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtMacAddressSQL.xml"/>
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtLogMailSQL.xml"/>
+    
+    <!--    2011/10/04 AIF   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/CmmHistorySQL.xml"/>
+    
+    <!--    2011/10/07 AIF   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeGlSQL.xml"/>
+    
+    <!--    2011/10/18 AIF   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmMcmBankSQL.xml"/>
+    
+    <!--    2011/10/19 AIF   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/AieMblStkSQL.xml"/>
+    
+    <!--    2011/10/20 AIF   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/OthOprDetailsSQL.xml"/>
+
+    <!--    2011/10/20 AIF   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/OthWhrSQL.xml"/>
+
+    <!--    2011/10/20 AIF   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtLogFaxSQL.xml"/>
+    
+    <!--    2012/01/13 AIF   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/AccSlpSlipSQL.xml"/>
+    
+    <!--    2012/01/17 AIF   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/PfmAccAccountingSQL.xml"/>
+    
+	
+	<!--    2012/01/11 AIF   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/PfmMgtSQL.xml"/>
+	
+	<!--    2012/03/14 AIF GLOVIS EDI   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiGoalsSQL.xml"/>
+	
+	<!--    2012/03/26 AIF DE Customs EDI   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiDeBlSQL.xml"/>
+
+	<!--    2012/08/02 KAMS EDI   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiAmsSQL.xml"/>
+	
+	<!--    2012/09/12 Manage Time   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/MgtMngTimeSQL.xml"/>
+	
+	
+	<!--    2012/09/10 Ams EDI   -->
+<!--   	<sqlMap resource="com/clt/sqlmaps/mssql/EdiAmsSQL.xml"/>   -->
+
+	<!--    2012/10/09 Cargo Tracing    -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/CusTrkTrackingmgmtSQL.xml"/>
+	
+	<!--    2012/11/08 ISF EDI   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiIsfSQL.xml"/>
+	
+	<!--    2013/02/28 Vendor S/I   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/OthVsiSQL.xml"/>
+	
+	<!--    2014/05/29 Agent EDI   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiAgtSQL.xml"/>
+	
+	<!--    2014/10/10 Bookmark   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/BookmarkMngSQL.xml"/>
+	
+	<!-- TinLuong Warehouse Item 2014/12/20 -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WhmItemEntrySQL.xml"/>
+	
+	<!--    Vinh.Vo 2014/12/17 Warehouse Entry   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WhmWarehouseEntrySQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WhmWarehouseListSQL.xml"/>
+	<!-- inventory(S) -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WhmInventorySQL.xml"/>
+	<!-- inventory(E) -->
+	<!-- receiving(S) -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WhmReceivingSQL.xml"/>
+	
+	
+	<!-- WarehouseDocEntry(S) -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WhmwarehousedocentrySQL.xml"/>
+	<!-- WarehouseDocEntry(E) -->
+	
+	<!--    2015/01/05 PO   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/OthPurOrdSQL.xml"/>
+
+	<!--    2015/02/04 ATD/ATA   -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtSkdSQL.xml"/>
+    
+    <!--    2015/03/19 Shipping Instrucntion EDI   -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiSpiSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiBkgSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiVgmSQL.xml"/>
+	
+	<!--    2016/04/27 AFR EDI  C.W.Park Add -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiAfrSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiAciSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiIntgCstmsSQL.xml"/>
+	
+	<!--    2018/01/02 ACL EDI  AJS Add -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiAclSQL.xml"/>
+	
+	<!--    2018/09/18 e-AWB EDI Add -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/EdiAwbSQL.xml"/>
+	
+    <!-- WMS configm -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WmsItemSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WmsCommonSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHLotSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHInvMoveSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHOutLoadplanProc.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHOutLoadplanSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WmsWHInbkSQL.xml"/>	
+	<!--  -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/RateMgmtSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WmsWHICSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WmsWHClosingSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeTrkSzTpSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHItemInvSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHOutAllcationSql.xml"/>
+	<!-- Khanh (S) -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHLocSql.xml"/>
+	<!-- Khanh (E) -->
+	
+	<!-- Bao.Huynh (S) -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHOCSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHOutWaveSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHOutbkSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHListSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/ITEMSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHICSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHICProc.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHInbkSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WBInSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/SBSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHInbkProc.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/DocKeyProc.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/SVOSql.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/HistorySql.xml"/>
+	<!-- Bao.Huynh (E) -->
+	
+	<!--Vinh.Vo (S)  -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WmsCtrtMgmtSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WmsMonStoRptSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WmsWHOutbkMgmtSQL.xml"/>
+	<!--Vinh.Vo (E)  -->
+	
+	<!--Duy.Nguyen (S)  -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/CycleCountSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/BOMSQL.xml"/>
+	<!--Duy.Nguyen (E)  -->
+	
+	<!-- Nam Tran (S)  -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/TransloadingSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHInputawaySQL.xml"/>
+	<!-- Nam Tran (E)  -->
+	<!-- Khoa.Nguyen (S)  -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WHItemInvProc.xml"/>
+	<!-- Khoa.Nguyen (E)  -->
+	
+	<!-- C.W Park Notification -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/CmmNotificationSQL.xml"/>
+	<!-- C.W Park Notification -->
+	
+	<!-- Warehouse Outbound Management (S) -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/WmsWHOutMgmtSQL.xml"/>
+	<!-- Warehouse Outbound Management (E) -->
+	
+	<!-- Warehouse PDA Base (S) -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/MobBaseSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MobObSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MobIbSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MobInvtSQL.xml"/>
+	<!-- Warehouse PDA Base (E) -->
+	
+	<sqlMap resource="com/clt/sqlmaps/mssql/BkgCmmSQL.xml"/>
+	
+	<!-- Consolidation (S) -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/SeeBmdConsolidationSQL.xml"/>
+	<!-- Consolidation (E) -->
+	
+	<!-- Duc.Nguyen (S) -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/NewReportMngSQL.xml"/>
+	<sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeFreightNewSQL.xml"/>
+	<!-- Duc.Nguyen (E) -->
+	<sqlMap resource="com/clt/sqlmaps/mssql/BatchSQL.xml"/>
+	
+</sqlMapConfig>

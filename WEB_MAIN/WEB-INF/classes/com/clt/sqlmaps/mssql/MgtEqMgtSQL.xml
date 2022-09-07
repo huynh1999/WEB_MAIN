@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.eq.eqmgt">
+	
+	<!-- 년도랑 주의 index를 파라미터로 받아 그에 해당하는 주의 범위를 취득한다.  -->
+	<select id="selectWeekArea" parameterClass="java.util.HashMap" resultClass="String">
+		/* MgtEqMgt.xml > selectWeekArea */
+		DECLARE @DATE VARCHAR(10)
+		DECLARE @WEEK INT
+		DECLARE @YEAR VARCHAR(4)
+		 
+		SET  @YEAR = #year#
+		SET  @DATE = '01-01-'+ #year#
+		SET  @WEEK = #week#
+		SET  @DATE = CONVERT(varchar(50), (DATEADD(WW, @WEEK-1, @DATE)),110)
+		
+		SELECT 
+		CONVERT(varchar(50), (DATEADD(dd, @@DATEFIRST - DATEPART(dw, @DATE) - 6, @DATE)), 110)  +' ~ '+ 
+		CONVERT(varchar(50), (DATEADD(dd, @@DATEFIRST - DATEPART(dw, @DATE), @DATE)), 110) 
+	</select>
+	
+	<select id="selectEqStatus" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* MgtEqMgt.xml > selectEqStatus */
+			SELECT a1.*
+			  FROM (
+				SELECT 
+				ROW_NUMBER() OVER (ORDER BY LOC.LOC_CD ASC) as ROWNUM,		
+				LOC.LOC_NM AS LOC_NM
+				,LOC.LOC_CD AS LOC_CD
+				,LOC.CNT_CD AS CNT_CD
+				,LOC.STATE_CD AS ST_CD
+				,ISNULL(STS.CNTR1,'0') AS CNTR1
+				,ISNULL(STS.CNTR2,'0') AS CNTR2
+				,ISNULL(STS.CNTR3,'0') AS CNTR3
+				,ISNULL(STS.CNTR4,'0') AS CNTR4
+				,STS.YEAR AS YEAR
+				,STS.WEEK AS WEEK
+				,CNT.CNT_ENG_NM AS CNT_NM	
+				FROM TB_EQ_STS_LOC EQ_LOC
+				 LEFT JOIN TB_EQ_STS STS 
+					ON STS.LOC_CD = EQ_LOC.LOC_CD 
+					AND STS.YEAR = #year#
+					AND STS.WEEK = #week#
+					AND STS.DELT_FLG != 'Y'	
+				 LEFT JOIN TB_LOC LOC 
+					ON  LOC.LOC_CD = EQ_LOC.LOC_CD 
+				 JOIN  TB_CNT CNT  
+					ON  LOC.CNT_CD = CNT.CNT_CD  ) a1
+			<![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]>		
+	</select>
+
+	<select id="selectEqStatus_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		/* MgtEqMgt.xml > selectEqStatus_CNT*/
+			SELECT 
+				COUNT(*)
+			FROM TB_EQ_STS_LOC EQ_LOC
+			 LEFT JOIN TB_EQ_STS STS 
+				ON STS.LOC_CD = EQ_LOC.LOC_CD 
+				AND STS.YEAR = #year#
+				AND STS.WEEK = #week#
+				AND STS.DELT_FLG != 'Y'
+			 LEFT JOIN TB_LOC LOC 
+				ON  LOC.LOC_CD = EQ_LOC.LOC_CD
+			 JOIN  TB_CNT CNT  
+				ON  LOC.CNT_CD = CNT.CNT_CD 
+	</select>
+	
+	<select id="selectLoc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* MgtEqMgt.xml > selectEqStatus */
+			SELECT a1.*
+			  FROM (
+				SELECT 
+					ROW_NUMBER() OVER (ORDER BY LOC.LOC_CD ASC) as ROWNUM,		
+					LOC.LOC_NM AS LOC_NM
+					,LOC.LOC_CD AS LOC_CD
+					,LOC.CNT_CD AS CNT_CD
+					,CNT.CNT_ENG_NM AS CNT_NM	
+					,LOC.STATE_CD AS ST_CD
+				FROM  TB_EQ_STS_LOC STS
+				 LEFT JOIN TB_LOC LOC 
+				ON  LOC.LOC_CD = STS.LOC_CD 
+				 JOIN  TB_CNT CNT  
+				ON  LOC.CNT_CD = CNT.CNT_CD  
+				WHERE STS.DELT_FLG != 'Y') a1
+			<![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]>		
+	</select>
+	
+	<select id="selectLoc_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		/* MgtEqMgt.xml > selectLoc_CNT*/
+			SELECT 
+				COUNT(*)
+			FROM  TB_EQ_STS_LOC STS
+			 LEFT JOIN TB_LOC LOC 
+			ON  LOC.LOC_CD = STS.LOC_CD 
+			 JOIN  TB_CNT CNT  
+			ON  LOC.CNT_CD = CNT.CNT_CD  
+			WHERE STS.DELT_FLG != 'Y'
+	</select>
+	
+	<update id="updateEqStatus" parameterClass="com.clt.apps.fis.mgt.eq.eqmgt.dto.MgtEqMgtVO">
+		/* MgtEqMgt.xml > updateEqStatus*/	
+		MERGE INTO TB_EQ_STS AS X1
+
+		USING (SELECT 
+			#loc_cd#	LOC_CD ,
+			#year#	YEAR,
+			#week#	WEEK ) X2  
+		ON (X1.loc_cd = X2.loc_cd
+			AND X1.YEAR =  X2.YEAR
+			AND X1.WEEK = X2.WEEK)  
+		WHEN MATCHED THEN
+		UPDATE SET 
+			X1.cntr1 = #cntr1#, 
+			X1.cntr2 = #cntr2#,
+			X1.cntr3 = #cntr3#,
+			X1.cntr4 = #cntr4#,
+			X1.MODI_USRID = #modi_usrid#,
+			X1.MODI_OFC_CD = #modi_ofc_cd#,
+			X1.MODI_TMS = GETUTCDATE()
+		WHEN NOT MATCHED THEN
+				INSERT ([YEAR]
+		           ,[WEEK]
+		           ,[LOC_CD]
+		           ,[CNTR1]
+		           ,[CNTR2]
+		           ,[CNTR3]
+		           ,[CNTR4]
+		           ,[RGST_USRID]
+		           ,[RGST_OFC_CD]
+		           ,[RGST_TMS]
+		           ,[MODI_USRID]
+		           ,[MODI_OFC_CD]
+		           ,[MODI_TMS]
+		           ,[DELT_FLG])
+		     VALUES
+		           (#year#
+		           ,#week#
+		           ,#loc_cd# 
+		           ,#cntr1#
+		           ,#cntr2#
+		           ,#cntr3#
+		           ,#cntr4#
+		           ,#rgst_usrid#
+		           ,#rgst_ofc_cd#
+		           ,getDate()
+		           ,#modi_usrid#
+		           ,#modi_ofc_cd#
+		           ,GETUTCDATE()
+		           ,'N');
+
+	</update>
+	
+	<update id="insertLoc" parameterClass="com.clt.apps.fis.mgt.eq.eqmgt.dto.MgtEqMgtVO">
+		/* MgtEqMgt.xml > LOC_CD*/	
+		INSERT INTO TB_EQ_STS_LOC([LOC_CD]
+	           ,[RGST_USRID]
+	           ,[RGST_OFC_CD]
+	           ,[RGST_TMS]
+	           ,[MODI_USRID]
+	           ,[MODI_OFC_CD]
+	           ,[MODI_TMS]
+	           ,[DELT_FLG])
+	     VALUES
+	           (#loc_cd# 
+	           ,#rgst_usrid#
+	           ,#rgst_ofc_cd#
+	           ,getDate()
+	           ,#modi_usrid#
+	           ,#modi_ofc_cd#
+	           ,GETUTCDATE()
+	           ,'N');
+	</update>
+	
+	<delete id="deleteLoc" parameterClass="com.clt.apps.fis.mgt.eq.eqmgt.dto.MgtEqMgtVO">
+        DELETE  TB_EQ_STS_LOC                                                      
+         WHERE  LOC_CD = #loc_cd#
+    </delete>
+	
+		
+	<select id="checkDuplLoc" parameterClass="java.util.HashMap" resultClass="String">
+		/* MgtEqMgt.xml > checkDuplLoc*/
+			SELECT 
+				LOC_CD
+			FROM  TB_EQ_STS_LOC
+			WHERE LOC_CD = #loc_cd#
+	</select>
+	
+	<!-- Service Lane Route & Transit Time 정보 취득-->
+	<select id="selectSvcLaneRoute" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* MgtEqMgt.xml > selectSvcLaneRoute */
+		SELECT 
+			<!-- ROW_NUMBER() OVER (ORDER BY SLR.SRT_SEQ ASC) as ROWNUM,	 -->
+			LOC_CD,
+			LOC_NM,
+			ORG_FLG,
+			EST_BERT_WK,
+			EST_DEPT_WK,
+			TRAN_TIME,
+			SRT_SEQ
+		FROM TB_SVC_LANE SL
+			LEFT JOIN TB_SVC_LANE_ROUT SLR
+			ON SL.SVC_LANE_SEQ = SLR.SVC_LANE_SEQ
+		WHERE LANE_CD = #lane_cd#
+		ORDER BY ORG_FLG DESC, SRT_SEQ ASC
+	</select>
+	<!-- Service Lane List 정보 취득-->
+	<select id="selectSvcLane" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* MgtEqMgt.xml > selectSvcLane */
+		SELECT 
+			<!-- ROW_NUMBER() OVER (ORDER BY SL.LANE_CD ASC) as ROWNUM, -->	
+			SL.LANE_CD,
+			SL.LANE_NM,
+			SL.ORG_AREA_CD,
+			SL.DEST_AREA_CD,
+			SL.FRE_CD,
+			SL.RMK,
+			(SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD LIKE 'C124' AND CD_VAL = SL.ORG_AREA_CD) AS ORG_AREA_NM,
+			(SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD LIKE 'C124' AND CD_VAL = SL.DEST_AREA_CD) AS DEST_AREA_NM,
+			SL.CRR_NM,
+			SL.RGST_USRID,
+			<!-- CONVERT(VARCHAR(10),SL.RGST_TMS ,110)+' '+CONVERT(VARCHAR(10),SL.RGST_TMS ,108)  as RGST_TMS, -->
+			SL.RGST_TMS as RGST_TMS,
+			SL.MODI_USRID,
+	        <!-- CONVERT(VARCHAR(10),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),SL.MODI_TMS ),110)+' '+
+	        CONVERT(VARCHAR(5),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),SL.MODI_TMS ),108) AS MODI_TMS -->
+	        DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),SL.MODI_TMS ) AS MODI_TMS
+			
+			
+		FROM TB_SVC_LANE SL
+		
+		LEFT OUTER JOIN
+        TB_OFC TOF                    
+            ON SL.RGST_OFC_CD = TOF.OFC_CD                   
+	    LEFT OUTER JOIN
+	        TB_COM_CD_DTL CCD                    
+	            ON CCD.COM_CD = 'TIMEZN'                    
+	            AND TOF.TIME_ZONE = CCD.CD_VAL    
+            
+		WHERE 1 = 1
+			<isNotEmpty prepend="AND" property="lane_cd">
+				SL.LANE_CD LIKE '%'+#lane_cd# +'%'
+			</isNotEmpty>
+			<isNotEqual prepend="AND" property="sel_org_cd" compareValue="ALL">
+				SL.ORG_AREA_CD = #sel_org_cd#
+			</isNotEqual>
+			<isNotEqual prepend="AND" property="sel_des_cd" compareValue="ALL">
+				SL.DEST_AREA_CD = #sel_des_cd#
+			</isNotEqual>
+			<isNotEmpty prepend="AND" property="carrier">
+				SL.CRR_NM LIKE '%'+#carrier# +'%'
+			</isNotEmpty>
+		ORDER BY SL.LANE_CD ASC
+	</select>
+	<!-- Service Lane 코드 중복 체크-->
+	<select id="selectChkSvcLane" parameterClass="java.util.HashMap" resultClass="String">
+		/* MgtEqMgt.xml > selectSvcLane */
+		SELECT 
+			COUNT(*)
+		FROM TB_SVC_LANE SL
+		WHERE SL.LANE_CD = #lane_cd#
+	</select>
+	
+	<!-- Service Lane Basic Info -->
+	<update id="updateSvcLane" parameterClass="java.util.HashMap">
+		/* MgtEqMgt.xml > updateSvcLane*/	
+		MERGE INTO TB_SVC_LANE AS X1
+
+		USING (SELECT 
+			#lane_cd#	LANE_CD) X2  
+		ON (X1.LANE_CD = X2.LANE_CD)  
+		WHEN MATCHED THEN
+		UPDATE SET 
+			X1.LANE_CD = #lane_cd#, 
+			X1.LANE_NM = #lane_nm#, 
+			X1.ORG_AREA_CD = #sel_org_cd#, 
+			X1.DEST_AREA_CD = #sel_des_cd#, 
+			X1.CRR_NM = #carrier#, 
+			X1.FRE_CD = #sel_Frequency_cd#, 
+			X1.RMK = #f_remark#, 
+			X1.MODI_USRID = #modi_usrid#,
+			X1.MODI_OFC_CD = #modi_ofc_cd#,
+			X1.MODI_TMS = GETUTCDATE()
+		WHEN NOT MATCHED THEN
+				INSERT ([LANE_CD]
+		           ,[LANE_NM]
+		           ,[ORG_AREA_CD]
+		           ,[DEST_AREA_CD]
+		           ,[CRR_NM]
+		           ,[FRE_CD]
+		           ,[RMK]
+		           ,[RGST_USRID]
+		           ,[RGST_OFC_CD]
+		           ,[RGST_TMS]
+		           ,[MODI_USRID]
+		           ,[MODI_OFC_CD]
+		           ,[MODI_TMS])
+		     VALUES
+		           (#lane_cd#
+		           ,#lane_nm#
+		           ,#sel_org_cd# 
+		           ,#sel_des_cd#
+		           ,#carrier#
+		           ,#sel_Frequency_cd#
+		           ,#f_remark#
+		           ,#rgst_usrid#
+		           ,#rgst_ofc_cd#
+		           ,getDate()
+		           ,#modi_usrid#
+		           ,#modi_ofc_cd#
+		           ,GETUTCDATE());
+	</update>
+    <!-- Service Lane Route & Transit Time 등록   -->
+    <insert id="insertSvcLnRoute" parameterClass="com.clt.apps.fis.mgt.eq.eqmgt.dto.MgtEqSvcLaneVO">
+    	/* MgtEqMgt.xml > insertSvcLnRoute*/	
+        INSERT TB_SVC_LANE_ROUT( 
+             SVC_LANE_SEQ,  
+             LOC_CD,   
+             LOC_NM,
+             ORG_FLG,          
+             EST_BERT_WK,         
+             EST_DEPT_WK,        
+             TRAN_TIME,      
+             SRT_SEQ,
+             RGST_USRID,
+             RGST_OFC_CD,
+             RGST_TMS,
+             MODI_USRID,
+             MODI_OFC_CD,
+             MODI_TMS
+        ) SELECT
+             <!-- ISNULL(MAX(SVC_LANE_SEQ),1), -->
+             (SELECT S.SVC_LANE_SEQ FROM TB_SVC_LANE S WHERE S.LANE_CD = #lane_cd#),       
+             #port_cd#,  
+             #port_nm#,   
+             #ori_des#,
+             #etb#,          
+             #etd#,         
+             #trs_time#,        
+             #seq#,
+             #rgst_usrid#,
+             #rgst_ofc_cd#,
+             getDate(),
+             #modi_usrid#,
+             #modi_ofc_cd#,
+             GETUTCDATE()
+           FROM TB_SVC_LANE
+           WHERE LANE_CD = #lane_cd#
+           
+    </insert>
+	<!-- Service Lane Route SVC_LANE_SEQ취득 -->
+	<select id="selectSvcLaneSeq" parameterClass="java.util.HashMap" resultClass="String">
+		/* MgtEqMgt.xml > selectSvcLaneSeq */
+		SELECT
+         	ISNULL(MAX(SVC_LANE_SEQ),1) AS SVC_LANE_SEQ     
+		FROM TB_SVC_LANE
+		WHERE LANE_CD = #lane_cd#
+	</select>
+    <!-- Service Lane Route & Transit Time 수정   -->
+    <update id="updateSvcLnRoute" parameterClass="com.clt.apps.fis.mgt.eq.eqmgt.dto.MgtEqSvcLaneVO">
+    	/* MgtEqMgt.xml > updateSvcLnRoute*/
+<!--         UPDATE  TB_SVC_LANE_ROUT 
+           SET  LOC_CD = #port_cd#,
+                LOC_NM = #port_nm#,                 
+                ORG_FLG = #ori_des#,                   
+                EST_BERT_WK = #etb#,     
+                EST_DEPT_WK = #etd#,
+                TRAN_TIME = #trs_time#, 
+                SRT_SEQ = #seq#,
+		        MODI_USRID = #rgst_usrid#,           
+		        MODI_OFC_CD = #rgst_ofc_cd#,           
+		        MODI_TMS = GETDATE()
+         WHERE  SVC_LANE_SEQ = (SELECT
+					             ISNULL(MAX(SVC_LANE_SEQ),1)      
+					           FROM TB_SVC_LANE
+					           WHERE LANE_CD = #lane_cd#)
+           AND  SRT_SEQ = #seq# -->
+		MERGE INTO TB_SVC_LANE_ROUT AS X1
+		USING (SELECT #svc_lane_seq# SVC_LANE_SEQ) X2  
+		ON (X1.SVC_LANE_SEQ = X2.SVC_LANE_SEQ
+			AND  X1.SRT_SEQ = #seq#)  
+		WHEN MATCHED THEN
+		UPDATE  SET  
+				LOC_CD = #port_cd#,
+                LOC_NM = #port_nm#,                 
+                ORG_FLG = #ori_des#,                   
+                EST_BERT_WK = #etb#,     
+                EST_DEPT_WK = #etd#,
+                TRAN_TIME = #trs_time#, 
+                SRT_SEQ = #seq#,
+		        MODI_USRID = #rgst_usrid#,           
+		        MODI_OFC_CD = #rgst_ofc_cd#,           
+		        MODI_TMS = GETUTCDATE()
+		WHEN NOT MATCHED THEN
+				INSERT ([SVC_LANE_SEQ],  
+		             [LOC_CD],   
+		             [LOC_NM],
+		             [ORG_FLG],          
+		             [EST_BERT_WK],         
+		             [EST_DEPT_WK],        
+		             [TRAN_TIME],      
+		             [SRT_SEQ],
+		             [RGST_USRID],
+		             [RGST_OFC_CD],
+		             [RGST_TMS],
+		             [MODI_USRID],
+		             [MODI_OFC_CD],
+		             [MODI_TMS])
+		     VALUES
+		           ( #svc_lane_seq#,        
+		             #port_cd#,  
+		             #port_nm#,   
+		             #ori_des#,
+		             #etb#,          
+		             #etd#,         
+		             #trs_time#,        
+		             #seq#,
+		             #rgst_usrid#,
+		             #rgst_ofc_cd#,
+		             getDate(),
+		             #modi_usrid#,
+		             #modi_ofc_cd#,
+		             GETUTCDATE());
+    </update>
+    
+	<!-- Service Lane Basic Info 삭제   -->
+	<delete id="deleteSvcLane" parameterClass="java.util.HashMap">
+		/* MgtEqMgt.xml > deleteSvcLane*/
+		DELETE FROM TB_SVC_LANE
+		      WHERE LANE_CD = #lane_cd#
+	</delete>
+	<!-- Service Lane Basic Info 삭제시 Service Lane Route & Transit Time 삭제   -->
+	<delete id="deleteSvcLnRoute" parameterClass="java.util.HashMap">
+		/* MgtEqMgt.xml > deleteSvcLnRoute*/
+		DELETE FROM TB_SVC_LANE_ROUT
+		      WHERE SVC_LANE_SEQ = (SELECT
+						             SVC_LANE_SEQ     
+						           FROM TB_SVC_LANE
+						           WHERE LANE_CD = #lane_cd#)
+	</delete>
+	
+	<!-- Service Lane Route & Transit Time만  삭제시   -->
+	<delete id="deleteSvcLnRouteIBS" parameterClass="com.clt.apps.fis.mgt.eq.eqmgt.dto.MgtEqSvcLaneVO">
+		/* MgtEqMgt.xml > deleteSvcLnRouteIBS*/
+		DELETE FROM TB_SVC_LANE_ROUT
+		      WHERE SVC_LANE_SEQ = (SELECT
+						             ISNULL(MAX(SVC_LANE_SEQ),1)      
+						           FROM TB_SVC_LANE
+						           WHERE LANE_CD = #lane_cd#)
+				AND SRT_SEQ  = #seq#
+	</delete>
+</sqlMap>

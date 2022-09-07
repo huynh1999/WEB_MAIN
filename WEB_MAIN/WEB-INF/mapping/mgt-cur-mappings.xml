@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### cur ####  -->
+    <url-mapping url="MGT_CUR_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.cur.exchangemgt.event.MGT_CUR_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_CUR_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_CUR_0010GS.clt" screen="MGT_CUR_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.cur.exchangemgt.event.MGT_CUR_0010HTMLAction</web-action-class>
+    </url-mapping>
+	
+
+    <url-mapping url="MGT_CUR_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.cur.exchangemgt.event.MGT_CUR_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_CUR_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_CUR_0020GS.clt" screen="MGT_CUR_0020GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.cur.exchangemgt.event.MGT_CUR_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mgt.cur.exchangemgt.event.MgtExchangeRateEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mgt.cur.exchangemgt.MgtExchangeRateSC</service-action-class>
+    </event-mapping>
+	
+    <!--#### Notice Management End ####  -->
+</mappings>

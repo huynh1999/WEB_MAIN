@@ -1,0 +1,917 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc.inv.report">
+	<!-- ACC INVOICE CREATE B/L Search    -->
+    <select id="selectBalanceReport" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.acc.inv.report.dto.InvRptVO">
+    <isEqual property="sbdc_cd" compareValue="A">
+        SELECT INV.TRDP_CD, LOCL_NM, LOCL_USR_NM, ENG_USR_NM,   
+               (SELECT cd_nm FROM TB_com_cd_dtl where com_cd = 'C056' and dept_cd = cd_val) ofc_cd,
+               CASE WHEN CR_TERM_CD = 'A' THEN CONVERT(VARCHAR, CR_TERM_DT)+' days'
+                    WHEN CR_TERM_CD = 'B' THEN 'end of Month'
+                    WHEN CR_TERM_CD = 'C' THEN 'end of Next Month'
+                    WHEN CR_TERM_CD = 'D' THEN CONVERT(VARCHAR, CR_TERM_DT)+' th of next month'
+               END dept_cd,
+            <isEqual property="curr_cd" compareValue="loc">
+                'KRW' INV_APLY_CURR_CD,
+            </isEqual>
+            <isEqual property="curr_cd" compareValue="for">
+                MAX(INV_APLY_CURR_CD) INV_APLY_CURR_CD,
+            </isEqual>
+                sum(l1st) as n1st, sum(l2st) as n2nd, sum(l3st) as n3rd, sum(l4st) as n4th
+        FROM    (
+        <isEqual property="curr_cd" compareValue="loc">
+        <![CDATA[
+                SELECT inv.trdp_cd, DTL.INV_DT, DTL.INV_APLY_CURR_CD, 
+                        CASE WHEN CAST(DATEADD("$period_cd$", -1, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 
+                                 SUM(CASE WHEN INV_APLY_CURR_CD = 'KRW' THEN dtl.BAL_AMT + dtl.BAL_VAT_AMT
+                                     ELSE (dtl.BAL_AMT + dtl.BAL_VAT_AMT) * ISNULL(XKRW.TO_RT_UT, 1) END)
+                        else 0 end l1st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -1, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0 
+                             WHEN CAST(DATEADD("$period_cd$", -2, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 
+                                 SUM(CASE WHEN INV_APLY_CURR_CD = 'KRW' THEN dtl.BAL_AMT + dtl.BAL_VAT_AMT
+                                     ELSE (dtl.BAL_AMT + dtl.BAL_VAT_AMT) * ISNULL(XKRW.TO_RT_UT, 1) END)
+                        else 0 end l2st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -2, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0
+                             WHEN CAST(DATEADD("$period_cd$", -3, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN
+                                 SUM(CASE WHEN INV_APLY_CURR_CD = 'KRW' THEN dtl.BAL_AMT + dtl.BAL_VAT_AMT
+                                     ELSE (dtl.BAL_AMT + dtl.BAL_VAT_AMT) * ISNULL(XKRW.TO_RT_UT, 1) END)
+                        else 0 end l3st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -3, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0
+                             else SUM(CASE WHEN INV_APLY_CURR_CD = 'KRW' THEN dtl.BAL_AMT + dtl.BAL_VAT_AMT
+                                      ELSE (dtl.BAL_AMT + dtl.BAL_VAT_AMT) * ISNULL(XKRW.TO_RT_UT, 1) END)
+                        end l4st
+         ]]>
+        </isEqual>
+        <isEqual property="curr_cd" compareValue="for">
+        <![CDATA[
+                SELECT inv.trdp_cd, DTL.INV_DT, DTL.FRGN_CURR_CD INV_APLY_CURR_CD, 
+                        CASE WHEN CAST(DATEADD("$period_cd$", -1, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN SUM(dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT)  
+                        else 0 end l1st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -1, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0 
+                             WHEN CAST(DATEADD("$period_cd$", -2, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN SUM(dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT) 
+                        else 0 end l2st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -2, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0
+                             WHEN CAST(DATEADD("$period_cd$", -3, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN SUM(dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT) 
+                        else 0 end l3st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -3, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0
+                             else SUM(dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT) 
+                        end l4st
+        ]]>
+        </isEqual>
+                FROM TB_INV_DTL DTL
+                JOIN TB_INV INV ON DTL.INV_SEQ = INV.INV_SEQ
+     LEFT OUTER JOIN (SELECT FRT.INV_SEQ, MAX(FRT.FRT_SEQ) AS FRT_SEQ 
+                        FROM TB_FRT FRT 
+                       WHERE FRT.DELT_FLG = 'N' 
+                    GROUP BY INV_SEQ) TMP ON INV.INV_SEQ = TMP.INV_SEQ
+     LEFT OUTER JOIN TB_INV_XCRT XKRW 
+                  ON XKRW.APLY_FM_DT = CONVERT(VARCHAR(8), dtl.inv_xcrt_dt, 120) AND XKRW.FM_CURR_CD= dtl.INV_APLY_CURR_CD AND XKRW.TO_CURR_CD='KRW' AND XKRW.CURR_TP_CD='S' and XKRW.DELT_FLG='N'
+     LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_BLCK) BLCK 
+     			  ON INV.INV_SEQ = BLCK.INV_SEQ1         
+                WHERE DTL.DELT_FLG = 'N'
+                  AND ISNULL(ISNULL(BLCK.CLT_CMPL_FLG1, INV.CLT_CMPL_FLG),'N') != 'Y'
+                  AND inv.SELL_BUY_TP_CD = #sell_buy_cd#
+                  AND inv.INV_STS_CD != 'IE'
+                  AND TMP.FRT_SEQ IS NOT NULL
+            <isEqual property="type_cd" compareValue="Y">
+		    	  AND DTL.slip_no is not null
+			</isEqual>
+			<isEqual property="type_cd" compareValue="N">
+			      AND DTL.slip_no is null
+			</isEqual>
+            <isNotNull property="trdp_cd">
+                  AND inv.trdp_cd = #trdp_cd#
+            </isNotNull>
+            <isEqual property="curr_cd" compareValue="for">
+                  AND DTL.FRGN_CURR_CD IS NOT NULL
+            </isEqual>
+            <isEqual property="curr_cd" compareValue="loc">    
+                GROUP BY inv.trdp_cd, DTL.INV_DT, DTL.INV_APLY_CURR_CD
+                HAVING SUM(dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT + dtl.BAL_AMT + dtl.BAL_VAT_AMT) !=0
+            </isEqual>
+            <isEqual property="curr_cd" compareValue="for">
+                GROUP BY inv.trdp_cd, DTL.INV_DT, DTL.FRGN_CURR_CD
+                HAVING SUM(dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT) !=0
+            </isEqual>
+                ) INV
+LEFT OUTER JOIN TB_TRDP trdp ON INV.TRDP_CD = trdp.TRDP_CD
+LEFT OUTER JOIN TB_USR usr ON usr.USR_TP = 'I' AND trdp.SLS_USRID = usr.USRID
+LEFT OUTER JOIN TB_OFC ofc ON usr.OFC_CD = ofc.OFC_CD
+        WHERE 1=1
+            <isNotNull property="dept_cd">
+                  AND usr.dept_cd = #dept_cd#
+            </isNotNull>
+
+        GROUP BY INV.TRDP_CD, LOCL_NM, LOCL_USR_NM, ENG_USR_NM, DEPT_CD, CR_TERM_CD, CR_TERM_DT
+        ORDER BY INV_APLY_CURR_CD, TRDP_CD
+    </isEqual>
+    
+    <isEqual property="sbdc_cd" compareValue="B">
+        SELECT INV.TRDP_CD, LOCL_NM, LOCL_USR_NM, ENG_USR_NM,   
+               (SELECT cd_nm FROM TB_com_cd_dtl where com_cd = 'C056' and dept_cd = cd_val) ofc_cd,
+               CASE WHEN CR_TERM_CD = 'A' THEN CONVERT(VARCHAR, CR_TERM_DT)+' days'
+                    WHEN CR_TERM_CD = 'B' THEN 'end of Month'
+                    WHEN CR_TERM_CD = 'C' THEN 'end of Next Month'
+                    WHEN CR_TERM_CD = 'D' THEN CONVERT(VARCHAR, CR_TERM_DT)+' th of next month'
+               END dept_cd,
+            <isEqual property="curr_cd" compareValue="loc">
+                'KRW' INV_APLY_CURR_CD,
+            </isEqual>
+            <isEqual property="curr_cd" compareValue="for">
+                MAX(ISNULL(FRGN_CURR_CD, INV_APLY_CURR_CD)) INV_APLY_CURR_CD,
+            </isEqual>
+                sum(l1st) as n1st, sum(l2st) as n2nd, sum(l3st) as n3rd, sum(l4st) as n4th
+        FROM    (
+                SELECT inv.trdp_cd, DTL.INV_DT, DTL.INV_APLY_CURR_CD, MAX(DTL.FRGN_CURR_CD) FRGN_CURR_CD, 
+        <isEqual property="curr_cd" compareValue="loc">
+        <![CDATA[
+                        CASE WHEN CAST(DATEADD("$period_cd$", -1, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN SUM(dtl.INV_KRW_AMT)
+                        else 0 end l1st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -1, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0 
+                             WHEN CAST(DATEADD("$period_cd$", -2, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN SUM(dtl.INV_KRW_AMT)
+                        else 0 end l2st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -2, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0
+                             WHEN CAST(DATEADD("$period_cd$", -3, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN SUM(dtl.INV_KRW_AMT)
+                        else 0 end l3st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -3, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0
+                             else  SUM(dtl.INV_KRW_AMT)
+                        end l4st
+         ]]>
+        </isEqual>
+        <isEqual property="curr_cd" compareValue="for">
+        <![CDATA[
+                        CASE WHEN CAST(DATEADD("$period_cd$", -1, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 
+                                 SUM(CASE WHEN INV_APLY_CURR_CD = 'KRW' THEN dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT
+                                     ELSE dtl.BAL_AMT + dtl.BAL_VAT_AMT END)
+                        else 0 end l1st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -1, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0 
+                             WHEN CAST(DATEADD("$period_cd$", -2, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 
+                                 SUM(CASE WHEN INV_APLY_CURR_CD = 'KRW' THEN dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT
+                                     ELSE dtl.BAL_AMT + dtl.BAL_VAT_AMT END)
+                        else 0 end l2st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -2, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0
+                             WHEN CAST(DATEADD("$period_cd$", -3, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN
+                                 SUM(CASE WHEN INV_APLY_CURR_CD = 'KRW' THEN dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT
+                                     ELSE dtl.BAL_AMT + dtl.BAL_VAT_AMT END)
+                        else 0 end l3st,
+                        CASE WHEN CAST(DATEADD("$period_cd$", -3, GETDATE()) AS DATE) < CAST(dtl.INV_DT AS DATE) THEN 0
+                             else SUM(CASE WHEN INV_APLY_CURR_CD = 'KRW' THEN dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT
+                                           ELSE dtl.BAL_AMT + dtl.BAL_VAT_AMT END)
+                        end l4st
+        ]]>
+        </isEqual>
+                FROM TB_INV_DTL DTL
+                JOIN TB_INV INV ON DTL.INV_SEQ = INV.INV_SEQ
+     LEFT OUTER JOIN TB_INV_XCRT XKRW 
+                  ON XKRW.APLY_FM_DT = CONVERT(VARCHAR(8), dtl.inv_xcrt_dt, 120) AND XKRW.FM_CURR_CD= dtl.INV_APLY_CURR_CD AND XKRW.TO_CURR_CD='KRW' AND XKRW.CURR_TP_CD='S' and XKRW.DELT_FLG='N'
+     LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_BLCK) BLCK 
+     			  ON INV.INV_SEQ = BLCK.INV_SEQ1        
+                WHERE DTL.DELT_FLG = 'N'
+                  AND ISNULL(ISNULL(BLCK.CLT_CMPL_FLG1, INV.CLT_CMPL_FLG),'N') != 'Y'
+                  AND inv.SELL_BUY_TP_CD = #sell_buy_cd#
+                  AND inv.INV_STS_CD != 'IE'
+            <isEqual prepend="AND" property="type_cd" compareValue="Y">
+		    	DTL.slip_no is not null
+			</isEqual>
+			<isEqual prepend="AND" property="type_cd" compareValue="N">
+			    DTL.slip_no is null
+			</isEqual>
+            <isNotNull property="trdp_cd">
+                  AND inv.trdp_cd = #trdp_cd#
+            </isNotNull>
+                GROUP BY inv.trdp_cd, DTL.INV_DT, DTL.INV_APLY_CURR_CD
+                HAVING SUM(dtl.BAL_FRGN_AMT + dtl.BAL_FRGN_VAT_AMT + dtl.BAL_AMT + dtl.BAL_VAT_AMT) !=0
+                ) INV
+LEFT OUTER JOIN TB_TRDP trdp ON INV.TRDP_CD = trdp.TRDP_CD
+LEFT OUTER JOIN TB_USR usr ON usr.USR_TP = 'I' AND trdp.SLS_USRID = usr.USRID
+LEFT OUTER JOIN TB_OFC ofc ON usr.OFC_CD = ofc.OFC_CD
+        WHERE 1=1
+            <isNotNull property="dept_cd">
+                  AND usr.dept_cd = #dept_cd#
+            </isNotNull>
+
+        GROUP BY INV.TRDP_CD, LOCL_NM, LOCL_USR_NM, ENG_USR_NM, DEPT_CD, CR_TERM_CD, CR_TERM_DT
+        ORDER BY INV_APLY_CURR_CD, TRDP_CD
+    </isEqual>
+    </select>
+    <select id="selectPerform1Report" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.acc.inv.report.dto.InvRptVO">
+    <isNotEqual property="bnd_clss_cd" compareValue="I">
+        SELECT frt.AIR_SEA_CLSS_CD+'/'+frt.BND_CLSS_CD BND_CLSS_CD,
+                frt.AIR_SEA_CLSS_CD, frt.BND_CLSS_CD bound,
+                bl.bl_no,   usr.LOCL_USR_NM,    prnr.TRDP_NM,
+                ETD_DT_TM et_dt_tm,
+                (SELECT cd_nm FROM TB_com_cd_dtl where com_cd = 'C056' and bnd.sls_dept_cd = cd_val) dept_cd,               
+                BL.POL_NM,          bl.POD_NM,  BL.DEL_NM,
+                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN                          
+                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT /* 한화일때 금액만 있으면 됨 */
+                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1)/* 미화 * 환율 = 한화금액*/
+                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환)*/
+                         END
+                    ELSE 0
+                END), 0) revenue,
+                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 0
+                    ELSE
+                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT /* 한화일때 금액만 있으면 됨 */
+                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1)/* 미화 * 환율 = 한화금액*/
+                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환)*/
+                         END
+                END), 0) cost,
+                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 
+                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT / ISNULL(XUSD.XCH_RT_UT, 1) /* 한화일때 한화 / 미화환율 = 미화 */
+                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT 
+                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) / ISNULL(XUSD.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환후 미화 전환)*/
+                         END
+                    ELSE 0
+                END), 2) u_revenue,
+                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 0
+                    ELSE
+                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT / ISNULL(XUSD.XCH_RT_UT, 1) /* 한화일때 한화 / 미화환율 = 미화 */
+                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT 
+                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) / ISNULL(XUSD.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환후 미화 전환)*/
+                         END
+                END), 2) u_cost,
+                MAX(XUSD.XCH_rt_ut) ex_rt_ut,
+                ISNULL(dbo.fc_bl_cntr_tpsz(bl.bl_no), MAX(CASE WHEN BL.SHP_MOD_CD!='FCL' THEN BL.SHP_MOD_CD END)) as cntr_tpsz_cd
+           FROM TB_FRT FRT
+           JOIN TB_INTG_BL BL
+             ON FRT.INTG_BL_SEQ = BL.INTG_BL_SEQ
+           JOIN TB_ADD_INFO_BND bnd
+             ON bl.INTG_BL_SEQ = bnd.INTG_BL_SEQ AND bnd.BND_CLSS_CD = 'O'
+           JOIN TB_USR USR
+             ON USR.USR_TP = 'I' AND bnd.SLS_USRID = USR.USRID
+LEFT OUTER JOIN tb_bl_prnr prnr 
+             ON frt.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'S02' AND prnr.delt_flg = 'N'
+<isEqual property="air_sea_clss_cd" compareValue="S">
+LEFT OUTER JOIN   TB_INV_XCRT XKRW 
+            ON XKRW.APLY_FM_DT = CONVERT(VARCHAR(8), bl.OBRD_DT_TM, 120) AND XKRW.FM_CURR_CD= frt.INV_CURR_CD AND XKRW.TO_CURR_CD='KRW' AND XKRW.CURR_TP_CD='S' and XKRW.DELT_FLG='N'
+LEFT OUTER JOIN   TB_INV_XCRT XUSD
+            ON XUSD.APLY_FM_DT = CONVERT(VARCHAR(8), bl.OBRD_DT_TM, 120) AND XUSD.FM_CURR_CD= 'USD' and XUSD.TO_CURR_CD='KRW' AND XUSD.CURR_TP_CD='S' and XUSD.DELT_FLG='N'
+</isEqual>
+<isEqual property="air_sea_clss_cd" compareValue="A">
+LEFT OUTER JOIN   TB_INV_XCRT XKRW 
+            ON XKRW.APLY_FM_DT = CONVERT(VARCHAR(8), bl.ETD_DT_TM, 120) AND XKRW.FM_CURR_CD= frt.INV_CURR_CD AND XKRW.TO_CURR_CD='KRW' AND XKRW.CURR_TP_CD='S' and XKRW.DELT_FLG='N'
+LEFT OUTER JOIN   TB_INV_XCRT XUSD
+            ON XUSD.APLY_FM_DT = CONVERT(VARCHAR(8), bl.ETD_DT_TM, 120) AND XUSD.FM_CURR_CD= 'USD' and XUSD.TO_CURR_CD='KRW' AND XUSD.CURR_TP_CD='S' and XUSD.DELT_FLG='N'
+</isEqual>
+          WHERE  frt.INV_STS_CD != 'FI'
+            AND  frt.DELT_FLG = 'N'
+            AND  BL.BIZ_CLSS_CD = 'H'
+            AND  frt.AIR_SEA_CLSS_CD = #air_sea_clss_cd#
+            AND  CONVERT(VARCHAR(8), bl.ETD_DT_TM, 120) between #fm_et_dt# and #to_et_dt#
+            <isNotNull prepend="AND" property="dept_cd">
+                 bnd.sls_dept_cd = #dept_cd#
+             </isNotNull>
+            <isNotNull prepend="AND" property="pol_cd">
+                 bl.pol_cd = #pol_cd#
+             </isNotNull>
+            <isNotNull prepend="AND" property="pod_cd">
+                 bl.pod_cd = #pod_cd#
+             </isNotNull>
+            <isNotNull prepend="AND" property="del_cd">
+                 bl.del_cd = #del_cd#
+             </isNotNull>
+            <isNotNull prepend="AND" property="usr_cd">
+                 usr.USRID = #usr_cd#
+             </isNotNull>
+            <isNotNull prepend="AND" property="trdp_cd">
+                 prnr.trdp_cd = #trdp_cd#
+             </isNotNull>
+        GROUP BY frt.AIR_SEA_CLSS_CD, frt.BND_CLSS_CD,  BL.ETD_DT_TM,   bl.bl_no, bnd.sls_dept_cd,  usr.LOCL_USR_NM,    prnr.TRDP_NM,
+                BL.POL_NM,  bl.POD_NM,  BL.DEL_NM
+
+    </isNotEqual>
+    <isNull property="bnd_clss_cd">
+        UNION ALL
+    </isNull>
+    <isNotEqual property="bnd_clss_cd" compareValue="O">
+        SELECT frt.AIR_SEA_CLSS_CD+'/'+frt.BND_CLSS_CD BND_CLSS_CD,
+                frt.AIR_SEA_CLSS_CD, frt.BND_CLSS_CD bound,
+                bl.bl_no,   usr.LOCL_USR_NM,    prnr.TRDP_NM,
+                ETA_DT_TM et_dt_tm,
+                (SELECT cd_nm FROM TB_com_cd_dtl where com_cd = 'C056' and bnd.sls_dept_cd = cd_val) dept_cd,               
+                BL.POL_NM,          bl.POD_NM,  BL.DEL_NM,
+                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN                          
+                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT /* 한화일때 금액만 있으면 됨 */
+                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1)/* 미화 * 환율 = 한화금액*/
+                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환)*/
+                         END
+                    ELSE 0
+                END), 0) revenue,
+                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 0
+                    ELSE
+                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT /* 한화일때 금액만 있으면 됨 */
+                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1)/* 미화 * 환율 = 한화금액*/
+                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환)*/
+                         END
+                END), 0) cost,
+                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 
+                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT / ISNULL(XUSD.XCH_RT_UT, 1) /* 한화일때 한화 / 미화환율 = 미화 */
+                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT 
+                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) / ISNULL(XUSD.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환후 미화 전환)*/
+                         END
+                    ELSE 0
+                END), 2) u_revenue,
+                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 0
+                    ELSE
+                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT / ISNULL(XUSD.XCH_RT_UT, 1) /* 한화일때 한화 / 미화환율 = 미화 */
+                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT 
+                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) / ISNULL(XUSD.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환후 미화 전환)*/
+                         END
+                END), 2) u_cost,
+                MAX(XUSD.XCH_rt_ut) ex_rt_ut,
+                ISNULL(dbo.fc_bl_cntr_tpsz(bl.bl_no), MAX(CASE WHEN BL.SHP_MOD_CD!='FCL' THEN BL.SHP_MOD_CD END)) as cntr_tpsz_cd
+           FROM TB_FRT FRT
+           JOIN TB_INTG_BL BL
+             ON FRT.INTG_BL_SEQ = BL.INTG_BL_SEQ
+           JOIN TB_ADD_INFO_BND bnd
+             ON bl.INTG_BL_SEQ = bnd.INTG_BL_SEQ AND bnd.BND_CLSS_CD = 'I'
+           JOIN TB_USR USR
+             ON USR.USR_TP = 'I' AND bnd.SLS_USRID = USR.USRID
+LEFT OUTER JOIN tb_bl_prnr prnr 
+             ON frt.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'S02' AND prnr.delt_flg = 'N'
+LEFT OUTER JOIN TB_INV_XCRT XKRW 
+             ON XKRW.APLY_FM_DT = CONVERT(VARCHAR(8), bl.ETA_DT_TM, 120) AND XKRW.FM_CURR_CD= frt.INV_CURR_CD AND XKRW.TO_CURR_CD='KRW' AND XKRW.CURR_TP_CD='S' and XKRW.DELT_FLG='N'
+LEFT OUTER JOIN  TB_INV_XCRT XUSD
+             ON XUSD.APLY_FM_DT = CONVERT(VARCHAR(8), bl.ETA_DT_TM, 120) AND XUSD.FM_CURR_CD= 'USD' and XUSD.TO_CURR_CD='KRW' AND XUSD.CURR_TP_CD='S' and XUSD.DELT_FLG='N'
+          WHERE frt.INV_STS_CD != 'FI'
+            AND frt.DELT_FLG = 'N'
+            AND BL.BIZ_CLSS_CD = 'H'
+            AND frt.AIR_SEA_CLSS_CD = #air_sea_clss_cd#
+            AND CONVERT(VARCHAR(8), bl.ETA_DT_TM, 120) between #fm_et_dt# and #to_et_dt#
+            <isNotNull prepend="AND" property="dept_cd">
+                 bnd.sls_dept_cd = #dept_cd#
+             </isNotNull>
+            <isNotNull prepend="AND" property="pol_cd">
+                 bl.pol_cd = #pol_cd#
+             </isNotNull>
+            <isNotNull prepend="AND" property="pod_cd">
+                 bl.pod_cd = #pod_cd#
+             </isNotNull>
+            <isNotNull prepend="AND" property="del_cd">
+                 bl.del_cd = #del_cd#
+             </isNotNull>
+            <isNotNull prepend="AND" property="usr_cd">
+                 usr.USRID = #usr_cd#
+             </isNotNull>
+            <isNotNull prepend="AND" property="trdp_cd">
+                 prnr.trdp_cd = #trdp_cd#
+             </isNotNull>
+        GROUP BY frt.AIR_SEA_CLSS_CD, frt.BND_CLSS_CD,   BL.ETA_DT_TM,   bl.bl_no, bnd.sls_dept_cd,  usr.LOCL_USR_NM,    prnr.TRDP_NM,
+                BL.POL_NM,  bl.POD_NM,  BL.DEL_NM
+
+    </isNotEqual>
+    </select>
+    <select id="selectPerform2Report" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.acc.inv.report.dto.InvRptVO">
+		SELECT grp1, grp2, SUM(revenue) revenue, SUM(cost) cost, SUM(u_revenue) u_revenue, SUM(u_cost) u_cost, SUM(ex_rt_ut) ex_rt_ut, 
+		        SUM(n1) n1, SUM(n2) n2, SUM(n3) n3, SUM(n4) n4, SUM(n5) n5, SUM(tot) tot, SUM(u_revenue) - SUM(u_cost) u_profit
+		  FROM (
+		
+		    <isNotEqual property="bnd_clss_cd" compareValue="I">
+                SELECT  
+		                <isEqual property="rpt_type" compareValue="dept">
+		                (SELECT cd_nm FROM TB_com_cd_dtl where com_cd = 'C056' and bnd.sls_dept_cd = cd_val) grp1,
+		                frt.AIR_SEA_CLSS_CD+'/'+frt.BND_CLSS_CD grp2,
+		                </isEqual>
+		                <isEqual property="rpt_type" compareValue="usr">
+		                usr.usrid grp1,     usr.LOCL_USR_NM grp2,
+		                </isEqual>
+		                <isEqual property="rpt_type" compareValue="cust">
+		                prnr.TRDP_NM grp1,
+		                (SELECT cd_nm FROM TB_com_cd_dtl where com_cd = 'C056' and bnd.sls_dept_cd = cd_val) grp2,
+		                </isEqual>
+		                <isEqual property="rpt_type" compareValue="del">
+		                bl.del_cd grp1,
+		                (SELECT LOC_NM FROM TB_LOC WHERE LOC_CD = bl.del_cd) grp2,
+		                </isEqual>
+		                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN                          
+		                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT /* 한화일때 금액만 있으면 됨 */
+		                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1)/* 미화 * 환율 = 한화금액*/
+		                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환)*/
+		                         END
+		                    ELSE 0
+		                END), 0) revenue,
+		                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 0
+		                    ELSE
+		                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT /* 한화일때 금액만 있으면 됨 */
+		                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1)/* 미화 * 환율 = 한화금액*/
+		                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환)*/
+		                         END
+		                END), 0) cost,
+		                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 
+		                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT / ISNULL(XUSD.XCH_RT_UT, 1) /* 한화일때 한화 / 미화환율 = 미화 */
+		                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT 
+		                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) / ISNULL(XUSD.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환후 미화 전환)*/
+		                         END
+		                    ELSE 0
+		                END), 2) u_revenue,
+		                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 0
+		                    ELSE
+		                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT / ISNULL(XUSD.XCH_RT_UT, 1) /* 한화일때 한화 / 미화환율 = 미화 */
+		                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT 
+		                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) / ISNULL(XUSD.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환후 미화 전환)*/
+		                         END
+		                END), 2) u_cost,
+		                MAX(XUSD.XCH_rt_ut) ex_rt_ut,
+		                SUM(n1) n1,     SUM(n2) n2,     SUM(n3) n3,     SUM(n4) n4,     SUM(n5) n5,     SUM(tot)tot
+                  FROM  TB_frt frt
+       LEFT OUTER JOIN  (SELECT bl.INTG_BL_SEQ, MAX(frt.FRT_SEQ) FRT_SEQ,
+		          <isEqual property="air_sea_clss_cd" compareValue="A">
+		                        ISNULL(SUM(PCK_QTY), 0) as n1,
+		                        ISNULL(SUM(GRS_WGT), 0) as n2,
+		                        ISNULL(SUM(CHG_WGT), 0) as n3,
+		                        0 as n4,
+		                        0 as n5,
+		                        COUNT(cntr.N1ST_RSV_CNTR_CD) as tot
+		          </isEqual>
+		          <isEqual property="air_sea_clss_cd" compareValue="S">
+		                        ISNULL(SUM(CASE WHEN cntr.N1ST_RSV_CNTR_CD = 'TEU' THEN 1 END), 0) as n1,
+		                        ISNULL(SUM(CASE WHEN cntr.N1ST_RSV_CNTR_CD = 'FEU' THEN 1 END), 0) as n2,
+		                        ISNULL(SUM(CASE WHEN cntr.N1ST_RSV_CNTR_CD = 'HEU' THEN 1 END), 0) as n3,
+		                        ISNULL(SUM(CASE WHEN bl.SHP_MOD_CD = 'LCL' THEN bl.MEAS END), 0) as n4,
+		                        ISNULL(SUM(CASE WHEN bl.SHP_MOD_CD = 'BLK' THEN bl.GRS_WGT END), 0) as n5,
+		                        ISNULL(SUM(CASE WHEN cntr.N1ST_RSV_CNTR_CD != '' THEN 1 END), 0) as tot
+		          </isEqual>
+		                FROM TB_INTG_BL bl  
+		                JOIN (SELECT frt.INTG_BL_SEQ, MAX(frt.FRT_SEQ) FRT_SEQ FROM TB_FRT frt 
+                               WHERE frt.INV_STS_CD != 'FI'                AND frt.DELT_FLG = 'N'
+                            GROUP BY INTG_BL_SEQ)frt ON bl.INTG_BL_SEQ = frt.INTG_BL_SEQ
+		                LEFT OUTER JOIN TB_CNTR_LIST ctlt ON ctlt.INTG_BL_SEQ = bl.INTG_BL_SEQ
+		                LEFT OUTER JOIN TB_CNTR_TPSZ cntr ON ctlt.CNTR_TPSZ_CD = cntr.CNTR_TPSZ_CD
+		                GROUP BY bl.INTG_BL_SEQ
+		                ) cntr ON frt.INTG_BL_SEQ = cntr.INTG_BL_SEQ AND frt.FRT_SEQ = cntr.FRT_SEQ
+		          JOIN  TB_INTG_BL BL 
+		            ON  FRT.INTG_BL_SEQ = BL.INTG_BL_SEQ
+		          JOIN  TB_ADD_INFO_BND bnd
+		            ON  bl.INTG_BL_SEQ = bnd.INTG_BL_SEQ AND bnd.BND_CLSS_CD = 'O'
+		          JOIN  TB_USR usr 
+		            ON  usr.USR_TP = 'I' AND bnd.SLS_USRID = USR.USRID
+		<isEqual property="air_sea_clss_cd" compareValue="S">
+       LEFT OUTER JOIN   TB_INV_XCRT XKRW 
+		            ON XKRW.APLY_FM_DT = CONVERT(VARCHAR(8), bl.OBRD_DT_TM, 120) AND XKRW.FM_CURR_CD= frt.INV_CURR_CD AND XKRW.TO_CURR_CD='KRW' AND XKRW.CURR_TP_CD='S' and XKRW.DELT_FLG='N'
+       LEFT OUTER JOIN   TB_INV_XCRT XUSD
+		            ON XUSD.APLY_FM_DT = CONVERT(VARCHAR(8), bl.OBRD_DT_TM, 120) AND XUSD.FM_CURR_CD= 'USD' and XUSD.TO_CURR_CD='KRW' AND XUSD.CURR_TP_CD='S' and XUSD.DELT_FLG='N'
+		</isEqual>
+		<isEqual property="air_sea_clss_cd" compareValue="A">
+	   LEFT OUTER JOIN   TB_INV_XCRT XKRW 
+		            ON XKRW.APLY_FM_DT = CONVERT(VARCHAR(8), bl.ETD_DT_TM, 120) AND XKRW.FM_CURR_CD= frt.INV_CURR_CD AND XKRW.TO_CURR_CD='KRW' AND XKRW.CURR_TP_CD='S' and XKRW.DELT_FLG='N'
+	   LEFT OUTER JOIN   TB_INV_XCRT XUSD
+		            ON XUSD.APLY_FM_DT = CONVERT(VARCHAR(8), bl.ETD_DT_TM, 120) AND XUSD.FM_CURR_CD= 'USD' and XUSD.TO_CURR_CD='KRW' AND XUSD.CURR_TP_CD='S' and XUSD.DELT_FLG='N'
+		</isEqual>          
+       LEFT OUTER JOIN  tb_bl_prnr prnr 
+		            ON  frt.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'S02' AND prnr.delt_flg = 'N'
+		         WHERE frt.INV_STS_CD != 'FI'
+		           AND frt.DELT_FLG = 'N'
+		           AND frt.AIR_SEA_CLSS_CD = #air_sea_clss_cd#
+		           AND CONVERT(VARCHAR(8), bl.ETD_DT_TM, 120) between #fm_et_dt# and #to_et_dt#
+		           <isNotNull prepend="AND" property="dept_cd">
+		                bnd.sls_dept_cd = #dept_cd#
+		            </isNotNull>
+		           <isNotNull prepend="AND" property="pol_cd">
+		                bl.pol_cd = #pol_cd#
+		            </isNotNull>
+		           <isNotNull prepend="AND" property="pod_cd">
+		                bl.pod_cd = #pod_cd#
+		            </isNotNull>
+		           <isNotNull prepend="AND" property="del_cd">
+		                bl.del_cd = #del_cd#
+		            </isNotNull>
+		           <isNotNull prepend="AND" property="usr_cd">
+		                usr.USRID = #usr_cd#
+		            </isNotNull>
+		           <isNotNull prepend="AND" property="trdp_cd">
+		                prnr.trdp_cd = #trdp_cd#
+		            </isNotNull>
+		            <isEqual property="rpt_type" compareValue="dept">
+		            GROUP BY frt.intg_bl_seq, frt.AIR_SEA_CLSS_CD, bnd.sls_dept_cd,  frt.BND_CLSS_CD
+		            </isEqual>
+		            <isEqual property="rpt_type" compareValue="usr">
+		            GROUP BY frt.intg_bl_seq, usr.usrid, usr.LOCL_USR_NM
+		            </isEqual>
+		            <isEqual property="rpt_type" compareValue="cust">
+		            GROUP BY frt.intg_bl_seq, prnr.TRDP_NM, bnd.sls_dept_cd
+		            </isEqual>
+		            <isEqual property="rpt_type" compareValue="del">
+		            GROUP BY frt.intg_bl_seq, bl.del_cd, bl.del_nm
+		            </isEqual>
+		    </isNotEqual>
+		    <isNull property="bnd_clss_cd">
+		        UNION ALL
+		    </isNull>
+		    <isNotEqual property="bnd_clss_cd" compareValue="O">
+		            SELECT  
+		                <isEqual property="rpt_type" compareValue="dept">
+		                (SELECT cd_nm FROM TB_com_cd_dtl where com_cd = 'C056' and bnd.sls_dept_cd = cd_val) grp1,
+		                frt.AIR_SEA_CLSS_CD+'/'+frt.BND_CLSS_CD grp2,
+		                </isEqual>
+		                <isEqual property="rpt_type" compareValue="usr">
+		                usr.usrid grp1,     usr.LOCL_USR_NM grp2,
+		                </isEqual>
+		                <isEqual property="rpt_type" compareValue="cust">
+		                prnr.TRDP_NM grp1,
+		                (SELECT cd_nm FROM TB_com_cd_dtl where com_cd = 'C056' and bnd.sls_dept_cd = cd_val) grp2,
+		                </isEqual>
+		                <isEqual property="rpt_type" compareValue="del">
+		                bl.del_cd grp1,             bl.del_nm grp2,
+		                </isEqual>
+		                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN                          
+		                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT /* 한화일때 금액만 있으면 됨 */
+		                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1)/* 미화 * 환율 = 한화금액*/
+		                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환)*/
+		                         END
+		                    ELSE 0
+		                END), 0) revenue,
+		                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 0
+		                    ELSE
+		                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT /* 한화일때 금액만 있으면 됨 */
+		                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1)/* 미화 * 환율 = 한화금액*/
+		                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환)*/
+		                         END
+		                END), 0) cost,
+		                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 
+		                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT / ISNULL(XUSD.XCH_RT_UT, 1) /* 한화일때 한화 / 미화환율 = 미화 */
+		                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT 
+		                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) / ISNULL(XUSD.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환후 미화 전환)*/
+		                         END
+		                    ELSE 0
+		                END), 2) u_revenue,
+		                ROUND(SUM(CASE WHEN frt.SELL_BUY_TP_CD = 'S' or frt.SELL_BUY_TP_CD = 'D' THEN 0
+		                    ELSE
+		                         CASE WHEN frt.INV_CURR_CD = 'KRW' THEN frt.INV_AMT / ISNULL(XUSD.XCH_RT_UT, 1) /* 한화일때 한화 / 미화환율 = 미화 */
+		                              WHEN frt.INV_CURR_CD = 'USD' AND  frt.RAT_CURR_CD = frt.INV_CURR_CD THEN frt.INV_AMT 
+		                         ELSE frt.INV_AMT * ISNULL(XKRW.XCH_RT_UT, 1) / ISNULL(XUSD.XCH_RT_UT, 1) /* 기타 환율일때 ( 한화로 전환후 미화 전환)*/
+		                         END
+		                END), 2) u_cost,
+		                MAX(XUSD.XCH_rt_ut) ex_rt_ut,
+		                SUM(n1) n1,     SUM(n2) n2,     SUM(n3) n3,     SUM(n4) n4,     SUM(n5) n5,     SUM(tot)tot
+		          FROM  TB_frt frt
+	   LEFT OUTER JOIN  (SELECT bl.INTG_BL_SEQ, MAX(frt.FRT_SEQ) FRT_SEQ,
+		          <isEqual property="air_sea_clss_cd" compareValue="A">
+		                        ISNULL(SUM(PCK_QTY), 0) as n1,
+		                        ISNULL(SUM(GRS_WGT), 0) as n2,
+		                        ISNULL(SUM(CHG_WGT), 0) as n3,
+		                        0 as n4,
+		                        0 as n5,
+		                        COUNT(cntr.N1ST_RSV_CNTR_CD) as tot
+		          </isEqual>
+		          <isEqual property="air_sea_clss_cd" compareValue="S">
+		                        ISNULL(SUM(CASE WHEN cntr.N1ST_RSV_CNTR_CD = 'TEU' THEN 1 END), 0) as n1,
+		                        ISNULL(SUM(CASE WHEN cntr.N1ST_RSV_CNTR_CD = 'FEU' THEN 1 END), 0) as n2,
+		                        ISNULL(SUM(CASE WHEN cntr.N1ST_RSV_CNTR_CD = 'HEU' THEN 1 END), 0) as n3,
+		                        ISNULL(SUM(CASE WHEN bl.SHP_MOD_CD = 'LCL' THEN bl.MEAS END), 0) as n4,
+		                        ISNULL(SUM(CASE WHEN bl.SHP_MOD_CD = 'BLK' THEN bl.GRS_WGT END), 0) as n5,
+		                        ISNULL(SUM(CASE WHEN cntr.N1ST_RSV_CNTR_CD != '' THEN 1 END), 0) as tot
+		          </isEqual>
+		                FROM TB_INTG_BL bl
+		                JOIN (SELECT frt.INTG_BL_SEQ, MAX(frt.FRT_SEQ) FRT_SEQ FROM TB_FRT frt 
+                               WHERE frt.INV_STS_CD != 'FI'                AND frt.DELT_FLG = 'N'
+                            GROUP BY INTG_BL_SEQ)frt ON bl.INTG_BL_SEQ = frt.INTG_BL_SEQ  
+		                LEFT OUTER JOIN TB_CNTR_LIST ctlt ON ctlt.INTG_BL_SEQ = bl.INTG_BL_SEQ
+		                LEFT OUTER JOIN TB_CNTR_TPSZ cntr ON ctlt.CNTR_TPSZ_CD = cntr.CNTR_TPSZ_CD
+		                GROUP BY bl.INTG_BL_SEQ
+		                ) cntr ON frt.INTG_BL_SEQ = cntr.INTG_BL_SEQ AND frt.FRT_SEQ = cntr.FRT_SEQ
+		          JOIN  TB_INTG_BL BL 
+		            ON  FRT.INTG_BL_SEQ = BL.INTG_BL_SEQ
+		          JOIN  TB_ADD_INFO_BND bnd
+		            ON  bl.INTG_BL_SEQ = bnd.INTG_BL_SEQ AND bnd.BND_CLSS_CD = 'I'
+		          JOIN  TB_USR usr 
+		            ON  usr.USR_TP = 'I' AND bnd.SLS_USRID = USR.USRID
+	   LEFT OUTER JOIN  TB_INV_XCRT XKRW 
+		            ON  XKRW.APLY_FM_DT = CONVERT(VARCHAR(8), bl.ETA_DT_TM, 120) AND XKRW.FM_CURR_CD= frt.INV_CURR_CD AND XKRW.TO_CURR_CD='KRW' AND XKRW.CURR_TP_CD='S' and XKRW.DELT_FLG='N'
+	   LEFT OUTER JOIN  TB_INV_XCRT XUSD
+		            ON  XUSD.APLY_FM_DT = CONVERT(VARCHAR(8), bl.ETA_DT_TM, 120) AND XUSD.FM_CURR_CD= 'USD' and XUSD.TO_CURR_CD='KRW' AND XUSD.CURR_TP_CD='S' and XUSD.DELT_FLG='N'
+       LEFT OUTER JOIN  tb_bl_prnr prnr 
+		            ON  frt.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'S02' AND prnr.delt_flg = 'N'
+		         WHERE  frt.INV_STS_CD != 'FI'
+		           AND  frt.DELT_FLG = 'N'
+		           AND  frt.AIR_SEA_CLSS_CD = #air_sea_clss_cd#
+		           AND CONVERT(VARCHAR(8), bl.ETA_DT_TM, 120) between #fm_et_dt# and #to_et_dt#
+		           <isNotNull prepend="AND" property="dept_cd">
+		                bnd.sls_dept_cd = #dept_cd#
+		            </isNotNull>
+		           <isNotNull prepend="AND" property="pol_cd">
+		                bl.pol_cd = #pol_cd#
+		            </isNotNull>
+		           <isNotNull prepend="AND" property="pod_cd">
+		                bl.pod_cd = #pod_cd#
+		            </isNotNull>
+		           <isNotNull prepend="AND" property="del_cd">
+		                bl.del_cd = #del_cd#
+		            </isNotNull>
+		           <isNotNull prepend="AND" property="usr_cd">
+		                usr.USRID = #usr_cd#
+		            </isNotNull>
+		           <isNotNull prepend="AND" property="trdp_cd">
+		                prnr.trdp_cd = #trdp_cd#
+		            </isNotNull>
+		            <isEqual property="rpt_type" compareValue="dept">
+		            GROUP BY frt.intg_bl_seq, frt.AIR_SEA_CLSS_CD, bnd.sls_dept_cd,  frt.BND_CLSS_CD
+		            </isEqual>
+		            <isEqual property="rpt_type" compareValue="usr">
+		            GROUP BY frt.intg_bl_seq, usr.usrid, usr.LOCL_USR_NM
+		            </isEqual>
+		            <isEqual property="rpt_type" compareValue="cust">
+		            GROUP BY frt.intg_bl_seq, prnr.TRDP_NM, bnd.sls_dept_cd
+		            </isEqual>
+		            <isEqual property="rpt_type" compareValue="del">
+		            GROUP BY frt.intg_bl_seq, bl.del_cd, bl.del_nm
+		            </isEqual>
+		    </isNotEqual>
+		) tot
+		GROUP BY grp1, grp2
+		<isEqual property="rpt_type" compareValue="dept">
+		ORDER BY grp1, grp2
+		</isEqual>
+		<isNotEqual property="rpt_type" compareValue="dept">
+		ORDER BY u_profit desc , grp1, grp2
+		</isNotEqual>
+		
+    </select>
+    <select id="selectStatementSummary" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.acc.inv.report.dto.InvRptVO">
+        SELECT trdp_cd, trdp_nm, curr_cd, air_sea_clss_cd, SUM(debit) debit, SUM(credit) credit, dept_nm
+          FROM (
+        <isNotEqual property="bnd_clss_cd" compareValue="I">
+                SELECT  inv.trdp_cd, trdp.ENG_NM trdp_nm, inv.AIR_SEA_CLSS_CD+' / '+inv.BND_CLSS_CD bnd_clss_cd, bl.rat_CURR_CD curr_cd,  
+                        inv.AIR_SEA_CLSS_CD air_sea_clss_cd, inv.BND_CLSS_CD bound, DEPT.CD_NM as dept_nm,
+                        SUM(ISNULL(CASE WHEN inv.SELL_BUY_TP_CD = 'D' THEN 
+                                        CASE WHEN idtl.INV_APLY_CURR_CD != 'KRW' THEN idtl.BAL_AMT
+                                        ELSE CASE WHEN idtl.BAL_FRGN_AMT != 0 THEN  idtl.BAL_FRGN_AMT 
+                                             ELSE ROUND(idtl.BAL_AMT / ISNULL(xcrt.to_rt_ut, 1), 0)
+                                             END
+                                        END
+                                   END, 0)) debit,
+                        SUM(ISNULL(CASE WHEN inv.SELL_BUY_TP_CD = 'C' THEN
+                                        CASE WHEN idtl.INV_APLY_CURR_CD != 'KRW' THEN idtl.BAL_AMT
+                                        ELSE CASE WHEN idtl.BAL_FRGN_AMT != 0 THEN  idtl.BAL_FRGN_AMT 
+                                             ELSE ROUND(idtl.BAL_AMT / ISNULL(xcrt.to_rt_ut, 1), 0)
+                                             END
+                                        END
+                                   END, 0)) credit
+                FROM TB_INV inv
+		        JOIN TB_INV_DTL idtl ON inv.INV_SEQ = idtl.INV_SEQ
+     LEFT OUTER JOIN(
+                    SELECT  inv.INV_SEQ, MAX(mbl.INTG_BL_SEQ) mbl_seq, MAX(rlt.INTG_BL_SEQ) INTG_BL_SEQ,
+                            MAX(mbl.BL_NO) mbl_no, MAX(bl.BL_NO) bl_no, MAX(frt.RAT_CURR_CD) RAT_CURR_CD, 
+                            CONVERT(VARCHAR, SUBSTRING(MAX(bl.ETA_DT_TM), 1, 8), 120) ETA_DT_TM,
+                            CONVERT(VARCHAR, SUBSTRING(MAX(bl.ETD_DT_TM), 1, 8), 120) ETD_DT_TM,
+                            CONVERT(VARCHAR, SUBSTRING(MAX(dtl.inv_dt), 1, 8), 120) inv_dt                            
+                    FROM TB_INTG_BL bl
+         LEFT OUTER JOIN TB_INTG_BL_RLT rlt ON bl.INTG_BL_SEQ = rlt.RLT_INTG_BL_SEQ
+         LEFT OUTER JOIN TB_INTG_BL mbl ON rlt.INTG_BL_SEQ = mbl.INTG_BL_SEQ
+                    JOIN TB_FRT frt ON frt.INTG_BL_SEQ = bl.INTG_BL_SEQ
+                    JOIN TB_INV inv ON frt.INV_SEQ = inv.INV_SEQ
+                    JOIN TB_INV_DTL dtl ON inv.INV_SEQ = dtl.INV_SEQ
+                    GROUP BY inv.INV_SEQ
+                    ) bl ON inv.INV_SEQ = bl.INV_SEQ
+     LEFT OUTER JOIN   TB_INV_XCRT xcrt
+		          ON xcrt.APLY_FM_DT = idtl.INV_XCRT_DT AND FM_CURR_CD='USD' and TO_CURR_CD='KRW' AND CURR_TP_CD='S' and xcrt.DELT_FLG='N'
+	 LEFT OUTER JOIN TB_TRDP trdp 
+		          ON    trdp.TRDP_CD = inv.TRDP_CD
+	 LEFT OUTER JOIN TB_USR USR ON USR.USR_TP = 'I' AND trdp.SLS_USRID = USR.USRID
+	 LEFT OUTER JOIN TB_COM_CD_DTL DEPT ON DEPT.COM_CD = 'C056' AND DEPT.CD_VAL = USR.DEPT_CD
+	 LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_BLCK) BLCK 
+	 			  ON INV.INV_SEQ = BLCK.INV_SEQ1
+		        WHERE inv.SELL_BUY_TP_CD IN ('D', 'C')
+		          AND inv.delt_flg = 'N'
+		          AND idtl.delt_flg = 'N'
+		          AND inv.AIR_SEA_CLSS_CD = #air_sea_clss_cd#
+		          AND inv.BND_CLSS_CD = 'O'
+		        <isNotNull property="dept_cd">  
+		          AND DEPT.CD_VAL = #dept_cd#
+		        </isNotNull>
+		        <isEqual property="date_cd" compareValue="B">
+		          AND bl.inv_dt BETWEEN #fm_et_dt# AND #to_et_dt#
+		        </isEqual>
+		        <isEqual property="date_cd" compareValue="E">
+	              AND CONVERT(VARCHAR(8), bl.ETD_DT_TM, 120)  between #fm_et_dt# and #to_et_dt#
+		        </isEqual>
+		        <isNotNull property="inv_sts_cd">
+		          AND inv.INV_STS_CD = #inv_sts_cd#
+                </isNotNull>
+		        <isNotNull property="trdp_cd">
+		          AND trdp.TRDP_CD = #trdp_cd#
+		        </isNotNull>
+		        <isNotNull property="clt_cmpl_flg">
+		          AND ISNULL(BLCK.CLT_CMPL_FLG1, INV.CLT_CMPL_FLG) = 'N'
+		        </isNotNull>              
+		        GROUP BY inv.trdp_cd, trdp.ENG_NM,  inv.AIR_SEA_CLSS_CD, inv.BND_CLSS_CD, bl.rat_CURR_CD, CD_NM
+        </isNotEqual>
+        <isNull property="bnd_clss_cd">
+        UNION ALL
+        </isNull>
+        <isNotEqual property="bnd_clss_cd" compareValue="O">
+	           SELECT  inv.trdp_cd, trdp.ENG_NM trdp_nm, inv.AIR_SEA_CLSS_CD+' / '+inv.BND_CLSS_CD bnd_clss_cd, bl.rat_CURR_CD curr_cd,  
+	                   inv.AIR_SEA_CLSS_CD air_sea_clss_cd, inv.BND_CLSS_CD bound, DEPT.CD_NM as dept_nm,
+	                   SUM(ISNULL(CASE WHEN inv.SELL_BUY_TP_CD = 'D' THEN 
+	                                   CASE WHEN idtl.INV_APLY_CURR_CD != 'KRW' THEN idtl.BAL_AMT
+	                                   ELSE CASE WHEN idtl.BAL_FRGN_AMT != 0 THEN  idtl.BAL_FRGN_AMT 
+	                                        ELSE ROUND(idtl.BAL_AMT / ISNULL(xcrt.to_rt_ut, 1), 0)
+	                                        END
+	                                   END
+	                              END, 0)) debit,
+	                   SUM(ISNULL(CASE WHEN inv.SELL_BUY_TP_CD = 'C' THEN
+	                                   CASE WHEN idtl.INV_APLY_CURR_CD != 'KRW' THEN idtl.BAL_AMT
+	                                   ELSE CASE WHEN idtl.BAL_FRGN_AMT != 0 THEN  idtl.BAL_FRGN_AMT 
+	                                        ELSE ROUND(idtl.BAL_AMT / ISNULL(xcrt.to_rt_ut, 1), 0)
+	                                        END
+	                                   END
+	                              END, 0)) credit
+                FROM TB_INV inv
+                JOIN TB_INV_DTL idtl ON inv.INV_SEQ = idtl.INV_SEQ
+     LEFT OUTER JOIN(
+                    SELECT  inv.INV_SEQ, MAX(mbl.INTG_BL_SEQ) mbl_seq, MAX(rlt.INTG_BL_SEQ) INTG_BL_SEQ,
+                            MAX(mbl.BL_NO) mbl_no, MAX(bl.BL_NO) bl_no, MAX(frt.RAT_CURR_CD) RAT_CURR_CD, 
+                            CONVERT(VARCHAR, SUBSTRING(MAX(bl.ETA_DT_TM), 1, 8), 120) ETA_DT_TM,
+                            CONVERT(VARCHAR, SUBSTRING(MAX(bl.ETD_DT_TM), 1, 8), 120) ETD_DT_TM,
+                            CONVERT(VARCHAR, SUBSTRING(MAX(dtl.inv_dt), 1, 8), 120) inv_dt                            
+                    FROM TB_INTG_BL bl
+         LEFT OUTER JOIN TB_INTG_BL_RLT rlt ON bl.INTG_BL_SEQ = rlt.RLT_INTG_BL_SEQ
+         LEFT OUTER JOIN TB_INTG_BL mbl ON rlt.INTG_BL_SEQ = mbl.INTG_BL_SEQ
+                    JOIN TB_FRT frt ON frt.INTG_BL_SEQ = bl.INTG_BL_SEQ
+                    JOIN TB_INV inv ON frt.INV_SEQ = inv.INV_SEQ
+                    JOIN TB_INV_DTL dtl ON inv.INV_SEQ = dtl.INV_SEQ
+                    GROUP BY inv.INV_SEQ
+
+                    ) bl ON inv.INV_SEQ = bl.INV_SEQ
+     LEFT OUTER JOIN   TB_INV_XCRT xcrt
+                  ON xcrt.APLY_FM_DT = idtl.INV_XCRT_DT AND FM_CURR_CD='USD' and TO_CURR_CD='KRW' AND CURR_TP_CD='S' and xcrt.DELT_FLG='N'
+     LEFT OUTER JOIN TB_TRDP trdp 
+                  ON    trdp.TRDP_CD = inv.TRDP_CD
+	 LEFT OUTER JOIN TB_USR USR ON USR.USR_TP = 'I' AND trdp.SLS_USRID = USR.USRID
+	 LEFT OUTER JOIN TB_COM_CD_DTL DEPT ON DEPT.COM_CD = 'C056' AND DEPT.CD_VAL = USR.DEPT_CD
+	 LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_BLCK) BLCK 
+	 			  ON INV.INV_SEQ = BLCK.INV_SEQ1
+                WHERE inv.SELL_BUY_TP_CD IN ('D', 'C')
+                  AND inv.delt_flg = 'N'
+                  AND idtl.delt_flg = 'N'
+                  AND inv.AIR_SEA_CLSS_CD = #air_sea_clss_cd#
+                  AND inv.BND_CLSS_CD = 'I'
+                <isNotNull property="dept_cd">  
+		          AND DEPT.CD_VAL = #dept_cd#
+		        </isNotNull>
+                <isEqual property="date_cd" compareValue="B">
+                  AND bl.inv_dt BETWEEN #fm_et_dt# AND #to_et_dt#
+                </isEqual>
+                <isEqual property="date_cd" compareValue="E">
+                  AND CONVERT(VARCHAR(8), bl.ETA_DT_TM, 120) between #fm_et_dt# and #to_et_dt#
+                </isEqual>
+                  <isNotNull property="inv_sts_cd">
+                  AND inv.INV_STS_CD = #inv_sts_cd#
+                  </isNotNull>
+                <isNotNull property="trdp_cd">
+                  AND trdp.TRDP_CD = #trdp_cd#
+                </isNotNull>
+                <isNotNull property="clt_cmpl_flg">
+                  AND ISNULL(BLCK.CLT_CMPL_FLG1, INV.CLT_CMPL_FLG) = 'N'
+                </isNotNull>              
+                GROUP BY inv.trdp_cd, trdp.ENG_NM,  inv.AIR_SEA_CLSS_CD, inv.BND_CLSS_CD, bl.rat_CURR_CD, CD_NM
+        </isNotEqual>
+		) main
+		
+		GROUP BY trdp_cd, trdp_nm, curr_cd, air_sea_clss_cd, dept_nm
+		ORDER BY trdp_cd, trdp_nm, curr_cd, air_sea_clss_cd, dept_nm
+    </select>
+    <select id="selectStatementDetail" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.acc.inv.report.dto.InvRptVO">
+    <isNotEqual property="bnd_clss_cd" compareValue="I">
+        SELECT  inv.TRDP_CD, bl.rat_CURR_CD curr_cd, idtl.inv_no, idtl.BUY_INV_NO, MAX(idtl.CLT_DUE_DT) CLT_DUE_DT,
+                MAX(bl.mbl_no) mbl_no,  bl.bl_no bl_no, MAX(AIR_SEA_CLSS_CD+' / '+BND_CLSS_CD) BND_CLSS_CD,
+                ISNULL(CASE WHEN inv.BND_CLSS_CD = 'I' THEN MAX(ETA_DT_TM)
+                            WHEN inv.BND_CLSS_CD = 'O' THEN MAX(ETD_DT_TM)  END, 0) et_dt_tm,
+                SUM(ISNULL(CASE WHEN inv.SELL_BUY_TP_CD = 'D' THEN 
+                                CASE WHEN idtl.INV_APLY_CURR_CD != 'KRW' THEN idtl.BAL_AMT
+                                ELSE CASE WHEN idtl.BAL_FRGN_AMT != 0 THEN  idtl.BAL_FRGN_AMT 
+                                     ELSE ROUND(idtl.BAL_AMT / ISNULL(xcrt.to_rt_ut, 1), 0)
+                                     END
+                                END
+                           END, 0)) debit,
+                SUM(ISNULL(CASE WHEN inv.SELL_BUY_TP_CD = 'C' THEN
+                                CASE WHEN idtl.INV_APLY_CURR_CD != 'KRW' THEN idtl.BAL_AMT
+                                ELSE CASE WHEN idtl.BAL_FRGN_AMT != 0 THEN  idtl.BAL_FRGN_AMT 
+                                     ELSE ROUND(idtl.BAL_AMT / ISNULL(xcrt.to_rt_ut, 1), 0)
+                                     END
+                                END
+                           END, 0)) credit,
+                sum(idtl.clt_amt) clt_amt,
+                sum(idtl.disbur_amt) disbur_amt
+        FROM TB_INV inv
+        JOIN TB_INV_DTL idtl ON inv.INV_SEQ = idtl.INV_SEQ
+LEFT OUTER JOIN(
+                SELECT  inv.INV_SEQ, MAX(mbl.INTG_BL_SEQ) mbl_seq, MAX(rlt.INTG_BL_SEQ) INTG_BL_SEQ,
+                        MAX(mbl.BL_NO) mbl_no, MAX(bl.BL_NO) bl_no, MAX(frt.RAT_CURR_CD) RAT_CURR_CD, 
+                        CONVERT(VARCHAR, SUBSTRING(MAX(bl.ETA_DT_TM), 1, 8), 120) ETA_DT_TM,
+                        CONVERT(VARCHAR, SUBSTRING(MAX(bl.ETD_DT_TM), 1, 8), 120) ETD_DT_TM,
+                        CONVERT(VARCHAR, SUBSTRING(MAX(dtl.inv_dt), 1, 8), 120) inv_dt                            
+                    FROM TB_INTG_BL bl
+         LEFT OUTER JOIN TB_INTG_BL_RLT rlt ON bl.INTG_BL_SEQ = rlt.INTG_BL_SEQ
+         LEFT OUTER JOIN TB_INTG_BL mbl ON rlt.RLT_INTG_BL_SEQ = mbl.INTG_BL_SEQ
+                JOIN TB_FRT frt ON frt.INTG_BL_SEQ = bl.INTG_BL_SEQ
+                JOIN TB_INV inv ON frt.INV_SEQ = inv.INV_SEQ
+                JOIN TB_INV_DTL dtl ON inv.INV_SEQ = dtl.INV_SEQ
+                GROUP BY inv.INV_SEQ
+
+            ) bl ON inv.INV_SEQ = bl.INV_SEQ
+LEFT OUTER JOIN   TB_INV_XCRT xcrt 
+          ON xcrt.APLY_FM_DT = idtl.INV_XCRT_DT AND FM_CURR_CD='USD' and TO_CURR_CD='KRW' AND CURR_TP_CD='S' and xcrt.DELT_FLG='N'
+LEFT OUTER JOIN TB_TRDP trdp ON trdp.TRDP_CD = inv.TRDP_CD
+LEFT OUTER JOIN TB_USR USR ON USR.USR_TP = 'I' AND trdp.SLS_USRID = USR.USRID
+LEFT OUTER JOIN TB_COM_CD_DTL DEPT ON DEPT.COM_CD = 'C056' AND DEPT.CD_VAL = USR.DEPT_CD
+LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_BLCK) BLCK 
+		  ON INV.INV_SEQ = BLCK.INV_SEQ1
+        WHERE inv.SELL_BUY_TP_CD IN ('D', 'C')
+          AND inv.delt_flg = 'N' 
+          AND idtl.delt_flg = 'N'
+          AND inv.BND_CLSS_CD = 'O'
+        <isEqual property="date_cd" compareValue="B">
+          AND bl.inv_dt BETWEEN #fm_et_dt# AND #to_et_dt#
+        </isEqual>
+        <isEqual property="date_cd" compareValue="E">
+          AND CONVERT(VARCHAR(8), bl.ETD_DT_TM, 120) between #fm_et_dt# and #to_et_dt#
+        </isEqual>
+        <isNotNull property="clt_cmpl_flg">
+          AND ISNULL(BLCK.CLT_CMPL_FLG1, INV.CLT_CMPL_FLG) = 'N'
+        </isNotNull>
+        <isNotNull property="inv_sts_cd">
+          AND inv.INV_STS_CD = #inv_sts_cd#
+        </isNotNull>
+        <isNotNull property="dept_cd">  
+		  AND DEPT.CD_VAL = #dept_cd#
+		</isNotNull>
+          AND inv.AIR_SEA_CLSS_CD = #air_sea_clss_cd#
+          AND inv.TRDP_CD = #trdp_cd#
+        GROUP BY inv.TRDP_CD,  inv.BND_CLSS_CD, inv.SELL_BUY_TP_CD, bl.rat_CURR_CD,  idtl.inv_no, idtl.BUY_INV_NO, bl.bl_no
+        </isNotEqual>
+        
+        <isNull property="bnd_clss_cd">
+        UNION ALL
+        </isNull>
+        
+        <isNotEqual property="bnd_clss_cd" compareValue="O">
+        SELECT  inv.TRDP_CD, bl.rat_CURR_CD curr_cd, idtl.inv_no, idtl.BUY_INV_NO, MAX(idtl.CLT_DUE_DT) CLT_DUE_DT,
+                MAX(bl.mbl_no) mbl_no,  bl.bl_no bl_no, MAX(AIR_SEA_CLSS_CD+' / '+BND_CLSS_CD) BND_CLSS_CD,
+                ISNULL(CASE WHEN inv.BND_CLSS_CD = 'I' THEN MAX(ETA_DT_TM)
+                            WHEN inv.BND_CLSS_CD = 'O' THEN MAX(ETD_DT_TM)  END, 0) et_dt_tm,
+                SUM(ISNULL(CASE WHEN inv.SELL_BUY_TP_CD = 'D' THEN 
+                                CASE WHEN idtl.INV_APLY_CURR_CD != 'KRW' THEN idtl.BAL_AMT
+                                ELSE CASE WHEN idtl.BAL_FRGN_AMT != 0 THEN  idtl.BAL_FRGN_AMT 
+                                     ELSE ROUND(idtl.BAL_AMT / ISNULL(xcrt.to_rt_ut, 1), 0)
+                                     END
+                                END
+                           END, 0)) debit,
+                SUM(ISNULL(CASE WHEN inv.SELL_BUY_TP_CD = 'C' THEN
+                                CASE WHEN idtl.INV_APLY_CURR_CD != 'KRW' THEN idtl.BAL_AMT
+                                ELSE CASE WHEN idtl.BAL_FRGN_AMT != 0 THEN  idtl.BAL_FRGN_AMT 
+                                     ELSE ROUND(idtl.BAL_AMT / ISNULL(xcrt.to_rt_ut, 1), 0)
+                                     END
+                                END
+                           END, 0)) credit,
+                sum(idtl.clt_amt) clt_amt,
+                sum(idtl.disbur_amt) disbur_amt
+        FROM TB_INV inv
+        JOIN TB_INV_DTL idtl ON inv.INV_SEQ = idtl.INV_SEQ
+LEFT OUTER JOIN(
+                SELECT  inv.INV_SEQ, MAX(mbl.INTG_BL_SEQ) mbl_seq, MAX(rlt.INTG_BL_SEQ) INTG_BL_SEQ,
+                        MAX(mbl.BL_NO) mbl_no, MAX(bl.BL_NO) bl_no, MAX(frt.RAT_CURR_CD) RAT_CURR_CD, 
+                        CONVERT(VARCHAR, SUBSTRING(MAX(bl.ETA_DT_TM), 1, 8), 120) ETA_DT_TM,
+                        CONVERT(VARCHAR, SUBSTRING(MAX(bl.ETD_DT_TM), 1, 8), 120) ETD_DT_TM,
+                        CONVERT(VARCHAR, SUBSTRING(MAX(dtl.inv_dt), 1, 8), 120) inv_dt                            
+                FROM TB_INTG_BL bl
+         LEFT OUTER JOIN TB_INTG_BL_RLT rlt ON bl.INTG_BL_SEQ = rlt.INTG_BL_SEQ
+         LEFT OUTER JOIN TB_INTG_BL mbl ON rlt.RLT_INTG_BL_SEQ = mbl.INTG_BL_SEQ
+                JOIN TB_FRT frt ON frt.INTG_BL_SEQ = bl.INTG_BL_SEQ
+                JOIN TB_INV inv ON frt.INV_SEQ = inv.INV_SEQ
+                JOIN TB_INV_DTL dtl ON inv.INV_SEQ = dtl.INV_SEQ
+                GROUP BY inv.INV_SEQ
+            ) bl ON inv.INV_SEQ = bl.INV_SEQ
+LEFT OUTER JOIN   TB_INV_XCRT xcrt 
+          ON xcrt.APLY_FM_DT = idtl.INV_XCRT_DT AND FM_CURR_CD='USD' and TO_CURR_CD='KRW' AND CURR_TP_CD='S' and xcrt.DELT_FLG='N'
+LEFT OUTER JOIN TB_TRDP trdp ON trdp.TRDP_CD = inv.TRDP_CD
+LEFT OUTER JOIN TB_USR USR ON USR.USR_TP = 'I' AND trdp.SLS_USRID = USR.USRID
+LEFT OUTER JOIN TB_COM_CD_DTL DEPT ON DEPT.COM_CD = 'C056' AND DEPT.CD_VAL = USR.DEPT_CD
+LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_BLCK) BLCK 
+		  ON INV.INV_SEQ = BLCK.INV_SEQ1
+        WHERE inv.SELL_BUY_TP_CD IN ('D', 'C')
+          AND inv.delt_flg = 'N' 
+          AND idtl.delt_flg = 'N'
+          AND inv.BND_CLSS_CD = 'I'
+        <isEqual property="date_cd" compareValue="B">
+          AND bl.inv_dt BETWEEN #fm_et_dt# AND #to_et_dt#
+        </isEqual>
+        <isEqual property="date_cd" compareValue="E">
+          AND CONVERT(VARCHAR(8), bl.ETA_DT_TM, 120) between #fm_et_dt# and #to_et_dt#
+        </isEqual>
+        <isNotNull property="clt_cmpl_flg">
+          AND ISNULL(BLCK.CLT_CMPL_FLG1, INV.CLT_CMPL_FLG) = 'N'
+        </isNotNull>
+        <isNotNull property="inv_sts_cd">
+          AND inv.INV_STS_CD = #inv_sts_cd#
+        </isNotNull>
+        <isNotNull property="dept_cd">  
+		  AND DEPT.CD_VAL = #dept_cd#
+		</isNotNull>
+          AND inv.AIR_SEA_CLSS_CD = #air_sea_clss_cd#
+          AND inv.TRDP_CD = #trdp_cd#
+        GROUP BY inv.TRDP_CD,  inv.BND_CLSS_CD, inv.SELL_BUY_TP_CD, bl.rat_CURR_CD,  idtl.inv_no, idtl.BUY_INV_NO, bl.bl_no
+    </isNotEqual>
+    </select>
+</sqlMap>

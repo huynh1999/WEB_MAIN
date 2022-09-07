@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.code.vessel">
+    
+    <!-- Trade Vessel List pop select    -->
+    <select id="selectCMM_POP_0140_LIST" resultClass="com.clt.apps.fis.mdm.code.vessel.dto.VslVO">
+        SELECT  TOP $topCnt$
+                a.vsl_cd,       a.vsl_nm,           
+                a.cnt_cd,       a.lnr_trdp_cd,  b.shrt_nm, b.eng_nm AS lnr_trdp_nm, a.call_sgn_cd , a.lloyd_no  
+          FROM  tb_vsl a   
+LEFT OUTER JOIN tb_trdp b ON a.lnr_trdp_cd = b.trdp_cd AND  b.delt_flg = 'N' 
+         WHERE  a.use_flg = 'Y'
+        <dynamic prepend="AND">
+            <isNotNull prepend="AND" property="s_vessel_name">
+                a.vsl_nm like #s_vessel_name#
+            </isNotNull>
+            <isNotNull prepend="AND" property="s_vessel_code">
+                a.vsl_cd like #s_vessel_code#
+            </isNotNull>
+        </dynamic>
+        ORDER  BY a.vsl_cd
+    </select>
+	
+	<!-- Trade Vessel List pop select    -->
+    <select id="selectCMM_POP_0140_CNT" resultClass="Integer">
+        SELECT  count(a.vsl_cd) 
+		  FROM  tb_vsl a
+LEFT OUTER JOIN tb_trdp b ON a.lnr_trdp_cd = b.trdp_cd AND  b.delt_flg = 'N' 
+	 	 WHERE  a.use_flg = 'Y'
+		<dynamic prepend="AND">
+			<isNotNull prepend="AND" property="s_vessel_name">
+				a.vsl_nm like #s_vessel_name#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_vessel_code">
+				a.vsl_cd like #s_vessel_code#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- Vessel Code List    -->
+    <select id="selectVSL_CD_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.code.vessel.dto.VslVO" >
+    <!-- #942 [CLT] Vessel Code 화면 paging 오류 -->
+    SELECT a1.*
+		FROM (
+	        SELECT  ROW_NUMBER() OVER (ORDER BY  vsl.vsl_cd ASC) as ROWNUM,
+			        vsl.vsl_cd,       vsl.vsl_nm,        vsl.cnt_cd, 
+	                vsl.lnr_trdp_cd,  tdp.eng_nm AS lnr_trdp_nm, 
+	                vsl.rgst_usrid,   vsl.rgst_ofc_cd,   vsl.rgst_tms, 
+	                vsl.modi_usrid,   vsl.modi_ofc_cd,   vsl.modi_tms, 
+	                (CASE vsl.delt_flg  WHEN 'Y' THEN 1  WHEN 'N' THEN 0 ELSE 0 END) AS delt_flg,
+	                vsl.use_flg, 
+	                descr, 'Y' AS db_value, vsl.call_sgn_cd, vsl.lloyd_no
+	         FROM   tb_vsl vsl 
+			 LEFT OUTER JOIN   tb_trdp tdp  ON  vsl.lnr_trdp_cd = tdp.trdp_cd AND tdp.delt_flg = 'N'
+	         WHERE 1=1
+				<dynamic>
+				 	<isNotNull prepend="AND" property="s_vsl_cd">
+		                vsl.vsl_cd like '%$s_vsl_cd$%'
+		            </isNotNull>
+		            <isNotNull prepend="AND" property="s_vsl_nm">
+		                vsl.vsl_nm like '%$s_vsl_nm$%'   
+		            </isNotNull>
+		            <isNotNull prepend="AND" property="s_lnr_trdp_cd">
+		                vsl.lnr_trdp_cd like '%$s_lnr_trdp_cd$%' 
+		            </isNotNull>
+		            <isNotNull prepend="AND" property="s_lnr_trdp_nm">
+		                tdp.eng_nm like '%$s_lnr_trdp_nm$%'  
+		            </isNotNull>
+		        </dynamic>
+	        ) a1
+		 <![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]>
+	</select>
+	
+	<!-- Package Code Count    -->
+    <select id="selectVSL_CD_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT  count(*)
+		  FROM  tb_vsl vsl
+	    LEFT OUTER JOIN   tb_trdp tdp  ON  vsl.lnr_trdp_cd = tdp.trdp_cd AND tdp.delt_flg = 'N'
+	     WHERE 1=1
+			<dynamic>
+			 	<isNotNull prepend="AND" property="s_vsl_cd">
+	                vsl.vsl_cd like '%$s_vsl_cd$%'
+	            </isNotNull>
+	            <isNotNull prepend="AND" property="s_vsl_nm">
+	                vsl.vsl_nm like '%$s_vsl_nm$%'   
+	            </isNotNull>
+	            <isNotNull prepend="AND" property="s_lnr_trdp_cd">
+	                vsl.lnr_trdp_cd like '%$s_lnr_trdp_cd$%' 
+	            </isNotNull>
+	            <isNotNull prepend="AND" property="s_lnr_trdp_nm">
+	                tdp.eng_nm like '%$s_lnr_trdp_nm$%'  
+	            </isNotNull>
+	        </dynamic>    
+	</select>
+	
+	<!-- Package Code Update    -->
+	<update id="updateMDM_MCM_0140" parameterClass="com.clt.apps.fis.mdm.code.vessel.dto.VslVO">
+		UPDATE  tb_vsl
+		   SET  vsl_nm     = #vsl_nm#,        cnt_cd      = #cnt_cd#,   
+		        lnr_trdp_cd= #lnr_trdp_cd#,   descr       = #descr#, 
+		        modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE(),   delt_flg = #delt_flg#,
+		        use_flg = #use_flg#, 		  call_sgn_cd = #call_sgn_cd#, 	  lloyd_no = #lloyd_no#
+		 WHERE  vsl_cd = #vsl_cd#
+	</update>
+	
+	<!-- Package Code Insert    -->
+	<insert id="insertMDM_MCM_0140" parameterClass="com.clt.apps.fis.mdm.code.vessel.dto.VslVO">
+		INSERT INTO tb_vsl (
+		  	   vsl_cd,       vsl_nm,        cnt_cd, 
+		       lnr_trdp_cd,  descr, 
+		       rgst_usrid,   rgst_ofc_cd,   rgst_tms, 
+		       modi_usrid,   modi_ofc_cd,   modi_tms,  delt_flg, use_flg, call_sgn_cd, lloyd_no
+		) VALUES (
+			   #vsl_cd#,      #vsl_nm#,      #cnt_cd#, 
+		       #lnr_trdp_cd#, #descr#,
+		       #rgst_usrid#,  #rgst_ofc_cd#, getdate(), 
+		       #modi_usrid#,  #modi_ofc_cd#, GETUTCDATE(), #delt_flg#, #use_flg#, #call_sgn_cd#, #lloyd_no#
+		)
+	</insert>
+	
+	<select id="selectMDM_MCM_0140_CODE" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT vsl_cd
+		  FROM tb_vsl
+		 WHERE vsl_cd = #s_vsl_cd#
+	</select>
+	
+	<delete id="deleteMDM_MCM_0140" parameterClass="com.clt.apps.fis.mdm.code.vessel.dto.VslVO">
+		DELETE tb_vsl
+		 WHERE vsl_cd = #vsl_cd#
+	</delete>
+</sqlMap>

@@ -1,0 +1,1169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.mcm.location">
+
+	<!-- Trade country List pop select    -->
+    <select id="selectCMM_POP_0020_LIST" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.CntVO">
+        SELECT  cnt_cd, 	cnt_eng_nm
+		  FROM  tb_cnt
+		 WHERE  delt_flg = 'N'
+		   AND  use_flg  ='Y'
+		<dynamic>
+			<isNotNull property="s_conti_code">
+				AND conti_cd IN (select conti_cd from tb_conti where conti_cd = #s_conti_code# )
+			</isNotNull>
+			<isNotNull property="s_continent_code">
+				AND conti_cd IN (select conti_cd from tb_conti where conti_cd = #s_continent_code# )
+			</isNotNull>
+			<isNotNull property="s_country_name">
+				AND cnt_eng_nm like #s_country_name#
+			</isNotNull>
+		</dynamic>
+		 ORDER BY cnt_eng_nm
+	</select>
+	
+	<!-- Trade country List pop select count    -->
+    <select id="selectCMM_POP_0020_CNT" resultClass="Integer">
+        SELECT  count(delt_flg) 
+		  FROM  tb_cnt 
+		 WHERE  delt_flg = 'N' AND   use_flg ='Y'
+		<dynamic>
+			<isNotNull property="s_conti_code">
+				AND conti_cd IN (select conti_cd from tb_conti where conti_cd = #s_conti_code# )
+			</isNotNull>
+			<isNotNull property="s_continent_code">
+				AND conti_cd IN (select conti_cd from tb_conti where conti_cd = #s_continent_code# )
+			</isNotNull>
+			<isNotNull property="s_country_name">
+				AND cnt_eng_nm like #s_country_name#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- Trade Group List pop select  #51932 [ZEN] Trade partner group 컬럼 추가  -->
+    <select id="selectCMM_POP_0410_LIST" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.TrdpGrpVO" parameterClass="java.util.HashMap">
+    	/*  mDMmCMlOCATIONSQL.xml > "selectCMM_POP_0410_LIST"  */
+    	SELECT * 
+    	FROM (
+	   		SELECT 
+				CASE
+					WHEN CHARINDEX(cd_val, #s_tp_grp#)  > 0 
+					THEN 'Y'
+					ELSE 'N'
+				END sel_chk,
+				com_cd, cd_val, cd_nm,
+				srt_seq, use_flg, rmk
+	        FROM tb_com_cd_dtl
+	        WHERE delt_flg = 'N'
+	        <dynamic>
+	            <isNotEqual property="use_flag" compareValue="N">
+	                <!--AND  use_flg = 'Y'-->
+	            </isNotEqual>
+	        </dynamic>
+	        AND com_cd = #f_com_cd# 
+	    ) A
+	    WHERE 1=1 
+	    <dynamic>
+	    	<isNotNull property="f_tp_grp_cd">
+				AND A.sel_chk = 'Y' 
+			</isNotNull>
+			<isNotNull property="f_tp_grp_nm">
+				AND A.sel_chk = 'Y' 
+			</isNotNull>
+	    	
+            <isNotNull property="f_tp_grp_cd">
+				OR A.cd_val = #f_tp_grp_cd# 
+			</isNotNull>
+			<isNotNull property="f_tp_grp_nm">
+				OR A.cd_nm LIKE  #f_tp_grp_nm#+'%' 
+			</isNotNull>
+        </dynamic>
+	     ORDER BY A.srt_seq ASC 
+	</select>
+	
+	<!-- Trade Group List pop select count #51932 [ZEN] Trade partner group 컬럼 추가   -->
+    <select id="selectCMM_POP_0410_CNT" resultClass="Integer"  parameterClass="java.util.HashMap">
+    	/*  mDMmCMlOCATIONSQL.xml > "selectCMM_POP_0410_CNT"  */
+        SELECT count(A.com_cd) 
+    	FROM (
+	   		SELECT 
+				CASE
+					WHEN CHARINDEX(cd_val, #s_tp_grp#)  > 0 
+					THEN 'Y'
+					ELSE 'N'
+				END sel_chk,
+				com_cd, cd_val, cd_nm,
+				srt_seq, use_flg, rmk
+	        FROM tb_com_cd_dtl
+	        WHERE delt_flg = 'N'
+	        <dynamic>
+	            <isNotEqual property="use_flag" compareValue="N">
+	                <!--AND  use_flg = 'Y'-->
+	            </isNotEqual>
+	        </dynamic>
+	        AND com_cd = #f_com_cd# 
+	    ) A
+	    WHERE 1=1 
+	    <dynamic>
+	    	<isNotNull property="f_tp_grp_cd">
+				AND A.sel_chk = 'Y' 
+			</isNotNull>
+			<isNotNull property="f_tp_grp_nm">
+				AND A.sel_chk = 'Y' 
+			</isNotNull>
+	    
+            <isNotNull property="f_tp_grp_cd">
+				OR A.cd_val = #f_tp_grp_cd# 
+			</isNotNull>
+			<isNotNull property="f_tp_grp_nm">
+				OR A.cd_nm LIKE  #f_tp_grp_nm#+'%' 
+			</isNotNull>
+        </dynamic>
+	</select>
+	
+	<!-- Trade location/node List pop select    -->
+    <select id="selectLOCATION_NODE_ALL" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocVO">
+		SELECT  s_class,
+				loc.ams_loc_val,   loc.loc_code,      loc.loc_name,    loc.loc_tp_desc,
+				loc.loc_cd,        loc.loc_nm,        loc.nod_cd,      loc.nod_eng_nm,       loc.cnt_nm,     
+		        ita.loc_cd AS iata_cd
+		FROM  (
+			   SELECT   TOP $topCnt$    
+						a.s_class,       a.loc_clss_cd,   a.ams_loc_val,   
+		                a.loc_code,      a.loc_name,      a.loc_tp_desc,
+						a.loc_cd,        a.loc_nm,        a.nod_cd,     a.nod_eng_nm,
+						a.cnt_eng_nm AS cnt_nm
+				FROM(
+					SELECT  'L' AS s_class,        a.loc_clss_cd,       ams_loc_val,         a.loc_cd loc_code,   
+							a.loc_nm loc_name,     a.loc_cd,            a.loc_nm,      
+							'' AS nod_cd,          '' AS nod_eng_nm,    a.loc_tp_desc,       b.cnt_eng_nm
+		              FROM  tb_loc a 
+                      JOIN  tb_cnt b
+                        ON  a.cnt_cd = b.cnt_cd AND   b.delt_flg = 'N'   AND  b.use_flg = 'Y'
+				<isNotNull property="s_loc_tp_code">
+                      JOIN  tb_loc_tp_cd_list d
+                        ON  d.LOC_CD = a.loc_cd AND d.loc_tp_cd = #s_loc_tp_code#
+				</isNotNull>		
+					 WHERE  a.use_flg = 'Y'    AND   a.delt_flg = 'N'
+				<dynamic>           
+					<isNotNull property="s_loc_clss_cd_l">
+						AND a.loc_clss_cd =#s_loc_clss_cd_l#
+					</isNotNull>
+					<isNotNull property="s_subconti_cd">
+						AND b.conti_cd = #s_subconti_cd#
+					</isNotNull>
+					<isNotNull property="s_cnt_cd">
+						AND a.cnt_cd =#s_cnt_cd#
+					</isNotNull>
+					<isNotNull property="s_loc_cd">
+						AND  a.loc_cd LIKE  '%'+#s_loc_cd#+'%'
+					</isNotNull>
+					<isNotNull property="s_loc_nm">
+						AND  a.loc_nm LIKE  '%'+#s_loc_nm#+'%'
+					</isNotNull>                
+				</dynamic>
+				UNION ALL
+					SELECT 'N' AS s_class,         a.loc_clss_cd,            ams_loc_val,
+							b.nod_cd loc_code,     b.nod_eng_nm loc_name,    a.loc_cd,        a.loc_nm,
+							b.nod_cd,              b.nod_eng_nm,             a.loc_tp_desc,   c.cnt_eng_nm
+                      FROM  tb_loc a
+                      JOIN  tb_nod b 
+                        ON  a.loc_cd  = b.loc_cd  AND  b.use_flg = 'Y'       AND  b.delt_flg = 'N' 
+                      JOIN  tb_cnt c  
+                        ON  a.cnt_cd = c.cnt_cd   AND  c.use_flg = 'Y'       AND  c.delt_flg = 'N' 
+                <isNotNull property="s_loc_tp_code">
+                      JOIN  tb_loc_tp_cd_list d
+                        ON  d.LOC_CD = a.loc_cd AND d.loc_tp_cd = #s_loc_tp_code#
+                </isNotNull>
+                     WHERE  a.use_flg = 'Y'       AND  a.delt_flg = 'N'      
+				<dynamic>           
+					<isNotNull property="s_loc_clss_cd_n">
+						AND     a.loc_clss_cd =#s_loc_clss_cd_n#
+					</isNotNull>
+					<isNotNull property="s_subconti_cd">
+						AND c.conti_cd = #s_subconti_cd#
+					</isNotNull>
+					<isNotNull property="s_cnt_cd">
+						AND a.cnt_cd =#s_cnt_cd#
+					</isNotNull>
+					<isNotNull property="s_loc_cd">
+						 AND b.nod_cd like '%'+#s_loc_cd#+'%'
+					</isNotNull>
+					<isNotNull property="s_loc_nm">
+						 AND b.nod_eng_nm LIKE  '%'+#s_loc_nm#+'%'
+					</isNotNull>            
+				</dynamic>
+					)a
+				ORDER BY a.loc_cd ASC, a.nod_cd ASC
+		)loc
+		LEFT OUTER JOIN tb_loc ita
+		ON  loc.loc_code = ita.prnt_loc_cd AND ita.loc_clss_cd = 'I' AND ita.delt_flg = 'N' AND ita.use_flg = 'Y'
+	</select>
+	
+	<!-- Trade location/node pop select count    -->
+    <select id="selectLOCATION_NODE_ALL_CNT"  parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT  SUM(lcnt)
+         FROM(
+            SELECT  COUNT(a.loc_cd) AS lcnt
+			  FROM  tb_loc a 
+			  JOIN  tb_cnt b
+				ON  a.cnt_cd = b.cnt_cd AND   b.delt_flg = 'N'   AND  b.use_flg = 'Y'
+		<isNotNull property="s_loc_tp_code">
+			  JOIN  tb_loc_tp_cd_list d
+				ON  d.LOC_CD = a.loc_cd AND d.loc_tp_cd = #s_loc_tp_code#
+		</isNotNull>        
+			 WHERE  a.use_flg = 'Y'    AND   a.delt_flg = 'N'
+		<dynamic>           
+			<isNotNull property="s_loc_clss_cd_l">
+				AND a.loc_clss_cd =#s_loc_clss_cd_l#
+			</isNotNull>
+			<isNotNull property="s_subconti_cd">
+				AND b.conti_cd = #s_subconti_cd#
+			</isNotNull>
+			<isNotNull property="s_cnt_cd">
+				AND a.cnt_cd =#s_cnt_cd#
+			</isNotNull>
+			<isNotNull property="s_loc_cd">
+				AND  a.loc_cd LIKE  '%'+#s_loc_cd#+'%'
+			</isNotNull>
+			<isNotNull property="s_loc_nm">
+				AND  a.loc_nm LIKE  '%'+#s_loc_nm#+'%'
+			</isNotNull>                    
+        </dynamic>
+        UNION ALL
+            SELECT  COUNT(a.loc_cd) AS lcnt
+			  FROM  tb_loc a
+			  JOIN  tb_nod b 
+				ON  a.loc_cd  = b.loc_cd  AND  b.use_flg = 'Y'       AND  b.delt_flg = 'N' 
+			  JOIN  tb_cnt c  
+				ON  a.cnt_cd = c.cnt_cd   AND  c.use_flg = 'Y'       AND  c.delt_flg = 'N' 
+		<isNotNull property="s_loc_tp_code">
+			  JOIN  tb_loc_tp_cd_list d
+				ON  d.LOC_CD = a.loc_cd AND d.loc_tp_cd = #s_loc_tp_code#
+		</isNotNull>
+			 WHERE  a.use_flg = 'Y'       AND  a.delt_flg = 'N'      
+		<dynamic>           
+			<isNotNull property="s_loc_clss_cd_n">
+				AND a.loc_clss_cd =#s_loc_clss_cd_n#
+			</isNotNull>
+			<isNotNull property="s_subconti_cd">
+				AND c.conti_cd = #s_subconti_cd#
+			</isNotNull>
+			<isNotNull property="s_cnt_cd">
+				AND a.cnt_cd =#s_cnt_cd#
+			</isNotNull>
+			<isNotNull property="s_loc_cd">
+				 AND b.nod_cd like '%'+#s_loc_cd#+'%'
+			</isNotNull>
+			<isNotNull property="s_loc_nm">
+				 AND b.nod_eng_nm LIKE  '%'+#s_loc_nm#+'%'
+			</isNotNull>            
+		</dynamic>
+            )a
+	</select>
+	
+    <!-- LOCATION을 조회함     -->
+    <select id="selectLOCATION_CD" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocVO">
+        SELECT  TOP $topCnt$    
+                'L' AS s_class,           a.loc_clss_cd,       a.ams_loc_val,       a.loc_cd AS loc_code,   
+                a.loc_nm AS loc_name,     a.loc_cd,            a.loc_nm,      
+                '' AS nod_cd,             '' AS nod_eng_nm,    a.loc_tp_desc,       b.cnt_eng_nm  AS cnt_nm, b.cnt_cd,
+                a.stn_no,  a.state_cd, a.cbsa_loc_cd, a.un_loc_cd, a.svc_lane_nm,
+                <isNull property="s_loc_nm">
+		            a.loc_nm AS o_loc_nm  
+		        </isNull>
+		        <isNotNull property="s_loc_nm">
+		            CASE WHEN CHARINDEX( #s_loc_nm# , a.loc_nm) = 0 
+                	 THEN 99999999 
+                	 ELSE CHARINDEX( #s_loc_nm# ,
+                			a.loc_nm) 
+            		END o_loc_nm 
+		        </isNotNull>
+          FROM  tb_loc a  
+LEFT OUTER JOIN tb_cnt b
+            ON  a.cnt_cd = b.cnt_cd  
+        <isNotNull property="s_loc_tp_code">
+          JOIN  tb_loc_tp_cd_list tp
+            ON  a.loc_cd = tp.loc_cd  AND tp.loc_tp_cd = #s_loc_tp_code#
+        </isNotNull>
+LEFT OUTER JOIN tb_loc ita 
+            ON  a.loc_cd = ita.prnt_loc_cd AND ita.loc_clss_cd = 'I' AND ita.delt_flg = 'N' AND ita.use_flg = 'Y' 
+		 WHERE  a.delt_flg = 'N'   
+		    AND a.use_flg  = 'Y'      
+        <isNotNull property="s_loc_clss_cd_l">
+            AND a.loc_clss_cd =#s_loc_clss_cd_l#
+        </isNotNull>
+        <isNotNull property="s_subconti_cd">
+            AND b.conti_cd = #s_subconti_cd#
+        </isNotNull>
+        <isNotNull property="s_cnt_cd">
+            AND a.cnt_cd =#s_cnt_cd#
+        </isNotNull>
+        <isNotNull property="s_loc_cd">
+            AND  ( a.loc_cd LIKE  '%'+#s_loc_cd#+'%' OR a.iata_loc_cd LIKE  '%'+#s_loc_cd#+'%' OR a.ams_loc_val LIKE  '%'+#s_loc_cd#+'%' OR a.un_loc_cd LIKE  '%'+#s_loc_cd#+'%' OR a.cbsa_loc_cd LIKE  '%'+#s_loc_cd#+'%')
+        </isNotNull>
+        <isNotNull property="s_loc_nm">
+            AND  a.loc_nm LIKE  '%'+#s_loc_nm#+'%'
+        </isNotNull>                
+    ORDER BY o_loc_nm ASC
+    </select>
+    
+    <!-- LOCATION을 조회함 count    -->
+    <select id="selectLOCATION_CD_CNT"  parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT  COUNT(a.loc_cd)
+          FROM  tb_loc a  
+LEFT OUTER JOIN tb_cnt b
+            ON  a.cnt_cd = b.cnt_cd  
+        <isNotNull property="s_loc_tp_code">
+          JOIN  tb_loc_tp_cd_list tp
+            ON  a.loc_cd = tp.loc_cd  AND tp.loc_tp_cd = #s_loc_tp_code#
+        </isNotNull>
+LEFT OUTER JOIN tb_loc ita 
+            ON  a.loc_cd = ita.prnt_loc_cd AND ita.loc_clss_cd = 'I' AND ita.delt_flg = 'N' AND ita.use_flg = 'Y' 
+		 WHERE  a.delt_flg = 'N'  
+		    AND a.use_flg  = 'Y'          
+        <isNotNull property="s_loc_clss_cd_l">
+            AND a.loc_clss_cd =#s_loc_clss_cd_l#
+        </isNotNull>
+        <isNotNull property="s_subconti_cd">
+            AND b.conti_cd = #s_subconti_cd#
+        </isNotNull>
+        <isNotNull property="s_cnt_cd">
+            AND a.cnt_cd =#s_cnt_cd#
+        </isNotNull>
+        <isNotNull property="s_loc_cd">
+            AND  ( a.loc_cd LIKE  '%'+#s_loc_cd#+'%' OR a.iata_loc_cd LIKE  '%'+#s_loc_cd#+'%' OR a.ams_loc_val LIKE  '%'+#s_loc_cd#+'%' OR a.un_loc_cd LIKE  '%'+#s_loc_cd#+'%' OR a.cbsa_loc_cd LIKE  '%'+#s_loc_cd#+'%')
+        </isNotNull>
+        <isNotNull property="s_loc_nm">
+            AND  a.loc_nm LIKE  '%'+#s_loc_nm#+'%'
+        </isNotNull>                
+    </select>
+                
+	<select id="selectNODE_CD" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocVO">
+		SELECT  TOP $topCnt$
+		        'N' AS s_class,        loc.loc_clss_cd,             ams_loc_val,
+				nod.nod_cd loc_code,   nod.nod_eng_nm AS loc_name,  loc.loc_cd,        loc.loc_nm,
+				nod.nod_cd,            nod.nod_eng_nm,              loc.loc_tp_desc,   c.cnt_eng_nm AS cnt_nm
+		
+		  FROM  tb_loc loc
+		  JOIN  tb_nod nod 
+			ON  loc.loc_cd  = nod.loc_cd 
+		  JOIN  tb_cnt c  
+			ON  loc.cnt_cd = c.cnt_cd  
+        <isNotNull property="s_loc_tp_code">
+          JOIN  tb_nod_tp_cd_list tp
+            ON  nod.nod_cd = tp.nod_cd  AND tp.nod_tp_cd = #s_loc_tp_code#
+        </isNotNull>
+		
+		 WHERE  loc.use_flg = 'Y'     AND  loc.delt_flg = 'N'      
+		   AND  nod.use_flg = 'Y'     AND  nod.delt_flg = 'N' 
+		   AND  c.use_flg = 'Y'       AND  c.delt_flg = 'N'  
+		<isNotNull property="s_subconti_cd">
+			AND c.conti_cd = #s_subconti_cd#
+		</isNotNull>
+		<isNotNull property="s_cnt_cd">
+			AND loc.cnt_cd =#s_cnt_cd#
+		</isNotNull>
+		<isNotNull property="s_loc_cd">
+			 AND nod.nod_cd like '%'+#s_loc_cd#+'%'
+		</isNotNull>
+		<isNotNull property="s_loc_nm">
+			 AND nod.nod_eng_nm LIKE  '%'+#s_loc_nm#+'%'
+		</isNotNull>            
+	ORDER BY nod.nod_cd ASC,  nod.nod_eng_nm ASC
+	</select>
+	
+    <select id="selectNODE_CD_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT COUNT(nod.nod_cd)
+          FROM  tb_loc loc
+          JOIN  tb_nod nod 
+            ON  loc.loc_cd  = nod.loc_cd 
+          JOIN  tb_cnt c  
+            ON  loc.cnt_cd = c.cnt_cd  
+        <isNotNull property="s_loc_tp_code">
+          JOIN  tb_nod_tp_cd_list tp
+            ON  nod.nod_cd = tp.nod_cd  AND tp.nod_tp_cd = #s_loc_tp_code#
+        </isNotNull>
+         WHERE  loc.use_flg = 'Y'     AND  loc.delt_flg = 'N'      
+           AND  nod.use_flg = 'Y'     AND  nod.delt_flg = 'N' 
+           AND  c.use_flg = 'Y'       AND  c.delt_flg = 'N'  
+		<isNotNull property="s_subconti_cd">
+			AND c.conti_cd = #s_subconti_cd#
+		</isNotNull>
+		<isNotNull property="s_cnt_cd">
+			AND loc.cnt_cd =#s_cnt_cd#
+		</isNotNull>
+		<isNotNull property="s_loc_cd">
+			 AND nod.nod_cd like '%'+#s_loc_cd#+'%'
+		</isNotNull>
+		<isNotNull property="s_loc_nm">
+			 AND nod.nod_eng_nm LIKE  '%'+#s_loc_nm#+'%'
+		</isNotNull>            
+    </select>
+	
+    <!-- Trade continent combo pop select    -->
+    <select id="selectCONTINENT_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.ContiVO">
+        SELECT a.conti_cd,	a.eng_nm
+		FROM 
+			(SELECT  	''	conti_cd,	'ALL' eng_nm
+			UNION all
+			SELECT  	
+				conti_cd,	eng_nm
+			FROM  tb_conti 
+			WHERE delt_flg = 'N'	AND   use_flg  = 'Y'
+			AND   conti_clss_cd= 'S'
+			) a
+	</select>
+	
+	<!-- continent combo select    -->
+    <select id="selectMAIN_CONTINENT_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.ContiVO">
+        SELECT a.conti_cd,	a.eng_nm
+		FROM 
+			(SELECT  	''	conti_cd,	'' eng_nm
+			UNION all
+			SELECT  	
+				conti_cd,	eng_nm
+			FROM  tb_conti 
+			WHERE delt_flg = 'N'	AND   use_flg  = 'Y'
+			AND conti_clss_cd = 'C'
+			) a
+	</select>
+	
+	<!-- Trade continent combo pop select    -->
+    <select id="selectCOUNTRY_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.CntVO">
+        SELECT a.cnt_cd,	a.cnt_eng_nm
+		FROM 
+			(SELECT  	'' cnt_cd, 	'' cnt_eng_nm
+			UNION all
+	        SELECT  	
+				cnt_cd, 	cnt_eng_nm
+			FROM tb_cnt
+			WHERE delt_flg = 'N'			AND   use_flg ='Y'
+			<isNotNull property="s_subconti_code">
+				AND conti_cd =#s_subconti_code#
+			</isNotNull>
+			) a
+	</select>
+	
+	<!-- Trade type combo pop select    -->
+    <select id="selectTYPE_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocTpCdVO">
+    	SELECT a.cd_val,	a.cd_nm
+		FROM
+			( 
+    		SELECT  	''	cd_val,	'' cd_nm
+			UNION all
+	        SELECT   cd_val,  cd_nm 
+			FROM 	tb_com_cd_dtl
+			WHERE use_flg = 'Y'			AND   delt_flg = 'N'
+			AND   com_cd =  #com_cd#
+			) a
+	</select>
+	
+	<select id="selectCONTICODE_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.ContiVO">
+        SELECT conti_cd,     conti_clss_cd,     locl_nm,    eng_nm, 
+		       use_flg,      prnt_conti_cd,     descr,      
+		       rgst_usrid,   rgst_ofc_cd,       rgst_tms, 
+		       modi_usrid,   modi_ofc_cd,       modi_tms,   delt_flg
+		  FROM tb_conti
+		 WHERE delt_flg = 'N'  AND conti_clss_cd = 'C'
+		<isNotNull property="s_locl_nm">
+			AND ( locl_nm LIKE '%'+#s_locl_nm#+'%' OR eng_nm LIKE '%'+#s_locl_nm#+'%' )
+		</isNotNull>
+		<isNotNull property="s_use_flg">
+			AND use_flg = #s_use_flg#
+		</isNotNull>
+		ORDER BY  conti_cd ASC
+	</select>
+	
+	<select id="selectMDM_MCM_0010_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT count(conti_cd)
+		FROM tb_conti
+		WHERE delt_flg = 'N'
+		AND conti_clss_cd = 'C'
+		<isNotNull property="s_locl_nm">
+			AND ( locl_nm like '%'+#s_locl_nm#+'%' OR eng_nm like '%'+#s_locl_nm#+'%' )
+		</isNotNull>
+		<isNotNull property="s_use_flg">
+			AND use_flg = #s_use_flg#
+		</isNotNull>
+	</select>
+	<select id="selectMDM_MCM_0010_CODE" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.ContiVO">
+        SELECT conti_cd
+		FROM tb_conti
+		WHERE conti_cd = #s_conti_cd#
+	</select>
+	<select id="selectMDM_MCM_0010_SUB_CONTI_CD" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.ContiVO">
+        SELECT conti_cd, locl_nm
+		FROM tb_conti
+		WHERE prnt_conti_cd = #s_prnt_conti_cd#
+	</select>
+	<insert id="insertMDM_MCM_0010" parameterClass="java.util.HashMap">
+		INSERT INTO tb_conti (
+		  conti_cd
+		  , conti_clss_cd
+		  , locl_nm
+		  , eng_nm
+		  , use_flg
+		  , rgst_usrid
+		  , rgst_ofc_cd
+		  , rgst_tms
+		  , modi_usrid
+		  , modi_ofc_cd
+		  , modi_tms
+		  , delt_flg
+		  , descr
+		) VALUES (
+		  #i_conti_cd#
+		  , 'C'
+		  , #i_locl_nm#
+		  , #i_eng_nm#
+		  , #i_use_flg#
+		  , #i_rgst_usrid#
+		  , #i_rgst_ofc_cd#
+		  , getdate()
+		  , #i_modi_usrid#
+		  , #i_modi_ofc_cd#
+		  , GETUTCDATE()
+		  , 'N'
+		  , #i_desc#
+		)
+	</insert>
+	<update id="updateMDM_MCM_0010" parameterClass="java.util.HashMap">
+		UPDATE tb_conti
+		SET locl_nm = #i_locl_nm#
+		  , eng_nm = #i_eng_nm#
+		  , use_flg = #i_use_flg#
+		  , descr = #i_desc#
+		  , modi_usrid = #i_modi_usrid#
+		  , modi_ofc_cd = #i_modi_ofc_cd#
+		  , modi_tms = GETUTCDATE()
+		WHERE conti_cd = #i_conti_cd#
+		AND conti_clss_cd = 'C' 
+	</update>
+	
+	<select id="selectSUBCONTI_CODE_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.ContiVO">
+        SELECT  a.conti_cd,     a.conti_clss_cd,   a.locl_nm,    a.eng_nm,
+		  	    a.use_flg,      a.prnt_conti_cd,   a.descr,
+		  	    a.rgst_usrid,   a.rgst_ofc_cd,     a.rgst_tms,
+		  	    a.modi_usrid,   a.modi_ofc_cd,     a.modi_tms,   a.delt_flg,
+		       ( SELECT b.locl_nm
+                  FROM  tb_conti b
+                 WHERE  b.conti_cd = a.prnt_conti_cd
+                   AND b.delt_flg = 'N'  AND b.conti_clss_cd = 'C'
+                ) AS prnt_conti_nm
+		 FROM  tb_conti a
+		WHERE  a.delt_flg = 'N'
+		  AND  a.conti_clss_cd = 'S'
+		<isNotNull property="s_locl_nm">
+			AND ( locl_nm like '%'+#s_locl_nm#+'%' OR eng_nm like '%'+#s_locl_nm#+'%' )
+		</isNotNull>
+		<isNotNull property="s_use_flg">
+			AND use_flg = #s_use_flg#
+		</isNotNull>
+		<isNotNull property="s_conti_cd">
+			AND prnt_conti_cd  = #s_conti_cd#
+		</isNotNull>
+		ORDER BY  conti_cd ASC
+	</select>
+	
+	<select id="selectSUBCONTI_CODE_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT count(conti_cd)
+		FROM tb_conti
+		WHERE delt_flg = 'N'
+		AND conti_clss_cd = 'S'
+		<isNotNull property="s_locl_nm">
+			AND ( locl_nm like '%'+#s_locl_nm#+'%' OR eng_nm like '%'+#s_locl_nm#+'%' )
+		</isNotNull>
+		<isNotNull property="s_use_flg">
+			AND use_flg = #s_use_flg#
+		</isNotNull>
+		<isNotNull property="s_conti_cd">
+			AND prnt_conti_cd  = #s_conti_cd#
+		</isNotNull>
+	</select>
+	<insert id="insertMDM_MCM_0020" parameterClass="java.util.HashMap">
+		INSERT INTO tb_conti (
+		  conti_cd
+		  , conti_clss_cd
+		  , locl_nm
+		  , eng_nm
+		  , use_flg
+		  , prnt_conti_cd
+		  , rgst_usrid
+		  , rgst_ofc_cd
+		  , rgst_tms
+		  , modi_usrid
+		  , modi_ofc_cd
+		  , modi_tms
+		  , delt_flg
+		  , descr
+		) VALUES (
+		  #i_conti_cd#
+		  , 'S'
+		  , #i_locl_nm#
+		  , #i_eng_nm#
+		  , #i_use_flg#
+		  , #i_prnt_conti_cd#
+		  , #i_rgst_usrid#
+		  , #i_rgst_ofc_cd#
+		  , getdate()
+		  , #i_modi_usrid#
+		  , #i_modi_ofc_cd#
+		  , GETUTCDATE()
+		  , 'N'
+		  , #i_desc#
+		)
+	</insert>
+	<update id="updateMDM_MCM_0020" parameterClass="java.util.HashMap">
+		UPDATE tb_conti
+		SET locl_nm = #i_locl_nm#
+		  , eng_nm = #i_eng_nm#
+		  , use_flg = #i_use_flg#
+		  , prnt_conti_cd = #i_prnt_conti_cd#
+		  , descr = #i_desc#
+		  , modi_usrid = #i_modi_usrid#
+		  , modi_ofc_cd = #i_modi_ofc_cd#
+		  , modi_tms = GETUTCDATE()
+		WHERE conti_cd = #i_conti_cd#
+		AND conti_clss_cd = 'S' 
+	</update>
+	
+	<!-- Country Code 조회  -->
+	<select id="selectCOUNTRY_CODE_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.ContiCntVO">
+        <!--selectCOUNTRY_CODE_LIST  -->
+        SELECT a.cnt_cd,     a.cnt_locl_nm,   a.cnt_eng_nm,
+			   a.use_flg,    a.curr_cd,       a.conti_cd,      UPPER(a.descr) as descr,   a.curr_cd, 
+		       ( SELECT  b.locl_nm        FROM tb_conti b  WHERE b.conti_cd = a.conti_cd ) AS conti_nm,
+			   ( SELECT  b.prnt_conti_cd  FROM tb_conti b  WHERE b.conti_cd = a.conti_cd  AND b.conti_clss_cd = 'S' ) AS prnt_conti_cd,
+			   ( SELECT  c.locl_nm        FROM tb_conti c  WHERE c.conti_clss_cd = 'C'    
+		            AND  c.conti_cd IN  
+						(  SELECT b.prnt_conti_cd  FROM tb_conti b  WHERE b.conti_cd = a.conti_cd  AND b.conti_clss_cd = 'S' )
+				) AS prnt_conti_nm,
+			   rgst_usrid,    rgst_ofc_cd,   rgst_tms,
+	    	   modi_usrid,    modi_ofc_cd,   modi_tms
+	    	   <!-- #3355 [JTC]Dock Receipt 수정 -->
+	    	   , dock_rcpt_rmk
+		 FROM  tb_cnt a
+		WHERE  a.delt_flg = 'N'
+		<isNotNull property="s_cnt_cd">
+			AND a.cnt_cd = #s_cnt_cd#
+		</isNotNull>
+		<isNotNull property="s_cnt_locl_nm">
+			AND ( a.cnt_locl_nm like '%'+#s_cnt_locl_nm#+'%' OR a.cnt_eng_nm like '%'+#s_cnt_locl_nm#+'%' )
+		</isNotNull>
+		<isNotNull property="s_conti_cd">
+			AND a.conti_cd like '%'+#s_conti_cd#+'%'
+		</isNotNull>
+		<isNotNull property="s_prnt_conti_cd">
+			AND a.conti_cd IN (  SELECT f.conti_cd FROM tb_conti f WHERE f.prnt_conti_cd like '%'+#s_prnt_conti_cd#+'%'  )
+		</isNotNull>
+		<isNotNull property="s_use_flg">
+			AND a.use_flg = #s_use_flg#
+		</isNotNull>
+		ORDER BY  cnt_cd ASC
+	</select>
+	
+	<!-- Country Code 전체 카운트   -->
+	<select id="selectCOUNTRY_CODE_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT count(a.cnt_cd)
+		FROM tb_cnt a
+		WHERE a.delt_flg = 'N'
+		<isNotNull property="s_cnt_cd">
+			AND a.cnt_cd = #s_cnt_cd#
+		</isNotNull>		
+        <isNotNull property="s_cnt_locl_nm">
+            AND ( a.cnt_locl_nm like '%'+#s_cnt_locl_nm#+'%' OR a.cnt_eng_nm like '%'+#s_cnt_locl_nm#+'%' )
+        </isNotNull>
+        <isNotNull property="s_conti_cd">
+            AND a.conti_cd like '%'+#s_conti_cd#+'%'
+        </isNotNull>
+        <isNotNull property="s_prnt_conti_cd">
+            AND a.conti_cd IN (  SELECT f.conti_cd FROM tb_conti f WHERE f.prnt_conti_cd like '%'+#s_prnt_conti_cd#+'%'  )
+        </isNotNull>
+        <isNotNull property="s_use_flg">
+            AND a.use_flg = #s_use_flg#
+        </isNotNull>
+	</select>
+	
+	
+	<insert id="insertMDM_MCM_0030" parameterClass="java.util.HashMap">
+		INSERT INTO tb_cnt (
+		  cnt_cd
+		  , conti_cd
+		  , cnt_locl_nm
+		  , cnt_eng_nm
+		  , use_flg
+		  , curr_cd
+		  , rgst_usrid
+		  , rgst_ofc_cd
+		  , rgst_tms
+		  , modi_usrid
+		  , modi_ofc_cd
+		  , modi_tms
+		  , delt_flg
+		  , descr
+		  <!-- #3355 [JTC]Dock Receipt 수정 -->
+		  , dock_rcpt_rmk
+		) VALUES (
+		  #i_cnt_cd#
+		  , #i_conti_cd#
+		  , #i_cnt_locl_nm#
+		  , #i_cnt_eng_nm#
+		  , #i_use_flg#
+		  , #i_curr_cd#
+		  , #i_rgst_usrid#
+		  , #i_rgst_ofc_cd#
+		  , getdate()
+		  , #i_modi_usrid#
+		  , #i_modi_ofc_cd#
+		  , GETUTCDATE()
+		  , 'N'
+		  , #i_desc#
+		  <!-- #3355 [JTC]Dock Receipt 수정 -->
+		  , #dock_rcpt_rmk#
+		)
+	</insert>
+	<update id="updateMDM_MCM_0030" parameterClass="java.util.HashMap">
+		UPDATE tb_cnt
+		SET cnt_locl_nm = #i_cnt_locl_nm#
+		  , cnt_eng_nm = #i_cnt_eng_nm#
+		  , use_flg = #i_use_flg#
+		  , conti_cd = #i_conti_cd#
+		  , descr = #i_desc#
+		  , curr_cd = #i_curr_cd#
+		  <!-- #3355 [JTC]Dock Receipt 수정 -->
+		  , dock_rcpt_rmk = #dock_rcpt_rmk#
+		  , modi_usrid = #i_modi_usrid#
+		  , modi_ofc_cd = #i_modi_ofc_cd#
+		  , modi_tms = GETUTCDATE()
+		WHERE cnt_cd = #i_cnt_cd#
+	</update>
+	<select id="selectMDM_MCM_0030_CODE" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.CntVO">
+        SELECT cnt_cd
+		FROM tb_cnt
+		WHERE cnt_cd = #s_cnt_cd#
+	</select>
+	
+	<!--국가 코드 목록 조회  -->
+	<select id="selectLOCATION_CODE_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocVO">
+        SELECT  TOP $topCnt$
+		        a.loc_cd,    a.loc_nm,        a.loc_clss_cd,    a.cnt_cd, 
+		        a.ofc_cd,    a.finc_ofc_cd,   a.use_flg,        a.icao_cd_no,     a.prnt_loc_cd, 
+		        a.descr,     a.loc_tp_desc,   a.td_qty,         a.ams_loc_val,    a.stn_no, a.un_loc_cd,
+		       (  SELECT b.cnt_locl_nm  FROM tb_cnt b WHERE b.cnt_cd = a.cnt_cd ) AS cnt_nm,
+		        a.rgst_usrid, a.rgst_ofc_cd,  CONVERT(VARCHAR, a.rgst_tms, 110) + ' ' + CONVERT(VARCHAR, a.rgst_tms, 8) AS rgst_tms, 
+		        a.modi_usrid, a.modi_ofc_cd,  CONVERT(VARCHAR, a.modi_tms, 110) + ' ' + CONVERT(VARCHAR, a.modi_tms, 8) AS modi_tms,       a.delt_flg,
+		        a.state_cd,
+		        (SELECT x.state_locl_nm FROM tb_state x WHERE x.state_cd = a.state_cd AND x.cnt_cd = a.cnt_cd) AS STATE_LOCL_NM,
+		        (SELECT x.state_eng_nm FROM tb_state x WHERE x.state_cd = a.state_cd AND x.cnt_cd = a.cnt_cd) AS STATE_ENG_NM,
+		        a.cbsa_loc_cd, a.svc_lane_nm
+		        <!-- #3355 [JTC]Dock Receipt 수정 -->
+		        ,a.dock_rcpt_rmk
+		 FROM  tb_loc a
+		<isNotEmpty property="s_loc_tp_cd">
+		 JOIN  tb_loc_tp_cd_list tp
+		   ON  a.loc_cd = tp.loc_cd  AND tp.loc_tp_cd = #s_loc_tp_cd#
+		</isNotEmpty>
+		WHERE a.delt_flg = 'N'
+		<isNotEmpty property="s_loc_nm">
+			AND a.loc_nm like '%'+#s_loc_nm#+'%'
+		</isNotEmpty>
+		<isNotEmpty property="s_use_flg">
+			AND a.use_flg = #s_use_flg#
+		</isNotEmpty>
+		<isNotEmpty property="s_cnt_cd">
+			AND a.cnt_cd = #s_cnt_cd#
+		</isNotEmpty>
+		<isNotEmpty property="s_loc_cd">
+			AND a.loc_cd = #s_loc_cd#
+		</isNotEmpty>
+		ORDER BY  a.loc_cd ASC
+	</select>
+	
+    <!--국가 코드 목록 카운트  -->
+	<select id="selectLOCATION_CODE_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT count(a.loc_cd)
+	  	  FROM tb_loc a
+        <isNotNull property="s_loc_tp_cd">
+         JOIN  tb_loc_tp_cd_list tp
+           ON  a.loc_cd = tp.loc_cd  AND tp.loc_tp_cd = #s_loc_tp_cd#
+        </isNotNull>
+        WHERE a.delt_flg = 'N'
+        <isNotNull property="s_loc_nm">
+            AND a.loc_nm like '%'+#s_loc_nm#+'%'
+        </isNotNull>
+        <isNotNull property="s_use_flg">
+            AND a.use_flg = #s_use_flg#
+        </isNotNull>
+        <isNotNull property="s_cnt_cd">
+            AND a.cnt_cd = #s_cnt_cd#
+        </isNotNull>
+	</select>
+	
+	<insert id="insertMDM_MCM_0040" parameterClass="java.util.HashMap">
+		INSERT INTO tb_loc (
+			loc_cd,      loc_nm,         cnt_cd,        ofc_cd,        finc_ofc_cd, 
+			use_flg,     icao_cd_no,     prnt_loc_cd, 
+		    descr,       loc_tp_desc,    td_qty,        ams_loc_val,   loc_clss_cd,
+			stn_no,     un_loc_cd,		cbsa_loc_cd,
+		
+			rgst_usrid,  rgst_ofc_cd,    rgst_tms, 
+			modi_usrid,  modi_ofc_cd,    modi_tms,      delt_flg,		state_cd, svc_lane_nm
+			<!-- #3355 [JTC]Dock Receipt 수정 -->
+			,dock_rcpt_rmk
+		) VALUES (
+			#i_loc_cd#,     #i_loc_nm#,       #i_cnt_cd#,      #i_ofc_cd#,        #i_finc_ofc_cd#, 
+			#i_use_flg#,    #i_icao_cd_no#,   #i_prnt_loc_cd#,
+		    #i_addr#,       #i_desc#,         #i_td_qty#,      #i_ams_loc_val#,   #i_loc_clss_cd#,
+		    #i_stn_no#,    #i_un_loc_cd#,	#i_cbsa_loc_cd#,
+		 
+			#i_rgst_usrid#, #i_rgst_ofc_cd#,  getdate(), 
+			#i_modi_usrid#, #i_modi_ofc_cd#,  GETUTCDATE(),       'N',		#i_state_cd#, #i_svc_lane_nm#
+			<!-- #3355 [JTC]Dock Receipt 수정 -->
+			,#dock_rcpt_rmk#
+		)
+	</insert>
+	<update id="updateMDM_MCM_0040" parameterClass="java.util.HashMap">
+		UPDATE tb_loc
+		SET loc_nm = #i_loc_nm#
+			, cnt_cd = #i_cnt_cd#
+			, ofc_cd = #i_ofc_cd#
+			, finc_ofc_cd = #i_finc_ofc_cd#
+			, use_flg = #i_use_flg#
+			, icao_cd_no = #i_icao_cd_no#
+			, prnt_loc_cd = #i_prnt_loc_cd#
+			, delt_flg = #i_delt_flg#
+			, descr = #i_addr#
+			, loc_tp_desc = #i_desc#
+			, td_qty = #i_td_qty#
+			, loc_clss_cd = #i_loc_clss_cd#
+			, ams_loc_val = #i_ams_loc_val#
+		    , stn_no = #i_stn_no#
+		    , un_loc_cd = #i_un_loc_cd#
+			, modi_usrid = #i_modi_usrid#
+			, modi_ofc_cd = #i_modi_ofc_cd#
+			, state_cd = #i_state_cd#
+			, cbsa_loc_cd = #i_cbsa_loc_cd#
+			, modi_tms = GETUTCDATE()
+			, svc_lane_nm = #i_svc_lane_nm#
+			<!-- #3355 [JTC]Dock Receipt 수정 -->
+			, dock_rcpt_rmk = #dock_rcpt_rmk#
+		WHERE loc_cd = #i_loc_cd#
+	</update>
+	<select id="selectMDM_MCM_0040_CODE" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocVO">
+        SELECT loc_cd
+		FROM tb_loc
+		WHERE loc_cd = #s_loc_cd#
+	</select>
+	
+	<select id="selectMDM_MCM_0040_PRNT_CODE" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocVO">
+        SELECT loc_cd
+		FROM tb_loc
+		WHERE loc_cd NOT IN (#s_loc_cd#)
+		AND prnt_loc_cd = #s_prnt_loc_cd#
+		AND loc_clss_cd = #s_loc_clss_cd#
+	</select>
+	
+	<select id="selectMDM_MCM_0040_PRNT_CODE_OK" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocVO">
+        SELECT loc_cd
+		FROM tb_loc
+		WHERE loc_cd = #s_loc_cd#
+		AND loc_clss_cd = 'U'
+	</select>
+	
+	<delete id="removeMDM_MCM_0040_CODE" parameterClass="java.util.HashMap">
+        DELETE FROM tb_loc_tp_cd_list
+		WHERE loc_cd = #i_loc_cd#
+	</delete>
+	
+	<insert id="insertMDM_MCM_0040_CODE" parameterClass="java.util.HashMap">
+		INSERT INTO tb_loc_tp_cd_list (
+			loc_cd, loc_tp_cd
+		) VALUES (
+			#i_loc_cd#, #i_loc_tp_cd#
+		)
+	</insert>
+	
+	<select id="selectMDM_MCM_0041_CODE_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocTpCdVO">
+        SELECT loc_tp_cd AS com_cd
+		FROM tb_loc_tp_cd_list
+		WHERE loc_cd = #i_loc_cd#
+	</select>
+	
+	<select id="selectMDM_MCM_0041_CODE_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT count(loc_tp_cd)
+		FROM tb_loc_tp_cd_list
+		WHERE loc_cd = #i_loc_cd#
+	</select>
+	
+	<select id="selectSTATE_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.StateVO">
+		SELECT A.STATE_CD
+			 , A.STATE_LOCL_NM
+			 , A.STATE_ENG_NM
+			 , A.RMK
+			 , A.CNT_CD
+			 , B.CNT_LOCL_NM
+			 , B.CNT_ENG_NM
+			 , A.USE_FLG
+			 , A.RGST_USRID
+			 , CONVERT(VARCHAR(16), A.RGST_TMS, 20) AS RGST_TMS
+			 , A.MODI_USRID
+			 , CONVERT(VARCHAR(16), A.MODI_TMS, 20) AS MODI_TMS
+		  FROM TB_STATE A
+		  JOIN TB_CNT B ON A.CNT_CD = B.CNT_CD
+		 WHERE 1=1
+		<isNotEmpty property="s_state_locl_nm">
+		   AND A.STATE_LOCL_NM LIKE '%' + #s_state_locl_nm# + '%' 
+		</isNotEmpty>
+		<isNotEmpty property="s_state_eng_nm">
+		   AND A.STATE_ENG_NM LIKE '%' + #s_state_eng_nm# + '%' 
+		</isNotEmpty>
+		<isNotEmpty property="s_state_cd">
+		   AND A.STATE_CD = #s_state_cd#
+		</isNotEmpty>
+		<isNotEmpty property="s_cnt_locl_nm">
+		   AND B.CNT_LOCL_NM LIKE '%' + #s_cnt_locl_nm# + '%' 
+		</isNotEmpty>
+		<isEqual property="s_use_flg" compareValue="Y">
+		   AND A.USE_FLG = 'Y'
+		</isEqual>
+		<isEqual property="s_use_flg" compareValue="N">
+		   AND A.USE_FLG = 'N'
+		</isEqual>
+		<isNotEmpty property="s_cnt_cd">
+		   AND B.CNT_CD = #s_cnt_cd#
+		</isNotEmpty>
+					
+	</select>
+	
+	<select id="selectSTATE_LIST_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT COUNT(A.STATE_CD)
+		  FROM TB_STATE A
+		  JOIN TB_CNT B ON A.CNT_CD = B.CNT_CD
+		WHERE 1=1
+		<isNotEmpty property="s_state_locl_nm">
+		   AND A.STATE_LOCL_NM LIKE '%' + #s_state_locl_nm# + '%' 
+		</isNotEmpty>
+		<isNotEmpty property="s_state_eng_nm">
+		   AND A.STATE_ENG_NM LIKE '%' + #s_state_eng_nm# + '%' 
+		</isNotEmpty>
+		<isNotEmpty property="s_state_cd">
+		   AND A.STATE_CD = #s_state_cd#
+		</isNotEmpty>
+		<isNotEmpty property="s_cnt_locl_nm">
+		   AND B.CNT_LOCL_NM LIKE '%' + #s_cnt_locl_nm# + '%' 
+		</isNotEmpty>
+		<isEqual property="s_use_flg" compareValue="Y">
+		   AND A.USE_FLG = 'Y'
+		</isEqual>
+		<isEqual property="s_use_flg" compareValue="N">
+		   AND A.USE_FLG = 'N'
+		</isEqual>
+		<isNotEmpty property="s_cnt_cd">
+		   AND B.CNT_CD = #s_cnt_cd#
+		</isNotEmpty>			
+	</select>
+	
+	<insert id="insertStateInfo" parameterClass="com.clt.apps.fis.mdm.mcm.location.dto.StateVO">
+		INSERT INTO TB_STATE
+		(
+			STATE_CD, STATE_ENG_NM, STATE_LOCL_NM,
+			RMK, CNT_CD, USE_FLG,
+			RGST_USRID, RGST_OFC_CD, RGST_TMS,
+			MODI_USRID, MODI_OFC_CD, MODI_TMS
+		)
+		VALUES
+		(
+			#state_cd#, #state_eng_nm#, #state_locl_nm#,
+			#rmk#, #cnt_cd#, #use_flg#,
+			#rgst_usrid#, #rgst_ofc_cd#, GETDATE(),
+			#modi_usrid#, #modi_ofc_cd#, GETUTCDATE()
+		)
+	</insert>
+	
+	<update id="updateStateInfo" parameterClass="com.clt.apps.fis.mdm.mcm.location.dto.StateVO">
+		UPDATE TB_STATE
+		   SET MODI_TMS = GETUTCDATE()
+		     , MODI_USRID = #modi_usrid#
+		     , MODI_OFC_CD = #modi_ofc_cd#
+		<isNotNull property="state_eng_nm">
+		     , STATE_ENG_NM = #state_eng_nm#
+		</isNotNull>
+		<isNotNull property="state_locl_nm">
+		     , STATE_LOCL_NM = #state_locl_nm#
+		</isNotNull>
+		<isNotNull property="rmk">
+		     , RMK = #rmk#
+		</isNotNull>
+		<isNotNull property="use_flg">
+		     , USE_FLG = #use_flg#
+		</isNotNull>
+		     
+		 WHERE 1=1
+		   AND STATE_CD = #state_cd#
+		   AND CNT_CD = #cnt_cd#
+	</update>
+	
+	<!-- #3376 [JTC] Japan Trust 용 Profit Report 개발 -->
+	<select id="selectLaneCode_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LaneVO">
+	SELECT a1.* 
+	FROM(
+		SELECT 
+				 A.lane_cd      
+				,A.from_area_nm
+				,A.to_area_nm
+				,A.div_cd
+				,A.descr
+				,A.delt_flg
+				,A.dock_rcpt_rmk
+				,A.rgst_usrid
+				,A.modi_usrid
+				,CONVERT(VARCHAR(16), A.RGST_TMS, 20) AS rgst_tms
+				,CONVERT(VARCHAR(16), A.MODI_TMS, 20) AS modi_tms
+				,ROW_NUMBER() OVER ( ORDER BY A.lane_cd) as rownum		
+				,COUNT(*) OVER() as tot_cnt 
+		  FROM TB_LANE_CD A
+		 WHERE 1=1
+		<isNotEmpty property="s_descr">
+		   AND A.descr LIKE '%' + #s_descr# + '%' 
+		</isNotEmpty>
+		<isNotEmpty property="s_lane_cd">
+		   AND A.lane_cd LIKE '%' + #s_lane_cd# + '%' 
+		</isNotEmpty>
+		<isNotEmpty property="s_div_cd">
+		   AND A.div_cd = #s_div_cd#
+		</isNotEmpty>
+		<isNotEmpty property="s_delt_flg">
+		   AND A.delt_flg = #s_delt_flg#
+		</isNotEmpty>
+					
+		) a1			
+	<![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]> 	
+						
+	</select>		 
+	
+	<select id="searchLaneInfo" parameterClass="com.clt.apps.fis.mdm.mcm.location.dto.LaneVO" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LaneVO">
+		SELECT * FROM TB_LANE_CD
+		 WHERE LANE_CD = #lane_cd#		
+	</select>
+	<insert id="insertLaneInfo" parameterClass="com.clt.apps.fis.mdm.mcm.location.dto.LaneVO">
+		INSERT INTO TB_LANE_CD(
+		           LANE_CD
+		           ,DIV_CD
+		           ,FROM_AREA_NM
+		           ,TO_AREA_NM
+		           ,DESCR
+		           ,DOCK_RCPT_RMK
+		           ,RGST_USRID
+		           ,RGST_OFC_CD
+		           ,RGST_TMS
+		           ,MODI_USRID
+		           ,MODI_OFC_CD
+		           ,MODI_TMS
+		           ,DELT_FLG
+		           )
+		     VALUES(
+		            #lane_cd#
+		           ,#div_cd#
+		           ,#from_area_nm#
+		           ,#to_area_nm#
+		           ,#descr#
+		           ,#dock_rcpt_rmk#
+		           ,#rgst_usrid#
+		           ,#rgst_ofc_cd#
+		           ,getdate()
+		           ,#modi_usrid#
+		           ,#modi_ofc_cd#
+		           ,getdate()
+		           ,#delt_flg#
+		           )	
+	</insert>
+	<update id="updateLaneInfo" parameterClass="com.clt.apps.fis.mdm.mcm.location.dto.LaneVO">
+		UPDATE TB_LANE_CD
+		   set div_cd = #div_cd#
+		      ,from_area_nm = #from_area_nm#
+		      ,to_area_nm = #to_area_nm#
+		      ,descr = #descr#
+		      ,dock_rcpt_rmk = #dock_rcpt_rmk#
+		      ,modi_usrid = #modi_usrid#
+		      ,modi_ofc_cd = #modi_ofc_cd#
+		      ,modi_tms = getdate()
+		      ,delt_flg = #delt_flg#
+		 WHERE LANE_CD = #lane_cd#
+		   AND RGST_OFC_CD = #rgst_ofc_cd#				
+	</update>
+	<!-- #3376 [JTC] Japan Trust 용 Profit Report 개발 -->
+    <select id="selectLaneCode_COMBO" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO"
+            parameterClass="java.util.HashMap">
+        SELECT lane_cd as cd_val ,lane_cd+ ' : ' + descr as cd_nm
+          FROM TB_LANE_CD
+         WHERE 1=1
+           AND div_cd = #div_cd#   
+           AND delt_flg ='Y'
+      ORDER BY lane_cd
+    </select>		
+	
+	<select id="selectStateCode" parameterClass="java.util.HashMap" resultClass="String">
+		SELECT STATE_CD
+		  FROM TB_STATE
+		 WHERE STATE_CD = #s_state_cd#
+		   AND CNT_CD = #s_cnt_cd#
+	</select>
+	
+	<select id="selectUNLocCd" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocVO">
+		SELECT 
+			LOC_CD,
+			UN_LOC_CD,
+			LOC_NM
+		  FROM TB_MAP_USCD 
+		 WHERE 1=1
+		<isNotEmpty property="loc_cd">
+		   AND LOC_CD = #loc_cd#
+		</isNotEmpty>
+		<isNotEmpty property="loc_nm">
+		   AND LOC_NM LIKE '%' + #loc_nm# + '%' 
+		</isNotEmpty>
+	</select>
+	
+	<!-- #3509 Lane Code 팝업 추가 -->
+	<select id="selectLaneCode_POP" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LaneVO">
+	SELECT a1.* 
+	FROM(
+		SELECT 
+				 A.lane_cd      
+				,A.from_area_nm
+				,A.to_area_nm
+				,A.div_cd
+				,A.descr
+				,A.delt_flg
+				,ROW_NUMBER() OVER ( ORDER BY A.lane_cd) as rownum		
+				,COUNT(*) OVER() as tot_cnt 
+		  FROM TB_LANE_CD A
+		 WHERE 1=1
+		<isNotEmpty property="s_descr">
+		   AND A.descr LIKE '%' + #s_descr# + '%' 
+		</isNotEmpty>
+		<isNotEmpty property="s_lane_cd">
+		   AND A.lane_cd LIKE '%' + #s_lane_cd# + '%' 
+		</isNotEmpty>
+		<isNotEmpty property="s_div_cd">
+		   AND A.div_cd = #s_div_cd#
+		</isNotEmpty>
+		<isNotEmpty property="s_delt_flg">
+		   AND A.delt_flg = #s_delt_flg#
+		</isNotEmpty>
+		) a1			
+	<![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]>
+	</select>		 
+	
+	<!-- #1370 - [OPUS Logistics][PQC] Additional Bug_2018.07.04 [S] -->
+	<select id="selectLaneCode" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT LANE_CD
+		FROM TB_LANE_CD
+		 WHERE LANE_CD = #s_lane_cd#
+	</select>
+	<!-- #1370 - [OPUS Logistics][PQC] Additional Bug_2018.07.04 [E] -->
+	
+</sqlMap>

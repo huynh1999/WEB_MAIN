@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc.inv.dcnote">
+	<!-- ACC INVOICE CREATE B/L Search    -->
+    <select id="selectACC_INV_0030_CREATE_BL_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.acc.inv.dcnote.dto.CreateBLVO">
+		SELECT 
+			b.intg_bl_seq AS m_intg_bl_seq,
+			(
+				SELECT x.eng_nm		FROM tb_trdp x
+				WHERE x.trdp_cd = b.trdp_cd
+			) AS m_trdp_nm
+			,b.trdp_cd AS m_trdp_cd
+			,b.hbl_no AS m_hbl_no
+			,b.mbl_no AS m_mbl_no
+			,b.bkg_no AS m_bkg_no
+			,b.wo_no AS m_wo_no
+			, c.pol_cd AS m_pol_cd
+			, c.pod_cd AS m_pod_cd
+			, CASE LEN(c.etd_dt_tm)
+					WHEN 8 THEN substring(c.etd_dt_tm, 1, 4)+ '-'+ substring(c.etd_dt_tm, 5, 2)+ '-'+ substring(c.etd_dt_tm, 7, 2)
+					WHEN 12 THEN substring(c.etd_dt_tm, 1, 4)+ '-'+ substring(c.etd_dt_tm, 5, 2)+ '-'+ substring(c.etd_dt_tm, 7, 2)+ ' '+ substring(c.etd_dt_tm, 9, 2)+ ':'+ substring(c.etd_dt_tm, 11, 2)
+					ELSE c.etd_dt_tm
+				END AS m_etd
+			, CASE LEN(c.eta_dt_tm)
+					WHEN 8 THEN substring(c.eta_dt_tm, 1, 4)+ '-'+ substring(c.eta_dt_tm, 5, 2)+ '-'+ substring(c.eta_dt_tm, 7, 2)
+					WHEN 12 THEN substring(c.eta_dt_tm, 1, 4)+ '-'+ substring(c.eta_dt_tm, 5, 2)+ '-'+ substring(c.eta_dt_tm, 7, 2)+ ' '+ substring(c.eta_dt_tm, 9, 2)+ ':'+ substring(c.eta_dt_tm, 11, 2)
+					ELSE c.eta_dt_tm
+				END AS m_eta
+			, CONVERT(VARCHAR, c.pck_qty)+ ' ('+  c.pck_ut_cd+ ')' AS m_pck
+			, CONVERT(VARCHAR, c.grs_wgt)+ ' ('+ c.grs_wgt_ut_cd+ ')' AS m_wgt
+			, CONVERT(VARCHAR, c.meas)+ ' ('+ c.meas_ut_cd+ ')' AS m_meas
+			, a.inv_seq AS m_inv_seq
+			, d.finc_ofc_cd AS m_finc_ofc_cd
+			, (
+				SELECT
+					MAX(b.buy_inv_no)
+				FROM tb_inv_dtl b
+				WHERE b.inv_no = #s_inv_no#
+			) AS m_buy_inv_no
+			, b.air_sea_clss_cd AS m_air_sea_clss_cd
+			, b.bnd_clss_cd AS m_bnd_clss_cd
+		FROM (SELECT intg_bl_seq, max(frt_seq) AS frt_seq,  max(inv_seq) AS inv_seq  ,max(rgst_ofc_cd) AS rgst_ofc_cd
+				FROM tb_frt FRT
+LEFT OUTER JOIN (SELECT FRT_SEQ AS FRT_SEQ1, CFM_FLG AS CFM_FLG1 FROM TB_FRT_BLCK) BLCK 
+				ON FRT.FRT_SEQ = BLCK.FRT_SEQ1 
+				WHERE inv_iss_flg = #s_inv_iss_flg#
+				AND ISNULL(BLCK.CFM_FLG1, FRT.CFM_FLG) = 'Y'
+				AND delt_flg = 'N'
+				AND frt_divd_flg = 'N'
+				AND scg_incl_flg = 'N'
+				AND sell_buy_tp_cd IN ('D', 'C')
+				<isNotNull prepend="AND" property="s_air_sea_clss_cd">
+					air_sea_clss_cd = #s_air_sea_clss_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_bnd_clss_cd">
+					bnd_clss_cd = #s_bnd_clss_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_frt_ask_clss_cd">
+					frt_ask_clss_cd = #s_frt_ask_clss_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_trdp_cd">
+					trdp_cd = #s_trdp_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_hbl_no">
+					hbl_no = #s_hbl_no#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_mbl_no">
+					mbl_no = #s_mbl_no#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_bkg_no">
+					bkg_no = #s_bkg_no#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_wo_no">
+					wo_no = #s_wo_no#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_inv_no">
+					inv_seq = (SELECT max(inv_seq) FROM tb_inv_dtl WHERE inv_no = #s_inv_no#)
+				</isNotNull>
+				group by intg_bl_seq) a,
+				tb_frt b,
+				tb_intg_bl c,
+				(SELECT finc_ofc_cd 
+					FROM tb_ofc
+					WHERE ofc_cd = #i_rgst_ofc_cd#) d
+		WHERE a.intg_bl_seq = b.intg_bl_seq
+		AND a.frt_seq = b.frt_seq
+		AND a.intg_bl_seq = c.intg_bl_seq
+		AND	a.rgst_ofc_cd = d.finc_ofc_cd
+		<isNotNull prepend="AND" property="s_modi_tms_fm">
+			<![CDATA[CONVERT(VARCHAR, b.modi_tms, 112) >= #s_modi_tms_fm# ]]>
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_modi_tms_to">
+			<![CDATA[CONVERT(VARCHAR, b.modi_tms, 112) <= #s_modi_tms_to# ]]>
+		</isNotNull>
+    </select>
+    
+    <select id="selectACC_INV_0030_CREATE_BL_LIST_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT 
+			count(b.intg_bl_seq)
+		FROM (SELECT intg_bl_seq, max(frt_seq) AS frt_seq, max(inv_seq) AS inv_seq  ,max(rgst_ofc_cd) AS rgst_ofc_cd
+				FROM tb_frt FRT
+LEFT OUTER JOIN (SELECT FRT_SEQ AS FRT_SEQ1, CFM_FLG AS CFM_FLG1 FROM TB_FRT_BLCK) BLCK 
+				ON FRT.FRT_SEQ = BLCK.FRT_SEQ1
+				WHERE inv_iss_flg = #s_inv_iss_flg#
+				AND ISNULL(BLCK.CFM_FLG1, FRT.CFM_FLG) = 'Y'
+				AND delt_flg = 'N'
+				AND frt_divd_flg = 'N'
+				AND scg_incl_flg = 'N'
+				<isNotNull prepend="AND" property="s_air_sea_clss_cd">
+					air_sea_clss_cd = #s_air_sea_clss_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_bnd_clss_cd">
+					bnd_clss_cd = #s_bnd_clss_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_frt_ask_clss_cd">
+					frt_ask_clss_cd = #s_frt_ask_clss_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_trdp_cd">
+					trdp_cd = #s_trdp_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_hbl_no">
+					hbl_no = #s_hbl_no#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_mbl_no">
+					mbl_no = #s_mbl_no#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_bkg_no">
+					bkg_no = #s_bkg_no#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_wo_no">
+					wo_no = #s_wo_no#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_inv_no">
+					inv_seq = (SELECT max(inv_seq) FROM tb_inv_dtl WHERE inv_no = #s_inv_no#)
+				</isNotNull>
+				group by intg_bl_seq) a,
+				tb_frt b,
+				tb_intg_bl c,
+				(SELECT finc_ofc_cd 
+					FROM tb_ofc
+					WHERE ofc_cd = #i_rgst_ofc_cd#) d
+		WHERE a.intg_bl_seq = b.intg_bl_seq
+		AND a.frt_seq = b.frt_seq
+		AND a.intg_bl_seq = c.intg_bl_seq
+		AND	a.rgst_ofc_cd = d.finc_ofc_cd
+		<isNotNull prepend="AND" property="s_modi_tms_fm">
+			<![CDATA[CONVERT(VARCHAR, b.modi_tms, 112) >= #s_modi_tms_fm# ]]>
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_modi_tms_to">
+			<![CDATA[CONVERT(VARCHAR, b.modi_tms, 112) <= #s_modi_tms_to# ]]>
+		</isNotNull>
+    </select>
+    
+    <select id="selectACC_INV_0030_CREATE_BL_ITEM_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.acc.inv.dcnote.dto.CreateBLItemVO">
+    	SELECT 
+			a.hbl_no AS l_hbl_no
+			, a.mbl_no AS l_mbl_no
+			, a.bkg_no AS l_bkg_no
+			, a.wo_no AS l_wo_no
+			, a.frt_cd AS l_frt_cd
+			, (
+				SELECT b.frt_cd_nm
+				FROM tb_frt_cd b
+				WHERE b.frt_cd = a.frt_cd
+			) AS l_frt_nm
+			, a.inv_curr_cd AS l_inv_curr_cd
+			, ( 
+				CASE a.sell_buy_tp_cd
+					WHEN 'D' THEN a.ru
+				END 
+				) AS l_debit_ru
+			, ( 
+				CASE a.sell_buy_tp_cd
+					WHEN 'D' THEN a.qty
+				END 
+				) AS l_debit_qty
+			, ( 
+				CASE a.sell_buy_tp_cd
+					WHEN 'D' THEN a.inv_xcrt
+				END 
+				) AS l_debit_inv_xcrt
+			, ( 
+				CASE a.sell_buy_tp_cd
+					WHEN 'D' THEN a.inv_amt
+				END 
+				) AS l_debit_inv_amt
+			, ( 
+				CASE a.sell_buy_tp_cd
+					WHEN 'C' THEN a.ru
+				END 
+				) AS l_credit_ru
+			, ( 
+				CASE a.sell_buy_tp_cd
+					WHEN 'C' THEN a.qty
+				END 
+				) AS l_credit_qty
+			, ( 
+				CASE a.sell_buy_tp_cd
+					WHEN 'C' THEN a.inv_xcrt
+				END 
+				) AS l_credit_inv_xcrt
+			, ( 
+				CASE a.sell_buy_tp_cd
+					WHEN 'C' THEN a.inv_amt
+				END 
+				) AS l_credit_inv_amt
+			, a.frt_seq AS l_frt_seq
+			, a.trdp_cd AS l_trdp_cd
+			, a.inv_iss_flg AS l_inv_iss_flg
+			, a.intg_bl_seq AS l_intg_bl_seq
+			, (
+				SELECT
+					count(b.inv_seq)
+				FROM tb_inv_rlt b
+				WHERE b.inv_no = #s_inv_no#
+				AND b.frt_seq = a.frt_seq
+				) AS l_rlt_cnt
+			, (
+				SELECT
+					c.inv_seq
+				FROM tb_inv_rlt c
+				WHERE c.inv_seq ='2'
+				AND c.frt_seq = a.frt_seq
+				) AS l_inv_seq
+			, a.sell_buy_tp_cd AS l_sell_buy_tp_cd
+			, a.air_sea_clss_cd AS l_air_sea_clss_cd
+			, a.bnd_clss_cd AS l_bnd_clss_cd
+		FROM tb_frt a
+LEFT OUTER JOIN (SELECT FRT_SEQ AS FRT_SEQ1, CFM_FLG AS CFM_FLG1 FROM TB_FRT_BLCK) BLCK 
+		ON A.FRT_SEQ = BLCK.FRT_SEQ1
+		<isNotNull property="s_prnt_ofc_cd">
+		, tb_ofc d
+		</isNotNull>
+		WHERE ISNULL(BLCK.CFM_FLG1, A.CFM_FLG) = 'Y'
+		AND a.delt_flg = 'N'
+		AND a.sell_buy_tp_cd in('D','C')
+		AND a.frt_divd_flg = 'N'
+		AND a.scg_incl_flg = 'N'
+		<isNotNull prepend="AND" property="s_trdp_cd">
+			a.trdp_cd = #s_trdp_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_prnt_ofc_cd">
+		a.rgst_ofc_cd = d.ofc_cd
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_prnt_ofc_cd">
+		d.finc_ofc_cd = #s_finc_ofc_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_air_sea_clss_cd">
+			a.air_sea_clss_cd = #s_air_sea_clss_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_bnd_clss_cd">
+			a.bnd_clss_cd = #s_bnd_clss_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_intg_bl_seq">
+			a.intg_bl_seq = #s_intg_bl_seq#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_inv_no">
+			a.inv_seq = (SELECT max(inv_seq) FROM tb_inv_dtl WHERE inv_no = #s_inv_no#)
+		</isNotNull>
+    </select>
+    
+    <select id="selectACC_INV_0030_MAX" parameterClass="java.util.HashMap" resultClass="String">
+    	SELECT ISNULL(max(inv_seq)+1, 1)
+		FROM tb_inv
+    </select>
+    
+    <select id="selectACC_INV_DTL_0030_MAX" parameterClass="com.clt.apps.fis.acc.inv.dcnote.dto.InvVO" resultClass="String">
+    	SELECT ISNULL(max(inv_dtl_seq)+1, 1)
+		FROM tb_inv_dtl
+		WHERE inv_seq = #inv_seq#
+    </select>
+    
+    <insert id="insertACC_INV_0030" parameterClass="com.clt.apps.fis.acc.inv.dcnote.dto.InvVO">
+		INSERT INTO tb_inv (
+			inv_seq
+			, frt_ask_clss_cd
+			, inv_ttl_amt
+			, inv_iss_flg
+			, trdp_cd
+			, inv_ttl_vat_amt
+			, perf_ttl_amt
+			, perf_ttl_vat_amt
+			, locl_ttl_amt
+			, locl_ttl_vat_amt
+			, trdp_calc_clss_cd
+			, sell_buy_tp_cd
+			, clt_cmpl_flg
+			, stl_bss_clss_cd
+			, stl_fm_dt
+			, stl_to_dt
+			, inv_sts_cd
+			, ofc_cd
+			, rgst_usrid
+			, rgst_ofc_cd
+			, rgst_tms
+			, modi_usrid
+			, modi_ofc_cd
+			, modi_tms
+			, delt_flg
+			, air_sea_clss_cd
+			, bnd_clss_cd
+		) VALUES (
+			#inv_seq#
+			, #frt_ask_clss_cd#
+			, #inv_ttl_amt#
+			, #inv_iss_flg#
+			, #trdp_cd#
+			, #inv_ttl_vat_amt#
+			, #perf_ttl_amt#
+			, #perf_ttl_vat_amt#
+			, #locl_ttl_amt#
+			, #locl_ttl_vat_amt#
+			, #trdp_calc_clss_cd#
+			, #sell_buy_tp_cd#
+			, #clt_cmpl_flg#
+			, #stl_bss_clss_cd#
+			, CONVERT(VARCHAR, getDate(), 112)
+			, #stl_to_dt#
+			, #inv_sts_cd#
+			, #ofc_cd#
+			, #rgst_usrid#
+			, #rgst_ofc_cd#
+			, now()
+			, #modi_usrid#
+			, #modi_ofc_cd#
+			, GETUTCDATE()
+			, #delt_flg#
+			, #air_sea_clss_cd#
+			, #bnd_clss_cd#
+		)
+    </insert>
+    
+    <insert id="insertACC_INV_DTL_0030" parameterClass="com.clt.apps.fis.acc.inv.dcnote.dto.InvDtlVO">
+		INSERT INTO tb_inv_dtl (
+			inv_seq
+			, inv_dtl_seq
+			, inv_no
+			, cmpl_sts_flg
+			, inv_aply_curr_cd
+			, inv_aply_xcrt
+			, inv_amt
+			, clt_amt
+			, sell_bal_amt
+			, disbur_amt
+			, clt_disbur_amt
+			, buy_bal_amt
+			, inv_dt
+			, inv_fm_dt
+			, inv_to_dt
+			, clt_due_dt
+			, inv_iss_dt
+			, frt_ask_clss_cd
+			, inv_iss_flg
+			, inv_sts_cd
+			, buy_inv_no
+			, rgst_usrid
+			, rgst_ofc_cd
+			, rgst_tms
+			, modi_usrid
+			, modi_ofc_cd
+			, modi_tms
+			, delt_flg
+		) VALUES (
+			#inv_seq#
+			, #inv_dtl_seq#
+			, #inv_no#
+			, #cmpl_sts_flg#
+			, #inv_aply_curr_cd#
+			, #inv_aply_xcrt#
+			, #inv_amt#
+			, #clt_amt#
+			, #sell_bal_amt#
+			, #disbur_amt#
+			, #clt_disbur_amt#
+			, #buy_bal_amt#
+			, #inv_dt#
+			, CONVERT(VARCHAR, getDate(), 112)
+			, #inv_to_dt#
+			, CONVERT(VARCHAR, DATEADD(MONTH, 1, getDate()), 112)
+			, CONVERT(VARCHAR, getDate(), 112)
+			, #frt_ask_clss_cd#
+			, #inv_iss_flg#
+			, #inv_sts_cd#
+			, #buy_inv_no#
+			, #rgst_usrid#
+			, #rgst_ofc_cd#
+			, now()
+			, #modi_usrid#
+			, #modi_ofc_cd#
+			, GETUTCDATE()
+			, #delt_flg#
+		)
+    </insert>
+    
+    <insert id="insertACC_INV_RLT_0030" parameterClass="com.clt.apps.fis.acc.inv.dcnote.dto.InvRltVO">
+		INSERT INTO tb_inv_rlt (
+			inv_seq
+			, inv_no
+			, inv_dtl_seq
+			, frt_seq
+			, rgst_usrid
+			, rgst_ofc_cd
+			, rgst_tms
+			, modi_usrid
+			, modi_ofc_cd
+			, modi_tms
+			, delt_flg
+		) VALUES (
+			#inv_seq#
+			, #inv_no#
+			, #inv_dtl_seq#
+			, #frt_seq#
+			, #rgst_usrid#
+			, #rgst_ofc_cd#
+			, now()
+			, #modi_usrid#
+			, #modi_ofc_cd#
+			, GETUTCDATE()
+			, #delt_flg#
+		)
+    </insert>
+    
+    <update id="updateACC_INV_FRT_0030" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+    	UPDATE tb_frt
+		SET inv_iss_flg = #inv_iss_flg#
+		WHERE frt_seq = #frt_seq#
+    </update>
+    
+    <update id="updateACC_INV_FRT_0031" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+    	UPDATE tb_frt
+		SET frt_ask_clss_cd = #frt_ask_clss_cd#
+			, inv_seq = #inv_seq#
+			, inv_sts_cd = #inv_sts_cd#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, modi_usrid = #modi_usrid#
+			, modi_tms = GETUTCDATE()
+		WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		AND sell_buy_tp_cd = #sell_buy_tp_cd#
+		AND air_sea_clss_cd = #air_sea_clss_cd#
+		AND bnd_clss_cd = #bnd_clss_cd#
+    </update>
+</sqlMap>

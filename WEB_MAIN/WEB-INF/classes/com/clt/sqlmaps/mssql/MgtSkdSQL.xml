@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.skd">
+
+	<typeAlias alias="AtdModiVO" type="com.clt.apps.fis.mgt.skd.mod.dto.MgtSkdModifyVO"/>
+
+
+    <select id="selectModifyMBL_LIST" parameterClass="java.util.HashMap"  resultClass="AtdModiVO">        
+	/* selectModifyMBL_LIST */
+		SELECT  
+      	BL.INTG_BL_SEQ,
+		BL.BL_NO, BL.REF_NO, BL.REF_OFC_CD, BL.LNR_BKG_NO,
+		BL.ETD_DT_TM AS ETD_DT_TM,
+		BL.ETA_DT_TM AS ETA_DT_TM,
+		ISNULL(BND.ACT_ETD_DT_TM ,  '') ATD_DT_TM,
+		ISNULL(BND.ACT_ETA_DT_TM ,  '') ATA_DT_TM,
+		BL.POR_CD, BL.POR_NM, 
+		BL.POL_CD, BL.POL_NM, 
+		BL.POD_CD, BL.POD_NM, 
+		BL.DEL_CD, BL.DEL_NM,
+		(SELECT MAX(X.CNTR_NO) FROM TB_CNTR_LIST X WHERE X.INTG_BL_SEQ = BL.INTG_BL_SEQ AND X.DELT_FLG = 'N') AS CNTR_NO,
+		(SELECT COUNT(X.CNTR_NO)-1 FROM TB_CNTR_LIST X WHERE X.INTG_BL_SEQ = BL.INTG_BL_SEQ AND X.DELT_FLG = 'N') AS CNTR_CNT,
+		PRNR2.TRDP_CD AS PRNR_TRDP_CD2, PRNR2.TRDP_NM AS PRNR_TRDP_NM2,
+		SHPR.TRDP_CD AS SHPR_TRDP_CD, SHPR.TRDP_NM AS SHPR_TRDP_NM,
+		CNEE.TRDP_CD AS CNEE_TRDP_CD, CNEE.TRDP_NM AS CNEE_TRDP_NM,
+		LNR.TRDP_CD AS LNR_TRDP_CD, LNR.TRDP_NM AS LNR_TRDP_NM,
+		CARR.TRDP_CD AS CARR_TRDP_CD, CARR.TRDP_NM AS CARR_TRDP_NM,
+		BL.CY_TRDP_CD, CY.ENG_NM AS CY_TRDP_NM,
+		BL.CFS_TRDP_CD, CFS.ENG_NM AS CFS_TRDP_NM,
+		BL.HBL_TP_CD, BL.SHP_MOD_CD, BL.INCO_CD, BL.RGST_USRID, BL.REP_CMDT_NM,
+		BL.CUST_REF_NO,
+		(SELECT x.cnt_cd FROM TB_OFC x WHERE x.OFC_CD = bl.rgst_ofc_cd) AS BL_CNT, 
+		(SELECT MAX(X.LOCL_USR_NM) FROM TB_USR X WHERE X.USR_TP = 'I' AND X.USRID = bnd.issued_by) AS PROC_USRNM,
+		BL.POST_DT, BL.TRNK_VSL_NM, BL.TRNK_VOY,
+		(SELECT COUNT(*) FROM TB_INTG_BL_RLT RLT WHERE  RLT.RLT_INTG_BL_SEQ = BL.INTG_BL_SEQ AND RLT.DELT_FLG = 'N') AS HBL_CNT,    
+		ISNULL(DBO.FC_MK_MEMO_SCRIPT(BL.INTG_BL_SEQ), '') AS MEMO, AMS_ID
+		,BL.RLSD_FLG, BL.RLSD_DT_TM , ISNULL(BLCK.BL_STS_CD1, BL.BL_STS_CD) AS BL_STS_CD ,BL.CCN_NO
+		,BL.CCN_DT
+		,BL.PRE_CCN_NO
+		,BL.MNF_FR_LOC
+		,BL.MNF_TO_LOC
+		,BL.IMP_REF_NO
+		,ISNULL(bnd.AR_CHK,'X') AS AR_CHK
+		,ISNULL(bnd.AP_CHK,'X') AS AP_CHK
+		,ISNULL(bnd.DC_CHK,'X') AS DC_CHK
+		,ISNULL(bnd.FRT_CHK,'X') AS FRT_CHK
+		
+		FROM  TB_INTG_BL BL
+		<isEqual property="bnd_clss_cd" compareValue="O">
+			with(index(IDX_ETD_DT_TM), nolock)
+		</isEqual>     
+		<isEqual property="bnd_clss_cd" compareValue="I">
+			with(index(IDX_ETA_DT_TM), nolock)
+		</isEqual>  
+		JOIN  tb_add_info_bnd bnd
+			ON  bl.intg_bl_seq = bnd.intg_bl_seq AND bnd.bnd_clss_cd = #bnd_clss_cd# AND bnd.delt_flg = 'N'
+		LEFT OUTER JOIN  tb_bl_prnr PRNR2
+			ON  bl.intg_bl_seq = prnr2.intg_bl_seq  AND prnr2.bl_trdp_tp_cd = 'P03' AND prnr2.delt_flg = 'N'
+		LEFT OUTER JOIN  tb_bl_prnr SHPR
+			ON  bl.intg_bl_seq = SHPR.intg_bl_seq  AND SHPR.bl_trdp_tp_cd = 'S01' AND SHPR.delt_flg = 'N'
+		LEFT OUTER JOIN  tb_bl_prnr CNEE
+			ON  bl.intg_bl_seq = CNEE.intg_bl_seq  AND CNEE.bl_trdp_tp_cd = 'C01' AND CNEE.delt_flg = 'N'
+		LEFT OUTER JOIN  tb_bl_prnr CARR
+			ON  bl.intg_bl_seq = carr.intg_bl_seq  AND carr.bl_trdp_tp_cd = 'B01' AND carr.delt_flg = 'N'
+		LEFT OUTER JOIN  tb_bl_prnr LNR
+			ON  bl.intg_bl_seq = lnr.intg_bl_seq  AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+		LEFT OUTER JOIN  tb_trdp CY
+			ON  bl.cy_trdp_cd = cy.trdp_cd  AND cy.delt_flg = 'N'
+		LEFT OUTER JOIN  tb_trdp CFS
+			ON  bl.cfs_trdp_cd = cfs.trdp_cd  AND cfs.delt_flg = 'N'  
+		LEFT OUTER JOIN(SELECT INTG_BL_SEQ AS INTG_BL_SEQ1, BL_STS_CD AS BL_STS_CD1 FROM TB_INTG_BL_BLCK) BLCK 
+			ON BL.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1		            
+		WHERE bl.delt_flg = 'N'
+		AND bl.air_sea_clss_cd = 'S'
+        AND bl.biz_clss_cd = 'M'
+		AND <![CDATA[bl.BL_STS_CD <> 'HF']]>
+		<isNotEmpty property="f_pol_cd">
+			AND BL.POL_CD = #f_pol_cd#
+		</isNotEmpty>			 
+		<isNotEmpty property="f_trnk_vsl_nm">
+			AND BL.TRNK_VSL_NM LIKE '%' + #f_trnk_vsl_nm# + '%'
+		</isNotEmpty>
+		<isNotEmpty property="f_trnk_voy">
+			AND BL.TRNK_VOY LIKE '%' + #f_trnk_voy# + '%'
+						</isNotEmpty>
+		<isNotEmpty property="etd_strdt">
+			<isNotEmpty property="etd_enddt">
+				AND BL.ETD_DT_TM BETWEEN #etd_strdt# AND #etd_enddt#
+			</isNotEmpty>
+		</isNotEmpty>
+		<!-- ORDER BY  BL.RGST_TMS DESC -->
+    </select>	
+    
+    	<update id="updateMBL_DT" parameterClass="java.util.HashMap">
+    	/* updateHBL_MBL_DT */
+        UPDATE  TB_ADD_INFO_BND
+           SET  act_etd_dt_tm  = #etd_dt_tm#
+           	   <isNotEmpty property="eta_dt_tm">
+	           ,act_eta_dt_tm = #eta_dt_tm#
+				</isNotEmpty>           	   
+         WHERE  intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </update>
+	
+	<update id="updateHBL_MBL_DT" parameterClass="java.util.HashMap">
+    	/* updateHBL_MBL_DT */
+        UPDATE  TB_ADD_INFO_BND
+           SET  act_etd_dt_tm  = #etd_dt_tm#
+				<isNotEmpty property="eta_dt_tm">
+	           ,act_eta_dt_tm = #eta_dt_tm#
+				</isNotEmpty>                 	   
+         WHERE  intg_bl_seq IN (SELECT
+                intg_bl_seq
+            FROM
+                tb_intg_bl_rlt
+            WHERE
+                rlt_intg_bl_seq =  cast(#intg_bl_seq# as varchar))
+    </update>
+    
+</sqlMap>

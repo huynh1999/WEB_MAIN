@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="WHPutaway">
+	<!-- Nam Tran (S) -->
+	
+	<!-- Putaway 정보 조회 -->
+	<select id="searchWHPutawayInfo" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whinputaway.dto.WHPutawayInfoVO">
+		/* WHPutaway.searchWHPutawayInfo */
+        SELECT R.WIB_IN_NO
+              ,R.WIB_BK_NO
+              ,R.WH_CD
+              ,CONVERT(VARCHAR(10), R.INBOUND_DT, 110) AS INBOUND_DT
+              ,R.INBOUND_HM
+              ,P.SUPV_NM
+              ,CASE ISNULL(P.PUTAWAY_HM_FR, 'NULL')
+            WHEN 'NULL' THEN P.PUTAWAY_HM_FR 
+            ELSE SUBSTRING(P.PUTAWAY_HM_FR, 0, 3) + ':' + SUBSTRING(P.PUTAWAY_HM_FR, 3, LEN(P.PUTAWAY_HM_FR))
+        END AS PUTAWAY_HM_FR               
+        ,CASE ISNULL(P.PUTAWAY_HM_TO, 'NULL') 
+            WHEN 'NULL' THEN P.PUTAWAY_HM_TO 
+            ELSE  SUBSTRING(P.PUTAWAY_HM_TO, 0, 3) + ':' + SUBSTRING(P.PUTAWAY_HM_TO, 3, LEN(P.PUTAWAY_HM_TO))
+        END AS PUTAWAY_HM_TO               
+              ,P.WORK_NM
+              ,P.MSG_TO_WK
+              ,CASE ISNULL (P.WIB_IN_NO, '') WHEN '' THEN 'NEW' ELSE 'UPDATE' END AS FORM_MODE
+          FROM TL_WH_RCV R LEFT JOIN TL_WH_PUTAWAY P ON R.WIB_IN_NO = P.WIB_IN_NO
+         WHERE 1=1
+         
+         <isNotEmpty property="c_wib_in_no">
+         	AND R.WIB_IN_NO = #c_wib_in_no#
+         </isNotEmpty>
+         
+         <isNotEmpty property="c_wib_bk_no">
+         	AND R.WIB_BK_NO = #c_wib_bk_no#
+         </isNotEmpty>
+	</select>
+	
+	<!-- Putaway Item 목록 조회 -->
+	<select id="searchWHPutawayItemList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whinputaway.dto.Grd01WHPutawayItemVO">
+	
+		/* WHPutaway.searchWHPutawayItemList */
+		  SELECT T.*,
+		         CIW.FIX_LOC_CD,
+		         dbo.TL_GET_WH_LOC_NM (T.WH_CD, CIW.FIX_LOC_CD) AS FIX_LOC_NM,
+		         CASE
+		            WHEN CI.PKG_LV1_UNIT_CD = T.PKGUNIT THEN CI.PKG_LV1_PUT_TP_CD
+		            WHEN CI.ITEM_PKGUNIT = T.PKGUNIT THEN CI.PKG_LV2_PUT_TP_CD
+		            WHEN CI.PKG_LV3_UNIT_CD = T.PKGUNIT THEN CI.PKG_LV3_PUT_TP_CD
+		            WHEN CI.PKG_LV4_UNIT_CD = T.PKGUNIT THEN CI.PKG_LV4_PUT_TP_CD
+		         END PUT_TP_CD,
+                 CIL.LOT_ATTRIB_01 AS INBOUND_DT,
+                 ISNULL (CIL.LOT_ATTRIB_02, ' ') AS LOT_NO,
+                 T.EA_QTY - T.PUT_SUM_EA_QTY AS NON_PUTAWAY_EA_QTY,    
+                 ISNULL(CI.PKG_LV1_QTY, 0) AS PKG_LV1_QTY,
+	 			 ISNULL(CI.LV1_CBM, 0) AS LV1_CBM,
+	 			 ISNULL(CI.LV1_CBF, 0) AS LV1_CBF,
+	 			 ISNULL(CI.LV1_GRS_KGS, 0) AS LV1_GRS_KGS,
+	 			 ISNULL(CI.LV1_GRS_LBS, 0) AS LV1_GRS_LBS,
+	 			 ISNULL(CI.LV1_NET_KGS, 0) AS LV1_NET_KGS,
+	 			 ISNULL(CI.LV1_NET_LBS, 0) AS LV1_NET_LBS 		         
+		    FROM (SELECT RI.WIB_IN_NO,
+		                 RI.WIB_BK_NO,
+		                 RI.PO_SYS_NO,
+		                 RI.ITEM_SYS_NO,
+		                 RI.ITEM_SEQ,
+		                 PI.PUTAWAY_SEQ,
+		                 RI.ITEM_CD,
+		                 RI.ITEM_NM,
+		                 RI.LOT_ID,
+		                 RI.RECEIVED_TYPE_CD,
+		                 R.WH_CD,
+		                 dbo.TL_GET_LOC_NM(R.WH_CD) AS WH_NM,
+		                 W.CTRT_NO,
+                         dbo.TL_GET_CTRT_NM (W.CTRT_NO) AS CTRT_NM,
+		                 RI.INBOUND_LOC_CD,
+		                 dbo.TL_GET_WH_LOC_NM (W.WH_CD, RI.INBOUND_LOC_CD) AS INBOUND_LOC_NM,
+		                 ISNULL (PI.RCV_SND_DMG_CD, RI.RECEIVED_TYPE_CD) AS RCV_SND_DMG_CD,
+		                 ISNULL (CASE PI.RCV_SND_DMG_CD WHEN 'S' THEN  'Sound' WHEN 'D' THEN 'Damage' END, RI.RECEIVED_TYPE) AS RCV_SND_DMG_NM,
+		                 RI.PKGUNIT,
+		                 ISNULL (RI.PKGQTY, 0) AS PKGQTY,
+		                 ISNULL (RI.EA_QTY, 0) AS EA_QTY,
+		                 PI.PUTAWAY_WH_LOC_CD,
+		                 dbo.TL_GET_WH_LOC_NM (W.WH_CD, PI.PUTAWAY_WH_LOC_CD) AS PUTAWAY_WH_LOC_NM,
+		                 dbo.TL_GET_WH_LOC_PROP_NM (W.WH_CD, PI.PUTAWAY_WH_LOC_CD) AS PUTAWAY_WH_LOC_PROP_NM,
+		                 PI.PUTAWAY_PKGUNIT,
+		                 ISNULL (PI.PUTAWAY_PKGQTY, 0) AS PUTAWAY_PKGQTY,
+		                 ISNULL (PI.PUTAWAY_EA_QTY, 0) AS PUTAWAY_EA_QTY,
+		                 ISNULL (PI.PUTAWAY_CBM, 0) AS PUTAWAY_CBM,
+		                 ISNULL (PI.PUTAWAY_CBF, 0) AS PUTAWAY_CBF,		                 
+		                 ISNULL (PI.PUTAWAY_GRS_KGS, 0) AS PUTAWAY_GRS_KGS,
+		                 ISNULL (PI.PUTAWAY_GRS_LBS, 0) AS PUTAWAY_GRS_LBS,
+		                 ISNULL (PI.PUTAWAY_NET_KGS, 0) AS PUTAWAY_NET_KGS,
+		                 ISNULL (PI.PUTAWAY_NET_LBS, 0) AS PUTAWAY_NET_LBS,
+		                 SUM(ISNULL(PI.PUTAWAY_EA_QTY,0)) OVER ( PARTITION BY RI.WIB_IN_NO, RI.WIB_BK_NO, RI.PO_SYS_NO, RI.ITEM_SYS_NO, RI.ITEM_SEQ, ISNULL (PI.RCV_SND_DMG_CD, RI.RECEIVED_TYPE_CD)) AS PUT_SUM_EA_QTY,
+		                 PI.INV_CHG_FLG,
+		                 PI.PUTAWAY_WH_LOC_CD AS OLD_PUTAWAY_WH_LOC_CD,
+		                 ISNULL (PI.PUTAWAY_EA_QTY, 0) AS OLD_PUTAWAY_EA_QTY,
+		                 1 AS ADD_ROW,
+		                 CASE ISNULL (RI.WIB_IN_NO, '') WHEN '' THEN '' ELSE 'N' END AS DEL_ROW,
+		                 CASE ISNULL (PI.WIB_IN_NO, '') WHEN '' THEN 'NEW' ELSE 'UPDATE' END AS EDIT_FLAG,
+		                 (SELECT COUNT (*)
+		                    FROM TL_WH_INV_LOT II
+		                   WHERE RI.WIB_BK_NO = II.WIB_BK_NO
+		                     AND RI.PO_SYS_NO = II.PO_SYS_NO
+		                     AND RI.ITEM_SYS_NO = II.ITEM_SYS_NO
+		                     AND RI.LOT_ID = II.LOT_ID
+		                    <![CDATA[  AND II.ALLC_QTY > 0) AS OB_CNT, ]]>
+		                 ISNULL ((SELECT SUM (ISNULL (IL.IN_QTY, 0))
+		                         FROM TL_WH_INV_LOC IL
+		                        WHERE PI.WIB_BK_NO = IL.WIB_BK_NO
+		                          AND PI.PO_SYS_NO = IL.PO_SYS_NO
+		                          AND PI.ITEM_SYS_NO = IL.ITEM_SYS_NO
+		                          AND RI.LOT_ID = IL.LOT_ID
+		                          AND PI.PUTAWAY_WH_LOC_CD = IL.WH_LOC_CD), 0) AS OLD_INV_QTY
+		            FROM TL_WH_RCV R,
+		                 (SELECT WIB_IN_NO,
+		                         WIB_BK_NO,
+		                         PO_SYS_NO,
+		                         ITEM_SYS_NO,
+		                         ITEM_SEQ,
+		                         ITEM_CD,
+		                         ITEM_NM,
+		                         LOT_ID,
+		                         CASE DMG_LOC_CD WHEN '' THEN INBOUND_LOC_CD ELSE DMG_LOC_CD END AS INBOUND_LOC_CD,
+		                         CASE l WHEN 1 THEN 'S' ELSE CASE l WHEN 2 THEN 'D' END END AS RECEIVED_TYPE_CD,
+		                         CASE l WHEN 1 THEN 'Sound' ELSE CASE l WHEN 2 THEN 'Damage' END END AS RECEIVED_TYPE,
+		                         CASE l WHEN 1 THEN SND_PKGUNIT ELSE CASE l WHEN 2 THEN DMG_PKGUNIT END END AS PKGUNIT,
+		                         CASE l WHEN 1 THEN SND_PKGQTY ELSE CASE l WHEN 2 THEN DMG_PKGQTY END END AS PKGQTY,
+		                         CASE l WHEN 1 THEN SND_EA_QTY ELSE CASE l WHEN 2 THEN DMG_EA_QTY END END AS EA_QTY
+		                    FROM (SELECT *
+		                            FROM TL_WH_RCV_ITEM
+		                           WHERE 1 = 1 
+		                           
+		                           <isNotEmpty property="c_wib_in_no">
+		                           	AND WIB_IN_NO = #c_wib_in_no#
+		                           </isNotEmpty>
+		                           
+		                           <isNotEmpty property="c_wib_bk_no">
+		                           	AND WIB_BK_NO = #c_wib_bk_no#
+		                           </isNotEmpty>   
+		                                                   
+		                         ) AS TEMP,
+		                         (SELECT 1 AS l
+									UNION SELECT 2
+					       			) AS l
+		                 ) RI LEFT JOIN TL_WH_PUTAWAY_ITEM PI ON RI.WIB_IN_NO = PI.WIB_IN_NO AND RI.WIB_BK_NO = PI.WIB_BK_NO
+		                 	AND RI.PO_SYS_NO = PI.PO_SYS_NO AND RI.ITEM_SYS_NO = PI.ITEM_SYS_NO AND RI.ITEM_SEQ = PI.ITEM_SEQ
+		                 	AND RI.RECEIVED_TYPE_CD = PI.RCV_SND_DMG_CD,
+		                 TL_WH_IB W,
+		                 TL_WH_IB_ITEM WI
+		                 
+		           WHERE 1 = 1
+		           
+		           <isNotEmpty property="c_wib_in_no">
+                   	AND R.WIB_IN_NO = #c_wib_in_no#
+                   </isNotEmpty>
+                   
+                   <isNotEmpty property="c_wib_bk_no">
+                   	AND R.WIB_BK_NO = #c_wib_bk_no#
+                   </isNotEmpty>
+                   
+		   <![CDATA[ AND RI.EA_QTY > 0 ]]>
+		             AND R.WIB_IN_NO = RI.WIB_IN_NO
+		             AND R.WIB_BK_NO = W.WIB_BK_NO
+		             AND W.WIB_BK_NO = WI.WIB_BK_NO
+		             AND RI.WIB_BK_NO = WI.WIB_BK_NO
+		             AND RI.PO_SYS_NO = WI.PO_SYS_NO
+		             AND RI.ITEM_SYS_NO = WI.ITEM_SYS_NO
+		             AND RI.ITEM_SEQ = WI.ITEM_SEQ) T LEFT JOIN TL_CTRT_CUST_ITEM_WH CIW ON T.CTRT_NO = CIW.CTRT_NO
+		             AND T.ITEM_SYS_NO = CIW.ITEM_SYS_NO AND T.WH_CD = CIW.WH_CD
+		             LEFT JOIN TL_CTRT_CUST_ITEM CI ON T.CTRT_NO = CI.CTRT_NO AND T.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		             LEFT JOIN TL_CTRT_CUST_ITEM_LOT CIL ON T.CTRT_NO = CIL.CTRT_NO AND T.ITEM_SYS_NO = CIL.ITEM_SYS_NO
+		             AND T.LOT_ID = CIL.LOT_ID
+		ORDER BY T.PO_SYS_NO ASC,
+		         T.ITEM_CD ASC,
+		         T.ITEM_SEQ ASC,
+		         T.RECEIVED_TYPE_CD DESC
+	</select>
+	
+	<!-- Putaway 정보 수정 -->	
+	<update id="modifyWHPutawayInfo">
+	/* WHPutaway.modifyWHPutawayInfo */
+	DECLARE @WH_CD VARCHAR(20)
+	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	UPDATE TL_WH_PUTAWAY
+	SET    SUPV_NM       = #supv_nm#
+	      ,PUTAWAY_HM_FR = REPLACE (#putaway_hm_fr#, ':', '')
+	      ,PUTAWAY_HM_TO = REPLACE (#putaway_hm_to#, ':', '')
+	      ,WORK_NM       = #work_nm#
+	      ,MSG_TO_WK     = #msg_to_wk#
+	      ,MODI_ID       = #user_id#
+	      ,MODI_OFC_CD   = #org_cd#
+	      ,MODI_SYS_DT   = GETDATE()
+	      ,MODI_LOC_DT   = (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+							+ ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+							+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+							+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	WHERE  WIB_IN_NO     = #wib_in_no#	
+	</update>
+	
+	<!-- Putaway 정보 등록 -->
+	<insert id="addWHPutawayInfo">
+	/* WHPutaway.addWHPutawayInfo */
+	DECLARE @WH_CD VARCHAR(20)
+	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	INSERT INTO TL_WH_PUTAWAY (
+	    WIB_IN_NO
+	   ,SUPV_NM
+	   ,PUTAWAY_HM_FR
+	   ,PUTAWAY_HM_TO
+	   ,WORK_NM
+	   ,MSG_TO_WK
+	   ,RGST_ID
+	   ,RGST_OFC_CD
+	   ,RGST_SYS_DT
+	   ,RGST_LOC_DT
+	   ,MODI_ID
+	   ,MODI_OFC_CD
+	   ,MODI_SYS_DT
+	   ,MODI_LOC_DT
+	) VALUES (
+	    #wib_in_no#
+	   ,#supv_nm#
+	   ,REPLACE (#putaway_hm_fr#, ':', '')
+	   ,REPLACE (#putaway_hm_to#, ':', '')
+	   ,#work_nm#
+	   ,#msg_to_wk#
+	   ,#user_id#
+	   ,#org_cd#
+	   ,GETDATE()
+	   ,(SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+		+ ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+		+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+		+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	   ,#user_id#
+	   ,#org_cd#
+	   ,GETDATE()
+	   ,(SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+		+ ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+		+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+		+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	)	
+	</insert>
+	
+	<!-- Putaway Item 재고변경여부 초기화 -->	
+	<update id="modifyClearWHPutawayInvChgFlg">
+	/* WHPutaway.modifyClearWHPutawayInvChgFlg */
+	DECLARE @WH_CD VARCHAR(20)
+	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	UPDATE TL_WH_PUTAWAY_ITEM
+	SET    INV_CHG_FLG       = NULL	      
+	      ,MODI_ID           = #user_id#
+	      ,MODI_OFC_CD       = #org_cd#
+	      ,MODI_SYS_DT       = GETDATE()
+	      ,MODI_LOC_DT       = (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+								+ ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+								+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+								+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	WHERE  WIB_IN_NO         = #wib_in_no#
+	</update>
+	
+	<!-- Putaway Item 등록 -->
+	<insert id="addWHPutawayItemList">
+	/* WHPutaway.addWHPutawayItemList */
+	DECLARE @WH_CD VARCHAR(20)
+	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	INSERT INTO TL_WH_PUTAWAY_ITEM (
+	     WIB_IN_NO
+	    ,WIB_BK_NO
+	    ,PO_SYS_NO
+	    ,ITEM_SYS_NO
+	    ,ITEM_SEQ
+	    ,PUTAWAY_SEQ
+	    ,PUTAWAY_WH_LOC_CD
+	    ,PUTAWAY_LIC_PLAT_NO
+	    ,PUTAWAY_PKGUNIT
+	    ,PUTAWAY_PKGQTY
+	    ,PUTAWAY_EA_QTY
+	    ,RCV_SND_DMG_CD
+	    ,INV_CHG_FLG
+	    ,PUTAWAY_CBM
+	    ,PUTAWAY_CBF
+	    ,PUTAWAY_GRS_KGS
+	    ,PUTAWAY_GRS_LBS
+	    ,PUTAWAY_NET_KGS
+	    ,PUTAWAY_NET_LBS
+	    ,RGST_ID
+	    ,RGST_OFC_CD
+	    ,RGST_SYS_DT
+	    ,RGST_LOC_DT
+	    ,MODI_ID
+	    ,MODI_OFC_CD
+	    ,MODI_SYS_DT
+	    ,MODI_LOC_DT
+	) VALUES (
+	     #wib_in_no#
+	    ,#wib_bk_no#
+	    ,#po_sys_no#
+	    ,#item_sys_no#
+	    ,#item_seq#
+	    ,(SELECT ISNULL (MAX (PUTAWAY_SEQ), 0) + 1
+		    FROM TL_WH_PUTAWAY_ITEM
+		   WHERE WIB_IN_NO   = #wib_in_no#
+ 		     AND WIB_BK_NO   = #wib_bk_no#
+		     AND PO_SYS_NO   = #po_sys_no#
+		     AND ITEM_SYS_NO = #item_sys_no#
+		     AND ITEM_SEQ    = #item_seq#)
+	    ,#putaway_wh_loc_cd#
+	    ,#putaway_lic_plat_no#
+	    ,#putaway_pkgunit#
+	    ,#putaway_pkgqty#
+	    ,#putaway_ea_qty#
+	    ,#rcv_snd_dmg_cd#
+	    ,'Y'
+	    ,#putaway_cbm#
+	    ,#putaway_cbf#
+	    ,#putaway_grs_kgs#
+	    ,#putaway_grs_lbs#
+	    ,#putaway_net_kgs#
+	    ,#putaway_net_lbs#
+	    ,#user_id#
+	    ,#org_cd#
+	    ,GETDATE()
+	    ,(SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+		+ ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+		+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+		+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	    ,#user_id#
+	    ,#org_cd#
+	    ,GETDATE()
+	    ,(SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+		+ ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+		+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+		+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	)	
+	</insert>
+	
+	<!-- Putaway Item 수정 -->	
+	<update id="modifyWHPutawayItemList">
+	/* WHPutaway.modifyWHPutawayItemList */
+	DECLARE @WH_CD VARCHAR(20)
+	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	UPDATE TL_WH_PUTAWAY_ITEM
+	SET    PUTAWAY_WH_LOC_CD = #putaway_wh_loc_cd#
+	      ,PUTAWAY_PKGUNIT   = #putaway_pkgunit#
+	      ,PUTAWAY_PKGQTY    = CONVERT(NUMERIC, #putaway_pkgqty#)
+	      ,PUTAWAY_EA_QTY    = CONVERT(NUMERIC, #putaway_ea_qty#)
+	      ,RCV_SND_DMG_CD    = #rcv_snd_dmg_cd#
+	      ,INV_CHG_FLG       = #inv_chg_flg#
+	      ,PUTAWAY_CBM		 = CONVERT(NUMERIC, #putaway_cbm#)
+	      ,PUTAWAY_CBF		 = CONVERT(NUMERIC, #putaway_cbf#)
+	      ,PUTAWAY_GRS_KGS	 = CONVERT(NUMERIC, #putaway_grs_kgs#)
+	      ,PUTAWAY_GRS_LBS 	 = CONVERT(NUMERIC, #putaway_grs_lbs#)
+	      ,PUTAWAY_NET_KGS	 = CONVERT(NUMERIC, #putaway_net_kgs#)
+	      ,PUTAWAY_NET_LBS	 = CONVERT(NUMERIC, #putaway_net_lbs#)	      
+	      ,MODI_ID           = #user_id#
+	      ,MODI_OFC_CD       = #org_cd#
+	      ,MODI_SYS_DT       = GETDATE()
+	      ,MODI_LOC_DT       = (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+								+ ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+								+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+								+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	WHERE  WIB_IN_NO         = #wib_in_no#
+	AND    WIB_BK_NO         = #wib_bk_no#
+	AND    PO_SYS_NO         = #po_sys_no#
+	AND    ITEM_SYS_NO       = #item_sys_no#
+	AND    ITEM_SEQ          = CONVERT (NUMERIC, #item_seq#)
+	<isNotEmpty property="putaway_seq">
+		AND    PUTAWAY_SEQ       = CONVERT (NUMERIC, #putaway_seq#)	
+	</isNotEmpty>
+	</update>
+	
+	<!-- Putaway Item 삭제 -->	
+    <delete id="removeWHPutawayItemList">
+	/* WHPutaway.removeWHPutawayItemList */    
+		DELETE FROM TL_WH_PUTAWAY_ITEM
+			WHERE  WIB_IN_NO         = #wib_in_no#
+			AND    WIB_BK_NO         = #wib_bk_no#
+			AND    PO_SYS_NO         = #po_sys_no#
+			AND    ITEM_SYS_NO       = #item_sys_no#
+			AND    ITEM_SEQ          = #item_seq#
+			AND    PUTAWAY_SEQ       = #putaway_seq#  
+    </delete>
+    
+    <!-- <procedure id="callWHPutawayProc"  resultClass="java.lang.String">
+    	{call dbo.PKG_MAKE_TL_WH_PUTAWAY_PRC (#wib_in_no#, #org_cd#, #user_id#, '', '')}
+    </procedure> -->
+    
+    <parameterMap class="com.clt.apps.fis.wms.whinputaway.dto.WHPutawayItemVO" id="callWHPutawayProc_Map">
+		<parameter property="wib_in_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	
+    <procedure id="callWHPutawayProc" parameterMap="callWHPutawayProc_Map">
+     { CALL PKG_MAKE_TL_WH_PUTAWAY_PRC(?, ?, ?, ?, ?) }
+      
+    </procedure>
+    
+    <parameterMap id="callCancelWHPutawayProc_Map" class="com.clt.apps.fis.wms.whinputaway.dto.Grd00WHPutawayInfoVO">
+	     <parameter property="wib_in_no"  javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	     <parameter property="proc_type"   javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	     <parameter property="org_cd"   javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	     <parameter property="user_id"  javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	     <parameter property="rtncd"   javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	     <parameter property="rtnmsg"   javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+ 	</parameterMap>
+    <procedure id="callCancelWHPutawayProc" parameterMap="callCancelWHPutawayProc_Map">
+    	{call PKG_MAKE_TL_WH_PUTAWAY_CANCEL_PRC (?, ?, ?, ?, ?, ?)}
+    </procedure>
+	
+	<!-- #1880 [BINEX WMS4.0] PUTAWAY ERROR OF SHOWING MULTIPLE LINES OF SAME LP -->
+	<select id="checkLpLoction" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mob.cmm.dto.LocVO">
+		/* WHPutaway.checkLpLoction */
+		SELECT TOP 1 A.PUTAWAY_WH_LOC_CD AS WH_LOC_CD
+		      ,(select WH_LOC_NM from  TL_WH_LOC where WH_LOC_CD = A.PUTAWAY_WH_LOC_CD )     as WH_LOC_NM
+		  FROM TL_WH_PUTAWAY_ITEM A
+		 WHERE A.WIB_IN_NO = #wib_in_no#
+		AND A.WIB_BK_NO    = #wib_bk_no#
+		AND A.ITEM_SYS_NO  = #item_sys_no#
+		AND A.PUTAWAY_LIC_PLAT_NO = #putaway_lic_plat_no#
+	</select>	
+	<!-- Nam Tran (E) -->
+</sqlMap>

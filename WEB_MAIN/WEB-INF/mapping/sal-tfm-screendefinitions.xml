@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### Tariff 관련 프로그램  Start ####  -->
+    <screen name="SAL_TFM_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0010.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0010GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0010GS.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0010_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0010_1GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TFM_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0020.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0020GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0020GS.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0020_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0020_1GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TFM_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0040.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0040GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0040GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TFM_0050">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0050.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0050GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0050GS.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0050_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0050_1GS.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0050_2GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0050_2GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TFM_0060">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0060.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0060GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0060GS.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0060_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0060_1GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TFM_0070">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0070.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0070GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0070GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TFM_0080">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0080.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0080GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0080GS.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0080_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0080_1GS.jsp" />
+    </screen>
+    
+    <!-- Rate Management - Ocean 등록, 수정, 조회 -->
+    <screen name="SAL_TFM_0090">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0090.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0090GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0090GS.jsp" />
+    </screen>
+    <screen name="SAL_TFM_0090_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_0090_1GS.jsp" />
+    </screen>
+    <screen name="SAL_TFM_CMDT_POP" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_CMDT_POP.jsp" />
+    </screen>
+    <screen name="SAL_TFM_CMDT_POP_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_CMDT_POP_1GS.jsp" />
+    </screen>
+    <screen name="SAL_TFM_ACCT_POP" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_ACCT_POP.jsp" />
+    </screen>
+    <screen name="SAL_TFM_ACCT_POP_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tfm/tariff/jsp/SAL_TFM_ACCT_POP_1GS.jsp" />
+    </screen>
+    <!--#### Tariff 관련 프로그램 End ####  -->
+</screen-definitions>

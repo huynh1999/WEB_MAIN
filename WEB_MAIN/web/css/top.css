@@ -1,0 +1,67 @@
+/* Body ( Basic ) */
+body 	{margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; }
+/* 
+.top_menu {
+	font-family: "Tahoma", "Arial", "Verdana";	font-size: 15px;	font-weight: bold;	color: #FFFFFF;	text-decoration: none;	text-align: left;	height: 17px;	vertical-align: super;
+	margin-top: 0px;	margin-right: 0px;	margin-bottom: 0px;	margin-left: 0px;	padding-right: 1px;}
+a:link.top_menu {	font-family: "Tahoma", "Arial", "Verdana";	font-size: 15px;	font-weight: bold;	color: #FFFFFF;	text-decoration: none;	text-align: left;}
+a:visited.top_menu {	font-family: "Tahoma", "Arial", "Verdana";	font-size: 15px;	font-weight: bold;	color: #FFFFFF;	text-decoration: none;	text-align: left;}
+a:hover.top_menu {	font-family: "Tahoma", "Arial", "Verdana";	font-size: 15px;	font-weight: bold;	color: #fffcd4;	text-decoration: none;	text-align: left;	vertical-align: super;}
+a:active.top_menu {	font-family: "Tahoma", "Arial", "Verdana";	font-size: 15px;	font-weight: bold;	color: #fffcd4;	text-decoration: none;	text-align: left;	vertical-align: super;}
+
+.top_menu_2dth {	font-family: "Tahoma", "Arial", "Verdana";	font-size: 11px;	font-weight: normal;	color: #FFFFFF;	text-decoration: none;	text-align: left;	height: 18px;
+	margin-right: 25px;	padding-top: 6px;}
+a:link.top_menu_2dth {	font-family: "Tahoma", "Arial", "Verdana";	font-size: 11px;	font-weight: normal;	color: #FFFFFF;	text-decoration: none;	text-align: left;}
+a:visited.top_menu_2dth {	font-family: "Tahoma", "Arial", "Verdana";	font-size: 11px;	font-weight: normal;	color: #FFFFFF;	text-decoration: none;	text-align: left;}
+a:hover.top_menu_2dth {	font-family: "Tahoma", "Arial", "Verdana";	font-size: 11px;	font-weight: bold;	color: #ffffff;	text-decoration: none;	text-align: left;	letter-spacing: -0.1em;}
+a:active.top_menu_2dth {	font-family: "Tahoma", "Arial", "Verdana";	font-size: 11px;	font-weight: bold;	color: #fffff;	text-decoration: none;	text-align: left;	letter-spacing: -0.1em;}
+*/
+.top_menu_tb {	top: 33px;	bottom: 20px;	padding-top: 13px;}
+
+
+/* Top Menu  */
+ TD		        {font-family: Tahoma; font-size: 12px; }
+.top_menu {
+	font-size:11px; cursor: pointer; color: #ffffff; padding:0 5px 2px 5px;  TEXT-DECORATION: none; font-weight:bold; height:35px; width:100px; vertical-align: middle; border:0;text-align:center;
+}
+
+.top_menu_over {
+	font-size:11px; cursor: pointer; color: #ffffff; padding:0 5px 2px 5px;  TEXT-DECORATION: none; FONT-WEIGHT: bold; height:35px; width:100px; vertical-align: middle; border:0; text-align:center; BACKGROUND: url(/fms/web/img/top_menu/top_over.gif);
+}
+
+
+.top_menu A:link    {font-size:11px; color:#ffffff; text-decoration: none; font-weight:bold;}
+.top_menu A:visited {font-size:11px; color:#ffffff; text-decoration: none; font-weight:bold;}
+.top_menu A:active  {font-size:11px; color:#ffffff; text-decoration: none; font-weight:bold;}
+.top_menu A:hover   {font-size:11px; color:#ffffff; text-decoration: none; font-weight:bold;}
+
+.top_menu_over A:link    {font-size:11px; color:#ffffff; text-decoration: none; font-weight:bold;}
+.top_menu_over A:visited {font-size:11px; color:#ffffff; text-decoration: none; font-weight:bold;}
+.top_menu_over A:active  {font-size:11px; color:#ffffff; text-decoration: none; font-weight:bold;}
+.top_menu_over A:hover   {font-size:11px; color:#ffffff; text-decoration: none; font-weight:bold;}
+
+.top_menu_2dth		    {font-family: Tahoma; font-size: 11px; color:#42849d; height:22;font-weight:bold; padding:0 3px 1px 3px;}
+.top_menu_2dth A:link    {font-size:11px; color:#42849d; text-decoration: none; font-weight:bold;}
+.top_menu_2dth A:visited {font-size:11px; color:#42849d; text-decoration: none; font-weight:bold;}
+.top_menu_2dth A:active  {font-size:11px; color:#42849d; text-decoration: none; font-weight:bold;}
+.top_menu_2dth A:hover   {font-size:11px; color:#000000; text-decoration: none; font-weight:bold;}
+
+/* menu관련 */
+	
+						
+#apDiv1 {
+	position:absolute;
+	left:174px;
+	top:0px;
+	height:35px;
+	
+}
+#apDiv2 {
+	position:absolute;
+	left:636px;
+	top:36px;
+	height:22px;
+
+	
+}
+

@@ -1,0 +1,1003 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="edi.awb">
+	
+	<!--Air Master BL 정보를 조회   -->
+	<select id="selectMawbBLList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.awb.dto.EdiAwbBlVO">
+	/* EdiAwbSQL.xml > selectMawbBLList */   
+	SELECT
+        A1.*
+        ,(SELECT CASE WHEN COUNT(CD_VAL) > 0 THEN 'Y' ELSE 'N' END AS CARR_EXIST FROM TB_COM_CD_DTL
+		WHERE COM_CD = 'E022'
+		AND USE_FLG = 'Y'
+		AND CD_VAL = A1.AIRLN_CD) AS AIRLN_SPRT      
+    FROM
+        (   
+		SELECT
+            ROW_NUMBER() OVER ( ORDER BY BL.POST_DT DESC, BL.MODI_TMS DESC) AS ROWNUM,
+			EDI_AWB.MSG_NO,													/* MSG_NO */
+            BL.INTG_BL_SEQ,												    /* INTG_BL_SEQ */
+			BL.BIZ_CLSS_CD,												    /* BIZ_CLSS_CD */
+			(SELECT SMT_CUST_ID FROM TB_EDI_CNFG WHERE TP = 'AWB' )			AS CUST_ID,
+			ISNULL(EDI_AWB.AIRLN_CD, 
+				   (SELECT IATA_CD FROM TB_TRDP
+					WHERE TRDP_CD = LNR.TRDP_CD
+					AND TRDP_TP_CD = 'AC'
+					AND DELT_FLG = 'N')
+			 )																AS AIRLN_CD,
+			CASE BL.BIZ_CLSS_CD	WHEN 'M' THEN 'FWB' ELSE 'FHL' END			AS MSG_TP_CD,
+			BL.BL_NO														AS ORG_BL_NO,
+			SUBSTRING(BL.BL_NO, 1, 3)										AS AWB_PFX_NO,
+			REPLACE ( 	
+				REPLACE	( SUBSTRING(BL.BL_NO, 4, LEN(BL.BL_NO)) , '-', '' )		
+			, ' ', '' )														AS AWB_NO,
+			BL.FLT_NO														AS ORG_FLT_NO,
+
+			( SELECT COUNT(*) FROM TB_INTG_BL_RLT RLT 
+              WHERE RLT.RLT_INTG_BL_SEQ = BL.INTG_BL_SEQ 
+                AND RLT.DELT_FLG = 'N'
+			)																AS HBL_CNT,
+			EDI_STS.MSG_STS_CD												AS MSG_STS_CD,
+			EDI_STS.ERR_MSG													AS ERR_MSG,
+			ISNULL(EDI_STS.CSTMS_RGST_FLG, 'N')								AS CSTMS_RGST_FLG,
+			EDI_AWB.CSTMS_CNT_CD											AS CSTMS_CNT_CD,
+
+			(SELECT MAX(SAWB.RGST_TMS) 
+			 FROM TB_EDI_AWB SAWB 
+			 WHERE SAWB.DOC_STS_CD != 'C' 
+			 AND SAWB.INTG_BL_SEQ = BL.INTG_BL_SEQ )						AS SNT_TMS,
+			DATEADD(HH, DATEDIFF(HH,GETUTCDATE(),GETDATE()),BL.MODI_TMS ) 	AS MOD_TMS,
+
+            ISNULL(EDI_AWB.ORG_PORT_CD, BL.POL_CD)							AS ORG_PORT_CD,
+			CASE WHEN EDI_AWB.ORG_PORT_CD IS NOT NULL
+			THEN (SELECT LOC_NM FROM TB_LOC WHERE LOC_CD = EDI_AWB.ORG_PORT_CD)
+			ELSE BL.POL_NM	
+			END																AS ORG_PORT_NM,
+			BL.ETD_DT_TM													AS ETD_DT,
+            ISNULL(EDI_AWB.DEST_PORT_CD, BL.POD_CD)							AS DEST_PORT_CD,
+			CASE WHEN EDI_AWB.DEST_PORT_CD IS NOT NULL
+			THEN (SELECT LOC_NM FROM TB_LOC WHERE LOC_CD = EDI_AWB.DEST_PORT_CD)
+			ELSE BL.POD_NM	
+			END																AS DEST_PORT_NM,
+			BL.ETA_DT_TM													AS ETA_DT,
+			
+			/* Shipment */
+			ISNULL(EDI_AWB.PIEC_QTY   , BL.PCK_QTY)							AS PIEC_QTY,
+            ISNULL(EDI_AWB.AWB_WGT    , BL.GRS_WGT)							AS AWB_WGT,
+			ISNULL(EDI_AWB.AWB_WGT_CD ,'K')									AS AWB_WGT_CD,
+            ISNULL(EDI_AWB.AWB_VOL    , BL.VOL_MEAS)						AS AWB_VOL,    <!-- #6842 VOLUME CBM MAPPING -->
+			ISNULL(EDI_AWB.AWB_VOL_CD ,'MC')								AS AWB_VOL_CD,
+
+			/* Vessel Info */
+            ISNULL(EDI_AWB.FLT_CRR_CD, 
+				   (SELECT IATA_CD FROM TB_TRDP
+					WHERE TRDP_CD = LNR.TRDP_CD
+					AND TRDP_TP_CD = 'AC'
+					AND DELT_FLG = 'N')
+			 )																AS FLT_CRR_CD,
+            ISNULL(EDI_AWB.FLT_NO,	   
+			REPLACE(
+				REPLACE( SUBSTRING(BL.FLT_NO, 3, LEN(BL.FLT_NO)) , '-', '' ) 
+			,' ','' )
+			)																AS FLT_NO ,
+			SUBSTRING(BL.ETD_DT_TM ,7 ,2)									AS FLT_DY ,
+			ISNULL(EDI_AWB.FLT_CRR_CD, 
+				   (SELECT IATA_CD FROM TB_TRDP
+					WHERE TRDP_CD = LNR.TRDP_CD
+					AND TRDP_TP_CD = 'AC'
+					AND DELT_FLG = 'N')
+			 )																AS N1ST_CRR_CD,
+
+			EDI_AWB.SPCL_RQST_DESC,											/* SPCL_RQST_DESC */
+			ISNULL(EDI_AWB.ACCT_INFO_DESC, BL.ACCTG_INFO_TXT )				AS ACCT_INFO_DESC,
+
+			/* Prepaid Charge */				
+			ISNULL(EDI_AWB.PPD_WGT_CHG_AMT, 
+			  ( SELECT SUM(AIR_AMT) FROM TB_AIR_FRT_CD 
+			    WHERE DELT_FLG = 'N' AND INTG_BL_SEQ = BL.INTG_BL_SEQ AND AIR_FRT_TERM_CD='PP' )
+			 )																											AS PPD_WGT_CHG_AMT,
+			EDI_AWB.PPD_VAL_CHG_AMT,																					/* PPD_VAL_CHG_AMT*/
+			EDI_AWB.PPD_TAX_AMT,																						/* PPD_TAX_AMT*/
+			ISNULL(EDI_AWB.PPD_AGT_CHG_AMT, 
+			  ( SELECT SUM(OTH_AMT) FROM TB_AIR_OTH_CD 
+			    WHERE DELT_FLG = 'N' AND INTG_BL_SEQ =  BL.INTG_BL_SEQ  AND OTH_DISP_ORD=1 AND OTH_FRT_TERM_CD='PP' ) 
+			 )																											AS PPD_AGT_CHG_AMT,
+			ISNULL(EDI_AWB.PPD_CRR_CHG_AMT, 
+			  ( SELECT SUM(OTH_AMT) FROM TB_AIR_OTH_CD 
+			    WHERE DELT_FLG = 'N' AND INTG_BL_SEQ =  BL.INTG_BL_SEQ  AND OTH_DISP_ORD=0 AND OTH_FRT_TERM_CD='PP' )
+			 )
+			 																											AS PPD_CRR_CHG_AMT,
+			
+			ISNULL( EDI_AWB.PPD_TTL_CHG_AMT, 
+				(
+				 ISNULL( EDI_AWB.PPD_WGT_CHG_AMT, 
+				  ( SELECT ISNULL(SUM(AIR_AMT),0) FROM TB_AIR_FRT_CD 
+					WHERE DELT_FLG = 'N' AND INTG_BL_SEQ = BL.INTG_BL_SEQ AND AIR_FRT_TERM_CD='PP' ) ) 
+				 + ISNULL(EDI_AWB.PPD_VAL_CHG_AMT,0)
+				 + ISNULL(EDI_AWB.PPD_TAX_AMT,0)
+				 + ISNULL(EDI_AWB.PPD_AGT_CHG_AMT,
+				  ( SELECT ISNULL(SUM(OTH_AMT),0) FROM TB_AIR_OTH_CD 
+					WHERE DELT_FLG = 'N' AND INTG_BL_SEQ =  BL.INTG_BL_SEQ  AND OTH_DISP_ORD=1 AND OTH_FRT_TERM_CD='PP' ) )
+				 + ISNULL( EDI_AWB.PPD_CRR_CHG_AMT, 
+				  ( SELECT ISNULL(SUM(OTH_AMT),0) FROM TB_AIR_OTH_CD 
+					WHERE DELT_FLG = 'N' AND INTG_BL_SEQ =  BL.INTG_BL_SEQ  AND OTH_DISP_ORD=0 AND OTH_FRT_TERM_CD='PP' ) )
+				) 
+			)
+			AS PPD_TTL_CHG_AMT,
+
+			/* Collect Charge */
+			ISNULL(EDI_AWB.CLT_WGT_CHG_AMT,
+			  ( SELECT SUM(AIR_AMT) FROM TB_AIR_FRT_CD 
+			    WHERE DELT_FLG = 'N' AND INTG_BL_SEQ =  BL.INTG_BL_SEQ AND AIR_FRT_TERM_CD='CC' )
+			 )																											AS CLT_WGT_CHG_AMT,
+			EDI_AWB.CLT_VAL_CHG_AMT,																					/*CLT_VAL_CHG_AMT*/
+			EDI_AWB.CLT_TAX_AMT,																						/*CLT_TAX_AMT*/
+			ISNULL(EDI_AWB.CLT_AGT_CHG_AMT,
+			  ( SELECT SUM(OTH_AMT) FROM TB_AIR_OTH_CD 
+			    WHERE DELT_FLG = 'N' AND INTG_BL_SEQ =  BL.INTG_BL_SEQ  AND OTH_DISP_ORD=1 AND OTH_FRT_TERM_CD='CC' )
+			)																											AS CLT_AGT_CHG_AMT,
+			ISNULL(EDI_AWB.CLT_CRR_CHG_AMT,
+			  ( SELECT SUM(OTH_AMT) FROM TB_AIR_OTH_CD 
+			    WHERE DELT_FLG = 'N' AND INTG_BL_SEQ =  BL.INTG_BL_SEQ  AND OTH_DISP_ORD=0 AND OTH_FRT_TERM_CD='CC' )
+			)																											AS CLT_CRR_CHG_AMT,
+			
+			ISNULL(	EDI_AWB.CLT_TTL_CHG_AMT, 
+			    (
+				ISNULL( EDI_AWB.CLT_WGT_CHG_AMT,
+				 ( SELECT ISNULL(SUM(AIR_AMT),0) FROM TB_AIR_FRT_CD 
+					WHERE DELT_FLG = 'N' AND INTG_BL_SEQ =  BL.INTG_BL_SEQ AND AIR_FRT_TERM_CD='CC' ) )
+				+ ISNULL(EDI_AWB.CLT_VAL_CHG_AMT,0)
+				+ ISNULL(EDI_AWB.CLT_TAX_AMT,0)
+				+ ISNULL( EDI_AWB.CLT_AGT_CHG_AMT,
+				  ( SELECT ISNULL(SUM(OTH_AMT),0) FROM TB_AIR_OTH_CD 
+					WHERE DELT_FLG = 'N' AND INTG_BL_SEQ =  BL.INTG_BL_SEQ  AND OTH_DISP_ORD=1 AND OTH_FRT_TERM_CD='CC' ) )
+				+ ISNULL( EDI_AWB.CLT_CRR_CHG_AMT,
+				  ( SELECT ISNULL(SUM(OTH_AMT),0) FROM TB_AIR_OTH_CD 
+					WHERE DELT_FLG = 'N' AND INTG_BL_SEQ =  BL.INTG_BL_SEQ  AND OTH_DISP_ORD=0 AND OTH_FRT_TERM_CD='CC' ) )
+				)
+			) 
+			AS CLT_TTL_CHG_AMT,
+
+			/* Rate */
+			ISNULL( EDI_AWB.RT_PIEC_QTY, BL.PCK_QTY )	 AS RT_PIEC_QTY,
+			ISNULL( EDI_AWB.RT_WGT_CD, 'K' )			 AS RT_WGT_CD,
+			ISNULL( EDI_AWB.RT_WGT, BL.GRS_WGT )		 AS RT_WGT,
+			ISNULL( EDI_AWB.RT_CD,  BL.RT_CLSS_CD )		 AS RT_CD,
+			ISNULL( EDI_AWB.RT_VAL, 
+			ISNULL((SELECT TOP 1 AIR_RU FROM tb_air_frt_cd WHERE AIR_FRT_TERM_CD='PP' AND DELT_FLG='N' AND INTG_BL_SEQ=BL.INTG_BL_SEQ),0) ) AS RT_VAL,
+			ISNULL( EDI_AWB.RT_CHG_WGT, BL.CHG_WGT )	 AS RT_CHG_WGT,
+			EDI_AWB.RT_CHG_AMT,							 /* RT_CHG_AMT */
+			ISNULL(EDI_AWB.RT_GDS_DESC,BL.HNDL_INFO_TXT) AS RT_GDS_DESC,
+			EDI_AWB.RT_CNSL_DESC,						 /* RT_CNSL_DESC */
+			ISNULL( EDI_AWB.RT_VOL_CD, 'MC' )			 AS RT_VOL_CD,
+			ISNULL( EDI_AWB.RT_VOL, BL.VOL_MEAS )		 AS RT_VOL,        <!-- #6842 VOLUME CBM MAPPING -->
+			ISNULL( EDI_AWB.RT_CMDT_CD,	BL.REP_CMDT_CD ) AS RT_CMDT_CD,
+			EDI_AWB.RT_ORG_CNT_CD,						 /* RT_ORG_CNT_CD */
+
+			/* Shipper */
+            SHPR.TRDP_CD								   AS SHPR_CD, 
+            ISNULL( EDI_AWB.SHPR_NM,     SHPR.TRDP_NM )    AS SHPR_NM,
+			ISNULL( EDI_AWB.SHPR_ADDR,   SHPR.TRDP_ADDR )  AS SHPR_ADDR,
+			ISNULL( EDI_AWB.SHPR_CTY_NM, SHPR_TP.CITY_NM ) AS SHPR_CTY_NM,
+			ISNULL( EDI_AWB.SHPR_CNT_CD, SHPR_TP.CNT_CD )  AS SHPR_CNT_CD,
+			
+			/* Consignee */
+            CNEE.TRDP_CD								   AS CNEE_CD,
+            ISNULL( EDI_AWB.CNEE_NM ,    CNEE.TRDP_NM )    AS CNEE_NM,
+			ISNULL( EDI_AWB.CNEE_ADDR ,  CNEE.TRDP_ADDR )  AS CNEE_ADDR,
+			ISNULL( EDI_AWB.CNEE_CTY_NM, CNEE_TP.CITY_NM ) AS CNEE_CTY_NM,
+			ISNULL( EDI_AWB.CNEE_CNT_CD, CNEE_TP.CNT_CD )  AS CNEE_CNT_CD,
+
+			/* Notify */
+            NTFY.TRDP_CD								   AS NTFY_CD,
+            ISNULL( EDI_AWB.NTFY_NM,     NTFY.TRDP_NM )    AS NTFY_NM,
+			ISNULL( EDI_AWB.NTFY_ADDR,   NTFY.TRDP_ADDR )  AS NTFY_ADDR,
+			ISNULL( EDI_AWB.NTFY_CTY_NM, NTFY_TP.CITY_NM ) AS NTFY_CTY_NM,
+			ISNULL( EDI_AWB.NTFY_CNT_CD, NTFY_TP.CNT_CD )  AS NTFY_CNT_CD,
+
+			/* Agent */
+            ISNULL( EDI_AWB.AGT_IATA_CD, AGENT_TP.IATA_CD )    AS AGT_IATA_CD,
+            ISNULL( EDI_AWB.AGT_NM,      AGENT.TRDP_NM )    AS AGT_NM,
+			ISNULL( EDI_AWB.AGT_ADDR,    AGENT.TRDP_ADDR  ) AS AGT_ADDR,
+
+			/* CVD Info */
+			ISNULL( EDI_AWB.DECL_CURR_CD,     BL.CURR_CD )        AS DECL_CURR_CD,
+			ISNULL( EDI_AWB.DECL_PAY_TERM_CD, SUBSTRING(BL.FRT_TERM_CD,1,1) + SUBSTRING(BL.OTR_CHG_TERM_CD,1,1) ) AS DECL_PAY_TERM_CD,
+			REPLACE(ISNULL( EDI_AWB.DECL_CRR_NO,      BL.DECL_CRR_VAL ),'.','')   AS DECL_CRR_NO,
+			REPLACE(ISNULL( EDI_AWB.DECL_CSTMS_NO,    BL.DECL_CSTMS_VAL ),'AS ATTACHED','NCV') AS DECL_CSTMS_NO,
+			REPLACE(ISNULL( EDI_AWB.DECL_INSUR_NO,    BL.AMT_INSUR_VAL),'N.I.L','XXX') AS DECL_INSUR_NO,
+
+			/* AWB Issue */
+			/* ISNULL(EDI_AWB.ISS_DT,     BL.BL_ISS_DT )  AS ISS_DT , */
+			CASE
+			 WHEN EDI_AWB.ISS_DT IS NULL
+				THEN BL.BL_ISS_DT
+			 WHEN LEN(EDI_AWB.ISS_DT) = 7
+				THEN ( SELECT CONVERT( VARCHAR, 
+				CAST( SUBSTRING(EDI_AWB.ISS_DT , 6 , 2) 
+					+ CASE SUBSTRING(EDI_AWB.ISS_DT , 3 , 3)
+						WHEN 'JAN' THEN '01'
+						WHEN 'FEB' THEN '02'
+						WHEN 'MAR' THEN '03'
+						WHEN 'APR' THEN '04'
+						WHEN 'MAY' THEN '05'
+						WHEN 'JUN' THEN '06'
+						WHEN 'JUL' THEN '07'
+						WHEN 'AUG' THEN '08'
+						WHEN 'SEP' THEN '09'
+						WHEN 'OCT' THEN '10'
+						WHEN 'NOV' THEN '11'
+						WHEN 'DEC' THEN '12' END
+					+ SUBSTRING(EDI_AWB.ISS_DT , 1 , 2) 
+			 AS DATETIME), 112) )
+			ELSE BL.BL_ISS_DT
+			END										   AS ISS_DT,
+			ISNULL(EDI_AWB.ISS_LOC_NM, BL.POL_NM ) AS ISS_LOC_NM,
+
+			/* Sender */
+			ISNULL(EDI_AWB.OFC_PORT_CD , BL.POL_CD )   AS OFC_PORT_CD,
+			EDI_AWB.OFC_DESI_CD ,
+			EDI_AWB.CO_DESI_CD  , 
+			
+			/* Participant */
+			EDI_AWB.PART_ID,
+			EDI_AWB.PART_CD,
+			EDI_AWB.PART_PORT_CD,
+
+			EDI_AWB.DOC_STS_CD,
+			EDI_AWB.RGST_USRID,
+			EDI_AWB.RGST_TMS,
+			EDI_AWB.MODI_USRID,
+			EDI_AWB.MODI_TMS
+		FROM
+				TB_INTG_BL BL WITH(INDEX(IDX_ETD_DT_TM), NOLOCK)                                  
+        JOIN
+            TB_ADD_INFO_BND BND      
+                ON  BL.INTG_BL_SEQ = BND.INTG_BL_SEQ 
+                AND BND.BND_CLSS_CD =  'O'
+                AND BND.DELT_FLG = 'N'           
+        LEFT OUTER JOIN
+            TB_BL_PRNR SHPR      
+                ON  BL.INTG_BL_SEQ = SHPR.INTG_BL_SEQ  
+                AND SHPR.BL_TRDP_TP_CD = 'S01' 
+                AND SHPR.DELT_FLG = 'N'
+		LEFT OUTER JOIN 
+			TB_TRDP SHPR_TP
+				ON  SHPR_TP.TRDP_CD = SHPR.TRDP_CD
+				AND SHPR_TP.DELT_FLG = 'N'
+        LEFT OUTER JOIN
+            TB_BL_PRNR CNEE      
+                ON  BL.INTG_BL_SEQ = CNEE.INTG_BL_SEQ  
+                AND CNEE.BL_TRDP_TP_CD = 'C01' 
+                AND CNEE.DELT_FLG = 'N'
+		LEFT OUTER JOIN 
+			TB_TRDP CNEE_TP
+				ON  CNEE_TP.TRDP_CD = CNEE.TRDP_CD
+				AND CNEE_TP.DELT_FLG = 'N'
+        LEFT OUTER JOIN
+            TB_BL_PRNR NTFY      
+                ON  BL.INTG_BL_SEQ = NTFY.INTG_BL_SEQ  
+                AND NTFY.BL_TRDP_TP_CD = 'N01' 
+                AND NTFY.DELT_FLG = 'N'
+		LEFT OUTER JOIN 
+			TB_TRDP NTFY_TP
+				ON  NTFY_TP.TRDP_CD = NTFY.TRDP_CD
+				AND NTFY_TP.DELT_FLG = 'N'
+        LEFT OUTER JOIN
+            TB_BL_PRNR AGENT      
+                ON  BL.INTG_BL_SEQ = AGENT.INTG_BL_SEQ  
+                AND AGENT.BL_TRDP_TP_CD = 'I01' 
+                AND AGENT.DELT_FLG = 'N'    
+		LEFT OUTER JOIN 
+			TB_TRDP AGENT_TP
+				ON  AGENT_TP.TRDP_CD = AGENT.TRDP_CD
+				AND AGENT_TP.DELT_FLG = 'N'
+        LEFT OUTER JOIN
+            TB_BL_PRNR CARR      
+                ON  BL.INTG_BL_SEQ = CARR.INTG_BL_SEQ  
+                AND CARR.BL_TRDP_TP_CD = 'B01' 
+                AND CARR.DELT_FLG = 'N'     
+        LEFT OUTER JOIN
+            TB_BL_PRNR LNR      
+                ON  BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ  
+                AND LNR.BL_TRDP_TP_CD = 'L01' 
+                AND LNR.DELT_FLG = 'N'         
+        LEFT OUTER JOIN
+            TB_BL_PRNR ISS               
+                ON  BL.INTG_BL_SEQ = ISS.INTG_BL_SEQ  
+                AND ISS.BL_TRDP_TP_CD = 'I01' 
+                AND ISS.DELT_FLG = 'N'
+
+		LEFT OUTER JOIN TB_EDI_BL_STS  EDI_STS
+		 ON SUBSTRING(BL.BL_NO, 1, 3) = SUBSTRING(EDI_STS.BL_NO, 1, 3)
+		 AND REPLACE( SUBSTRING(BL.BL_NO, 4, LEN(BL.BL_NO)) , '-', '' ) = REPLACE( SUBSTRING(EDI_STS.BL_NO, 4, LEN(EDI_STS.BL_NO)) , '-', '' )
+		 AND EDI_STS.MSG_TP_CD = 'AWB'
+		  
+		LEFT OUTER JOIN TB_EDI_AWB     EDI_AWB
+		 ON EDI_AWB.MSG_NO = EDI_STS.MSG_NO
+
+        WHERE
+            BL.DELT_FLG = 'N'
+			AND  BL.BL_NO IS NOT NULL
+			AND  BL.BL_NO != ''
+            AND  BL.AIR_SEA_CLSS_CD =  'A' 
+            AND  BL.BIZ_CLSS_CD  =  'M'
+
+			<isNotEmpty property="f_ref_no">
+		    	AND  BL.REF_NO LIKE #f_ref_no# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_mbl_no">
+				AND  BL.BL_NO LIKE #f_mbl_no# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_hbl_no">
+		    AND  BL.INTG_BL_SEQ IN (
+		    (SELECT RLT_INTG_BL_SEQ FROM TB_INTG_BL_RLT RLT
+	 		 LEFT OUTER JOIN TB_INTG_BL HBL
+			 ON RLT.INTG_BL_SEQ = HBL.INTG_BL_SEQ AND HBL.BIZ_CLSS_CD = 'H' AND HBL.DELT_FLG = 'N'      
+		     WHERE RLT.DELT_FLG = 'N'
+		     AND HBL.BL_NO LIKE #f_hbl_no# + '%')
+		    )
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_lnr_bkg_no">
+				AND  BL.LNR_BKG_NO LIKE #f_lnr_bkg_no# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_ofc_cd">
+			    AND  BL.REF_OFC_CD = #f_ofc_cd#
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_flt_no">
+			    AND  BL.FLT_NO LIKE #f_flt_no# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_pol_cd">
+			    AND  BL.POL_CD = #f_pol_cd#
+			</isNotEmpty>
+			<isNotEmpty property="f_pol_nm">
+			    AND  BL.POL_NM LIKE #f_pol_nm# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_pod_cd">
+			    AND  BL.POD_CD = #f_pod_cd#
+			</isNotEmpty>
+			<isNotEmpty property="f_pod_nm">
+			    AND  BL.POD_NM LIKE #f_pod_nm# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_strdt">
+				<isEqual property="f_date_type" compareValue="ETD">
+					AND  BL.ETD_DT_TM BETWEEN #f_strdt# AND #f_enddt#
+				</isEqual>
+				<isEqual property="f_date_type" compareValue="ETA">
+					AND  BL.ETA_DT_TM BETWEEN #f_strdt# AND #f_enddt#
+				</isEqual>
+				<isEqual property="f_date_type" compareValue="PDT">
+					AND  BL.POST_DT BETWEEN #f_strdt# AND #f_enddt#
+				</isEqual>
+				<isEqual property="f_date_type" compareValue="BLD">
+					AND  BL.BL_DT_TM BETWEEN #f_strdt# AND #f_enddt#
+				</isEqual>
+			</isNotEmpty>
+			
+			<isNotNull property="f_msg_sts_cd">
+                AND  EDI_STS.MSG_STS_CD = #f_msg_sts_cd#
+            </isNotNull>      
+        ) A1    
+    WHERE 1=1
+        	     
+	</select>
+    
+    <!--Air House BL 정보를 조회   -->
+	<select id="selectHawbBLList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.awb.dto.EdiAwbBlVO">
+	/* EdiAwbSQL.xml > selectHawbBLList */   
+	SELECT
+        A1.*
+        ,(SELECT CASE WHEN COUNT(CD_VAL) > 0 THEN 'Y' ELSE 'N' END AS CARR_EXIST FROM TB_COM_CD_DTL
+		WHERE COM_CD = 'E022'
+		AND USE_FLG = 'Y'
+		AND CD_VAL = A1.AIRLN_CD) AS AIRLN_SPRT      
+    FROM
+        (   
+		SELECT
+            ROW_NUMBER() OVER ( ORDER BY BL.POST_DT DESC, BL.MODI_TMS DESC) AS ROWNUM,
+			EDI_AWB.MSG_NO,													/* MSG_NO */
+            BL.INTG_BL_SEQ,												    /* INTG_BL_SEQ */
+			X.RLT_INTG_BL_SEQ												AS MAWB_INTG_BL_SEQ,
+			BL.BIZ_CLSS_CD,												    /* BIZ_CLSS_CD */
+			(SELECT SMT_CUST_ID FROM TB_EDI_CNFG WHERE TP = 'AWB' )			AS CUST_ID,
+			ISNULL(EDI_AWB.AIRLN_CD, 
+				   (SELECT IATA_CD FROM TB_TRDP
+					WHERE TRDP_CD = LNR.TRDP_CD
+					AND TRDP_TP_CD = 'AC'
+					AND DELT_FLG = 'N')
+			 )																AS AIRLN_CD,
+			CASE BL.BIZ_CLSS_CD	WHEN 'M' THEN 'FWB' ELSE 'FHL' END			AS MSG_TP_CD,
+			BL.BL_NO														AS ORG_BL_NO,
+			SUBSTRING(BL.BL_NO, 1, 3)										AS AWB_PFX_NO,
+			REPLACE(
+				REPLACE( SUBSTRING(BL.BL_NO, 4, LEN(BL.BL_NO)) , '-', '' )		
+			,' ','' )														AS HAWB_NO,
+			EDI_STS.MSG_STS_CD												AS MSG_STS_CD,
+			EDI_STS.ERR_MSG													AS ERR_MSG,
+			ISNULL(EDI_STS.CSTMS_RGST_FLG, 'N')								AS CSTMS_RGST_FLG,
+			EDI_AWB.CSTMS_CNT_CD											AS CSTMS_CNT_CD,
+
+			(SELECT MAX(SAWB.RGST_TMS) 
+			 FROM TB_EDI_AWB SAWB 
+			 WHERE SAWB.DOC_STS_CD != 'C' 
+			 AND SAWB.INTG_BL_SEQ = BL.INTG_BL_SEQ )						AS SNT_TMS,
+			DATEADD(HH, DATEDIFF(HH,GETUTCDATE(),GETDATE()),BL.MODI_TMS ) 	AS MOD_TMS,
+
+            ISNULL(EDI_AWB.HAWB_ORG_PORT_CD, BL.POL_CD)						AS HAWB_ORG_PORT_CD,
+			CASE WHEN EDI_AWB.HAWB_ORG_PORT_CD IS NOT NULL
+			THEN (SELECT LOC_NM FROM TB_LOC WHERE LOC_CD = EDI_AWB.HAWB_ORG_PORT_CD)
+			ELSE BL.POL_NM	
+			END																AS ORG_PORT_NM,
+			BL.ETD_DT_TM													AS ETD_DT,
+            ISNULL(EDI_AWB.HAWB_DEST_PORT_CD, BL.POD_CD)					AS HAWB_DEST_PORT_CD,
+			CASE WHEN EDI_AWB.HAWB_DEST_PORT_CD IS NOT NULL
+			THEN (SELECT LOC_NM FROM TB_LOC WHERE LOC_CD = EDI_AWB.HAWB_DEST_PORT_CD)
+			ELSE BL.POD_NM	
+			END																AS DEST_PORT_NM,
+			BL.ETA_DT_TM													AS ETA_DT,
+			
+			/* Shipment */
+			ISNULL(EDI_AWB.HAWB_PIEC_QTY   , BL.PCK_QTY)					AS HAWB_PIEC_QTY,
+            ISNULL(EDI_AWB.HAWB_WGT    , BL.GRS_WGT)						AS HAWB_WGT,
+			ISNULL(EDI_AWB.HAWB_WGT_CD ,'K')								AS HAWB_WGT_CD,
+            ISNULL(EDI_AWB.AWB_VOL    ,BL.VOL_MEAS)							AS AWB_VOL,       <!-- #6842 VOLUME CBM MAPPING -->
+			ISNULL(EDI_AWB.AWB_VOL_CD ,'MC')								AS AWB_VOL_CD,
+
+			/* Vessel Info */
+            ISNULL(EDI_AWB.FLT_CRR_CD, 
+				   (SELECT IATA_CD FROM TB_TRDP
+					WHERE TRDP_CD = LNR.TRDP_CD
+					AND TRDP_TP_CD = 'AC'
+					AND DELT_FLG = 'N')
+			 )																AS FLT_CRR_CD,
+            ISNULL(EDI_AWB.FLT_NO,	   
+			REPLACE(	
+				REPLACE( SUBSTRING(BL.FLT_NO, 3, LEN(BL.FLT_NO)) , '-', '' ) 
+			,' ','' )	
+			)																AS FLT_NO ,
+			SUBSTRING(BL.ETD_DT_TM ,7 ,2)									AS FLT_DY ,
+			ISNULL(EDI_AWB.FLT_CRR_CD, 
+				   (SELECT IATA_CD FROM TB_TRDP
+					WHERE TRDP_CD = LNR.TRDP_CD
+					AND TRDP_TP_CD = 'AC'
+					AND DELT_FLG = 'N')			
+			)																AS N1ST_CRR_CD,
+			BL.FLT_NO														AS ORG_FLT_NO,
+
+			ISNULL(EDI_AWB.HAWB_GDS_DESC, BL.REP_CMDT_NM)					AS HAWB_GDS_DESC,
+
+			/* Shipper */
+            SHPR.TRDP_CD								   AS SHPR_CD, 
+            ISNULL( EDI_AWB.SHPR_NM,     SHPR.TRDP_NM )    AS SHPR_NM,
+			ISNULL( EDI_AWB.SHPR_ADDR,   SHPR.TRDP_ADDR )  AS SHPR_ADDR,
+			ISNULL( EDI_AWB.SHPR_CTY_NM, SHPR_TP.CITY_NM ) AS SHPR_CTY_NM,
+			ISNULL( EDI_AWB.SHPR_CNT_CD, SHPR_TP.CNT_CD )  AS SHPR_CNT_CD,
+			
+			/* Consignee */
+            CNEE.TRDP_CD								   AS CNEE_CD,
+            ISNULL( EDI_AWB.CNEE_NM ,    CNEE.TRDP_NM )    AS CNEE_NM,
+			ISNULL( EDI_AWB.CNEE_ADDR ,  CNEE.TRDP_ADDR )  AS CNEE_ADDR,
+			ISNULL( EDI_AWB.CNEE_CTY_NM, CNEE_TP.CITY_NM ) AS CNEE_CTY_NM,
+			ISNULL( EDI_AWB.CNEE_CNT_CD, CNEE_TP.CNT_CD )  AS CNEE_CNT_CD,
+
+			/* Notify */
+            NTFY.TRDP_CD								   AS NTFY_CD,
+            ISNULL( EDI_AWB.NTFY_NM,     NTFY.TRDP_NM )    AS NTFY_NM,
+			ISNULL( EDI_AWB.NTFY_ADDR,   NTFY.TRDP_ADDR )  AS NTFY_ADDR,
+			ISNULL( EDI_AWB.NTFY_CTY_NM, NTFY_TP.CITY_NM ) AS NTFY_CTY_NM,
+			ISNULL( EDI_AWB.NTFY_CNT_CD, NTFY_TP.CNT_CD )  AS NTFY_CNT_CD,
+
+			/* Agent */
+            ISNULL( EDI_AWB.AGT_IATA_CD, BL.IATA_CD )    AS AGT_IATA_CD,
+            ISNULL( EDI_AWB.AGT_NM,      AGENT.TRDP_NM )    AS AGT_NM,
+			ISNULL( EDI_AWB.AGT_ADDR,    AGENT.TRDP_ADDR  ) AS AGT_ADDR,
+
+			/* CVD Info */
+			ISNULL( EDI_AWB.DECL_CURR_CD,     BL.CURR_CD )        AS DECL_CURR_CD,
+			ISNULL( EDI_AWB.DECL_PAY_TERM_CD, SUBSTRING(BL.FRT_TERM_CD,1,1) + SUBSTRING(BL.OTR_CHG_TERM_CD,1,1) ) AS DECL_PAY_TERM_CD,
+			ISNULL( EDI_AWB.DECL_CRR_NO,      BL.DECL_CRR_VAL )   AS DECL_CRR_NO,
+			ISNULL( EDI_AWB.DECL_CSTMS_NO,    BL.DECL_CSTMS_VAL ) AS DECL_CSTMS_NO,
+			ISNULL( EDI_AWB.DECL_INSUR_NO,    BL.AMT_INSUR_VAL  ) AS DECL_INSUR_NO
+		FROM
+				TB_INTG_BL BL WITH(INDEX(IDX_ETD_DT_TM), NOLOCK)                                  
+        JOIN
+            TB_ADD_INFO_BND BND      
+                ON  BL.INTG_BL_SEQ = BND.INTG_BL_SEQ 
+                AND BND.BND_CLSS_CD =  'O'
+                AND BND.DELT_FLG = 'N'
+		LEFT OUTER JOIN 
+			(SELECT  RLT.INTG_BL_SEQ, MBL.BL_NO, RLT.RLT_INTG_BL_SEQ
+			 FROM  TB_INTG_BL MBL WITH(NOLOCK)
+			 LEFT OUTER JOIN  TB_INTG_BL_RLT RLT WITH(NOLOCK)
+			 ON  RLT.RLT_INTG_BL_SEQ = MBL.INTG_BL_SEQ AND MBL.DELT_FLG = 'N'  
+			) X 
+			ON X.INTG_BL_SEQ = BL.INTG_BL_SEQ 				           
+        LEFT OUTER JOIN
+            TB_BL_PRNR SHPR      
+                ON  BL.INTG_BL_SEQ = SHPR.INTG_BL_SEQ  
+                AND SHPR.BL_TRDP_TP_CD = 'S01' 
+                AND SHPR.DELT_FLG = 'N'
+		LEFT OUTER JOIN 
+			TB_TRDP SHPR_TP
+				ON  SHPR_TP.TRDP_CD = SHPR.TRDP_CD
+				AND SHPR_TP.DELT_FLG = 'N'
+        LEFT OUTER JOIN
+            TB_BL_PRNR CNEE      
+                ON  BL.INTG_BL_SEQ = CNEE.INTG_BL_SEQ  
+                AND CNEE.BL_TRDP_TP_CD = 'C01' 
+                AND CNEE.DELT_FLG = 'N'
+		LEFT OUTER JOIN 
+			TB_TRDP CNEE_TP
+				ON  CNEE_TP.TRDP_CD = CNEE.TRDP_CD
+				AND CNEE_TP.DELT_FLG = 'N'
+        LEFT OUTER JOIN
+            TB_BL_PRNR NTFY      
+                ON  BL.INTG_BL_SEQ = NTFY.INTG_BL_SEQ  
+                AND NTFY.BL_TRDP_TP_CD = 'N01' 
+                AND NTFY.DELT_FLG = 'N'
+		LEFT OUTER JOIN 
+			TB_TRDP NTFY_TP
+				ON  NTFY_TP.TRDP_CD = NTFY.TRDP_CD
+				AND NTFY_TP.DELT_FLG = 'N'
+        LEFT OUTER JOIN
+            TB_BL_PRNR AGENT      
+                ON  BL.INTG_BL_SEQ = AGENT.INTG_BL_SEQ  
+                AND AGENT.BL_TRDP_TP_CD = 'A01' 
+                AND AGENT.DELT_FLG = 'N'    
+		LEFT OUTER JOIN 
+			TB_TRDP AGENT_TP
+				ON  AGENT_TP.TRDP_CD = AGENT.TRDP_CD
+				AND AGENT_TP.DELT_FLG = 'N'
+        LEFT OUTER JOIN
+            TB_BL_PRNR CARR      
+                ON  BL.INTG_BL_SEQ = CARR.INTG_BL_SEQ  
+                AND CARR.BL_TRDP_TP_CD = 'B01' 
+                AND CARR.DELT_FLG = 'N'     
+        LEFT OUTER JOIN
+            TB_BL_PRNR LNR      
+                ON  BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ  
+                AND LNR.BL_TRDP_TP_CD = 'L01' 
+                AND LNR.DELT_FLG = 'N'         
+        LEFT OUTER JOIN
+            TB_BL_PRNR ISS               
+                ON  BL.INTG_BL_SEQ = ISS.INTG_BL_SEQ  
+                AND ISS.BL_TRDP_TP_CD = 'I01' 
+                AND ISS.DELT_FLG = 'N'
+
+		LEFT OUTER JOIN TB_EDI_BL_STS  EDI_STS
+		 ON SUBSTRING(BL.BL_NO, 1, 3) = SUBSTRING(EDI_STS.BL_NO, 1, 3)
+		 AND REPLACE( SUBSTRING(BL.BL_NO, 4, LEN(BL.BL_NO)) , '-', '' ) = REPLACE( SUBSTRING(EDI_STS.BL_NO, 4, LEN(EDI_STS.BL_NO)) , '-', '' )
+		 AND EDI_STS.MSG_TP_CD = 'AWB'
+		  
+		LEFT OUTER JOIN TB_EDI_AWB     EDI_AWB
+		 ON EDI_AWB.MSG_NO = EDI_STS.MSG_NO
+
+        WHERE
+            BL.DELT_FLG = 'N'
+			AND  BL.BL_NO IS NOT NULL
+			AND  BL.BL_NO != ''
+            AND  BL.AIR_SEA_CLSS_CD =  'A' 
+            AND  BL.BIZ_CLSS_CD  =  'H'
+
+			<isNotEmpty property="f_ref_no">
+		    	AND  BL.REF_NO LIKE #f_ref_no# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_mbl_no">
+				AND X.BL_NO LIKE #f_mbl_no# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_hbl_no">
+				AND  BL.BL_NO LIKE #f_hbl_no# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_lnr_bkg_no">
+				AND  BL.LNR_BKG_NO LIKE #f_lnr_bkg_no# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_ofc_cd">
+			    AND  BL.REF_OFC_CD = #f_ofc_cd#
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_flt_no">
+			    AND  BL.FLT_NO LIKE #f_flt_no# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_pol_cd">
+			    AND  BL.POL_CD = #f_pol_cd#
+			</isNotEmpty>
+			<isNotEmpty property="f_pol_nm">
+			    AND  BL.POL_NM LIKE #f_pol_nm# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_pod_cd">
+			    AND  BL.POD_CD = #f_pod_cd#
+			</isNotEmpty>
+			<isNotEmpty property="f_pod_nm">
+			    AND  BL.POD_NM LIKE #f_pod_nm# + '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="f_strdt">
+				<isEqual property="f_date_type" compareValue="ETD">
+					AND  BL.ETD_DT_TM BETWEEN #f_strdt# AND #f_enddt#
+				</isEqual>
+				<isEqual property="f_date_type" compareValue="ETA">
+					AND  BL.ETA_DT_TM BETWEEN #f_strdt# AND #f_enddt#
+				</isEqual>
+				<isEqual property="f_date_type" compareValue="PDT">
+					AND  BL.POST_DT BETWEEN #f_strdt# AND #f_enddt#
+				</isEqual>
+				<isEqual property="f_date_type" compareValue="BLD">
+					AND  BL.BL_DT_TM BETWEEN #f_strdt# AND #f_enddt#
+				</isEqual>
+			</isNotEmpty>
+			
+			<isNotNull property="f_msg_sts_cd">
+                AND  EDI_STS.MSG_STS_CD = #f_msg_sts_cd#
+            </isNotNull>      
+			
+        ) A1    
+    WHERE 1=1
+	
+    </select>
+    
+    <select id="selectEdiAwbMsgId" resultClass="String">
+		/* selectEdiAwbMsgId */
+		SELECT 'AWB' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + ISNULL(dbo.LPAD(MAX(SUBSTRING(MSG_NO, 10, 5))+1, 5, '0'), '00001') AS MSG_ID
+		  FROM TB_EDI_AWB
+		 WHERE MSG_NO LIKE 'AWB' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + '%'
+	</select>
+	
+	<insert id="insertTB_EDI_AWB" parameterClass="com.clt.apps.fis.edi.awb.dto.EdiAwbBlVO" >
+		/** EdiAwbSQL.xml -> insertTB_EDI_AWB **/
+		INSERT INTO TB_EDI_AWB (  
+			MSG_NO	,
+			INTG_BL_SEQ	,
+			BIZ_CLSS_CD	,
+			CUST_ID	,
+			AIRLN_CD	,
+			MSG_TP_CD	,
+			AWB_PFX_NO	,
+			AWB_NO	,
+			ORG_PORT_CD	,
+			DEST_PORT_CD	,
+			PIEC_QTY	,
+			AWB_WGT_CD	,
+			AWB_WGT	,
+			AWB_VOL_CD	,
+			AWB_VOL	,
+			FLT_CRR_CD	,
+			FLT_NO	,
+			FLT_DY	,
+			N1ST_CRR_CD	,
+			SHPR_NM	,
+			SHPR_ADDR	,
+			SHPR_CTY_NM	,
+			SHPR_CNT_CD	,
+			CNEE_NM	,
+			CNEE_ADDR	,
+			CNEE_CTY_NM	,
+			CNEE_CNT_CD	,
+			AGT_IATA_CD	,
+			AGT_NM	,
+			AGT_ADDR	,
+			<!-- SPCL_RQST_DESC	, -->
+			NTFY_NM	,
+			NTFY_ADDR	,
+			NTFY_CTY_NM	,
+			NTFY_CNT_CD	,
+			<!-- ACCT_INFO_DESC	, -->
+			DECL_CURR_CD	,
+			DECL_CHG_CD	,
+			DECL_PAY_TERM_CD	,
+			DECL_CRR_NO	,
+			DECL_CSTMS_NO	,
+			DECL_INSUR_NO	,
+			RT_PIEC_QTY	,
+			RT_WGT_CD	,
+			RT_WGT	,
+			RT_CD	,
+			RT_VAL	,
+			RT_CHG_WGT	,
+			RT_CHG_AMT	,
+			<!-- RT_GDS_DESC, -->
+			RT_CNSL_DESC	,
+			RT_VOL_CD	,
+			RT_VOL	,
+			<!-- RT_CMDT_CD	,
+			RT_ORG_CNT_CD	, -->
+			PPD_WGT_CHG_AMT	,
+			PPD_VAL_CHG_AMT	,
+			PPD_TAX_AMT	,
+			PPD_AGT_CHG_AMT	,
+			PPD_CRR_CHG_AMT	,
+			PPD_TTL_CHG_AMT	,
+			CLT_WGT_CHG_AMT	,
+			CLT_VAL_CHG_AMT	,
+			CLT_TAX_AMT	,
+			CLT_AGT_CHG_AMT	,
+			CLT_CRR_CHG_AMT	,
+			CLT_TTL_CHG_AMT	,
+			ISS_DT	,
+			ISS_LOC_NM	,
+			OFC_PORT_CD	,
+			OFC_DESI_CD	,
+			CO_DESI_CD	,
+			PART_ID	,
+			PART_CD	,
+			PART_PORT_CD	,
+			CSTMS_CNT_CD	,
+			HAWB_NO	,
+			HAWB_ORG_PORT_CD	,
+			HAWB_DEST_PORT_CD	,
+			HAWB_PIEC_QTY	,
+			HAWB_WGT_CD	,
+			HAWB_WGT	,
+			<!-- HAWB_GDS_DESC	, -->
+			DOC_STS_CD	,
+			RGST_USRID	,
+			RGST_TMS	,
+			MODI_USRID	,
+			MODI_TMS	
+		) VALUES (
+			#msg_no#	,
+			#intg_bl_seq#	,
+			#biz_clss_cd#	,
+			#cust_id#	,
+			#airln_cd#	,
+			#msg_tp_cd#	,
+			#awb_pfx_no#	,
+			#awb_no#	,
+			#org_port_cd#	,
+			#dest_port_cd#	,
+			#piec_qty#	,
+			#awb_wgt_cd#	,
+			#awb_wgt#	,
+			#awb_vol_cd#	,
+			#awb_vol#	,
+			#flt_crr_cd#	,
+			#flt_no#	,
+			#flt_dy#	,
+			#n1st_crr_cd#	,
+			#shpr_nm#	,
+			#shpr_addr#	,
+			#shpr_cty_nm#	,
+			#shpr_cnt_cd#	,
+			#cnee_nm#	,
+			#cnee_addr#	,
+			#cnee_cty_nm#	,
+			#cnee_cnt_cd#	,
+			#agt_iata_cd#	,
+			#agt_nm#	,
+			#agt_addr#	,
+			<!-- #spcl_rqst_desc# , -->
+			#ntfy_nm#	,
+			#ntfy_addr#	,
+			#ntfy_cty_nm#	,
+			#ntfy_cnt_cd#	,
+			<!-- #acct_info_desc# , -->
+			#decl_curr_cd#	,
+			#decl_chg_cd#	,
+			#decl_pay_term_cd#	,
+			#decl_crr_no#	,
+			#decl_cstms_no#	,
+			#decl_insur_no#	,
+			#rt_piec_qty#	,
+			#rt_wgt_cd#	,
+			#rt_wgt#	,
+			#rt_cd#	,
+			#rt_val#	,
+			#rt_chg_wgt#	,
+			#rt_chg_amt#	,
+			<!-- #rt_gds_desc#, -->
+			#rt_cnsl_desc#	,
+			#rt_vol_cd#	,
+			#rt_vol#	,
+			<!-- #rt_cmdt_cd# ,
+			#rt_org_cnt_cd#	  , -->
+			#ppd_wgt_chg_amt#	,
+			#ppd_val_chg_amt#	,
+			#ppd_tax_amt#	,
+			#ppd_agt_chg_amt#	,
+			#ppd_crr_chg_amt#	,
+			#ppd_ttl_chg_amt#	,
+			#clt_wgt_chg_amt#	,
+			#clt_val_chg_amt#	,
+			#clt_tax_amt#	,
+			#clt_agt_chg_amt#	,
+			#clt_crr_chg_amt#	,
+			#clt_ttl_chg_amt#	,
+			REPLACE(UPPER(CONVERT(NVARCHAR, CONVERT(DATE,#iss_dt#), 6)),' ','' ),
+			#iss_loc_nm#	,
+			#ofc_port_cd#	,
+			#ofc_desi_cd#	,
+			#co_desi_cd#	,
+			#part_id#	,
+			#part_cd#	,
+			#part_port_cd#	,
+			#cstms_cnt_cd#	,
+			#hawb_no#	,
+			#hawb_org_port_cd#	,
+			#hawb_dest_port_cd#	,
+			#hawb_piec_qty#	,
+			#hawb_wgt_cd#	,
+			#hawb_wgt#	,
+			<!-- #hawb_gds_desc#	, -->
+			#doc_sts_cd#	,
+			#rgst_usrid#	,
+			GETDATE()	,
+			#modi_usrid#	,
+			GETUTCDATE()	
+		)
+	</insert>
+	
+	<delete id="deleteTB_EDI_AWB" parameterClass="com.clt.apps.fis.edi.awb.dto.EdiAwbBlVO" >
+		DELETE TB_EDI_AWB
+		WHERE 1=1 
+		AND MSG_NO = #msg_no#
+		AND DOC_STS_CD = 'C'
+	</delete>
+	
+	<delete id="deleteEdiBlSts" parameterClass="com.clt.apps.fis.edi.cmm.dto.EdiBlStsVO" >
+		DELETE TB_EDI_BL_STS
+		WHERE 1=1 
+		AND MSG_TP_CD = 'AWB'
+		AND MSG_NO = #msg_no#
+		AND MSG_STS_CD = 'C'
+	</delete>
+	
+	<select id="selectMsgStatus" parameterClass="com.clt.apps.fis.edi.cmm.dto.EdiBlStsVO" resultClass="String">
+		/* EdiAwbSQL.xml -> selectMsgStatus */
+		SELECT MSG_STS_CD FROM TB_EDI_BL_STS
+		WHERE BL_NO = #bl_no#
+		AND MSG_TP_CD = #msg_tp_cd#
+	</select> 
+		
+	<select id="searchEdiAwbHis" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.awb.dto.EdiAwbHisVO">
+		/* serachEdiAwbHis */
+		SELECT
+	        A.MSG_NO      AS MSG_ID,
+	        A.ERR_DESC    AS ERR_MSG,
+	        A.RGST_TMS    AS SND_DT_TM,
+	        A.MODI_TMS 	  AS RCV_DT_TM,
+	        CD.CD_NM      AS MSG_STS_NM	  
+	    FROM
+	        TB_EDI_AWB A            
+	    LEFT OUTER JOIN
+	        TB_COM_CD_DTL CD 
+	            ON A.DOC_STS_CD = CD.CD_VAL
+				AND CD.COM_CD = 'E020'      
+	    WHERE
+	        1=1            
+	        AND A.INTG_BL_SEQ =  #f_intg_bl_seq# /**TB_EDI_AWB - Original BL No is not exist. Using INTG_BL_SEQ */
+	        AND A.DOC_STS_CD != 'C'         
+	    ORDER BY
+	        A.RGST_TMS  DESC  
+	</select>
+	
+		
+	<select id="selectTB_EDI_AWB" parameterClass="String" resultClass="com.clt.apps.fis.edi.awb.dto.EdiAwbBlVO">
+		/* selectTB_EDI_AWB */
+		SELECT msg_no
+				,intg_bl_seq
+				,biz_clss_cd
+				,cust_id
+				,airln_cd
+				,msg_tp_cd
+				,awb_pfx_no
+				,awb_no
+				,org_port_cd
+				,dest_port_cd
+				,piec_qty
+				,awb_wgt_cd
+				,cast(awb_wgt as decimal(15,1)) as awb_wgt
+				,awb_vol_cd
+				,cast(awb_vol as decimal(15,2)) as awb_vol
+				,flt_crr_cd
+				,flt_no
+				,( SELECT RIGHT('00' + CAST( flt_dy AS VARCHAR(2)), 2) ) as flt_dy
+				,n1st_crr_cd
+				,shpr_nm
+				,shpr_addr
+				,shpr_cty_nm
+				,shpr_cnt_cd
+				,cnee_nm
+				,cnee_addr
+				,cnee_cty_nm
+				,cnee_cnt_cd
+				,agt_iata_cd
+				,agt_nm
+				,agt_addr
+				,spcl_rqst_desc
+				,ntfy_nm
+				,ntfy_addr
+				,ntfy_cty_nm
+				,ntfy_cnt_cd
+				,acct_info_desc
+				,decl_curr_cd
+				,decl_chg_cd
+				,decl_pay_term_cd
+				,decl_crr_no
+				,decl_cstms_no
+				,decl_insur_no
+				,rt_piec_qty
+				,rt_wgt_cd
+				,cast(rt_wgt as decimal(15,1)) as rt_wgt
+				,cast(rt_chg_wgt as decimal(15,1)) as rt_chg_wgt
+				,cast(rt_chg_amt as decimal(15,2)) as rt_chg_amt
+				,rt_gds_desc
+				,rt_cnsl_desc
+				,rt_vol_cd
+				,cast(rt_vol as decimal(15,2)) as rt_vol
+				,rt_cmdt_cd
+				,rt_org_cnt_cd
+				,cast(ppd_wgt_chg_amt as decimal(15,2)) as ppd_wgt_chg_amt
+				,cast(ppd_val_chg_amt as decimal(15,2)) as ppd_val_chg_amt
+				,cast(ppd_tax_amt as decimal(15,2)) as ppd_tax_amt
+				,cast(ppd_agt_chg_amt as decimal(15,2)) as ppd_agt_chg_amt
+				,cast(ppd_crr_chg_amt as decimal(15,2)) as ppd_crr_chg_amt
+				,cast(ppd_ttl_chg_amt as decimal(15,2)) as ppd_ttl_chg_amt
+				,cast(clt_wgt_chg_amt as decimal(15,2)) as clt_wgt_chg_amt
+				,cast(clt_val_chg_amt as decimal(15,2)) as clt_val_chg_amt
+				,cast(clt_tax_amt as decimal(15,2)) as clt_tax_amt
+				,cast(clt_agt_chg_amt as decimal(15,2)) as clt_agt_chg_amt
+				,cast(clt_crr_chg_amt as decimal(15,2)) as clt_crr_chg_amt
+				,cast(clt_ttl_chg_amt as decimal(15,2)) as clt_ttl_chg_amt
+				,iss_dt
+				,iss_loc_nm
+				,ofc_port_cd
+				,ofc_desi_cd
+				,co_desi_cd
+				,part_id
+				,part_cd
+				,part_port_cd
+				,cstms_cnt_cd
+				,hawb_no
+				,hawb_org_port_cd
+				,hawb_dest_port_cd
+				,hawb_piec_qty
+				,hawb_wgt_cd
+				,cast(hawb_wgt as decimal(15,1)) as hawb_wgt
+				,hawb_gds_desc
+				,doc_sts_cd
+				,rgst_usrid
+				,rgst_tms
+				,modi_usrid
+				,modi_tms
+				,err_desc
+				,rt_cd
+				,cast(rt_val as decimal(15,2)) as rt_val
+				, (select rmk from tb_com_cd_dtl where com_cd='E022' and cd_val = awb.airln_cd) as msg_ver_no
+		FROM TB_EDI_AWB awb
+		WHERE MSG_NO = #msg_no#	
+	</select>
+
+	<select id="selectMbiInfo" parameterClass="String" resultClass="com.clt.apps.fis.edi.awb.dto.EdiAwbBlVO" >
+		/* selectMbiInfo */
+		SELECT
+  			SUBSTRING(BL.BL_NO, 1, 3)										AS AWB_PFX_NO,
+			<!-- REPLACE( SUBSTRING(BL.BL_NO, 4, LEN(BL.BL_NO)) , '-', '' )		AS AWB_NO, -->
+			REPLACE ( 	
+				REPLACE	( SUBSTRING(BL.BL_NO, 4, LEN(BL.BL_NO)) , '-', '' )		
+			, ' ', '' )														AS AWB_NO,
+            BL.POL_CD														AS ORG_PORT_CD,
+            BL.POD_CD														AS DEST_PORT_CD,
+			BL.ETD_DT_TM													AS ETD_DT,
+			BL.ETA_DT_TM													AS ETA_DT,
+			
+			BL.PCK_QTY														AS PIEC_QTY,
+            BL.GRS_WGT														AS AWB_WGT,
+			'K'																AS AWB_WGT_CD
+    	FROM TB_INTG_BL BL
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)	
+	</select>
+	
+</sqlMap>

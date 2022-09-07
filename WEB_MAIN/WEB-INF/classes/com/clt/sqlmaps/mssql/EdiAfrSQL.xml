@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="edi.afr">
+	
+	<!--해운. OnBoard Date, 편명으로 BL 정보를 조회함   -->
+	<select id="selectAfrBLList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.afr.dto.EdiAfrBlInfoVO">
+		/*	EdiAfrSQL.xml -> selectAfrBLList */
+    	SELECT    hbl.intg_bl_seq  AS intg_bl_seq
+						, hbl.bl_no        AS hbl_no
+						, mbl.intg_bl_seq  AS intg_mbl_seq
+						, mbl.ref_no
+						, mbl.bl_no        AS mbl_no
+						, hbl.obrd_dt_tm   AS obrd_dt_tm
+						, afr_sts.rsk_ass_cd
+						, afr_sts.mtch_sts_cd
+						, CASE WHEN edi_mbl.msg_id is null THEN shpr.trdp_cd
+						                                   ELSE edi_shpr.pty_id END AS shpr_trdp_cd
+						, UPPER(CASE WHEN edi_mbl.msg_id is null THEN shpr.trdp_nm
+						                                   ELSE edi_shpr.pty_nm END) AS shpr_trdp_nm
+						, UPPER(CASE WHEN edi_mbl.msg_id is null THEN rtrim(ltrim(REPLACE(REPLACE(trdp_shpr.lgl_addr, char(13)+char(10), ' '),char(10), ' ')))
+						                                   ELSE edi_shpr.pty_addr1 + edi_shpr.pty_addr2 + edi_shpr.pty_addr3 END) AS shpr_trdp_addr
+		            	, ''    				   AS shpr_trdp_st1
+		            	, ''                    AS shpr_trdp_st2
+		            	, ''                    AS shpr_trdp_cty_nm
+						, CASE WHEN edi_mbl.msg_id is null THEN trdp_shpr.rep_zip
+						                                   ELSE edi_shpr.zip_cd END AS shpr_trdp_zip_cd  
+		           		, CASE WHEN edi_mbl.msg_id is null THEN trdp_shpr.cnt_cd
+		           		                                   ELSE edi_shpr.cnt_cd END AS shpr_trdp_cnt_cd
+		           		, CASE WHEN edi_mbl.msg_id is null THEN (SELECT pic_phn FROM tb_trdp_cntc_pson pson WHERE pson.trdp_cd = trdp_shpr.trdp_cd and pson.DELT_FLG = 'N' and pson.REP_FLG = 'Y' )
+						                                   ELSE edi_shpr.pty_phn_no END AS shpr_trdp_phn                                     
+						, CASE WHEN edi_mbl.msg_id is null THEN cnee.trdp_cd
+						                                   ELSE edi_cnee.pty_id END AS cnee_trdp_cd
+						, UPPER(CASE WHEN edi_mbl.msg_id is null THEN cnee.trdp_nm
+						                                   ELSE edi_cnee.pty_nm END) AS cnee_trdp_nm
+						, UPPER(CASE WHEN edi_mbl.msg_id is null THEN rtrim(ltrim(REPLACE(REPLACE(trdp_cnee.lgl_addr, char(13)+char(10), ' '),char(10), ' ')))
+						                                   ELSE edi_cnee.pty_addr1 + edi_cnee.pty_addr2 + edi_cnee.pty_addr3 END) AS cnee_trdp_addr
+						, ''    				   AS cnee_trdp_st1
+		            	, ''                    AS cnee_trdp_st2
+		            	, ''                    AS cnee_trdp_cty_nm
+		            	, CASE WHEN edi_mbl.msg_id is null THEN trdp_cnee.rep_zip
+		            	                                   ELSE edi_cnee.zip_cd END AS cnee_trdp_zip_cd 
+		           		, CASE WHEN edi_mbl.msg_id is null THEN trdp_cnee.cnt_cd
+		           		                                   ELSE edi_cnee.cnt_cd END AS cnee_trdp_cnt_cd
+						, CASE WHEN edi_mbl.msg_id is null THEN (SELECT pic_phn FROM tb_trdp_cntc_pson pson WHERE pson.trdp_cd = trdp_cnee.trdp_cd and pson.DELT_FLG = 'N' and pson.REP_FLG = 'Y' )
+						                                   ELSE edi_cnee.pty_phn_no END AS cnee_trdp_phn		           		                                   
+						, CASE WHEN edi_mbl.msg_id is null THEN ntfy.trdp_cd
+						                                   ELSE edi_ntfy.pty_id END AS ntfy_trdp_cd
+						, UPPER(CASE WHEN edi_mbl.msg_id is null THEN ntfy.trdp_nm
+						                                   ELSE edi_ntfy.pty_nm END) AS ntfy_trdp_nm
+						, UPPER(CASE WHEN edi_mbl.msg_id is null THEN rtrim(ltrim(REPLACE(REPLACE(trdp_ntfy.lgl_addr, char(13)+char(10), ' '),char(10), ' ')))
+						                                   ELSE edi_ntfy.pty_addr1 + edi_ntfy.pty_addr2 + edi_ntfy.pty_addr3 END) AS ntfy_trdp_addr
+						, ''    				   AS ntfy_trdp_st1
+		            	, ''                    AS ntfy_trdp_st2
+		            	, ''                    AS ntfy_trdp_cty_nm
+		            	, CASE WHEN edi_mbl.msg_id is null THEN trdp_ntfy.rep_zip
+		            	                                   ELSE edi_ntfy.zip_cd END AS ntfy_trdp_zip_cd   
+		           		, CASE WHEN edi_mbl.msg_id is null THEN trdp_ntfy.cnt_cd
+		           		                                   ELSE edi_ntfy.cnt_cd END AS ntfy_trdp_cnt_cd
+						, CASE WHEN edi_mbl.msg_id is null THEN (SELECT pic_phn FROM tb_trdp_cntc_pson pson WHERE pson.trdp_cd = trdp_ntfy.trdp_cd and pson.DELT_FLG = 'N' and pson.REP_FLG = 'Y' )
+						                                   ELSE edi_ntfy.pty_phn_no END AS ntfy_trdp_phn		           		                                   
+						, CASE WHEN edi_mbl.msg_id is null THEN hbl.etd_dt_tm    
+						                                   ELSE edi_mbl.etd_dt END AS etd_dt_tm
+						, CASE WHEN edi_mbl.msg_id is null THEN '+0000'
+						                                   ELSE edi_mbl.etd_tmzn_val END AS etd_tmzn_val
+						, CASE WHEN edi_mbl.msg_id is null THEN '0000'
+						                                   ELSE edi_mbl.etd_tm END AS etd_tm     		    						                                   
+						, CASE WHEN edi_mbl.msg_id is null THEN hbl.eta_dt_tm
+						                                   ELSE edi_mbl.eta_dt END AS eta_dt_tm
+						, hbl.pol_cd 	  AS org_pol_cd
+						, CASE WHEN edi_mbl.msg_id is null THEN pol.un_loc_cd
+						                                   ELSE edi_mbl.pol_cd END AS org_un_pol_cd
+		            	, CASE WHEN edi_mbl.msg_id is null THEN SUBSTRING(hbl.pol_nm, 1, 20)
+		            	                                   ELSE SUBSTRING(edi_mbl.pol_nm, 1, 20) END AS org_pol_nm
+						, CASE WHEN edi_mbl.msg_id is null THEN isnull(ts_port.un_loc_cd,pol.un_loc_cd)
+						                                   ELSE edi_mbl.ts_port_cd END AS un_pol_cd
+						, CASE WHEN edi_mbl.msg_id is null THEN pod.un_loc_cd
+						                                   ELSE edi_mbl.pod_cd END AS un_pod_cd
+						, CASE WHEN edi_mbl.msg_id is null THEN del.un_loc_cd
+						                                   ELSE edi_hbl.del_cd END AS un_del_cd
+						, hbl.pol_cd       AS pol_cd
+						, hbl.pod_cd       AS pod_cd
+						, hbl.del_cd       AS del_cd
+						, CASE WHEN edi_mbl.msg_id is null THEN SUBSTRING(isnull(ts_port.loc_nm,hbl.pol_nm), 1, 20)
+														   ELSE edi_mbl.ts_port_nm END AS pol_nm
+						, CASE WHEN edi_mbl.msg_id is null THEN SUBSTRING(hbl.pod_nm, 1, 20)
+						                                   ELSE SUBSTRING(edi_mbl.pod_nm, 1, 20) END AS pod_nm
+						, CASE WHEN edi_mbl.msg_id is null THEN SUBSTRING(hbl.del_nm, 1, 20)
+						                                   ELSE SUBSTRING(edi_hbl.del_nm, 1, 20) END AS del_nm
+						, CASE WHEN edi_mbl.msg_id is null THEN SUBSTRING(hbl.rep_cmdt_cd, 1, 6)
+						                                   ELSE SUBSTRING(edi_cgo.hs_cd, 1, 6) END AS rep_cmdt_cd
+						, hbl.rep_cmdt_nm  AS rep_cmdt_nm
+		            	, UPPER(CASE WHEN edi_mbl.msg_id is null THEN rtrim(ltrim(REPLACE(REPLACE(hbl.desc_txt, char(13)+char(10), ' '),char(10), ' ')))
+		            	                                   ELSE edi_cgo.cgo_desc END) AS desc_txt
+		            	, UPPER(CASE WHEN edi_mbl.msg_id is null THEN rtrim(ltrim(REPLACE(REPLACE(hbl.mk_txt,char(13)+char(10), ' '), char(10), ' ')))
+		            	                                   ELSE edi_cgo.mk_no_txt END) AS mk_txt
+		            	, CASE WHEN edi_mbl.msg_id is null THEN hbl.pck_qty
+		            	                                   ELSE edi_hbl.pck_qty END AS pck_qty
+		            	, CASE WHEN edi_mbl.msg_id is null THEN hbl.pck_ut_cd
+		            	                                   ELSE edi_hbl.pck_ut_cd END AS pck_ut_cd 
+		            	, CASE WHEN edi_mbl.msg_id is null THEN CAST(ROUND(hbl.grs_wgt,3) AS FLOAT)
+		            	                                   ELSE edi_hbl.grs_wgt END AS grs_wgt
+		            	, CASE WHEN edi_mbl.msg_id is null THEN CAST(ROUND(hbl.meas,3) AS FLOAT)
+		            	                                   ELSE edi_hbl.meas_amt END AS meas
+		            	, 'KGM'                            AS wgt_ut_cd     /*  KGM: Kilogram TNE: Metric Ton LBR: Pound */
+		            	, 'MTQ'                            AS meas_ut_cd   /* MTQ: Cubic Meter FTQ: Cubic Feet BFT: Board Foot Measure (timber) */
+						, afr_sts.msg_sts_cd 
+						, ISNULL(afr_sts.cstms_rgst_flg, 'N') AS cstms_rgst_flg
+						, afr_sts.snd_dt_tm
+						, afr_sts.rcv_dt_tm
+						, ISNULL(afr_sts.hbl_cmpl_flg, 'N') AS hbl_cmpl_flg
+						, ISNULL(afr_sts.atd_cmpl_flg, 'N') AS atd_cmpl_flg
+						, UPPER(CASE WHEN edi_mbl.msg_id is null THEN vsl.call_sgn_cd
+						                                   ELSE edi_vsl.vsl_cd END) AS call_sgn_cd
+						, CASE WHEN edi_mbl.msg_id is null THEN hbl.trnk_vsl_cd
+						                                   ELSE edi_vsl.vsl_cd END AS trnk_vsl_cd
+						, UPPER(CASE WHEN edi_mbl.msg_id is null THEN hbl.trnk_vsl_nm
+						                                   ELSE edi_vsl.vsl_nm END) AS trnk_vsl_nm
+						, UPPER(CASE WHEN edi_mbl.msg_id is null THEN hbl.trnk_voy
+						                                   ELSE edi_vsl.voy_no END) AS trnk_voy_no   
+						, lnr.trdp_nm AS lnr_trdp_nm
+						, UPPER(CASE WHEN edi_mbl.msg_id is null THEN lnr_trdp.scac_cd
+						                                   ELSE edi_mbl.crr_scac_cd END) AS lnr_scac_cd
+						, CASE WHEN edi_mbl.msg_id is null THEN vsl.cnt_cd
+						                                   ELSE edi_vsl.vsl_cnt_cd END AS vsl_cnt_cd
+						, (select count(*) from tb_cntr_list where intg_bl_seq = hbl.intg_bl_seq AND delt_flg = 'N' and ISNULL(CNTR_NO,'') !='' ) as cntr_cnt
+						, (select count(*) from tb_cntr_list where intg_bl_seq = hbl.intg_bl_seq AND delt_flg = 'N' and ISNULL(CNTR_NO,'') ='' ) as cntr_blank_cnt
+						, edi_cgo.imdg_cd
+						, edi_cgo.undg_no     
+		  FROM  tb_intg_bl mbl
+		  JOIN  tb_add_info_bnd bnd
+			ON  mbl.intg_bl_seq = bnd.intg_bl_seq     AND bnd.delt_flg = 'N'
+		  JOIN  tb_intg_bl_rlt rlt
+			ON  rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND rlt.delt_flg = 'N'
+		  JOIN  tb_intg_bl hbl
+			ON  hbl.intg_bl_seq = rlt.intg_bl_seq    AND  hbl.delt_flg = 'N'
+		  JOIN  tb_add_info_bnd hblbnd
+			ON  hbl.intg_bl_seq = hblbnd.intg_bl_seq AND hblbnd.delt_flg = 'N'
+		  JOIN tb_loc pol      
+            ON pol.loc_cd = hbl.pol_cd AND pol.delt_flg = 'N'   	
+          JOIN tb_loc pod      
+            ON pod.loc_cd = hbl.pod_cd AND pod.delt_flg = 'N'   	  
+          LEFT OUTER JOIN tb_loc del      
+            ON del.loc_cd = hbl.del_cd AND del.delt_flg = 'N'     
+          LEFT OUTER JOIN  tb_loc ts_port ON ts_port.loc_cd = hblbnd.ts1_port_cd AND ts_port.delt_flg = 'N'      
+		  LEFT OUTER JOIN TB_BL_PRNR shpr
+			ON hbl.intg_bl_seq = shpr.intg_bl_seq AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'
+		  LEFT OUTER JOIN TB_TRDP trdp_shpr                         
+            ON trdp_shpr.trdp_cd = shpr.trdp_cd 
+		  LEFT OUTER JOIN TB_BL_PRNR cnee
+			ON hbl.intg_bl_seq = cnee.intg_bl_seq AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+		  LEFT OUTER JOIN TB_TRDP trdp_cnee                         
+            ON trdp_cnee.trdp_cd = cnee.trdp_cd
+		  LEFT OUTER JOIN TB_BL_PRNR ntfy
+			ON hbl.intg_bl_seq = ntfy.intg_bl_seq AND ntfy.bl_trdp_tp_cd = 'N01' AND ntfy.delt_flg = 'N'
+		  LEFT OUTER JOIN TB_TRDP trdp_ntfy                         
+            ON trdp_ntfy.trdp_cd = ntfy.trdp_cd
+		 LEFT OUTER JOIN TB_BL_PRNR lnr
+			ON hbl.intg_bl_seq = lnr.intg_bl_seq AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+		 LEFT OUTER JOIN TB_TRDP lnr_trdp
+			ON lnr_trdp.trdp_cd = lnr.trdp_cd
+		 LEFT OUTER JOIN tb_vsl vsl
+		    ON hbl.trnk_vsl_cd = vsl.vsl_cd
+		 LEFT OUTER JOIN TB_EDI_BL_STS afr_sts
+			ON afr_sts.bl_no = hbl.bl_no AND msg_tp_cd = 'AFR' 
+	     LEFT OUTER JOIN tb_edi_cstms_vsl edi_vsl
+	        ON afr_sts.msg_no = edi_vsl.msg_id 
+		 LEFT OUTER JOIN tb_edi_cstms_mbl edi_mbl          
+		    ON afr_sts.msg_no = edi_mbl.msg_id AND mbl.bl_no = edi_mbl.mbl_no 
+		 LEFT OUTER JOIN tb_edi_cstms_hbl edi_hbl          
+		    ON afr_sts.msg_no = edi_hbl.msg_id AND hbl.bl_no = edi_hbl.hbl_no
+		 LEFT OUTER JOIN tb_edi_cstms_bl_cntr_cgo edi_cgo        
+		    ON edi_hbl.msg_id = edi_cgo.msg_id AND hbl.bl_no = edi_hbl.hbl_no	
+		 LEFT OUTER JOIN tb_edi_cstms_bl_pty edi_shpr
+		    ON edi_hbl.msg_id = edi_shpr.msg_id AND edi_hbl.hbl_no = edi_shpr.bl_no AND edi_shpr.pty_id_tp_cd = 'Shipper'
+		 LEFT OUTER JOIN tb_edi_cstms_bl_pty edi_cnee
+		    ON edi_hbl.msg_id = edi_cnee.msg_id AND edi_hbl.hbl_no = edi_cnee.bl_no AND edi_cnee.pty_id_tp_cd = 'Consignee'
+		 LEFT OUTER JOIN tb_edi_cstms_bl_pty edi_ntfy
+		    ON edi_hbl.msg_id = edi_ntfy.msg_id AND edi_hbl.hbl_no = edi_ntfy.bl_no AND edi_ntfy.pty_id_tp_cd = 'Notify1'  
+		WHERE mbl.biz_clss_cd = 'M'                 
+		   AND mbl.air_sea_clss_cd = 'S' 
+		   AND bnd.bnd_clss_cd = 'O'     
+		   AND mbl.bl_no != '' 
+		   <isNull property="f_bl_no">
+		   		<isNull property="f_mbl_no">
+				   AND substring(isnull(pol.un_loc_cd, ''), 1, 2) != 'JP'  /* POL can't be Japan'*/
+				   AND (SUBSTRING((CASE 
+												WHEN edi_mbl.msg_id is null THEN pod.un_loc_cd                                          
+												ELSE edi_mbl.pod_cd 
+										 	  END), 1, 2) = 'JP'    
+							OR
+					 		SUBSTRING( ts_port.un_loc_cd, 1, 2) = 'JP' /* POD or TS should be Japan'*/
+						   )
+					<isNotNull property="f_etd_str_dt">
+		          		<isNotNull property="f_etd_end_dt">
+		           			AND hbl.etd_dt_tm BETWEEN #f_etd_str_dt# AND #f_etd_end_dt#
+		           		</isNotNull>
+		           </isNotNull>            
+		            <isNotNull property="f_eta_str_dt">
+		          		<isNotNull property="f_eta_end_dt">
+		          			AND hbl.eta_dt_tm BETWEEN #f_eta_str_dt# AND #f_eta_end_dt#           			
+		           		</isNotNull>
+		           </isNotNull>
+			   </isNull>
+  			</isNull>
+		   <isNotNull property="f_bl_no">
+                  AND  hbl.bl_no LIKE #f_bl_no#
+           </isNotNull>
+           <isNotNull property="f_mbl_no">
+                  AND  mbl.bl_no LIKE #f_mbl_no#
+           </isNotNull>                      
+           <isNotNull property="f_lnr_trdp_cd">
+                  AND  hbl.carr_trdp_cd1 LIKE #f_lnr_trdp_cd#
+           </isNotNull>
+           <isNotNull property="f_trnk_vsl_cd">
+                  AND  hbl.trnk_vsl_cd = #f_trnk_vsl_cd#
+           </isNotNull>
+           <isNotNull property="f_trnk_vsl_nm">
+                  AND  hbl.trnk_vsl_nm LIKE '%' + #f_trnk_vsl_nm# + '%'
+           </isNotNull>
+           <isNotNull property="f_trnk_voy_no">
+                  AND  hbl.trnk_voy = #f_trnk_voy_no#
+           </isNotNull>
+           <isNotNull property="f_msg_sts_cd">
+                  AND  afr_sts.msg_sts_cd = #f_msg_sts_cd#
+           </isNotNull>
+           <isNotNull property="f_hbl_cmpl_flg">
+                  AND  ISNULL(afr_sts.hbl_cmpl_flg, 'N') = #f_hbl_cmpl_flg#
+           </isNotNull>
+           <isNotNull property="pol_cd">
+                  AND  hbl.POL_CD = #pol_cd#
+           </isNotNull>
+           <isNotNull property="f_pod_cd">
+                  AND  hbl.pod_cd = #f_pod_cd#
+           </isNotNull>
+           <isNotNull property="f_pod_nm">
+                  AND  hbl.pod_nm = #f_pod_nm#
+           </isNotNull>
+		ORDER BY  hbl.etd_dt_tm desc
+				, mbl.bl_no
+				, hbl.bl_no
+	</select>
+	
+	<!-- EDI 전문 PK를 생성함   -->
+	<select id="selectEdiCreationPK" resultClass="Integer">
+		/* EdiAfrSQL.xml -> selectEdiCreationPK */
+		SELECT ISNULL(MAX(edi_cre_seq),0 )+1 AS edi_cre_seq FROM tb_edi_hdr
+	</select>
+
+	<!-- EDI Hearder 테이블 정보입력   -->
+	<insert id="insertEDIHeader" parameterClass="HashMap">
+		/* EdiAfrSQL.xml -> insertEDIHeader */
+		INSERT INTO tb_edi_hdr (  
+			edi_cre_seq,  cstm_edi_cd,          intg_bl_seq,
+		    edi_msg_tp,   air_sea_clss_cd,      bnd_clss_cd,    mrn,    
+			edi_sts,      workday,              vsl_cd,         flt_no,  
+			rgst_usrid,   rgst_ofc_cd,          rgst_tms,
+			modi_usrid,   modi_ofc_cd,          modi_tms, delt_flg        
+		)VALUES(
+            #edi_cre_seq#,  #cstm_edi_cd#,      #intg_bl_seq#,
+            #edi_msg_tp#,   #air_sea_clss_cd#,  #bnd_clss_cd#,  #mrn#,
+            #edi_sts#,      #workday#,          #vsl_cd#,       #voyage#, 
+            #proc_usrid#,   #proc_ofccd#,       getDate(),         
+            #proc_usrid#,   #proc_ofccd#,       GETUTCDATE(), 'N'
+		)
+	</insert>
+	
+	<!--AFR EDI전문 생성시 필요한 정보를 조회한다.   -->
+	<select id="selectBlCntr" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.afr.dto.EdiAfrCntrVO">
+		/* EdiAfrSQL.xml -> selectBlCntr */
+		SELECT	cntr_no
+		      		, '5'       AS cntr_fm_ind
+		      		, afr_cntr_sz_cd      AS cntr_sz_cd
+		      		, afr_cntr_tp_cd      AS cntr_tp_cd
+		      		, '2'      AS cntr_supl_cd
+		      		, ams_cntr_cd as cntr_tpsz_cd
+		      		, seal_no1
+		      		, seal_no2
+		      		, seal_no3
+		  FROM tb_cntr_list a, tb_cntr_tpsz b
+		WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		    AND a.cntr_tpsz_cd = b.cntr_tpsz_cd
+    </select>	
+    
+	    <!--AFR EDI전문 생성시 필요한 정보를 조회한다.   -->
+    <select id="selectBlInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.afr.dto.EdiAfrInfoVO">
+    	/* EdiAfrSQL.xml -> selectBlInfo */
+		SELECT
+		          hbl.hbl_bl_seq        AS hbl_bl_seq
+		        , hbl.mbl_bl_seq        AS mbl_bl_seq
+		        , hbl.hbl_no            AS hbl_no
+		        , hbl.mbl_no            AS mbl_no
+		        , hbl.trnk_vsl_cd        AS vsl_cd
+		        , hbl.vsl_nm            AS vsl_nm
+		        , hbl.vsl_cnt_cd        AS vsl_cnt_cd
+		        , hbl.voyage            AS voyage
+		        , hbl.pol_cd            AS pol_cd
+		        , hbl.pol_nm            AS pol_nm
+		        , hbl.pol_sfx           AS pol_sfx
+		        , hbl.etd_dt            AS etd_dt
+		        , hbl.etd_tm            AS etd_tm
+		        , hbl.gmt_time_gap      AS gmt_time_gap
+		        , hbl.app_area_ind      AS app_area_ind
+		        , hbl.pod_cd            AS pod_cd
+		        , hbl.pod_sfx           AS pod_sfx
+		        , hbl.pod_eta           AS pod_eta
+		        , hbl.org_pol_cd        AS org_pol_cd
+		        , hbl.pol_nm            AS org_pol_nm
+		        , hbl.del_cd            AS del_cd
+		        , hbl.del_nm            AS del_nm
+		        , hbl.goods_desc        AS goods_desc
+		        , hbl.goods_hs_cd       AS goods_hs_cd
+		        , hbl.mark_no           AS mark_no
+		        , hbl.pkg_qty           AS pkg_qty
+		        , hbl.pkg_cd            AS pkg_cd
+		        , hbl.tot_wgt_qty       AS tot_wgt_qty
+		        , hbl.tot_wgt_cd        AS tot_wgt_cd
+		        , hbl.net_wgt_qty       AS net_wgt_qty
+		        , hbl.net_wgt_cd        AS net_wgt_cd
+		        , hbl.mea_qty           AS mea_qty
+		        , hbl.mea_cd            AS mea_cd
+		        , hbl.org_cnt_cd        AS org_cnt_cd
+		        , hbl.dgs_imo_cd        AS dgs_imo_cd
+		        , hbl.dgs_imdg_cd       AS dgs_imdg_cd
+		        , hbl.dgs_un_no         AS dgs_un_no
+		        , hbl.freight           AS freight
+		        , hbl.freight_curr_cd   AS freight_curr_cd
+		        , hbl.value             AS value
+		        , hbl.value_curr_cd     AS value_curr_cd
+		        , hbl.temp_dsc_ind      AS temp_dsc_ind
+		        , hbl.temp_dsc_reason   AS temp_dsc_reason
+		        , hbl.temp_dsc_dur      AS temp_dsc_dur
+		        , hbl.it_etd            AS it_etd
+		        , hbl.it_eta            AS it_eta
+		        , hbl.it_mode           AS it_mode
+		        , hbl.it_arr_cd         AS it_arr_cd
+		        , hbl.it_arr_name       AS it_arr_name
+		        , hbl.remark            AS remark
+		        , hbl.mrn               AS mrn
+		        , call_sgn_cd
+		        , shpr_trdp_nm               
+        	  	, shpr_trdp_add              
+        	 	, shpr_trdp_street1          
+        	  	, shpr_trdp_street2          
+        	    , shpr_trdp_city              
+        	  	, shpr_trdp_cnt_name      
+        	    , shpr_trdp_zip_cd          
+        	  	, shpr_trdp_cnt_cd   
+			  	, cnee_trdp_nm       
+        	  	, cnee_trdp_add
+        	  	, cnee_trdp_street1
+        	  	, cnee_trdp_street2
+        	  	, cnee_trdp_city
+        	  	, cnee_trdp_cnt_name
+        	  	, cnee_trdp_zip_cd  
+        	  	, cnee_trdp_cnt_cd   
+			  	, ntfy_trdp_nm        
+        	  	, ntfy_trdp_add       
+        	  	, ntfy_trdp_street1   
+        	  	, ntfy_trdp_street2   
+        	  	, ntfy_trdp_city       
+        	  	, ntfy_trdp_cnt_name 
+        	  	, ntfy_trdp_zip_cd     
+        	  	, ntfy_trdp_cnt_cd   
+        	  	, scac_cd as scac
+        	  	, cstms_rgst_flg
+        	  	, hbl_cmpl_flg
+		    FROM
+		        (SELECT
+		              hbl.intg_bl_seq                                                   AS hbl_bl_seq
+		            , mbl.intg_bl_seq                                                   AS mbl_bl_seq
+		            , hbl.bl_no                                                         AS hbl_no
+		            , mbl.bl_no                                                         AS mbl_no
+		            , hbl.trnk_vsl_cd                                                  
+		            , (SELECT call_sgn_cd FROM tb_vsl WHERE vsl_cd = hbl.trnk_vsl_cd)   AS call_sgn_cd
+		            , hbl.trnk_vsl_nm                                                   AS vsl_nm
+		            , (SELECT cnt_cd      FROM tb_vsl WHERE vsl_cd = hbl.trnk_vsl_cd)   AS vsl_cnt_cd
+		            , hbl.trnk_voy                                                      AS voyage
+		            , cnee.trdp_cd                                                      AS trdp_cd
+		            , (SELECT un_loc_cd FROM tb_loc WHERE loc_cd = hbl.pol_cd)          AS pol_cd
+		            , hbl.pol_nm                                                        AS pol_nm
+		            , ''                                                                AS pol_sfx
+		            , substring(hbl.etd_dt_tm, 1, 8)                                    AS etd_dt
+		            , '0000'                                                            AS etd_tm
+		            , '00000'                                                           AS gmt_time_gap
+		            , ''                                                                AS app_area_ind
+		            , (SELECT un_loc_cd FROM tb_loc WHERE loc_cd = hbl.pod_cd)          AS pod_cd
+		            , ''                                                                AS pod_sfx
+		            , substring(hbl.eta_dt_tm, 1, 8)                                    AS pod_eta
+		            , (SELECT un_loc_cd FROM tb_loc WHERE loc_cd = hbl.pol_cd)  AS org_pol_cd
+		            , hbl.pol_nm                                                        AS org_pol_nm
+		            , (SELECT un_loc_cd FROM tb_loc WHERE loc_cd = hbl.del_cd) AS del_cd
+		            , hbl.del_nm                                                        AS del_nm
+		            , hbl.desc_txt    													AS goods_desc
+		            , substring(hbl.rep_cmdt_cd, 1, 6)                                  AS goods_hs_cd
+		            , hbl.mk_txt                                                             AS mark_no
+		            , hbl.pck_qty                                                       AS pkg_qty
+		            , hbl.pck_ut_cd                                                     AS pkg_cd
+		            , CAST(ROUND(hbl.grs_wgt,3) AS FLOAT)          AS tot_wgt_qty
+		            , 'KGM'                                                 			AS tot_wgt_cd     /*  KGM: Kilogram TNE: Metric Ton LBR: Pound */
+		            , ''                                                                AS net_wgt_qty
+		            , ''                                                                AS net_wgt_cd
+		            , CAST(ROUND(hbl.meas,3) AS FLOAT)                 AS mea_qty
+		            , 'MTQ'                                                    		AS mea_cd                     /* MTQ: Cubic Meter FTQ: Cubic Feet BFT: Board Foot Measure (timber) */
+		            , ''                                                                AS org_cnt_cd
+		            , ''                                                                AS dgs_imo_cd
+		            , ''                                                                AS dgs_imdg_cd
+		            , ''                                                                AS dgs_un_no
+		            , ''                                                                AS freight
+		            , ''                                                                AS freight_curr_cd
+		            , ''                                                                AS value
+		            , ''                                                                AS value_curr_cd
+		            , ''                                                                AS temp_dsc_ind
+		            , ''                                                                AS temp_dsc_reason
+		            , ''                                                                AS temp_dsc_dur
+		            , ''                                                                AS it_etd
+		            , ''                                                                AS it_eta
+		            , ''                                                                AS it_mode
+		            , ''                                                                AS it_arr_cd
+		            , ''                                                                AS it_arr_name
+		            , ''                                                                AS remark
+		            , hblbnd.mrn_no                                              AS mrn  
+		             , shpr.trdp_nm                                               AS shpr_trdp_nm
+		            , shpr.trdp_addr                                              AS shpr_trdp_add
+		            , ''                                                               AS shpr_trdp_street1
+		            , ''                                                               AS shpr_trdp_street2
+		            , ''                                                               AS shpr_trdp_city
+		            , ''                                                               AS shpr_trdp_cnt_name
+		            , trdp_shpr.rep_zip                                          AS shpr_trdp_zip_cd  
+		            , trdp_shpr.cnt_cd                                           AS shpr_trdp_cnt_cd
+		            , ''                                              				  AS shpr_trdp_tel_no
+		           	, cnee.trdp_nm                                               AS cnee_trdp_nm
+		            , cnee.trdp_addr                                              AS cnee_trdp_add
+		            , ''                                                               AS cnee_trdp_street1
+		            , ''                                                               AS cnee_trdp_street2
+		            , ''                                                               AS cnee_trdp_city
+		            , ''                                                               AS cnee_trdp_cnt_name
+		            ,trdp_cnee.rep_zip                                           AS cnee_trdp_zip_cd
+		            ,trdp_cnee.cnt_cd                                            AS cnee_trdp_cnt_cd
+		            , ''                                              				  AS cnee_trdp_tel_no
+		            , ntfy.trdp_nm                                               AS ntfy_trdp_nm
+		            , ntfy.trdp_addr                                              AS ntfy_trdp_add
+		            , ''                                                               AS ntfy_trdp_street1
+		            , ''                                                               AS ntfy_trdp_street2
+		            , ''                                                               AS ntfy_trdp_city
+		            , ''                                                               AS ntfy_trdp_cnt_name
+		            , trdp_ntfy.rep_zip                                           AS ntfy_trdp_zip_cd
+		            ,trdp_ntfy.cnt_cd                                             AS ntfy_trdp_cnt_cd
+		            , ''                                              				  AS ntfy_trdp_tel_no
+		            , trdp_lnr.scac_cd
+		            , afr_sts.cstms_rgst_flg  AS cstms_rgst_flg 
+		            , afr_sts.hbl_cmpl_flg AS hbl_cmpl_flg
+		        FROM
+		            tb_intg_bl mbl       
+		        JOIN
+		            tb_add_info_bnd bnd      
+		                ON  mbl.intg_bl_seq = bnd.intg_bl_seq     
+		                AND bnd.delt_flg = 'N'            
+		        JOIN
+		            tb_intg_bl_rlt rlt      
+		                ON  rlt.rlt_intg_bl_seq = mbl.intg_bl_seq 
+		                AND rlt.delt_flg = 'N'            
+		        JOIN
+		            tb_intg_bl hbl      
+		                ON  hbl.intg_bl_seq = rlt.intg_bl_seq    
+		                AND  hbl.delt_flg = 'N'          
+		        JOIN
+		            tb_add_info_bnd hblbnd      
+		                ON  hbl.intg_bl_seq = hblbnd.intg_bl_seq 
+		                AND hblbnd.delt_flg = 'N'          
+		                
+		        LEFT OUTER JOIN
+		            TB_BL_PRNR cnee      
+		                ON hbl.intg_bl_seq = cnee.intg_bl_seq 
+		                AND cnee.bl_trdp_tp_cd = 'C01' 
+		                AND cnee.delt_flg = 'N' 
+		        LEFT OUTER JOIN
+            		TB_TRDP trdp_cnee                         
+                		ON trdp_cnee.trdp_cd = cnee.trdp_cd
+                
+		        LEFT OUTER JOIN
+		            TB_BL_PRNR shpr      
+		                ON hbl.intg_bl_seq = shpr.intg_bl_seq 
+		                AND shpr.bl_trdp_tp_cd = 'S01' 
+		                AND shpr.delt_flg = 'N'      
+		        LEFT OUTER JOIN
+            		TB_TRDP trdp_shpr                         
+                		ON trdp_shpr.trdp_cd = shpr.trdp_cd 
+                
+		        LEFT OUTER JOIN
+		            TB_BL_PRNR ntfy      
+		                ON hbl.intg_bl_seq = ntfy.intg_bl_seq 
+		                AND ntfy.bl_trdp_tp_cd = 'N01' 
+		                AND ntfy.delt_flg = 'N'        
+		       LEFT OUTER JOIN
+            		TB_TRDP trdp_ntfy                         
+                		ON trdp_ntfy.trdp_cd = ntfy.trdp_cd  
+                		
+               LEFT OUTER JOIN
+		            TB_BL_PRNR lnr      
+		                ON hbl.intg_bl_seq = lnr.intg_bl_seq 
+		                AND lnr.bl_trdp_tp_cd = 'L01' 
+		                AND lnr.delt_flg = 'N'        
+		       LEFT OUTER JOIN
+            		TB_TRDP trdp_lnr                         
+                		ON trdp_lnr.trdp_cd = lnr.trdp_cd 		
+               LEFT OUTER JOIN TB_EDI_BL_STS afr_sts
+						ON afr_sts.bl_no = hbl.bl_no AND msg_tp_cd = 'AFR' 
+		        WHERE
+		            hbl.intg_bl_seq =       cast(#intg_bl_seq# as varchar)) hbl 
+		            
+    </select>	
+
+	    <!--HblCompletion 여부를 조회한다.   -->
+    <select id="selectHblCompletion" parameterClass="HashMap" resultClass="String">
+    	/* EdiAfrSQL.xml -> selectHblCompletion */
+		SELECT CASE WHEN count(hbl.intg_bl_seq) = 0 THEN 'E' ELSE '' END AS hbl_completion
+		
+        FROM
+            tb_intg_bl mbl       
+        JOIN
+            tb_add_info_bnd bnd      
+                ON  mbl.intg_bl_seq = bnd.intg_bl_seq     
+                AND bnd.delt_flg = 'N'            
+        JOIN
+            tb_intg_bl_rlt rlt      
+                ON  rlt.rlt_intg_bl_seq = mbl.intg_bl_seq 
+                AND rlt.delt_flg = 'N'            
+        JOIN
+            tb_intg_bl hbl      
+                ON  hbl.intg_bl_seq = rlt.intg_bl_seq
+                AND  hbl.delt_flg = 'N'          
+        JOIN
+            tb_add_info_bnd hblbnd
+                ON  hbl.intg_bl_seq = hblbnd.intg_bl_seq
+                AND hblbnd.delt_flg = 'N'          
+        LEFT OUTER JOIN  tb_edi_afr_rslt ebl
+                ON  hbl.intg_bl_seq = ebl.intg_bl_seq
+
+        WHERE 1 = 1
+        AND hbl.intg_bl_seq <![CDATA[ <> ]]>  cast(#intg_bl_seq# as varchar)
+        AND mbl.intg_bl_seq = #intg_mbl_seq#
+        AND (ebl.msg_rslt_sts is null or ebl.msg_rslt_sts = '')
+    </select>	
+
+    <insert id="insertEDIBody" parameterClass="HashMap">
+    	/* EdiAfrSQL.xml -> insertEDIBody */
+		INSERT INTO tb_edi_afr_rslt(
+	         msg_no
+	       , edi_cre_seq
+	       , msg_type
+	       , msg_fnc_cd
+	       , intg_bl_seq
+	       , mbl_bl_seq
+	       , hbl_completion
+	       , msg_rslt_sts
+	       , rgst_usrid
+	       , rgst_ofc_cd
+	       , rgst_tms
+	       , modi_usrid
+	       , modi_ofc_cd
+	       , modi_tms 
+	    )VALUES(
+		     #edi_msg_no#
+		   , #edi_cre_seq#
+		   , #afr_msg_type#
+		   , #afr_func_cd#
+		   , #intg_bl_seq#
+		   , #mbl_bl_seq#
+		   , #hbl_completion#
+		   , #msg_rslt_sts#
+		   , #proc_usrid#
+		   , #proc_ofccd#
+		   , getDate()
+		   , #proc_usrid#
+		   , #proc_ofccd#
+		   , GETUTCDATE()
+		)
+	</insert>
+
+	<!--전송 전문 History 작성시   -->
+	<select id="selectMkEdiSndHistPK" parameterClass="HashMap" resultClass="HashMap">
+		/* EdiAfrSQL.xml -> selectMkEdiSndHistPK */
+		SELECT  COUNT(msg_no) + 1 AS edi_snd_seq, CONVERT(VARCHAR, GETDATE(), 112) AS mkdt
+		FROM tb_edi_afr_rslt
+		WHERE 1 = 1
+		AND   convert(int, convert(char(8), rgst_tms , 112)) = CONVERT(VARCHAR, GETDATE(), 112)
+	</select>
+	
+	<update id="updateEDIBody" parameterClass="HashMap">
+		/* EdiAfrSQL.xml -> updateEDIBody */
+		UPDATE tb_edi_afr_rslt
+		SET msg_rslt_sts = #msg_rslt_sts#
+		   , modi_usrid  = #proc_usrid#
+	       , modi_ofc_cd = #proc_ofccd#
+	       , modi_tms    = GETUTCDATE()
+		WHERE msg_no = #edi_msg_no#
+	</update>
+
+	<select id="selectEdiHistory" parameterClass="HashMap" resultClass="HashMap">
+		/* EdiAfrSQL.xml -> selectEdiHistory */
+		SELECT RGST_TMS as rgst_tms
+		     , MSG_TYPE as msg_type
+		     , MSG_RSLT_STS as edi_sts
+		     , MSG_RCV_DATE as msg_rcv_date
+		     , ERR_MSG as err_msg
+		     , ERR_SOL_MSG as err_sol_msg 
+		FROM tb_edi_afr_rslt
+		WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		ORDER BY rgst_tms desc, msg_rcv_date desc
+	</select>
+
+	<update id="test" parameterClass="HashMap">
+		UPDATE tb_edi_afr_rslt
+		SET msg_rslt_sts   = #msg_rslt_sts#
+			, msg_rcv_date = #msg_rcv_date#
+			, err_msg      = #err_msg#
+			, err_sol_msg  = #err_sol_msg#
+			, modi_usrid   = 'SYSTEM'
+			, modi_tms     = GETUTCDATE()
+		WHERE msg_no       = #msg_no#
+	</update>
+	
+	<select id="searchEdiAfrValidate" parameterClass="HashMap" resultClass="HashMap">
+		/* searchEdiAfrValidate */
+		SELECT (select count(*) from tb_cntr_list cntr where cntr.intg_bl_seq = hbl.intg_bl_seq AND cntr.delt_flg = 'N') as cntr_cnt
+		  FROM tb_intg_bl hbl
+		 WHERE hbl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		   AND hbl.DELT_FLG = 'N'	
+	</select>
+	
+	<select id="selectMsgStatus" parameterClass="com.clt.apps.fis.edi.cmm.dto.EdiBlStsVO" resultClass="String">
+		/* EdiAfrSQL.xml -> selectMsgStatus */
+		SELECT MSG_STS_CD FROM TB_EDI_BL_STS
+		WHERE BL_NO = #bl_no#
+		AND MSG_TP_CD = #msg_tp_cd#
+	</select>
+
+</sqlMap>

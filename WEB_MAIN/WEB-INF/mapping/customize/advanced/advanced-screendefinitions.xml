@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### ACC Invoice Create 관련 프로그램  Start ####  -->
+    <!--  LOCAL Invoice   -->
+    <screen name="ADV_CST_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/customize/advanced/pfm/mgt/management/jsp/PFM_MGT_1030.jsp" />
+    </screen>
+    <screen name="ADV_CST_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/customize/advanced/pfm/mgt/management/jsp/PFM_MGT_1030GS.jsp" />
+    </screen>
+    <!--#### ACC Invoice Create 관련 프로그램  END ####  -->
+    
+</screen-definitions>

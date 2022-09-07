@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### ACC Invoice Create 관련 프로그램  Start ####  -->
+    
+    <!--  LOCAL Invoice   -->
+    <screen name="ACC_INV_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0010.jsp" />
+    </screen>
+    <screen name="ACC_INV_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0010GS.jsp" />
+    </screen>
+    <screen name="ACC_INV_0011GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0011GS.jsp" />
+    </screen>
+    <!--#### ACC Invoice Create 관련 프로그램  END ####  -->
+    
+    <!--  DB/CR Invoice   -->
+    <screen name="ACC_INV_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0020.jsp" />
+    </screen>
+    <screen name="ACC_INV_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0020GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_INV_0022GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0022GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_INV_0023GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0023GS.jsp" />
+    </screen>
+    
+    <!--  AP Invoice   -->
+    <screen name="ACC_INV_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0030.jsp" />
+    </screen>
+    <screen name="ACC_INV_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0030GS.jsp" />
+    </screen>
+    
+    <!--  AP Expense   -->
+    <screen name="ACC_INV_0031">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0031.jsp" />
+    </screen>
+    <screen name="ACC_INV_0031GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0031GS.jsp" />
+    </screen>
+    
+    <!--  AP Expense LIST   -->
+    <screen name="ACC_INV_0032">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0032.jsp" />
+    </screen>
+    <screen name="ACC_INV_0032GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0032GS.jsp" />
+    </screen>
+    
+    
+    
+    <!--  AP Expense OTHER BRANCH   -->
+    <screen name="ACC_INV_0033">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0033.jsp" />
+    </screen>
+    <screen name="ACC_INV_0033GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0033GS.jsp" />
+    </screen>
+    
+    <!--  AP Expense LIST OTHER BRANCH   -->
+    <screen name="ACC_INV_0034">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0034.jsp" />
+    </screen>
+    <screen name="ACC_INV_0034GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0034GS.jsp" />
+    </screen>
+    
+    <!--  AR Expense   -->
+    <screen name="ACC_INV_0035">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0035.jsp" />
+    </screen>
+    <screen name="ACC_INV_0035GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0035GS.jsp" />
+    </screen>
+    
+    <!--  Invoice List   -->
+    <screen name="ACC_INV_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0040.jsp" />
+    </screen>
+    <screen name="ACC_INV_0040GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0040GS.jsp" />
+    </screen>
+
+	<!-- #3375 [JTC]Invoice, Local Statement Form 개발 -->
+    <screen name="ACC_INV_0041" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0041.jsp" />
+    </screen>
+
+    <!--  Invoice Print   -->
+    <screen name="ACC_INV_0050">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0050.jsp" />
+    </screen>
+    
+    <!--  Invoice Batch Print   -->
+    <screen name="ACC_INV_0051" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0051.jsp" />
+    </screen>
+    <screen name="ACC_INV_0051GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0051GS.jsp" />
+    </screen>
+    
+    
+    <!--#### 통합 Invoice Create 관련 프로그램  Start ####  -->
+    <screen name="ACC_INV_0080">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0080.jsp" />
+    </screen>
+    <screen name="ACC_INV_0080GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0080GS.jsp" />
+    </screen>
+	
+    <screen name="ACC_INV_0080_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0080_1GS.jsp" />
+    </screen>
+
+	<!-- Invoice 선택 팝업   -->	
+    <screen name="ACC_INV_0081">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0081.jsp" />
+    </screen>
+	
+    <screen name="ACC_INV_0081GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0081GS.jsp" />
+    </screen>
+
+	<!-- 생성된 Combined Invoice 조회 목록   -->
+    <screen name="ACC_INV_0090">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0090.jsp" />
+    </screen>
+    <screen name="ACC_INV_0090GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0090GS.jsp" />
+    </screen>
+	
+    <!--#### 통합 Invoice Create 관련 프로그램  END ####  -->
+	
+	
+    <!--#### ACC Invoice List 관련 프로그램  Start ####  -->
+    <screen name="ACC_INV_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0020.jsp" />
+    </screen>
+    <screen name="ACC_INV_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0020GS.jsp" />
+    </screen>
+    
+    <!--#### ACC Invoice Pop 관련 프로그램  Start ####  -->
+    <screen name="ACC_INV_0021">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0021.jsp" />
+    </screen>
+    <screen name="ACC_INV_0021GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0021GS.jsp" />
+    </screen>
+    <!--#### ACC Invoice Create 관련 프로그램  END ####  -->
+    
+      <!--#### ACC Invoice Report 관련 프로그램  Start ####  -->
+    <screen name="ACC_INV_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/report/jsp/ACC_INV_0040.jsp" />
+    </screen>
+    <screen name="ACC_INV_0040GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/report/jsp/ACC_INV_0040GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_INV_0050">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/report/jsp/ACC_INV_0050.jsp" />
+    </screen>
+    <screen name="ACC_INV_0050GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/report/jsp/ACC_INV_0050GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_INV_0060">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/report/jsp/ACC_INV_0060.jsp" />
+    </screen>
+    <screen name="ACC_INV_0060GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/report/jsp/ACC_INV_0060GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_INV_0070">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/report/jsp/ACC_INV_0070.jsp" />
+    </screen>
+    <screen name="ACC_INV_0070GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/report/jsp/ACC_INV_0070GS.jsp" />
+    </screen>
+    <screen name="ACC_INV_0070_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/report/jsp/ACC_INV_0070_1GS.jsp" />
+    </screen>
+    
+    <!-- Journal History PopUp   -->
+    <screen name="ACC_INV_0100" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0100.jsp" />
+    </screen>
+    <screen name="ACC_INV_0100GS" template="templateIBSheet">
+        <parameter key="body" value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0100GS.jsp" />
+    </screen>
+    
+    
+    <!-- Invoice History PopUp   -->
+    <screen name="ACC_INV_0110" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0110.jsp" />
+    </screen>
+    <screen name="ACC_INV_0110GS" template="templateIBSheet">
+        <parameter key="body" value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0110GS.jsp" />
+    </screen>
+    <screen name="ACC_INV_0111GS" template="templateIBSheet">
+        <parameter key="body" value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0111GS.jsp" />
+    </screen>
+    <screen name="ACC_INV_0112GS" template="templateIBSheet">
+        <parameter key="body" value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0112GS.jsp" />
+    </screen>
+    <!-- #52016 e-Tax XML Download   -->
+    <screen name="ACC_INV_0120">
+        <parameter key="title" value="FIS" direct="true"/>
+        
+    </screen>
+    
+    <!--  report 2009.03.16	  -->
+	<screen name="ACC_RPT_0010">
+        <parameter key="body"    value="/apps/fis/acc/rpt/inv/jsp/ACC_RPT_0010.jsp" />
+    </screen>
+    
+    <screen name="ACC_RPT_0020">
+        <parameter key="body"    value="/apps/fis/acc/rpt/inv/jsp/ACC_RPT_0020.jsp" />
+    </screen>
+    
+    <screen name="ACC_RPT_0110">
+        <parameter key="body"    value="/apps/fis/acc/rpt/inv/jsp/ACC_RPT_0110.jsp" />
+    </screen>
+    
+    <screen name="ACC_RPT_0120">
+        <parameter key="body"    value="/apps/fis/acc/rpt/inv/jsp/ACC_RPT_0120.jsp" />
+    </screen>
+    
+    <screen name="ACC_RPT_0130">
+        <parameter key="body"    value="/apps/fis/acc/rpt/inv/jsp/ACC_RPT_0130.jsp" />
+    </screen>
+    <!-- Ajax loading -->
+    <screen name="ACC_INV_0010AJ" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0010AJ.jsp" />
+    </screen>
+    <screen name="ACC_INV_0020AJ" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0020AJ.jsp" />
+    </screen>
+    <screen name="ACC_INV_0030AJ" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0030AJ.jsp" />
+    </screen>
+    
+    <!-- Payment Verification #1428 [PATENT] 0215_12 VERIFY PAYMENT SCREEN - Last Paid Date -->
+    <screen name="ACC_INV_0130">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0130.jsp" />
+    </screen>
+    <screen name="ACC_INV_0130GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0130GS.jsp" />
+    </screen>
+    <screen name="ACC_INV_0130GS_1" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0130GS_1.jsp" />
+    </screen>
+    <screen name="ACC_INV_0130GS_2" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0130GS_2.jsp" />
+    </screen>
+    
+    <!-- #2502 [PATENT] Tax Invoice -->
+    <screen name="ACC_INV_0140">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0140.jsp" />
+    </screen>    
+    <screen name="ACC_INV_0140GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0140GS.jsp" />
+    </screen>    
+    
+    <screen name="ACC_INV_0150">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0150.jsp" />
+    </screen>   
+    <screen name="ACC_INV_0150GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/inv/invoice/jsp/ACC_INV_0150GS.jsp" />
+    </screen>           
+    
+</screen-definitions>

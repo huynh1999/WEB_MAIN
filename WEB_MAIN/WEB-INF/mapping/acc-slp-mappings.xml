@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### ACC SLIP 관련 프로그램  Start ####  -->
+    <url-mapping url="ACC_SLP_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0010GS.clt" screen="ACC_SLP_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0010HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0011GS.clt" screen="ACC_SLP_0011GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <url-mapping url="ACC_SLP_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0020GS.clt" screen="ACC_SLP_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    
+    <url-mapping url="ACC_SLP_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0030GS.clt" screen="ACC_SLP_0030GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Accounting Interface   -->
+    <url-mapping url="ACC_SLP_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0040GS.clt" screen="ACC_SLP_0040GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0040HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- TradePartner Interface   -->
+    <url-mapping url="ACC_SLP_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0050.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0050GS.clt" screen="ACC_SLP_0050GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0050HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <url-mapping url="ACC_SLP_0060.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0060HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0060.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0060GS.clt" screen="ACC_SLP_0060GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0060HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Accounting Block   -->
+    <url-mapping url="ACC_SLP_0070.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0070HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0070.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+     <url-mapping url="ACC_SLP_0070GS.clt" screen="ACC_SLP_0070GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0070HTMLAction</web-action-class>
+    </url-mapping>
+    
+     <!-- Accounting Block Maintenance  -->
+    <url-mapping url="ACC_SLP_0080.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0080HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0080.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0080GS.clt" screen="ACC_SLP_0080GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0080HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0081GS.clt" screen="ACC_SLP_0081GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0080HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0082GS.clt" screen="ACC_SLP_0082GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0080HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_SLP_0083GS.clt" screen="ACC_SLP_0083GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0080HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Year-End Processing   -->
+    <url-mapping url="ACC_SLP_0090.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0090HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0090.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+     <url-mapping url="ACC_SLP_0090GS.clt" screen="ACC_SLP_0090GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0090HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Block History -->
+    <url-mapping url="ACC_SLP_0100.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0100HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0100.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+     <url-mapping url="ACC_SLP_0100GS.clt" screen="ACC_SLP_0100GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0100HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Month Closing for VAT Declaration   -->
+    <url-mapping url="ACC_SLP_0110.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0110HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0110.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+     <url-mapping url="ACC_SLP_0110GS.clt" screen="ACC_SLP_0110GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0110HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Monthly Exchange Profit Adjustment  -->
+    <url-mapping url="ACC_SLP_0120.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0120HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_SLP_0120.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+     <url-mapping url="ACC_SLP_0120GS.clt" screen="ACC_SLP_0120GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.slp.slip.event.ACC_SLP_0120HTMLAction</web-action-class>
+    </url-mapping>
+    <event-mapping>
+        <event-class>com.clt.apps.fis.acc.slp.slip.event.AccSlipEvent</event-class>
+        <service-action-class>com.clt.apps.fis.acc.slp.slip.AccSlipSC</service-action-class>
+    </event-mapping>
+</mappings>

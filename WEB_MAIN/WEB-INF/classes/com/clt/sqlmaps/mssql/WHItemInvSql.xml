@@ -1,0 +1,2596 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="WHItemInv">
+	<typeAlias alias="TrsHistoryListVO" 	type="com.clt.apps.fis.wms.whinventory.dto.TrsHistoryListVO"/>
+	<typeAlias alias="InvAdjustListVO" 	type="com.clt.apps.fis.wms.whinventory.dto.InvAdjustListVO"/>
+	<typeAlias alias="ItemInOutSummaryListVO" 	type="com.clt.apps.fis.wms.whinventory.dto.ItemInOutSummaryListVO"/>
+	
+	<select id="searchTrsHistoryList" parameterClass="java.util.HashMap" resultClass="TrsHistoryListVO">
+	/* WHItemInv.searchTrsHistoryList */
+		SELECT * 
+		FROM 
+		(
+		 SELECT ROW_NUMBER () OVER (ORDER BY H.TRS_NO DESC) AS RN 
+			,H.TRS_NO
+			,H.TRS_TP_CD
+			,dbo.TL_GET_COMM_NM('WTT', H.TRS_TP_CD) AS TRS_TP_NM
+			,H.TRS_SEQ
+			,CONVERT(VARCHAR(19), H.TRS_LOC_DT, 121) as TRS_LOC_DT
+			,H.TRS_STS_CD
+			,dbo.TL_GET_COMM_NM('WTS', H.TRS_STS_CD) AS TRS_STS_NM
+			,HI.ITEM_CD
+			,HI.ITEM_NM
+			,HI.LOT_ID
+			,(SELECT MAX(L.LOT_ATTRIB_01) FROM TL_CTRT_CUST_ITEM_LOT L WHERE L.CTRT_NO = H.CTRT_NO AND L.ITEM_SYS_NO = HI.ITEM_SYS_NO AND L.LOT_ID = HI.LOT_ID ) AS INBOUND_DATE
+			,(SELECT MAX(L.LOT_ATTRIB_02) FROM TL_CTRT_CUST_ITEM_LOT L WHERE L.CTRT_NO = H.CTRT_NO AND L.ITEM_SYS_NO = HI.ITEM_SYS_NO AND L.LOT_ID = HI.LOT_ID ) AS LOT_NO     
+			,HI.ORI_QTY
+			,dbo.TL_GET_WH_LOC_NM(H.WH_CD, HI.ORI_WH_LOC_CD) AS ORI_WH_LOC_CD
+			,HI.TRS_QTY
+			,dbo.TL_GET_WH_LOC_NM(H.WH_CD, HI.TRS_WH_LOC_CD) AS TRS_WH_LOC_CD
+			,H.CTRT_NO
+			,dbo.TL_GET_CTRT_NM(H.CTRT_NO) AS CTRT_NM
+			,H.WH_CD
+			,dbo.TL_GET_LOC_NM(H.WH_CD) AS WH_NM
+			,H.RGST_OFC_CD
+			,dbo.TL_GET_USER_NM(H.RGST_ID) RGST_NM     
+			,HI.WIB_BK_NO AS WIB_BK_NO 
+			,(SELECT B.WOB_BK_NO FROM TL_WH_ISSU A JOIN TL_WH_ALLC B ON A.WALC_NO = B.WALC_NO WHERE A.WOB_OUT_NO = H.TRS_NO) AS OBK_NO
+			,HI.WOB_BK_NO AS LP_BKG_NO	
+		 FROM TL_WH_TRS_HST H
+			,(
+				 SELECT HST.TRS_NO
+					, LP.WOB_BK_NO
+					, HST.TRS_TP_CD
+					, HST.TRS_SEQ
+					, HST.ITEM_CD    
+					, HST.ITEM_NM    
+					, HST.LOT_ID 
+					, HST.ORI_QTY
+					, HST.ORI_WH_LOC_CD
+					, HST.TRS_QTY 
+					, HST.TRS_WH_LOC_CD
+					, HST.WIB_BK_NO
+					, HST.ITEM_SYS_NO
+				FROM TL_WH_TRS_HST_ITEM HST
+				LEFT JOIN TL_WH_LOAD_PLAN_ITEM LP
+						  ON HST.TRS_NO      = LP.LP_NO
+						 AND HST.ITEM_SYS_NO = LP.ITEM_SYS_NO
+						 AND HST.LOT_ID      = LP.LOT_ID
+						 AND HST.WH_LOC_CD   = LP.WH_LOC_CD
+						 AND HST.PO_SYS_NO   = LP.PO_SYS_NO
+						 AND HST.WIB_BK_NO   = LP.WIB_BK_NO
+				GROUP BY HST.TRS_NO
+						, LP.WOB_BK_NO
+						, HST.TRS_TP_CD
+						, HST.TRS_SEQ
+						, HST.ITEM_CD    
+						, HST.ITEM_NM    
+						, HST.LOT_ID 
+						, HST.ORI_QTY
+						, HST.ORI_WH_LOC_CD
+						, HST.TRS_QTY 
+						, HST.TRS_WH_LOC_CD
+						, HST.WIB_BK_NO
+						, HST.ITEM_SYS_NO
+			 ) AS HI
+		 WHERE 1=1
+		 AND H.TRS_NO    = HI.TRS_NO
+		 AND H.TRS_TP_CD = HI.TRS_TP_CD
+		 AND H.TRS_SEQ   = HI.TRS_SEQ
+		 AND H.CTRT_NO   = #ctrt_no#   
+		   
+		 <isNotEmpty property="wh_cd">
+		 AND H.WH_CD = #wh_cd#
+		 </isNotEmpty>  
+		                                      
+		<isNotEmpty property="fm_trs_loc_dt">	   
+		   AND H.TRS_LOC_DT &gt;=  CONVERT(DATETIME, REPLACE(#fm_trs_loc_dt#, '-', ''), 20)
+        </isNotEmpty>
+       
+	   <isNotEmpty property="to_trs_loc_dt">
+		   AND H.TRS_LOC_DT &lt;   CONVERT(DATETIME, REPLACE(#to_trs_loc_dt#, '-', ''), 20) + 1
+	   </isNotEmpty>
+      
+	   <isNotEqual property="trs_tp_cd" compareValue="ALL">	   
+		   AND H.TRS_TP_CD = #trs_tp_cd# 
+	   </isNotEqual>
+	   
+	   <isNotEmpty property="trs_no">	
+		   AND H.TRS_NO = #trs_no# 
+	   </isNotEmpty>
+	   
+	   <isNotEqual property="trs_sts_cd" compareValue="ALL">	
+		   AND H.TRS_STS_CD = #trs_sts_cd# 
+	   </isNotEqual>
+<!-- 			 //#5899 [OceanBlue-WMS] WMS inventory by Item Name -->
+	     <isEqual property="item_type" compareValue="ITEM_CD" >
+	 	  	<isNotEmpty property="item_cd">
+			   AND HI.ITEM_CD = #item_cd# 
+	 	   </isNotEmpty>
+	   </isEqual>
+		 
+		  <isEqual property="item_type" compareValue="ITEM_NM" >
+	 	  	<isNotEmpty property="item_cd">
+			   AND HI.ITEM_NM like #item_cd# + '%'
+	 	   </isNotEmpty>
+	   </isEqual>
+	   
+	   <isNotEmpty property="lot_id">	   
+		   AND HI.LOT_ID = #lot_id# 
+	   </isNotEmpty>
+       
+	    <isNotEmpty property="lot_no">
+           AND EXISTS ( SELECT 'X'
+                        FROM TL_CTRT_CUST_ITEM_LOT L
+				        WHERE  L.CTRT_NO     = H.CTRT_NO
+				           AND L.ITEM_SYS_NO = HI.ITEM_SYS_NO
+				           AND L.LOT_ID      = HI.LOT_ID
+				           AND L.LOT_ATTRIB_02 = #lot_no# ) 	
+	   </isNotEmpty>
+	   
+	    ) AS TTT <![CDATA[ WHERE TTT.RN > #beginIdx# AND TTT.RN <= #topCnt#	]]>
+	   
+		 ORDER BY TTT.TRS_NO, TTT.TRS_TP_CD, TTT.TRS_SEQ, TTT.TRS_LOC_DT, TTT.ITEM_CD	
+	</select>
+	<select id="searchTrsHistoryList_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+	/* WHItemInv.searchTrsHistoryList_CNT */
+	  SELECT COUNT(*)    
+	  FROM TL_WH_TRS_HST H
+	      ,(
+			 SELECT HST.TRS_NO
+				, LP.WOB_BK_NO
+				, HST.TRS_TP_CD
+				, HST.TRS_SEQ
+				, HST.ITEM_CD    
+				, HST.ITEM_NM    
+				, HST.LOT_ID 
+				, HST.ORI_QTY
+				, HST.ORI_WH_LOC_CD
+				, HST.TRS_QTY 
+				, HST.TRS_WH_LOC_CD
+				, HST.WIB_BK_NO
+				, HST.ITEM_SYS_NO
+			FROM TL_WH_TRS_HST_ITEM HST
+			LEFT JOIN TL_WH_LOAD_PLAN_ITEM LP
+					  ON HST.TRS_NO      = LP.LP_NO
+					 AND HST.ITEM_SYS_NO = LP.ITEM_SYS_NO
+					 AND HST.LOT_ID      = LP.LOT_ID
+					 AND HST.WH_LOC_CD   = LP.WH_LOC_CD
+					 AND HST.PO_SYS_NO   = LP.PO_SYS_NO
+					 AND HST.WIB_BK_NO   = LP.WIB_BK_NO
+			GROUP BY HST.TRS_NO
+					, LP.WOB_BK_NO
+					, HST.TRS_TP_CD
+					, HST.TRS_SEQ
+					, HST.ITEM_CD    
+					, HST.ITEM_NM    
+					, HST.LOT_ID 
+					, HST.ORI_QTY
+					, HST.ORI_WH_LOC_CD
+					, HST.TRS_QTY 
+					, HST.TRS_WH_LOC_CD
+					, HST.WIB_BK_NO
+					, HST.ITEM_SYS_NO
+			 ) AS HI
+		 WHERE H.TRS_NO = HI.TRS_NO
+		   AND H.TRS_TP_CD = HI.TRS_TP_CD
+		   AND H.TRS_SEQ = HI.TRS_SEQ
+		   AND H.CTRT_NO = #ctrt_no#    
+		   
+		 <isNotEmpty property="wh_cd">
+		 AND H.WH_CD = #wh_cd#
+		 </isNotEmpty>  
+		                                      
+		<isNotEmpty property="fm_trs_loc_dt">	   
+		   AND H.TRS_LOC_DT &gt;=  CONVERT(DATETIME, REPLACE(#fm_trs_loc_dt#, '-', ''), 20)
+        </isNotEmpty>
+       
+	   <isNotEmpty property="to_trs_loc_dt">
+		   AND H.TRS_LOC_DT &lt;   CONVERT(DATETIME, REPLACE(#to_trs_loc_dt#, '-', ''), 20) + 1
+	   </isNotEmpty>
+      
+	   <isNotEqual property="trs_tp_cd" compareValue="ALL">	   
+		   AND H.TRS_TP_CD = #trs_tp_cd# 
+	   </isNotEqual>
+	   
+	   <isNotEmpty property="trs_no">	
+		   AND H.TRS_NO = #trs_no# 
+	   </isNotEmpty>
+	   
+	   <isNotEqual property="trs_sts_cd" compareValue="ALL">	
+		   AND H.TRS_STS_CD = #trs_sts_cd# 
+	   </isNotEqual>
+<!-- 			 //#5899 [OceanBlue-WMS] WMS inventory by Item Name -->
+	   <isEqual property="item_type" compareValue="ITEM_CD" >
+	 	  	<isNotEmpty property="item_cd">
+			   AND HI.ITEM_CD = #item_cd# 
+	 	   </isNotEmpty>
+	   </isEqual>
+		 
+		  <isEqual property="item_type" compareValue="ITEM_NM" >
+	 	  	<isNotEmpty property="item_cd">
+			   AND HI.ITEM_NM like #item_cd# + '%'
+	 	   </isNotEmpty>
+	   </isEqual>
+	   
+	   <isNotEmpty property="lot_id">	   
+		   AND HI.LOT_ID = #lot_id# 
+	   </isNotEmpty>
+       
+	    <isNotEmpty property="lot_no">
+           AND EXISTS ( SELECT 'X'
+                          FROM TL_CTRT_CUST_ITEM_LOT L
+				         WHERE L.CTRT_NO = H.CTRT_NO
+				           AND L.ITEM_SYS_NO = HI.ITEM_SYS_NO
+				           AND L.LOT_ID = HI.LOT_ID
+				           AND L.LOT_ATTRIB_02 = #lot_no# ) 	
+	   </isNotEmpty>
+	 
+	</select>
+	<!-- Lap.Nguyen (S) -->
+	<!-- [InvAdjustMgmt] Inventory Adjustment -->
+	
+	<select id="searchInvAdjustList_CNT"  parameterClass="java.util.HashMap" resultClass="Integer">
+		/* WHItemInv.searchInvAdjustList */
+		 select COUNT(*) from (select V.WH_CD /*,
+		         dbo.TL_GET_LOC_NM (V.WH_CD) AS WH_NM,
+		         V.CTRT_NO,
+		         V.ITEM_CD,
+		         V.ITEM_NM,
+		         L.LOT_ATTRIB_02 AS LOT_NO,
+		         V.PO_SYS_NO,
+		         V.ITEM_SYS_NO,		         
+		         V.LOT_ID,
+		         V.WH_LOC_CD,
+		         dbo.TL_GET_WH_LOC_NM (V.WH_CD, V.WH_LOC_CD) AS WH_LOC_NM,
+		         V.IN_QTY - ISNULL (V.ALLC_QTY, 0) AS EA_QTY,
+		         <![CDATA[ 
+			     CASE WHEN ISNULL(V.IN_CBM, 0)     - ISNULL(V.ALLC_CBM, 0)     < 0 THEN 0 ELSE ISNULL(V.IN_CBM, 0)     - ISNULL(V.ALLC_CBM, 0)     END AS FR_CBM,
+			     CASE WHEN ISNULL(V.IN_CBF, 0)     - ISNULL(V.ALLC_CBF, 0)     < 0 THEN 0 ELSE ISNULL(V.IN_CBF, 0)     - ISNULL(V.ALLC_CBF, 0)     END AS FR_CBF,
+			     CASE WHEN ISNULL(V.IN_GRS_KGS, 0) - ISNULL(V.ALLC_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(V.IN_GRS_KGS, 0) - ISNULL(V.ALLC_GRS_KGS, 0) END AS FR_GRS_KGS,
+			     CASE WHEN ISNULL(V.IN_GRS_LBS, 0) - ISNULL(V.ALLC_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(V.IN_GRS_LBS, 0) - ISNULL(V.ALLC_GRS_LBS, 0) END AS FR_GRS_LBS,
+			     CASE WHEN ISNULL(V.IN_NET_KGS, 0) - ISNULL(V.ALLC_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(V.IN_NET_KGS, 0) - ISNULL(V.ALLC_NET_KGS, 0) END AS FR_NET_KGS,
+			     CASE WHEN ISNULL(V.IN_NET_LBS, 0) - ISNULL(V.ALLC_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(V.IN_NET_LBS, 0) - ISNULL(V.ALLC_NET_LBS, 0) END AS FR_NET_LBS,
+			     ]]>
+		         /*V.CTRT_NO,*/
+		         dbo.TL_GET_CTRT_NM (V.CTRT_NO) AS CTRT_NM,
+		         L.LOT_ATTRIB_01 AS INBOUND_DT,
+		         L.LOT_ATTRIB_03 AS EXP_DT,
+		         L.LOT_ATTRIB_04 AS LOT_04,
+		         L.LOT_ATTRIB_05 AS LOT_05,
+		         V.WIB_BK_NO,
+		         B.CUST_ORD_NO */
+		    FROM TL_CTRT_CUST_ITEM_LOT L,
+		         TL_CTRT_CUST_ITEM CI,
+		         TL_WH_INV_LOC V LEFT JOIN TL_WH_IB B ON V.WIB_BK_NO = B.WIB_BK_NO
+		        /* V.WIB_BK_NO = B.WIB_BK_NO(+)*/
+		   WHERE V.CTRT_NO = L.CTRT_NO
+		     AND V.ITEM_SYS_NO = L.ITEM_SYS_NO
+		     AND V.LOT_ID = L.LOT_ID
+		     AND V.CTRT_NO = CI.CTRT_NO
+		     AND V.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		     AND V.KIT_FLG = 'N' /*KITTING ITEM 제외*/
+		     <![CDATA[ AND V.IN_QTY - ISNULL (V.ALLC_QTY, 0) > 0]]>    /* 조정가능한 재고 */
+	         AND EXISTS (SELECT 'X'
+	                       FROM TL_WH_LOC WL, TL_WH_PROP WP
+	                      WHERE WL.LOC_CD     = WP.LOC_CD
+	                        AND WL.WH_LOC_CD  = V.WH_LOC_CD
+	                        AND WL.LOC_CD 	  = V.WH_CD
+	                        AND WL.USE_FLG    = 'Y'
+	                        AND WL.PROP_CD    = WP.PROP_CD
+	                        AND WP.ADJUST_FLG = 'Y'
+	                        AND WP.USE_FLG    = 'Y')            /* 조정 가능한 LOCATION */		
+	                        
+	          <isNotEmpty property="wh_cd">
+	          AND V.WH_CD = #wh_cd#                   /* WAREHOUSE CODE */
+	          </isNotEmpty>                    
+		     
+		     AND V.CTRT_NO = #ctrt_no#               /* CONTRACT NO */		     
+     <isNotEmpty property="cond_no">
+     	<isEqual property="cond_no_tp" compareValue="WIB_BK_NO">
+     	    AND V.WIB_BK_NO = #cond_no#             /* IN BOOKING NO */
+     	</isEqual>
+     	<isEqual property="cond_no_tp" compareValue="CUST_ORD_NO">
+		    AND B.CUST_ORD_NO = #cond_no#           /* CUST ORDER NO */
+     	</isEqual>     	
+     </isNotEmpty>
+	 <isNotEmpty property="item_cd">
+             AND V.ITEM_CD = #item_cd#               /* ITEM CODE */
+     </isNotEmpty>   
+	 <isNotEmpty property="prop_no">
+	 	<isEqual property="prop_no_tp" compareValue="LOT_NO">
+		     AND L.LOT_ATTRIB_02 = #prop_no#         /* LOT NO */
+     	</isEqual>
+     	<isEqual property="prop_no_tp" compareValue="LOT_ID">
+		     AND V.LOT_ID = #prop_no#                /* LOT ID */
+     	</isEqual>
+     	<isEqual property="prop_no_tp" compareValue="LOT_04">
+		     AND L.LOT_ATTRIB_04 = #prop_no#         /* LOT 04 */
+     	</isEqual>
+     	<isEqual property="prop_no_tp" compareValue="LOT_05">
+		     AND L.LOT_ATTRIB_05 = #prop_no#         /* LOT 05 */
+     	</isEqual>
+     </isNotEmpty>
+     <isNotEmpty property="prop_date_fm">
+     	<isEqual property="prop_date_tp" compareValue="INBOUND_DT">
+		     AND L.LOT_ATTRIB_01 BETWEEN replace(#prop_date_fm#,'-','') AND replace(#prop_date_to#,'-','')    /* INBOUND DATE */
+     	</isEqual>
+        <isEqual property="prop_date_tp" compareValue="EXP_DT">
+		     AND L.LOT_ATTRIB_03 BETWEEN replace(#prop_date_fm#,'-','') AND replace(#prop_date_to#,'-','')    /* EXPIRATION DATE */
+     	</isEqual>	
+     </isNotEmpty>  
+     
+      ) as TTT 
+	</select>
+	
+	<select id="searchInvAdjustList"  parameterClass="java.util.HashMap" resultClass="InvAdjustListVO">
+		/* WHItemInv.searchInvAdjustList */
+		 select * from (SELECT ROW_NUMBER () OVER (ORDER BY V.CTRT_NO DESC) AS RN ,V.WH_CD,
+		         dbo.TL_GET_LOC_NM (V.WH_CD) AS WH_NM,
+		         V.CTRT_NO,
+		         V.ITEM_CD,
+		         V.ITEM_NM,
+		         L.LOT_ATTRIB_02 AS LOT_NO,
+		         V.PO_SYS_NO,
+		         V.ITEM_SYS_NO,		         
+		         V.LOT_ID,
+		         V.WH_LOC_CD,
+		         dbo.TL_GET_WH_LOC_NM (V.WH_CD, V.WH_LOC_CD) AS WH_LOC_NM,
+		         V.IN_QTY - ISNULL (V.ALLC_QTY, 0) AS EA_QTY,
+		         <![CDATA[ 
+			     CASE WHEN ISNULL(V.IN_CBM, 0)     - ISNULL(V.ALLC_CBM, 0)     < 0 THEN 0 ELSE ISNULL(V.IN_CBM, 0)     - ISNULL(V.ALLC_CBM, 0)     END AS FR_CBM,
+			     CASE WHEN ISNULL(V.IN_CBF, 0)     - ISNULL(V.ALLC_CBF, 0)     < 0 THEN 0 ELSE ISNULL(V.IN_CBF, 0)     - ISNULL(V.ALLC_CBF, 0)     END AS FR_CBF,
+			     CASE WHEN ISNULL(V.IN_GRS_KGS, 0) - ISNULL(V.ALLC_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(V.IN_GRS_KGS, 0) - ISNULL(V.ALLC_GRS_KGS, 0) END AS FR_GRS_KGS,
+			     CASE WHEN ISNULL(V.IN_GRS_LBS, 0) - ISNULL(V.ALLC_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(V.IN_GRS_LBS, 0) - ISNULL(V.ALLC_GRS_LBS, 0) END AS FR_GRS_LBS,
+			     CASE WHEN ISNULL(V.IN_NET_KGS, 0) - ISNULL(V.ALLC_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(V.IN_NET_KGS, 0) - ISNULL(V.ALLC_NET_KGS, 0) END AS FR_NET_KGS,
+			     CASE WHEN ISNULL(V.IN_NET_LBS, 0) - ISNULL(V.ALLC_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(V.IN_NET_LBS, 0) - ISNULL(V.ALLC_NET_LBS, 0) END AS FR_NET_LBS,
+			     ]]>
+		         /*V.CTRT_NO,*/
+		         dbo.TL_GET_CTRT_NM (V.CTRT_NO) AS CTRT_NM,
+		         L.LOT_ATTRIB_01 AS INBOUND_DT,
+		         L.LOT_ATTRIB_03 AS EXP_DT,
+		         L.LOT_ATTRIB_04 AS LOT_04,
+		         L.LOT_ATTRIB_05 AS LOT_05,
+		         V.WIB_BK_NO,
+		         B.CUST_ORD_NO,
+		         V.ITEM_SER_NO,
+		         V.LIC_PLAT_NO,
+		         V.PO_NO
+		    FROM TL_CTRT_CUST_ITEM_LOT L,
+		         TL_CTRT_CUST_ITEM CI,
+		         TL_WH_INV_LOC V LEFT JOIN TL_WH_IB B ON V.WIB_BK_NO = B.WIB_BK_NO
+		        /* V.WIB_BK_NO = B.WIB_BK_NO(+)*/
+		   WHERE V.CTRT_NO = L.CTRT_NO
+		     AND V.ITEM_SYS_NO = L.ITEM_SYS_NO
+		     AND V.LOT_ID = L.LOT_ID
+		     AND V.CTRT_NO = CI.CTRT_NO
+		     AND V.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		     AND V.KIT_FLG = 'N' /*KITTING ITEM 제외*/
+		     <![CDATA[ AND V.IN_QTY - ISNULL (V.ALLC_QTY, 0) > 0]]>    /* 조정가능한 재고 */
+	         AND EXISTS ( SELECT 'X'
+							FROM TL_WH_LOC WL, TL_WH_PROP WP
+						   WHERE 1=1
+							 AND WL.USE_FLG = 'Y'
+							 AND WL.LOC_CD  = WP.LOC_CD
+							 AND WL.PROP_CD = WP.PROP_CD
+							 AND WP.ADJUST_FLG = 'Y'
+							 AND WP.USE_FLG    = 'Y'
+							 AND WL.LOC_CD     = V.WH_CD
+							 AND WL.WH_LOC_CD  = V.WH_LOC_CD
+						 )  /* 조정 가능한 LOCATION */		
+	                        
+	          <isNotEmpty property="wh_cd">
+	          AND V.WH_CD = #wh_cd#                   /* WAREHOUSE CODE */
+	          </isNotEmpty>                    
+		     
+		     AND V.CTRT_NO = #ctrt_no#               /* CONTRACT NO */		     
+     <isNotEmpty property="cond_no">
+     	<isEqual property="cond_no_tp" compareValue="WIB_BK_NO">
+     	    AND V.WIB_BK_NO = #cond_no#             /* IN BOOKING NO */
+     	</isEqual>
+     	<isEqual property="cond_no_tp" compareValue="CUST_ORD_NO">
+		    AND B.CUST_ORD_NO = #cond_no#           /* CUST ORDER NO */
+     	</isEqual>     	
+     </isNotEmpty>
+	 <isNotEmpty property="item_cd">
+             AND V.ITEM_CD = #item_cd#               /* ITEM CODE */
+     </isNotEmpty>   
+	 <isNotEmpty property="prop_no">
+	 	<isEqual property="prop_no_tp" compareValue="LOT_NO">
+		     AND L.LOT_ATTRIB_02 = #prop_no#         /* LOT NO */
+     	</isEqual>
+     	<isEqual property="prop_no_tp" compareValue="LOT_ID">
+		     AND V.LOT_ID = #prop_no#                /* LOT ID */
+     	</isEqual>
+     	<isEqual property="prop_no_tp" compareValue="LOT_04">
+		     AND L.LOT_ATTRIB_04 = #prop_no#         /* LOT 04 */
+     	</isEqual>
+     	<isEqual property="prop_no_tp" compareValue="LOT_05">
+		     AND L.LOT_ATTRIB_05 = #prop_no#         /* LOT 05 */
+     	</isEqual>
+     </isNotEmpty>
+     <isNotEmpty property="prop_date_fm">
+     	<isEqual property="prop_date_tp" compareValue="INBOUND_DT">
+		     AND L.LOT_ATTRIB_01 BETWEEN replace(#prop_date_fm#,'-','') AND replace(#prop_date_to#,'-','')    /* INBOUND DATE */
+     	</isEqual>
+        <isEqual property="prop_date_tp" compareValue="EXP_DT">
+		     AND L.LOT_ATTRIB_03 BETWEEN replace(#prop_date_fm#,'-','') AND replace(#prop_date_to#,'-','')    /* EXPIRATION DATE */
+     	</isEqual>	
+     </isNotEmpty>  
+     
+      ) as TTT <![CDATA[ where TTT.RN > #beginIdx# AND TTT.RN <= #topCnt#	]]>
+      
+		ORDER BY TTT.WH_CD, TTT.ITEM_CD, TTT.ITEM_NM,TTT.CTRT_NO	
+	</select>
+    <!-- [InvAdjustList] Inventory Adjustment Search -->
+	<select id="searchInvAdjustResultList" parameterClass="java.util.HashMap" resultClass="InvAdjustListVO">
+	/* WHItemInv.searchInvAdjustResultList */
+		  SELECT A.ADJUST_NO,
+		         CONVERT(VARCHAR(10), A.RGST_LOC_DT, 120) AS ADJUST_DT,
+		         A.REASON_CD,
+		         dbo.TL_GET_COMM_NM ('WAR', A.REASON_CD) AS REASON_NM,
+		         V.ITEM_CD,
+		         V.ITEM_NM,
+		         L.LOT_ATTRIB_02 AS LOT_NO,
+		         V.LOT_ID,
+		         V.WH_LOC_CD,
+		         dbo.TL_GET_WH_LOC_NM (V.WH_CD, V.WH_LOC_CD) AS WH_LOC_NM,
+		         ISNULL (A.FR_EA_QTY, 0) AS FR_EA_QTY,
+		        (ISNULL (A.TO_EA_QTY, 0) - ISNULL (A.FR_EA_QTY, 0)) AS ADJ_EA_QTY,
+		         ISNULL (A.TO_EA_QTY, 0) AS TO_EA_QTY,
+		         A.FR_CBM,     
+			     A.FR_CBF,     
+			     A.FR_GRS_KGS, 
+			     A.FR_GRS_LBS, 
+			     A.FR_NET_KGS, 
+			     A.FR_NET_LBS, 
+			     A.TO_CBM,     
+			     A.TO_CBF,     
+			     A.TO_GRS_KGS, 
+			     A.TO_GRS_LBS, 
+			     A.TO_NET_KGS, 
+			     A.TO_NET_LBS,
+			     A.TO_CBM - A.FR_CBM AS ADJ_CBM,
+			     A.TO_CBF - A.FR_CBF AS ADJ_CBJ,
+			     A.TO_GRS_KGS - A.FR_GRS_KGS AS ADJ_GRS_KGS,
+			     A.TO_GRS_LBS - A.FR_GRS_LBS AS ADJ_GRS_LBS,
+			     A.TO_NET_KGS - A.FR_NET_KGS AS ADJ_NET_KGS,
+			     A.TO_NET_LBS - A.FR_NET_LBS AS ADJ_NET_LBS,
+		         V.WH_CD,
+		         dbo.TL_GET_LOC_NM(V.WH_CD) AS WH_NM,
+		         L.LOT_ATTRIB_01 AS INBOUND_DT,
+		         V.CTRT_NO,
+		        dbo.TL_GET_CTRT_NM (V.CTRT_NO) AS CTRT_NM,
+		         A.OWNER_PIC_NM,
+		         A.WH_PIC_NM,
+		         A.RMK,
+		         V.WIB_BK_NO,
+                 B.CUST_ORD_NO,
+                 A.ITEM_SER_NO,
+                 A.LIC_PLAT_NO,
+                 A.PO_NO
+		    FROM TL_WH_INV_ADJUST A,
+		         TL_CTRT_CUST_ITEM_LOT L,
+		         TL_CTRT_CUST_ITEM CI,
+		         TL_WH_INV_LOC V LEFT JOIN TL_WH_IB B ON V.WIB_BK_NO = B.WIB_BK_NO 
+		   WHERE A.WIB_BK_NO = V.WIB_BK_NO
+		     AND A.PO_SYS_NO = V.PO_SYS_NO
+		     AND A.ITEM_SYS_NO = V.ITEM_SYS_NO
+		     AND A.LOT_ID = V.LOT_ID
+		     AND A.WH_LOC_CD = V.WH_LOC_CD
+		     AND V.CTRT_NO = L.CTRT_NO
+		     AND V.ITEM_SYS_NO = L.ITEM_SYS_NO
+		     AND V.LOT_ID = L.LOT_ID
+		     AND V.CTRT_NO = CI.CTRT_NO
+		     AND V.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		     AND ISNULL(A.PO_NO,'') = ISNULL(V.PO_NO,'')
+		     AND ISNULL(A.ITEM_SER_NO,'') = ISNULL(V.ITEM_SER_NO,'')
+		     AND ISNULL(A.LIC_PLAT_NO,'') = ISNULL(V.LIC_PLAT_NO,'')
+         <isNotEmpty property="wh_cd">
+             AND V.WH_CD = #wh_cd# 			      /* WAREHOUSE CODE */					
+         </isNotEmpty>
+         <isNotEmpty property="ctrt_no">
+             AND V.CTRT_NO = #ctrt_no# 		      /* CONTRACT NO */					
+         </isNotEmpty>
+         <isNotEmpty property="adjust_no">
+             AND A.ADJUST_NO = #adjust_no# 		  /* ADJUSTMENT NO */					
+         </isNotEmpty>
+         <isNotEmpty property="item_cd">
+             AND V.ITEM_CD = #item_cd#               /* ITEM CODE */
+         </isNotEmpty>
+         <isNotEmpty property="prop_no">
+			<isEqual property="prop_no_tp" compareValue="LOT_NO">
+		     AND L.LOT_ATTRIB_02 = #prop_no#         /* LOT NO */
+			</isEqual>
+			<isEqual property="prop_no_tp" compareValue="LOT_ID">
+		     AND V.LOT_ID = #prop_no#                /* LOT ID */
+			</isEqual>
+         </isNotEmpty>         
+     	 <isNotEmpty property="adjust_date_fm">
+    		<![CDATA[AND REPLACE(CONVERT(VARCHAR(10), A.RGST_LOC_DT, 120), '-', '') >= ]]> REPLACE (#adjust_date_fm#, '-', '')    /* ADJUSTMENT DATE */
+         </isNotEmpty>	     
+     	 <isNotEmpty property="adjust_date_to">
+    		<![CDATA[AND REPLACE(CONVERT(VARCHAR(10), A.RGST_LOC_DT, 120), '-', '') <= ]]> REPLACE (#adjust_date_to#, '-', '')    /* ADJUSTMENT DATE */
+         </isNotEmpty>	     
+	     <isNotEqual property="reason_cd" compareValue="All">
+	         AND A.REASON_CD = #reason_cd#           /* REASON */
+	     </isNotEqual>
+		 <isNotEmpty property="wh_loc_cd">
+             AND A.WH_LOC_CD = #wh_loc_cd#           /* LOCATION */
+		 </isNotEmpty>    		     
+		 <isNotEmpty property="wib_bk_no">
+             AND V.WIB_BK_NO = #wib_bk_no#           /* IN BOOKING NO */
+		 </isNotEmpty>   
+		ORDER BY A.ADJUST_NO DESC, A.RGST_SYS_DT DESC		
+	</select>
+	<!-- Lap.Nguyen (E) -->
+	<!-- 	Long.Le (S) -->
+	<typeAlias alias="InvAgingVO" 	type="com.clt.apps.fis.wms.whinventory.dto.InvAgingVO"/>
+	<typeAlias alias="ZoneBlockVO"  type="com.clt.apps.fis.wms.cyclecount.dto.ZoneBlockVO"/>
+	<select id="searchInvAging_CNT" parameterClass="HashMap" resultClass="Integer">
+		DECLARE @WH_CD VARCHAR(20)
+		SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#);
+				WITH INV AS (
+				SELECT #term# AS TERM,
+				       V.WH_CD,
+				       V.CTRT_NO,
+				       MAX(V.ITEM_CD) AS ITEM_CD,
+				       MAX(V.ITEM_NM) AS ITEM_NM,
+				       SUM(V.IN_QTY - ISNULL(V.OUT_QTY,0)) AS INV_QTY,
+				       DATEDIFF(day,CONVERT(DATETIME,  (SELECT MAX(LOT_ATTRIB_01) from TL_CTRT_CUST_ITEM_LOT WHERE LOT_ID = V.LOT_ID), 102), CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(V.WH_CD),120)) + 1 AS STR_DAY,    
+				       V.LOT_ID,
+				       MAX(L.LOT_ATTRIB_01) AS INBOUND_DT,
+				       MAX(L.LOT_ATTRIB_02) AS LOT_NO,
+				       MAX(L.LOT_ATTRIB_03) AS EXP_DT,
+				       MAX(L.LOT_ATTRIB_04) AS LOT_04,
+				       MAX(L.LOT_ATTRIB_05) AS LOT_05
+				FROM   TL_WH_INV_LOT V,
+				       TL_CTRT_CUST_ITEM_LOT L
+				WHERE  V.CTRT_NO = L.CTRT_NO
+				  AND  V.ITEM_SYS_NO = L.ITEM_SYS_NO
+				  AND  V.LOT_ID = L.LOT_ID       
+				<![CDATA[ AND  V.IN_QTY - ISNULL(V.OUT_QTY,0) > 0 ]]>
+				<isNotEmpty property="ctrt_no">
+				  AND  V.CTRT_NO = #ctrt_no#
+				</isNotEmpty>
+				<isNotEmpty property="wh_cd" >
+				  AND  V.WH_CD = #wh_cd#
+				</isNotEmpty>
+				<!-- 			 //#5899 [OceanBlue-WMS] WMS inventory by Item Name -->
+				<isEqual  property="item_type" compareValue="ITEM_CD" >
+					<isNotEmpty property="item_cd">
+					  AND  V.ITEM_CD = #item_cd#
+					</isNotEmpty>
+				</isEqual>
+				
+				<isEqual  property="item_type" compareValue="ITEM_NM" >
+					<isNotEmpty property="item_cd">
+					  AND  V.ITEM_NM like #item_cd# + '%'
+					</isNotEmpty>
+				</isEqual>
+				
+				<isNotEmpty property="lot_no">
+				  AND  L.LOT_ATTRIB_02 = #lot_no#
+				</isNotEmpty>
+				GROUP BY V.WH_CD,
+				         V.CTRT_NO,
+				         V.ITEM_SYS_NO,
+				         V.LOT_ID
+				)
+				select COUNT(*) from 
+				(SELECT TT.WH_CD,
+				       TT.CTRT_NO,
+				       dbo.TL_GET_CTRT_NM (TT.CTRT_NO) AS CTRT_NM,
+				       TT.ITEM_CD,
+				       TT.ITEM_NM,
+				       TT.INBOUND_DT,
+				       TT.LOT_NO,
+				       TT.LOT_ID,
+				       TT.INV_QTY,
+				       CASE WHEN GRP = 1 THEN TT.INV_QTY END AS GRP01,
+		               CASE WHEN GRP = 2 THEN TT.INV_QTY END AS GRP02,
+		               CASE WHEN GRP = 3 THEN TT.INV_QTY END AS GRP03,
+		               CASE WHEN GRP = 4 THEN TT.INV_QTY END AS GRP04,
+		               CASE WHEN GRP = 5 THEN TT.INV_QTY END AS GRP05,
+		               CASE WHEN GRP = 6 THEN TT.INV_QTY END AS GRP06,
+		               CASE WHEN GRP = 7 THEN TT.INV_QTY END AS GRP07,
+		               CASE WHEN GRP = 8 THEN TT.INV_QTY END AS GRP08,
+		               CASE WHEN GRP = 9 THEN TT.INV_QTY END AS GRP09,
+		               CASE WHEN GRP = 10 THEN TT.INV_QTY END AS GRP10,
+		               CASE WHEN GRP = 11 THEN TT.INV_QTY END AS GRP11,
+		               CASE WHEN GRP = 12 THEN TT.INV_QTY END AS GRP12,
+		               CASE WHEN GRP = 13 THEN TT.INV_QTY END AS GRP13
+				FROM (
+				SELECT 1 AS GRP, 
+				       INV.*
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 1 AND 1*INV.TERM
+				UNION
+				SELECT 2 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 1*INV.TERM+1 AND 2*INV.TERM
+				UNION
+				SELECT 3 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 2*INV.TERM+1 AND 3*INV.TERM
+				UNION
+				SELECT 4 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 3*INV.TERM+1 AND 4*INV.TERM
+				UNION
+				SELECT 5 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 4*INV.TERM+1 AND 5*INV.TERM
+				UNION
+				SELECT 6 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 5*INV.TERM+1 AND 6*INV.TERM
+				UNION
+				SELECT 7 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 6*INV.TERM+1 AND 7*INV.TERM
+				UNION
+				SELECT 8 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 7*INV.TERM+1 AND 8*INV.TERM
+				UNION
+				SELECT 9 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 8*INV.TERM+1 AND 9*INV.TERM
+				UNION
+				SELECT 10 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 9*INV.TERM+1 AND 10*INV.TERM
+				UNION
+				SELECT 11 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 10*INV.TERM+1 AND 11*INV.TERM
+				UNION
+				SELECT 12 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 11*INV.TERM+1 AND 12*INV.TERM
+				UNION
+				SELECT 13 AS GRP, 
+				       INV.*  
+				FROM   INV
+				<![CDATA[ WHERE  INV.STR_DAY >= 12*INV.TERM +1 ]]>
+				) TT
+	/*) HH*/) as T
+	</select>
+	<select id="searchInvAging" parameterClass="java.util.HashMap" resultClass="InvAgingVO">
+		DECLARE @WH_CD VARCHAR(20)
+		SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#);
+				WITH INV AS (
+				SELECT #term# AS TERM,
+				       V.WH_CD,
+				       V.CTRT_NO,
+				       MAX(V.ITEM_CD) AS ITEM_CD,
+				       MAX(V.ITEM_NM) AS ITEM_NM,
+				       SUM(V.IN_QTY - ISNULL(V.OUT_QTY,0)) AS INV_QTY,
+				       DATEDIFF(day,CONVERT(DATETIME,  (SELECT MAX(LOT_ATTRIB_01) from TL_CTRT_CUST_ITEM_LOT WHERE LOT_ID = V.LOT_ID), 102), CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(V.WH_CD),120)) + 1 AS STR_DAY,       
+				       V.LOT_ID,
+				       MAX(L.LOT_ATTRIB_01) AS INBOUND_DT,
+				       MAX(L.LOT_ATTRIB_02) AS LOT_NO,
+				       MAX(L.LOT_ATTRIB_03) AS EXP_DT,
+				       MAX(L.LOT_ATTRIB_04) AS LOT_04,
+				       MAX(L.LOT_ATTRIB_05) AS LOT_05
+				FROM   TL_WH_INV_LOT V,
+				       TL_CTRT_CUST_ITEM_LOT L
+				WHERE  V.CTRT_NO = L.CTRT_NO
+				  AND  V.ITEM_SYS_NO = L.ITEM_SYS_NO
+				  AND  V.LOT_ID = L.LOT_ID       
+				<![CDATA[ AND  V.IN_QTY - ISNULL(V.OUT_QTY,0) > 0 ]]>
+				<isNotEmpty property="ctrt_no">
+				  AND  V.CTRT_NO = #ctrt_no#
+				</isNotEmpty>
+				<isNotEmpty property="wh_cd">
+				  AND  V.WH_CD = #wh_cd#
+				</isNotEmpty>
+				<!-- 			 //#5899 [OceanBlue-WMS] WMS inventory by Item Name -->
+				<isEqual  property="item_type" compareValue="ITEM_CD" >
+					<isNotEmpty property="item_cd">
+					  AND  V.ITEM_CD = #item_cd#
+					</isNotEmpty>
+				</isEqual>
+				
+				<isEqual  property="item_type" compareValue="ITEM_NM" >
+					<isNotEmpty property="item_cd">
+					  AND  V.ITEM_NM like #item_cd# + '%'
+					</isNotEmpty>
+				</isEqual>
+				<isNotEmpty property="lot_no">
+				  AND  L.LOT_ATTRIB_02 = #lot_no#
+				</isNotEmpty>
+				GROUP BY V.WH_CD,
+				         V.CTRT_NO,
+				         V.ITEM_SYS_NO,
+				         V.LOT_ID
+				)
+				SELECT * from (SELECT ROW_NUMBER() OVER (ORDER BY TT.WH_CD DESC) AS RN, 
+					   TT.WH_CD,
+				       TT.CTRT_NO,
+				       dbo.TL_GET_CTRT_NM (TT.CTRT_NO) AS CTRT_NM,
+				       TT.ITEM_CD,
+				       TT.ITEM_NM,
+				       TT.INBOUND_DT,
+				       TT.LOT_NO,
+				       TT.LOT_ID,
+				       TT.INV_QTY,
+				       CASE WHEN GRP = 1 THEN TT.INV_QTY END AS GRP01,
+		               CASE WHEN GRP = 2 THEN TT.INV_QTY END AS GRP02,
+		               CASE WHEN GRP = 3 THEN TT.INV_QTY END AS GRP03,
+		               CASE WHEN GRP = 4 THEN TT.INV_QTY END AS GRP04,
+		               CASE WHEN GRP = 5 THEN TT.INV_QTY END AS GRP05,
+		               CASE WHEN GRP = 6 THEN TT.INV_QTY END AS GRP06,
+		               CASE WHEN GRP = 7 THEN TT.INV_QTY END AS GRP07,
+		               CASE WHEN GRP = 8 THEN TT.INV_QTY END AS GRP08,
+		               CASE WHEN GRP = 9 THEN TT.INV_QTY END AS GRP09,
+		               CASE WHEN GRP = 10 THEN TT.INV_QTY END AS GRP10,
+		               CASE WHEN GRP = 11 THEN TT.INV_QTY END AS GRP11,
+		               CASE WHEN GRP = 12 THEN TT.INV_QTY END AS GRP12,
+		               CASE WHEN GRP = 13 THEN TT.INV_QTY END AS GRP13
+				FROM (
+				SELECT 1 AS GRP, 
+				       INV.*
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 1 AND 1*INV.TERM
+				UNION
+				SELECT 2 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 1*INV.TERM+1 AND 2*INV.TERM
+				UNION
+				SELECT 3 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 2*INV.TERM+1 AND 3*INV.TERM
+				UNION
+				SELECT 4 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 3*INV.TERM+1 AND 4*INV.TERM
+				UNION
+				SELECT 5 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 4*INV.TERM+1 AND 5*INV.TERM
+				UNION
+				SELECT 6 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 5*INV.TERM+1 AND 6*INV.TERM
+				UNION
+				SELECT 7 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 6*INV.TERM+1 AND 7*INV.TERM
+				UNION
+				SELECT 8 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 7*INV.TERM+1 AND 8*INV.TERM
+				UNION
+				SELECT 9 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 8*INV.TERM+1 AND 9*INV.TERM
+				UNION
+				SELECT 10 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 9*INV.TERM+1 AND 10*INV.TERM
+				UNION
+				SELECT 11 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 10*INV.TERM+1 AND 11*INV.TERM
+				UNION
+				SELECT 12 AS GRP, 
+				       INV.*  
+				FROM   INV
+				WHERE  INV.STR_DAY BETWEEN 11*INV.TERM+1 AND 12*INV.TERM
+				UNION
+				SELECT 13 AS GRP, 
+				       INV.*  
+				FROM   INV
+				<![CDATA[ WHERE  INV.STR_DAY >= 12*INV.TERM +1 ]]>
+				) TT
+			) as TTT <![CDATA[ where TTT.RN > #beginIdx# AND TTT.RN <= #topCnt#	]]>
+	/*) HH*/
+	</select>
+	
+ 	<typeAlias alias="FixLocListVO" 	type="com.clt.apps.fis.wms.whinventory.dto.FixLocListVO"/>
+ 	<select id="searchFixLocList" parameterClass="java.util.HashMap" resultClass="FixLocListVO">
+ 	SELECT L.ZONE_CD,
+		       L.BLOCK_CD,
+		       L.WH_LOC_CD,
+		       dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD) AS WH_LOC_CD_NM,
+		       I.ITEM_CD,
+		       I.ITEM_NM,
+		       T.LOT_ATTRIB_01 AS INBOUND_DT,
+		       T.LOT_ATTRIB_02 AS LOT_NO,
+		       I.LOT_ID,
+		       I.IN_QTY - ISNULL(I.OUT_QTY, 0) AS STC_QTY,
+		       /*
+		       (I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_CBM AS CBM,
+		       (I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_CBF AS CBF,
+		       (I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_GRS_KGS AS GRS_KGS,
+		       (I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_GRS_LBS AS GRS_LBS,
+		       (I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_NET_KGS AS NET_KGS,
+		       (I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_NET_LBS AS NET_LBS,
+		       */
+		       <![CDATA[ 		       
+		       CASE WHEN ISNULL(I.IN_CBM, 0)     - ISNULL(I.OUT_CBM, 0)     < 0 THEN 0 ELSE ISNULL(I.IN_CBM, 0)     - ISNULL(I.OUT_CBM, 0)     END AS CBM,
+	           CASE WHEN ISNULL(I.IN_CBF, 0)     - ISNULL(I.OUT_CBF, 0)     < 0 THEN 0 ELSE ISNULL(I.IN_CBF, 0)     - ISNULL(I.OUT_CBF, 0)     END AS CBF,
+	           CASE WHEN ISNULL(I.IN_GRS_KGS, 0) - ISNULL(I.OUT_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_GRS_KGS, 0) - ISNULL(I.OUT_GRS_KGS, 0) END AS GRS_KGS,
+	           CASE WHEN ISNULL(I.IN_GRS_LBS, 0) - ISNULL(I.OUT_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_GRS_LBS, 0) - ISNULL(I.OUT_GRS_LBS, 0) END AS GRS_LBS,
+	           CASE WHEN ISNULL(I.IN_NET_KGS, 0) - ISNULL(I.OUT_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_NET_KGS, 0) - ISNULL(I.OUT_NET_KGS, 0) END AS NET_KGS,
+	           CASE WHEN ISNULL(I.IN_NET_LBS, 0) - ISNULL(I.OUT_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_NET_LBS, 0) - ISNULL(I.OUT_NET_LBS, 0) END AS NET_LBS,
+		       ]]>
+		       I.WH_CD,
+		       I.CTRT_NO,
+		       dbo.TL_GET_CTRT_NM(I.CTRT_NO) AS CTRT_NM,
+		       T.LOT_ATTRIB_03 AS EXP_DT,
+		       T.LOT_ATTRIB_04 AS LOT_04,
+		       T.LOT_ATTRIB_05 AS LOT_05,
+		       I.WIB_BK_NO,
+		       B.CUST_ORD_NO		
+		  FROM 	TL_WH_INV_LOC         I
+				LEFT JOIN TL_WH_IB    B ON I.WIB_BK_NO = B.WIB_BK_NO,
+			    TL_CTRT_CUST_ITEM_LOT T,
+			    TL_WH_LOC             L,
+			    TL_CTRT_CUST_ITEM     CI
+		
+		 WHERE I.CTRT_NO  		= T.CTRT_NO
+		   AND I.ITEM_SYS_NO 	= T.ITEM_SYS_NO
+		   AND I.LOT_ID 		= T.LOT_ID
+		   AND I.WH_CD 			= L.LOC_CD
+		   AND I.WH_LOC_CD 		= L.WH_LOC_CD
+		   AND I.CTRT_NO 		= CI.CTRT_NO
+		   AND I.ITEM_SYS_NO 	= CI.ITEM_SYS_NO
+		      
+		   AND EXISTS (SELECT 'X'
+			          	FROM TL_CTRT_CUST_ITEM_WH W
+			         	WHERE W.CTRT_NO 	= I.CTRT_NO
+			           	AND W.ITEM_SYS_NO 	= I.ITEM_SYS_NO
+			           	AND W.WH_CD 		= I.WH_CD
+			           	AND W.FIX_LOC_CD 	= I.WH_LOC_CD
+			           )
+		   <isNotEmpty property="wh_cd">
+		   	 AND I.WH_CD		= #wh_cd#
+		   </isNotEmpty>  
+		  <isNotEmpty property="ctrt_no">
+		     AND I.CTRT_NO 		= #ctrt_no#
+		   </isNotEmpty>
+		  <isNotEmpty property="wh_loc_cd">
+		     AND I.WH_LOC_CD 	= #wh_loc_cd#
+		   </isNotEmpty>
+		   <isNotEqual property="zone_cd" compareValue="ALL">	
+		     AND L.ZONE_CD 		= #zone_cd#
+		   </isNotEqual>
+		   <isNotEqual property="block_cd" compareValue="ALL">	
+		     AND L.BLOCK_CD 	= #block_cd#
+		   </isNotEqual>
+		  <isNotEmpty property="item_cd">
+		     AND I.ITEM_CD 		= #item_cd#
+		   </isNotEmpty>
+		   <isNotEmpty property="prop_no">
+			 	 <isEqual property="prop_no_tp" compareValue="LOT_NO">	   	   
+				   AND T.LOT_ATTRIB_02 = #prop_no#
+				 </isEqual> 
+				 <isEqual property="prop_no_tp" compareValue="LOT_ID">	   	   
+				   AND I.LOT_ID 		= #prop_no#
+				 </isEqual>
+				 <isEqual property="prop_no_tp" compareValue="LOT_04">	   	   
+				   AND T.LOT_ATTRIB_04 = #prop_no#
+				 </isEqual>  
+				 <isEqual property="prop_no_tp" compareValue="LOT_05">	   	   
+				   AND T.LOT_ATTRIB_05 = #prop_no#
+				 </isEqual>
+			</isNotEmpty>
+			<isNotEmpty property="prop_date_fm">
+			 	 <isEqual property="prop_date_tp" compareValue="INBOUND_DT">	   	   
+				   AND T.LOT_ATTRIB_01 BETWEEN replace(#prop_date_fm#,'-','') AND replace(#prop_date_to#,'-','')
+				 </isEqual> 
+				 <isEqual property="prop_date_tp" compareValue="EXP_DT">	   	   
+				   AND T.LOT_ATTRIB_03 BETWEEN replace(#prop_date_fm#,'-','') AND replace(#prop_date_to#,'-','')
+				 </isEqual> 	
+			 </isNotEmpty> 
+		     <isNotEmpty property="wib_bk_no">
+		       AND I.WIB_BK_NO 		= #wib_bk_no#
+		     </isNotEmpty>
+		     <isNotEmpty property="cust_ord_no">
+		       AND B.CUST_ORD_NO 	= #cust_ord_no#
+		     </isNotEmpty>
+		
+		 ORDER BY L.ZONE_CD,
+		          L.BLOCK_CD,
+		          L.WH_LOC_CD,
+		          I.ITEM_CD,
+		          I.ITEM_NM,
+		          T.LOT_ATTRIB_01,
+		          T.LOT_ATTRIB_02,
+		          I.LOT_ID
+	</select>
+	
+	<select id="searchWarehouseZoneCode" parameterClass="java.util.HashMap" resultClass="ZoneBlockVO">
+	/*searchWarehouseZoneCode*/
+	    SELECT 
+      		 dbo.TL_GET_ROWTOCOLL_CycleCountPlan_2(#f_loc_cd#, '|') AS ZONE_CD
+	</select>
+	
+	<select id="searchWarehouseBlockCode" parameterClass="java.util.HashMap" resultClass="ZoneBlockVO">
+		/*searchWarehouseBlockCode*/
+		SELECT 
+      		  dbo.TL_GET_ROWTOCOLL_CycleCountPlan_1(#f_loc_cd#,#f_zone_cd#,'|') AS BLOCK_CD
+	</select>
+	<!-- 	Long.Le (E) -->
+	
+	<!-- Hoai.Vo (S) -->
+	<!-- Item Inventory By Item Search -->
+	<typeAlias alias="ItemInvListVO" 	type="com.clt.apps.fis.wms.whinventory.dto.ItemInvListVO"/>		
+	<select id="searchWHItemInvByItemList" parameterClass="java.util.HashMap" resultClass="ItemInvListVO">
+		/* WHItemInv.searchWHItemInvByItemList */
+		SELECT a1.* 
+		FROM
+			(SELECT T.ITEM_CD,
+		         T.ITEM_NM,
+		         SUM (T.STC_QTY) AS STC_QTY,
+		         SUM (T.ALLC_QTY) AS ALLC_QTY,
+		         SUM (T.HOLD_QTY) AS HOLD_QTY,
+		         SUM (T.DMG_QTY) AS DMG_QTY,
+		         SUM (T.TOT_QTY) AS TOT_QTY,
+		         SUM (T.ITEM_CBM) AS ITEM_CBM,
+		         SUM (T.ITEM_CBF) AS ITEM_CBF,
+		         SUM (T.ITEM_GRS_KGS) AS ITEM_GRS_KGS,
+		         SUM (T.ITEM_GRS_LBS) AS ITEM_GRS_LBS,
+		         SUM (T.ITEM_NET_KGS) AS ITEM_NET_KGS,
+		         SUM (T.ITEM_NET_LBS) AS ITEM_NET_LBS,
+		         T.WH_CD,
+                 T.WH_NM,
+		         T.CTRT_NO,
+		         dbo.TL_GET_CTRT_NM (T.CTRT_NO) AS CTRT_NM,
+		          <!-- #5893 [JNA] WMS Inventory report -->
+		         ROW_NUMBER() OVER (ORDER BY  T.CTRT_NO, T.ITEM_CD)  as ROWNUM,
+		         COUNT(*) OVER(PARTITION BY 1) as total_rows_cnt,
+		         <!-- OFVFOUR-7852 [GREAT LUCK] ADDING BARCODE NO COLUMN ON WMS -->
+		         T.BARCODE_NO
+		         
+		    FROM (SELECT I.ITEM_CD,
+				         I.ITEM_NM,
+				         ISNULL (I.IN_QTY, 0) - ISNULL (I.ALLC_QTY, 0) - ISNULL (I.HOLD_QTY, 0) - ISNULL (I.DMG_QTY, 0)  AS STC_QTY,
+				         ISNULL (I.ALLC_QTY, 0) - ISNULL (I.OUT_QTY, 0) AS ALLC_QTY,
+				         ISNULL (I.HOLD_QTY, 0) AS HOLD_QTY,
+				         ISNULL (I.DMG_QTY, 0) AS DMG_QTY,
+				         ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0) AS TOT_QTY,
+				         /*
+				         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_CBM, 0) AS ITEM_CBM,
+				         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_CBF, 0) AS ITEM_CBF,
+				         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_GRS_KGS, 0) AS ITEM_GRS_KGS,
+				         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_GRS_LBS, 0) AS ITEM_GRS_LBS,
+				         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_NET_KGS, 0) AS ITEM_NET_KGS,
+				         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_NET_LBS, 0) AS ITEM_NET_LBS,
+				         */
+				         <![CDATA[ 
+				         CASE WHEN ISNULL(I.IN_CBM, 0)     - ISNULL(I.OUT_CBM, 0)     < 0 THEN 0 ELSE ISNULL(I.IN_CBM, 0)     - ISNULL(I.OUT_CBM, 0)     END AS ITEM_CBM,
+				         CASE WHEN ISNULL(I.IN_CBF, 0)     - ISNULL(I.OUT_CBF, 0)     < 0 THEN 0 ELSE ISNULL(I.IN_CBF, 0)     - ISNULL(I.OUT_CBF, 0)     END AS ITEM_CBF,
+				         CASE WHEN ISNULL(I.IN_GRS_KGS, 0) - ISNULL(I.OUT_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_GRS_KGS, 0) - ISNULL(I.OUT_GRS_KGS, 0) END AS ITEM_GRS_KGS,
+				         CASE WHEN ISNULL(I.IN_GRS_LBS, 0) - ISNULL(I.OUT_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_GRS_LBS, 0) - ISNULL(I.OUT_GRS_LBS, 0) END AS ITEM_GRS_LBS,
+				         CASE WHEN ISNULL(I.IN_NET_KGS, 0) - ISNULL(I.OUT_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_NET_KGS, 0) - ISNULL(I.OUT_NET_KGS, 0) END AS ITEM_NET_KGS,
+				         CASE WHEN ISNULL(I.IN_NET_LBS, 0) - ISNULL(I.OUT_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_NET_LBS, 0) - ISNULL(I.OUT_NET_LBS, 0) END AS ITEM_NET_LBS,
+				         ]]>
+				         I.WH_CD,
+		                 dbo.TL_GET_LOC_NM(I.WH_CD) AS WH_NM,		         
+				         I.CTRT_NO,
+				         dbo.TL_GET_CTRT_NM (I.CTRT_NO) AS CTRT_NM,
+				         <!-- OFVFOUR-7852 [GREAT LUCK] ADDING BARCODE NO COLUMN ON WMS -->
+				         CI.BARCODE_NO
+				    FROM TL_WH_INV_LOC I
+				       , TL_CTRT_CUST_ITEM CI
+				   WHERE I.CTRT_NO = CI.CTRT_NO
+				     AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+				     AND CI.ITEM_USE_FLG = 'Y'
+				 <!-- #5893 [JNA] WMS Inventory report -->
+				 <isEqual property="show_zero_volume" compareValue="N">
+					AND ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0) > 0
+				 </isEqual>
+				 <isNotEmpty property="ctrt_no">
+				     AND I.CTRT_NO = #ctrt_no#                                        /* CONTRACT NO */
+		         </isNotEmpty>
+				 <isNotEqual property="wh_cd" compareValue="All">
+				 	AND I.WH_CD = #wh_cd#
+				 </isNotEqual>
+				<!-- 			 //#5899 [OceanBlue-WMS] WMS inventory by Item Name -->
+		         <isEqual property="item_type" compareValue="ITEM_CD">
+		         	 <isNotEmpty property="item_cd">	                     
+						AND I.ITEM_CD LIKE '%' + #item_cd# + '%'
+		       		  </isNotEmpty> 
+		         </isEqual>
+				 <isEqual property="item_type" compareValue="ITEM_NM">
+		         	 <isNotEmpty property="item_cd">	                     
+						AND I.ITEM_NM LIKE  #item_cd# + '%'
+		       		  </isNotEmpty> 
+		         </isEqual>
+			  	<isNotEmpty property="barcode_no">
+				 AND CI.BARCODE_NO LIKE #barcode_no# + '%'
+			  	</isNotEmpty>
+                 ) T
+        
+		GROUP BY T.ITEM_CD,
+		         T.ITEM_NM,
+		         T.WH_CD,
+		         T.WH_NM,
+		         T.CTRT_NO,
+		         <!-- OFVFOUR-7852 [GREAT LUCK] ADDING BARCODE NO COLUMN ON WMS -->
+		         T.BARCODE_NO ) a1
+		
+		<![CDATA[ WHERE a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]> 	     
+		ORDER BY a1.CTRT_NO, a1.ITEM_CD    
+	</select>
+	
+	<!-- Item Inventory By Lot Search -->		
+	<select id="searchWHItemInvByLotList" parameterClass="java.util.HashMap" resultClass="ItemInvListVO">
+		/* WHItemInv.searchWHItemInvByLotList */
+		  SELECT a1.* 
+		FROM
+			(SELECT T.ITEM_CD,
+		         T.ITEM_NM,
+		         T.INBOUND_DT,
+		         T.LOT_NO,
+		         T.LOT_ID,
+		         SUM (T.STC_QTY) AS STC_QTY,
+		         SUM (T.ALLC_QTY) AS ALLC_QTY,
+		         SUM (T.HOLD_QTY) AS HOLD_QTY,
+		         SUM (T.DMG_QTY) AS DMG_QTY,
+		         SUM (T.TOT_QTY) AS TOT_QTY,
+		         SUM (T.ITEM_CBM) AS ITEM_CBM,
+		         SUM (T.ITEM_CBF) AS ITEM_CBF,
+		         SUM (T.ITEM_GRS_KGS) AS ITEM_GRS_KGS,
+		         SUM (T.ITEM_GRS_LBS) AS ITEM_GRS_LBS,
+		         SUM (T.ITEM_NET_KGS) AS ITEM_NET_KGS,
+		         SUM (T.ITEM_NET_LBS) AS ITEM_NET_LBS,
+		         T.WH_CD,
+		         T.CTRT_NO,
+		         dbo.TL_GET_CTRT_NM (T.CTRT_NO) AS CTRT_NM,
+		         T.EXP_DT,
+		         T.LOT_04,
+		         T.LOT_05,
+                 T.REF_NO,
+                 T.LIC_PLAT_NO,
+                 T.ITEM_SER_NO,
+                 T.PO_NO,
+                  <!-- #5893 [JNA] WMS Inventory report -->
+		         ROW_NUMBER() OVER (ORDER BY  T.CTRT_NO, T.ITEM_CD, T.INBOUND_DT)  as ROWNUM,
+		         COUNT(*) OVER(PARTITION BY 1) as total_rows_cnt,
+		         <!-- OFVFOUR-7852 [GREAT LUCK] ADDING BARCODE NO COLUMN ON WMS -->
+		         T.BARCODE_NO
+		    FROM (SELECT I.ITEM_CD,
+				         I.ITEM_NM,
+	                     (select CONVERT (	VARCHAR (10),	L.LOT_ATTRIB_01,102	)) AS INBOUND_DT,
+				         L.LOT_ATTRIB_02 AS LOT_NO,
+				         L.LOT_ID AS LOT_ID,
+				         ISNULL (I.IN_QTY, 0) - ISNULL (I.ALLC_QTY, 0) - ISNULL (I.HOLD_QTY, 0) - ISNULL (I.DMG_QTY, 0)  AS STC_QTY,
+				         ISNULL (I.ALLC_QTY, 0) - ISNULL (I.OUT_QTY, 0) AS ALLC_QTY,
+				         ISNULL (I.HOLD_QTY, 0) AS HOLD_QTY,
+				         ISNULL (I.DMG_QTY, 0) AS DMG_QTY,
+				         ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0) AS TOT_QTY,			         
+				          <![CDATA[ 
+				          CASE WHEN ISNULL(I.IN_CBM, 0)     - ISNULL(I.OUT_CBM, 0)     < 0 THEN 0 ELSE ISNULL(I.IN_CBM, 0)     - ISNULL(I.OUT_CBM, 0)     END AS ITEM_CBM,
+				          CASE WHEN ISNULL(I.IN_CBF, 0)     - ISNULL(I.OUT_CBF, 0)     < 0 THEN 0 ELSE ISNULL(I.IN_CBF, 0)     - ISNULL(I.OUT_CBF, 0)     END AS ITEM_CBF,
+				          CASE WHEN ISNULL(I.IN_GRS_KGS, 0) - ISNULL(I.OUT_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_GRS_KGS, 0) - ISNULL(I.OUT_GRS_KGS, 0) END AS ITEM_GRS_KGS,
+				          CASE WHEN ISNULL(I.IN_GRS_LBS, 0) - ISNULL(I.OUT_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_GRS_LBS, 0) - ISNULL(I.OUT_GRS_LBS, 0) END AS ITEM_GRS_LBS,
+				          CASE WHEN ISNULL(I.IN_NET_KGS, 0) - ISNULL(I.OUT_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_NET_KGS, 0) - ISNULL(I.OUT_NET_KGS, 0) END AS ITEM_NET_KGS,
+				          CASE WHEN ISNULL(I.IN_NET_LBS, 0) - ISNULL(I.OUT_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_NET_LBS, 0) - ISNULL(I.OUT_NET_LBS, 0) END AS ITEM_NET_LBS,
+				          ]]>
+				         I.WH_CD,
+		                 dbo.TL_GET_LOC_NM(I.WH_CD) AS WH_NM,
+				         I.CTRT_NO,
+				         dbo.TL_GET_CTRT_NM (I.CTRT_NO) AS CTRT_NM,
+				         (select CONVERT (	VARCHAR (10),	L.LOT_ATTRIB_03,102	)) AS EXP_DT,
+				         L.LOT_ATTRIB_04 AS LOT_04,
+				         L.LOT_ATTRIB_05 AS LOT_05,
+                         B.WIB_BK_NO,
+                         B.REF_NO,
+                         I.LIC_PLAT_NO,
+                         I.ITEM_SER_NO,
+                         I.PO_NO,
+                         <!-- OFVFOUR-7852 [GREAT LUCK] ADDING BARCODE NO COLUMN ON WMS -->
+                         CI.BARCODE_NO
+				    FROM TL_WH_INV_LOC I LEFT JOIN TL_WH_IB B ON I.WIB_BK_NO = B.WIB_BK_NO,
+				         TL_CTRT_CUST_ITEM CI,
+				         TL_CTRT_CUST_ITEM_LOT L
+				   WHERE I.CTRT_NO = CI.CTRT_NO
+				     AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+				     AND CI.ITEM_USE_FLG = 'Y'
+				     AND I.CTRT_NO = L.CTRT_NO
+				     AND I.ITEM_SYS_NO = L.ITEM_SYS_NO
+				     AND I.LOT_ID = L.LOT_ID
+				     /*AND I.WIB_BK_NO = B.WIB_BK_NO(+)*/
+				 <!-- #5893 [JNA] WMS Inventory report -->
+				 <isEqual property="show_zero_volume" compareValue="N">
+					AND ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0) > 0
+				 </isEqual>
+				 <isNotEmpty property="ctrt_no">
+				     AND I.CTRT_NO = #ctrt_no#                                        /* CONTRACT NO */
+		         </isNotEmpty>
+		         <isNotEmpty property="lic_plat_no">		                     
+					AND I.LIC_PLAT_NO =  #lic_plat_no#
+		         </isNotEmpty>		     
+				 <isNotEqual property="wh_cd" compareValue="All">
+				 	AND I.WH_CD = #wh_cd#
+				 </isNotEqual>
+		         <!-- 			 //#5899 [OceanBlue-WMS] WMS inventory by Item Name -->
+		          <isEqual property="item_type" compareValue="ITEM_CD">
+		          	<isNotEmpty property="item_cd">		                     
+						AND I.ITEM_CD LIKE '%' + #item_cd# + '%'
+		      	   </isNotEmpty>
+		          </isEqual>
+		           <isEqual property="item_type" compareValue="ITEM_NM">
+		          	<isNotEmpty property="item_cd">		                     
+						AND I.ITEM_NM LIKE  #item_cd# + '%'
+		      	   </isNotEmpty>
+		          </isEqual>
+		          
+		     	<isNotEmpty property="prop_no">
+		         <isEqual property="prop_no_tp" compareValue="LOT_ID">		     
+			         AND L.LOT_ID = #prop_no#                                         /* LOT ID */
+		         </isEqual>		     
+		         <isEqual property="prop_no_tp" compareValue="LOT_NO">		     
+			         AND L.LOT_ATTRIB_02 = #prop_no#                                  /* LOT NO */
+		         </isEqual>           		                              
+		         <isEqual property="prop_no_tp" compareValue="LOT_04">		                     
+		             AND L.LOT_ATTRIB_04 = #prop_no#                                  /* LOT 04 */
+		         </isEqual>		        		                              
+		         <isEqual property="prop_no_tp" compareValue="LOT_05">		                     
+		             AND L.LOT_ATTRIB_05 = #prop_no#                                  /* LOT 05 */
+		         </isEqual>
+		         
+		     </isNotEmpty>
+		     <isEqual property="prop_date_tp" compareValue="INBOUND_DT">			                  
+		         <isNotEmpty property="prop_date_fm">		                     
+		   <![CDATA[ AND L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')     /* INBOUND DATE */
+		         </isNotEmpty>		                     
+		         <isNotEmpty property="prop_date_to">		                     
+		   <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+		         </isNotEmpty>
+		     </isEqual>			                 
+		     <isEqual property="prop_date_tp" compareValue="EXP_DT">			                  
+		         <isNotEmpty property="prop_date_fm">		                     
+		   <![CDATA[ AND L.LOT_ATTRIB_03 >= ]]> REPLACE (#prop_date_fm#, '-', '')     /* EXPIRATION DATE */
+		         </isNotEmpty>		                     
+		         <isNotEmpty property="prop_date_to">		                     
+		   <![CDATA[ AND L.LOT_ATTRIB_03 <= ]]> REPLACE (#prop_date_to#, '-', '')
+		         </isNotEmpty>
+		     </isEqual>
+		     <isNotEmpty property="ref_no">                           
+                     AND B.REF_NO = #ref_no#                                        /* REFERENCE NO */
+             </isNotEmpty>
+             <isNotEmpty property="barcode_no">                           
+                     AND CI.BARCODE_NO LIKE #barcode_no# + '%'                                        /* BARCODE NO */
+             </isNotEmpty>
+                 ) T
+		GROUP BY T.ITEM_CD,
+		         T.ITEM_NM,
+		         T.INBOUND_DT,
+		         T.LOT_NO,
+		         T.LOT_ID,
+		         T.WH_CD,
+		         T.CTRT_NO,
+		         T.EXP_DT,
+		         T.LOT_04,
+		         T.LOT_05,
+                 T.WIB_BK_NO,
+                 T.REF_NO,
+                 T.LIC_PLAT_NO,
+                 T.ITEM_SER_NO,
+                 T.PO_NO,
+                 T.BARCODE_NO	) a1
+		
+		<![CDATA[ WHERE a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]> 	     
+		ORDER BY a1.CTRT_NO, a1.ITEM_CD, a1.INBOUND_DT
+	</select>
+	
+	<!-- Item Inventory By Location Search -->		
+	<select id="searchWHItemInvByLocList" parameterClass="java.util.HashMap" resultClass="ItemInvListVO">
+		/* WHItemInv.searchWHItemInvByLocList */
+		  SELECT a1.* 
+			FROM
+			(SELECT I.ITEM_CD,
+		         I.ITEM_NM,
+		         dbo.TL_GET_PKG_NM(CI.PKG_LV1_UNIT_CD) AS PKG_LV1_UNIT_NM ,
+		         L.LOT_ATTRIB_01 AS LOT_ATTRIB_01,
+		         CONVERT(VARCHAR(10),CONVERT(DATETIME,L.LOT_ATTRIB_01, 120), 110) AS INBOUND_DT,
+		         L.LOT_ATTRIB_02 AS LOT_NO,
+		         L.LOT_ID AS LOT_ID,
+		         I.WH_LOC_CD,
+                 dbo.TL_GET_WH_LOC_NM(I.WH_CD, I.WH_LOC_CD) AS WH_LOC_NM,
+		         ISNULL (I.IN_QTY, 0) - ISNULL (I.ALLC_QTY, 0) - ISNULL (I.HOLD_QTY, 0) - ISNULL (I.DMG_QTY, 0)  AS STC_QTY,
+		         ISNULL (I.ALLC_QTY, 0) - ISNULL (I.OUT_QTY, 0) AS ALLC_QTY,
+		         ISNULL (I.HOLD_QTY, 0) AS HOLD_QTY,
+		         ISNULL (I.DMG_QTY, 0) AS DMG_QTY,
+		         ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0) AS TOT_QTY,
+		         
+		         /*(ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_CBM, 0) AS ITEM_CBM,
+		         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_CBF, 0) AS ITEM_CBF,
+		         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_GRS_KGS, 0) AS ITEM_GRS_KGS,
+		         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_GRS_LBS, 0) AS ITEM_GRS_LBS,
+		         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_NET_KGS, 0) AS ITEM_NET_KGS,
+		         (ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0)) * ISNULL (CI.LV1_NET_LBS, 0) AS ITEM_NET_LBS,*/
+		         <![CDATA[ 
+		         CASE WHEN ISNULL(I.IN_CBM, 0)     - ISNULL(I.OUT_CBM, 0)     < 0 THEN 0 ELSE ISNULL(I.IN_CBM, 0)     - ISNULL(I.OUT_CBM, 0)     END AS ITEM_CBM,
+		         CASE WHEN ISNULL(I.IN_CBF, 0)     - ISNULL(I.OUT_CBF, 0)     < 0 THEN 0 ELSE ISNULL(I.IN_CBF, 0)     - ISNULL(I.OUT_CBF, 0)     END AS ITEM_CBF,
+		         CASE WHEN ISNULL(I.IN_GRS_KGS, 0) - ISNULL(I.OUT_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_GRS_KGS, 0) - ISNULL(I.OUT_GRS_KGS, 0) END AS ITEM_GRS_KGS,
+		         CASE WHEN ISNULL(I.IN_GRS_LBS, 0) - ISNULL(I.OUT_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_GRS_LBS, 0) - ISNULL(I.OUT_GRS_LBS, 0) END AS ITEM_GRS_LBS,
+		         CASE WHEN ISNULL(I.IN_NET_KGS, 0) - ISNULL(I.OUT_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_NET_KGS, 0) - ISNULL(I.OUT_NET_KGS, 0) END AS ITEM_NET_KGS,
+		         CASE WHEN ISNULL(I.IN_NET_LBS, 0) - ISNULL(I.OUT_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(I.IN_NET_LBS, 0) - ISNULL(I.OUT_NET_LBS, 0) END AS ITEM_NET_LBS,
+		         ]]>
+		         I.WH_CD,
+                 dbo.TL_GET_LOC_NM(I.WH_CD) AS WH_NM,		         		         
+		         I.CTRT_NO,
+		         dbo.TL_GET_CTRT_NM (I.CTRT_NO) AS CTRT_NM,
+		         CASE L.LOT_ATTRIB_03 WHEN
+						'' THEN '' ELSE CONVERT(VARCHAR(10),CONVERT(DATETIME,L.LOT_ATTRIB_03, 120), 110) END AS EXP_DT,
+		         L.LOT_ATTRIB_04 AS LOT_04,
+		         L.LOT_ATTRIB_05 AS LOT_05,
+		         I.WIB_BK_NO,
+		         B.CUST_ORD_NO,
+                 B.REF_NO,
+                 I.LIC_PLAT_NO,
+                 I.ITEM_SER_NO,
+                 I.PO_NO,
+                  <!-- #5893 [JNA] WMS Inventory report -->
+		         ROW_NUMBER() OVER (ORDER BY  I.CTRT_NO, I.ITEM_CD, L.LOT_ATTRIB_01, I.WH_LOC_CD, I.WIB_BK_NO)  as ROWNUM,
+		         COUNT(*) OVER(PARTITION BY 1) as total_rows_cnt,
+		         <!-- OFVFOUR-7852 [GREAT LUCK] ADDING BARCODE NO COLUMN ON WMS -->
+		         CI.BARCODE_NO
+		    FROM TL_WH_INV_LOC I LEFT JOIN TL_WH_IB B ON I.WIB_BK_NO = B.WIB_BK_NO,
+		         TL_CTRT_CUST_ITEM CI,
+		         TL_CTRT_CUST_ITEM_LOT L
+		   WHERE I.CTRT_NO = CI.CTRT_NO
+		     AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		     AND CI.ITEM_USE_FLG = 'Y'
+		     AND I.CTRT_NO = L.CTRT_NO
+		     AND I.ITEM_SYS_NO = L.ITEM_SYS_NO
+		     AND I.LOT_ID = L.LOT_ID
+		     /*AND I.WIB_BK_NO = B.WIB_BK_NO(+)*/
+		 <!-- #5893 [JNA] WMS Inventory report -->
+		 <isEqual property="show_zero_volume" compareValue="N">
+					AND ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0) > 0
+		 </isEqual>
+		 <isNotEmpty property="ctrt_no">
+		     AND I.CTRT_NO = #ctrt_no#                                        /* CONTRACT NO */
+         </isNotEmpty>		
+         <isNotEqual property="wh_cd" compareValue="All">
+             AND I.WH_CD = #wh_cd#
+         </isNotEqual>     
+      <!-- 			 //#5899 [OceanBlue-WMS] WMS inventory by Item Name -->
+            <isEqual property="item_type" compareValue="ITEM_CD">
+            	   <isNotEmpty property="item_cd">		                     
+						AND I.ITEM_CD LIKE '%' + #item_cd# + '%'
+    		     </isNotEmpty>
+            </isEqual>
+            <isEqual property="item_type" compareValue="ITEM_NM">
+            	   <isNotEmpty property="item_cd">		                     
+						AND I.ITEM_NM LIKE #item_cd# + '%'
+    		     </isNotEmpty>
+            </isEqual>
+         
+         <isNotEmpty property="lic_plat_no">		                     
+			AND I.LIC_PLAT_NO =  #lic_plat_no#
+         </isNotEmpty>
+     <isNotEmpty property="prop_no">
+         <isEqual property="prop_no_tp" compareValue="LOT_ID">		     
+	         AND L.LOT_ID = #prop_no#                                         /* LOT ID */
+         </isEqual>		     
+         <isEqual property="prop_no_tp" compareValue="LOT_NO">		     
+	         AND L.LOT_ATTRIB_02 = #prop_no#                                  /* LOT NO */
+         </isEqual>           		                              
+         <isEqual property="prop_no_tp" compareValue="LOT_04">		                     
+             AND L.LOT_ATTRIB_04 = #prop_no#                                  /* LOT 04 */
+         </isEqual>		        		                              
+         <isEqual property="prop_no_tp" compareValue="LOT_05">		                     
+             AND L.LOT_ATTRIB_05 = #prop_no#                                  /* LOT 05 */
+         </isEqual>
+     </isNotEmpty>
+     <isEqual property="prop_date_tp" compareValue="INBOUND_DT">			                  
+         <isNotEmpty property="prop_date_fm">		                     
+   <![CDATA[ AND L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')     /* INBOUND DATE */
+         </isNotEmpty>		                     
+         <isNotEmpty property="prop_date_to">		                     
+   <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+         </isNotEmpty>
+     </isEqual>			                 
+     <isEqual property="prop_date_tp" compareValue="EXP_DT">			                  
+         <isNotEmpty property="prop_date_fm">		                     
+   <![CDATA[ AND L.LOT_ATTRIB_03 >= ]]> REPLACE (#prop_date_fm#, '-', '')     /* EXPIRATION DATE */
+         </isNotEmpty>		                     
+         <isNotEmpty property="prop_date_to">		                     
+   <![CDATA[ AND L.LOT_ATTRIB_03 <= ]]> REPLACE (#prop_date_to#, '-', '')
+         </isNotEmpty>
+     </isEqual>
+         <isNotEmpty property="wh_loc_cd">		                     
+             AND I.WH_LOC_CD = #wh_loc_cd#   /* LOCATION CODE */
+         </isNotEmpty>		                     
+     <isNotEmpty property="prop_bk_no">
+         <isEqual property="prop_bk_tp" compareValue="IB_NO">          
+             AND I.WIB_BK_NO = #prop_bk_no#   /* IN BOOKING NO */
+         </isEqual>            
+         <isEqual property="prop_bk_tp" compareValue="CUST_NO">            
+             AND B.CUST_ORD_NO = #prop_bk_no#   /* CUST ORDER NO */
+         </isEqual>   
+     </isNotEmpty>            
+         <isNotEmpty property="ref_no">                               
+             AND B.REF_NO = #ref_no#   /* REFERENCE NO */
+         </isNotEmpty> 
+         <isNotEmpty property="barcode_no">                               
+             AND CI.BARCODE_NO LIKE #barcode_no# + '%'   /* BARCODE NO */
+         </isNotEmpty>          
+         ) a1
+         <![CDATA[ WHERE a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]> 	
+        ORDER BY a1.CTRT_NO, a1.ITEM_CD, a1.LOT_ATTRIB_01, a1.WH_LOC_CD, a1.WIB_BK_NO		
+	</select>
+	
+	<!-- ItemInOutSummaryList (S) -->
+	<select id="searchItemInOutSummaryList" parameterClass="java.util.HashMap" resultClass="ItemInOutSummaryListVO">
+	/*searchItemInOutSummaryList*/
+		SELECT TL.* FROM (
+		SELECT DISTINCT
+			   ISNULL(IB.ITEM_CD, ' ') AS ITEM_CD,
+		       ISNULL(IB.ITEM_NM, ' ') AS ITEM_NM,
+		       ISNULL(IB.LOT_NO, ' ')  AS LOT_NO,
+		       ISNULL(IB.LOT_ID, ' ')  AS LOT_ID,
+		       ISNULL((SELECT SUM(V.IN_QTY) - ISNULL(SUM(V.OUT_QTY),0)
+		          FROM TL_WH_INV_LOT V
+		         WHERE V.LOT_ID = IB.LOT_ID AND V.CTRT_NO = IB.CTRT_NO AND V.WH_CD = IB.WH_CD), 0)  		AS STC_QTY,
+		       ISNULL(IB.IN_QTY - ISNULL(IB.OUT_QTY, 0), 0) 	AS BALANCE_QTY,
+		       ISNULL(IB.INBOUND_DT, ' ') 	AS INBOUND_DT,
+		       ISNULL(IB.IN_BK_NO, ' ') 	AS IN_BK_NO,
+		       ISNULL(IN_QTY, 0) 			AS IN_QTY,
+		       OB.OUTBOUND_DT,
+		       OUT_BK_NO AS OUT_BK_NO,
+		       OB.OUT_QTY AS OUT_QTY,
+		       IB.CTRT_NO,
+		       dbo.TL_GET_CTRT_NM(IB.CTRT_NO) AS CTRT_NM,
+		       IB.EXP_DT,
+		       IB.LOT_04,
+		       IB.LOT_05,
+		       IB.WH_CD,
+		       dbo.TL_GET_LOC_NM(IB.WH_CD) AS WH_NM,
+		       IB.CUST_ORD_NO AS CUST_ORD_NO_IB,
+		       OB.CUST_ORD_NO AS CUST_ORD_NO_OB,
+               IB.REF_NO AS REF_NO_IB,
+               OB.REF_NO AS REF_NO_OB
+		  FROM ( 
+		        SELECT I.PO_SYS_NO,
+		                I.ITEM_SYS_NO,
+		                I.LOT_ID,
+		                I.WIB_BK_NO AS IN_BK_NO,
+		                I.CTRT_NO AS CTRT_NO,
+		                I.WH_CD AS WH_CD,
+		                I.ITEM_CD AS ITEM_CD,
+		                I.ITEM_NM AS ITEM_NM,
+		                L.LOT_ATTRIB_01 AS INBOUND_DT,
+		                L.LOT_ATTRIB_02 AS LOT_NO,
+		                L.LOT_ATTRIB_03 AS EXP_DT,
+		                L.LOT_ATTRIB_04 AS LOT_04,
+		                L.LOT_ATTRIB_05 AS LOT_05,
+		                SUM(I.IN_QTY) AS IN_QTY,
+		                SUM(I.OUT_QTY) AS OUT_QTY,
+		                B.CUST_ORD_NO,
+                        B.REF_NO
+		          FROM 	TL_WH_INV_LOT I 
+		          		LEFT JOIN TL_WH_IB B ON I.WIB_BK_NO   = B.WIB_BK_NO AND 'I' = B.BK_STS_CD, 
+		          		TL_CTRT_CUST_ITEM_LOT L
+		         WHERE I.CTRT_NO     = L.CTRT_NO
+		           AND I.ITEM_SYS_NO = L.ITEM_SYS_NO
+		           AND I.LOT_ID      = L.LOT_ID
+		           /*AND I.WIB_BK_NO   = B.WIB_BK_NO(+)*/
+		           /*AND B.BK_STS_CD  = 'I'  */					 
+		            
+		           <isNotEmpty property="ctrt_no">
+		             AND I.CTRT_NO 	= #ctrt_no# 											
+		           </isNotEmpty>
+		           <isNotEmpty property="wh_cd">
+		             AND I.WH_CD 	= #wh_cd# 											
+		           </isNotEmpty>
+		           
+		           <isNotEmpty property="prop_no">
+			         <isEqual property="prop_no_tp" compareValue="LOT_ID">		     
+				         AND I.LOT_ID = #prop_no#                                         	
+			         </isEqual>		     
+			         <isEqual property="prop_no_tp" compareValue="LOT_NO">		     
+				         AND L.LOT_ATTRIB_02 = #prop_no#                                  	
+			         </isEqual>           		                              
+			         <isEqual property="prop_no_tp" compareValue="LOT_04">		                     
+			             AND L.LOT_ATTRIB_04 = #prop_no#                                  	
+			         </isEqual>		        		                              
+			         <isEqual property="prop_no_tp" compareValue="LOT_05">		                     
+			             AND L.LOT_ATTRIB_05 = #prop_no#                                  	
+			         </isEqual>
+			       </isNotEmpty>
+		           
+		           
+		           <isEqual property="prop_date_tp" compareValue="INBOUND_DT">			                  
+			         <isNotEmpty property="prop_date_fm">		                     
+			   			<![CDATA[ AND L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+			         </isNotEmpty>		                     
+			         <isNotEmpty property="prop_date_to">		                     
+			   			<![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+			         </isNotEmpty>
+			       </isEqual>
+			       			                 
+			       <isEqual property="prop_date_tp" compareValue="EXP_DT">			                  
+			         <isNotEmpty property="prop_date_fm">		                     
+			   			<![CDATA[ AND L.LOT_ATTRIB_03 >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+			         </isNotEmpty>		                     
+			         <isNotEmpty property="prop_date_to">		                     
+			  			<![CDATA[ AND L.LOT_ATTRIB_03 <= ]]> REPLACE (#prop_date_to#, '-', '')
+			         </isNotEmpty>
+			       </isEqual>
+			       <!-- 			 //#5899 [OceanBlue-WMS] WMS inventory by Item Name -->
+		           <isEqual property="item_type" compareValue="ITEM_CD">
+		              <isNotEmpty property="item_cd">		                     
+						AND I.ITEM_CD LIKE '%' + #item_cd# + '%'
+		        	   </isNotEmpty>
+		           </isEqual>
+		           <isEqual property="item_type" compareValue="ITEM_NM">
+		              <isNotEmpty property="item_cd">		                     
+						AND I.ITEM_NM LIKE  #item_cd# + '%'
+		          	 </isNotEmpty>
+		           </isEqual>
+		           
+		           <isNotEmpty property="prop_bk_no">	
+		           	 <isEqual property="prop_bk_tp" compareValue="IN_BK_NO">
+		           	   AND I.WIB_BK_NO = #prop_bk_no#   
+		           	 </isEqual>
+		           	 <isEqual property="prop_bk_tp" compareValue="IN_CUS_NO">
+		           	   AND B.CUST_ORD_NO = #prop_bk_no# 
+		           	 </isEqual>
+		           	 <isEqual property="prop_bk_tp" compareValue="IN_REF_NO">
+                       AND B.REF_NO = #prop_bk_no# 
+                     </isEqual>
+		           </isNotEmpty>
+		           
+		           
+		           <!-- <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO"> -->
+						<isNotEmpty property="prop_bk_no">
+							 <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+							 <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+							 AND (EXISTS (SELECT 'X'
+										  FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+										 WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+										   AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+										   <isNotEmpty property="prop_bk_no">	
+											 <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+											   AND SI.WOB_BK_NO = #prop_bk_no# 									
+											 </isEqual>
+										   </isNotEmpty>
+										   
+										   <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+											 <isNotEmpty property="prop_date_fm">		                     
+										 		<![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+											 </isNotEmpty>		                     
+											 <isNotEmpty property="prop_date_to">		                     
+												<![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+											 </isNotEmpty>
+										   </isEqual>
+										   AND SI.WIB_BK_NO   = I.WIB_BK_NO
+										   AND SI.PO_SYS_NO   = I.PO_SYS_NO
+										   AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+										   AND SI.LOT_ID      = I.LOT_ID) OR EXISTS
+								(SELECT 'X'
+								   FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+								  WHERE B.WOB_BK_NO = PI.WOB_BK_NO
+									AND P.LP_NO     = PI.LP_NO
+									AND P.LP_STS_CD = 'L'
+									
+									<isNotEmpty property="prop_bk_no">	
+									  <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+										AND PI.WOB_BK_NO = #prop_bk_no# 
+									  </isEqual>
+									</isNotEmpty>
+									<isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+									  <isNotEmpty property="prop_date_fm">		                     
+								  <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+									  </isNotEmpty>		                     
+									  <isNotEmpty property="prop_date_to">		                     
+								  <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+									  </isNotEmpty>
+									</isEqual>
+									AND PI.PO_SYS_NO   = I.PO_SYS_NO
+									AND PI.ITEM_SYS_NO = I.ITEM_SYS_NO
+									AND PI.LOT_ID      = I.LOT_ID)
+									)
+							</isEqual>
+							</isEqual>
+						</isNotEmpty>
+					<!-- </isEqual> -->
+					<!-- <isNotEqual property="prop_bk_tp" compareValue="OUT_BK_NO"> -->
+						<isEmpty property="prop_bk_no">
+							<isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+								<isNotEmpty property="prop_date_fm">
+									AND (EXISTS (SELECT 'X'
+						                          FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+						                         WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+						                           AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+						                           <isNotEmpty property="prop_bk_no">	
+						                             <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+						                               AND SI.WOB_BK_NO = #prop_bk_no# 									
+						                             </isEqual>
+						                           </isNotEmpty>
+						                           <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+						                             <isNotEmpty property="prop_date_fm">		                     
+											     <![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+											         </isNotEmpty>		                     
+											         <isNotEmpty property="prop_date_to">		                     
+											     <![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+											         </isNotEmpty>
+						                           </isEqual>
+						                           AND SI.WIB_BK_NO   = I.WIB_BK_NO
+						                           AND SI.PO_SYS_NO   = I.PO_SYS_NO
+						                           AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						                           AND SI.LOT_ID      = I.LOT_ID) OR EXISTS
+						                (SELECT 'X'
+						                   FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+						                  WHERE B.WOB_BK_NO = PI.WOB_BK_NO
+						                    AND P.LP_NO     = PI.LP_NO
+						                    AND P.LP_STS_CD = 'L'
+						                    
+						                    <isNotEmpty property="prop_bk_no">	
+				                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+				                                AND PI.WOB_BK_NO = #prop_bk_no# 
+				                              </isEqual>
+				                            </isNotEmpty>
+				                            <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+				                              <isNotEmpty property="prop_date_fm">		                     
+									      <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+									          </isNotEmpty>		                     
+									          <isNotEmpty property="prop_date_to">		                     
+									      <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+									          </isNotEmpty>
+				                            </isEqual>
+						                    AND PI.PO_SYS_NO   = I.PO_SYS_NO
+						                    AND PI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						                    AND PI.LOT_ID      = I.LOT_ID)
+						                    )
+								</isNotEmpty>
+								<isEmpty property="prop_date_fm">
+									<isNotEmpty property="prop_date_to">
+										AND (EXISTS (SELECT 'X'
+						                          FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+						                         WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+						                           AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+						                           <isNotEmpty property="prop_bk_no">	
+						                             <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+						                               AND SI.WOB_BK_NO = #prop_bk_no# 									
+						                             </isEqual>
+						                           </isNotEmpty>
+						                           <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+						                             <isNotEmpty property="prop_date_fm">		                     
+											     <![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+											         </isNotEmpty>		                     
+											         <isNotEmpty property="prop_date_to">		                     
+											     <![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+											         </isNotEmpty>
+						                           </isEqual>
+						                           AND SI.WIB_BK_NO   = I.WIB_BK_NO
+						                           AND SI.PO_SYS_NO   = I.PO_SYS_NO
+						                           AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						                           AND SI.LOT_ID      = I.LOT_ID) OR EXISTS
+						                (SELECT 'X'
+						                   FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+						                  WHERE B.WOB_BK_NO = PI.WOB_BK_NO
+						                    AND P.LP_NO     = PI.LP_NO
+						                    AND P.LP_STS_CD = 'L'
+						                    
+						                    <isNotEmpty property="prop_bk_no">	
+				                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+				                                AND PI.WOB_BK_NO = #prop_bk_no# 
+				                              </isEqual>
+				                            </isNotEmpty>
+				                            <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+				                              <isNotEmpty property="prop_date_fm">		                     
+									      <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+									          </isNotEmpty>		                     
+									          <isNotEmpty property="prop_date_to">		                     
+									      <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+									          </isNotEmpty>
+				                            </isEqual>
+						                    AND PI.PO_SYS_NO   = I.PO_SYS_NO
+						                    AND PI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						                    AND PI.LOT_ID      = I.LOT_ID)
+						                    )
+									</isNotEmpty>
+								</isEmpty>
+							</isEqual>
+						</isEmpty>
+					<!-- </isNotEqual> -->
+		           
+		           <isEqual property="prop_date_tp" compareValue="INOUT_DT">
+						<isNotEmpty property="prop_date_fm">
+							AND ((EXISTS (SELECT 'X'
+					                                  FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+					                                 WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+					                                   AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+					                                   <isNotEmpty property="prop_bk_no">    
+					                                     <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+					                                       AND SI.WOB_BK_NO = #prop_bk_no#                                     
+					                                     </isEqual>
+					                                   </isNotEmpty>                           
+					                                 <![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')         
+					                                 <![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                                   AND SI.WIB_BK_NO   = I.WIB_BK_NO
+					                                   AND SI.PO_SYS_NO   = I.PO_SYS_NO
+					                                   AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+					                                   AND SI.LOT_ID      = I.LOT_ID) OR EXISTS
+					                        (SELECT 'X'
+					                           FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+					                          WHERE B.WOB_BK_NO = PI.WOB_BK_NO
+					                            AND P.LP_NO     = PI.LP_NO
+					                            AND P.LP_STS_CD = 'L'
+					                            
+					                            <isNotEmpty property="prop_bk_no">   
+					                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+					                                AND PI.WOB_BK_NO = #prop_bk_no# 
+					                              </isEqual>
+					                            </isNotEmpty>
+					                          <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')        
+					                          <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                            AND PI.PO_SYS_NO   = I.PO_SYS_NO
+					                            AND PI.ITEM_SYS_NO = I.ITEM_SYS_NO
+					                            AND PI.LOT_ID      = I.LOT_ID)
+					                            )
+					                       <![CDATA[ OR ( L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')        
+					                             <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                           )
+					                        )
+						</isNotEmpty>
+						
+						<isEmpty property="prop_date_fm">
+							<isNotEmpty property="prop_date_to">
+								AND ((EXISTS (SELECT 'X'
+					                                  FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+					                                 WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+					                                   AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+					                                   <isNotEmpty property="prop_bk_no">    
+					                                     <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+					                                       AND SI.WOB_BK_NO = #prop_bk_no#                                     
+					                                     </isEqual>
+					                                   </isNotEmpty>                           
+					                                 <![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')         
+					                                 <![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                                   AND SI.WIB_BK_NO   = I.WIB_BK_NO
+					                                   AND SI.PO_SYS_NO   = I.PO_SYS_NO
+					                                   AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+					                                   AND SI.LOT_ID      = I.LOT_ID) OR EXISTS
+					                        (SELECT 'X'
+					                           FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+					                          WHERE B.WOB_BK_NO = PI.WOB_BK_NO
+					                            AND P.LP_NO     = PI.LP_NO
+					                            AND P.LP_STS_CD = 'L'
+					                            
+					                            <isNotEmpty property="prop_bk_no">   
+					                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+					                                AND PI.WOB_BK_NO = #prop_bk_no# 
+					                              </isEqual>
+					                            </isNotEmpty>
+					                          <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')        
+					                          <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                            AND PI.PO_SYS_NO   = I.PO_SYS_NO
+					                            AND PI.ITEM_SYS_NO = I.ITEM_SYS_NO
+					                            AND PI.LOT_ID      = I.LOT_ID)
+					                            )
+					                       <![CDATA[ OR ( L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')        
+					                             <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                           )
+					                        )
+							</isNotEmpty>
+						</isEmpty>
+					</isEqual>
+		           
+		         GROUP BY I.PO_SYS_NO, I.ITEM_SYS_NO, I.LOT_ID, I.WIB_BK_NO,  I.CTRT_NO, I.WH_CD, I.ITEM_CD, I.ITEM_NM,
+		                L.LOT_ATTRIB_01, L.LOT_ATTRIB_02, L.LOT_ATTRIB_03, L.LOT_ATTRIB_04, L.LOT_ATTRIB_05, B.CUST_ORD_NO,B.REF_NO
+		         <!-- ORDER BY I.PO_SYS_NO, I.ITEM_SYS_NO, I.LOT_ID, I.WIB_BK_NO -->
+		         ) IB LEFT JOIN 
+		         
+		       
+		       (       
+		        SELECT  OC.WIB_BK_NO,
+		        		OC.PO_SYS_NO,
+		                OC.ITEM_SYS_NO,
+		                OC.LOT_ID,
+		                WOB_BK_NO AS OUT_BK_NO,
+		                MAX(OC.CTRT_NO) AS CTRT_NO,
+		                MAX(OC.WH_CD) AS WH_CD,
+		                MAX(ITEM_CD) AS ITEM_CD,
+		                MAX(ITEM_NM) AS ITEM_NM,
+		                MAX(L.LOT_ATTRIB_01) AS INBOUND_DT,
+		                MAX(L.LOT_ATTRIB_02) AS LOT_NO,
+		                MAX(L.LOT_ATTRIB_03) AS EXP_DT,
+		                MAX(L.LOT_ATTRIB_04) AS LOT_04,
+		                MAX(L.LOT_ATTRIB_05) AS LOT_05,
+		                MAX(OUTBOUND_DT) AS OUTBOUND_DT,
+		                SUM(OUT_QTY) AS OUT_QTY,
+		                MAX(OC.CUST_ORD_NO) AS CUST_ORD_NO,
+                        MAX(OC.REF_NO) AS REF_NO
+		          FROM (
+		                 SELECT  
+		                 		 SI.WOB_BK_NO,
+		                         SI.PO_SYS_NO,
+		                         SI.ITEM_SYS_NO,
+		                         SI.LOT_ID,
+		                         B.CTRT_NO,
+		                         B.WH_CD,
+		                         SI.WH_LOC_CD,
+		                         SI.ITEM_SEQ,
+		                         SI.WIB_BK_NO,
+		                         SI.ITEM_CD,
+		                         SI.ITEM_NM,
+		                         SI.ISSU_ITEM_EA_QTY AS OUT_QTY,
+		                         S.OUTBOUND_DT,
+		                         B.CUST_ORD_NO,
+                                 B.REF_NO
+		                   FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+		                  WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+		                    AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+		                       
+		                    <isNotEmpty property="ctrt_no">
+		                      AND B.CTRT_NO = #ctrt_no# 											
+		                    </isNotEmpty>   
+		                    <isNotEmpty property="wh_cd">
+				              AND B.WH_CD  	= #wh_cd# 											
+				            </isNotEmpty>
+				            <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+                                AND B.WOB_BK_NO = #prop_bk_no# 									
+                              </isEqual>
+                            </isNotEmpty>
+		                    <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+                              <isNotEmpty property="prop_date_fm">		                     
+					      <![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+					          </isNotEmpty>		                     
+					          <isNotEmpty property="prop_date_to">		                     
+					      <![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					          </isNotEmpty>
+                            </isEqual>
+                            
+                            <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="IN_BK_NO">
+                                AND SI.WIB_BK_NO = #prop_bk_no# 									
+                              </isEqual>
+                            </isNotEmpty>
+                            
+                            <isNotEmpty property="prop_no">
+					          <isEqual property="prop_no_tp" compareValue="LOT_ID">		     
+						         AND SI.LOT_ID = #prop_no#                         				
+					          </isEqual>		     
+					        </isNotEmpty>
+					       
+		                    <isNotEmpty property="item_cd">
+		                      AND SI.ITEM_CD LIKE '%' + #item_cd# + '%' 											
+		                    </isNotEmpty>
+		                    
+		                    <isNotEmpty property="prop_bk_no">	
+				           	  <isEqual property="prop_bk_tp" compareValue="OUT_CUS_NO">
+				           	    AND B.CUST_ORD_NO = #prop_bk_no# 									
+				           	  </isEqual>
+				           	  <isEqual property="prop_bk_tp" compareValue="OUT_REF_NO">
+                                AND B.REF_NO = #prop_bk_no#                                    
+                              </isEqual>
+				            </isNotEmpty>
+		                    
+		                    <isNotEmpty property="prop_bk_no">	
+				           	  <isEqual property="prop_bk_tp" compareValue="IN_CUS_NO">
+				           	    AND EXISTS (SELECT 'X'
+				                              FROM TL_WH_IB B
+				                             WHERE B.WIB_BK_NO   = SI.WIB_BK_NO
+				                               AND B.CUST_ORD_NO = #prop_bk_no#) 					
+				           	  </isEqual>
+				           	  <isEqual property="prop_bk_tp" compareValue="IN_REF_NO">
+                                AND EXISTS (SELECT 'X'
+                                              FROM TL_WH_IB B
+                                             WHERE B.WIB_BK_NO   = SI.WIB_BK_NO
+                                               AND B.REF_NO = #prop_bk_no#)                    
+                              </isEqual>
+				           	</isNotEmpty>
+		                    
+		                 
+		                 UNION ALL
+		                 
+		                 SELECT PI.WOB_BK_NO,
+		                        PI.PO_SYS_NO,
+		                        PI.ITEM_SYS_NO,
+		                        PI.LOT_ID,
+		                        B.CTRT_NO,
+		                        B.WH_CD,
+		                        PI.WH_LOC_CD,
+		                        PI.ITEM_SEQ,
+		                        PI.WIB_BK_NO,
+		                        PI.ITEM_CD,
+		                        PI.ITEM_NM,
+		                        PI.LOAD_ITEM_EA_QTY AS OUT_QTY,
+		                        P.OUTBOUND_DT,
+		                        B.CUST_ORD_NO,
+                                B.REF_NO
+		                   FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+		                  WHERE P.LP_NO     = PI.LP_NO
+		                    AND P.LP_STS_CD = 'L'
+		                    AND B.WOB_BK_NO = PI.WOB_BK_NO
+		                       
+		                    <isNotEmpty property="ctrt_no">
+		                      AND B.CTRT_NO = #ctrt_no# 											
+		                    </isNotEmpty>   
+		                    <isNotEmpty property="wh_cd">
+				              AND B.WH_CD  	= #wh_cd# 											
+				            </isNotEmpty>
+				            
+				            <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+                                AND B.WOB_BK_NO = #prop_bk_no# 									
+                              </isEqual>
+                            </isNotEmpty>
+                            
+                            <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+                              <isNotEmpty property="prop_date_fm">		                     
+					      <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+					          </isNotEmpty>		                     
+					          <isNotEmpty property="prop_date_to">		                     
+					      <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					          </isNotEmpty>
+                            </isEqual>
+                            
+                            <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="IN_BK_NO">
+                                AND PI.WIB_BK_NO = #prop_bk_no# 									
+                              </isEqual>
+                            </isNotEmpty>
+                            
+                            <isNotEmpty property="prop_no">
+					          <isEqual property="prop_no_tp" compareValue="LOT_ID">		     
+						         AND PI.LOT_ID = #prop_no#                         				
+					          </isEqual>		     
+					        </isNotEmpty>
+					        
+					        <isNotEmpty property="item_cd">
+		                      AND PI.ITEM_CD LIKE '%' + #item_cd# + '%' 											
+		                    </isNotEmpty>
+		                    
+		                    <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="OUT_CUS_NO">
+                                AND B.CUST_ORD_NO = #prop_bk_no# 									
+                              </isEqual>
+                               <isEqual property="prop_bk_tp" compareValue="OUT_REF_NO">
+                                AND B.REF_NO = #prop_bk_no#                                    
+                              </isEqual>
+                            </isNotEmpty>
+                            
+                            <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="IN_CUS_NO">
+                                AND EXISTS (SELECT 'X'
+				                              FROM TL_WH_IB B
+				                             WHERE B.WIB_BK_NO   = PI.WIB_BK_NO
+				                               AND B.CUST_ORD_NO = #prop_bk_no#) 					
+                              </isEqual>
+                              <isEqual property="prop_bk_tp" compareValue="IN_REF_NO">
+                                AND EXISTS (SELECT 'X'
+                                              FROM TL_WH_IB B
+                                             WHERE B.WIB_BK_NO   = PI.WIB_BK_NO
+                                               AND B.REF_NO = #prop_bk_no#)                    
+                              </isEqual>
+                            </isNotEmpty>
+		                 
+		                 ) OC,
+		                TL_CTRT_CUST_ITEM_LOT L
+		         WHERE OC.CTRT_NO     = L.CTRT_NO
+		           AND OC.ITEM_SYS_NO = L.ITEM_SYS_NO
+		           AND OC.LOT_ID      = L.LOT_ID
+		              
+		           <isEqual property="prop_date_tp" compareValue="INBOUND_DT">			                  
+			         <isNotEmpty property="prop_date_fm">		                     
+			   <![CDATA[ AND L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+			         </isNotEmpty>		                     
+			         <isNotEmpty property="prop_date_to">		                     
+			   <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+			         </isNotEmpty>
+			       </isEqual>	
+			       		                 
+			       <isEqual property="prop_date_tp" compareValue="EXP_DT">			                  
+			         <isNotEmpty property="prop_date_fm">		                     
+			   <![CDATA[ AND L.LOT_ATTRIB_03 >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+			         </isNotEmpty>		                     
+			         <isNotEmpty property="prop_date_to">		                     
+			   <![CDATA[ AND L.LOT_ATTRIB_03 <= ]]> REPLACE (#prop_date_to#, '-', '')
+			         </isNotEmpty>
+			       </isEqual>
+			       
+			       <isNotEmpty property="prop_no">
+			         <isEqual property="prop_no_tp" compareValue="LOT_NO">		     
+				         AND L.LOT_ATTRIB_02 = #prop_no#                                  	
+			         </isEqual>           		                              
+			         <isEqual property="prop_no_tp" compareValue="LOT_04">		                     
+			             AND L.LOT_ATTRIB_04 = #prop_no#                                  	
+			         </isEqual>		        		                              
+			         <isEqual property="prop_no_tp" compareValue="LOT_05">		                     
+			             AND L.LOT_ATTRIB_05 = #prop_no#                                  	
+			         </isEqual>
+			       </isNotEmpty>
+			       
+                  <isEqual property="prop_date_tp" compareValue="INOUT_DT">
+					<isNotEmpty property="prop_date_fm">
+						<![CDATA[ AND ((  L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')         
+                            <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+                          )
+                          OR
+		                <![CDATA[ ( OC.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '') 
+		                            <![CDATA[ AND OC.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+		                          )
+		                         ) 
+					</isNotEmpty>
+					<isEmpty property="prop_date_fm">
+						<isNotEmpty property="prop_date_to">
+							<![CDATA[ AND ((  L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')         
+                            <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+                          )
+                          OR
+		                <![CDATA[ ( OC.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '') 
+		                            <![CDATA[ AND OC.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+		                          )
+		                         ) 
+						</isNotEmpty>
+					</isEmpty>
+				</isEqual>
+		        
+		         GROUP BY OC.WIB_BK_NO, OC.PO_SYS_NO, OC.ITEM_SYS_NO, OC.LOT_ID, OC.WOB_BK_NO) OB 
+		         ON  IB.IN_BK_NO    = OB.WIB_BK_NO
+				AND IB.PO_SYS_NO   = OB.PO_SYS_NO
+		   		AND IB.ITEM_SYS_NO = OB.ITEM_SYS_NO
+		   		AND IB.LOT_ID      = OB.LOT_ID 
+		)TL
+		<!-- TinLuong Modification (s) -->
+		WHERE 1 = 1
+		<isNotEmpty property="prop_bk_no">	
+          	  <isEqual property="prop_bk_tp" compareValue="OUT_CUS_NO">
+          	    	AND TL.CUST_ORD_NO_OB = #prop_bk_no# 									
+          	  </isEqual>
+          	  <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+          	    	AND TL.OUT_BK_NO = #prop_bk_no# 									
+          	  </isEqual>
+          	  <isEqual property="prop_bk_tp" compareValue="OUT_REF_NO">
+           			AND TL.REF_NO_OB = #prop_bk_no#                                    
+          	  </isEqual>
+		</isNotEmpty>
+		<!-- TinLuong Modification (E) -->
+		 ORDER BY TL.ITEM_CD,
+		          TL.ITEM_NM,
+		          TL.LOT_NO,
+		          TL.LOT_ID,
+		          TL.INBOUND_DT,
+		          TL.IN_BK_NO,
+		          OUTBOUND_DT,
+		          OUT_BK_NO
+	</select>
+	<!-- ItemInOutSummaryList (E) -->
+	<!-- Hoai.Vo (E) -->
+	<select id="searchItemInOutSummaryListByItem" parameterClass="java.util.HashMap" resultClass="ItemInOutSummaryListVO">
+	/*searchItemInOutSummaryListByItem*/
+		SELECT TL.* FROM (
+		SELECT DISTINCT
+			   ISNULL(IB.ITEM_CD, ' ') AS ITEM_CD,
+		       ISNULL(IB.ITEM_NM, ' ') AS ITEM_NM,
+		       ISNULL((SELECT CAST (SUM(V.IN_QTY) - ISNULL(SUM(V.OUT_QTY),0) AS INT)
+		          FROM TL_WH_INV_ITEM V
+		         WHERE V.ITEM_CD = IB.ITEM_CD AND V.CTRT_NO = IB.CTRT_NO AND V.WH_CD = IB.WH_CD), 0)  		AS STC_QTY,
+		       ISNULL(IB.IN_QTY - ISNULL(IB.OUT_QTY, 0), 0) 	AS BALANCE_QTY,
+		       ISNULL(IB.INBOUND_DT, ' ') 	AS INBOUND_DT,
+		       ISNULL(IB.IN_BK_NO, ' ') 	AS IN_BK_NO,
+		       ISNULL(IN_QTY, 0) 			AS IN_QTY,
+		       OB.OUTBOUND_DT,
+		       OUT_BK_NO AS OUT_BK_NO,
+		       OB.OUT_QTY AS OUT_QTY,
+		       IB.CTRT_NO,
+		       dbo.TL_GET_CTRT_NM(IB.CTRT_NO) AS CTRT_NM,
+		       IB.WH_CD,
+		       dbo.TL_GET_LOC_NM(IB.WH_CD) AS WH_NM,
+		       IB.CUST_ORD_NO AS CUST_ORD_NO_IB,
+		       OB.CUST_ORD_NO AS CUST_ORD_NO_OB,
+               IB.REF_NO AS REF_NO_IB,
+               OB.REF_NO AS REF_NO_OB
+		  FROM ( 
+		        SELECT I.PO_SYS_NO,
+		                I.ITEM_SYS_NO,
+		                I.WIB_BK_NO AS IN_BK_NO,
+		                I.CTRT_NO AS CTRT_NO,
+		                I.WH_CD AS WH_CD,
+		                I.ITEM_CD AS ITEM_CD,
+		                I.ITEM_NM AS ITEM_NM,
+		                L.LOT_ATTRIB_01 AS INBOUND_DT,
+		                SUM(I.IN_QTY) AS IN_QTY,
+		                SUM(I.OUT_QTY) AS OUT_QTY,
+		                B.CUST_ORD_NO,
+                        B.REF_NO
+		          FROM 	TL_WH_INV_LOT I 
+		          		LEFT JOIN TL_WH_IB B ON I.WIB_BK_NO   = B.WIB_BK_NO AND 'I' = B.BK_STS_CD, 
+		          		TL_CTRT_CUST_ITEM_LOT L
+		         WHERE I.CTRT_NO     = L.CTRT_NO
+		           AND I.ITEM_SYS_NO = L.ITEM_SYS_NO				 
+		           AND I.LOT_ID      = L.LOT_ID  
+		           <isNotEmpty property="ctrt_no">
+		             AND I.CTRT_NO 	= #ctrt_no# 											
+		           </isNotEmpty>
+		           <isNotEmpty property="wh_cd">
+		             AND I.WH_CD 	= #wh_cd# 											
+		           </isNotEmpty>
+		           
+		           <isNotEmpty property="prop_no">
+			         <isEqual property="prop_no_tp" compareValue="LOT_ID">		     
+				         AND I.LOT_ID = #prop_no#                                         	
+			         </isEqual>		     
+			         <isEqual property="prop_no_tp" compareValue="LOT_NO">		     
+				         AND L.LOT_ATTRIB_02 = #prop_no#                                  	
+			         </isEqual>           		                              
+			         <isEqual property="prop_no_tp" compareValue="LOT_04">		                     
+			             AND L.LOT_ATTRIB_04 = #prop_no#                                  	
+			         </isEqual>		        		                              
+			         <isEqual property="prop_no_tp" compareValue="LOT_05">		                     
+			             AND L.LOT_ATTRIB_05 = #prop_no#                                  	
+			         </isEqual>
+			       </isNotEmpty>
+		           
+		           
+		           <isEqual property="prop_date_tp" compareValue="INBOUND_DT">			                  
+			         <isNotEmpty property="prop_date_fm">		                     
+			   			<![CDATA[ AND L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+			         </isNotEmpty>		                     
+			         <isNotEmpty property="prop_date_to">		                     
+			   			<![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+			         </isNotEmpty>
+			       </isEqual>
+			       			                 
+			       <isEqual property="prop_date_tp" compareValue="EXP_DT">			                  
+			         <isNotEmpty property="prop_date_fm">		                     
+			   			<![CDATA[ AND L.LOT_ATTRIB_03 >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+			         </isNotEmpty>		                     
+			         <isNotEmpty property="prop_date_to">		                     
+			  			<![CDATA[ AND L.LOT_ATTRIB_03 <= ]]> REPLACE (#prop_date_to#, '-', '')
+			         </isNotEmpty>
+			       </isEqual>
+			       <!-- 			 //#5899 [OceanBlue-WMS] WMS inventory by Item Name -->
+			       <isEqual property="item_type" compareValue="ITEM_CD">
+		              <isNotEmpty property="item_cd">		                     
+						AND I.ITEM_CD LIKE '%' + #item_cd# + '%'
+		        	   </isNotEmpty>
+		           </isEqual>
+		           <isEqual property="item_type" compareValue="ITEM_NM">
+		              <isNotEmpty property="item_cd">		                     
+						AND I.ITEM_NM LIKE  #item_cd# + '%'
+		          	 </isNotEmpty>
+		           </isEqual>
+		           
+		           <isNotEmpty property="prop_bk_no">	
+		           	 <isEqual property="prop_bk_tp" compareValue="IN_BK_NO">
+		           	   AND I.WIB_BK_NO = #prop_bk_no#   
+		           	 </isEqual>
+		           	 <isEqual property="prop_bk_tp" compareValue="IN_CUS_NO">
+		           	   AND B.CUST_ORD_NO = #prop_bk_no# 
+		           	 </isEqual>
+		           	 <isEqual property="prop_bk_tp" compareValue="IN_REF_NO">
+                       AND B.REF_NO = #prop_bk_no# 
+                     </isEqual>
+		           </isNotEmpty>
+		           
+		           
+		           <!-- <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO"> -->
+						<isNotEmpty property="prop_bk_no">
+							 AND (EXISTS (SELECT 'X'
+										  FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+										 WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+										   AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+										   <isNotEmpty property="prop_bk_no">	
+											 <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+											   AND SI.WOB_BK_NO = #prop_bk_no# 									
+											 </isEqual>
+										   </isNotEmpty>
+										   
+										   <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+											 <isNotEmpty property="prop_date_fm">		                     
+										 		<![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+											 </isNotEmpty>		                     
+											 <isNotEmpty property="prop_date_to">		                     
+												<![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+											 </isNotEmpty>
+										   </isEqual>
+										   AND SI.WIB_BK_NO   = I.WIB_BK_NO
+										   AND SI.PO_SYS_NO   = I.PO_SYS_NO
+										   AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+										   AND SI.LOT_ID      = I.LOT_ID) OR EXISTS
+								(SELECT 'X'
+								   FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+								  WHERE B.WOB_BK_NO = PI.WOB_BK_NO
+									AND P.LP_NO     = PI.LP_NO
+									AND P.LP_STS_CD = 'L'
+									
+									<isNotEmpty property="prop_bk_no">	
+									  <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+										AND PI.WOB_BK_NO = #prop_bk_no# 
+									  </isEqual>
+									</isNotEmpty>
+									<isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+									  <isNotEmpty property="prop_date_fm">		                     
+								  <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+									  </isNotEmpty>		                     
+									  <isNotEmpty property="prop_date_to">		                     
+								  <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+									  </isNotEmpty>
+									</isEqual>
+									AND PI.PO_SYS_NO   = I.PO_SYS_NO
+									AND PI.ITEM_SYS_NO = I.ITEM_SYS_NO
+									AND PI.LOT_ID      = I.LOT_ID)
+									)
+						</isNotEmpty>
+					<!-- </isEqual> -->
+					<!-- <isNotEqual property="prop_bk_tp" compareValue="OUT_BK_NO"> -->
+						<isEmpty property="prop_bk_no">
+							<isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+								<isNotEmpty property="prop_date_fm">
+									AND (EXISTS (SELECT 'X'
+						                          FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+						                         WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+						                           AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+						                           <isNotEmpty property="prop_bk_no">	
+						                             <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+						                               AND SI.WOB_BK_NO = #prop_bk_no# 									
+						                             </isEqual>
+						                           </isNotEmpty>
+						                           <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+						                             <isNotEmpty property="prop_date_fm">		                     
+											     <![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+											         </isNotEmpty>		                     
+											         <isNotEmpty property="prop_date_to">		                     
+											     <![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+											         </isNotEmpty>
+						                           </isEqual>
+						                           AND SI.WIB_BK_NO   = I.WIB_BK_NO
+						                           AND SI.PO_SYS_NO   = I.PO_SYS_NO
+						                           AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						                           AND SI.LOT_ID      = I.LOT_ID) OR EXISTS
+						                (SELECT 'X'
+						                   FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+						                  WHERE B.WOB_BK_NO = PI.WOB_BK_NO
+						                    AND P.LP_NO     = PI.LP_NO
+						                    AND P.LP_STS_CD = 'L'
+						                    
+						                    <isNotEmpty property="prop_bk_no">	
+				                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+				                                AND PI.WOB_BK_NO = #prop_bk_no# 
+				                              </isEqual>
+				                            </isNotEmpty>
+				                            <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+				                              <isNotEmpty property="prop_date_fm">		                     
+									      <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+									          </isNotEmpty>		                     
+									          <isNotEmpty property="prop_date_to">		                     
+									      <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+									          </isNotEmpty>
+				                            </isEqual>
+						                    AND PI.PO_SYS_NO   = I.PO_SYS_NO
+						                    AND PI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						                    AND PI.LOT_ID      = I.LOT_ID)
+						                    )
+								</isNotEmpty>
+								<isEmpty property="prop_date_fm">
+									<isNotEmpty property="prop_date_to">
+										AND (EXISTS (SELECT 'X'
+						                          FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+						                         WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+						                           AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+						                           <isNotEmpty property="prop_bk_no">	
+						                             <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+						                               AND SI.WOB_BK_NO = #prop_bk_no# 									
+						                             </isEqual>
+						                           </isNotEmpty>
+						                           <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+						                             <isNotEmpty property="prop_date_fm">		                     
+											     <![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+											         </isNotEmpty>		                     
+											         <isNotEmpty property="prop_date_to">		                     
+											     <![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+											         </isNotEmpty>
+						                           </isEqual>
+						                           AND SI.WIB_BK_NO   = I.WIB_BK_NO
+						                           AND SI.PO_SYS_NO   = I.PO_SYS_NO
+						                           AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						                           AND SI.LOT_ID      = I.LOT_ID) OR EXISTS
+						                (SELECT 'X'
+						                   FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+						                  WHERE B.WOB_BK_NO = PI.WOB_BK_NO
+						                    AND P.LP_NO     = PI.LP_NO
+						                    AND P.LP_STS_CD = 'L'
+						                    
+						                    <isNotEmpty property="prop_bk_no">	
+				                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+				                                AND PI.WOB_BK_NO = #prop_bk_no# 
+				                              </isEqual>
+				                            </isNotEmpty>
+				                            <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+				                              <isNotEmpty property="prop_date_fm">		                     
+									      <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+									          </isNotEmpty>		                     
+									          <isNotEmpty property="prop_date_to">		                     
+									      <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+									          </isNotEmpty>
+				                            </isEqual>
+						                    AND PI.PO_SYS_NO   = I.PO_SYS_NO
+						                    AND PI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						                    AND PI.LOT_ID      = I.LOT_ID)
+						                    )
+									</isNotEmpty>
+								</isEmpty>
+							</isEqual>
+						</isEmpty>
+					<!-- </isNotEqual> -->
+		           
+		           <isEqual property="prop_date_tp" compareValue="INOUT_DT">
+						<isNotEmpty property="prop_date_fm">
+							AND ((EXISTS (SELECT 'X'
+					                                  FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+					                                 WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+					                                   AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+					                                   <isNotEmpty property="prop_bk_no">    
+					                                     <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+					                                       AND SI.WOB_BK_NO = #prop_bk_no#                                     
+					                                     </isEqual>
+					                                   </isNotEmpty>                           
+					                                 <![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')         
+					                                 <![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                                   AND SI.WIB_BK_NO   = I.WIB_BK_NO
+					                                   AND SI.PO_SYS_NO   = I.PO_SYS_NO
+					                                   AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+					                                   AND SI.LOT_ID      = I.LOT_ID) OR EXISTS
+					                        (SELECT 'X'
+					                           FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+					                          WHERE B.WOB_BK_NO = PI.WOB_BK_NO
+					                            AND P.LP_NO     = PI.LP_NO
+					                            AND P.LP_STS_CD = 'L'
+					                            
+					                            <isNotEmpty property="prop_bk_no">   
+					                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+					                                AND PI.WOB_BK_NO = #prop_bk_no# 
+					                              </isEqual>
+					                            </isNotEmpty>
+					                          <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')        
+					                          <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                            AND PI.PO_SYS_NO   = I.PO_SYS_NO
+					                            AND PI.ITEM_SYS_NO = I.ITEM_SYS_NO
+					                            AND PI.LOT_ID      = I.LOT_ID)
+					                            )
+					                       <![CDATA[ OR ( L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')        
+					                             <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                           )
+					                        )
+						</isNotEmpty>
+						
+						<isEmpty property="prop_date_fm">
+							<isNotEmpty property="prop_date_to">
+								AND ((EXISTS (SELECT 'X'
+					                                  FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+					                                 WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+					                                   AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+					                                   <isNotEmpty property="prop_bk_no">    
+					                                     <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+					                                       AND SI.WOB_BK_NO = #prop_bk_no#                                     
+					                                     </isEqual>
+					                                   </isNotEmpty>                           
+					                                 <![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')         
+					                                 <![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                                   AND SI.WIB_BK_NO   = I.WIB_BK_NO
+					                                   AND SI.PO_SYS_NO   = I.PO_SYS_NO
+					                                   AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+					                                   AND SI.LOT_ID      = I.LOT_ID) OR EXISTS
+					                        (SELECT 'X'
+					                           FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+					                          WHERE B.WOB_BK_NO = PI.WOB_BK_NO
+					                            AND P.LP_NO     = PI.LP_NO
+					                            AND P.LP_STS_CD = 'L'
+					                            
+					                            <isNotEmpty property="prop_bk_no">   
+					                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+					                                AND PI.WOB_BK_NO = #prop_bk_no# 
+					                              </isEqual>
+					                            </isNotEmpty>
+					                          <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')        
+					                          <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                            AND PI.PO_SYS_NO   = I.PO_SYS_NO
+					                            AND PI.ITEM_SYS_NO = I.ITEM_SYS_NO
+					                            AND PI.LOT_ID      = I.LOT_ID)
+					                            )
+					                       <![CDATA[ OR ( L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')        
+					                             <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+					                           )
+					                        )
+							</isNotEmpty>
+						</isEmpty>
+					</isEqual>
+		           
+		         GROUP BY I.PO_SYS_NO, I.ITEM_SYS_NO, I.WIB_BK_NO,  I.CTRT_NO, I.WH_CD, I.ITEM_CD, I.ITEM_NM,
+		                L.LOT_ATTRIB_01, B.CUST_ORD_NO,B.REF_NO
+		         <!-- ORDER BY I.PO_SYS_NO, I.ITEM_SYS_NO, I.LOT_ID, I.WIB_BK_NO -->
+		         ) IB LEFT JOIN 
+		         
+		       
+		       (       
+		        SELECT  OC.WIB_BK_NO,
+		        		OC.PO_SYS_NO,
+		                OC.ITEM_SYS_NO,
+		                WOB_BK_NO AS OUT_BK_NO,
+		                MAX(OC.CTRT_NO) AS CTRT_NO,
+		                MAX(OC.WH_CD) AS WH_CD,
+		                MAX(ITEM_CD) AS ITEM_CD,
+		                MAX(ITEM_NM) AS ITEM_NM,
+		                MAX(L.LOT_ATTRIB_01) AS INBOUND_DT,
+		                MAX(OUTBOUND_DT) AS OUTBOUND_DT,
+		                SUM(OUT_QTY) AS OUT_QTY,
+		                MAX(OC.CUST_ORD_NO) AS CUST_ORD_NO,
+                        MAX(OC.REF_NO) AS REF_NO
+		          FROM (
+		                 SELECT  
+		                 		 SI.WOB_BK_NO,
+		                         SI.PO_SYS_NO,
+		                         SI.ITEM_SYS_NO,
+		                         SI.LOT_ID,
+		                         B.CTRT_NO,
+		                         B.WH_CD,
+		                         SI.WH_LOC_CD,
+		                         SI.ITEM_SEQ,
+		                         SI.WIB_BK_NO,
+		                         SI.ITEM_CD,
+		                         SI.ITEM_NM,
+		                         SI.ISSU_ITEM_EA_QTY AS OUT_QTY,
+		                         S.OUTBOUND_DT,
+		                         B.CUST_ORD_NO,
+                                 B.REF_NO
+		                   FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+		                  WHERE B.WOB_BK_NO  = SI.WOB_BK_NO
+		                    AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+		                       
+		                    <isNotEmpty property="ctrt_no">
+		                      AND B.CTRT_NO = #ctrt_no# 											
+		                    </isNotEmpty>   
+		                    <isNotEmpty property="wh_cd">
+				              AND B.WH_CD  	= #wh_cd# 											
+				            </isNotEmpty>
+				            <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+                                AND B.WOB_BK_NO = #prop_bk_no# 									
+                              </isEqual>
+                            </isNotEmpty>
+		                    <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+                              <isNotEmpty property="prop_date_fm">		                     
+					      <![CDATA[ AND S.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+					          </isNotEmpty>		                     
+					          <isNotEmpty property="prop_date_to">		                     
+					      <![CDATA[ AND S.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					          </isNotEmpty>
+                            </isEqual>
+                            
+                            <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="IN_BK_NO">
+                                AND SI.WIB_BK_NO = #prop_bk_no# 									
+                              </isEqual>
+                            </isNotEmpty>
+                            
+                            <isNotEmpty property="prop_no">
+					          <isEqual property="prop_no_tp" compareValue="LOT_ID">		     
+						         AND SI.LOT_ID = #prop_no#                         				
+					          </isEqual>		     
+					        </isNotEmpty>
+					       
+		                    <isNotEmpty property="item_cd">
+		                      AND SI.ITEM_CD LIKE '%' + #item_cd# + '%' 											
+		                    </isNotEmpty>
+		                    
+		                    <isNotEmpty property="prop_bk_no">	
+				           	  <isEqual property="prop_bk_tp" compareValue="OUT_CUS_NO">
+				           	    AND B.CUST_ORD_NO = #prop_bk_no# 									
+				           	  </isEqual>
+				           	  <isEqual property="prop_bk_tp" compareValue="OUT_REF_NO">
+                                AND B.REF_NO = #prop_bk_no#                                    
+                              </isEqual>
+				            </isNotEmpty>
+		                    
+		                    <isNotEmpty property="prop_bk_no">	
+				           	  <isEqual property="prop_bk_tp" compareValue="IN_CUS_NO">
+				           	    AND EXISTS (SELECT 'X'
+				                              FROM TL_WH_IB B
+				                             WHERE B.WIB_BK_NO   = SI.WIB_BK_NO
+				                               AND B.CUST_ORD_NO = #prop_bk_no#) 					
+				           	  </isEqual>
+				           	  <isEqual property="prop_bk_tp" compareValue="IN_REF_NO">
+                                AND EXISTS (SELECT 'X'
+                                              FROM TL_WH_IB B
+                                             WHERE B.WIB_BK_NO   = SI.WIB_BK_NO
+                                               AND B.REF_NO = #prop_bk_no#)                    
+                              </isEqual>
+				           	</isNotEmpty>
+		                    
+		                 
+		                 UNION ALL
+		                 
+		                 SELECT PI.WOB_BK_NO,
+		                        PI.PO_SYS_NO,
+		                        PI.ITEM_SYS_NO,
+		                        PI.LOT_ID,
+		                        B.CTRT_NO,
+		                        B.WH_CD,
+		                        PI.WH_LOC_CD,
+		                        PI.ITEM_SEQ,
+		                        PI.WIB_BK_NO,
+		                        PI.ITEM_CD,
+		                        PI.ITEM_NM,
+		                        PI.LOAD_ITEM_EA_QTY AS OUT_QTY,
+		                        P.OUTBOUND_DT,
+		                        B.CUST_ORD_NO,
+                                B.REF_NO
+		                   FROM TL_WH_OB B, TL_WH_LOAD_PLAN P, TL_WH_LOAD_PLAN_ITEM PI
+		                  WHERE P.LP_NO     = PI.LP_NO
+		                    AND P.LP_STS_CD = 'L'
+		                    AND B.WOB_BK_NO = PI.WOB_BK_NO
+		                       
+		                    <isNotEmpty property="ctrt_no">
+		                      AND B.CTRT_NO = #ctrt_no# 											
+		                    </isNotEmpty>   
+		                    <isNotEmpty property="wh_cd">
+				              AND B.WH_CD  	= #wh_cd# 											
+				            </isNotEmpty>
+				            
+				            <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="OUT_BK_NO">
+                                AND B.WOB_BK_NO = #prop_bk_no# 									
+                              </isEqual>
+                            </isNotEmpty>
+                            
+                            <isEqual property="prop_date_tp" compareValue="OUTBOUND_DT">
+                              <isNotEmpty property="prop_date_fm">		                     
+					      <![CDATA[ AND P.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+					          </isNotEmpty>		                     
+					          <isNotEmpty property="prop_date_to">		                     
+					      <![CDATA[ AND P.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+					          </isNotEmpty>
+                            </isEqual>
+                            
+                            <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="IN_BK_NO">
+                                AND PI.WIB_BK_NO = #prop_bk_no# 									
+                              </isEqual>
+                            </isNotEmpty>
+                            
+                            <isNotEmpty property="prop_no">
+					          <isEqual property="prop_no_tp" compareValue="LOT_ID">		     
+						         AND PI.LOT_ID = #prop_no#                         				
+					          </isEqual>		     
+					        </isNotEmpty>
+					        
+					        <isNotEmpty property="item_cd">
+		                      AND PI.ITEM_CD LIKE '%' + #item_cd# + '%' 											
+		                    </isNotEmpty>
+		                    
+		                    <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="OUT_CUS_NO">
+                                AND B.CUST_ORD_NO = #prop_bk_no# 									
+                              </isEqual>
+                               <isEqual property="prop_bk_tp" compareValue="OUT_REF_NO">
+                                AND B.REF_NO = #prop_bk_no#                                    
+                              </isEqual>
+                            </isNotEmpty>
+                            
+                            <isNotEmpty property="prop_bk_no">	
+                              <isEqual property="prop_bk_tp" compareValue="IN_CUS_NO">
+                                AND EXISTS (SELECT 'X'
+				                              FROM TL_WH_IB B
+				                             WHERE B.WIB_BK_NO   = PI.WIB_BK_NO
+				                               AND B.CUST_ORD_NO = #prop_bk_no#) 					
+                              </isEqual>
+                              <isEqual property="prop_bk_tp" compareValue="IN_REF_NO">
+                                AND EXISTS (SELECT 'X'
+                                              FROM TL_WH_IB B
+                                             WHERE B.WIB_BK_NO   = PI.WIB_BK_NO
+                                               AND B.REF_NO = #prop_bk_no#)                    
+                              </isEqual>
+                            </isNotEmpty>
+		                 
+		                 ) OC,
+		                TL_CTRT_CUST_ITEM_LOT L
+		         WHERE OC.CTRT_NO     = L.CTRT_NO
+		           AND OC.ITEM_SYS_NO = L.ITEM_SYS_NO
+		           AND OC.LOT_ID      = L.LOT_ID
+		              
+		           <isEqual property="prop_date_tp" compareValue="INBOUND_DT">			                  
+			         <isNotEmpty property="prop_date_fm">		                     
+			   <![CDATA[ AND L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+			         </isNotEmpty>		                     
+			         <isNotEmpty property="prop_date_to">		                     
+			   <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+			         </isNotEmpty>
+			       </isEqual>	
+			       		                 
+			       <isEqual property="prop_date_tp" compareValue="EXP_DT">			                  
+			         <isNotEmpty property="prop_date_fm">		                     
+			   <![CDATA[ AND L.LOT_ATTRIB_03 >= ]]> REPLACE (#prop_date_fm#, '-', '')     	
+			         </isNotEmpty>		                     
+			         <isNotEmpty property="prop_date_to">		                     
+			   <![CDATA[ AND L.LOT_ATTRIB_03 <= ]]> REPLACE (#prop_date_to#, '-', '')
+			         </isNotEmpty>
+			       </isEqual>
+			       
+			       <isNotEmpty property="prop_no">
+			         <isEqual property="prop_no_tp" compareValue="LOT_NO">		     
+				         AND L.LOT_ATTRIB_02 = #prop_no#                                  	
+			         </isEqual>           		                              
+			         <isEqual property="prop_no_tp" compareValue="LOT_04">		                     
+			             AND L.LOT_ATTRIB_04 = #prop_no#                                  	
+			         </isEqual>		        		                              
+			         <isEqual property="prop_no_tp" compareValue="LOT_05">		                     
+			             AND L.LOT_ATTRIB_05 = #prop_no#                                  	
+			         </isEqual>
+			       </isNotEmpty>
+			       
+                  <isEqual property="prop_date_tp" compareValue="INOUT_DT">
+					<isNotEmpty property="prop_date_fm">
+						<![CDATA[ AND ((  L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')         
+                            <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+                          )
+                          OR
+		                <![CDATA[ ( OC.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '') 
+		                            <![CDATA[ AND OC.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+		                          )
+		                         ) 
+					</isNotEmpty>
+					<isEmpty property="prop_date_fm">
+						<isNotEmpty property="prop_date_to">
+							<![CDATA[ AND ((  L.LOT_ATTRIB_01 >= ]]> REPLACE (#prop_date_fm#, '-', '')         
+                            <![CDATA[ AND L.LOT_ATTRIB_01 <= ]]> REPLACE (#prop_date_to#, '-', '')
+                          )
+                          OR
+		                <![CDATA[ ( OC.OUTBOUND_DT >= ]]> REPLACE (#prop_date_fm#, '-', '') 
+		                            <![CDATA[ AND OC.OUTBOUND_DT <= ]]> REPLACE (#prop_date_to#, '-', '')
+		                          )
+		                         ) 
+						</isNotEmpty>
+					</isEmpty>
+				</isEqual>
+		        <!-- #1221 [WMS4.0][Release Test]Inventory - In/Out History -->
+		         GROUP BY OC.WIB_BK_NO, OC.PO_SYS_NO, OC.ITEM_SYS_NO, <!-- OC.LOT_ID, --> OC.WOB_BK_NO) OB 
+		         ON  IB.IN_BK_NO    = OB.WIB_BK_NO
+				AND IB.PO_SYS_NO   = OB.PO_SYS_NO
+		   		AND IB.ITEM_SYS_NO = OB.ITEM_SYS_NO
+		)TL
+		<!-- TinLuong Modification (s) -->
+		WHERE 1 = 1
+		<isNotEmpty property="prop_bk_no">	
+          	  <isEqual property="prop_bk_tp" compareValue="OUT_CUS_NO">
+          	    	AND TL.CUST_ORD_NO_OB = #prop_bk_no# 									
+          	  </isEqual>
+          	  <isEqual property="prop_bk_tp" compareValue="OUT_REF_NO">
+           			AND TL.REF_NO_OB = #prop_bk_no#                                    
+          	  </isEqual>
+		</isNotEmpty>
+		<!-- TinLuong Modification (E) -->
+		 ORDER BY TL.ITEM_CD,
+		          TL.ITEM_NM,
+		          TL.INBOUND_DT,
+		          TL.IN_BK_NO,
+		          OUTBOUND_DT,
+		          OUT_BK_NO
+	</select>
+</sqlMap>

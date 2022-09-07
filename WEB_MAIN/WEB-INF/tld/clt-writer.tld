@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Id: clt-writer.tld,v 1.2 2012/04/12 08:38:45 aifadmin Exp $
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+   
+         http://www.apache.org/licenses/LICENSE-2.0
+   
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!DOCTYPE taglib
+        PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+        "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+    <tlib-version>1.3</tlib-version>
+    <jsp-version>1.2</jsp-version>
+    <short-name>clt</short-name>
+    <uri></uri>
+    <tag>
+        <name>write</name>
+        <tag-class>com.clt.syscommon.taglib.StringWriter</tag-class>
+        <body-content>empty</body-content>
+        <description>
+            <![CDATA[
+            <p><strong>
+    Render the value of the specified bean property to the current
+    JspWriter.
+    </strong></p>
+          
+    <p>Retrieve the value of the specified bean property, and render it to the
+    current JspWriter as a String by the ways:</p>
+     <ul>
+     <li>If <code>format</code> attribute exists then value will be formatted on base of format
+     string from <code>format</code> attribute and default system locale.</li>
+     <li>If in resources exists format string for value data type (view <code>format</code>
+     attribute description) then value will be formatted on base of format string
+     from resources. Resources bundle and target locale can be specified with
+     <code>bundle</code> and <code>locale</code> attributes. If nothing specified then
+     default resource bundle and current user locale will be used.</li>
+     <li>If there is a PropertyEditor configured for the property value's class, the
+     <code>getAsText()</code> method will be called.</li>
+     <li>Otherwise, the usual <code>toString()</code> conversions will be applied.</li>
+     </ul>
+    <p>When a format string is provided, numeric values are formatted using the
+    <code>java.text.DecimalFormat</code> class; if the format string came from
+    a resource, the <code>applyLocalisedPattern()</code> method is used, and
+    <code>applyPattern()</code> is used otherwise. Dates are formatted using
+    the <code>SimpleDateFormat</code> class. For details of the specific format
+    patterns, please see the Javadocs for those classes.</p>
+    <p>If a problem occurs while retrieving the specified bean property, a
+    request time exception will be thrown.</p>
+    ]]>
+        </description>
+		
+        <attribute>
+            <name>formatType</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+			  Type 이 String인 경우 DATE 또는 MONEY
+				
+			</description>
+        </attribute>
+		
+        <attribute>
+            <name>fromFormat</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description></description>
+        </attribute>
+		
+        <attribute>
+            <name>bundle</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[   <p>The name of the application scope bean under which the  <code>MessageResources</code> object containing our messages
+					  is stored.</p>      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>filter</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
+            <description>
+                <![CDATA[
+      <p>If this attribute is set to <code>true</code>, the rendered property
+      value will be filtered for characters that are sensitive in HTML, and any
+      such characters will be replaced by their entity equivalents.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>format</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>Specifies the format string to use to convert bean or property value
+      to the <code>String</code>. If nothing specified, then default format
+      string for value data type will be searched in message resources by
+      according key.</p>
+<!-- move to developers guide
+      <table>
+       <tr>
+           <td>Key to search format string</td>
+           <td>Data types</td>
+       </tr>
+       <tr>
+           <td>org.apache.struts.taglib.bean.format.int</td>
+           <td>java.lang.Byte, java.lang.Short, java.lang.Integer, java.lang.Long,
+               java.math.BigInteger</td>
+       </tr>
+       <tr>
+           <td>org.apache.struts.taglib.bean.format.float</td>
+           <td>java.lang.Float, java.lang.Double, java.math.BigDecimal</td>
+       </tr>
+       <tr>
+           <td>org.apache.struts.taglib.bean.format.sql.timestamp</td>
+           <td>java.sql.Timestamp</td>
+       </tr>
+       <tr>
+           <td>org.apache.struts.taglib.bean.format.sql.date</td>
+           <td>java.sql.Date</td>
+       </tr>
+       <tr>
+           <td>org.apache.struts.taglib.bean.format.sql.time</td>
+           <td>java.sql.Time</td>
+       </tr>
+       <tr>
+           <td>org.apache.struts.taglib.bean.format.date</td>
+           <td>java.util.Date</td>
+       </tr>
+      </table>
+      <p>Default format strings in resources can be written as - <br />
+        <pre>
+                org.apache.struts.taglib.bean.format.int=######
+                org.apache.struts.taglib.bean.format.float=######,####
+                org.apache.struts.taglib.bean.format.sql.timestamp=hh 'o''clock' a, zzzz
+                org.apache.struts.taglib.bean.format.sql.date=EEE, MMM d, ''yy
+                org.apache.struts.taglib.bean.format.sql.time=h:mm a
+                org.apache.struts.taglib.bean.format.date=hh 'o''clock' a, zzzz
+        </pre>
+        <br />values for resource file entries are standart Java format strings for
+        date, time and number values.</p>
+-->
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>formatKey</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>Specifies the key to search format string in application resources.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>ignore</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
+            <description>
+                <![CDATA[
+      <p>If this attribute is set to <code>true</code>, and the bean specified
+      by the <code>name</code> and <code>scope</code> attributes does not
+      exist, simply return without writing anything.  If this attribute is
+      set to <code>false</code>, a runtime exception to be thrown,
+      consistent with the other tags in this tag library.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>locale</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+        <p>The name of the session scope bean under which our currently
+        selected <code>Locale</code> object is stored.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>Specifies the attribute name of the bean whose property is accessed
+      to retrieve the value specified by <code>property</code> (if
+      specified).  If <code>property</code> is not specified, the value of
+      this bean itself will be rendered.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>property</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>Specifies the name of the property to be accessed on the bean
+      specified by <code>name</code>.  This value may be a simple, indexed,
+      or nested property reference expression.  If not specified, the bean
+      identified by <code>name</code> will itself be rendered.  If the
+      specified property returns null, no output will be rendered.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>scope</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>Specifies the variable scope searched to retrieve the bean specified
+      by <code>name</code>.  If not specified, the default rules applied by
+      <code>PageContext.findAttribute()</code> are applied.</p>
+      ]]>
+            </description>
+        </attribute>
+    </tag>
+</taglib>
+
+
+

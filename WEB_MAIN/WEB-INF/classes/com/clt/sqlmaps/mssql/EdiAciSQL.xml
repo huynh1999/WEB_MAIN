@@ -1,0 +1,786 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="edi.aci">
+
+	<typeAlias alias="EdiAciBlInfoVO"  		type="com.clt.apps.fis.edi.aci.dto.EdiAciBlInfoVO"/>
+	<typeAlias alias="EdiCstmHdrVO"  		type="com.clt.apps.fis.edi.cmm.dto.EdiCstmHdrVO"/>
+	<typeAlias alias="EdiCstmVslVO"  		type="com.clt.apps.fis.edi.cmm.dto.EdiCstmVslVO"/>
+	<typeAlias alias="EdiCstmMblVO"  		type="com.clt.apps.fis.edi.cmm.dto.EdiCstmMblVO"/>
+	<typeAlias alias="EdiCstmHblVO"  		type="com.clt.apps.fis.edi.cmm.dto.EdiCstmHblVO"/>
+	<typeAlias alias="EdiCstmBlPtyVO"  		type="com.clt.apps.fis.edi.cmm.dto.EdiCstmBlPtyVO"/>
+	<typeAlias alias="EdiCstmBlCntrVO"  	type="com.clt.apps.fis.edi.cmm.dto.EdiCstmBlCntrVO"/>
+	<typeAlias alias="EdiCstmBlCntrCgoVO"  	type="com.clt.apps.fis.edi.cmm.dto.EdiCstmBlCntrCgoVO"/>
+	
+	<select id="selectAciBLList" parameterClass="HashMap" resultClass="EdiAciBlInfoVO">
+		/*	EdiAciSQL.xml -> selectAciBLList */
+    	SELECT    hbl.intg_bl_seq  AS intg_bl_seq
+				, hbl.bl_no        AS hbl_no
+				, mbl.intg_bl_seq  AS intg_mbl_seq
+				, mbl.bl_no        AS mbl_no
+				, mbl.ref_no        AS ref_no
+				, bnd.bnd_clss_cd      AS bnd_clss_cd
+				, mbl.air_sea_clss_cd      AS air_sea_clss_cd
+				, ISNULL(aci_sts.hbl_cmpl_flg, 'N') AS hbl_cmpl_flg
+				, aci_sts.dspo_cd
+				, aci_sts.rsk_ass_cd
+				, aci_sts.mtch_sts_cd
+				, aci_sts.atd_cmpl_flg
+				, aci_sts.hbl_cmpl_cd
+				, edi_hdr.act_rsn_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN 'Import' ELSE edi_mbl.mvmt_tp_cd  END AS mvmt_tp_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN shpr.trdp_cd     
+												   ELSE edi_shpr.pty_id END AS shpr_trdp_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN shpr.trdp_nm   
+												   ELSE edi_shpr.pty_nm END AS shpr_trdp_nm
+				, CASE WHEN edi_mbl.msg_id is null THEN SUBSTRING(rtrim(ltrim(REPLACE(REPLACE(REPLACE(shpr.trdp_addr, shpr.trdp_nm, '') , char(13)+char(10), ' '),char(10), ' '))), 1, 150) 
+												   ELSE edi_shpr.pty_addr1 + edi_shpr.pty_addr2 + edi_shpr.pty_addr3 END AS shpr_trdp_addr
+				, CASE WHEN edi_mbl.msg_id is null THEN trdp_shpr.state_cd           								 
+												   ELSE edi_shpr.ste_cd END AS shpr_trdp_ste_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN trdp_shpr.city_nm                    						 
+												   ELSE edi_shpr.cty_nm END AS shpr_trdp_cty_nm
+				, CASE WHEN edi_mbl.msg_id is null THEN REPLACE(trdp_shpr.rep_zip, ' ', '')                                          
+												   ELSE edi_shpr.zip_cd END AS shpr_trdp_zip_cd
+		        , CASE WHEN edi_mbl.msg_id is null THEN trdp_shpr.cnt_cd                                           
+		        								   ELSE edi_shpr.cnt_cd END AS shpr_trdp_cnt_cd
+		        , CASE WHEN edi_mbl.msg_id is null THEN shpr.trdp_phn
+		        								   ELSE edi_shpr.pty_phn_no END AS shpr_trdp_phn
+		        , CASE WHEN edi_mbl.msg_id is null THEN ( CASE WHEN ISNULL(shpr.trdp_phn, '') = '' THEN '' ELSE shpr.trdp_pic END )      
+		        								   ELSE edi_shpr.pty_cntc_nm END AS shpr_trdp_pic
+				, CASE WHEN edi_mbl.msg_id is null THEN cnee.trdp_cd     
+												   ELSE edi_cnee.pty_id END AS cnee_trdp_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN cnee.trdp_nm  
+												   ELSE edi_cnee.pty_nm END AS cnee_trdp_nm
+				, CASE WHEN edi_mbl.msg_id is null THEN SUBSTRING(rtrim(ltrim(REPLACE(REPLACE(REPLACE(cnee.trdp_addr, cnee.trdp_nm, ''), char(13)+char(10), ' '),char(10), ' '))), 1, 150)  
+												   ELSE edi_cnee.pty_addr1 + edi_cnee.pty_addr2 + edi_cnee.pty_addr3 END AS cnee_trdp_addr
+				, CASE WHEN edi_mbl.msg_id is null THEN trdp_cnee.state_cd          								 
+												   ELSE edi_cnee.ste_cd END AS cnee_trdp_ste_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN trdp_cnee.city_nm                   						 
+												   ELSE edi_cnee.cty_nm END AS cnee_trdp_cty_nm
+				, CASE WHEN edi_mbl.msg_id is null THEN REPLACE(trdp_cnee.rep_zip, ' ', '')                                          
+												   ELSE edi_cnee.zip_cd END AS cnee_trdp_zip_cd  
+		        , CASE WHEN edi_mbl.msg_id is null THEN trdp_cnee.cnt_cd                                           
+		        								   ELSE edi_cnee.cnt_cd END AS cnee_trdp_cnt_cd
+		        , CASE WHEN edi_mbl.msg_id is null THEN cnee.trdp_phn
+		        								   ELSE edi_cnee.pty_phn_no END AS cnee_trdp_phn
+		        , CASE WHEN edi_mbl.msg_id is null THEN ( CASE WHEN ISNULL(cnee.trdp_phn, '') = '' THEN '' ELSE cnee.trdp_pic END )        
+		        								   ELSE edi_cnee.pty_cntc_nm END AS cnee_trdp_pic
+				, CASE WHEN edi_mbl.msg_id is null THEN ntfy.trdp_cd     
+												   ELSE edi_ntfy.pty_id END AS ntfy_trdp_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN ntfy.trdp_nm 
+												   ELSE edi_ntfy.pty_nm END AS ntfy_trdp_nm
+				, CASE WHEN edi_mbl.msg_id is null THEN SUBSTRING(rtrim(ltrim(REPLACE(REPLACE(REPLACE(ntfy.trdp_addr, ntfy.trdp_nm, ''), char(13)+char(10), ' '),char(10), ' '))), 1, 150) 
+												   ELSE edi_ntfy.pty_addr1 + edi_ntfy.pty_addr2 + edi_ntfy.pty_addr3 END AS ntfy_trdp_addr
+				, CASE WHEN edi_mbl.msg_id is null THEN trdp_ntfy.state_cd          								 
+												   ELSE edi_ntfy.ste_cd END AS ntfy_trdp_ste_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN trdp_ntfy.city_nm                  						 
+												   ELSE edi_ntfy.cty_nm END AS ntfy_trdp_cty_nm
+		        , CASE WHEN edi_mbl.msg_id is null THEN REPLACE(trdp_ntfy.rep_zip, ' ', '')                                            
+		        								   ELSE edi_ntfy.zip_cd END AS ntfy_trdp_zip_cd  
+		        , CASE WHEN edi_mbl.msg_id is null THEN trdp_ntfy.cnt_cd                                           
+		        								   ELSE edi_ntfy.cnt_cd END AS ntfy_trdp_cnt_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN ntfy.trdp_phn   
+												   ELSE edi_ntfy.pty_phn_no END AS ntfy_trdp_phn
+		        , CASE WHEN edi_mbl.msg_id is null THEN ( CASE WHEN ISNULL(ntfy.trdp_phn, '') = '' THEN '' ELSE ntfy.trdp_pic END )
+		        								   ELSE edi_ntfy.pty_cntc_nm END AS ntfy_trdp_pic
+				, CASE WHEN edi_mbl.msg_id is null THEN trdp_lnr.cbsa_scac_cd 
+												   ELSE edi_mbl.crr_scac_cd END AS crr_scac_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN mpod.cbsa_loc_cd 
+												   ELSE edi_mbl.pod_cd END AS pod_cd
+				, CASE WHEN edi_mbl.msg_id is null THEN mbl.pod_nm ELSE edi_mbl.pod_nm END AS pod_nm
+				, CASE WHEN edi_mbl.msg_id is null THEN '' 
+												   ELSE edi_mbl.sub_pod_cd END AS sub_pod_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN (SELECT scac FROM tb_edi_cnfg WHERE tp = 'ACI') 
+												   ELSE edi_hbl.fwrd_scac_cd END AS fwrd_scac_cd
+			    , CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_mbl.mbl_ref_no END AS mbl_ref_no
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_hbl.hbl_ref_no END AS hbl_ref_no
+				, CASE WHEN edi_hbl.msg_id is null THEN ISNULL(hbl.sub_mbl_flg, 'N')
+												   ELSE edi_hbl.cnsl_ind_flg END AS cnsl_ind_flg
+				, CASE WHEN edi_hbl.msg_id is null THEN hbl.sub_bl_no
+												   ELSE edi_hbl.pre_hbl_no END AS pre_hbl_no			
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_hbl.cust_ref_no END AS cust_ref_no
+				, CASE WHEN edi_hbl.msg_id is null THEN del.cbsa_loc_cd 
+												   ELSE edi_hbl.del_cd END AS del_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN hbl.del_nm 
+												   ELSE edi_hbl.del_nm END AS del_nm
+				, CASE WHEN edi_hbl.msg_id is null THEN del.cnt_cd 
+												   ELSE edi_hbl.del_cnt_cd END AS del_cnt_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN fdest.cbsa_loc_cd 
+												   ELSE edi_hbl.fnl_dest_cd END AS fnl_dest_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN hbl.fnl_dest_loc_nm 
+												   ELSE edi_hbl.fnl_dest_nm END AS fnl_dest_nm
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_hbl.sub_fnl_dest_cd END AS sub_fnl_dest_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN hbl.pck_qty 
+												   ELSE edi_hbl.pck_qty END AS pck_qty
+				, CASE WHEN edi_hbl.msg_id is null THEN pck.ams_pck_cd_val 
+												   ELSE edi_hbl.pck_ut_cd END AS pck_ut_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN CAST(ROUND(hbl.grs_wgt, 3) AS FLOAT) 
+												   ELSE edi_hbl.grs_wgt END AS grs_wgt
+				, CASE WHEN edi_hbl.msg_id is null THEN CAST(ROUND(hbl.meas, 3) AS FLOAT) 
+												   ELSE edi_hbl.meas_amt END AS meas
+				, CASE WHEN edi_hbl.msg_id is null THEN rtrim(ltrim(REPLACE(REPLACE(hbl.rmk, char(13)+char(10), ' '),char(10), ' '))) 
+												   ELSE edi_hbl.rmk1_txt END AS rmk1_txt
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_hbl.rmk2_txt END AS rmk2_txt
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_hbl.rmk3_txt END AS rmk3_txt
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_del.pty_id END AS del_trdp_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_del.pty_nm END AS del_trdp_nm
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_del.pty_addr1 + edi_del.pty_addr2 + edi_del.pty_addr3 END AS del_trdp_addr
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_del.ste_cd END AS del_trdp_ste_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_del.cty_nm END AS del_trdp_cty_nm
+		        , CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_del.zip_cd END AS del_trdp_zip_cd  
+		        , CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_del.cnt_cd END AS del_trdp_cnt_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_del.pty_phn_no END AS del_trdp_phn
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_del.pty_cntc_nm END AS del_trdp_pic								   								   
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_poc.pty_id END AS poc_trdp_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_poc.pty_nm END AS poc_trdp_nm
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_poc.pty_addr1 + edi_poc.pty_addr2 + edi_poc.pty_addr3 END AS poc_trdp_addr
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_poc.ste_cd END AS poc_trdp_ste_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_poc.cty_nm END AS poc_trdp_cty_nm
+		        , CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_poc.zip_cd END AS poc_trdp_zip_cd  
+		        , CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_poc.cnt_cd END AS poc_trdp_cnt_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_poc.pty_phn_no END AS poc_trdp_phn
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_poc.pty_cntc_nm END AS poc_trdp_pic										   
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_con.pty_id END AS con_trdp_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_con.pty_nm END AS con_trdp_nm
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_con.pty_addr1 + edi_con.pty_addr2 + edi_con.pty_addr3 END AS con_trdp_addr
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_con.ste_cd END AS con_trdp_ste_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_con.cty_nm END AS con_trdp_cty_nm
+		        , CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_con.zip_cd END AS con_trdp_zip_cd  
+		        , CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_con.cnt_cd END AS con_trdp_cnt_cd
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_con.pty_phn_no END AS con_trdp_phn
+				, CASE WHEN edi_hbl.msg_id is null THEN '' 
+												   ELSE edi_con.pty_cntc_nm END AS con_trdp_pic									   
+				, aci_sts.msg_sts_cd
+				, aci_sts.cstms_rgst_flg 
+				, edi_hdr.mf_sub_tp_cd
+				, edi_hdr.smt_tp_cd 
+				, (select count(*) from tb_cntr_list cntr where cntr.intg_bl_seq = hbl.intg_bl_seq and cntr.delt_flg = 'N') as cntr_cnt
+				, CASE 
+            		WHEN (select count(*) from tb_cntr_list cntr where cntr.intg_bl_seq = hbl.intg_bl_seq and cntr.delt_flg = 'N') = 0 
+					THEN 'N'
+					WHEN (select count(*) from tb_cntr_list cntr where cntr.intg_bl_seq = hbl.intg_bl_seq and cntr.delt_flg = 'N') = 
+			     			(select count(distinct cntr_list_seq) from  tb_shp_cmdt cmdt where cmdt.INTG_BL_SEQ = hbl.intg_bl_seq and cmdt.delt_flg = 'N'
+				                                                              AND pck_qty !=0 AND cmdt.rmk != '' AND cmdt.wgt != 0 )  
+            		THEN 'Y'
+					ELSE 'N'
+				  END AS CNTR_CGO
+		        ,case when (select count(*) from tb_SHP_CMDT DG where DG.intg_bl_seq = hbl.intg_bl_seq and DG.delt_flg = 'N' AND ISNULL(DG.DG_CD,'') !='') = 0 
+		              then 'N' 
+		              else 'Y'
+		         end  AS dg_cgo
+		        , (SELECT top 1 HAZ_CNTC_NM FROM tb_edi_cstms_bl_cntr_cgo cgo where cgo.MSG_ID =  edi_hbl.msg_id and cgo.HAZ_CNTC_NM !='') as haz_cntc_nm
+				, (SELECT top 1 HAZ_CNTC_phn_no FROM tb_edi_cstms_bl_cntr_cgo cgo where cgo.MSG_ID =  edi_hbl.msg_id and cgo.HAZ_CNTC_phn_no !='') as haz_cntc_phn 
+		  FROM  tb_intg_bl mbl
+		  JOIN  tb_add_info_bnd bnd
+			ON  mbl.intg_bl_seq = bnd.intg_bl_seq     AND bnd.delt_flg = 'N'
+		  JOIN  tb_intg_bl_rlt rlt
+			ON  rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND rlt.delt_flg = 'N'
+		  JOIN  tb_intg_bl hbl
+			ON  hbl.intg_bl_seq = rlt.intg_bl_seq    AND  hbl.delt_flg = 'N'
+		  JOIN  tb_add_info_bnd hblbnd
+			ON  hbl.intg_bl_seq = hblbnd.intg_bl_seq AND hblbnd.delt_flg = 'N'
+          LEFT OUTER JOIN  tb_loc mpod      
+            ON  mpod.loc_cd = mbl.pod_cd AND mpod.delt_flg = 'N'  
+		  JOIN tb_loc pol      
+            ON pol.loc_cd = hbl.pol_cd AND pol.delt_flg = 'N'  	
+		  LEFT OUTER JOIN  tb_loc ts_port ON ts_port.loc_cd = hblbnd.ts1_port_cd AND ts_port.delt_flg = 'N'      
+          LEFT OUTER JOIN  tb_loc del                   
+            ON  del.loc_cd = hbl.del_cd 
+            AND del.delt_flg = 'N' 	 
+          LEFT OUTER JOIN  tb_loc fdest                   
+            ON  fdest.loc_cd = hbl.fnl_dest_loc_cd 
+            AND fdest.delt_flg = 'N' 
+          LEFT OUTER JOIN tb_pck_ut_cd pck        
+            ON  hbl.pck_ut_cd = pck.pck_ut_cd AND pck.delt_flg = 'N'	   
+		  LEFT OUTER JOIN TB_BL_PRNR shpr
+			ON hbl.intg_bl_seq = shpr.intg_bl_seq AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'
+		  LEFT OUTER JOIN TB_BL_PRNR cnee
+			ON hbl.intg_bl_seq = cnee.intg_bl_seq AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+		  LEFT OUTER JOIN TB_BL_PRNR ntfy
+			ON hbl.intg_bl_seq = ntfy.intg_bl_seq AND ntfy.bl_trdp_tp_cd = 'N01' AND ntfy.delt_flg = 'N'
+		  LEFT OUTER JOIN TB_TRDP trdp_shpr                         
+            ON trdp_shpr.trdp_cd = shpr.trdp_cd 
+          LEFT OUTER JOIN TB_TRDP trdp_cnee                         
+            ON trdp_cnee.trdp_cd = cnee.trdp_cd
+          LEFT OUTER JOIN TB_TRDP trdp_ntfy                         
+            ON trdp_ntfy.trdp_cd = ntfy.trdp_cd
+		  LEFT OUTER JOIN TB_BL_PRNR lnr
+			ON hbl.intg_bl_seq = lnr.intg_bl_seq AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+		  LEFT OUTER JOIN TB_TRDP trdp_lnr                         
+            ON trdp_lnr.trdp_cd = lnr.trdp_cd
+		  LEFT OUTER JOIN TB_EDI_BL_STS aci_sts
+			ON aci_sts.bl_no = hbl.bl_no AND msg_tp_cd = 'ACI' 
+		  LEFT OUTER JOIN tb_edi_cstms_hdr edi_hdr          
+		    ON aci_sts.msg_no = edi_hdr.msg_id AND msg_tp_cd = 'ACI'   
+	      LEFT OUTER JOIN tb_edi_cstms_mbl edi_mbl          
+		    ON aci_sts.msg_no = edi_mbl.msg_id AND mbl.bl_no = edi_mbl.mbl_no 
+		  LEFT OUTER JOIN tb_edi_cstms_hbl edi_hbl          
+		    ON aci_sts.msg_no = edi_hbl.msg_id AND hbl.bl_no = edi_hbl.hbl_no
+		  LEFT OUTER JOIN tb_edi_cstms_bl_pty edi_shpr
+		    ON edi_hbl.msg_id = edi_shpr.msg_id AND edi_hbl.hbl_no = edi_shpr.bl_no AND edi_shpr.pty_id_tp_cd = 'Shipper'
+		  LEFT OUTER JOIN tb_edi_cstms_bl_pty edi_cnee
+		    ON edi_hbl.msg_id = edi_cnee.msg_id AND edi_hbl.hbl_no = edi_cnee.bl_no AND edi_cnee.pty_id_tp_cd = 'Consignee'
+		  LEFT OUTER JOIN tb_edi_cstms_bl_pty edi_ntfy
+		    ON edi_hbl.msg_id = edi_ntfy.msg_id AND edi_hbl.hbl_no = edi_ntfy.bl_no AND edi_ntfy.pty_id_tp_cd = 'Notify1'  
+		  LEFT OUTER JOIN tb_edi_cstms_bl_pty edi_del
+		    ON edi_hbl.msg_id = edi_del.msg_id AND edi_hbl.hbl_no = edi_del.bl_no AND edi_del.pty_id_tp_cd = 'DeliveryAddress'
+		  LEFT OUTER JOIN tb_edi_cstms_bl_pty edi_poc
+		    ON edi_hbl.msg_id = edi_poc.msg_id AND edi_hbl.hbl_no = edi_poc.bl_no AND edi_poc.pty_id_tp_cd = 'PlaceofConsolidation'
+		  LEFT OUTER JOIN tb_edi_cstms_bl_pty edi_con
+		    ON edi_hbl.msg_id = edi_con.msg_id AND edi_hbl.hbl_no = edi_con.bl_no AND edi_con.pty_id_tp_cd = 'Consolidator'
+		 WHERE mbl.biz_clss_cd = 'M'       
+		   AND mbl.bl_no != ''           
+		   AND mbl.air_sea_clss_cd = #f_air_sea_clss_cd# 
+		   AND bnd.bnd_clss_cd = #f_bnd_clss_cd# 
+		   <isEmpty property="f_bl_no">
+			  <isEmpty property="f_mbl_no">
+				  AND substring(isnull(pol.un_loc_cd, ''), 1, 2) != 'CA'
+				  AND (SUBSTRING((CASE 
+						WHEN edi_mbl.msg_id is null THEN mpod.un_loc_cd                                          
+						ELSE 'CA' 
+						END), 1, 2) = 'CA'    
+					OR
+			 		SUBSTRING( ts_port.un_loc_cd, 1, 2) = 'CA'
+				  )
+				  
+				  <isNotNull property="f_etd_str_dt">
+				  	<![CDATA[ AND  (hbl.etd_dt_tm >=#f_etd_str_dt# AND hbl.etd_dt_tm <=#f_etd_end_dt#) ]]>
+				  </isNotNull> 
+				  
+				  <isNotNull property="f_eta_str_dt">
+				  	<![CDATA[ AND  (hbl.eta_dt_tm >=#f_eta_str_dt# AND hbl.eta_dt_tm <=#f_eta_end_dt#) ]]>
+				  </isNotNull> 
+		      </isEmpty>
+		   </isEmpty>
+		   <isNotEmpty property="f_bl_no">
+                  AND  hbl.bl_no LIKE #f_bl_no#
+           </isNotEmpty>
+           <isNotEmpty property="f_mbl_no">
+                  AND  mbl.bl_no LIKE #f_mbl_no#
+           </isNotEmpty>
+           <isNotEmpty property="f_sts_cd">
+				AND  aci_sts.msg_sts_cd = #f_sts_cd#
+		   </isNotEmpty>
+		   <isNotEmpty property="f_smt_tp_cd">
+				AND  edi_hdr.smt_tp_cd = #f_smt_tp_cd#
+		   </isNotEmpty>
+		   <isNotEmpty property="f_mf_sub_tp_cd">
+				AND (ISNULL(edi_hdr.mf_sub_tp_cd,'') =''  OR edi_hdr.mf_sub_tp_cd = #f_mf_sub_tp_cd#)  
+		   </isNotEmpty>
+		   
+		   <isNotEmpty property="f_lnr_trdp_cd">
+				AND  hbl.carr_trdp_cd1 LIKE #f_lnr_trdp_cd#
+		   </isNotEmpty>
+		   
+		   <isNotEmpty property="f_trnk_vsl_cd">
+				AND  hbl.trnk_vsl_cd LIKE #f_trnk_vsl_cd#
+		   </isNotEmpty>
+		   
+		   <isNotEmpty property="f_trnk_vsl_nm">
+				AND  hbl.trnk_vsl_nm LIKE #f_trnk_vsl_nm#
+		   </isNotEmpty>
+		   
+		   <isNotEmpty property="f_trnk_voy_no">
+				AND  hbl.trnk_voy    LIKE #f_trnk_voy_no#
+		   </isNotEmpty>
+		   <!-- <isNotEmpty property="pol_cd">
+				  AND  hbl.POL_CD = #pol_cd#
+		   </isNotEmpty> -->
+		ORDER BY  mbl.bl_no
+		        , hbl.sub_bl_no
+				, hbl.bl_no
+				, hbl.etd_dt_tm desc
+	</select>
+		
+	<select id="selectEdiAciSendChk" resultClass="String">
+		 /* selectEdiAciSendChk */
+		 SELECT TOP 1 msg_sts_cd
+           FROM TB_EDI_BL_STS         
+          WHERE 1 = 1           
+            AND msg_tp_cd = 'ACI'       
+            AND mbl_no = #mbl_no#
+            AND bl_no = #bl_no#    
+	</select>
+	
+	<!-- TB_EDI_CSTMS_HDR 테이블 정보입력   -->
+	<insert id="insertTB_EDI_CSTMS_HDR" parameterClass="EdiCstmHdrVO">
+		/** EdiAciSQL.xml -> insertTB_EDI_CSTMS_HDR **/
+		INSERT INTO tb_edi_cstms_hdr (  
+			msg_id,				mf_tp_cd,				mf_sub_tp_cd,			smt_to_cstms_flg,		smt_tp_cd,
+			act_rsn_cd,			sndr_id,				co_id,					brnc_id,				ver_no,
+			rgst_usrid,			rgst_ofc_cd,			rgst_tms,				modi_usrid,				modi_ofc_cd,
+			snd_file_nm,		modi_tms
+		) VALUES (
+			#msg_id#,			#mf_tp_cd#,				#mf_sub_tp_cd#,			#smt_to_cstms_flg#,		#smt_tp_cd#,
+			#act_rsn_cd#,		#sndr_id#,				#co_id#,				#brnc_id#,				#ver_no#,
+			#proc_usrid#,		#proc_ofccd#,			getDate(),				#proc_usrid#,			#proc_ofccd#,
+			#snd_file_nm#,   GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- TB_EDI_CSTMS_VSL 테이블 정보입력   -->
+	<insert id="insertTB_EDI_CSTMS_VSL" parameterClass="EdiCstmVslVO">
+		/** EdiAciSQL.xml -> insertTB_EDI_CSTMS_VSL **/
+		INSERT INTO tb_edi_cstms_vsl (  
+			msg_id,				trsp_mod_cd,			vsl_cd,					vsl_nm,					voy_no,
+			vsl_tp_cd,			vsl_cnt_cd,				crr_scac_cd,			rgst_usrid,				rgst_ofc_cd,
+			rgst_tms,			modi_usrid,				modi_ofc_cd,			modi_tms
+		) VALUES (
+			#msg_id#,			#trsp_mod_cd#,			#vsl_cd#,				#vsl_nm#,				#voy_no#,
+			#vsl_tp_cd#,		#vsl_cnt_cd#,			#crr_scac_cd#,			#proc_usrid#,			#proc_ofccd#,		
+			getDate(),			#proc_usrid#,			#proc_ofccd#,			GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- TB_EDI_CSTMS_MBL 테이블 정보입력   -->
+	<insert id="insertTB_EDI_CSTMS_MBL" parameterClass="EdiCstmMblVO">
+		/** EdiAciSQL.xml -> insertTB_EDI_CSTMS_MBL **/
+		INSERT INTO tb_edi_cstms_mbl (  
+			 msg_id, 			mbl_no, 				crr_scac_cd, 			mvmt_tp_cd, 			mbl_ref_no, 
+             pol_cd, 			pol_nm, 				pol_tp_cd, 				pol_sfx_seq, 			ts_port_cd, 
+             ts_port_nm, 		ts_port_tp_cd, 			ts_port_sfx_seq, 		pod_cd, 				pod_nm, 
+             pod_tp_cd, 		sub_pod_cd, 			etd_dt, 				etd_tm, 				etd_tmzn_val, 
+             eta_dt, 			rlxd_area_ind_flg, 		rgst_usrid, 			rgst_ofc_cd, 			rgst_tms, 
+             modi_usrid, 		modi_ofc_cd, 			modi_tms
+		) VALUES (
+			 #msg_id#, 			#mbl_no#, 				#crr_scac_cd#, 			#mvmt_tp_cd#, 			#mbl_ref_no#, 
+             #pol_cd#, 			#pol_nm#, 				#pol_tp_cd#, 			#pol_sfx_seq#, 			#ts_port_cd#, 
+             #ts_port_nm#, 		#ts_port_tp_cd#, 		#ts_port_sfx_seq#, 		#pod_cd#, 				#pod_nm#, 
+             #pod_tp_cd#, 		#sub_pod_cd#, 			#etd_dt#, 				#etd_tm#, 				#etd_tmzn_val#, 
+             #eta_dt#, 			#rlxd_area_ind_flg#, 	#proc_usrid#,			#proc_ofccd#,		
+			 getDate(),			#proc_usrid#,			#proc_ofccd#,			GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- TB_EDI_CSTMS_HBL 테이블 정보입력   -->
+	<insert id="insertTB_EDI_CSTMS_HBL" parameterClass="EdiCstmHblVO">
+		/** EdiAciSQL.xml -> insertTB_EDI_CSTMS_HBL **/
+		INSERT INTO tb_edi_cstms_hbl (  
+			msg_id,				mbl_no,					hbl_no,					fwrd_scac_cd,			hbl_ref_no,
+           	pre_hbl_no,			cust_ref_no,			por_cd,					por_nm,					por_tp_cd,
+           	del_cd,				del_nm,					del_tp_cd,				del_cnt_cd,				fnl_dest_cd,
+           	fnl_dest_nm,		fnl_dest_tp_cd,			sub_fnl_dest_cd,		hbl_cmpl_ind_flg,		pck_ut_cd,
+           	pck_qty, 			wgt_ut_cd, 				grs_wgt, 				meas_ut_cd, 			meas_amt, 
+           	rmk1_txt, 			rmk2_txt, 				rmk3_txt, 				fwrd_snp_scac_cd, 		crr_snp_scac_cd, 
+           	msg_sts_cd,			
+           	bro_snp_scac_cd, 	wh_snp_scac_cd, 		cnsl_ind_flg,			rgst_usrid,				rgst_ofc_cd,			
+           	rgst_tms,			modi_usrid,				modi_ofc_cd,			modi_tms
+		) VALUES (
+			#msg_id#,			#mbl_no#,				#hbl_no#,				#fwrd_scac_cd#,			#hbl_ref_no#,
+           	#pre_hbl_no#,		#cust_ref_no#,			#por_cd#,				#por_nm#,				#por_tp_cd#,
+           	#del_cd#,			#del_nm#,				#del_tp_cd#,			#del_cnt_cd#,			#fnl_dest_cd#,
+           	#fnl_dest_nm#,		#fnl_dest_tp_cd#,		#sub_fnl_dest_cd#,		#hbl_cmpl_ind_flg#,		#pck_ut_cd#,
+           	#pck_qty#, 			#wgt_ut_cd#, 			#grs_wgt#, 				#meas_ut_cd#, 			#meas_amt#, 
+           	#rmk1_txt#, 		#rmk2_txt#, 			#rmk3_txt#, 			#fwrd_snp_scac_cd#, 	#crr_snp_scac_cd#, 
+           	#msg_sts_cd#,   
+           	#bro_snp_scac_cd#, 	#wh_snp_scac_cd#, 		#cnsl_ind_flg#,			#proc_usrid#,			#proc_ofccd#,			
+           	getDate(),			#proc_usrid#,			#proc_ofccd#,			GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- TB_EDI_CSTMS_BL_PTY 테이블 정보입력   -->
+	<insert id="insertTB_EDI_CSTMS_BL_PTY" parameterClass="EdiCstmBlPtyVO">
+		/** EdiAciSQL.xml -> insertTB_EDI_CSTMS_BL_PTY **/
+		INSERT INTO tb_edi_cstms_bl_pty (  
+			msg_id,				bl_no,					pty_id,					pty_id_tp_cd,			pty_cd,					
+			pty_tp_cd,			pty_nm,					pty_phn_no,				pty_cntc_nm,			pty_dob_dt,				
+			dop_cnt_cd,			pty_addr1,				pty_addr2,				pty_addr3,				cty_nm,					
+			cnt_cd,				ste_cd,					zip_cd,					rgst_usrid,				rgst_ofc_cd,			
+			rgst_tms,			modi_usrid,				modi_ofc_cd,			modi_tms
+		) VALUES (
+			#msg_id#,			#bl_no#,				#pty_id#,				#pty_id_tp_cd#,			#pty_cd#,					
+			#pty_tp_cd#,		#pty_nm#,				#pty_phn_no#,			#pty_cntc_nm#,			#pty_dob_dt#,				
+			#dop_cnt_cd#,		#pty_addr1#,			#pty_addr2#,			#pty_addr3#,			#cty_nm#,					
+			#cnt_cd#,			#ste_cd#,				#zip_cd#,				#proc_usrid#,			#proc_ofccd#,			
+			getDate(),			#proc_usrid#,			#proc_ofccd#,			GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- TB_EDI_CSTMS_BL_CNTR 테이블 정보입력   -->
+	<insert id="insertTB_EDI_CSTMS_BL_CNTR" parameterClass="EdiCstmBlCntrVO">
+		/** EdiAciSQL.xml -> insertTB_EDI_CSTMS_BL_CNTR **/
+		INSERT INTO tb_edi_cstms_bl_cntr (  
+			msg_id,				bl_no,					cntr_no,				cntr_tpsz_cd,			lod_mty_sts_cd,
+           	splr_cd,			seal_no1,				seal_no2,				seal_no3,				rgst_usrid,
+           	rgst_ofc_cd,		rgst_tms,				modi_usrid,				modi_ofc_cd,			modi_tms
+		) VALUES (
+			#msg_id#,			#bl_no#,				#cntr_no#,				#cntr_tpsz_cd#,			#lod_mty_sts_cd#,
+           	#splr_cd#,			#seal_no1#,				#seal_no2#,				#seal_no3#,				#proc_usrid#,		
+           	#proc_ofccd#,		getDate(),				#proc_usrid#,			#proc_ofccd#,			GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- TB_EDI_CSTMS_BL_CNTR_CGO 테이블 정보입력   -->
+	<insert id="insertTB_EDI_CSTMS_BL_CNTR_CGO" parameterClass="EdiCstmBlCntrCgoVO">
+		/** EdiAciSQL.xml -> insertTB_EDI_CSTMS_BL_CNTR_CGO **/
+		INSERT INTO tb_edi_cstms_bl_cntr_cgo (  
+			msg_id,				bl_no,					cntr_no,				cgo_seq,				pck_ut_cd,
+           	pck_qty,			wgt_ut_cd,				cgo_wgt,				vol_ut_cd,				cgo_vol,
+           	hs_cd,				cgo_desc,				mk_no_txt,				imdg_cd,				undg_no,
+           	haz_cntc_nm,		haz_cntc_phn_no,		rgst_usrid,				rgst_ofc_cd,			rgst_tms,
+           	modi_usrid,			modi_ofc_cd,			modi_tms
+		) VALUES (
+			#msg_id#,			#bl_no#,				#cntr_no#,				#cgo_seq#,				#pck_ut_cd#,
+           	#pck_qty#,			#wgt_ut_cd#,			#cgo_wgt#,				#vol_ut_cd#,			#cgo_vol#,
+           	#hs_cd#,			#cgo_desc#,				#mk_no_txt#,			#imdg_cd#,				#undg_no#,
+           	#haz_cntc_nm#,		#haz_cntc_phn_no#,		#proc_usrid#,			#proc_ofccd#,			getDate(),			
+           	#proc_usrid#,		#proc_ofccd#,			GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- TB_EDI_CSTMS_HDR 테이블 조회   -->
+	<select id="selectTB_EDI_CSTMS_HDR" parameterClass="HashMap" resultClass="EdiCstmHdrVO">
+		/** EdiAciSQL.xml -> selectTB_EDI_CSTMS_HDR **/
+		SELECT * FROM tb_edi_cstms_hdr WHERE msg_id = #msg_id#
+	</select>
+	
+	<!-- TB_EDI_CSTMS_VSL 테이블 조회   -->
+	<select id="selectTB_EDI_CSTMS_VSL" parameterClass="HashMap" resultClass="EdiCstmVslVO">
+		/** EdiAciSQL.xml -> selectTB_EDI_CSTMS_VSL **/
+		SELECT * FROM tb_edi_cstms_vsl WHERE msg_id = #msg_id#
+	</select>
+	
+	<!-- TB_EDI_CSTMS_MBL 테이블 조회   -->
+	<select id="selectTB_EDI_CSTMS_MBL" parameterClass="HashMap" resultClass="EdiCstmMblVO">
+		/** EdiAciSQL.xml -> selectTB_EDI_CSTMS_MBL **/
+		SELECT * FROM tb_edi_cstms_mbl WHERE msg_id = #msg_id#
+	</select>
+	
+	<!-- TB_EDI_CSTMS_HBL 테이블 조회   -->
+	<select id="selectTB_EDI_CSTMS_HBL" parameterClass="HashMap" resultClass="EdiCstmHblVO">
+		/** EdiAciSQL.xml -> selectTB_EDI_CSTMS_HBL **/
+		SELECT * FROM tb_edi_cstms_hbl WHERE msg_id = #msg_id#
+	</select>
+																									
+	<select id="selectClzHblList" parameterClass="HashMap" resultClass="EdiCstmHblVO">
+		/** EdiAciSQL.xml -> selectClzHblList **/
+		SELECT AA.*, BB.clz_smt_tp_cd, BB.clz_msg_sts_cd, BB.clz_msg_sts_nm, BB.clz_err_msg
+		  FROM
+				(
+				   SELECT B.FWRD_SCAC_CD + BL_NO AS CCN_NO, B.FWRD_SCAC_CD, BL_NO AS HBL_NO, ISNULL(A.HBL_CMPL_FLG,'N') AS HBL_CMPL_FLG, B.PRE_HBL_NO
+							, A.MSG_STS_CD
+							, A.RSK_ASS_CD
+							, A.MTCH_STS_CD
+				  FROM TB_EDI_BL_STS A
+				  JOIN TB_EDI_CSTMS_HBL B ON A.BL_NO = B.HBL_NO AND A.MSG_NO = B.MSG_ID 
+				 WHERE A.MSG_TP_CD = 'ACI'
+				   AND A.PRE_BL_NO = #f_mbl_no#
+				UNION
+				SELECT B.FWRD_SCAC_CD + BL_NO AS CCN_NO, B.FWRD_SCAC_CD, BL_NO AS HBL_NO, ISNULL(A.HBL_CMPL_FLG,'N') AS HBL_CMPL_FLG, B.PRE_HBL_NO
+							, A.MSG_STS_CD
+							, A.RSK_ASS_CD
+							, A.MTCH_STS_CD
+				  FROM TB_EDI_BL_STS A
+				  JOIN TB_EDI_CSTMS_HBL B ON A.BL_NO = B.HBL_NO AND A.MSG_NO = B.MSG_ID 
+				 WHERE A.MSG_TP_CD = 'ACI'
+				   AND A.MBL_NO = #f_mbl_no#
+				   AND ISNULL(A.PRE_BL_NO,'') =  ''
+				) AA LEFT OUTER JOIN
+				(
+					 SELECT TOP 1 a.smt_tp_cd AS clz_smt_tp_cd, c.msg_sts_cd as clz_msg_sts_cd, d.cd_nm as clz_msg_sts_nm, c.err_msg as clz_err_msg, c.hbl_no     
+				  FROM tb_edi_cstms_hdr a, tb_edi_cstms_mbl b, tb_edi_cstms_hbl c, tb_com_cd_dtl d  
+				 WHERE a.msg_id = b.msg_id
+				    AND b.msg_id = c.msg_id
+				    AND b.mbl_no = #f_mbl_no#
+				    AND a.mf_tp_cd = 'ACI'
+				    AND a.mf_sub_tp_cd = 'CloseMessage'
+				    AND d.com_cd = 'E018'
+					AND c.msg_sts_cd = d.cd_val
+				   ORDER BY a.msg_id desc
+				) BB ON AA.hbl_no = BB.hbl_no
+	</select>
+	
+	<!-- TB_EDI_CSTMS_BL_PTY 테이블 조회   -->
+	<select id="selectTB_EDI_CSTMS_BL_PTY" parameterClass="HashMap" resultClass="EdiCstmBlPtyVO">
+		/** EdiAciSQL.xml -> selectTB_EDI_CSTMS_BL_PTY **/
+		SELECT * FROM tb_edi_cstms_bl_pty WHERE msg_id = #msg_id#
+	</select>
+	
+	<!-- TB_EDI_CSTMS_BL_CNTR 테이블 조회   -->
+	<select id="selectTB_EDI_CSTMS_BL_CNTR" parameterClass="HashMap" resultClass="EdiCstmBlCntrVO">
+		/** EdiAciSQL.xml -> selectTB_EDI_CSTMS_BL_CNTR **/
+		SELECT * FROM tb_edi_cstms_bl_cntr WHERE msg_id = #msg_id#
+	</select>
+	
+	<!-- TB_EDI_CSTMS_BL_CNTR_CGO 테이블 조회   -->
+	<select id="selectTB_EDI_CSTMS_BL_CNTR_CGO" parameterClass="HashMap" resultClass="EdiCstmBlCntrCgoVO">
+		/** EdiAciSQL.xml -> selectTB_EDI_CSTMS_BL_CNTR_CGO **/
+		SELECT * FROM tb_edi_cstms_bl_cntr_cgo WHERE msg_id = #msg_id#
+	</select>
+	
+	<select id="selectEdiAciMsgId" resultClass="String">
+		/* selectEdiAciMsgId */
+		SELECT 'ACI' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + ISNULL(dbo.LPAD(MAX(SUBSTRING(MSG_ID, 10, 5))+1, 5, '0'), '00001') AS MSG_ID
+		  FROM TB_EDI_CSTMS_HDR
+		 WHERE MSG_ID LIKE 'ACI' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + '%'
+	</select>
+	
+	<!-- ACI CONTAINER SEARCH   -->
+	<select id="serachEdiAciCntrList" parameterClass="HashMap" resultClass="EdiAciBlInfoVO">
+		/* serachEdiAciCntrList */
+		SELECT distinct a.bl_no, b.cntr_no, b.cntr_tpsz_cd, ISNULL(b.seal_no1,'') AS seal_no1, ISNULL(b.seal_no2,'') AS SEAL_NO2, ISNULL(b.seal_no3,'') AS SEAL_NO3
+		  from tb_intg_bl a, tb_cntr_list b
+		 WHERE a.delt_flg = 'N' 
+		   AND b.delt_flg = 'N'
+		   AND a.intg_bl_seq = b.intg_bl_seq
+		   AND a.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<!-- ACI CONTAINER CARGO SEARCH   -->
+	<select id="serachEdiAciCntrCgoList" parameterClass="HashMap" resultClass="EdiAciBlInfoVO">
+		/* serachEdiAciCntrCgoList */
+		SELECT hbl.bl_no, cntr.cntr_no, 
+			   cdt.rmk, cdt.pck_qty, pck.ams_pck_cd_val AS pck_ut_cd, cdt.wgt, cdt.meas, 
+			   SUBSTRING(cdt.shp_cmdt_cd,1, 10) AS shp_cmdt_cd,
+			   cdt.shp_cmdt_nm as cgo_desc,
+		       CASE WHEN cdt.dg_cd_tp = 'U' THEN cdt.dg_cd ELSE '' END AS dg_cd
+		  FROM tb_shp_cmdt cdt
+		  LEFT OUTER JOIN  tb_cntr_list cntr ON cdt.cntr_list_seq = cntr.cntr_list_seq AND cdt.intg_bl_seq = cntr.intg_bl_seq
+		  LEFT OUTER JOIN  tb_intg_bl hbl ON cdt.intg_bl_seq = hbl.intg_bl_seq AND hbl.delt_flg = 'N'
+		  LEFT OUTER JOIN tb_pck_ut_cd pck   ON   cdt.pck_ut_cd   = pck.pck_ut_cd    AND pck.delt_flg = 'N'
+		 WHERE cdt.intg_bl_seq = cast(#intg_bl_seq# as varchar) 
+		   AND cdt.delt_flg = 'N'
+	</select>
+	
+	<!-- ACI HBL PTY SEARCH   -->
+	<select id="serachEdiAciBlPtyList" parameterClass="HashMap" resultClass="EdiAciBlInfoVO">
+		/* serachEdiAciBlPtyList */
+		SELECT pty.bl_no, pty.bl_trdp_tp_cd, pty.trdp_cd, pty.trdp_nm, pty.trdp_addr, pty.trdp_pic, pty.trdp_phn, trdp.city_nm, trdp.state_cd, trdp.rep_zip AS zip_cd, trdp.cnt_cd
+		  FROM (
+				SELECT bl.bl_no AS bl_no, shp.bl_trdp_tp_cd, shp.trdp_cd, shp.trdp_nm, shp.trdp_pic, shp.trdp_phn,
+				       rtrim(ltrim(REPLACE(REPLACE(shp.trdp_addr, char(13)+char(10), ' '),char(10), ' '))) AS trdp_addr
+				  FROM tb_intg_bl bl
+				  LEFT OUTER JOIN tb_bl_prnr shp ON bl.intg_bl_seq = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+				 WHERE bl.delt_flg = 'N'
+				   AND bl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+				  
+				UNION ALL
+				  
+				SELECT bl.bl_no AS bl_no, cne.bl_trdp_tp_cd, cne.trdp_cd, cne.trdp_nm, cne.trdp_pic, cne.trdp_phn,
+				       rtrim(ltrim(REPLACE(REPLACE(cne.trdp_addr, char(13)+char(10), ' '),char(10), ' '))) AS trdp_addr
+				  FROM tb_intg_bl bl
+				  LEFT OUTER JOIN tb_bl_prnr cne ON bl.intg_bl_seq = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+				 WHERE bl.delt_flg = 'N'
+				   AND bl.intg_bl_seq = cast(#intg_bl_seq# as varchar) 
+		
+				  UNION ALL
+				  
+				SELECT bl.bl_no AS bl_no, ntf.bl_trdp_tp_cd, ntf.trdp_cd, ntf.trdp_nm, ntf.trdp_pic, ntf.trdp_phn,
+				       rtrim(ltrim(REPLACE(REPLACE(ntf.trdp_addr, char(13)+char(10), ' '),char(10), ' '))) AS trdp_addr
+				  FROM tb_intg_bl bl
+				  LEFT OUTER JOIN tb_bl_prnr ntf ON bl.intg_bl_seq = ntf.intg_bl_seq  AND ntf.bl_trdp_tp_cd = 'N01' AND ntf.delt_flg = 'N'
+				 WHERE bl.delt_flg = 'N'
+				   AND bl.intg_bl_seq = cast(#intg_bl_seq# as varchar) 
+		   ) pty
+	    LEFT OUTER JOIN tb_trdp trdp ON pty.trdp_cd = trdp.trdp_cd
+	</select>
+	
+	<select id="serachEdiAciHis" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.aci.dto.EdiAciHisVO">
+		/* serachEdiAciHis */
+		SELECT  B.MSG_ID, A.ERR_CD, A.ERR_MSG, A.RGST_TMS AS SND_DT_TM, A.RCV_DT_TM, A.MSG_STS_CD, B.MF_SUB_TP_CD, B.SMT_TP_CD, C.CD_NM AS MSG_STS_NM  
+		  FROM TB_EDI_CSTMS_HBL A
+		  JOIN  TB_EDI_CSTMS_HDR B ON A.MSG_ID = B.MSG_ID
+		  LEFT OUTER JOIN TB_COM_CD_DTL C ON A.MSG_STS_CD = C.CD_VAL
+		 WHERE  C.COM_CD = 'AFRA'
+		    AND A.HBL_NO = #f_hbl_no#
+		    AND B.MF_TP_CD = #f_mf_tp_cd#
+		UNION ALL
+		SELECT MSG_ID, '' AS ERR_CD, CSTMS_MSG AS ERR_MSG, A.RGST_TMS AS SND_DT_TM, RCV_DT_TM, MSG_STS_CD, '' AS MF_SUB_TP_CD, MSG_TP_CD AS  SMT_TP_CD, B.CD_NM   
+         FROM TB_EDI_CSTMS_BL_STS A
+           LEFT OUTER JOIN TB_COM_CD_DTL B ON A.MSG_STS_CD = B.CD_VAL
+        WHERE 1=1
+   		   AND B.COM_CD = 'E013'
+   		   AND A.MSG_TP_CD = 'Disposition'
+   		   AND BL_NO = #f_hbl_no#
+   		   AND A.MF_TP_CD = #f_mf_tp_cd#
+   	   	ORDER BY  A.RGST_TMS  DESC
+	</select>
+	
+	<select id="serachEdiAciCBSASubLoc" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.aci.dto.EdiAciCBSASubLocVO">
+		/* serachEdiAciCBSASubLoc */
+		SELECT wh_id, wh_nm, wh_addr, port_rlt_cd, ste_cd
+		  FROM tb_edi_cbsa_sub_loc
+		 WHERE delt_flg = 'N' 
+		   <isNotEmpty property="f_wh_id">
+                  AND  wh_id = #f_wh_id#
+           </isNotEmpty>
+           <isNotEmpty property="f_port_rlt_cd">
+                  AND  port_rlt_cd = #f_port_rlt_cd#
+           </isNotEmpty>
+           <isNotEmpty property="f_wh_nm">
+                  AND  wh_nm LIKE '%' +  #f_wh_nm# + '%'
+           </isNotEmpty>
+           <isNotEmpty property="f_ste_cd">
+                  AND  ste_cd = #f_ste_cd#
+           </isNotEmpty>
+           <isNotEmpty property="loc_tp_cd">
+                  AND  loc_tp_cd = #loc_tp_cd#
+           </isNotEmpty>
+	</select>
+	
+	<select id="serachEdiAciCBSASubLoc_CNT" parameterClass="HashMap" resultClass="Integer">
+		/* serachEdiAciCBSASubLoc_CNT */
+		SELECT COUNT(*)
+		  FROM tb_edi_cbsa_sub_loc
+		 WHERE delt_flg = 'N' 
+		   <isNotEmpty property="f_wh_id">
+                  AND  wh_id = #f_wh_id#
+           </isNotEmpty>
+           <isNotEmpty property="f_port_rlt_cd">
+                  AND  port_rlt_cd = #f_port_rlt_cd#
+           </isNotEmpty>
+           <isNotEmpty property="f_wh_nm">
+                  AND  wh_nm LIKE '%' +  #f_wh_nm# + '%'
+           </isNotEmpty>
+           <isNotEmpty property="f_ste_cd">
+                  AND  ste_cd = #f_ste_cd#
+           </isNotEmpty>
+           <isNotEmpty property="loc_tp_cd">
+                  AND  loc_tp_cd = #loc_tp_cd#
+           </isNotEmpty>
+	</select>
+	
+	<select id="searchEdiAciValidate" parameterClass="HashMap" resultClass="HashMap">
+		/* searchEdiAciValidate */
+		SELECT    (select count(*) from tb_cntr_list cntr where cntr.intg_bl_seq = hbl.intg_bl_seq and cntr.delt_flg = 'N') as cntr_cnt
+				, CASE WHEN (select case when count(*) = 0 then 'Y' else 'N' end
+					 from tb_cntr_list cntr
+					 left outer join tb_shp_cmdt cmdt on cntr.intg_bl_seq = cmdt.intg_bl_seq and cntr.cntr_list_seq = cmdt.cntr_list_seq and cmdt.delt_flg = 'N'
+					where cntr.intg_bl_seq = hbl.intg_bl_seq
+					  and cntr.delt_flg = 'N'
+					  and cmdt.cntr_list_seq is null
+					  ) = 'Y' THEN 
+					  (select case when count(*) = 0 then 'Y' else 'N' end
+					 from tb_cntr_list cntr
+					 left outer join tb_shp_cmdt cmdt on cntr.intg_bl_seq = cmdt.intg_bl_seq and cntr.cntr_list_seq = cmdt.cntr_list_seq and cmdt.delt_flg = 'N'
+					where cntr.intg_bl_seq = hbl.intg_bl_seq
+					  and cntr.delt_flg = 'N'
+					  and ( cmdt.pck_qty = 0 or cmdt.pck_ut_cd = '' or cmdt.rmk = '' or cmdt.wgt = 0 )
+					  )
+				  ELSE 'N' END AS cntr_cgo
+		  FROM tb_intg_bl hbl
+		 WHERE hbl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		   AND hbl.DELT_FLG = 'N'	
+	</select>
+	
+	<select id="searchEdiAciClzSts" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.aci.dto.EdiAciHisVO">
+		/* searchEdiAciClzSts */
+		SELECT  TOP 1 a.smt_tp_cd, c.msg_sts_cd 
+		  FROM tb_edi_cstms_hdr a, tb_edi_cstms_mbl b, tb_edi_cstms_hbl c 
+		 WHERE a.msg_id = b.msg_id
+		    AND b.msg_id = c.msg_id
+		    AND b.mbl_no = #f_mbl_no#
+		    AND a.mf_tp_cd = 'ACI'
+		    AND a.mf_sub_tp_cd = 'CloseMessage'
+		   ORDER BY a.msg_id desc
+	</select>
+	
+	
+	<select id="serachEdiAciHblTreeList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.aci.dto.EdiAcihHblTreeListVO">
+		/* EdiAciSQL.xml > serachEdiAciHblTreeList */
+		
+		WITH MBLIST AS
+		(
+			SELECT 
+				MAX(A.MSG_ID) AS MSG_ID , A.MBL_NO FROM TB_EDI_CSTMS_MBL A GROUP BY A.MBL_NO 
+		)
+		, HBLIST AS 
+		(
+			SELECT B.MBL_NO,B.BL_NO
+			      ,CASE WHEN B.PRE_BL_NO = '' OR B.PRE_BL_NO IS NULL 
+			            THEN B.MBL_NO  
+			            ELSE B.PRE_BL_NO 
+			            END AS PRE_BL_NO
+			      ,B.MSG_NO as MSG_ID
+				  ,B.MSG_STS_CD
+				  ,B.RSK_ASS_CD
+				  ,B.MTCH_STS_CD
+			 FROM TB_EDI_BL_STS B 
+		)
+		,RECURSIVE_QUERY(MBL_NO,HBL_NO, PRE_HBL_NO,  MSG_ID,SORT,LEVEL, MSG_STS_CD,RSK_ASS_CD,MTCH_STS_CD) AS 
+		(
+		
+		  SELECT 
+		        CONVERT(VARCHAR(255), MBL_NO) AS MBL_NO,
+		        CONVERT(VARCHAR(255), MBL_NO) AS HBL_NO,
+		        CONVERT(VARCHAR(255), '')     AS PRE_HBL_NO,
+		        CONVERT(VARCHAR(255), MSG_ID) AS MSG_ID,
+		        CONVERT(VARCHAR(255), '' + ' ' + MBL_NO) AS SORT,
+		        1 AS LEVEL,
+				CONVERT(VARCHAR(255), '') AS MSG_STS_CD,
+				CONVERT(VARCHAR(255), '') AS RSK_ASS_CD,
+				CONVERT(VARCHAR(255), '') AS MTCH_STS_CD
+		        
+		   FROM MBLIST
+		        
+		   UNION ALL
+		
+		  SELECT CONVERT(VARCHAR(255), B.MBL_NO)    AS MBL_NO,
+		         CONVERT(VARCHAR(255), B.BL_NO)     AS HBL_NO,
+		         CONVERT(VARCHAR(255), B.PRE_BL_NO) AS PRE_HBL_NO,
+		         CONVERT(VARCHAR(255), B.MSG_ID)    as MSG_ID,
+		         CONVERT(VARCHAR(255), RTRIM(C.SORT) + '|    ' + B.PRE_BL_NO + ' ' + B.BL_NO) AS SORT,
+		         LEVEL+1 AS LEVEL,
+		         CONVERT(VARCHAR(255), B.MSG_STS_CD) AS MSG_STS_CD,
+				 CONVERT(VARCHAR(255), B.RSK_ASS_CD) AS RSK_ASS_CD,
+				 CONVERT(VARCHAR(255), B.MTCH_STS_CD) AS MTCH_STS_CD
+		
+		    FROM  HBLIST B, RECURSIVE_QUERY C
+		
+		    WHERE B.PRE_BL_NO = C.HBL_NO
+		
+		)
+		
+		SELECT  A.MBL_NO,
+		        A.PRE_HBL_NO,
+		        A.HBL_NO, 
+		        A.MSG_ID, 
+		        A.SORT,
+		        A.LEVEL,
+		        <!-- ISNULL(B.HBL_CMPL_FLG,'N') AS HBL_CMPL_FLG, !-->
+		        ISNULL((SELECT MAX(ISNULL(HBL_CMPL_FLG, 'N')) FROM TB_EDI_BL_STS WHERE PRE_BL_NO = A.HBL_NO OR MBL_NO = A.HBL_NO), 'N') AS HBL_CMPL_FLG,
+				A.MSG_STS_CD,
+				A.RSK_ASS_CD,
+				A.MTCH_STS_CD,
+				ISNULL(
+					(SELECT B.FWRD_SCAC_CD + B.HBL_NO FROM TB_EDI_CSTMS_HBL B where a.HBL_NO=b.HBL_NO and a.MSG_ID= b.MSG_ID),
+					(SELECT B.CRR_SCAC_CD + B.MBL_NO  FROM TB_EDI_CSTMS_MBL B where a.MBL_NO=b.MBL_NO and a.MSG_ID= b.MSG_ID)
+				) as CCN_NO
+		  FROM RECURSIVE_QUERY A
+		 WHERE  1=1
+ 		   AND A.MBL_NO  IN ($arrMnlNo$) 
+		 ORDER BY  SORT
+	</select>	
+	
+</sqlMap>

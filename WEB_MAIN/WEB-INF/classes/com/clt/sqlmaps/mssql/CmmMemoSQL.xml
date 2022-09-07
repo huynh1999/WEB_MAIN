@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="cmm.mem">
+
+	<!-- common memo select    -->
+    <select id="searchCmmMemList" parameterClass="HashMap" resultClass="com.clt.apps.fis.cmm.mem.dto.CmmMemVO">
+	    SELECT 	palt_doc_seq
+			      ,intg_bl_seq
+			      ,palt_trdp_cd
+			      ,(SELECT cd_nm FROM TB_COM_CD_DTL WHERE com_cd = 'C027' AND cd_val = palt_doc_tp_cd) AS palt_doc_tp_nm
+			      ,palt_trdp_pic_nm
+			      ,palt_trdp_pic_fax
+			      ,palt_trdp_pic_phn
+			      ,tmplt_seq
+			      ,palt_doc_tp_cd
+			      ,palt_doc_nm
+			      ,palt_doc_no
+			      ,palt_doc_img_url
+			      ,palt_doc_img_nm
+			      ,palt_doc_pdf_url
+			      ,palt_doc_pdf_nm
+			      ,palt_doc_msg
+			      ,palt_doc_rmk
+			      ,iss_dt
+			      ,rgst_usrid
+			      ,rgst_ofc_cd
+			      <!-- ,CONVERT(VARCHAR(8), rgst_tms, 112) AS rgst_tms -->
+			      ,rgst_tms
+			      ,modi_usrid
+			      ,modi_ofc_cd
+			      ,modi_tms
+			      ,delt_flg
+			      ,ISNULL(palt_ext_flg, 'N') AS palt_ext_flg 
+		  FROM 	TB_PALT_SHP_DOC 
+		  
+		 WHERE  1=1 
+		   AND 	intg_bl_seq = cast(#intg_bl_seq# as varchar) 
+		<dynamic>
+			<isEmpty property="palt_mnu_cd">
+                AND  palt_mnu_cd = '' 
+            </isEmpty>
+            <isNotEmpty property="palt_mnu_cd">
+                AND  palt_mnu_cd = #palt_mnu_cd# 
+            </isNotEmpty>
+		</dynamic>
+		
+         ORDER BY  palt_doc_seq DESC 
+	</select>
+	
+	
+	<delete id="deleteCmmMemList" parameterClass="com.clt.apps.fis.see.bmd.shippingdoc.dto.PaltShpDocVO">
+        DELETE  TB_PALT_SHP_DOC
+         WHERE  intg_bl_seq  = cast(#intg_bl_seq# as varchar)
+         <dynamic>
+			<isEmpty property="palt_mnu_cd">
+                AND  palt_mnu_cd = '' 
+            </isEmpty>
+            <isNotEmpty property="palt_mnu_cd">
+                AND  palt_mnu_cd = #palt_mnu_cd# 
+            </isNotEmpty>
+		</dynamic> 
+           AND  palt_doc_seq = #palt_doc_seq#
+    </delete>
+	
+</sqlMap>    

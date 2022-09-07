@@ -1,0 +1,763 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="whm.receiving.entry">
+	<!-- #2753 [LOA WMS3.0] LOADING FOREVER -with(nolock) mod -->
+	<select id = "searchReceivingRSQL" parameterClass="HashMap" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+			/* WhmReceivingSQL > searchReceivingRSQL */
+				SELECT RS.FILE_NO,
+				  RS.RGST_OFC_CD,
+				  RS.WH_CD,
+				  WH.WH_NM,
+				  RS.RCV_SHP_TP_CD,
+				  RS.CTRT_NO,
+				  (SELECT TL_CTRT.CTRT_NM CTRT_NM FROM TL_CTRT with(nolock) WHERE 1=1 AND TL_CTRT.CTRT_NO = RS.CTRT_NO  
+<!-- 				  AND TL_CTRT.CTRT_USE_FLG = 'Y'   -->
+				  ) AS CTRT_NM,
+				  RS.CUST_CD,
+				   (SELECT top 1  TP.LOCL_NM 
+					 FROM TB_TRDP TP with(nolock)
+					 WHERE TP.TRDP_CD = RS.CUST_CD 
+<!-- 					 AND ISNULL(TP.DELT_FLG, 'N') = 'N' -->
+					 ) AS CUST_NM,
+				  RS.SPLR_RCVR_CD,
+				  (SELECT top 1  TP.LOCL_NM 
+					 FROM TB_TRDP TP with(nolock)
+					 WHERE TP.TRDP_CD = RS.SPLR_RCVR_CD 
+<!-- 					 AND ISNULL(TP.DELT_FLG, 'N') = 'N' -->
+					 ) AS SPLR_RCVR_NM,
+				  RS.TRKR_CD,
+				  (SELECT top 1  TP.LOCL_NM 
+					 FROM TB_TRDP TP with(nolock)
+					 WHERE TP.TRDP_CD = RS.TRKR_CD 
+<!-- 					 AND ISNULL(TP.DELT_FLG, 'N') = 'N' -->
+					 ) AS TRKR_NM,
+				  RS.CUST_REF_NO,
+				  RS.INTER_RMK,
+				  RS.XTER_RMK,
+				  RS.RCV_SHP_FLG,
+				  RS.OPR_CD,
+				  (SELECT TOP 1 US.ENG_USR_NM
+				     FROM TB_USR US with(nolock)
+					 WHERE US.USRID = RS.OPR_CD
+<!-- 					 AND ISNULL(US.DELT_FLG, 'N') = 'N'  -->
+<!-- 					 AND ISNULL(US.USE_FLG, 'N') = 'Y' -->
+					 ) AS OPR_NM,
+				  RS.ESTM_RCV_DT,
+				  RS.RCV_SHP_DT,
+				  ISNULL(RS.PLT_NO, 0) PLT_NO,
+				  RS.CNTR_NO,
+				  RS.MST_BL_NO,
+				  RS.HUS_BL_NO,
+			 	  CUST_OFC_CD,
+				  SPLR_RCVR_OFC_CD,
+				  TRKR_OFC_CD,
+			      OPR_OFC_CD,
+				  LEN_UT_CD,
+				  CONVERT(VARCHAR, RS.CRE_DT, 110) + ' ' + CONVERT(VARCHAR(5), RS.CRE_DT, 8) AS CRE_DT
+				FROM WHM_WH WH with(nolock), WHM_RCV_SHP RS with(nolock)
+				WHERE 1        =1
+				AND WH.WH_CD = RS.WH_CD 
+<!--    				AND WH.USE_FLG = 'Y' -->
+				AND RS.FILE_NO = #file_no#
+				AND RS.RGST_OFC_CD = #rgst_ofc_cd#
+				AND RS.RCV_SHP_TP_CD = #rcv_shp_tp_cd#
+	</select>
+	<insert id="saveReceivingCSQL" parameterClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+	/* WhmReceivingSQL > createReceivingCSQL */
+			INSERT
+			INTO WHM_RCV_SHP
+			  (
+			    FILE_NO,
+				RGST_OFC_CD,
+				WH_CD,
+				RCV_SHP_TP_CD,
+				CUST_CD,
+				SPLR_RCVR_CD,
+				TRKR_CD,
+				CUST_REF_NO,
+				INTER_RMK,
+				XTER_RMK,
+				RCV_SHP_FLG,
+				OPR_CD,
+				ESTM_RCV_DT,
+				RCV_SHP_DT,
+				PLT_NO,
+				CNTR_NO,
+				MST_BL_NO,
+				HUS_BL_NO,
+				CUST_OFC_CD,
+				SPLR_RCVR_OFC_CD,
+				TRKR_OFC_CD,
+				OPR_OFC_CD,
+				LEN_UT_CD,
+				
+				CTRT_NO,
+			    CRE_DT,
+			    CRE_USR_ID,
+			    UPD_DT,
+			    UPD_USR_ID
+			  )
+			  VALUES
+			  (
+			    #file_no#,
+			    #rgst_ofc_cd#,
+			    #wh_cd#,
+			    #rcv_shp_tp_cd#,
+			    #cust_cd#,
+			    #splr_rcvr_cd#,
+			    #trkr_cd#,
+			    #cust_ref_no#,
+			    #inter_rmk#,
+			    #xter_rmk#,
+			    #rcv_shp_flg#,
+			    #opr_cd#,
+			    #estm_rcv_dt#,
+			    #rcv_shp_dt#,
+			    #plt_no#,
+			    #cntr_no#,
+			    #mst_bl_no#,
+			    #hus_bl_no#,
+			    #cust_ofc_cd#,
+			    #splr_rcvr_ofc_cd#,
+			    #trkr_ofc_cd#,
+			    #opr_ofc_cd#,
+			    #len_ut_cd#,
+			    
+			    #ctrt_no#,
+			    GETDATE() ,
+			    #cre_usr_id#,
+			    GETDATE(),
+			    #upd_usr_id#
+			  )
+			
+			/* WhmReceivingItemSQL > createReceivingItemCSQL */
+	</insert>
+	<insert id="saveReceivingItemCSQL" parameterClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+	/* WhmReceivingItemSQL > createReceivingItemCSQL */
+		INSERT
+		INTO WHM_RCV_SHP_ITM
+		  (
+			FILE_NO,
+			RGST_OFC_CD,
+		    CUST_ITM_ID,
+			ITM_UT_CD,
+			ITM_INR_QTY,
+			ITM_CTN_QTY,
+			ITM_EA_QTY,
+			ITM_LOC_ID,
+			ITM_DESC,
+			ITM_PO_NO,
+			ITM_LEN,
+			ITM_WDT,
+			ITM_HGT,
+			ITM_DIM_WGT,
+			ITM_ACT_WGT,
+			ITM_VOL,
+			ITM_DIM_WGT_LBS,
+			ITM_ACT_WGT_LBS,
+			ITM_VOL_CFT,
+			ITM_BGN_BAL_QTY,
+			ITM_ENDG_BAL_QTY,
+		    CRE_DT,
+		    CRE_USR_ID,
+		    UPD_DT,
+		    UPD_USR_ID
+		  )
+		  VALUES
+		  (
+			#file_no#,
+			#rgst_ofc_cd#,
+		   	#cust_itm_id#,
+			#itm_ut_cd#,
+			#itm_inr_qty#,
+			#itm_ctn_qty#,
+			#itm_ea_qty#,
+			#itm_loc_id_CRUD#,
+			#itm_desc#,
+			#itm_po_no#,
+			#itm_len#,
+			#itm_wdt#,
+			#itm_hgt#,
+			#itm_dim_wgt#,
+			#itm_act_wgt#,
+			#itm_vol#,
+			#itm_dim_wgt_lbs#,
+			#itm_act_wgt_lbs#,
+			#itm_vol_cft#,
+			#itm_bgn_bal_qty#,
+			#itm_endg_bal_qty#,
+		    GETDATE(),
+		    #cre_usr_id#,
+		    GETDATE(),
+		    #upd_usr_id#
+		  )
+
+	</insert>
+	
+	<update id="saveReceivingUSQL"  parameterClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+	/* WhmReceivingSQL > saveReceivingUSQL */
+		UPDATE WHM_RCV_SHP
+		SET 
+			WH_CD =#wh_cd#,
+			RGST_OFC_CD =#rgst_ofc_cd#,
+			CUST_CD =#cust_cd#,
+			SPLR_RCVR_CD =#splr_rcvr_cd#,
+			TRKR_CD =#trkr_cd#,
+			CUST_REF_NO =#cust_ref_no#,
+			INTER_RMK =#inter_rmk#,
+			XTER_RMK =#xter_rmk#,
+			RCV_SHP_FLG =#rcv_shp_flg#,
+			OPR_CD =#opr_cd#,
+			ESTM_RCV_DT =#estm_rcv_dt#,
+			RCV_SHP_DT =  #rcv_shp_dt#,
+			PLT_NO =#plt_no#,
+			CNTR_NO =#cntr_no#,
+			MST_BL_NO =#mst_bl_no#,
+			HUS_BL_NO =#hus_bl_no#,
+			CUST_OFC_CD = #cust_ofc_cd#,
+			SPLR_RCVR_OFC_CD = #splr_rcvr_ofc_cd#,
+			TRKR_OFC_CD = #trkr_ofc_cd#,
+			OPR_OFC_CD = #opr_ofc_cd#,
+			LEN_UT_CD = #len_ut_cd#,
+		    UPD_DT = GETDATE(),
+		    UPD_USR_ID =#upd_usr_id#
+		WHERE FILE_NO  = #file_no#
+	
+	</update>
+	
+	<select id="getNewRcvFileNoRSQL"  parameterClass="HashMap" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+	/** WhmReceivingSQL.xml > getNewRcvFileNoRSQL*/
+		SELECT WH_RCV_PRFX + CONVERT(VARCHAR(10),ISNULL(MAX(WH_RCV_SEQ_NO),0)+1) AS FILE_NO
+	  FROM TB_OFC
+	  WHERE OFC_CD = #rgst_ofc_cd#
+	  GROUP BY WH_RCV_SEQ_NO, WH_RCV_PRFX
+	/** WhmReceivingSQL.xml > getMaxLocIdRSQL*/
+    </select>
+	<update id="setNewRcvFileNoUSQL"  parameterClass="HashMap">
+	/** WhmReceivingSQL.xml > setNewRcvFileNoUSQL*/
+	  UPDATE TB_OFC
+		SET WH_RCV_SEQ_NO = (SELECT WH_RCV_SEQ_NO + 1
+											FROM TB_OFC
+											WHERE OFC_CD = #rgst_ofc_cd#)
+		WHERE OFC_CD = #rgst_ofc_cd#
+	/** WhmReceivingSQL.xml > setMaxLocIdRSQL*/
+    </update>
+    
+	<select id="getNewShpFileNoRSQL"  parameterClass="HashMap" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+	/** WhmReceivingSQL.xml > getNewRcvFileNoRSQL*/
+		SELECT WH_SHP_PRFX + CONVERT(VARCHAR(10),ISNULL(MAX(WH_SHP_SEQ_NO),0)+1) AS FILE_NO
+	  FROM TB_OFC
+	  WHERE OFC_CD = #rgst_ofc_cd#
+	  GROUP BY WH_SHP_SEQ_NO, WH_SHP_PRFX
+	/** WhmReceivingSQL.xml > getMaxLocIdRSQL*/
+    </select>
+	<update id="setNewShpFileNoUSQL"  parameterClass="HashMap">
+	/** WhmReceivingSQL.xml > setNewRcvFileNoUSQL*/
+	  UPDATE TB_OFC
+		SET WH_SHP_SEQ_NO = (SELECT WH_SHP_SEQ_NO + 1
+											FROM TB_OFC
+											WHERE OFC_CD = #rgst_ofc_cd#)
+		WHERE OFC_CD = #rgst_ofc_cd#
+	/** WhmReceivingSQL.xml > setMaxLocIdRSQL*/
+    </update>
+    
+	<select id="searchListLocIdRSQL"  parameterClass="HashMap" resultClass="com.clt.apps.fis.whm.warehouse.entry.dto.WhEtrLocVO">
+	/** WhmReceivingSQL.xml > getMaxLocIdRSQL*/
+	  SELECT 	LOC_ID, LOC_CD
+		FROM WHM_LOC
+		WHERE 1=1
+		AND WH_CD = #wh_cd#
+	/** WhmReceivingSQL.xml > getMaxLocIdRSQL*/
+    </select>
+    
+	<update id="saveReceivingItemUSQL"  parameterClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+	UPDATE WHM_RCV_SHP_ITM
+		SET 
+			ITM_UT_CD =#itm_ut_cd#,
+			ITM_INR_QTY =#itm_inr_qty#,
+			ITM_CTN_QTY =#itm_ctn_qty#,
+			ITM_EA_QTY =#itm_ea_qty#,
+			ITM_LOC_ID =#itm_loc_id_CRUD#,
+			ITM_DESC =#itm_desc#,
+			ITM_PO_NO =#itm_po_no#,
+			ITM_LEN =#itm_len#,
+			ITM_WDT =#itm_wdt#,
+			ITM_HGT =#itm_hgt#,
+			ITM_DIM_WGT =#itm_dim_wgt#,
+			ITM_ACT_WGT =#itm_act_wgt#,
+			ITM_VOL =#itm_vol#,
+			ITM_DIM_WGT_LBS =#itm_dim_wgt_lbs#,
+			ITM_ACT_WGT_LBS =#itm_act_wgt_lbs#,
+			ITM_VOL_CFT =#itm_vol_cft#,
+			ITM_BGN_BAL_QTY =#itm_bgn_bal_qty#,
+			ITM_ENDG_BAL_QTY =#itm_endg_bal_qty#,
+		    UPD_DT = GETDATE(),
+		    UPD_USR_ID =#upd_usr_id#
+		WHERE 
+			FILE_NO  = #file_no# 
+		AND RGST_OFC_CD = #rgst_ofc_cd#
+		AND CUST_ITM_ID = #cust_itm_id#
+    </update>
+	<delete id="saveReceivingItemDSQL"  parameterClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+	/* WhmReceivingItemSQL > saveReceivingItemDSQL */
+		DELETE FROM WHM_RCV_SHP_ITM 
+		WHERE
+			FILE_NO  = #file_no# 
+		AND RGST_OFC_CD = #rgst_ofc_cd#
+    </delete>
+	<delete id="deleteItemInventoryDSQL"  parameterClass="java.util.HashMap">
+	/* WhmReceivingItemSQL > deleteItemInventoryDSQL */
+		DELETE WHM_ITM_INVT 
+		WHERE LOC_ID 	=	#loc_id#
+		AND CUST_ITM_ID =	#cust_itm_id#
+		AND  ITM_UT_CD  =	 #itm_ut_cd#
+		AND  CTRT_NO  =	 #ctrt_no#
+    </delete>
+    
+    <!--Vinh.Vo 2015-1-8 -->
+    <delete id="saveReceivingItem2DSQL"  parameterClass="java.util.HashMap">
+	/* WhmReceivingItemSQL > saveReceivingItem2DSQL */
+		DELETE FROM WHM_RCV_SHP_ITM 
+		WHERE 
+			FILE_NO  = #file_no# 
+		AND RGST_OFC_CD = #rgst_ofc_cd#
+    </delete>
+    
+     <delete id="saveReceivingListDSQL"  parameterClass="java.util.HashMap">
+	/* WhmReceivingItemSQL > saveReceivingListDSQL */
+		DELETE FROM WHM_RCV_SHP 
+		WHERE 
+			FILE_NO  = #file_no# 
+		AND RGST_OFC_CD = #rgst_ofc_cd#
+		AND RCV_SHP_TP_CD = #rcv_shp_tp_cd#
+    </delete>
+    <!-- ===============  -->
+    
+    <!-- #2753 [LOA WMS3.0] LOADING FOREVER -with(nolock) mod -->
+      <select id="searchReceivingItemRSQL"  parameterClass="HashMap" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+    /* WhmReceivingSQL > searchReceivingItemRSQL */
+	SELECT  IT.CUST_ITM_ID,
+	 	ITM.ITEM_NM AS ITM_NM,
+	  IT.ITM_UT_CD,
+	  ISNULL(IT.ITM_INR_QTY, 0) ITM_INR_QTY,
+	  ISNULL(IT.ITM_CTN_QTY, 0) ITM_CTN_QTY,
+	  ISNULL(IT.ITM_EA_QTY, 0) ITM_EA_QTY,
+	  IT.ITM_LOC_ID,
+	  IT.ITM_DESC,
+	  IT.ITM_PO_NO,
+	  ISNULL(IT.ITM_LEN, 0) ITM_LEN,
+	  ISNULL(IT.ITM_WDT, 0) ITM_WDT,
+	  ISNULL(IT.ITM_HGT, 0) ITM_HGT,
+	  ISNULL(IT.ITM_DIM_WGT, 0) ITM_DIM_WGT,
+	  ISNULL(IT.ITM_ACT_WGT, 0) ITM_ACT_WGT,
+	  ISNULL(IT.ITM_VOL, 0) ITM_VOL,
+	  ISNULL(IT.ITM_DIM_WGT_LBS, 0) ITM_DIM_WGT_LBS,
+	  ISNULL(IT.ITM_ACT_WGT_LBS, 0) ITM_ACT_WGT_LBS,
+	  ISNULL(IT.ITM_VOL_CFT, 0) ITM_VOL_CFT,
+	  ISNULL(IT.ITM_BGN_BAL_QTY, 0) ITM_BGN_BAL_QTY,
+	  ISNULL(IT.ITM_ENDG_BAL_QTY, 0) ITM_ENDG_BAL_QTY,
+	  <!-- get ITEM_SYS_NO for event change Unit -->
+	  ITM.ITEM_SYS_NO
+	  
+<!-- 	FROM WHM_RCV_SHP_ITM IT,WHM_CUST_ITM ITM -->
+	FROM WHM_RCV_SHP_ITM IT with(nolock), TL_CTRT_CUST_ITEM ITM with(nolock) 
+	WHERE 1        =1
+<!-- 	AND ITM.CUST_ITM_ID = IT.CUST_ITM_ID -->
+	AND ITM.ITEM_CD = IT.CUST_ITM_ID  
+	AND IT.FILE_NO = #file_no#
+	AND IT.RGST_OFC_CD = #rgst_ofc_cd#
+	AND ITM.CTRT_NO = (SELECT
+				  RS.CTRT_NO
+				FROM WHM_WH WH with(nolock), WHM_RCV_SHP RS with(nolock)
+				WHERE 1        =1
+				AND WH.WH_CD = RS.WH_CD 
+<!--    				AND WH.USE_FLG = 'Y' -->
+				AND RS.FILE_NO = #file_no#
+				AND RS.RGST_OFC_CD = #rgst_ofc_cd#
+				AND RS.RCV_SHP_TP_CD = #rcv_shp_tp_cd#)
+    </select>
+    
+    <!-- <select id="searchReceivingItemRSQL"  parameterClass="HashMap" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+    /* WhmReceivingSQL > searchReceivingItemRSQL */
+	SELECT  IT.CUST_ITM_ID,
+	 	ITM.ITM_NM,
+	  IT.ITM_UT_CD,
+	  ISNULL(IT.ITM_INR_QTY, 0) ITM_INR_QTY,
+	  ISNULL(IT.ITM_CTN_QTY, 0) ITM_CTN_QTY,
+	  ISNULL(IT.ITM_EA_QTY, 0) ITM_EA_QTY,
+	  IT.ITM_LOC_ID,
+	  IT.ITM_DESC,
+	  IT.ITM_PO_NO,
+	  ISNULL(IT.ITM_LEN, 0) ITM_LEN,
+	  ISNULL(IT.ITM_WDT, 0) ITM_WDT,
+	  ISNULL(IT.ITM_HGT, 0) ITM_HGT,
+	  ISNULL(IT.ITM_DIM_WGT, 0) ITM_DIM_WGT,
+	  ISNULL(IT.ITM_ACT_WGT, 0) ITM_ACT_WGT,
+	  ISNULL(IT.ITM_VOL, 0) ITM_VOL,
+	  ISNULL(IT.ITM_DIM_WGT_LBS, 0) ITM_DIM_WGT_LBS,
+	  ISNULL(IT.ITM_ACT_WGT_LBS, 0) ITM_ACT_WGT_LBS,
+	  ISNULL(IT.ITM_VOL_CFT, 0) ITM_VOL_CFT,
+	  ISNULL(IT.ITM_BGN_BAL_QTY, 0) ITM_BGN_BAL_QTY,
+	  ISNULL(IT.ITM_ENDG_BAL_QTY, 0) ITM_ENDG_BAL_QTY
+	FROM WHM_RCV_SHP_ITM IT,WHM_CUST_ITM ITM
+	WHERE 1        =1
+	AND ITM.CUST_ITM_ID = IT.CUST_ITM_ID
+	AND IT.FILE_NO = #file_no#
+	AND IT.RGST_OFC_CD = #rgst_ofc_cd#
+    </select> -->
+    
+    <!-- #2753 [LOA WMS3.0] LOADING FOREVER -with(nolock) mod -->
+    <select id ="selectReceivingList" parameterClass="HashMap" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.ReceivingListVO">
+	    /* WhmReceivingSQL.xml > selectReceivingList */
+	    SELECT DISTINCT
+			WRS.WH_CD,
+			(SELECT WH_NM FROM WHM_WH WH with(nolock) WHERE WH.WH_CD = WRS.WH_CD) WH_NM,
+			WRS.FILE_NO, 
+			WRS.CUST_CD,
+			(SELECT TOP 1 trbp.LOCL_NM FROM TB_TRDP trbp with(nolock) WHERE trbp.TRDP_CD = WRS.CUST_CD) CUST_NM,
+			WRS.ESTM_RCV_DT AS BKG_DT,
+			WRS.ESTM_RCV_DT,
+			WRS.RCV_SHP_DT,
+			WRS.CUST_REF_NO,
+			(SELECT trbp.LOCL_NM FROM TB_TRDP trbp with(nolock) WHERE trbp.TRDP_CD = WRS.SPLR_RCVR_CD ) SPLR_NM,
+			(SELECT trbp.LOCL_NM FROM TB_TRDP trbp with(nolock) WHERE trbp.TRDP_CD = WRS.TRKR_CD) TRKR_NM,
+			STUFF((	SELECT ', ' + ITM1.ITM_PO_NO
+					FROM WHM_RCV_SHP_ITM ITM1 with(nolock)
+					WHERE 1=1
+					AND ITM1.FILE_NO = ITM2.FILE_NO
+					AND ITM1.RGST_OFC_CD = ITM2.RGST_OFC_CD
+					AND ITM1.ITM_PO_NO is not null
+					AND ITM1.ITM_PO_NO <![CDATA[<>]]> ''
+					<isNotEmpty property = "itm_cd">
+						AND ITM1.CUST_ITM_ID = #itm_cd#
+				  	</isNotEmpty> 
+				  	<isNotEmpty property = "itm_po_no">
+						AND ITM1.ITM_PO_NO = #itm_po_no#
+				  	</isNotEmpty>		
+ 					FOR XML PATH('')), 1, 1, '') [ITM_PO_NO],
+			WRS.PLT_NO,
+			WRS.CNTR_NO,
+			WRS.MST_BL_NO,
+			WRS.HUS_BL_NO,
+			(SELECT LOCL_USR_NM from TB_USR with(nolock)
+				WHERE USRID = WRS.OPR_CD
+<!-- 				AND ISNULL(DELT_FLG, 'N') = 'N'  -->
+<!-- 				AND ISNULL(USE_FLG, 'N') = 'Y' -->
+				) RCV_BY,
+			WRS.RGST_OFC_CD,
+			WRS.SPLR_RCVR_CD,
+			WRS.TRKR_CD,
+			WRS.LEN_UT_CD,
+		    WRS.RCV_SHP_FLG
+		FROM 
+			WHM_RCV_SHP WRS	with(nolock) LEFT OUTER JOIN WHM_RCV_SHP_ITM ITM2 with(nolock) 
+			 ON WRS.FILE_NO = ITM2.FILE_NO 
+				AND WRS.RGST_OFC_CD = ITM2.RGST_OFC_CD
+		WHERE 1 = 1
+		<isNotEmpty property = "wh_cd">
+			AND WRS.WH_CD = #wh_cd#
+		</isNotEmpty>
+		<isNotEmpty property = "rcv_shp_tp_cd">
+			AND WRS.RCV_SHP_TP_CD   =  #rcv_shp_tp_cd#
+		</isNotEmpty>
+		
+		<isEqual property="tp_date" compareValue="ERD">
+		  AND WRS.ESTM_RCV_DT between #etd_strdt# and #etd_enddt# 
+		</isEqual>
+		<isEqual property="tp_date" compareValue="RD">
+		AND WRS.RCV_SHP_DT between #etd_strdt# and #etd_enddt# 
+		</isEqual>
+		
+		<isEqual property="tp_date" compareValue="SD">
+		AND WRS.RCV_SHP_DT between #etd_strdt# and #etd_enddt# 
+		</isEqual>
+		
+		<isNotEmpty property="file_no">
+			AND	WRS.FILE_NO = #file_no#
+		</isNotEmpty>
+		<isNotEmpty property="cust_ref_no">
+			AND	WRS.CUST_REF_NO = #cust_ref_no#
+		</isNotEmpty>
+		<isNotEmpty property="plt_no">
+			AND	WRS.PLT_NO = #plt_no#
+		</isNotEmpty>
+		<isNotEmpty property="cntr_no">
+			AND	WRS.CNTR_NO = #cntr_no#
+		</isNotEmpty>
+		<isNotEmpty property="mst_bl_no">
+			AND	WRS.MST_BL_NO = #mst_bl_no#
+		</isNotEmpty>
+		<isNotEmpty property="hus_bl_no">
+			AND	WRS.HUS_BL_NO = #hus_bl_no#
+		</isNotEmpty>
+		<isNotEmpty property="cust_cd">
+			AND	 WRS.CUST_CD = #cust_cd#
+		</isNotEmpty>
+		<isNotEmpty property="splr_rcvr_cd">
+			AND	 WRS.SPLR_RCVR_CD = #splr_rcvr_cd#
+		</isNotEmpty>
+		<isNotEmpty property="trkr_cd">
+			AND	 WRS.TRKR_CD = #trkr_cd#
+		</isNotEmpty> 
+		<isNotEmpty property = "rcv_shp_flg">
+			AND WRS.RCV_SHP_FLG   =  #rcv_shp_flg#
+		</isNotEmpty>
+		<isNotEmpty property = "rgst_ofc_cd">
+			AND WRS.RGST_OFC_CD = #rgst_ofc_cd#
+		</isNotEmpty>
+		<isNotEmpty property = "itm_cd">
+			AND ITM2.CUST_ITM_ID = #itm_cd#
+	  	</isNotEmpty> 
+	  	<isNotEmpty property = "itm_po_no">
+			AND ITM2.ITM_PO_NO = #itm_po_no#
+	  	</isNotEmpty>		
+	  	
+	  	<isNotEmpty property = "ctrt_no">
+			 AND UPPER(WRS.CTRT_NO)  = UPPER(#ctrt_no#)
+		</isNotEmpty>
+		
+   </select>
+   
+   <select id ="searchItemList" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO" parameterClass="java.util.HashMap">
+   <!--	SELECT CUST_ITM_ID, ITM_CD,ITM_NM
+		FROM WHM_CUST_ITM
+		WHERE 1=1
+		AND CUST_CD = #cust_cd# -->
+		/* WhmReceivingSQL.xml > searchItemList */
+		SELECT 
+			ITM.ITEM_CD ITM_CD, 
+			ITM.ITEM_NM ITM_NM,  
+			ITM.CTRT_NO CTRT_NO,
+			ITM.ITEM_SYS_NO ITEM_SYS_NO
+	    FROM TL_CTRT_CUST_ITEM ITM 
+	    JOIN TL_CTRT CTRT ON ITM.CTRT_NO = CTRT.CTRT_NO AND CTRT.CTRT_USE_FLG != 'N' 
+	    WHERE CTRT.CTRT_CUST_CD =  #cust_cd#
+   </select>
+   
+   
+   <select id ="searchItemDefault" parameterClass="HashMap" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+		<!-- SELECT ITM_CD, CUST_ITM_ID, ITM_NM, ITM_UT_CD, ITM_INR_QTY, ITM_WGT, ITM_WGT_LBS, ITM_VOL, ITM_VOL_CFT, ITM_LEN, ITM_WDT, ITM_HGT
+		FROM WHM_CUST_ITM
+		WHERE CUST_ITM_ID = #cust_itm_id# -->
+		/* WhmReceivingSQL.xml > searchItemList */
+		SELECT 
+			ITM_CD, 
+			CUST_ITM_ID, 
+			ITM_NM, 
+			ITM_UT_CD, 
+			ITM_INR_QTY, 
+			ITM_WGT, 
+			ITM_WGT_LBS, 
+			ITM_VOL, 
+			ITM_VOL_CFT, 
+			ITM_LEN, 
+			ITM_WDT, 
+			ITM_HGT
+	    FROM TL_CTRT_CUST_ITEM ITM 
+	    JOIN TL_CTRT CTRT ON ITM.CTRT_NO = CTRT.CTRT_NO AND CTRT.CTRT_USE_FLG != 'N' 
+	    WHERE CTRT.CTRT_CUST_CD =  #cust_cd#
+   </select>
+   <select id="checkDuplicateFileNo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT FILE_NO
+		FROM WHM_RCV_SHP
+		WHERE 1 = 1
+		AND FILE_NO = #file_no#
+		AND RCV_SHP_TP_CD = #rcv_shp_tp_cd#
+	</select>
+	
+	<select id="checkDuplicateDocRefNo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT DOC_REF_NO
+		FROM TB_WM_DOC_MST
+		WHERE 1 = 1
+		AND DOC_REF_NO = #doc_ref_no#
+	</select>
+	
+	<select id="searchItemBeginBalanceRSQL" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+    	/* searchItemBeginBalanceRSQL.Query */
+		SELECT RS.FILE_NO,
+		  RS.RGST_OFC_CD,
+		  RS.RCV_SHP_FLG,
+		  RS.RCV_SHP_DT,
+		  ISNULL(RSI.ITM_ENDG_BAL_QTY, 0) ITM_BGN_BAL_QTY
+		FROM WHM_RCV_SHP RS, WHM_RCV_SHP_ITM RSI
+		WHERE 1        =1
+		AND RS.FILE_NO = RSI.FILE_NO
+		AND RS.RGST_OFC_CD = RSI.RGST_OFC_CD
+		AND RSI.CUST_ITM_ID = #cust_itm_id#	
+		AND RS.WH_CD = #wh_cd#		
+		AND RS.CTRT_NO = #ctrt_no#
+		AND ISNULL(RS.RCV_SHP_FLG, 'N') = 'Y'
+		AND RS.RCV_SHP_DT = (SELECT MAX(RS.RCV_SHP_DT)
+													FROM WHM_RCV_SHP RS, WHM_RCV_SHP_ITM RSI
+													WHERE 1        =1
+													AND RS.FILE_NO = RSI.FILE_NO
+													AND RS.RGST_OFC_CD = RSI.RGST_OFC_CD
+													AND RSI.CUST_ITM_ID = #cust_itm_id#
+													AND RS.WH_CD = #wh_cd#
+													AND RS.CTRT_NO = #ctrt_no#
+													<isNotEmpty property="file_no"> 
+													AND RS.FILE_NO != #file_no# 
+													</isNotEmpty>
+													AND ISNULL(RS.RCV_SHP_FLG, 'N') = 'Y'
+													AND RS.RCV_SHP_DT  <![CDATA[<]]> #rcv_shp_dt#
+												)
+    ORDER BY RS.RCV_SHP_DT,        RS.CRE_DT
+	</select>	
+	<select id="searchItemInOutListByDateRSQL" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+    	/* searchItemInOutListByDateRSQL.Query */
+		SELECT RS.FILE_NO,
+		  RS.RGST_OFC_CD,
+		  RS.RCV_SHP_FLG,
+		  RS.RCV_SHP_DT,
+	      RS.RCV_SHP_TP_CD,
+	      RSI.ITM_LOC_ID,
+	      RSI.ITM_UT_CD,
+		  ISNULL(RSI.ITM_INR_QTY, 0) * ISNULL(RSI.ITM_CTN_QTY, 0) + ISNULL(RSI.ITM_EA_QTY, 0) ITM_TTL_QTY,
+		  ISNULL(RSI.ITM_BGN_BAL_QTY, 0) ITM_BGN_BAL_QTY,
+		  ISNULL(RSI.ITM_ENDG_BAL_QTY, 0) ITM_ENDG_BAL_QTY
+		FROM WHM_RCV_SHP RS, WHM_RCV_SHP_ITM RSI
+		WHERE 1        =1
+		AND RS.FILE_NO = RSI.FILE_NO
+		AND RS.RGST_OFC_CD = RSI.RGST_OFC_CD
+		AND RSI.CUST_ITM_ID = #cust_itm_id#
+		AND RS.WH_CD = #wh_cd#
+		AND ISNULL(RS.RCV_SHP_FLG, 'N') = 'Y'
+		AND RS.CTRT_NO = #ctrt_no#
+		 AND RS.RCV_SHP_DT <![CDATA[>=]]> #rcv_shp_dt#
+        ORDER BY RS.RCV_SHP_DT ASC,RS.RCV_SHP_TP_CD,RS.CRE_DT ASC
+	</select>	
+	<select id="searchItemInventoryRSQL" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.whm.inventory.dto.InventoryVO">
+    	/* searchItemInventoryRSQL.Query */
+		SELECT 
+			INVT.CUST_ITM_ID,
+			INVT.LOC_ID,
+			ISNULL(INVT.ITM_TTL_CTN_QTY, 0) TTL_CTN_QTY,
+			ISNULL(INVT.ITM_TTL_EA_QTY, 0) TTL_EA_QTY,
+			ISNULL(INVT.ITM_TTL_QTY, 0) TTL_QTY,
+			ISNULL(INVT.ITM_TTL_WGT, 0) TTL_WGT_KGS,
+			ISNULL(INVT.ITM_TTL_WGT_LBS, 0) TTL_WGT_LBS,
+			ISNULL(INVT.ITM_TTL_VOL, 0) TTL_VOL_CBM,
+			ISNULL(INVT.ITM_TTL_VOL_CFT, 0) TTL_VOL_CFT
+		FROM 
+			WHM_ITM_INVT INVT
+		WHERE 1 = 1
+		  AND INVT.CUST_ITM_ID  = #cust_itm_id#
+		  AND INVT.LOC_ID 		= #loc_id#
+		  AND INVT.ITM_UT_CD 	= #itm_ut_cd#
+		  AND INVT.CTRT_NO 	= #ctrt_no#
+		ORDER BY INVT.CUST_ITM_ID
+	</select>	
+	<update id="updateItemInventoryUSQL" parameterClass="com.clt.apps.fis.whm.inventory.dto.InventoryVO">
+    	/* updateItemInventoryUSQL.Query */
+		UPDATE WHM_ITM_INVT
+		SET ITM_TTL_CTN_QTY = #ttl_ctn_qty#,
+			ITM_TTL_EA_QTY = #ttl_ea_qty#,
+			ITM_TTL_QTY = #ttl_qty#,
+			ITM_TTL_WGT = #ttl_wgt_kgs#,
+			ITM_TTL_VOL = #ttl_vol_cbm#,
+			ITM_TTL_WGT_LBS = #ttl_wgt_lbs#,
+			ITM_TTL_VOL_CFT = #ttl_vol_cft#,
+			UPD_DT = GETDATE(),
+			UPD_USR_ID = 'system'
+		WHERE 1=1
+			AND LOC_ID =			#loc_id#
+			AND CUST_ITM_ID =		#cust_itm_id#
+			AND ITM_UT_CD   =		 #itm_ut_cd#
+			AND CTRT_NO   =		 #ctrt_no#
+	</update>	
+	<update id="updateReceivingItemBalanceUSQL"  parameterClass="com.clt.apps.fis.whm.receiving.receiving.dto.receivingVO">
+	UPDATE WHM_RCV_SHP_ITM
+		SET 
+			ITM_BGN_BAL_QTY =#itm_bgn_bal_qty#,
+			ITM_ENDG_BAL_QTY =#itm_endg_bal_qty#,
+		    UPD_DT = GETDATE(),
+		    UPD_USR_ID =#upd_usr_id#
+		WHERE 
+			FILE_NO  = #file_no# 
+		AND RGST_OFC_CD = #rgst_ofc_cd#
+		AND CUST_ITM_ID = #cust_itm_id#
+		AND ITM_LOC_ID = #itm_loc_id#
+		AND ITM_UT_CD = #itm_ut_cd#
+    </update>
+    <insert id="createItemInventoryCSQL" parameterClass="com.clt.apps.fis.whm.inventory.dto.InventoryVO">
+	/* WhmReceivingSQL > createItemInventoryCSQL */
+			INSERT
+			INTO WHM_ITM_INVT
+			  (
+			    LOC_ID,
+			    CUST_ITM_ID,
+			    ITM_TTL_CTN_QTY,
+			    ITM_TTL_EA_QTY,
+			    ITM_TTL_QTY,
+			    ITM_TTL_WGT,
+			    ITM_TTL_VOL,
+			    ITM_TTL_WGT_LBS,
+			    ITM_TTL_VOL_CFT,
+			    CRE_DT,
+			    CRE_USR_ID,
+			    UPD_DT,
+			    UPD_USR_ID,
+			    ITM_UT_CD,
+			    CTRT_NO
+			  )
+			  VALUES
+			  (
+			    #loc_id#,
+			    #cust_itm_id#,
+			    #ttl_ctn_qty#,
+			    #ttl_ea_qty#,
+				#ttl_qty#,
+				#ttl_wgt_kgs#,
+				#ttl_vol_cbm#,
+				#ttl_wgt_lbs#,
+				#ttl_vol_cft#,
+				GETDATE(),
+			    #cre_usr_id#,
+			    GETDATE(),
+			    #upd_usr_id#,
+			    #itm_ut_cd#,
+			    #ctrt_no#
+			  )
+			
+			/* WhmReceivingItemSQL > createReceivingItemCSQL */
+	</insert>
+	<select id="GetUserInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT ENG_USR_NM,OFC_CD 
+		FROM TB_USR 
+		WHERE 1 = 1 
+		AND USRID = #cust_cd#
+	</select>
+	<select id="searchLengthUnitRSQL" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    	SELECT cd_nm,cd_val 
+			FROM TB_com_cd_dtl 
+			WHERE com_cd = 'C084' 
+			AND delt_flg = 'N'
+	</select>
+	<select id="checkReceivingStatus" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	    	SELECT ISNULL(MAX(RCV_SHP_FLG),'N') AS RCV_SHP_FLG
+			FROM WHM_RCV_SHP
+			WHERE FILE_NO = #file_no#
+			AND RGST_OFC_CD = #rgst_ofc_cd#
+			AND RCV_SHP_TP_CD = #rcv_shp_tp_cd#
+	</select>
+	
+	<!--2015/10/14 Modify check closing -->
+	<select id="checkCls" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.whm.receiving.receiving.dto.checkVO">
+	    	SELECT WH_CD, CUST_CD, MAX(DATE) AS DATE_CLS
+			FROM WHM_HST
+			WHERE 1=1
+			AND WH_CD = #wh_cd#
+			AND CUST_CD = #cust_cd#
+			AND DELT_FLG = 'N'
+			GROUP BY WH_CD, CUST_CD
+	</select>
+	
+	<select id="getDummyLocation" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	    	SELECT 	LOC_ID
+			FROM WHM_LOC
+			WHERE 1=1
+				AND WH_CD = #wh_cd#
+				AND LOC_CD = 'DUMMY'
+	</select>
+</sqlMap>

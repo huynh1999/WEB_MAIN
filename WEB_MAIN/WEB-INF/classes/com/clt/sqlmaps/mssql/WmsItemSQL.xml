@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="wms.item.all">
+	<typeAlias alias="WMSITEMListVO" 	type="com.clt.apps.fis.wms.item.dto.ITEMListVO"/>
+	
+	<select id="searchItemList" parameterClass="java.util.HashMap" resultClass="WMSITEMListVO">
+	/* WmsItemSQL.xml : searchItemList */
+	SELECT
+	TB_I.SEQ,
+	TB_I.ITEM_CD,
+	TB_I.ITEM_NM,
+	TB_I.ITEM_GRP_CD,
+	TB_I.CTRT_NO,
+	dbo.TL_GET_CTRT_NM (TB_I.CTRT_NO) AS CTRT_NM,
+	TB_I.HTS_NO,
+	LTRIM(
+		RTRIM(
+			(
+				CONVERT (DECIMAL(10, $wms_cbm_point_count$), TB_I.LV1_CBM)  <!-- #2927 [LOA WMS4.0] ITEM CBM CALCULATION -->
+			)
+		)
+	) AS ITEM_CBM,
+	LTRIM(
+		RTRIM(
+			(
+				CONVERT (
+					DECIMAL (10, 3),
+					TB_I.LV1_GRS_KGS
+				)
+			)
+		)
+	) AS ITEM_KGS,
+	LTRIM(
+		RTRIM(
+			(
+				CONVERT (
+					DECIMAL (10, 3),
+					TB_I.LV1_NET_KGS
+				)
+			)
+		)
+	) AS ITEM_NET_WGT,
+	LTRIM(
+		RTRIM(
+			(
+				CONVERT (
+					DECIMAL (10, 3),
+					TB_I.LV1_WIDTH
+				)
+			)
+		)
+	) AS ITEM_WIDTH,
+	LTRIM(
+		RTRIM(
+			(
+				CONVERT (
+					DECIMAL (10, 3),
+					TB_I.LV1_LENGTH
+				)
+			)
+		)
+	) AS ITEM_LENGTH,
+	LTRIM(
+		RTRIM(
+			(
+				CONVERT (
+					DECIMAL (10, 3),
+					TB_I.LV1_HEIGHT
+				)
+			)
+		)
+	) AS ITEM_HEIGHT,
+	TB_I.PKG_LV1_UNIT_CD,
+	LTRIM(
+		RTRIM(
+			(
+				CONVERT (
+					DECIMAL (10, 3),
+					TB_I.PKG_LV1_QTY
+				)
+			)
+		)
+	) AS PKG_LV1_QTY,
+	TB_I.ITEM_PKGUNIT,
+	LTRIM(
+		RTRIM(
+			(
+				CONVERT (
+					DECIMAL (10, 3),
+					TB_I.ITEM_PKGBASEQTY
+				)
+			)
+		)
+	) AS ITEM_PKGBASEQTY,
+	TB_I.PKG_LV3_UNIT_CD,
+	LTRIM(
+		RTRIM(
+			(
+				CONVERT (
+					DECIMAL (10, 3),
+					TB_I.PKG_LV3_QTY
+				)
+			)
+		)
+	) AS PKG_LV3_QTY,
+	TB_I.PKG_LV4_UNIT_CD,
+	LTRIM(
+		RTRIM(
+			(
+				CONVERT (
+					DECIMAL (10, 3),
+					TB_I.PKG_LV4_QTY
+				)
+			)
+		)
+	) AS PKG_LV4_QTY,
+	TB_I.ITEM_USE_FLG,
+	TB_I.RGST_ID,
+	CONVERT (
+		VARCHAR (20),
+		TB_I.RGST_SYS_DT,
+		120
+	) AS RGST_SYS_DT,
+	TB_I.MODI_ID,
+	CONVERT (
+		VARCHAR (20),
+		TB_I.MODI_SYS_DT,
+		120
+	) AS MODI_SYS_DT,
+	TB_I.ITEM_REMARK,
+	TB_I.CTRT_NO,
+	TB_I.ITEM_SYS_NO,TB_I.TOTAL,
+	<!-- OFVFOUR-7852 [GREAT LUCK] ADDING BARCODE NO COLUMN ON WMS -->
+	TB_I.BARCODE_NO
+FROM
+	(
+		SELECT
+			ROW_NUMBER () OVER (ORDER BY I.CTRT_NO) AS SEQ,
+			I.CTRT_NO,
+			I.ITEM_SYS_NO,
+			I.ITEM_CD,
+			I.ITEM_NM,
+			I.ITEM_GRP_CD,
+			I.HTS_NO,
+			dbo.TL_GET_HTS_NM (I.HTS_NO) AS HTS_NM,
+			I.ITEM_CBM,
+			I.ITEM_KGS,
+			I.LV1_WIDTH,
+			I.LV1_LENGTH,
+			I.LV1_HEIGHT,
+			I.ITEM_REMARK,
+			I.ITEM_USE_FLG,
+			I.ITEM_NET_WGT,
+			I.LV1_CBM,
+			I.LV1_GRS_KGS,
+			I.LV1_NET_KGS,
+			I.PKG_LV1_UNIT_CD,
+			I.PKG_LV1_QTY,
+			I.ITEM_PKGUNIT,
+			I.ITEM_PKGBASEQTY,
+			I.PKG_LV3_UNIT_CD,
+			I.PKG_LV3_QTY,
+			I.PKG_LV4_UNIT_CD,
+			I.PKG_LV4_QTY,
+			I.RGST_ID,
+			I.RGST_SYS_DT,
+			I.MODI_ID,
+			I.MODI_SYS_DT,
+	COUNT (*) OVER () AS TOTAL,
+	<!-- OFVFOUR-7852 [GREAT LUCK] ADDING BARCODE NO COLUMN ON WMS -->
+			I.BARCODE_NO
+		FROM
+			TL_CTRT_CUST_ITEM I WITH (NOLOCK)
+		WHERE
+			1 = 1
+		AND I.ITEM_CD IS NOT NULL
+			   <isNotEmpty property="ctrt_no">
+				 	AND I.CTRT_NO = #ctrt_no#
+			   </isNotEmpty>
+			   <isNotEmpty property="cust_item_no">
+	         	AND I.ITEM_CD = #cust_item_no#
+			   </isNotEmpty>
+			   <isNotEmpty property="cust_item_nm">
+	         	AND I.ITEM_NM LIKE '%' + #cust_item_nm# + '%'
+			   </isNotEmpty>
+			   <isNotEmpty property="use_sel">
+	         	AND I.ITEM_USE_FLG = #use_sel#
+			   </isNotEmpty>
+			    <isNotEmpty property="grp_cd">
+			 	AND I.ITEM_GRP_CD = #grp_cd#
+			 	</isNotEmpty>
+			 	<isNotEmpty property="supp_cd">
+				 AND EXISTS (SELECT NULL
+				               FROM TL_CTRT_CUST_ITEM_SUPP S WITH (NOLOCK)
+				              WHERE S.CTRT_NO = I.CTRT_NO
+				                AND S.ITEM_SYS_NO = I.ITEM_SYS_NO
+				                AND S.SUPP_CD = #supp_cd# )
+			  	</isNotEmpty>
+			  	<isNotEmpty property="barcode_no">
+				 AND I.BARCODE_NO LIKE #barcode_no# + '%'
+			  	</isNotEmpty>
+		   ) AS TB_I  <![CDATA[ where TB_I.SEQ > #beginIdx# AND TB_I.SEQ <= #topCnt#	]]>
+	</select>
+
+	<select id="searchItemByCtrtNoAndItemCd" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* WmsItemSQL.xml : searchItemByCtrtNoAndItemCd */
+		SELECT *
+		FROM
+			TL_CTRT_CUST_ITEM TB_I WITH (NOLOCK)
+		WHERE
+			1 = 1 AND TB_I.ITEM_CD IS NOT NULL
+			<isNotEmpty property="ctrt_no">
+				AND TB_I.CTRT_NO = #ctrt_no#
+			</isNotEmpty>
+			<isNotNull property="item_cd_arr">
+				AND TB_I.ITEM_CD IN (
+					<iterate property="item_cd_arr_in" conjunction=",">#item_cd_arr_in[]#</iterate>
+				)
+			</isNotNull>
+	</select>
+
+	<select id="searchItemListForSKU" parameterClass="java.util.HashMap" resultClass="WMSITEMListVO">
+	    /* WmsItemSQL.xml : searchItemListForSKU */
+	    SELECT
+	        TB_I.PKG_LV1_UNIT_CD
+			,dbo.TL_GET_PKG_NM(TB_I.PKG_LV1_UNIT_CD) PKG_LV1_UNIT_NM
+			,TB_I.ITEM_PKGUNIT
+			,dbo.TL_GET_PKG_NM(TB_I.ITEM_PKGUNIT) PKG_LV2_UNIT_NM
+			,TB_I.PKG_LV3_UNIT_CD
+			,(SELECT lic_plat_desc FROM	TL_WH_LIC_PLAT_UT_CD PKG WITH (NOLOCK) WHERE	PKG.lic_plat_ut_cd = ISNULL(TB_I.PKG_LV3_UNIT_CD, '')) PKG_LV3_UNIT_NM
+		FROM
+			TL_CTRT_CUST_ITEM TB_I WITH (NOLOCK)
+		WHERE
+			1 = 1
+			<isNotEmpty property="ctrt_no">
+				AND TB_I.CTRT_NO = #ctrt_no#
+			</isNotEmpty>
+			<isNotNull property="item_cd">
+				AND TB_I.ITEM_CD = #item_cd#
+			</isNotNull>
+	</select>
+</sqlMap>

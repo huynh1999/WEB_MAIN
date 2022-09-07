@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+<!-- Sea Export House BL Freight   -->
+    <url-mapping url="SEE_FRT_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.see.frt.freight.event.SEE_FRT_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEE_FRT_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--Type/Size 그룹 조회   -->
+    <url-mapping url="SEE_FRT_0010GS.clt" screen="SEE_FRT_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.see.frt.freight.event.SEE_FRT_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--Freight Selling/Debit 목록 조회   -->
+    <url-mapping url="SEE_FRT_0010_1GS.clt" screen="SEE_FRT_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.see.frt.freight.event.SEE_FRT_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--Freight Buying/Credit 목록 조회   -->
+	<url-mapping url="SEE_FRT_0010_2GS.clt" screen="SEE_FRT_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.see.frt.freight.event.SEE_FRT_0010HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <!-- Invoice Create 팝업   -->
+    <url-mapping url="SEE_FRT_0011.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.see.frt.freight.event.SEE_FRT_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEE_FRT_0011.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <event-mapping>
+        <event-class>com.clt.apps.fis.see.frt.freight.event.SeeFreightEvent</event-class>
+        <service-action-class>com.clt.apps.fis.see.frt.freight.SeeFreightSC</service-action-class>
+    </event-mapping>
+    <!-- Sea Export House BL Tariff End  -->
+	
+	
+    <!-- Sea Export Master BL Tariff   -->
+    <url-mapping url="SEE_FRT_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.see.frt.freight.event.SEE_FRT_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEE_FRT_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--Type/Size 그룹 조회   -->
+    <url-mapping url="SEE_FRT_0020GS.clt" screen="SEE_FRT_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.see.frt.freight.event.SEE_FRT_0020HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--House B/L 목록 조회   -->
+    <url-mapping url="SEE_FRT_0020_1GS.clt" screen="SEE_FRT_0020_1GS.screen">
+        <web-action-class>com.clt.apps.fis.see.frt.freight.event.SEE_FRT_0020HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--Freight Buying/Credit 목록 조회   -->
+    <url-mapping url="SEE_FRT_0020_2GS.clt" screen="SEE_FRT_0020_2GS.screen">
+        <web-action-class>com.clt.apps.fis.see.frt.freight.event.SEE_FRT_0020HTMLAction</web-action-class>
+    </url-mapping>
+        
+    <event-mapping>
+        <event-class>com.clt.apps.fis.see.frt.freight.event.SeeFreightEvent</event-class>
+        <service-action-class>com.clt.apps.fis.see.frt.freight.SeeFreightSC</service-action-class>
+    </event-mapping>
+<!-- Sea Export House BL Freight End  -->
+	
+	
+
+<!-- Sea Import House BL Freight   -->
+    <url-mapping url="SEI_FRT_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sei.frt.freight.event.SEI_FRT_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEI_FRT_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--Type/Size 그룹 조회   -->
+    <url-mapping url="SEI_FRT_0010GS.clt" screen="SEE_FRT_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.sei.frt.freight.event.SEI_FRT_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--Freight Selling/Debit 목록 조회   -->
+    <url-mapping url="SEI_FRT_0010_1GS.clt" screen="SEE_FRT_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sei.frt.freight.event.SEI_FRT_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--Freight Buying/Credit 목록 조회   -->
+    <url-mapping url="SEI_FRT_0010_2GS.clt" screen="SEE_FRT_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sei.frt.freight.event.SEI_FRT_0010HTMLAction</web-action-class>
+    </url-mapping>
+	<!-- Sea Import House BL Freight End  -->
+	<!-- Sea Import Master BL Freight   -->
+    <url-mapping url="SEI_FRT_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sei.frt.freight.event.SEI_FRT_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEI_FRT_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--Type/Size 그룹 조회   -->
+    <url-mapping url="SEI_FRT_0020GS.clt" screen="SEE_FRT_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.sei.frt.freight.event.SEI_FRT_0020HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--House B/L 목록 조회   -->
+    <url-mapping url="SEI_FRT_0020_1GS.clt" screen="SEE_FRT_0020_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sei.frt.freight.event.SEI_FRT_0020HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--Freight Buying/Credit 목록 조회   -->
+    <url-mapping url="SEI_FRT_0020_2GS.clt" screen="SEE_FRT_0020_2GS.screen">
+        <web-action-class>com.clt.apps.fis.sei.frt.freight.event.SEI_FRT_0020HTMLAction</web-action-class>
+    </url-mapping>
+<!-- Sea Import MBL Freight End  -->
+	
+	
+<!-- Air Export House BL Freight   -->
+    <url-mapping url="AIE_FRT_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.aie.frt.freight.event.AIE_FRT_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="AIE_FRT_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--Freight Selling/Debit 목록 조회   -->
+    <url-mapping url="AIE_FRT_0010_1GS.clt" screen="SEE_FRT_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.aie.frt.freight.event.AIE_FRT_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--Freight Buying/Credit 목록 조회   -->
+    <url-mapping url="AIE_FRT_0010_2GS.clt" screen="SEE_FRT_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.aie.frt.freight.event.AIE_FRT_0010HTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Air Export House BL Freight End  -->
+	
+    <!-- Air Export Master BL Freight   -->
+    <url-mapping url="AIE_FRT_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.aie.frt.freight.event.AIE_FRT_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="AIE_FRT_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--House B/L 목록 조회   -->
+    <url-mapping url="AIE_FRT_0020_1GS.clt" screen="SEE_FRT_0020_1GS.screen">
+        <web-action-class>com.clt.apps.fis.aie.frt.freight.event.AIE_FRT_0020HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--Freight Buying/Credit 목록 조회   -->
+    <url-mapping url="AIE_FRT_0020_2GS.clt" screen="SEE_FRT_0020_2GS.screen">
+        <web-action-class>com.clt.apps.fis.aie.frt.freight.event.AIE_FRT_0020HTMLAction</web-action-class>
+    </url-mapping>
+<!-- Air Export MBL Freight End  -->
+<!-- Air Import House BL Freight   -->
+    <url-mapping url="AII_FRT_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.aii.frt.freight.event.AII_FRT_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="AII_FRT_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--Freight Selling/Debit 목록 조회   -->
+    <url-mapping url="AII_FRT_0010_1GS.clt" screen="SEE_FRT_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.aii.frt.freight.event.AII_FRT_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--Freight Buying/Credit 목록 조회   -->
+    <url-mapping url="AII_FRT_0010_2GS.clt" screen="SEE_FRT_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.aii.frt.freight.event.AII_FRT_0010HTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Air Import House BL Freight End  -->
+    
+    <!-- Air Import Master BL Freight   -->
+    <url-mapping url="AII_FRT_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.aii.frt.freight.event.AII_FRT_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="AII_FRT_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--House B/L 목록 조회   -->
+    <url-mapping url="AII_FRT_0020_1GS.clt" screen="SEE_FRT_0020_1GS.screen">
+        <web-action-class>com.clt.apps.fis.aii.frt.freight.event.AII_FRT_0020HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!--Freight Buying/Credit 목록 조회   -->
+    <url-mapping url="AII_FRT_0020_2GS.clt" screen="SEE_FRT_0020_2GS.screen">
+        <web-action-class>com.clt.apps.fis.aii.frt.freight.event.AII_FRT_0020HTMLAction</web-action-class>
+    </url-mapping>
+<!-- Air Import MBL Freight End  -->
+</mappings>

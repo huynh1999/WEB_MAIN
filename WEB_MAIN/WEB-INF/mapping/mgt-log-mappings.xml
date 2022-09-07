@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### Mac Address Management ####  -->
+    <url-mapping url="MGT_LOG_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.log.mail.event.MGT_LOG_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_LOG_0010.screen"/>
+            <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_LOG_0010GS.clt" screen="MGT_LOG_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.log.mail.event.MGT_LOG_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MGT_LOG_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.log.fax.event.MGT_LOG_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_LOG_0020.screen"/>
+            <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_LOG_0020GS.clt" screen="MGT_LOG_0020GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.log.fax.event.MGT_LOG_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mgt.log.mail.event.MgtLogMailEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mgt.log.mail.MgtLogMailSC</service-action-class>
+    </event-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mgt.log.fax.event.MgtLogFaxEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mgt.log.fax.MgtLogFaxSC</service-action-class>
+    </event-mapping>
+       
+</mappings>

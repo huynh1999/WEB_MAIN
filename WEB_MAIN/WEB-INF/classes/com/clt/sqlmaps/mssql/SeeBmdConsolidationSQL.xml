@@ -1,0 +1,825 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd"> 
+<sqlMap namespace="see.bmd.consolidation">
+	
+    <typeAlias alias="ConsolVO"       type="com.clt.apps.fis.see.bmd.booking.dto.ConsolidationVO"/><!-- Consolidation   -->
+    
+    <!-- Carrier Booking Info    -->
+    <select id="selectBkg_INFO_PLAN" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+		/* SeeBmdConsolidationSQL.xml > selectBkg_INFO_PLAN */
+		SELECT
+	        BL.BL_NO AS MBL_NO
+	      , BL.REF_NO AS FILLING_NO
+	      , CLP.CLP_NO AS PLAN_NO
+	      , (SELECT CD_NM FROM TB_COM_CD_DTL DTL WHERE COM_CD = 'C224' AND DTL.CD_VAL = CLP.CLP_STS_CD) AS CON_STATUS
+	      , CLP.CLP_STS_CD
+	      , BKG.BKG_NO AS BKG_NO
+	      , BKG.BKG_SEQ        
+	      , BKG.CNTR_INFO AS CNTR_SUM        
+	      , BKG.TRNK_VSL_CD
+	      , BKG.TRNK_VSL_NM      
+	      , BKG.TRNK_VOY  
+	      , BKG.POL_CD        
+	      , BKG.POL_NM
+	      , BKG.POD_CD        
+	      , BKG.POD_NM        
+	      , BKG.ETD_DT_TM
+	      , BKG.ETA_DT_TM        
+	      , BKG.LNR_BKG_NO
+          , BKG.SLS_OFC_CD
+          , BKG.SLS_USRID 
+          , BKG.DEL_CD   <!-- #2606 [PATENT] Booking 기능 오류 항목 - 4. Consolidation Entry 화면 요건 DEL 검색 조건 추가 -->     
+	      , BKG.DEL_NM       
+	    FROM
+			TB_CLP CLP
+		LEFT OUTER JOIN
+	        TB_BKG BKG 
+				ON CLP.BKG_SEQ = BKG.BKG_SEQ    
+				AND BKG.DELT_FLG = 'N'         
+				AND BKG.BIZ_CLSS_CD =  'M' 
+	    LEFT OUTER JOIN
+	        TB_ADD_INFO_BND BND       
+	            ON BND.INTG_BKG_SEQ = BKG.BKG_SEQ 
+	            AND BND.DELT_FLG = 'N'     
+	    LEFT OUTER JOIN
+	        TB_INTG_BL BL       
+	            ON BND.INTG_BL_SEQ = BL.INTG_BL_SEQ 
+	            AND BL.AIR_SEA_CLSS_CD = 'S' 
+	            AND BL.BIZ_CLSS_CD = 'M' 
+	            AND BL.DELT_FLG = 'N'     
+	    LEFT OUTER JOIN
+	        TB_OFC OFC       
+	            ON OFC.OFC_CD = BKG.RGST_OFC_CD      
+	            AND OFC.DELT_FLG = 'N'     
+	    WHERE 1=1
+	        AND CLP.DELT_FLG = 'N'     
+	        AND CLP.CLP_NO = #f_plan_no#
+    </select>
+    
+    <select id="selectBkg_INFO" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+		/* SeeBmdConsolidationSQL.xml > selectBkg_INFO */
+		SELECT
+	        BL.BL_NO AS MBL_NO
+	      , BL.REF_NO AS FILLING_NO
+	      , CLP.CLP_NO AS PLAN_NO
+	      , (SELECT CD_NM FROM TB_COM_CD_DTL DTL WHERE COM_CD = 'C224' AND DTL.CD_VAL = CLP.CLP_STS_CD) AS CON_STATUS
+	      , CLP.CLP_STS_CD
+	      , BKG.BKG_NO AS BKG_NO
+	      , BKG.BKG_SEQ        
+	      , BKG.CNTR_INFO AS CNTR_SUM        
+	      , BKG.TRNK_VSL_CD
+	      , BKG.TRNK_VSL_NM      
+	      , BKG.TRNK_VOY  
+	      , BKG.POL_CD        
+	      , BKG.POL_NM
+	      , BKG.POD_CD        
+	      , BKG.POD_NM        
+	      , BKG.ETD_DT_TM
+	      , BKG.ETA_DT_TM        
+	      , BKG.LNR_BKG_NO
+          , BKG.SLS_OFC_CD
+          , BKG.SLS_USRID  
+          , BKG.DEL_CD    
+	      , BKG.DEL_NM <!-- #2606 [PATENT] Booking 기능 오류 항목 - 4. Consolidation Entry 화면 요건 DEL 검색 조건 추가 -->          
+	    FROM
+	        TB_BKG BKG     
+	    LEFT OUTER JOIN
+	        TB_ADD_INFO_BND BND       
+	            ON BND.INTG_BKG_SEQ = BKG.BKG_SEQ 
+	            AND BND.DELT_FLG = 'N'     
+	    LEFT OUTER JOIN
+	        TB_INTG_BL BL       
+	            ON BND.INTG_BL_SEQ = BL.INTG_BL_SEQ 
+	            AND BL.AIR_SEA_CLSS_CD = 'S' 
+	            AND BL.BIZ_CLSS_CD = 'M' 
+	            AND BL.DELT_FLG = 'N'     
+	    LEFT OUTER JOIN
+	        TB_OFC OFC       
+	            ON OFC.OFC_CD = BKG.RGST_OFC_CD      
+	            AND OFC.DELT_FLG = 'N'    
+	    LEFT OUTER JOIN
+	        TB_CLP CLP       
+	            ON CLP.BKG_SEQ = BKG.BKG_SEQ    
+	            AND CLP.DELT_FLG = 'N'     
+	    WHERE
+	        BKG.DELT_FLG = 'N'         
+	        AND BKG.BIZ_CLSS_CD =  'M'                  
+	        AND BKG.BKG_NO = #f_bkg_no#
+	        AND BKG.BKG_STS_CD NOT IN ('RJ','BL')
+    </select>
+    
+    <!-- Container List    -->
+    <!-- #2735 Acrowell incident unknown reason "system error" popup -->
+    <select id="selectCntr_LIST" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+		/* SeeBmdConsolidationSQL.xml > selectCntr_LIST */
+		SELECT BKG_SEQ
+			,CNTR_SEQ
+			,CNTR_NO
+			,CNTR_TPSZ_CD			
+			,CNTR_REF_NO			
+		FROM TB_BKG_CNTR_LIST
+		WHERE 1=1		
+          AND BKG_SEQ = #f_bkg_seq#
+          AND DELT_FLG = 'N'
+    </select>
+    
+    <!-- Container List2    -->
+    <select id="selectCntr_LIST_PLAN" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+    	/* SeeBmdConsolidationSQL.xml > selectCntr_LIST_PLAN */
+    	SELECT CLP.BKG_SEQ
+				,CNTR.CNTR_SEQ
+				,CNTR.CNTR_NO
+				,CNTR.CNTR_TPSZ_CD			
+				,CNTR.CNTR_REF_NO
+		  FROM TB_CLP CLP
+		  LEFT JOIN TB_BKG_CNTR_LIST CNTR
+				 ON CLP.BKG_SEQ = CNTR.BKG_SEQ
+		        AND CNTR.DELT_FLG = 'N'
+		 WHERE 1=1
+		   AND CLP.CLP_NO = #f_plan_no#
+    </select>
+    
+    <!-- Container Info    -->
+    <select id="selectCntr_INFO" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+		/* SeeBmdConsolidationSQL.xml > selectCntr_INFO */
+		SELECT CNTR_NO		
+			,CNTR_REF_NO
+			,CNTR_INSTR_TXT
+		FROM TB_BKG_CNTR_LIST
+		WHERE 1=1		
+          AND CNTR_SEQ = #cntr_seq#
+          AND DELT_FLG = 'N'
+    </select>
+    
+    <!-- Customer Booking List    -->
+    <select id="selectCustBkg_LIST" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+		/* SeeBmdConsolidationSQL.xml > selectCustBkg_LIST */
+		SELECT BKG2.BKG_NO
+	       , BKG2.BKG_SEQ
+	       , BKG2.BIZ_CLSS_CD
+	       , BKG2.SHPR_TRDP_CD
+	       , BKG2.SHPR_TRDP_NM
+	       , BKG2.CNEE_TRDP_CD
+	       , BKG2.CNEE_TRDP_NM
+	       , BKG2.PRNR_TRDP_CD
+	       , BKG2.PRNR_TRDP_NM
+	       , BKG2.POL_CD
+	       , UPPER(BKG2.POL_NM) AS POL_NM
+	       , BKG2.POD_CD
+	       , UPPER(BKG2.POD_NM) AS POD_NM
+	       , BKG2.ETD_DT_TM
+	       , BKG2.ETA_DT_TM
+	       , BKG2.PCK_QTY AS CGO_PGK_QTY
+	       , BKG2.PCK_UT_CD AS CGO_PCK_UT_CD
+	       , BKG2.GRS_WGT AS CGO_KGS_WGT
+	       , BKG2.GRS_WGT1 AS CGO_LBS_WGT
+	       , BKG2.MEAS AS CGO_CBM_QTY
+	       , BKG2.MEAS1 AS CGO_CFT_QTY
+	       , (SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD = 'C205' AND CD_VAL = BKG2.BKG_STS_CD) AS BKG_STS_NM
+	       <!-- #2606 [PATENT] Booking 기능 오류 항목 - 4. Consolidation Entry 화면 요건 DEL 항목 추가 -->
+	       , BKG2.DEL_CD
+	       , UPPER(BKG2.DEL_NM) AS DEL_NM
+	    FROM TB_BKG BKG
+	    LEFT JOIN TB_BKG BKG2 
+	      ON BKG.POL_CD = BKG2.POL_CD
+	     AND BKG.POD_CD = BKG2.POD_CD
+	     <!-- #2606 [PATENT] Booking 기능 오류 항목 - 4. Consolidation Entry 화면 요건 DEL 검색 조건 추가 -->
+	     AND ISNULL(BKG.DEL_CD,'') = ISNULL(BKG2.DEL_CD,'')
+	     <!-- AND BKG.ETD_DT_TM = BKG2.ETD_DT_TM
+	     AND BKG.ETA_DT_TM = BKG2.ETA_DT_TM -->
+	     <!-- isEqual property="etd_search_flg" compareValue="Y">
+	     	AND BKG.ETD_DT_TM = BKG2.ETD_DT_TM
+	     </isEqual>
+	     <isEqual property="eta_search_flg" compareValue="Y">
+	     	AND BKG.ETA_DT_TM = BKG2.ETA_DT_TM
+	     </isEqual-->	     
+	   WHERE NOT EXISTS (
+						SELECT *
+						  FROM TB_BKG_RLT
+						 WHERE BKG_SEQ = BKG2.BKG_SEQ
+					    )
+	     AND BKG.DELT_FLG = 'N'
+	     AND BKG.BIZ_CLSS_CD =  'M'
+	     AND BKG2.DELT_FLG = 'N'
+	     AND BKG2.BIZ_CLSS_CD =  'H'
+		<isNotNull property="f_bkg_no">
+			  AND BKG.BKG_NO = #f_bkg_no#
+		</isNotNull>
+		<isNull property="f_bkg_no">
+			  AND BKG.BKG_NO = ''
+		</isNull>
+	     AND BKG.BKG_STS_CD NOT IN ('RJ','BL')
+	     AND BKG2.BKG_STS_CD NOT IN ('RJ','BL')
+	     <isNotEqual property="f_etd_dt_tm" compareValue="">
+	     	AND BKG2.ETD_DT_TM = #f_etd_dt_tm#
+	     </isNotEqual>
+	     <isNotEqual property="f_eta_dt_tm" compareValue="">
+	     	AND BKG2.ETA_DT_TM = #f_eta_dt_tm#
+	     </isNotEqual>
+    </select>
+    
+    <!-- Container Info    -->
+    <select id="selectCntrInfo_LIST" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+    	/* SeeBmdConsolidationSQL.xml > selectCntrInfo_LIST */
+    	SELECT BKG.BKG_NO
+		       , BKG.BKG_SEQ
+		       , CNTR.CLP_CNTR_SEQ AS CNTR_SEQ
+		       , BKG.BIZ_CLSS_CD
+		       , BKG.SHPR_TRDP_CD
+		       , BKG.SHPR_TRDP_NM
+		       , BKG.CNEE_TRDP_CD
+		       , BKG.CNEE_TRDP_NM
+		       , BKG.PRNR_TRDP_CD
+		       , BKG.PRNR_TRDP_NM
+		       , BKG.POL_CD
+		       , UPPER(BKG.POL_NM) AS POL_NM
+		       , BKG.POD_CD
+		       , UPPER(BKG.POD_NM) AS POD_NM
+		       , BKG.ETD_DT_TM
+		       , BKG.ETA_DT_TM
+		       , CNTR.CGO_PGK_QTY
+		       , CNTR.CGO_PCK_UT_CD
+		       , CNTR.CGO_KGS_WGT
+		       , CNTR.CGO_LBS_WGT
+		       , CNTR.CGO_CBM_QTY
+		       , CNTR.CGO_CFT_QTY
+		       , CNTR.CNTR_SEQ AS NEW_CNTR_SEQ
+		       , CNTR.CLP_NO AS PLAN_NO
+		       , CNTR.CNTR_REF_NO AS CNTR_REF_NO
+		       , CLP.CLP_STS_CD AS CLP_STS_CD
+		       , (SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD = 'C205' AND CD_VAL = BKG.BKG_STS_CD) AS BKG_STS_NM
+		       , (
+			      SELECT BL.REF_NO
+				  FROM TB_BKG BKG  
+				  LEFT OUTER JOIN TB_ADD_INFO_BND ADD_INFO       
+					ON ADD_INFO.INTG_BKG_SEQ = BKG.BKG_SEQ 
+					AND ADD_INFO.DELT_FLG = 'N'
+				  LEFT OUTER JOIN TB_INTG_BL BL       
+					ON ADD_INFO.INTG_BL_SEQ = BL.INTG_BL_SEQ 
+					AND BL.AIR_SEA_CLSS_CD = 'S' 
+					AND BL.BIZ_CLSS_CD = 'M' 
+					AND BL.DELT_FLG = 'N'
+				WHERE 1=1
+				  AND BKG.BIZ_CLSS_CD = 'M'
+				  AND BKG.BKG_SEQ = #bkg_seq#) AS REF_NO
+		       <!-- #2606 [PATENT] Booking 기능 오류 항목 - 4. Consolidation Entry 화면 요건 DEL 항목 추가 -->
+	       	   , BKG.DEL_CD
+	           , UPPER(BKG.DEL_NM) AS DEL_NM
+		  FROM TB_BKG BKG  
+		  LEFT OUTER JOIN TB_BKG_CNTR_LIST CNTR ON BKG.BKG_SEQ = CNTR.BKG_SEQ
+		  LEFT OUTER JOIN TB_CLP CLP ON CNTR.CLP_NO = CLP.CLP_NO
+		 WHERE 1=1
+		    AND BIZ_CLSS_CD = 'H'
+		    AND CNTR.CLP_NO = #plan_no#
+		    AND CNTR.DELT_FLG = 'N'
+    </select>
+        
+	<!-- Consolidation List select    -->
+    <select id="selectSEE_BKG_0020_LIST" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+		/* SeeBmdConsolidationSQL.xml > selectSEE_BKG_0020_LIST */
+		SELECT A1.*
+		  FROM (
+				SELECT ROW_NUMBER() OVER (ORDER BY B.BKG_SEQ ASC) as ROWNUM
+				     , B.CLP_NO AS PLAN_NO
+				     , (SELECT CD_NM FROM TB_COM_CD_DTL DTL WHERE COM_CD = 'C224' AND DTL.CD_VAL = B.CLP_STS_CD) AS CON_STATUS
+				     , C.BKG_NO AS SYSTEM_BKG_NO
+				     , C.LNR_BKG_NO AS CARRIER_BKG_NO
+				     , C.BKG_SEQ
+				     , E.REF_NO AS FILLING_NO
+				     , E.BL_NO AS MASTER_BL_NO
+				     , C.POL_CD
+				     , C.POL_NM
+				     , C.POD_CD
+				     , C.POD_NM
+				     , C.ETD_DT_TM
+				     , C.ETA_DT_TM
+				     , C.CNTR_INFO AS CNTR_SUM
+				     , C.TRNK_VSL_CD
+				     , C.TRNK_VSL_NM
+            		 , C.TRNK_VOY
+				     , C.LNR_TRDP_CD
+            		 , C.LNR_TRDP_NM
+				     , B.MODI_USRID AS ISSUED_BY
+				     , DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), B.MODI_TMS ) AS ISSUED_AT    
+		        FROM
+		            (
+		                SELECT
+		                    CNTR.CLP_NO                    
+		                FROM
+		                    (SELECT *
+		                       FROM TB_BKG_CNTR_LIST 
+		                      WHERE DELT_FLG = 'N' 
+		                    <dynamic>
+					            <isNotEmpty property="cntr_no">
+					                AND CNTR_NO = #cntr_no#
+					            </isNotEmpty>
+					            <isNotEmpty property="ref_no">
+					                AND REF_NO = #ref_no#
+					            </isNotEmpty>
+				            </dynamic>
+		                    ) CNTR                    
+		                GROUP BY
+		                    CNTR.CLP_NO                 
+		            ) A   
+		        LEFT OUTER JOIN TB_CLP B        
+                    ON A.CLP_NO = B.CLP_NO  
+				LEFT OUTER JOIN TB_BKG C
+					ON B.BKG_SEQ = C.BKG_SEQ
+				    AND C.DELT_FLG = 'N'
+				LEFT OUTER JOIN TB_ADD_INFO_BND D       
+				    ON D.INTG_BKG_SEQ = C.BKG_SEQ 
+				    AND D.DELT_FLG = 'N'
+				LEFT OUTER JOIN TB_INTG_BL E       
+					ON D.INTG_BL_SEQ = E.INTG_BL_SEQ 
+					AND E.AIR_SEA_CLSS_CD = 'S' 
+					AND E.BIZ_CLSS_CD = 'M' 
+					AND E.DELT_FLG = 'N' 
+		        LEFT OUTER JOIN TB_OFC TOF     
+		            ON B.RGST_OFC_CD = TOF.OFC_CD
+			    LEFT OUTER JOIN TB_COM_CD_DTL CCD     
+		            ON CCD.COM_CD = 'TIMEZN'     
+		            AND TOF.TIME_ZONE = CCD.CD_VAL
+		WHERE  1=1 
+		  AND B.DELT_FLG = 'N'
+		<dynamic>
+            <isNotEmpty property="f_plan_no">
+                AND B.CLP_NO = #f_plan_no#
+            </isNotEmpty>
+            <isNotEmpty property="carrier_bkg_no">
+                AND C.BKG_NO = #carrier_bkg_no#
+            </isNotEmpty>
+            <isNotEmpty property="mbl_no">
+                AND E.BL_NO = #mbl_no#
+            </isNotEmpty>
+            <isNotEmpty property="filing_no">
+                AND E.REF_NO = #filing_no#
+            </isNotEmpty>
+            <isNotEmpty property="pol_cd">
+                AND C.POL_CD = #pol_cd#
+            </isNotEmpty>
+            <isNotEmpty property="pod_cd">
+                AND C.POD_CD = #pod_cd#
+            </isNotEmpty>   
+            <isNotEmpty property="trnk_vsl_cd">
+                AND C.TRNK_VSL_CD = #trnk_vsl_cd#
+            </isNotEmpty>            
+            <isNotEmpty property="etd_strdt">
+                AND C.ETD_DT_TM BETWEEN #etd_strdt# AND #etd_enddt#
+            </isNotEmpty>
+        	<isNotEmpty property="eta_strdt">
+                AND C.ETA_DT_TM BETWEEN #eta_strdt# AND #eta_enddt#
+            </isNotEmpty>
+        </dynamic> 		
+			   ) A1	
+	<![CDATA[	WHERE A1.ROWNUM > #beginIdx# AND A1.ROWNUM <= #topCnt#	]]>
+		ORDER BY PLAN_NO DESC
+    </select>
+
+	<select id="selectSEE_BKG_0020_LIST_CNT" resultClass="Integer">
+		/* SeeBmdConsolidationSQL.xml > selectSEE_BKG_0020_LIST_CNT */		
+			SELECT COUNT(*)
+		        FROM
+		            (
+		                SELECT
+		                    CNTR.CLP_NO                    
+		                FROM
+		                    (SELECT *
+		                       FROM TB_BKG_CNTR_LIST 
+		                      WHERE DELT_FLG = 'N' 
+		                    <dynamic>
+					            <isNotEmpty property="cntr_no">
+					                AND CNTR_NO = #cntr_no#
+					            </isNotEmpty>
+					            <isNotEmpty property="ref_no">
+					                AND REF_NO = #ref_no#
+					            </isNotEmpty>
+				            </dynamic>
+		                    ) CNTR                    
+		                GROUP BY
+		                    CNTR.CLP_NO                 
+		            ) A   
+		        LEFT OUTER JOIN TB_CLP B        
+                    ON A.CLP_NO = B.CLP_NO  
+				LEFT OUTER JOIN TB_BKG C
+					ON B.BKG_SEQ = C.BKG_SEQ
+				    AND C.DELT_FLG = 'N'
+				LEFT OUTER JOIN TB_ADD_INFO_BND D       
+				    ON D.INTG_BKG_SEQ = C.BKG_SEQ 
+				    AND D.DELT_FLG = 'N'
+				LEFT OUTER JOIN TB_INTG_BL E       
+					ON D.INTG_BL_SEQ = E.INTG_BL_SEQ 
+					AND E.AIR_SEA_CLSS_CD = 'S' 
+					AND E.BIZ_CLSS_CD = 'M' 
+					AND E.DELT_FLG = 'N' 
+		        LEFT OUTER JOIN TB_OFC TOF     
+		            ON B.RGST_OFC_CD = TOF.OFC_CD
+			    LEFT OUTER JOIN TB_COM_CD_DTL CCD     
+		            ON CCD.COM_CD = 'TIMEZN'     
+		            AND TOF.TIME_ZONE = CCD.CD_VAL
+		WHERE  1=1 
+		  AND B.DELT_FLG = 'N'
+		<dynamic>
+            <isNotEmpty property="f_plan_no">
+                AND B.CLP_NO = #f_plan_no#
+            </isNotEmpty>
+            <isNotEmpty property="carrier_bkg_no">
+                AND C.BKG_NO = #carrier_bkg_no#
+            </isNotEmpty>
+            <isNotEmpty property="mbl_no">
+                AND E.BL_NO = #mbl_no#
+            </isNotEmpty>
+            <isNotEmpty property="filing_no">
+                AND E.REF_NO = #filing_no#
+            </isNotEmpty>
+            <isNotEmpty property="pol_cd">
+                AND C.POL_CD = #pol_cd#
+            </isNotEmpty>
+            <isNotEmpty property="pod_cd">
+                AND C.POD_CD = #pod_cd#
+            </isNotEmpty>   
+            <isNotEmpty property="trnk_vsl_cd">
+                AND C.TRNK_VSL_CD = #trnk_vsl_cd#
+            </isNotEmpty>            
+            <isNotEmpty property="etd_strdt">
+                AND C.ETD_DT_TM BETWEEN #etd_strdt# AND #etd_enddt#
+            </isNotEmpty>
+        	<isNotEmpty property="eta_strdt">
+                AND C.ETA_DT_TM BETWEEN #eta_strdt# AND #eta_enddt#
+            </isNotEmpty>
+        </dynamic> 		
+	</select>
+	
+	<!-- Check Container Info    -->
+    <select id="checkCntrInfo" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+    	SELECT BKG_SEQ AS CUST_BKG_SEQ 
+            FROM TB_BKG_CNTR_LIST
+           WHERE 1=1
+             AND BKG_SEQ = #cust_bkg_seq#
+             AND CNTR_SEQ = #cntr_seq#
+    </select>
+    
+	<!-- Carrier Container Info    -->
+    <select id="selectCarrierCntrInfo" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+    	SELECT CNTR.BKG_SEQ
+               , CNTR.CNTR_SEQ
+               , CNTR.CNTR_NO
+               , CNTR.CNTR_TPSZ_CD               
+               , CNTR.SEAL_NO
+		       , CNTR.MTY_OUT_DT_TM
+		       , CNTR.FULL_RTN_DT_TM
+		       , CNTR.MTY_OUT_LOC_CD
+		       , CNTR.MTY_OUT_LOC_NM
+		       , CNTR.FULL_RTN_LOC_CD
+		       , CNTR.FULL_RTN_LOC_NM
+		       , CNTR.CNTR_REF_NO
+		       , CNTR.CGO_PCK_UT_CD
+		  FROM TB_BKG_CNTR_LIST CNTR
+		 WHERE 1=1
+		   AND CNTR.BKG_SEQ = #carrier_bkg_seq#
+		   AND CNTR.CNTR_SEQ = #cntr_seq#
+    </select>
+    
+    <!-- Carrier Container Info    -->
+    <select id="selectCustCntrInfo" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+    	SELECT CNTR.BKG_SEQ
+               , CNTR.CNTR_SEQ
+               , CNTR.CNTR_NO
+               , CNTR.CNTR_TPSZ_CD               
+               , CNTR.SEAL_NO
+		       , CNTR.MTY_OUT_DT_TM
+		       , CNTR.FULL_RTN_DT_TM
+		       , CNTR.MTY_OUT_LOC_CD
+		       , CNTR.MTY_OUT_LOC_NM
+		       , CNTR.FULL_RTN_LOC_CD
+		       , CNTR.FULL_RTN_LOC_NM
+		       , CNTR.CNTR_REF_NO
+		  FROM TB_BKG_CNTR_LIST CNTR
+		 WHERE 1=1
+		   AND CNTR.BKG_SEQ = #carrier_bkg_seq#
+		   AND CNTR.CNTR_SEQ = #clp_cntr_seq#
+    </select>
+    
+    <!-- Container Info    -->
+    <select id="selectCntrInfo" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+    	SELECT CNTR.CNTR_NO
+		       , CNTR.CNTR_REF_NO
+		  FROM TB_BKG_CNTR_LIST CNTR
+		 WHERE 1=1
+		   AND CNTR.CNTR_SEQ = #cntr_seq#
+    </select>
+    
+	<insert id="insertConsolInfo" parameterClass="java.util.HashMap">
+		MERGE /** insertConsolInfo */
+		INTO TB_CLP A
+		USING (SELECT #clp_no# CLP_NO
+		              ,'N' DELT_FLG ) B
+		ON (A.CLP_NO = B.CLP_NO)
+		WHEN NOT MATCHED THEN
+		INSERT
+			   (CLP_NO
+			   ,BKG_SEQ
+			   ,CLP_STS_CD		           
+			   ,RGST_USRID
+			   ,RGST_OFC_CD
+			   ,RGST_TMS
+			   ,MODI_USRID
+			   ,MODI_OFC_CD
+			   ,MODI_TMS
+			   ,DELT_FLG)
+		 VALUES
+			   (#clp_no#
+	           ,#carrier_bkg_seq#
+	           ,#clp_sts_cd#
+	           ,#rgst_usrid#
+	           ,#rgst_ofc_cd#
+	           ,GETDATE()
+	           ,#rgst_usrid#
+	           ,#rgst_ofc_cd#
+	           ,GETDATE()
+	           ,'N')
+		WHEN MATCHED THEN
+		UPDATE 
+		   SET MODI_USRID = #rgst_usrid#
+			   ,MODI_OFC_CD = #rgst_ofc_cd#
+			   ,MODI_TMS = GETDATE() ;
+    </insert>
+    
+    <insert id="insertCustCntr" parameterClass="java.util.HashMap">
+		MERGE /** insertCustCntr */
+			INTO TB_BKG_CNTR_LIST A
+			USING (SELECT #cust_bkg_seq# BKG_SEQ
+			              ,#cntr_seq# CLP_CNTR_SEQ
+			              ,'N' DELT_FLG ) B
+			ON (A.BKG_SEQ = B.BKG_SEQ)
+			AND (A.CLP_CNTR_SEQ = B.CLP_CNTR_SEQ)
+			AND (A.DELT_FLG = B.DELT_FLG)
+			WHEN NOT MATCHED THEN
+			INSERT 
+		           (BKG_SEQ
+		           ,CNTR_NO		           
+		           ,CNTR_TPSZ_CD
+		           ,SEAL_NO
+		           ,MTY_OUT_DT_TM
+		           ,FULL_RTN_DT_TM
+		           ,RGST_USRID
+		           ,RGST_OFC_CD
+		           ,RGST_TMS
+		           ,MODI_USRID
+		           ,MODI_OFC_CD
+		           ,MODI_TMS
+		           ,DELT_FLG
+		           ,MTY_OUT_LOC_CD
+		           ,MTY_OUT_LOC_NM
+		           ,FULL_RTN_LOC_CD
+		           ,FULL_RTN_LOC_NM
+		           ,CNTR_REF_NO
+		           ,CLP_NO
+		           ,CNTR_INSTR_TXT
+		           ,CGO_PCK_UT_CD
+		           ,CGO_PGK_QTY
+		           ,CGO_KGS_WGT
+		           ,CGO_LBS_WGT
+		           ,CGO_CBM_QTY
+		           ,CGO_CFT_QTY
+		           ,CLP_CNTR_SEQ)
+		     VALUES
+		           (#cust_bkg_seq#
+		           ,#cntr_no#
+		           ,#cntr_tpsz_cd#
+		           ,#seal_no#
+		           ,#mty_out_dt_tm#
+		           ,#full_rtn_dt_tm#
+		           ,#rgst_usrid#
+		           ,#rgst_ofc_cd#
+		           ,GETDATE()
+		           ,#rgst_usrid#
+		           ,#rgst_ofc_cd#
+		           ,GETDATE()
+		           ,'N'
+		           ,#mty_out_loc_cd#
+		           ,#mty_out_loc_nm#
+		           ,#full_rtn_loc_cd#
+		           ,#full_rtn_loc_nm#
+		           ,#cntr_ref_no#
+		           ,#clp_no#
+		           ,#cntr_instr_txt#
+		           ,#cgo_pck_ut_cd#
+		           ,#cgo_pgk_qty#
+		           ,#cgo_kgs_wgt#
+		           ,#cgo_lbs_wgt#
+		           ,#cgo_cbm_qty#
+		           ,#cgo_cft_qty#
+		           ,#clp_cntr_seq#)
+			WHEN MATCHED THEN
+			UPDATE 
+			   SET MODI_USRID		= #rgst_usrid#
+		           ,MODI_OFC_CD		= #rgst_ofc_cd#
+		           ,MODI_TMS		= GETDATE()		           
+		           ,CNTR_INSTR_TXT	= #cntr_instr_txt#		           
+		           ,CGO_PGK_QTY		= #cgo_pgk_qty#
+		           ,CGO_KGS_WGT		= #cgo_kgs_wgt#
+		           ,CGO_LBS_WGT		= #cgo_lbs_wgt#
+		           ,CGO_CBM_QTY		= #cgo_cbm_qty#
+		           ,CGO_CFT_QTY		= #cgo_cft_qty# 
+		           ,CLP_CNTR_SEQ	= #clp_cntr_seq# ;
+    </insert>
+    
+    <update id="updateCustCntr" parameterClass="java.util.HashMap">
+    	UPDATE TB_BKG_CNTR_LIST
+    	   SET CLP_NO = #clp_no#
+    	 WHERE BKG_SEQ = #bkg_seq#
+    	   AND DELT_FLG = 'N'
+    </update>
+    
+    <select id="checkRltBkgSeq" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+    	 SELECT BKG_SEQ AS CUST_BKG_SEQ,
+		        RLT_BKG_SEQ AS CARRIER_BKG_SEQ
+		  FROM TB_BKG_RLT
+		 WHERE 1=1
+		   AND BKG_SEQ = #cust_bkg_seq#
+		   AND RLT_BKG_SEQ = #carrier_bkg_seq#
+    </select>
+    
+    <insert id="insertCarrierCust" parameterClass="java.util.HashMap">
+		MERGE /** insertCarrierCust */
+			INTO TB_BKG_RLT A
+			USING (SELECT #cust_bkg_seq# BKG_SEQ
+			              ,#carrier_bkg_seq# RLT_BKG_SEQ) B
+			ON (A.BKG_SEQ = B.BKG_SEQ)
+			AND (A.RLT_BKG_SEQ = B.RLT_BKG_SEQ)
+			WHEN NOT MATCHED THEN
+			INSERT 
+		           (BKG_SEQ
+		           ,RLT_BKG_SEQ          
+		           ,RGST_USRID
+		           ,RGST_OFC_CD
+		           ,RGST_TMS
+		           ,MODI_USRID
+		           ,MODI_OFC_CD
+		           ,MODI_TMS
+		           ,DELT_FLG)
+		     VALUES
+		           (#cust_bkg_seq#
+		           ,#carrier_bkg_seq#
+		           ,#rgst_usrid#
+		           ,#rgst_ofc_cd#
+		           ,GETDATE()
+		           ,#rgst_usrid#
+		           ,#rgst_ofc_cd#
+		           ,GETDATE()
+		           ,'N')
+			WHEN MATCHED THEN
+			UPDATE 
+			   SET MODI_USRID = #rgst_usrid#
+				   ,MODI_OFC_CD = #rgst_ofc_cd#
+				   ,MODI_TMS = GETDATE() ;
+    </insert>
+    
+    <update id="updateCustBkg" parameterClass="java.util.HashMap">
+		UPDATE /** updateCustBkg */  
+			TB_BKG
+		SET 
+			LNR_BKG_NO		= #lnr_bkg_no#
+			,SLS_OFC_CD		= #sls_ofc_cd#
+			,SLS_USRID		= #sls_usrid#
+			,MODI_USRID 	= #rgst_usrid#
+			,MODI_OFC_CD 	= #rgst_ofc_cd#
+			,MODI_TMS 		= GETDATE()
+		WHERE 
+			BKG_SEQ 		= #cust_bkg_seq#
+    </update>
+    
+    <update id="updateBkgCntrList" parameterClass="java.util.HashMap">
+		UPDATE /** updateBkgCntrList */  
+			TB_BKG_CNTR_LIST
+		SET 
+			CLP_NO 			= #clp_no#
+			,CNTR_INSTR_TXT	= #cntr_instr_txt#
+			,CGO_PGK_QTY	= #cgo_pgk_qty#
+			,CGO_KGS_WGT	= #cgo_kgs_wgt#
+			,CGO_LBS_WGT	= #cgo_lbs_wgt#
+			,CGO_CBM_QTY	= #cgo_cbm_qty#
+			,CGO_CFT_QTY	= #cgo_cft_qty#
+			,MODI_USRID 	= #rgst_usrid#
+			,MODI_OFC_CD 	= #rgst_ofc_cd#
+			,MODI_TMS 		= GETDATE()
+		WHERE 
+			BKG_SEQ 	= #carrier_bkg_seq#
+		AND	
+			CNTR_SEQ 	= #cntr_seq#
+
+    </update>
+    <update id="updateStatus" parameterClass="java.util.HashMap">
+		UPDATE /** updateStatus */  
+			TB_CLP
+		SET 
+			CLP_STS_CD		= #f_status#
+			,MODI_USRID 	= #rgst_usrid#
+			,MODI_OFC_CD 	= #rgst_ofc_cd#
+			,MODI_TMS 		= GETDATE()
+		WHERE 
+			CLP_NO 		= #plan_no#
+    </update>
+    
+    <update id="updateCustBkgEtdEta" parameterClass="java.util.HashMap">
+    	UPDATE TB_BKG /** updateCustBkgEtdEta */ 
+		   SET ETD_DT_TM = CARR.ETD_DT_TM,
+		       ETA_DT_TM = CARR.ETA_DT_TM,
+		       MODI_USRID = #rgst_usrid#,
+		       MODI_OFC_CD = #rgst_ofc_cd#,
+		       MODI_TMS = GETDATE()
+		  FROM (SELECT RLT.BKG_SEQ, ETD_DT_TM, ETA_DT_TM
+		          FROM TB_BKG CARR
+				  JOIN TB_BKG_RLT RLT ON CARR.BKG_SEQ = RLT.RLT_BKG_SEQ
+				 WHERE CARR.BKG_SEQ = #bkg_seq#) CARR
+		 WHERE TB_BKG.BKG_SEQ = CARR.BKG_SEQ
+		   AND TB_BKG.DELT_FLG = 'N'
+    </update>
+    
+    <delete id="deleteConsolInfo" parameterClass="java.util.HashMap">
+		UPDATE /** deleteConsolInfo */  
+			TB_CLP
+		SET 
+			DELT_FLG		= #delt_flg#
+			,MODI_USRID 	= #rgst_usrid#
+			,MODI_OFC_CD 	= #rgst_ofc_cd#
+			,MODI_TMS 		= GETDATE()
+		WHERE 
+			CLP_NO 			= #plan_no#
+    </delete>
+    
+    <delete id="deleteCustCntr" parameterClass="java.util.HashMap">
+		UPDATE /** deleteCustCntr */  
+			TB_BKG_CNTR_LIST
+		SET 
+			DELT_FLG		= #delt_flg#
+			,MODI_USRID 	= #rgst_usrid#
+			,MODI_OFC_CD 	= #rgst_ofc_cd#
+			,MODI_TMS 		= GETDATE()
+		WHERE 
+			CLP_NO 			= #plan_no#
+		  AND 
+		    BKG_SEQ IN (SELECT BKG_SEQ FROM TB_BKG_RLT WHERE RLT_BKG_SEQ = #bkg_seq#)
+    </delete>
+    
+    <delete id="deleteCustCntrByCusgBkgSeq" parameterClass="java.util.HashMap">
+		UPDATE /** deleteCustCntrByCusgBkgSeq */  
+			TB_BKG_CNTR_LIST
+		SET 
+			DELT_FLG		= 'Y'
+			,MODI_USRID 	= #rgst_usrid#
+			,MODI_OFC_CD 	= #rgst_ofc_cd#
+			,MODI_TMS 		= GETDATE()
+		WHERE CLP_NO 			= #clp_no#
+		  	AND BKG_SEQ = #cust_bkg_seq#
+		  	AND CNTR_SEQ = #cust_cntr_seq#
+    </delete>
+    
+    <delete id="deleteCarrCntr" parameterClass="java.util.HashMap">
+		UPDATE /** deleteCarrCntr */  
+			TB_BKG_CNTR_LIST
+		SET 
+			CLP_NO			= ''
+			,CLP_CNTR_SEQ   = null
+			,MODI_USRID 	= #rgst_usrid#
+			,MODI_OFC_CD 	= #rgst_ofc_cd#
+			,MODI_TMS 		= GETDATE()
+		WHERE 
+		    BKG_SEQ         = #bkg_seq#
+    </delete>
+    
+    <select id="selectCarrierCntrSeq" parameterClass="java.util.HashMap" resultClass="ConsolVO">
+    	 SELECT A.BKG_SEQ AS CUST_BKG_SEQ
+		        , B.BKG_SEQ AS CARRIER_BKG_SEQ
+		   FROM (  
+				 SELECT BKG_SEQ 
+				  FROM TB_BKG_CNTR_LIST
+				 WHERE CLP_NO = #plan_no#
+				   AND CLP_CNTR_SEQ IS NOT NULL
+				) A,
+				(
+				 SELECT BKG_SEQ
+				   FROM TB_BKG_CNTR_LIST
+				  WHERE CLP_NO = #plan_no#
+				   AND CLP_CNTR_SEQ IS NULL
+				) B
+    </select>
+    
+    <delete id="deleteCarrierCust" parameterClass="java.util.HashMap">
+		DELETE /** deleteCarrierCust */  
+			TB_BKG_RLT
+		WHERE BKG_SEQ 		= #cust_bkg_seq#
+		  AND RLT_BKG_SEQ	= #carrier_bkg_seq#
+    </delete>
+    
+    <select id="selectClpNo" resultClass="String" parameterClass="HashMap">
+    	SELECT CLP_NO
+		  FROM TB_CLP
+		 WHERE 1=1
+		   AND BKG_SEQ = #carrier_bkg_seq#
+		   AND DELT_FLG = 'N'
+    </select>
+	
+</sqlMap>

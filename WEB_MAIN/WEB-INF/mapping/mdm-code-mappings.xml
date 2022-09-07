@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+    
+    <!-- Container Type Size   -->    
+    <url-mapping url="MDM_MCM_0080.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.container.event.MDM_MCM_0080HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0080.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Container Type Size   -->    
+     <url-mapping url="MDM_MCM_0080GS.clt" screen="MDM_MCM_0080GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.container.event.MDM_MCM_0080HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.container.event.MdmContainerEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.container.MdmContainerSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Commodity Code   -->    
+    <url-mapping url="MDM_MCM_0120.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.commodity.event.MDM_MCM_0120HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0120.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Commodity Code   -->    
+     <url-mapping url="MDM_MCM_0120GS.clt" screen="MDM_MCM_0120GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.commodity.event.MDM_MCM_0120HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.commodity.event.MdmCommodityEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.commodity.MdmCommoditySC</service-action-class>
+    </event-mapping>
+    
+    <!-- Package Code   -->
+    <url-mapping url="MDM_MCM_0130.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.packages.event.MDM_MCM_0130HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0130.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Package Code   -->
+     <url-mapping url="MDM_MCM_0130GS.clt" screen="MDM_MCM_0130GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.packages.event.MDM_MCM_0130HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.packages.event.MdmPackagesEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.packages.MdmPackagesSC</service-action-class>
+    </event-mapping>
+    
+     <!-- Vessel Code   -->
+    <url-mapping url="MDM_MCM_0140.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.vessel.event.MDM_MCM_0140HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0140.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Vessel Code   -->
+     <url-mapping url="MDM_MCM_0140GS.clt" screen="MDM_MCM_0140GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.vessel.event.MDM_MCM_0140HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.vessel.event.MdmVesselEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.vessel.MdmVesselSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Freight Code   -->
+    <url-mapping url="MDM_MCM_0160.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.MDM_MCM_0160HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0160.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Freight Code   -->
+    <url-mapping url="MDM_MCM_0160GS.clt" screen="MDM_MCM_0160GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.MDM_MCM_0160HTMLAction</web-action-class>
+    </url-mapping>  
+    <url-mapping url="MDM_MCM_0161GS.clt" screen="MDM_MCM_0161GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.MDM_MCM_0160HTMLAction</web-action-class>
+    </url-mapping>
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.freight.event.MdmFreightEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.freight.MdmFreightSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Vat Code   -->
+    <url-mapping url="MDM_MCM_0170.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.vat.event.MDM_MCM_0170HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0170.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Vat Code   -->
+     <url-mapping url="MDM_MCM_0170GS.clt" screen="MDM_MCM_0170GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.vat.event.MDM_MCM_0170HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.vat.event.MdmVatEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.vat.MdmVatSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Warehouse Code   -->
+    <url-mapping url="MDM_MCM_0180.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.warehouse.event.MDM_MCM_0180HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0180.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Warehouse Code   -->
+     <url-mapping url="MDM_MCM_0180GS.clt" screen="MDM_MCM_0180GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.warehouse.event.MDM_MCM_0180HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.warehouse.event.MdmWarehouseEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.warehouse.MdmWarehouseSC</service-action-class>
+    </event-mapping>
+    <!--#### 코드등록 End ####  -->
+    
+    <!-- AIF 추가, 2011/10/07 Kim,Jin-Hyuk   -->
+    <!-- Gl Code   -->
+    <url-mapping url="MDM_MCM_0300.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.MDM_MCM_0300HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0300.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Warehouse Code   -->
+    <url-mapping url="MDM_MCM_0300GS.clt" screen="MDM_MCM_0300GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.MDM_MCM_0300HTMLAction</web-action-class>
+    </url-mapping>  
+    <url-mapping url="MDM_MCM_0321GS.clt" screen="MDM_MCM_0321GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.MDM_MCM_0300HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <!-- Gl Group Code   -->
+    <url-mapping url="MDM_MCM_0301.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.MDM_MCM_0301HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0301.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+     <url-mapping url="MDM_MCM_0301GS.clt" screen="MDM_MCM_0301GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.MDM_MCM_0301HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.gl.event.MdmGlEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.gl.MdmGlSC</service-action-class>
+    </event-mapping>
+    
+    <!--vinh.vo 07/13/2015 (S)  -->
+    <url-mapping url="MDM_MCM_0350.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.trucksizetype.event.MDM_MCM_0350HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0350.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="MDM_MCM_0350GS.clt" screen="MDM_MCM_0350GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.trucksizetype.event.MDM_MCM_0350HTMLAction</web-action-class>
+    </url-mapping>
+    
+	 <url-mapping url="MDM_MCM_0350_01GS.clt" screen="MDM_MCM_0350_01GS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.trucksizetype.event.MDM_MCM_0350HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mdm.code.trucksizetype.event.MdmTruckSizeTypeEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mdm.code.trucksizetype.MdmTruckSizeTypeSC</service-action-class>
+    </event-mapping>
+    <!--vinh.vo 07/13/2015 (E)  -->
+    
+     <!-- NEW  GL Code / Local / History  - Thoa Dien / Dou Networks 2017.12.28 (S)  -->
+    <url-mapping url="MDM_MCM_0300_NEW.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.MDM_MCM_0300_NEWHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0300_NEW.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!--  NEW GL Code   -->
+    <url-mapping url="MDM_MCM_0300_NEWGS.clt" screen="MDM_MCM_0300_NEWGS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.MDM_MCM_0300_NEWHTMLAction</web-action-class>
+    </url-mapping>  
+    <url-mapping url="MDM_MCM_0300_NEW_LOCALGS.clt" screen="MDM_MCM_0300_NEW_LOCALGS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.MDM_MCM_0300_NEWHTMLAction</web-action-class>
+    </url-mapping>
+     <url-mapping url="MDM_MCM_0300_NEW_HISGS.clt" screen="MDM_MCM_0300_NEW_HISGS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.gl.event.MDM_MCM_0300_NEWHTMLAction</web-action-class>
+    </url-mapping>
+      <!--  NEW  GL Code / Local / History - Thoa Dien / Dou Networks 2017.12.28 (E)  -->
+      
+    <!-- Duc.Nguyen 2017-12-27 (S) -->
+    <!-- Freight Code New  -->
+    <url-mapping url="MDM_MCM_0160_NW.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.MDM_MCM_0160_NWHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MDM_MCM_0160_NW.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Freight Code New  -->
+    <url-mapping url="MDM_MCM_0160_NWGS.clt" screen="MDM_MCM_0160_NWGS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.MDM_MCM_0160_NWHTMLAction</web-action-class>
+    </url-mapping>  
+    <url-mapping url="MDM_MCM_0161_NWGS.clt" screen="MDM_MCM_0161_NWGS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.MDM_MCM_0160_NWHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="MDM_MCM_0162_NWGS.clt" screen="MDM_MCM_0162_NWGS.screen" >
+        <web-action-class>com.clt.apps.fis.mdm.code.freight.event.MDM_MCM_0160_NWHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Duc.Nguyen 2017-12-27 (E) -->
+</mappings>

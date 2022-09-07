@@ -1,0 +1,1479 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+	<!-- Closing management(S) -->
+   <url-mapping url="ClosingMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ClosingMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	<url-mapping url="searchClosingMgmt.clt" screen="ClosingMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+    </url-mapping>
+	<url-mapping url="searchClosingMgmtDtl.clt" screen="ClosingMgmtGS1.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+    </url-mapping>
+	<url-mapping url="searchClosingMgmtCreateList.clt" screen="ClosingMgmtGS1.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+    </url-mapping>
+	<url-mapping url="searchClosingStatus.clt" screen="searchClosingStatusGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+    </url-mapping>
+	<url-mapping url="saveClosingMgmt.clt" screen="ClosingMgmtGS2.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+    </url-mapping>
+	<url-mapping url="deleteClosingMgmtPartial.clt" screen="ClosingMgmtGS2.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+    </url-mapping>
+	<url-mapping url="confirmClosingMgmt.clt" screen="ClosingMgmtGS2.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+    </url-mapping>
+	<url-mapping url="cfcancelClosingMgmt.clt" screen="ClosingMgmtGS2.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+    </url-mapping>
+	<url-mapping url="ClosingBackground.clt" screen="ClosingMgmtGS2.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+    </url-mapping>    
+    <url-mapping url="searchClosingStrUnit.clt" screen="searchClosingStrUnitGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- Closing management(E) -->
+	
+	<!-- Closing In Out Mgmgt (S)  -->
+	<url-mapping url="ClosingInOutMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingInOutHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ClosingInOutMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	<url-mapping url="ClosingInOutMgmtGS.clt" screen="ClosingInOutMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingInOutHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- Closing In Out Mgmgt (E)  -->
+	
+	<!-- #1069 Closing Other Mgmgt (S) -->
+	<url-mapping url="ClosingOtherMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingOtherHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ClosingOtherMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>	
+    
+	<url-mapping url="ClosingOtherMgmtGS.clt" screen="ClosingOtherMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingOtherHTMLAction</web-action-class>
+    </url-mapping>    
+	<!-- #1069 Closing Other Mgmgt (E) -->
+	
+	
+	<!-- Closing Storage Charge  Mgmgt (S)  -->
+	<url-mapping url="ClosingStoChgMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingStoChgHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ClosingStoChgMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	<url-mapping url="ClosingStoChgMgmtGS.clt" screen="ClosingStoChgMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingStoChgHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- Closing Storage Charge  Mgmgt (E)  -->
+	
+	 <!-- ClosingBackgroundSearch -->
+    <url-mapping url="ClosingBackgroundSearch.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingBackgroundSearchHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ClosingBackgroundSearch.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+	<url-mapping url="searchClosingDetailGS_Detail.clt" screen="searchClosingBackgroundListGS_Detail.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingBackgroundSearchHTMLAction</web-action-class>
+    </url-mapping>
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whclosing.event.WHClosingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whclosing.WHClosingSC</service-action-class>
+    </event-mapping>
+    
+	<url-mapping url="searchClosingBackgroundListGS.clt" screen="searchClosingBackgroundListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingBackgroundSearchHTMLAction</web-action-class>
+    </url-mapping>
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whclosing.event.WHClosingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whclosing.WHClosingSC</service-action-class>
+    </event-mapping>
+	<!-- ClosingBackgroundSearch -->
+	
+    <!-- ClosingDetail -->
+    <url-mapping url="ClosingDetail.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingDetailHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ClosingDetail.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchClosingDetailGS.clt" screen="searchClosingDetailGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingDetailHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchClosingDetailGS_1.clt" screen="searchClosingDetailGS_1.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingDetailHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchTlCustomerInfoGS.clt" screen="searchTlCustomerInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingDetailHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchClosingStatusGS.clt" screen="searchClosingStatusGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingDetailHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="createClosingStatusGS.clt" screen="createClosingStatusGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingDetailHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveClosingDetailGS.clt" screen="saveClosingDetailGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingDetailHTMLAction</web-action-class>
+    </url-mapping>
+        <url-mapping url="deleteClosingDetailPartialGS.clt" screen="deleteClosingDetailPartialGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.WHClosingDetailHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whclosing.event.WHClosingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whclosing.WHClosingSC</service-action-class>
+    </event-mapping>
+    
+	<!-- ClosingDetail -->
+	<!-- Khang.Dong (S) -->
+	<url-mapping url="WHLotList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.item.event.WHLotListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHLotList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+	<url-mapping url="searchWHLotList.clt" screen="WHLotListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.WHLotListHTMLAction</web-action-class>
+    </url-mapping>
+	
+	<url-mapping url="LoadPlanMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="LoadPlanMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="existsLOADPLAN.clt" screen="LoadPlanMgmtGS1.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchLPShipmentList.clt" screen="LoadPlanMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchLPCNTRParentList.clt" screen="LoadPlanMgmtGS2.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchLPVolume.clt" screen="LoadPlanMgmtGS3.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelLoadPlan.clt" screen="LoadPlanMgmtGS4.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="addLPCntr.clt" screen="LoadPlanMgmtGS4.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="removeLPCntr.clt" screen="LoadPlanMgmtGS4.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="modifyLPDownShipment.clt" screen="LoadPlanMgmtGS4.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="modifyLPUpShipment.clt" screen="LoadPlanMgmtGS4.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="mergeLPShipment.clt" screen="LoadPlanMgmtGS4.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="delLPShipment.clt" screen="LoadPlanMgmtGS4.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="applyLoadPlan.clt" screen="LoadPlanMgmtGS4.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutloadplan.event.LoadPlanMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whoutloadplan.event.WhoutloanplanEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whoutloadplan.WhoutloanplanSC</service-action-class>
+    </event-mapping>
+    
+    
+    <url-mapping url="InvMoveMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvMoveMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="InvMoveMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchInvMoveMgmtGS1.clt" screen="InvMoveMgmtGS1.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvMoveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchInvMoveMgmtForWaveUnList.clt" screen="InvMoveMgmtGS1.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvMoveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchInvMoveMgmtGS2.clt" screen="InvMoveMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvMoveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveInvMoveMgmtForPlan.clt" screen="InvMoveMgmtGS2.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvMoveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelInvMoveMgmtPartial.clt" screen="InvMoveMgmtGS2.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvMoveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelInvMoveMgmtAll.clt" screen="InvMoveMgmtGS2.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvMoveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveInvMoveMgmtForMove.clt" screen="InvMoveMgmtGS2.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvMoveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- Khang.Dong (E) -->
+   <!-- Inbound Booking Search -->	
+   <url-mapping url="WHInBkList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInBkList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="searchWHInBkList.clt" screen="WHInBkListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchWHICBkNoDupCheck.clt" screen="searchWHICBkNoDupCheck.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkHTMLAction</web-action-class>
+    </url-mapping>
+	
+	<event-mapping>
+        <event-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whinbooking.WHInbkSC</service-action-class>
+    </event-mapping>
+    <!-- Inbound Booking Search end -->
+	<!-- Inbound Complete Search Start -->
+	<url-mapping url="WHICList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHICList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="searchWHICList.clt" screen="WHICListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICHTMLAction</web-action-class>
+    </url-mapping>
+	
+	<event-mapping>
+        <event-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whinboundcomplete.WHICSC</service-action-class>
+    </event-mapping>
+	<!-- Inbound Complete Search End-->
+   <url-mapping url="ITList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ITEMList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="ITEMListGS.clt" screen="ITEMListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMListHTMLAction</web-action-class>
+    </url-mapping>
+
+    <url-mapping url="ITEMCopyPOP.clt" screen="ITEMCopyPOP.screen" >
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMListHTMLAction</web-action-class>
+    </url-mapping>
+
+	<event-mapping>
+        <event-class>com.clt.apps.fis.wms.item.event.ITEMListEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.item.ITEMListSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="RateMgmt.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.rate.event.RateMgmtHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RateMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RateMgmtGS.clt" screen="RateMgmtGS.screen">
+    	<web-action-class>com.clt.apps.fis.wms.rate.event.RateMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="saveRTMainList.clt" screen="RateMgmtGS.screen">
+    	<web-action-class>com.clt.apps.fis.wms.rate.event.RateMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.rate.event.RateMgmtEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.rate.RateMgmtSC</service-action-class>
+    </event-mapping>
+    
+    <!--Bao.Huynh (S) -->
+    <!--WHOCProgList Search Start-->
+    <url-mapping url="WHOCProgList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCProgListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOCProgList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="searchWHOCProgListGS.clt" screen="searchWHOCProgListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCProgListHTMLAction</web-action-class>
+    </url-mapping>
+	
+	<url-mapping url="searchWaveOrAllcDivGS.clt" screen="searchWaveOrAllcDivGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCProgListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchWHOCOutNoDupCheckGS.clt" screen="searchWHOCOutNoDupCheckGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCProgListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchWHOCOutNoInfoGS.clt" screen="searchWHOCOutNoInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCProgListHTMLAction</web-action-class>
+    </url-mapping>
+    
+	<event-mapping>
+        <event-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WhoutboundcompleteEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whoutboundcomplete.WhoutboundcompleteSC</service-action-class>
+    </event-mapping>
+    <!--WHOCProgList Search End-->
+    
+    <!--WHList Search Start-->
+    <url-mapping url="WHList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whloc.event.WHListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="searchWHListGS.clt" screen="searchWHListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whloc.event.WHListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchWHContractListGS.clt" screen="searchWHContractListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whloc.event.WHListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whloc.event.WHLocEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whloc.WHLocSC</service-action-class>
+    </event-mapping>
+    <!--WHList Search End-->
+    
+    <!--ITEMGroup Search Start-->
+    <url-mapping url="ITGroup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMGroupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ITEMGroup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchItemGroupCodeListGS.clt" screen="searchItemGroupCodeListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMGroupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchItemGroupCodeList_AllGS.clt" screen="searchItemGroupCodeList_AllGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMGroupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchSubItemGroupCodeListGS.clt" screen="searchSubItemGroupCodeListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMGroupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="modifyItemGroupGS.clt" screen="modifyItemGroupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMGroupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.item.event.ITEMListEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.item.ITEMListSC</service-action-class>
+    </event-mapping>
+    <!--ITEMGroup Search End-->
+    
+    <!--WHICUpdate Search Start-->
+    <url-mapping url="WHICUpdate.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICUpdateHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHICUpdate.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchWHICBkNoDupCheckGS.clt" screen="searchWHICBkNoDupCheckGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchWHICUpdateInfoGS.clt" screen="searchWHICUpdateInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="modifyWHICUpdateInfoGS.clt" screen="modifyWHICUpdateInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="reinstateWHICUpdateInfoGS.clt" screen="reinstateWHICUpdateInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelWHICUpdateInfoGS.clt" screen="modifyWHICUpdateInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="removeFileWHICUpdateItemGS.clt" screen="removeFileWHICUpdateItemGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whinboundcomplete.WHICSC</service-action-class>
+    </event-mapping>
+    <!--WHICUpdate Search End-->
+    
+    <!--WHInbkMgmt Search Start-->
+    <url-mapping url="WHInbkMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInbkMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHInbkMgmtAJ.clt" screen="WHInbkMgmtAJ.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkMgmtAJuploadHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchWHInbkInfoGS.clt" screen="searchWHInbkInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="existsWBInInfoGS.clt" screen="existsWBInInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchWHItemCodeInfoGS1.clt" screen="searchWHItemCodeInfoGS1.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="saveWHInbkInfoGS.clt" screen="saveWHInbkInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="cancelWHInbkInfoGS.clt" screen="cancelWHInbkInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="existsWOGS.clt" screen="existsWOGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="removeFileWHInbkGS.clt" screen="removeFileWHInbkGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="reinstateWHInbkInfoGS.clt" screen="reinstateWHInbkInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whinbooking.event.WHInbkEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whinbooking.WHInbkSC</service-action-class>
+    </event-mapping>
+    <!--WHInbkMgmt Search End-->
+    <!--Bao.Huynh (E) -->
+    
+    <url-mapping url="TrsHistoryList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.TrsHistoryListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="TrsHistoryList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="TrsHistoryListGS.clt" screen="TrsHistoryListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.TrsHistoryListHTMLAction</web-action-class>
+    </url-mapping>
+	
+	<event-mapping>
+        <event-class>com.clt.apps.fis.wms.whinventory.event.WHInventoryEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whinventory.WHInventorySC</service-action-class>
+    </event-mapping>
+    
+    <!-- Khanh.Nguyen (S) -->
+    
+    <url-mapping url="WHLocList.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.location.event.WHLocListHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHLocList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHLocListGS.clt" screen="WHLocListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.location.event.WHLocListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.location.event.WHLocationEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.location.WHLocationSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="WHOCList.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCListHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOCList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHOCListGS.clt" screen="WHOCListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCUpdate.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCUpdateHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOCUpdate.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHOCUpdate_001GS.clt" screen="WHOCUpdate_001GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCUpdate_002GS.clt" screen="WHOCUpdate_002GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCUpdate_003GS.clt" screen="WHOCUpdate_003GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCUpdate_004GS.clt" screen="WHOCUpdate_004GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="modifyWHOCUpdateInfoByBooking.clt" screen="WHOCUpdate_002GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="modifyWHOCUpdateInfoByLoadPlan.clt" screen="WHOCUpdate_004GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="cancelWHOCUpdateInfoByBookingGS.clt" screen="WHOCUpdate_005GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="cancelWHOCUpdateInfoByLoadPlanGS.clt" screen="WHOCUpdate_006GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="reinstateWHOCUpdateInfoByLoadPlanGS.clt" screen="WHOCUpdate_007GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCUpdateHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCMgmt.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCMgmtHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOCMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHOCMgmtGS.clt" screen="WHOCMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCMgmt_001GS.clt" screen="WHOCMgmt_001GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCMgmt_002GS.clt" screen="WHOCMgmt_002GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCMgmt_003GS.clt" screen="WHOCMgmt_003GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCMgmt_004GS.clt" screen="WHOCMgmt_004GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="saveWHOCMgmtInfoByBooking.clt" screen="saveWHOCMgmtInfoByBooking.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="saveWHOCMgmtInfoByLoadPlan.clt" screen="saveWHOCMgmtInfoByLoadPlan.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WHOCMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whoutboundcomplete.event.WhoutboundcompleteEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whoutboundcomplete.WhoutboundcompleteSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Khanh.Nguyen (E) -->
+    
+    <!-- Nam Tran (S) -->
+    
+    <url-mapping url="ItemInOutSummaryList.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.whinventory.event.ItemInOutSummaryListHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ItemInOutSummaryList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whinventory.event.WHInventoryEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whinventory.WHInventorySC</service-action-class>
+    </event-mapping>
+    
+    <!-- Nam Tran (E) -->
+    
+    <!--Vinh.Vo (S)  -->
+    <url-mapping url="CtrtMgmt.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.ctrtmgmt.event.CtrtMgmtHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CtrtMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CtrtMgmtGS.clt" screen="CtrtMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.ctrtmgmt.event.CtrtMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CtrtMgmt_01GS.clt" screen="CtrtMgmt_01GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.ctrtmgmt.event.CtrtMgmtHTMLAction</web-action-class>
+    </url-mapping>
+     <url-mapping url="CtrtMgmt_02GS.clt" screen="CtrtMgmt_02GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.ctrtmgmt.event.CtrtMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.ctrtmgmt.event.CtrtMgmtEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.ctrtmgmt.CtrtMgmtSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="MonthlyStorageRpt.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.whinventory.event.MonStoRptHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MonthlyStorageRpt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+     <url-mapping url="MonthlyStorageRptGS.clt" screen="MonthlyStorageRptGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.MonStoRptHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MonthlyStorageRpt_01GS.clt" screen="MonthlyStorageRpt_01GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.MonStoRptHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MonthlyStorageRpt_02GS.clt" screen="MonthlyStorageRpt_02GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.MonStoRptHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOutbkMgmt.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.whoutbooking.event.WHOutbkMgmtHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOutbkMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHOutbkMgmtGS.clt" screen="WHOutbkMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutbooking.event.WHOutbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOutbkMgmt_5GS.clt" screen="WHOutbkMgmt_5GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutbooking.event.WHOutbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+     <url-mapping url="WHOutbkMgmtUploadGS.clt" screen="WHOutbkMgmtUploadGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutbooking.event.WHOutbkMgmtUploadHTMLAction</web-action-class>
+    </url-mapping>
+    
+     <url-mapping url="removeFileWHOutbkGS.clt" screen="removeFileWHOutbkGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutbooking.event.WHOutbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOutbkMgmt_6GS.clt" screen="WHOutbkMgmt_6GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutbooking.event.WHOutbkMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--Vinh.Vo (E)  -->
+    
+    <!-- Hoai.Vo (S) -->
+	
+	<!-- ItemInvList (S) -->
+	<url-mapping url="ItemInvList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.ItemInvListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ItemInvList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+	<url-mapping url="searchWHItemInvByItemListGS.clt" screen="searchWHItemInvByItemListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.ItemInvListHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWHItemInvByLotListGS.clt" screen="searchWHItemInvByLotListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.ItemInvListHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWHItemInvByLocListGS.clt" screen="searchWHItemInvByLocListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.ItemInvListHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- ItemInvList (E) -->
+	
+	<!-- ItemInOutSummaryList (S) -->
+	<url-mapping url="searchItemInOutSummaryListGS.clt" screen="searchItemInOutSummaryListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.ItemInOutSummaryListHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- ItemInOutSummaryList (E) -->
+	
+	<!-- ClosingSearch (S) -->
+	<url-mapping url="searchClosingListGS.clt" screen="searchClosingListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.ClosingSearchHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- ClosingSearch (E) -->
+    
+    <!-- Hoai.Vo (E) -->
+    
+    <url-mapping url="InvMoveList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvMoveListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="InvMoveList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+	<url-mapping url="searchInvMoveList.clt" screen="InvMoveListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvMoveListHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Long.Le (S) -->  
+    <!-- Inventory Aging (S) -->
+    <url-mapping url="InvAging.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvAgingHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="InvAging.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+	<url-mapping url="InvAgingGS.clt" screen="InvAgingGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvAgingHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Inventory Aging (E) -->
+    
+    <!-- Fixed Location List (S) -->
+    <url-mapping url="FixLocList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.FixLocListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="FixLocList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchFixLocListGS.clt" screen="searchFixLocListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.FixLocListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchZoneCodeGS.clt" screen="searchZoneCodeGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.FixLocListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchBlockCodeGS.clt" screen="searchBlockCodeGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.FixLocListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whinventory.event.WHInventoryEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whinventory.WHInventorySC</service-action-class>
+    </event-mapping>
+    <!-- Fixed Location List (E) -->
+    
+    <!-- Daily Closing (S) -->
+    <url-mapping url="DailyClosing.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.DailyClosingHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="DailyClosing.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchDailyClosingByItemListGS.clt" screen="searchDailyClosingByItemListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.DailyClosingHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchDailyClosingByLotListGS.clt" screen="searchDailyClosingByLotListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.DailyClosingHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchDailyClosingByLocListGS.clt" screen="searchDailyClosingByLocListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.DailyClosingHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whclosing.event.WHClosingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whclosing.WHClosingSC</service-action-class>
+    </event-mapping>
+    <!-- Daily Closing (E) -->
+    
+    <!-- W/H Closing Search (S) -->
+    <url-mapping url="ClosingSearch.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.ClosingSearchHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ClosingSearch.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="ClosingSearchRpt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whclosing.event.ClosingSearchRptHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ClosingSearchRpt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- W/H Closing Search (E) -->
+    <!-- Long.Le (E) -->
+     
+    <!-- Lap.Nguyen (S) -->   
+    <!-- [InvAdjustMgmt] Inventory Adjustment-->       
+    <url-mapping url="InvAdjustMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvAdjustMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="InvAdjustMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchInvAdjustListGS.clt" screen="searchInvAdjustListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvAdjustMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- [InvAdjustList] Inventory Adjustment Search -->
+    <url-mapping url="InvAdjustList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvAdjustListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="InvAdjustList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchInvAdjustResultListGS.clt" screen="searchInvAdjustResultListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinventory.event.InvAdjustListHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- [CycleCountPlan] Cycle Count Plan -->
+    <url-mapping url="CycleCountPlan.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountPlanHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CycleCountPlan.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWarehouseZoneCodeGS.clt" screen="searchWarehouseZoneCodeGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountPlanHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWHCyclecountListGS.clt" screen="searchWHCyclecountListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountPlanHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveWHCyclecountInfoGS.clt" screen="saveWHCyclecountInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountPlanHTMLAction</web-action-class>
+    </url-mapping>         
+    <url-mapping url="searchWarehouseBlockCodeGS.clt" screen="searchWarehouseBlockCodeGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountPlanHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Lap.Nguyen (E) --> 
+    
+<!-- Duy.Nguyen (S) -->    
+    
+    <!-- WHICMgmt (S) -->
+	<url-mapping url="WHICMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHICMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWHICMgmtHeaderGS.clt" screen="searchWHICMgmtHeaderGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveWHICMgmtInfoGS.clt" screen="saveWHICMgmtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWHICCalcOs.clt" screen="searchWHICCalcOsGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWHICMgmtDetail.clt" screen="searchWHICMgmtDetailGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinboundcomplete.event.WHICMgmtHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- WHICMgmt (E) -->
+    
+    <!-- BOMList (S) -->
+	<url-mapping url="BOMList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="BOMList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	<url-mapping url="searchBOMListGS.clt" screen="searchBOMListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="BOMMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="BOMMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWhKitItemGS.clt" screen="searchWhKitItemGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWhKitSubItemGS.clt" screen="searchWhKitSubItemGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWhKitSubItemInvGS.clt" screen="searchWhKitSubItemInvGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchBOMMgmtForDekittingHeaderGS.clt" screen="searchBOMMgmtForDekittingHeaderGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveBOMMgmtForKitting.clt" screen="saveBOMMgmtForKittingGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveBOMMgmtForDekitting.clt" screen="saveBOMMgmtForDekittingGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWHItemCodeInfoGS.clt" screen="searchWHItemCodeInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchBOMMgmtForDekittingDetailGS.clt" screen="searchBOMMgmtForDekittingDetailGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whbom.event.BOMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+	
+	<event-mapping>
+        <event-class>com.clt.apps.fis.wms.whbom.event.WHBOMEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whbom.WHBOMSC</service-action-class>
+    </event-mapping>
+	<!-- BOMList (E) -->
+    
+    <url-mapping url="CycleCountList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CycleCountList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchCycleCountListGS.clt" screen="searchCycleCountListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CycleCountMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CycleCountMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchCycleCountMgmtInfoGS.clt" screen="searchCycleCountMgmtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchCycleCountMgmtListGS.clt" screen="searchCycleCountMgmtListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveWHCyclecountMgmtInfo.clt" screen="searchCycleCountMgmtListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelWHCyclecountMgmtInfo.clt" screen="searchCycleCountMgmtListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountMgmtHTMLAction</web-action-class>
+    </url-mapping>    
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.cyclecount.event.CycleCountEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.cyclecount.CycleCountSC</service-action-class>
+    </event-mapping>
+    <!-- Duy.Nguyen (E) -->
+    
+    <!-- AllcMgmt (S) -->
+	<url-mapping url="AllcMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whoutallcation.event.AllcMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="AllcMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+	<url-mapping url="AllcMgmt_1GS.clt" screen="AllcMgmt_1GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutallcation.event.AllcMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="AllcMgmt_2GS.clt" screen="AllcMgmt_2GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutallcation.event.AllcMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="AllcMgmt_3GS.clt" screen="AllcMgmt_3GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutallcation.event.AllcMgmtHTMLAction</web-action-class>
+    </url-mapping>
+	
+	
+	<event-mapping>
+        <event-class>com.clt.apps.fis.wms.whoutallcation.event.WHOutAllocationEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whoutallcation.WHOutAllocationSC</service-action-class>
+    </event-mapping>
+    <!-- AllcMgmt (E) -->
+    
+    <!-- Nam Tran (S) -->
+	<url-mapping url="ITMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ITMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="ITEMMgmtGS.clt" screen="ITEMMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="ITEMMgmt_1GS.clt" screen="ITEMMgmt_1GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="ITEMMgmtAJ.clt" screen="ITEMMgmtAJ.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMMgmtUploadFileHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="ITEMMgmt_2GS.clt" screen="ITEMMgmt_2GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+   	<!--#1724 [WMS4.0] Item Code and Name Update (History) -->
+    <url-mapping url="ITEMUpdatePOP.clt"  useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ITEMUpdatePOP.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>  
+    
+    <url-mapping url="ITEMUpdatePOPGS.clt" screen="ITEMUpdatePOPGS.screen" >
+        <web-action-class>com.clt.apps.fis.wms.item.event.ITEMUpdatePOPHTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- License Plate Unit Type -->
+	<url-mapping url="LicPlatUtTpMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.item.event.LicPlatUtTpMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="LicPlatUtTpMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="LicPlatUtTpMgmtGS.clt" screen="LicPlatUtTpMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.item.event.LicPlatUtTpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+	
+	<event-mapping>
+        <event-class>com.clt.apps.fis.wms.item.event.ITEMListEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.item.ITEMListSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="TLOMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.transloading.event.TransloadingMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="TLOMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="TransloadingMgmtGS.clt" screen="TransloadingMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.transloading.event.TransloadingMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.transloading.event.TransloadingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.transloading.TransloadingSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="WHPutawayMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whinputaway.event.WHPutawayMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHPutawayMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHPutawayMgmtGS.clt" screen="WHPutawayMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinputaway.event.WHPutawayMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHPutawayMgmt_1GS.clt" screen="WHPutawayMgmt_1GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whinputaway.event.WHPutawayMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whinputaway.event.WHInputawayEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whinputaway.WHInputawaySC</service-action-class>
+    </event-mapping>
+    <!-- Nam Tran (E) -->
+<!-- Khoa.Nguyen Start -->
+	<!-- WHOutbkList Start -->
+	<url-mapping url="WHOutbkList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whoutbooking.event.WHOutbkListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOutbkList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchWHOutbkListGS.clt" screen="searchWHOutbkListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutbooking.event.WHOutbkListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whoutbooking.event.WHOutBookingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whoutbooking.WHOutBookingSC</service-action-class>
+    </event-mapping>
+	<!-- WHOutbkList End -->
+	<!-- OthCostMgmt Start -->
+	<url-mapping url="OthCostMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.rate.event.OthCostMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="OthCostMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchOthCostMgmtListGS.clt" screen="searchOthCostMgmtListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.rate.event.OthCostMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveOthCostMgmtGS.clt" screen="saveOthCostMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.rate.event.OthCostMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="deleteOthCostMgmtGS.clt" screen="deleteOthCostMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.rate.event.OthCostMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchRateInfoForOthCostGS.clt" screen="searchRateInfoForOthCostGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.rate.event.OthCostMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.rate.event.RateMgmtEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.rate.RateMgmtSC</service-action-class>
+    </event-mapping>
+	<!-- OthCostMgmt End -->
+<!-- Khoa.Nguyen End -->
+	<!-- WHLocMgmt (S) -->
+	<url-mapping url="WHLocMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whloc.event.WHLocMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHLocMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHLocMgmtGS.clt" screen="WHLocMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whloc.event.WHLocMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHLocMgmt_1GS.clt" screen="WHLocMgmt_1GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whloc.event.WHLocMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHLocMgmt_2GS.clt" screen="WHLocMgmt_2GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whloc.event.WHLocMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHLocMgmt_3GS.clt" screen="WHLocMgmt_3GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whloc.event.WHLocMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHLocMgmt_4GS.clt" screen="WHLocMgmt_4GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whloc.event.WHLocMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHLocMgmt_5GS.clt" screen="WHLocMgmt_5GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whloc.event.WHLocMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    	
+	<event-mapping>
+        <event-class>com.clt.apps.fis.wms.whloc.event.WHLocEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whloc.WHLocSC</service-action-class>
+    </event-mapping>
+    <!-- WHLocMgmt (S) -->
+    <!-- WaveMgmt (S) -->
+	<url-mapping url="WaveMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.whoutwave.event.WaveMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WaveMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WaveMgmtGS.clt" screen="WaveMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutwave.event.WaveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WaveMgmt_1GS.clt" screen="WaveMgmt_1GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutwave.event.WaveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WaveMgmt_2GS.clt" screen="WaveMgmt_2GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutwave.event.WaveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WaveMgmt_3GS.clt" screen="WaveMgmt_3GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutwave.event.WaveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WaveMgmt_4GS.clt" screen="WaveMgmt_4GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutwave.event.WaveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WaveMgmt_5GS.clt" screen="WaveMgmt_5GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutwave.event.WaveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WaveMgmt_6GS.clt" screen="WaveMgmt_6GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutwave.event.WaveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WaveMgmt_7GS.clt" screen="WaveMgmt_7GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.whoutwave.event.WaveMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.whoutwave.event.WHOutWaveEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.whoutwave.WHOutWaveSC</service-action-class>
+    </event-mapping>
+    <!-- WaveMgmt (E) -->
+    
+    <!-- Inbounnd Booking Mgmt New Tin.Luong 20160905 (S) -->
+    <url-mapping url="WHInMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWHInMgmtListGS.clt" screen="searchWHInMgmtListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWHInMgmtInfoGS.clt" screen="searchWHInMgmtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="saveWHInMgmtLongTransactionGS.clt" screen="saveWHInMgmtLongTransactionGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelWHInMgmtBookingGS.clt" screen="cancelWHInMgmtBookingGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelWHInMgmtCompleteGS.clt" screen="cancelWHInMgmtCompleteGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWHInMgmtExcelListGS.clt" screen="searchWHInMgmtExcelListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="removeFileWHInMgmtGS.clt" screen="removeFileWHInMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInboundEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.inboundmanagement.WHInBoundSC</service-action-class>
+    </event-mapping>
+    <!-- Inbounnd Booking Mgmt New Tin.Luong 20160905 (E) -->
+    
+    <!-- WHAllcStrg (S) -->
+    <url-mapping url="WHAllcStrg.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHAllcStrgHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHAllcStrg.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWHAllcStrgListGS.clt" screen="searchWHAllcStrgListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHAllcStrgHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveWHAllcStrgGS.clt" screen="searchWHAllcStrgListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHAllcStrgHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutboundEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.outboundmanagement.WHOutBoundSC</service-action-class>
+    </event-mapping>
+    <!-- WHAllcStrg (E) -->
+    
+    <!-- WHInList (S) -->
+	<url-mapping url="WHInList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="WHInListGS.clt" screen="WHInListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInboundEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.inboundmanagement.WHInBoundSC</service-action-class>
+    </event-mapping>
+    <!-- WHInList (E) -->
+    
+    <!-- WHInWorkSht (S) -->
+    <url-mapping url="WHInWorkSht.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInWorkShtAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInWorkSht.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWHInWorkShtInfoGS.clt" screen="searchWHInWorkShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInWorkShtAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="removeWHInWorkShtInfoGS.clt" screen="removeWHInWorkShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInWorkShtAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveWHInWorkShtInfoGS.clt" screen="saveWHInWorkShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInWorkShtAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInboundEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.inboundmanagement.WHInBoundSC</service-action-class>
+    </event-mapping>
+    <!-- WHInWorkSht (E) -->
+    <!-- WHOutMgmt (S) -->
+    <url-mapping url="WHOutMgmt.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutMgmtHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOutMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWHOutMgmtListGS.clt" screen="searchWHOutMgmtListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWHOutMgmtInfoGS.clt" screen="searchWHOutMgmtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutMgmtHTMLAction</web-action-class>
+    </url-mapping>
+     <url-mapping url="saveWHOutMgmtLongTransactionGS.clt" screen="saveWHOutMgmtLongTransactionGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelWHOutMgmtBookingLongTransactionGS.clt" screen="cancelWHOutMgmtBookingLongTransactionGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelWHOutMgmtCompleteGS.clt" screen="cancelWHOutMgmtCompleteGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutMgmtHTMLAction</web-action-class>
+    </url-mapping>
+       <url-mapping url="searchWHOutMgmtExcelListGS.clt" screen="searchWHOutMgmtExcelListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOutMgmtPrintOption.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInWorkShtAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOutMgmtPrintOption.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="removeFileWHOutMgmtGS.clt" screen="removeFileWHOutMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- WHOutMgmt (E) -->
+    
+    <!--Outbound List-->
+    <url-mapping url="WHOutList.clt" useFlowHandler="true">
+    	<web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutListHTMLAction</web-action-class>
+    	<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOutList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWHOutListGS.clt" screen="searchWHOutListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutListHTMLAction</web-action-class>
+    </url-mapping>
+    <!--Outbound List-->
+    
+    <!-- WHInMgmtPrintOption (S) -->
+	<url-mapping url="WHInMgmtPrintOption.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInWorkShtAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInMgmtPrintOption.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.inboundmanagement.event.WHInboundEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.inboundmanagement.WHInBoundSC</service-action-class>
+    </event-mapping>
+    <!-- WHInMgmtPrintOption (E) -->
+    
+    <!-- WaveSmpMgmt (S) -->
+	<url-mapping url="WaveSmpMgmt.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WaveSmpMgmt.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWaveSimpleMgmtListGS.clt" screen="searchWaveSimpleMgmtListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWaveSimpleNewOrderListGS.clt" screen="searchWaveSimpleNewOrderListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveWaveSimpleMgmtGS.clt" screen="saveWaveSimpleMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWaveSimpleMgmtGS.clt" screen="searchWaveSimpleMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveAutoWaveAllocLongTransactionGS.clt" screen="saveAutoWaveAllocLongTransactionGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelWaveSimpleMgmtAllocAllLongTransactionGS.clt" screen="cancelWaveSimpleMgmtAllocAllLongTransactionGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelWaveSimpleMgmtAllocPartialLongTransactionGS.clt" screen="cancelWaveSimpleMgmtAllocPartialLongTransactionGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelWaveSimpleMgmtAllLongTransactionGS.clt" screen="cancelWaveSimpleMgmtAllLongTransactionGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="cancelWaveSimpleMgmtPartialLongTransactionGS.clt" screen="cancelWaveSimpleMgmtPartialLongTransactionGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="deleteWaveSimpleMgmtGS.clt" screen="deleteWaveSimpleMgmtGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWaveSimpleNewOrderListReqWobBkNoGS.clt" screen="searchWaveSimpleNewOrderListReqWobBkNoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveAllocPickingLongTransactionGS.clt" screen="saveAllocPickingLongTransactionGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="saveAllocShippingLongTransactionGS.clt" screen="saveAllocShippingLongTransactionGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.outboundmanagement.event.WaveSmpMgmtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.outboundmanagement.event.WHOutboundEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.outboundmanagement.WHOutBoundSC</service-action-class>
+    </event-mapping>
+    <!-- WaveSmpMgmt (E) -->
+</mappings>

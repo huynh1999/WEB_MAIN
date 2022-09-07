@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!-- DE Customs EDI (Air)   -->
+    <screen name="EDI_DBA_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/debl/air/jsp/EDI_DBA_0010.jsp"/>
+    </screen>
+
+     <!-- DE Customs EDI (Air) MRN 데이터 조회   -->
+    <screen name="EDI_DBA_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/air/jsp/EDI_DBA_0010GS.jsp"/>
+    </screen>
+    
+    <screen name="EDI_DBA_0010_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/air/jsp/EDI_DBA_0010_1GS.jsp"/>
+    </screen>
+    
+    <screen name="EDI_DBA_0010_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/air/jsp/EDI_DBA_0010_2GS.jsp"/>
+    </screen>
+    
+    <screen name="EDI_DBA_0010_3GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/air/jsp/EDI_DBA_0010_3GS.jsp"/>
+    </screen>
+    
+    <!-- DE Customs EDI (Air) List  -->
+    <screen name="EDI_DBA_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/debl/air/jsp/EDI_DBA_0020.jsp"/>
+    </screen>
+
+     <!-- DE Customs EDI (Air)List 조회   -->
+    <screen name="EDI_DBA_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/air/jsp/EDI_DBA_0020GS.jsp"/>
+    </screen>
+
+	<!-- DE Customs EDI (Air) Popup  -->
+    <screen name="EDI_DBA_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/debl/air/jsp/EDI_DBA_0030.jsp"/>
+    </screen>
+    
+    <!-- DE Customs EDI (Ocean)    -->
+    <screen name="EDI_DBS_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/debl/see/jsp/EDI_DBS_0010.jsp"/>
+    </screen>
+
+     <!-- DE Customs EDI (Ocean) MRN 데이터 조회   -->
+    <screen name="EDI_DBS_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/see/jsp/EDI_DBS_0010GS.jsp"/>
+    </screen>
+    
+    <screen name="EDI_DBS_0010_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/see/jsp/EDI_DBS_0010_1GS.jsp"/>
+    </screen>
+    
+    <screen name="EDI_DBS_0010_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/see/jsp/EDI_DBS_0010_2GS.jsp"/>
+    </screen>
+    
+    <screen name="EDI_DBS_0010_3GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/see/jsp/EDI_DBS_0010_3GS.jsp"/>
+    </screen>
+    
+    <!-- DE Customs EDI (Ocean) List  -->
+    <screen name="EDI_DBS_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/debl/see/jsp/EDI_DBS_0020.jsp"/>
+    </screen>
+
+     <!-- DE Customs EDI (Ocean) List 조회   -->
+    <screen name="EDI_DBS_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/see/jsp/EDI_DBS_0020GS.jsp"/>
+    </screen>
+    
+    <!-- DE Customs EDI (Ocean) ZBNUMBER Popup  -->
+    <screen name="EDI_DBS_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/debl/see/jsp/EDI_DBS_0030.jsp"/>
+    </screen>
+
+     <!-- DE Customs EDI (Ocean) ZBNUMBER Popup   -->
+    <screen name="EDI_DBS_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/debl/see/jsp/EDI_DBS_0030GS.jsp"/>
+    </screen>
+    
+</screen-definitions>

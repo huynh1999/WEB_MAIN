@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### Workflow Management  ####  -->
+    <screen name="MGT_JOB_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0010.jsp"/>
+    </screen>
+    <screen name="MGT_JOB_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0010GS.jsp"/>
+    </screen>
+    <screen name="MGT_JOB_0010_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0010_1GS.jsp"/>
+    </screen>
+    
+    <!--  Job Visibility Summary   -->
+    <screen name="MGT_JOB_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0020.jsp"/>
+    </screen>
+    <screen name="MGT_JOB_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0020GS.jsp"/>
+    </screen>
+    
+    <!--  Job Visibility Detail   -->
+    <screen name="MGT_JOB_0030" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0030.jsp"/>
+    </screen>
+    <screen name="MGT_JOB_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0030GS.jsp"/>
+    </screen>
+    
+    <!--  Job Workflow Template   -->
+    <screen name="MGT_JOB_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0040.jsp"/>
+    </screen>
+    <screen name="MGT_JOB_0040GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0040GS.jsp"/>
+    </screen>
+    
+    <!--  Job Workflow Basic Data   -->
+    <screen name="MGT_JOB_0050">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0050.jsp"/>
+    </screen>
+    <screen name="MGT_JOB_0050GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/job/jobmgt/jsp/MGT_JOB_0050GS.jsp"/>
+    </screen>
+
+    <!--#### ####  -->
+</screen-definitions>

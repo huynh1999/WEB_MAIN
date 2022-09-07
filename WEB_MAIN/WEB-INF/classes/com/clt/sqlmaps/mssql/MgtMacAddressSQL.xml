@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.mac.address">
+
+	<typeAlias alias="MacAddressVO" type="com.clt.apps.fis.mgt.mac.address.dto.MacAddressVO"/>
+
+	<select id="selectMacAddress" parameterClass="java.util.HashMap" resultClass="MacAddressVO">
+		SELECT mac_seq, mac_addr, rmk, to_date, fm_date, use_flg 
+		  FROM tb_mac
+		  WHERE 1=1
+		<isNotEmpty property="f_fm_date">
+			<![CDATA[
+			 AND  #f_fm_date# BETWEEN CONVERT(VARCHAR(8), fm_date, 112) AND CONVERT(VARCHAR(8), to_date, 112) 
+			]]>
+		</isNotEmpty>
+		<isNotEmpty property="f_use_flg">
+		   AND use_flg = #f_use_flg#
+		</isNotEmpty>
+		<isNotEqual property="role_cd" compareValue="Master">
+    	   AND rmk NOT LIKE (SELECT MIN(usrid) FROM tb_usr WHERE usr_tp = 'I' AND role_cd = 'Master' AND use_flg = 'Y' AND delt_flg = 'N') + '%'
+    	</isNotEqual>  
+	  ORDER BY rgst_tms
+	</select>
+	
+	<insert id="insertMacAddress" parameterClass="MacAddressVO">
+		INSERT INTO tb_mac
+		(
+		mac_seq, mac_addr, rmk, to_date, fm_date, 
+		rgst_usrid, rgst_ofc_cd, rgst_tms, 
+		modi_usrid, modi_ofc_cd, modi_tms, 
+		use_flg
+		)
+		VALUES
+		(
+		#mac_seq#, #mac_addr#, #rmk#, #to_date#, #fm_date#, 
+		#rgst_usrid#, #rgst_ofc_cd#, GETDATE(), 
+		#modi_usrid#, #modi_ofc_cd#, GETUTCDATE(), 
+		#use_flg#
+		)
+	</insert>
+	
+	<!-- #65: #52672 - [CLA] Security Management / OPUS Forwarding 보안 문제  -->
+	<insert id="insertIpAddress" parameterClass="MacAddressVO">
+		INSERT INTO tb_ip_addr
+		(
+		ip_seq, ip_addr, rmk, to_date, fr_date, usrid,
+		rgst_usrid, rgst_ofc_cd, rgst_tms,
+		modi_usrid, modi_ofc_cd, modi_tms, 
+		use_flg
+		)
+		VALUES
+		(
+		#ip_seq#, #ip_addr#, #rmk#, #to_date#, #fr_date#, #usrid#,
+		#modi_usrid#, #ofc_cd#, GETDATE(), 
+		#modi_usrid#, #ofc_cd#, GETUTCDATE(), 
+		#use_flg#
+		)
+	</insert>
+	
+	<select id="selectMacAddressInfo" parameterClass="java.util.HashMap" resultClass="MacAddressVO">
+		SELECT TOP 1 mac_addr, rmk, to_date, fm_date, use_flg
+		  FROM tb_mac
+		
+		 WHERE 1=1
+		<isNotEmpty property="fm_date">
+		<![CDATA[
+		   AND #fm_date# BETWEEN CONVERT(VARCHAR(8), fm_date, 112) AND CONVERT(VARCHAR(8), to_date, 112)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="use_flg">
+		   AND use_flg = #use_flg#
+		</isNotEmpty>
+		<isNotEmpty property="mac_addr">
+		   AND mac_addr = #mac_addr#
+		</isNotEmpty>
+	</select>
+	
+	<!-- #65: #52672 - [CLA] Security Management / OPUS Forwarding 보안 문제  -->
+	<select id="selectIpAddressInfo" parameterClass="java.util.HashMap" resultClass="MacAddressVO">
+		/* MgtMacAddressSQL.xml > selectIpAddressInfo */
+		SELECT ip.ip_seq, ip.ip_addr, ip.rmk, ip.to_date, ip.fr_date, ip.use_flg, ip.usrid, ip.modi_usrid, ip.modi_ofc_cd,
+			<!-- CONVERT(VARCHAR, ip.modi_tms, 110)+' '+CONVERT(VARCHAR, ip.modi_tms, 108) AS modi_tms -->
+			<!-- CONVERT(VARCHAR(10),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), ip.modi_tms ),110)+' '+
+			CONVERT(VARCHAR(5),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), ip.modi_tms ),108) AS modi_tms -->
+			DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), ip.modi_tms ) AS modi_tms
+		  FROM tb_ip_addr ip
+		    LEFT OUTER JOIN
+		        TB_OFC TOF     
+		            ON ip.modi_ofc_cd = TOF.OFC_CD            
+		    LEFT OUTER JOIN
+		        TB_COM_CD_DTL CCD     
+		            ON CCD.COM_CD = 'TIMEZN'     
+		            AND TOF.TIME_ZONE = CCD.CD_VAL   
+		 WHERE 1=1
+		<isNotEmpty property="fr_date">
+		<![CDATA[
+		   AND #fr_date# BETWEEN CONVERT(VARCHAR(8), ip.fr_date, 112) AND CONVERT(VARCHAR(8), ip.to_date, 112)
+		]]>
+		</isNotEmpty>
+		<isNotEmpty property="use_flg">
+		   AND ip.use_flg = #use_flg#
+		</isNotEmpty>
+		<isNotEmpty property="user_id">
+		   AND ip.usrid = #user_id#
+		</isNotEmpty>
+		order by ip.ip_addr
+	</select>
+	
+	<update id="updateMacAddress" parameterClass="MacAddressVO">
+		UPDATE tb_mac
+		   SET modi_usrid = #modi_usrid#
+		     , modi_ofc_cd = #modi_ofc_cd#
+		     , modi_tms = GETUTCDATE()
+	     <isNotNull property="mac_addr">
+		     , mac_addr = #mac_addr#
+	     </isNotNull>
+	     <isNotNull property="rmk">
+		     , rmk = #rmk#
+	     </isNotNull>
+	     <isNotNull property="to_date">
+		     , to_date = #to_date#
+	     </isNotNull>
+	     <isNotNull property="fm_date">
+		     , fm_date = #fm_date#
+	     </isNotNull>
+	     <isNotNull property="use_flg">
+		     , use_flg = #use_flg#
+	     </isNotNull>
+	     WHERE mac_seq = #mac_seq#
+	</update>
+	
+	<!-- #65: #52672 - [CLA] Security Management / OPUS Forwarding 보안 문제  -->
+	<update id="updateIpAddress" parameterClass="MacAddressVO">
+		UPDATE tb_ip_addr
+		   SET modi_usrid = #modi_usrid#
+		     , modi_ofc_cd = #ofc_cd#
+		     , modi_tms = GETUTCDATE()
+	     <isNotNull property="ip_addr">
+		     , ip_addr = #ip_addr#
+	     </isNotNull>
+	     <isNotNull property="rmk">
+		     , rmk = #rmk#
+	     </isNotNull>
+	     <isNotNull property="to_date">
+		     , to_date = #to_date#
+	     </isNotNull>
+	     <isNotNull property="fr_date">
+		     , fr_date = #fr_date#
+	     </isNotNull>
+	     <isNotNull property="use_flg">
+		     , use_flg = #use_flg#
+	     </isNotNull>
+	     WHERE ip_seq = #ip_seq#
+	</update>
+	
+	<select id="selectMacAddressMaxKey" parameterClass="MacAddressVO" resultClass="java.lang.String">
+		SELECT ISNULL(MAX(CONVERT(numeric, mac_seq)), 0) + 1 AS MAC_SEQ
+		  FROM tb_mac
+	</select>
+	
+	<delete id="deleteMacAddress" parameterClass="MacAddressVO">
+		DELETE tb_mac
+		 WHERE mac_seq = #mac_seq#
+	</delete>
+	
+	<!-- #65: #52672 - [CLA] Security Management / OPUS Forwarding 보안 문제  -->
+	<select id="selectIpAddressMaxKey" parameterClass="MacAddressVO" resultClass="java.lang.String">
+		SELECT ISNULL(MAX(CONVERT(numeric, ip_seq)), 0) + 1 AS IP_SEQ
+		  FROM tb_ip_addr
+	</select>
+	
+	<!-- #65: #52672 - [CLA] Security Management / OPUS Forwarding 보안 문제  -->
+	<delete id="deleteIpAddress" parameterClass="MacAddressVO">
+		DELETE tb_ip_addr
+		 WHERE ip_seq = #ip_seq#
+	</delete>
+	
+</sqlMap>

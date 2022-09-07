@@ -1,0 +1,1055 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+	<!-- Closing Management(S) -->
+    <screen name="ClosingMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingMgmt.jsp" />
+    </screen>
+    <screen name="ClosingMgmtGS1" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingMgmtGS1.jsp" />
+    </screen>
+    <screen name="ClosingMgmtGS2" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingMgmtGS2.jsp" />
+    </screen>
+    <screen name="ClosingMgmtGSAJ" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingMgmtGSAJ.jsp" />
+    </screen>
+    <screen name="ClosingMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingMgmtGS.jsp" />
+    </screen>
+    
+    <!-- Closing In Out Mgmt (S)  -->
+    <screen name="ClosingInOutMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingInOutMgmt.jsp" />
+    </screen>
+    <screen name="ClosingInOutMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingInOutMgmtGS.jsp" />
+    </screen>
+    <!-- Closing Storage Mgmt (S)  -->
+    
+    <!-- #1069 Closing Other Mgmgt (S) -->
+    <screen name="ClosingOtherMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingOtherMgmt.jsp" />
+    </screen>    
+    <screen name="ClosingOtherMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingOtherMgmtGS.jsp" />
+    </screen>    
+    <!-- #1069 Closing Other Mgmgt (E) -->
+    
+     <!-- Closing Storage Charge Mgmt (S)  -->
+    <screen name="ClosingStoChgMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingStoChgMgmt.jsp" />
+    </screen>
+    <screen name="ClosingStoChgMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingStoChgMgmtGS.jsp" />
+    </screen>
+    <!-- Closing In Out Mgmt (S)  -->
+    
+    <!-- Closing Background Search -->
+    <screen name="ClosingBackgroundSearch">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingBackgroundSearch.jsp" />
+    </screen>
+    <screen name="searchClosingBackgroundListGS">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/searchClosingBackgroundListGS.jsp" />
+    </screen>
+	<!-- Closing Management(E) -->
+	
+    <!-- ClosingDetail -->
+    <screen name="ClosingDetail">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingDetail.jsp" />
+    </screen>
+    <screen name="searchClosingDetailGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingDetailGS.jsp" />
+    </screen>
+    
+    <screen name="searchClosingDetailGS_1" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingDetailGS_Detail.jsp" />
+    </screen>
+    
+    <screen name="searchTlCustomerInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingDetailSearchTlCustInfoGS.jsp" />
+    </screen>
+    
+    <screen name="searchClosingStatusGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingDetailStatusGS.jsp" />
+    </screen>
+    
+    <screen name="createClosingStatusGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingDetailStatusGS.jsp" />
+    </screen>
+    
+    <screen name="searchClosingStrUnitGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/searchClosingStrUnitGS.jsp" />
+    </screen>
+    
+    <screen name="saveClosingDetailGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingDetailSaveGS.jsp" />
+    </screen>
+    
+    <screen name="deleteClosingDetailPartialGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingDetailDeleteGS.jsp" />
+    </screen>
+    
+	<!-- Closing Management(E) -->
+	
+	<!-- Khang.Dong (S) -->
+	<screen name="WHLotList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/WHLotList.jsp" />
+    </screen>
+	<screen name="WHLotListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/WHLotListGS.jsp" />
+    </screen>
+    <screen name="LoadPlanMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whoutloadplan/jsp/LoadPlanMgmt.jsp" />
+    </screen>
+    <screen name="LoadPlanMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutloadplan/jsp/LoadPlanMgmtGS.jsp" />
+    </screen>
+    <screen name="LoadPlanMgmtGS1" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutloadplan/jsp/LoadPlanMgmtGS1.jsp" />
+    </screen>
+    <screen name="LoadPlanMgmtGS2" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutloadplan/jsp/LoadPlanMgmtGS2.jsp" />
+    </screen>
+    <screen name="LoadPlanMgmtGS3" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutloadplan/jsp/LoadPlanMgmtGS3.jsp" />
+    </screen>
+    <screen name="LoadPlanMgmtGS4" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutloadplan/jsp/LoadPlanMgmtGS4.jsp" />
+    </screen>
+    
+    <screen name="InvMoveMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/InvMoveMgmt.jsp" />
+    </screen>
+    
+    <screen name="InvMoveMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/InvMoveMgmtGS.jsp" />
+    </screen>
+    <screen name="InvMoveMgmtGS1" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/InvMoveMgmtGS1.jsp" />
+    </screen>
+    <screen name="InvMoveMgmtGS2" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/InvMoveMgmtGS2.jsp" />
+    </screen>
+	<!-- Khang.Dong (E) -->
+    <screen name="ITEMList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMList.jsp" />
+    </screen>
+
+    <screen name="ITEMCopyPOP" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMCopyPOP.jsp" />
+    </screen>
+
+    <screen name="ITEMListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMListGS.jsp" />
+    </screen> 
+    <screen name="WHInBkList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/WHInBkList.jsp" />
+    </screen>
+    
+    <screen name="searchWHICBkNoDupCheck" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/searchWHICBkNoDupCheckGS.jsp" />
+    </screen>
+
+    <screen name="WHInBkListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/WHInBkListGS.jsp" />
+    </screen> 
+    
+    <screen name="WHICList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/WHICList.jsp" />
+    </screen>
+
+    <screen name="WHICListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/WHICListGS.jsp" />
+    </screen> 
+
+	<screen name="RateMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/ratemgmt/jsp/RateMgmt.jsp" />
+    </screen>
+    
+    <screen name="RateMgmtGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/ratemgmt/jsp/RateMgmtGS.jsp" />
+    </screen>
+    
+    <screen name="RateMgmtGS1" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/ratemgmt/jsp/RateMgmtGS1.jsp" />
+    </screen>
+    
+    <!--Bao.Huynh (S) -->
+    <!--WHOCProgList Search Start-->
+    <screen name="WHOCProgList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCProgList.jsp" />
+    </screen>
+    <screen name="searchWHOCProgListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/searchWHOCProgListGS.jsp" />
+    </screen>
+    <screen name="searchWaveOrAllcDivGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/searchWaveOrAllcDivGS.jsp" />
+    </screen>
+    <screen name="searchWHOCOutNoDupCheckGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/searchWHOCOutNoDupCheckGS.jsp" />
+    </screen>
+    <screen name="searchWHOCOutNoInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/searchWHOCOutNoInfoGS.jsp" />
+    </screen>
+    <!--WHOCProgList Search End-->
+    
+    <!--WHList Search Start-->
+    <screen name="WHList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whloc/jsp/WHList.jsp" />
+    </screen>
+    <screen name="searchWHListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whloc/jsp/searchWHListGS.jsp" />
+    </screen>
+    <screen name="searchWHContractListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whloc/jsp/searchWHContractListGS.jsp" />
+    </screen>
+    <!--WHList Search End-->
+    
+    <!--ITEMGroup Search Start-->
+    <screen name="ITEMGroup">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMGroup.jsp" />
+    </screen>
+    
+    <screen name="searchItemGroupCodeListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/searchItemGroupCodeListGS.jsp" />
+    </screen>
+    
+    <screen name="searchItemGroupCodeList_AllGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/searchItemGroupCodeList_AllGS.jsp" />
+    </screen>
+    
+    <screen name="searchSubItemGroupCodeListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/searchSubItemGroupCodeListGS.jsp" />
+    </screen>
+    <screen name="modifyItemGroupGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/modifyItemGroupGS.jsp" />
+    </screen>
+    <!--ITEMGroup Search End-->
+    
+    <!--WHICUpdate Search Start-->
+    <screen name="WHICUpdate">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/WHICUpdate.jsp" />
+    </screen>
+    
+    <screen name="searchWHICBkNoDupCheckGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/searchWHICBkNoDupCheckGS.jsp" />
+    </screen>
+    
+    <screen name="searchWHICUpdateInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/searchWHICUpdateInfoGS.jsp" />
+    </screen>
+    
+    <screen name="removeFileWHICUpdateItemGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/removeFileWHICUpdateItemGS.jsp" />
+    </screen>
+    
+    <screen name="modifyWHICUpdateInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/modifyWHICUpdateInfoGS.jsp" />
+    </screen>
+    
+    <screen name="reinstateWHICUpdateInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/reinstateWHICUpdateInfoGS.jsp" />
+    </screen>
+    <!--WHICUpdate Search End-->
+    
+    <!--WHInbkMgmt Search Start-->
+    <screen name="WHInbkMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/WHInbkMgmt.jsp" />
+    </screen>
+    
+    <screen name="WHInbkMgmtAJ" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/WHInbkMgmtAJ.jsp" />
+    </screen>
+    
+    <screen name="existsWBInInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/existsWBInInfoGS.jsp" />
+    </screen>
+    <screen name="searchWHInbkInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/searchWHInbkInfoGS.jsp" />
+    </screen>
+    <screen name="searchWHItemCodeInfoGS1" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/searchWHItemCodeInfoGS.jsp" />
+    </screen>
+    
+    <screen name="saveWHInbkInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/saveWHInbkInfoGS.jsp" />
+    </screen>
+    
+    <screen name="cancelWHInbkInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/cancelWHInbkInfoGS.jsp" />
+    </screen>
+    
+    <screen name="reinstateWHInbkInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/reinstateWHInbkInfoGS.jsp" />
+    </screen>
+    
+    <screen name="existsWOGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/existsWOGS.jsp" />
+    </screen>
+    
+    <screen name="removeFileWHInbkGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinbooking/jsp/removeFileWHInbkGS.jsp" />
+    </screen>
+    <!--WHInbkMgmt Search End-->
+    <!--Bao.Huynh (E) -->
+    
+ 	<!-- Tan.Pham -->
+ 	<screen name="TrsHistoryList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/TrsHistoryList.jsp" />
+    </screen>
+
+    <screen name="TrsHistoryListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/TrsHistoryListGS.jsp" />
+    </screen>
+    <!-- Tan.Pham --> 
+    
+    <!-- Khanh.Nguyen (S) -->
+    
+    <screen name="WHLocList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/location/jsp/WHLocList.jsp" />
+    </screen>
+    
+    <screen name="WHLocListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/location/jsp/WHLocListGS.jsp" />
+    </screen>
+    
+    <screen name="WHOCList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCList.jsp" />
+    </screen>
+    
+    <screen name="WHOCListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCListGS.jsp" />
+    </screen>
+    
+    <screen name="WHOCUpdate">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCUpdate.jsp" />
+    </screen>
+    
+    <screen name="WHOCUpdate_001GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCUpdate_001GS.jsp" />
+    </screen>
+    
+    <screen name="WHOCUpdate_002GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCUpdate_002GS.jsp" />
+    </screen>
+    
+    <screen name="WHOCUpdate_003GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCUpdate_003GS.jsp" />
+    </screen>
+    
+    <screen name="WHOCUpdate_004GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCUpdate_004GS.jsp" />
+    </screen>
+    
+    <screen name="WHOCUpdate_005GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCUpdate_005GS.jsp" />
+    </screen>
+    
+    <screen name="WHOCUpdate_006GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCUpdate_006GS.jsp" />
+    </screen>
+    
+    <screen name="WHOCUpdate_007GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCUpdate_007GS.jsp" />
+    </screen>
+    
+    <screen name="WHOCMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCMgmt.jsp" />
+    </screen>
+    
+    <screen name="WHOCMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCMgmtGS.jsp" />
+    </screen>
+    
+    <screen name="WHOCMgmt_001GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCMgmt_001GS.jsp" />
+    </screen>
+    
+    <screen name="WHOCMgmt_002GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCMgmt_002GS.jsp" />
+    </screen>
+    
+    <screen name="WHOCMgmt_003GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCMgmt_003GS.jsp" />
+    </screen>
+    
+    <screen name="WHOCMgmt_004GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/WHOCMgmt_004GS.jsp" />
+    </screen>
+    
+    <screen name="saveWHOCMgmtInfoByBooking" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/saveWHOCMgmtInfoByBooking.jsp" />
+    </screen>
+    
+    <screen name="saveWHOCMgmtInfoByLoadPlan" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutboundcomplete/jsp/saveWHOCMgmtInfoByLoadPlan.jsp" />
+    </screen>
+    
+    <!-- Khanh.Nguyen (E) -->
+    
+<!-- Duy.Nguyen (S) -->
+    
+     <!-- WHICMgmt (S) -->
+	<screen name="WHICMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/WHICMgmt.jsp" />
+   	</screen>
+   		<screen name="searchWHICMgmtHeaderGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/searchWHICMgmtHeaderGS.jsp" />
+   	</screen>
+   	<screen name="saveWHICMgmtInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/saveWHICMgmtInfoGS.jsp" />
+   	</screen>
+   	<screen name="searchWHICCalcOsGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/searchWHICCalcOsGS.jsp" />
+   	</screen>
+   	<screen name="searchWHICMgmtDetailGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinboundcomplete/jsp/searchWHICMgmtDetailGS.jsp" />
+   	</screen>
+	<!-- WHICMgmt (E) -->
+    
+    <!-- BOM (S) -->
+	<screen name="BOMList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/BOMList.jsp" />
+   	</screen>
+   	<screen name="searchBOMListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/searchBOMListGS.jsp" />
+    </screen>
+    
+    <screen name="BOMMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/BOMMgmt.jsp" />
+   	</screen>
+   	<screen name="searchWhKitItemGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/searchWhKitItemGS.jsp" />
+    </screen>
+   	<screen name="searchWhKitSubItemGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/searchWhKitSubItemGS.jsp" />
+    </screen>
+   	<screen name="searchWhKitSubItemInvGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/searchWhKitSubItemInvGS.jsp" />
+    </screen>
+   	<screen name="searchBOMMgmtForDekittingHeaderGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/searchBOMMgmtForDekittingHeaderGS.jsp" />
+    </screen>
+    <screen name="saveBOMMgmtForKittingGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/saveBOMMgmtForKittingGS.jsp" />
+    </screen>
+    <screen name="saveBOMMgmtForDekittingGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/saveBOMMgmtForDekittingGS.jsp" />
+    </screen>
+    <screen name="searchWHItemCodeInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/searchWHItemCodeInfoGS.jsp" />
+    </screen>
+    <screen name="searchBOMMgmtForDekittingDetailGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whbom/jsp/searchBOMMgmtForDekittingDetailGS.jsp" />
+    </screen>
+	<!-- BOM (E) -->
+    
+    <screen name="WHList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/location/jsp/WHList.jsp" />
+    </screen>
+    
+    <screen name="CycleCountList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/cyclecount/jsp/CycleCountList.jsp" />
+    </screen>    
+    <screen name="searchCycleCountListGS">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/cyclecount/jsp/searchCycleCountListGS.jsp" />
+    </screen>
+    
+    <screen name="CycleCountMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/cyclecount/jsp/CycleCountMgmt.jsp" />
+    </screen>
+    <screen name="searchCycleCountMgmtInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/cyclecount/jsp/searchCycleCountMgmtInfoGS.jsp" />
+    </screen>
+    <screen name="searchCycleCountMgmtListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/cyclecount/jsp/searchCycleCountMgmtListGS.jsp" />
+    </screen>
+    
+    <!-- Duy.Nguyen (E) -->
+    
+    <!-- Nam Tran (S) -->
+    
+    <screen name="ItemInOutSummaryList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/ItemInOutSummaryList.jsp" />
+    </screen>
+    
+    <!-- Nam Tran (E) -->
+    
+    <!--Vinh.Vo (S)  -->
+    <screen name="CtrtMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/ctrtmgmt/jsp/CtrtMgmt.jsp" />
+    </screen>
+    
+    <screen name="CtrtMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/ctrtmgmt/jsp/CtrtMgmtGS.jsp" />
+    </screen>
+    
+     <screen name="CtrtMgmt_01GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/ctrtmgmt/jsp/CtrtMgmt_01GS.jsp" />
+    </screen>
+    
+    <screen name="CtrtMgmt_02GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/ctrtmgmt/jsp/CtrtMgmt_02GS.jsp" />
+    </screen>
+    
+    <screen name="MonthlyStorageRpt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/MonthlyStorageRpt.jsp" />
+    </screen>
+    
+    <screen name="MonthlyStorageRptGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/MonthlyStorageRptGS.jsp" />
+    </screen>
+    
+    <screen name="MonthlyStorageRpt_01GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/MonthlyStorageRpt_01GS.jsp" />
+    </screen>
+    
+    <screen name="MonthlyStorageRpt_02GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/MonthlyStorageRpt_02GS.jsp" />
+    </screen>
+    <!--Outbound Booking Management-->
+    <screen name="WHOutbkMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whoutbooking/jsp/WHOutbkMgmt.jsp" />
+    </screen>
+    
+    <screen name="WHOutbkMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutbooking/jsp/WHOutbkMgmtGS.jsp" />
+    </screen>
+    <screen name="WHOutbkMgmt_5GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutbooking/jsp/WHOutbkMgmt_5GS.jsp" />
+    </screen>
+    
+    <screen name="WHOutbkMgmtUploadGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutbooking/jsp/WHOutbkMgmtUploadGS.jsp" />
+    </screen>
+    
+    <screen name="removeFileWHOutbkGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutbooking/jsp/removeFileWHOutbkGS.jsp" />
+    </screen>
+    
+    <screen name="WHOutbkMgmt_6GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutbooking/jsp/WHOutbkMgmt_6GS.jsp" />
+    </screen>
+    
+    <!--Vinh.Vo (E)  -->
+    
+<!-- Hoai.Vo (S) -->
+	
+	<!-- ItemInvList (S) -->
+	<screen name="ItemInvList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/ItemInvList.jsp" />
+   	</screen>
+   	<screen name="searchWHItemInvByItemListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/searchWHItemInvByItemListGS.jsp" />
+   	</screen>
+   	<screen name="searchWHItemInvByLotListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/searchWHItemInvByLotListGS.jsp" />
+   	</screen>
+   	<screen name="searchWHItemInvByLocListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/searchWHItemInvByLocListGS.jsp" />
+   	</screen>
+   	<!-- ItemInvList (E) -->
+   	
+   	<!-- ItemInOutSummaryList (S) -->
+	<screen name="searchItemInOutSummaryListGS">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/searchItemInOutSummaryListGS.jsp" />
+   	</screen>
+    <!-- ItemInOutSummaryList (E) -->
+	
+	<!-- ClosingSearch (S) -->
+	<screen name="searchClosingListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/searchClosingListGS.jsp" />
+   	</screen>
+	<!-- ClosingSearch (E) -->
+<!-- Hoai.Vo (E) -->
+    
+           
+    <screen name="InvMoveList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/InvMoveList.jsp" />
+    </screen>
+   
+    <screen name="InvMoveListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/InvMoveListGS.jsp" />
+    </screen> 
+    
+    <!-- Long.Le (S) --> 
+      <screen name="InvAging">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/InvAging.jsp" />
+    </screen>
+   
+    <screen name="InvAgingGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/InvAgingGS.jsp" />
+    </screen>  
+    
+    <screen name="FixLocList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/FixLocList.jsp" />
+    </screen>
+    
+    <screen name="searchFixLocListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/searchFixLocListGS.jsp" />
+    </screen>
+    
+    <screen name="searchZoneCodeGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/searchWarehouseZoneCodeGS.jsp" />
+    </screen>           
+ 	<screen name="searchBlockCodeGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/searchWarehouseBlockCodeGS.jsp" />
+    </screen> 
+    
+    <screen name="DailyClosing">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/DailyClosing.jsp" />
+    </screen>
+    
+    <screen name="searchDailyClosingByItemListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/searchDailyClosingByItemListGS.jsp" />
+    </screen>
+    
+    <screen name="searchDailyClosingByLotListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/searchDailyClosingByLotListGS.jsp" />
+    </screen>
+    
+    <screen name="searchDailyClosingByLocListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/searchDailyClosingByLocListGS.jsp" />
+    </screen>
+    
+    <screen name="ClosingSearch">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingSearch.jsp" />
+    </screen>
+    
+    <screen name="ClosingSearchRpt" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whclosing/jsp/ClosingSearchRpt.jsp" />
+    </screen>
+    
+    <!-- Long.Le (E) -->
+    <!-- Lap.Nguyen (S) --> 
+    <!-- [InvAdjustMgmt] Inventory Adjustment-->       
+    <screen name="InvAdjustMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/InvAdjustMgmt.jsp" />
+    </screen>
+    <screen name="searchInvAdjustListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/searchInvAdjustListGS.jsp" />
+    </screen>
+    <!-- [InvAdjustList] Inventory Adjustment Search -->
+    <screen name="InvAdjustList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/InvAdjustList.jsp" />
+    </screen>
+    <screen name="searchInvAdjustResultListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinventory/jsp/searchInvAdjustResultListGS.jsp" />
+    </screen>
+    <!-- [CycleCountPlan] Cycle Count Plan -->
+    <screen name="CycleCountPlan">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/cyclecount/jsp/CycleCountPlan.jsp" />
+    </screen>
+    <screen name="searchWHCyclecountListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/cyclecount/jsp/searchWHCyclecountListGS.jsp" />
+    </screen>
+    <screen name="saveWHCyclecountInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/cyclecount/jsp/saveWHCyclecountInfoGS.jsp" />
+    </screen>
+    <screen name="searchWarehouseZoneCodeGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/cyclecount/jsp/searchWarehouseZoneCodeGS.jsp" />
+    </screen>           
+ 	<screen name="searchWarehouseBlockCodeGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/cyclecount/jsp/searchWarehouseBlockCodeGS.jsp" />
+    </screen>    
+    <!-- Lap.Nguyen (E) -->
+    
+	<!-- Tan.Pham -->
+ 	<screen name="AllcMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whoutallcation/jsp/AllcMgmt.jsp" />
+    </screen>
+
+    <screen name="AllcMgmt_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutallcation/jsp/AllcMgmt_1GS.jsp" />
+    </screen>
+    <screen name="AllcMgmt_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutallcation/jsp/AllcMgmt_2GS.jsp" />
+    </screen>
+    <screen name="AllcMgmt_3GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutallcation/jsp/AllcMgmt_3GS.jsp" />
+    </screen>
+    <!-- Tan.Pham --> 
+    
+    <!-- Nam Tran (S) -->
+ 	<screen name="ITMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMMgmt.jsp" />
+    </screen>
+    
+    <screen name="ITEMMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMMgmtGS.jsp" />
+    </screen>
+    
+    <screen name="ITEMMgmt_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMMgmt_1GS.jsp" />
+    </screen>
+    
+    <screen name="ITEMMgmtAJ" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMMgmtAJ.jsp" />
+    </screen>
+    
+    <screen name="ITEMMgmt_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMMgmt_2GS.jsp" />
+    </screen>
+
+	<!--#1724 [WMS4.0] Item Code and Name Update (History) -->
+    <screen name="ITEMUpdatePOP" template="templatePop">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMUpdatePOP.jsp" />
+    </screen>    
+    
+    <screen name="ITEMUpdatePOPGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMUpdatePOPGS.jsp" />
+    </screen>
+        
+    <!-- (S) License Plate Unit Type -->
+   	<screen name="LicPlatUtTpMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/LicPlatUtTpMgmt.jsp" />
+    </screen>
+    
+    <screen name="LicPlatUtTpMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/LicPlatUtTpMgmtGS.jsp" />
+    </screen>
+    <!-- (E) License Plate Unit Type -->
+    
+ 	<screen name="ITMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/item/jsp/ITEMMgmt.jsp" />
+    </screen>
+    
+    <screen name="TLOMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/transloading/jsp/TransloadingMgmt.jsp" />
+    </screen>
+    
+    <screen name="TransloadingMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/transloading/jsp/TransloadingMgmtGS.jsp" />
+    </screen>
+    
+    <screen name="WHPutawayMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whinputaway/jsp/WHPutawayMgmt.jsp" />
+    </screen>
+    
+    <screen name="WHPutawayMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinputaway/jsp/WHPutawayMgmtGS.jsp" />
+    </screen>
+    
+    <screen name="WHPutawayMgmt_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whinputaway/jsp/WHPutawayMgmt_1GS.jsp" />
+    </screen>
+    <!-- Nam Tran (E) -->
+	
+	<!-- Khoa.Nguyen Start -->
+    <screen name="WHOutbkList" >
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whoutbooking/jsp/WHOutbkList.jsp" />
+    </screen>
+    
+    <screen name="searchWHOutbkListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whoutbooking/jsp/searchWHOutbkListGS.jsp" />
+    </screen>
+    
+    <screen name="OthCostMgmt" >
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/rate/jsp/OthCostMgmt.jsp" />
+    </screen>
+    
+    <screen name="searchOthCostMgmtListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/rate/jsp/searchOthCostMgmtListGS.jsp" />
+    </screen>
+    <screen name="saveOthCostMgmtGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/rate/jsp/saveOthCostMgmtGS.jsp" />
+    </screen>
+    <screen name="deleteOthCostMgmtGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/rate/jsp/deleteOthCostMgmtGS.jsp" />
+    </screen>
+    <screen name="searchRateInfoForOthCostGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/rate/jsp/searchRateInfoForOthCostGS.jsp" />
+    </screen>
+    <!-- Khoa.Nguyen End -->
+    <!-- WHLocMgmt (S) -->
+    <screen name="WHLocMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whloc/jsp/WHLocMgmt.jsp" />
+    </screen>
+    
+    <screen name="WHLocMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whloc/jsp/WHLocMgmtGS.jsp" />
+    </screen>
+    <screen name="WHLocMgmt_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whloc/jsp/WHLocMgmt_1GS.jsp" />
+    </screen>
+    <screen name="WHLocMgmt_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whloc/jsp/WHLocMgmt_2GS.jsp" />
+    </screen>
+    <screen name="WHLocMgmt_3GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whloc/jsp/WHLocMgmt_3GS.jsp" />
+    </screen>
+    <screen name="WHLocMgmt_4GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whloc/jsp/WHLocMgmt_4GS.jsp" />
+    </screen>
+    <screen name="WHLocMgmt_5GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whloc/jsp/WHLocMgmt_5GS.jsp" />
+    </screen>
+    <!-- WHLocMgmt (E) -->
+    
+     <!-- WaveMgmt (S) -->
+    <screen name="WaveMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/whoutwave/jsp/WaveMgmt.jsp" />
+    </screen>
+    
+    <screen name="WaveMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutwave/jsp/WaveMgmtGS.jsp" />
+    </screen>
+     <screen name="WaveMgmt_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutwave/jsp/WaveMgmt_1GS.jsp" />
+    </screen>
+    <screen name="WaveMgmt_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutwave/jsp/WaveMgmt_2GS.jsp" />
+    </screen>
+    <screen name="WaveMgmt_3GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutwave/jsp/WaveMgmt_3GS.jsp" />
+    </screen>
+    <screen name="WaveMgmt_4GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutwave/jsp/WaveMgmt_4GS.jsp" />
+    </screen>
+    <screen name="WaveMgmt_5GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutwave/jsp/WaveMgmt_5GS.jsp" />
+    </screen>
+    <screen name="WaveMgmt_6GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutwave/jsp/WaveMgmt_6GS.jsp" />
+    </screen>
+    <screen name="WaveMgmt_7GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/whoutwave/jsp/WaveMgmt_7GS.jsp" />
+    </screen>
+    <!--WaveMgmt (E)  -->
+    
+    <!-- WHAllcStrg (S) -->
+    <screen name="WHAllcStrg">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WHAllcStrg.jsp" />
+    </screen>
+    <screen name="searchWHAllcStrgListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WHAllcStrgGS.jsp" />
+    </screen>
+    <!-- WHAllcStrg (E) -->
+    
+    <!-- WHInList (S) -->
+	<screen name="WHInList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/WHInList.jsp" />
+    </screen>
+    <screen name="WHInListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/WHInListGS.jsp" />
+    </screen>
+    <!-- WHInList (E) -->
+    <!-- WHInWorkSht (S) -->
+    <screen name="WHInWorkSht" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/WHInWorkSht.jsp" />
+    </screen>
+    <screen name="searchWHInWorkShtInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/WHInWorkShtGS.jsp" />
+    </screen>
+    <screen name="removeWHInWorkShtInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/WHInWorkShtGS.jsp" />
+    </screen>
+    <screen name="saveWHInWorkShtInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/WHInWorkShtGS.jsp" />
+    </screen>
+    <!-- WHInWorkSht (E) -->
+    
+    <!-- Inbounnd Booking Mgmt New Tin.Luong 20160905 (S) -->
+    <screen name="WHInMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/WHInMgmt.jsp" />
+    </screen>
+    <screen name="searchWHInMgmtListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/searchWHInMgmtListGS.jsp" />
+    </screen>
+    <screen name="searchWHInMgmtInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/searchWHInMgmtInfoGS.jsp" />
+    </screen>
+    <screen name="saveWHInMgmtLongTransactionGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/saveWHInMgmtLongTransactionGS.jsp" />
+    </screen>
+    <screen name="cancelWHInMgmtBookingGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/cancelWHInMgmtBookingGS.jsp" />
+    </screen>
+    <screen name="cancelWHInMgmtCompleteGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/cancelWHInMgmtCompleteGS.jsp" />
+    </screen>
+    <screen name="searchWHInMgmtExcelListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/searchWHInMgmtExcelListGS.jsp" />
+    </screen>
+    <screen name="removeFileWHInMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/removeFileWHInMgmtGS.jsp" />
+    </screen>
+    <!-- Inbounnd Booking Mgmt New Tin.Luong 20160905 (E) -->
+    <!-- WHOutMgmt (S) -->
+    <screen name="WHOutMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WHOutMgmt.jsp" />
+    </screen>
+    <screen name="searchWHOutMgmtListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/searchWHOutMgmtListGS.jsp" />
+    </screen>
+    <screen name="searchWHOutMgmtInfoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/searchWHOutMgmtInfoGS.jsp" />
+    </screen>
+    <screen name="saveWHOutMgmtLongTransactionGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/saveWHOutMgmtLongTransactionGS.jsp" />
+    </screen>
+    <screen name="cancelWHOutMgmtBookingLongTransactionGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/cancelWHOutMgmtBookingLongTransactionGS.jsp" />
+    </screen>
+     <screen name="cancelWHOutMgmtCompleteGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/cancelWHOutMgmtCompleteGS.jsp" />
+    </screen>
+    <screen name="searchWHOutMgmtExcelListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/searchWHOutMgmtExcelListGS.jsp" />
+    </screen>
+    <screen name="removeFileWHOutMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/removeFileWHOutMgmtGS.jsp" />
+    </screen>
+    <screen name="WHOutMgmtPrintOption" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WHOutMgmtPrintOption.jsp" />
+    </screen>
+    <!-- WHOutMgmt (E) -->
+    <!--Outbound List-->
+    <screen name="WHOutList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WHOutList.jsp" />
+    </screen>
+    <screen name="searchWHOutListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/searchWHOutListGS.jsp" />
+    </screen>
+    <!--Outbound List-->
+    <!-- WHInMgmtPrintOption (S) -->
+	<screen name="WHInMgmtPrintOption" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/inboundmanagement/jsp/WHInMgmtPrintOption.jsp" />
+    </screen>
+    <!-- WHInMgmtPrintOption (E) -->
+    
+    <!-- WaveSmpMgmt (S) -->
+	<screen name="WaveSmpMgmt">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmt.jsp" />
+    </screen>
+	<screen name="searchWaveSimpleMgmtListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtSearchListTabGS.jsp" />
+    </screen>
+    <screen name="searchWaveSimpleNewOrderListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtSearchWaveTabGS.jsp" />
+    </screen>
+    <screen name="searchWaveSimpleNewOrderListReqWobBkNoGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtSearchWaveTabGS.jsp" />
+    </screen>
+    <screen name="saveWaveSimpleMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtReturnValue.jsp" />
+    </screen>
+    <screen name="saveAutoWaveAllocLongTransactionGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtReturnValue.jsp" />
+    </screen>
+    <screen name="cancelWaveSimpleMgmtAllocAllLongTransactionGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtReturnValue.jsp" />
+    </screen>
+    <screen name="cancelWaveSimpleMgmtAllocPartialLongTransactionGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtReturnValue.jsp" />
+    </screen>
+    <screen name="cancelWaveSimpleMgmtAllLongTransactionGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtReturnValue.jsp" />
+    </screen>
+    <screen name="cancelWaveSimpleMgmtPartialLongTransactionGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtReturnValue.jsp" />
+    </screen>
+    <screen name="deleteWaveSimpleMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtReturnValue.jsp" />
+    </screen>
+    <screen name="saveAllocPickingLongTransactionGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtReturnValue.jsp" />
+    </screen>
+    <screen name="saveAllocShippingLongTransactionGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtReturnValue.jsp" />
+    </screen>
+    <screen name="searchWaveSimpleMgmtGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtGS.jsp" />
+    </screen>
+    <!-- WaveSmpMgmt (E) -->
+</screen-definitions>

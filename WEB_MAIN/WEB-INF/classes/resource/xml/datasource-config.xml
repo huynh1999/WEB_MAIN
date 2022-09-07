@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasource-config xmlns="http://www.cyberlogictec.com/fw/datasource-config">
+		<!--    DataSource적용 여부  "true" or "false"  -->
+		<devided-datasource-use>true</devided-datasource-use>
+		<!--    분리 data source 정의    -->
+		<devided-datasource-definition>
+				<devided-code>DEFAULT</devided-code>
+				<devided-datasource-name>jdbc/OPUSFWD</devided-datasource-name>
+				<devided-datasource-description>FIS DataSource</devided-datasource-description>
+		</devided-datasource-definition>
+</datasource-config>

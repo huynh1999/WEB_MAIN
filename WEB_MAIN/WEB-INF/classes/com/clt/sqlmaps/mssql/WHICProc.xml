@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="WHICMapper">
+	<!-- 입고 Reinstate (MAKE_TL_WH_RCV_REINSTAT_PRC) 프로시저 호출 -->
+	<typeAlias alias="ProcWHICMakeRcvReinstateVO" type="com.clt.apps.fis.wms.whinboundcomplete.dto.ProcWHICMakeRcvReinstateVO"/>
+	<procedure id="callWHICMakeRcvReinstateProc" parameterClass="ProcWHICMakeRcvReinstateVO" resultClass="java.lang.String" >
+      { CALL dbo.PKG_MAKE_TL_WH_RCV_REINSTAT_PRC (#wib_in_no#
+														,#org_cd#
+														,#user_id#
+                                                		,''
+                                                		,'')}
+    </procedure>
+    
+	<!-- 입고 Cancel (MAKE_TL_WH_RCV_CANCEL_PRC) 프로시저 호출 -->
+	<typeAlias alias="ProcWHICMakeRcvCancelVO" type="com.clt.apps.fis.wms.whinboundcomplete.dto.ProcWHICMakeRcvCancelVO"/>
+	<procedure id="callWHICMakeRcvCancelProc" parameterClass="ProcWHICMakeRcvCancelVO" resultClass="java.lang.String">
+     { CALL dbo.PKG_MAKE_TL_WH_RCV_CANCEL_PRC (#wib_in_no#
+														,#org_cd#
+														,#user_id#
+                                                		,''
+                                                		,'')}
+      
+    </procedure>
+</sqlMap>

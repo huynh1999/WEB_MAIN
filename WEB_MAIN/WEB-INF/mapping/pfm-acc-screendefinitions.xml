@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+    
+    <!-- Agent Statement   -->
+    <screen name="PFM_ACC_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/acc/accounting/jsp/PFM_ACC_0020.jsp" />
+    </screen>
+    
+    <!-- Agent Statement   -->
+    <screen name="PFM_ACC_0020_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/acc/accounting/jsp/PFM_ACC_0020_1GS.jsp" />
+    </screen>
+    
+    <!-- Agent Statement   -->
+    <screen name="PFM_ACC_0020_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/acc/accounting/jsp/PFM_ACC_0020_2GS.jsp" />
+    </screen>
+    
+    <!-- Local Statement   -->
+    <screen name="PFM_ACC_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/acc/accounting/jsp/PFM_ACC_0030.jsp" />
+    </screen>
+    
+    <!-- Local Statement   -->
+    <screen name="PFM_ACC_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/acc/accounting/jsp/PFM_ACC_0030GS.jsp" />
+    </screen>
+    <!-- OFVFOUR-7394: [Webtrans] Adding grid for Invoice list by customer -->
+    <screen name="PFM_ACC_0030_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/acc/accounting/jsp/PFM_ACC_0030_2GS.jsp" />
+    </screen>
+    
+    <!-- Revenue/Cost Report   -->
+    <screen name="PFM_ACC_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/acc/accounting/jsp/PFM_ACC_0040.jsp" />
+    </screen>
+    
+    <!-- Income Statement   -->
+    <screen name="PFM_ACC_0050">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/acc/accounting/jsp/PFM_ACC_0050.jsp" />
+    </screen>
+    
+    <!-- Income Statement   -->
+    <screen name="PFM_ACC_0050GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/acc/accounting/jsp/PFM_ACC_0050GS.jsp" />
+    </screen>
+    
+</screen-definitions>

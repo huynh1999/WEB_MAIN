@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+
+	<display-name>CyberlogitecFW</display-name>
+
+	<context-param>
+		<param-name>cltPath</param-name>
+		<param-value>file:/C:/CLT/OPUS_FWD_2014/WEB_MAIN</param-value>
+	</context-param>
+
+    <context-param>
+        <param-name>StingerConfig</param-name>
+        <param-value>/WEB-INF/security/</param-value>
+    </context-param>
+
+	<filter>
+        <filter-name>UrlRewriteFilter</filter-name>
+        <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
+    </filter>
+    
+    <filter-mapping>
+        <filter-name>UrlRewriteFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>LoginSessionCheck</filter-name>
+        <filter-class>com.clt.syscommon.management.config.SessionCheckFilter</filter-class>
+    </filter>
+        
+	<filter>
+        <filter-name>Set Character Encoding</filter-name>
+        <filter-class>com.clt.framework.component.util.CharacterEncoding</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>LoginSessionCheck</filter-name>
+        <url-pattern>*.clt</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>LoginSessionCheck</filter-name>
+        <url-pattern>/GateServlet.gsl</url-pattern>
+    </filter-mapping>
+	
+    <filter-mapping>
+        <filter-name>Set Character Encoding</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+	<listener>
+		<listener-class>com.clt.framework.core.controller.ApplicationComponentManager</listener-class>
+	</listener>
+
+	<listener>
+		<listener-class>com.clt.syscommon.management.config.FisConfigListener</listener-class>
+	</listener>
+	
+	<!-- 이미지 조회 공통모듈 -->
+	<servlet>
+		<servlet-name>ImageViewer</servlet-name>
+        <servlet-class>com.clt.syscommon.response.ImageViewer</servlet-class>
+        <init-param>
+            <param-name>cltPath</param-name>
+            <param-value>file:/C:/CLT/BACKUP/opus_repo/fwd_repo/ofcfile</param-value>
+        </init-param>
+    </servlet>	
+    
+	<!-- 리포트 용 이미지 조회 공통모듈(한글 인코딩 관련) -->
+	<servlet>
+		<servlet-name>RptImageViewer</servlet-name>
+        <servlet-class>com.clt.syscommon.response.RptImageViewer</servlet-class>
+        <init-param>
+            <param-name>cltPath</param-name>
+            <param-value>file:/C:/CLT/BACKUP/opus_repo/fwd_repo/ofcfile</param-value>
+        </init-param>
+    </servlet>	    
+	
+
+	<!-- 공통 다운로드   -->
+	<servlet>
+		<servlet-name>GateServlet</servlet-name>
+        <servlet-class>com.clt.syscommon.response.GateServlet</servlet-class>
+        <init-param>
+            <param-name>cltPath</param-name>
+            <param-value>file:/C:/CLT/OPUS_FWD_2014/WEB_MAIN</param-value>
+        </init-param>
+    </servlet>
+    
+	<!-- 공통 다운로드 (No Session  -->
+	<servlet>
+		<servlet-name>GateServletNSession</servlet-name>
+        <servlet-class>com.clt.syscommon.response.GateServletNSession</servlet-class>
+        <init-param>
+            <param-name>cltPath</param-name>
+            <param-value>file:/C:/CLT/OPUS_FWD_2014/WEB_MAIN</param-value>
+        </init-param>
+    </servlet>    
+			   
+	<servlet>
+		<servlet-name>TemplateServlet</servlet-name>
+		<servlet-class>com.clt.framework.core.controller.TemplateServlet</servlet-class>
+		<init-param>
+			<param-name>locales</param-name>
+			<param-value>us</param-value>
+		</init-param>
+		<init-param>
+			<param-name>default_locale</param-name>
+			<param-value>us</param-value>
+		</init-param>
+		<init-param>
+			<param-name>cache_previous_screen_attributes</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<init-param>
+			<param-name>cache_previous_screen_parameters</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<init-param>
+			<param-name>defaultTemplate</param-name>
+			<param-value>/WEB-INF/mapping/template.jsp</param-value>
+		</init-param>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<servlet>
+		<servlet-name>webTierEntryPoint</servlet-name>
+		<servlet-class>com.clt.framework.core.controller.MainServlet</servlet-class>
+		<init-param>
+			<param-name>default_locale</param-name>
+			<param-value>us</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>TemplateServlet</servlet-name>
+		<url-pattern>*.screen</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>webTierEntryPoint</servlet-name>
+		<url-pattern>*.clt</url-pattern>
+	</servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>webTierEntryPoint</servlet-name>
+        <url-pattern>*.usr</url-pattern>
+    </servlet-mapping>
+    
+	<servlet-mapping>
+		<servlet-name>ImageViewer</servlet-name>
+		<url-pattern>/ImageViewer</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>RptImageViewer</servlet-name>
+		<url-pattern>/RptImageViewer</url-pattern>
+	</servlet-mapping>
+	
+    <servlet-mapping>
+        <servlet-name>GateServlet</servlet-name>
+        <url-pattern>/GateServlet.gsl</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>GateServletNSession</servlet-name>
+        <url-pattern>/GateServletNSession.gsl</url-pattern>
+    </servlet-mapping>    
+    
+    <servlet-mapping>
+		<servlet-name>webTierEntryPoint</servlet-name>
+		<url-pattern>*.fax</url-pattern>
+	</servlet-mapping>
+	
+	
+	<session-config>
+		<session-timeout>120</session-timeout>
+	</session-config>
+
+    <mime-mapping>
+        <extension>ico</extension>
+        <mime-type>image/x-icon</mime-type>
+    </mime-mapping>
+	
+	<welcome-file-list>
+    	<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+
+	<error-page>
+		<error-code>403</error-code>
+		<location>/NoAuthority.screen</location>
+	</error-page>
+
+	<error-page>
+		<error-code>404</error-code>
+		<location>/NotFound.screen</location>
+	</error-page>
+
+	<error-page>
+		<error-code>501</error-code>
+		<location>/NotService.screen</location>
+	</error-page>
+
+    <!-- Struts Tag Library Descriptors   -->
+	<taglib>
+	  <taglib-uri>struts-bean</taglib-uri>
+	  <taglib-location>/WEB-INF/tld/struts-bean.tld</taglib-location>
+	</taglib>
+	
+	<taglib>
+	  <taglib-uri>struts-html</taglib-uri>
+	  <taglib-location>/WEB-INF/tld/struts-html.tld</taglib-location>
+	</taglib>
+	
+	<taglib>
+	  <taglib-uri>struts-logic</taglib-uri>
+	  <taglib-location>/WEB-INF/tld/struts-logic.tld</taglib-location>
+	</taglib>
+
+	<taglib>
+	  <taglib-uri>clt-rowset</taglib-uri>
+	  <taglib-location>/WEB-INF/tld/clt-rowset.tld</taglib-location>
+	</taglib>
+
+	<taglib>
+      <taglib-uri>clt-paging</taglib-uri>
+      <taglib-location>/WEB-INF/tld/clt-paging.tld</taglib-location>
+    </taglib>
+	
+    <taglib>
+      <taglib-uri>clt-writer</taglib-uri>
+      <taglib-location>/WEB-INF/tld/clt-writer.tld</taglib-location>
+    </taglib>
+	
+    <!-- DataSource Config.   -->
+	<resource-ref>
+		<res-ref-name>jdbc/OPUSFWD</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+	</resource-ref>
+</web-app>

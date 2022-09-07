@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <screen name="EDI_ACL_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/acl/jsp/EDI_ACL_0010.jsp"/>
+    </screen>
+
+    <screen name="EDI_ACL_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/acl/jsp/EDI_ACL_0010GS.jsp"/>
+    </screen>
+    
+    <screen name="EDI_ACL_0010_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/acl/jsp/EDI_ACL_0010_1GS.jsp"/>
+    </screen>
+    
+    <!--첨부파일 등록  -->
+    <screen name="EDI_ACL_0020" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/acl/jsp/EDI_ACL_0020.jsp" />
+    </screen>
+    
+</screen-definitions>

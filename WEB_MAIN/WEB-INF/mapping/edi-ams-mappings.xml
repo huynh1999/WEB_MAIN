@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+	<!--  Air    -->
+    <url-mapping url="EDI_AMS_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.ams.air.event.EDI_AMS_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_AMS_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="EDI_AMS_0010GS.clt" screen="EDI_AMS_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.ams.air.event.EDI_AMS_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="EDI_AMS_0010_1GS.clt" screen="EDI_AMS_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.ams.air.event.EDI_AMS_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <url-mapping url="EDI_AMS_0010_2GS.clt" screen="EDI_AMS_0010_2GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.ams.air.event.EDI_AMS_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.edi.ams.air.event.EdiAmsAirEvent</event-class>
+        <service-action-class>com.clt.apps.fis.edi.ams.air.EdiAmsAirSC</service-action-class>
+    </event-mapping>
+    
+</mappings>

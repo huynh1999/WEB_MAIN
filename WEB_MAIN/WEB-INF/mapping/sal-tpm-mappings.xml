@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### MDM관련 프로그램  Start ####  -->
+    <!-- Partner 등록   -->
+    <url-mapping url="SAL_TPM_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TPM_0010AJ.clt" screen="SAL_TPM_0010AJ.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0010GS.clt" screen="SAL_TPM_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Partner 조회   -->
+    <url-mapping url="SAL_TPM_0011GS.clt" screen="SAL_TPM_0011GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0011HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Partner 조회   -->
+    <url-mapping url="SAL_TPM_0012GS.clt" screen="SAL_TPM_0012GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0012HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Partner 조회   -->
+    <url-mapping url="SAL_TPM_0013GS.clt" screen="SAL_TPM_0013GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0013HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0016GS.clt" screen="SAL_TPM_0016GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0016HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0017GS.clt" screen="SAL_TPM_0017GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0017HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0018GS.clt" screen="SAL_TPM_0018GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0018HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0019GS.clt" screen="SAL_TPM_0019GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0019HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0014.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0014HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0014.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Partner 조회   -->
+    <url-mapping url="SAL_TPM_0014GS.clt" screen="SAL_TPM_0014GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0013HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Partner Search   -->
+    <url-mapping url="SAL_TPM_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0020.screen"/>
+            <handler-result result="EXCEL"   screen="ExcelDownload.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TPM_0020GS.clt" screen="SAL_TPM_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Contact Information List 조회   -->
+    <url-mapping url="SAL_TPM_0021GS.clt" screen="SAL_TPM_0021GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0021HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <url-mapping url="SAL_TPM_0011.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0011HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0011.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	  
+    <event-mapping>
+        <event-class>com.clt.apps.fis.sal.tpm.tradepartner.event.TradePartnerEvent</event-class>
+        <service-action-class>com.clt.apps.fis.sal.tpm.tradepartner.TradePartnerSC</service-action-class>
+    </event-mapping>
+    <!--#### MDM관련 프로그램 End ####  -->
+    
+    <!-- Partner 등록   -->
+    <url-mapping url="SAL_TPM_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0050.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TPM_0050GS.clt" screen="SAL_TPM_0050GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0050HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Pre Pick-Up Delivery   -->
+    <url-mapping url="SAL_TPM_0070.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0070HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0070.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TPM_0070GS.clt" screen="SAL_TPM_0070GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0070HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="SAL_TPM_0070AJ.clt" screen="SAL_TPM_0070AJ.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0070HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="SAL_TPM_0070_1GS.clt" screen="SAL_TPM_0070_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0070HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0080.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0080HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0080.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TPM_0080GS.clt" screen="SAL_TPM_0080GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0080HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Partner 병합   -->
+    <url-mapping url="SAL_TPM_0090.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0090HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0090.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.sal.tpm.tradepartner.event.TradePartnerEvent</event-class>
+        <service-action-class>com.clt.apps.fis.sal.tpm.tradepartner.TradePartnerSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Sales Daily Report Entry   -->
+    <url-mapping url="SAL_TPM_0100.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0100HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0100.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0100GS.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0100HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0100GS.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0101.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0101HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0100.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Sales Daily Report List   -->
+    <url-mapping url="SAL_TPM_0110.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0110HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0110.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0110GS.clt" screen="SAL_TPM_0110GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0110HTMLAction</web-action-class>
+    </url-mapping>
+
+	
+	<url-mapping url="SAL_TPM_0100.usr" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0100HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0100.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0100GS.usr" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0100HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0100GS.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0101.usr" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0101HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0100.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Sales Daily Report List   -->
+    <url-mapping url="SAL_TPM_0110.usr" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0110HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0110.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0110GS.usr" screen="SAL_TPM_0110GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0110HTMLAction</web-action-class>
+    </url-mapping>
+        
+    <!-- Trade partner credit entry  -->
+    <url-mapping url="SAL_TPM_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0030GS.clt" screen="SAL_TPM_0030GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0030HTMLAction</web-action-class>
+    </url-mapping>
+ 
+    <url-mapping url="SAL_TPM_0031GS.clt" screen="SAL_TPM_0031GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0030HTMLAction</web-action-class>
+    </url-mapping>
+           
+    <!-- Trade partner  ANNUAL BOND -->
+    <url-mapping url="SAL_TPM_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TPM_0040GS.clt" screen="SAL_TPM_0040GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0040HTMLAction</web-action-class>
+    </url-mapping>
+        
+   
+    <url-mapping url="SAL_TPM_0120.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0120HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0120.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TPM_0120GS.clt" screen="SAL_TPM_0120GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0120HTMLAction</web-action-class>
+    </url-mapping>    
+   
+    <!-- Trade partner Merge History -->
+    <url-mapping url="SAL_TPM_0130.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0130HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0130.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TPM_0130GS.clt" screen="SAL_TPM_0130GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0130HTMLAction</web-action-class>
+    </url-mapping>    
+    
+    <!-- Trade Partner Free Day Entry -->
+    <url-mapping url="SAL_TPM_0140.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0140HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TPM_0140.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Trade Partner Free Day Entry - Header Grid -->
+    <url-mapping url="SAL_TPM_0140_1GS.clt" screen="SAL_TPM_0140_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0140HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Trade Partner Free Day Entry - Detail Grid -->
+    <url-mapping url="SAL_TPM_0140_2GS.clt" screen="SAL_TPM_0140_2GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tpm.tradepartner.event.SAL_TPM_0140HTMLAction</web-action-class>
+    </url-mapping>        
+</mappings>

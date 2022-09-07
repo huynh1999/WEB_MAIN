@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+ 
+	<!--#### Consolidation Start ####-->    
+    <url-mapping url="SEE_BKG_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEE_BKG_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping> 
+    
+    <url-mapping url="SEE_BKG_0010GS.clt" screen="SEE_BKG_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0010HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <url-mapping url="SEE_BKG_0010_1GS.clt" screen="SEE_BKG_0010_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0010HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <url-mapping url="SEE_BKG_0010_2GS.clt" screen="SEE_BKG_0010_2GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0010HTMLAction</web-action-class>
+    </url-mapping> 
+    <url-mapping url="SEE_BKG_0010_3GS.clt" screen="SEE_BKG_0010_3GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0010HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <url-mapping url="SEE_BKG_0010AJ.clt" screen="SEE_BKG_0010_AJ.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0010HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <url-mapping url="SEE_BKG_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEE_BKG_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>    
+    
+    <url-mapping url="SEE_BKG_0020GS.clt" screen="SEE_BKG_0020GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0020HTMLAction</web-action-class>
+    </url-mapping>     
+    <!--#### Consolidation End ####-->
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.see.bmd.booking.event.SeeBookingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.see.bmd.booking.SeeBookingSC</service-action-class>
+    </event-mapping>
+    
+<!-- #1432 [PATENT] 0215_16 BOOKING SPLIT-COMBINE FUNCTION -->
+    <!-- Booking Split -->
+    <url-mapping url="SEE_BKG_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEE_BKG_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/> 
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SEE_BKG_0030GS.clt" screen="SEE_BKG_0030GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0030HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="SEE_BKG_0030_2GS.clt" screen="SEE_BKG_0030_2GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0030HTMLAction</web-action-class>
+    </url-mapping>   
+         <url-mapping url="SEE_BKG_0030_3GS.clt" screen="SEE_BKG_0030_3GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0030HTMLAction</web-action-class>
+    </url-mapping> 
+    <url-mapping url="SEE_BKG_0030_4GS.clt" screen="SEE_BKG_0030_4GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0030HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="SEE_BKG_0030_5GS.clt" screen="SEE_BKG_0030_5GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0030HTMLAction</web-action-class>
+    </url-mapping>    
+    
+    <!-- Booking Combine -->
+    <url-mapping url="SEE_BKG_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEE_BKG_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/> 
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SEE_BKG_0040GS.clt" screen="SEE_BKG_0040GS.screen" >
+        <web-action-class>com.clt.apps.fis.see.bmd.booking.event.SEE_BKG_0040HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.see.bmd.booking.event.SeeBookingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.see.bmd.booking.SeeBookingSC</service-action-class>
+    </event-mapping>    
+    
+</mappings>

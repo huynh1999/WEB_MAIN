@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <url-mapping url="MGT_ALT_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.alt.altmgt.event.MGT_ALT_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_ALT_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_ITF_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.alt.altmgt.event.MGT_ITF_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_ITF_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_ITF_0010GS.clt" screen="MGT_ITF_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.alt.altmgt.event.MGT_ITF_0010HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="MGT_ITF_0010_2GS.clt" screen="MGT_ITF_0010_2GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.alt.altmgt.event.MGT_ITF_0010HTMLAction</web-action-class>
+    </url-mapping>
+        
+    <url-mapping url="MGT_ITF_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.alt.altmgt.event.MGT_ITF_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_ITF_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_ITF_0020GS.clt" screen="MGT_ITF_0020GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.alt.altmgt.event.MGT_ITF_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MGT_POP_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.alt.altmgt.event.MGT_POP_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="MGT_POP_0010.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="MGT_ALT_0011GS.clt" screen="MGT_ALT_0011GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.alt.altmgt.event.MGT_ALT_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MGT_ALT_0012GS.clt" screen="MGT_ALT_0012GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.alt.altmgt.event.MGT_ALT_0020HTMLAction</web-action-class>
+    </url-mapping>
+   
+    <event-mapping>                                         
+        <event-class>com.clt.apps.fis.mgt.alt.altmgt.event.MgtAltMgtEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mgt.alt.altmgt.MgtAltMgtSC</service-action-class>
+    </event-mapping>
+
+</mappings>

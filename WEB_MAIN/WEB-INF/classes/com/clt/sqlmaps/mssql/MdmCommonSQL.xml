@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.common">
+	
+	<!-- Title : Trade container select    -->
+	<!-- author : 이광훈    -->
+	<!-- since: 2009.01.16   -->
+    <select id="selectContainer_LIST" resultClass="com.clt.apps.fis.mdm.code.commodity.dto.CmdtCdVO">
+        SELECT 
+		 cmdt_cd,		 cmdt_grp_cd,		 cmdt_nm
+		FROM tb_cmdt_cd
+		WHERE delt_flg ='N'
+		<dynamic prepend="AND">
+		
+		<isNotNull prepend="AND" property="s_commodity_code">
+			cmdt_cd like #s_commodity_code#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_cmdt_grp_cd">
+			cmdt_grp_cd like #s_cmdt_grp_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_key_word">
+			cmdt_nm like #s_key_word#
+		</isNotNull>
+			
+		</dynamic>
+		
+		ORDER  BY cmdt_cd
+		
+		limit #beginIdx# , #endIdx#	    
+		
+	</select>
+	
+    
+    <!-- Title : Major Number select    -->
+    <!-- author : 정원영    -->
+    <!-- since: 2009.02.05   -->
+    <!-- Major Number를 채번한다.  -->
+    <select id="getMajorNumber" resultClass="String" parameterClass="java.util.HashMap">
+        select fc_get_seq(#no_tp_cd#, #proc_usrid#) AS majornumber
+    </select>
+
+</sqlMap>

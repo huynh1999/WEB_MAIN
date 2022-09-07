@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="mobinvt.sql">
+
+	<select id="selectInvMoveList" parameterClass="com.clt.apps.fis.mob.invt.dto.MoveParamVO" resultClass="com.clt.apps.fis.mob.invt.dto.MoveCmplVO">
+	
+	        select 
+	            PL.PLAN_NO            AS PLAN_NO
+	            ,count(PL.PLAN_NO)    AS SKU
+	            ,CONVERT(numeric,(sum(PD.PL_TO_EA_QTY)))      AS TO_EA_QTY   
+	            ,CONVERT(numeric,(sum(PD.PL_FR_EA_QTY)))      AS FR_EA_QTY    
+	            ,CONVERT(VARCHAR(11),  PL.RGST_LOC_DT,   110) AS PLAN_DT        
+	            ,dbo.TL_GET_COMM_NM('WPS', PL.PLAN_STS_CD) AS PLAN_STS_CD_NM       
+	        from TL_WH_INV_MOVE_PLAN PL,
+	             TL_WH_INV_MOVE_PLAN_DTL PD 
+	       WHERE PL.PLAN_NO = PD.PLAN_NO
+  			 AND PD.WH_CD =  #userInfo.def_wh_cd#
+	         and PL.PLAN_STS_CD ='P'  
+			
+			<isNotEmpty property="ctrtNo">
+	         AND PD.CTRT_NO =#ctrtNo#
+			</isNotEmpty>
+			<isNotEmpty property="planDate">
+	         AND convert(varchar, PL.RGST_LOC_DT, 112) = #planDate#
+	         </isNotEmpty>
+	             
+	       GROUP BY PL.PLAN_NO,PL.RGST_LOC_DT,PL.PLAN_STS_CD
+             
+	</select>
+
+	<select id="selectInvMoveItemList" parameterClass="com.clt.apps.fis.mob.invt.dto.MoveParamVO" resultClass="com.clt.apps.fis.mob.invt.dto.MoveItemCmplVO">
+	SELECT T.*
+	     , 'MV' AS MD
+	     <![CDATA[ 
+	       , CASE WHEN (T.FR_EA_QTY > T.STOCK_QTY) AND (T.TO_SUM_EA_QTY > T.STOCK_QTY) THEN 'N' 
+	                       WHEN (T.FR_CBM > T.STOCK_CBM) AND (T.TO_SUM_CBM > T.STOCK_CBM) THEN 'N'
+	                       WHEN (T.FR_CBF > T.STOCK_CBF) AND (T.TO_SUM_CBF > T.STOCK_CBF) THEN 'N'
+	                       WHEN (T.FR_GRS_KGS > T.STOCK_GRS_KGS) AND (T.TO_SUM_GRS_KGS > T.STOCK_GRS_KGS) THEN 'N'
+	                       WHEN (T.FR_GRS_LBS > T.STOCK_GRS_LBS) AND (T.TO_SUM_GRS_LBS > T.STOCK_GRS_LBS) THEN 'N'
+	                       WHEN (T.FR_NET_KGS > T.STOCK_NET_KGS) AND (T.TO_SUM_NET_KGS > T.STOCK_NET_KGS) THEN 'N'
+	                       WHEN (T.FR_NET_LBS > T.STOCK_NET_LBS) AND (T.TO_SUM_NET_LBS > T.STOCK_NET_LBS) THEN 'N'
+	                       ELSE 'Y' END AS EDIT_YN 
+	      ]]>
+	  FROM ( 	
+		SELECT 
+			PD.ITEM_SYS_NO + '|' + ISNULL(PD.WIB_BK_NO,'') + '|' + ISNULL(PD.PO_SYS_NO,'') + '|' + ISNULL(PD.LOT_ID,'') + '|' + ISNULL(PD.PL_FR_WH_LOC_CD,'') 
+				+ '|' + ISNULL(PD.ITEM_SER_NO,'') + '|' + ISNULL(PD.LIC_PLAT_NO,'') + '|' + ISNULL(PD.PO_NO,'') AS MERGE_KEY		
+			,PD.PLAN_NO
+			,PD.PLAN_SEQ
+			,PD.CTRT_NO
+			,PD.ITEM_CD
+			,PD.ITEM_NM
+			,CONVERT(numeric,(PD.PL_TO_EA_QTY)) AS PL_TO_EA_QTY
+			,PD.PL_FR_WH_LOC_CD
+			,dbo.TL_GET_WH_LOC_NM(PD.WH_CD,PD.PL_FR_WH_LOC_CD) AS FR_WH_LOC_CD_NM      
+			,PD.LOT_ID
+			,LT.LOT_ATTRIB_02 AS LOT_NO
+			,LT.LOT_ATTRIB_04 AS LOT_4
+			,LT.LOT_ATTRIB_05 AS LOT_5
+			,PD.LIC_PLAT_NO
+			,CONVERT(numeric,(PD.PL_FR_EA_QTY)) AS PL_FR_EA_QTY 
+			,PD.ITEM_SYS_NO
+			,PD.WH_CD    	
+			,PD.PL_TO_WH_LOC_CD as PL_TO_WH_LOC_CD	
+			,dbo.TL_GET_WH_LOC_NM(PD.WH_CD,PD.PL_TO_WH_LOC_CD) AS PL_TO_WH_LOC_NM      	  
+			,PD.PL_TO_WH_LOC_PROP_CD 	
+			,'' as P_MOVE_DATE		   
+					
+			, PD.WIB_BK_NO
+			, PD.PO_SYS_NO		
+			, PD.PL_FR_EA_QTY AS FR_EA_QTY	
+			, ISNULL(INL.IN_QTY, 0) - ISNULL(INL.ALLC_QTY, 0) AS STOCK_QTY
+			, SUM(ISNULL(PD.PL_TO_EA_QTY,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_EA_QTY
+	        , SUM(ISNULL(PD.PL_TO_CBM,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_CBM
+	        , SUM(ISNULL(PD.PL_TO_CBF,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_CBF
+	        , SUM(ISNULL(PD.PL_TO_GRS_KGS,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_GRS_KGS
+	        , SUM(ISNULL(PD.PL_TO_GRS_LBS,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_GRS_LBS
+	        , SUM(ISNULL(PD.PL_TO_NET_KGS,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_NET_KGS
+	        , SUM(ISNULL(PD.PL_TO_NET_LBS,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_NET_LBS
+			 <![CDATA[ 
+			,CASE WHEN ISNULL(INL.IN_CBM, 0)     - ISNULL(INL.ALLC_CBM, 0)     < 0 THEN 0 ELSE ISNULL(INL.IN_CBM, 0)     - ISNULL(INL.ALLC_CBM, 0)     END AS STOCK_CBM
+			,CASE WHEN ISNULL(INL.IN_CBF, 0)     - ISNULL(INL.ALLC_CBF, 0)     < 0 THEN 0 ELSE ISNULL(INL.IN_CBF, 0)     - ISNULL(INL.ALLC_CBF, 0)     END AS STOCK_CBF
+			,CASE WHEN ISNULL(INL.IN_GRS_KGS, 0) - ISNULL(INL.ALLC_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(INL.IN_GRS_KGS, 0) - ISNULL(INL.ALLC_GRS_KGS, 0) END AS STOCK_GRS_KGS
+			,CASE WHEN ISNULL(INL.IN_GRS_LBS, 0) - ISNULL(INL.ALLC_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(INL.IN_GRS_LBS, 0) - ISNULL(INL.ALLC_GRS_LBS, 0) END AS STOCK_GRS_LBS
+			,CASE WHEN ISNULL(INL.IN_NET_KGS, 0) - ISNULL(INL.ALLC_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(INL.IN_NET_KGS, 0) - ISNULL(INL.ALLC_NET_KGS, 0) END AS STOCK_NET_KGS
+			,CASE WHEN ISNULL(INL.IN_NET_LBS, 0) - ISNULL(INL.ALLC_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(INL.IN_NET_LBS, 0) - ISNULL(INL.ALLC_NET_LBS, 0) END AS STOCK_NET_LBS
+			]]>
+			
+     	    /* Item Pack Master Level1 Info S */
+            , ISNULL(I.PKG_LV1_QTY, 0) AS PKG_LV1_QTY			      
+		    , ISNULL(I.LV1_CBM, 0) AS LV1_CBM
+		    , ISNULL(I.LV1_CBF, 0) AS LV1_CBF
+		    , ISNULL(I.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+		    , ISNULL(I.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+		    , ISNULL(I.LV1_NET_KGS, 0) AS LV1_NET_KGS
+		    , ISNULL(I.LV1_NET_LBS, 0) AS LV1_NET_LBS
+  	        /* Item Pack Master Level1 Info E */
+			, PD.PL_FR_CBM     AS FR_CBM
+			, PD.PL_FR_CBF     AS FR_CBF
+			, PD.PL_FR_GRS_KGS AS FR_GRS_KGS
+			, PD.PL_FR_GRS_LBS AS FR_GRS_LBS
+			, PD.PL_FR_NET_KGS AS FR_NET_KGS
+			, PD.PL_FR_NET_LBS AS FR_NET_LBS	
+		    , PD.PL_TO_CBM     AS TO_CBM
+		    , PD.PL_TO_CBF     AS TO_CBF
+		    , PD.PL_TO_GRS_KGS AS TO_GRS_KGS
+		    , PD.PL_TO_GRS_LBS AS TO_GRS_LBS
+		    , PD.PL_TO_NET_KGS AS TO_NET_KGS
+		    , PD.PL_TO_NET_LBS AS TO_NET_LBS							      			
+					
+				
+		FROM TL_WH_INV_MOVE_PLAN_DTL PD
+
+				   LEFT JOIN TL_WH_INV_LOC INL        
+				         ON PD.WIB_BK_NO = INL.WIB_BK_NO 
+				   		and PD.PO_SYS_NO = INL.PO_SYS_NO and PD.ITEM_SYS_NO = INL.ITEM_SYS_NO 
+				   		and PD.LOT_ID = INL.LOT_ID and PD.PL_FR_WH_LOC_CD = INL.WH_LOC_CD
+				   		AND ISNULL(PD.PO_NO,'') = ISNULL(INL.PO_NO,'')
+				   		AND ISNULL(PD.ITEM_SER_NO,'') = ISNULL(INL.ITEM_SER_NO,'')
+				   		AND ISNULL(PD.LIC_PLAT_NO,'') = ISNULL(INL.LIC_PLAT_NO,'')
+
+				
+			       LEFT JOIN TL_CTRT_CUST_ITEM_LOT LT   ON PD.CTRT_NO = LT.CTRT_NO and PD.ITEM_SYS_NO = LT.ITEM_SYS_NO and PD.LOT_ID = LT.LOT_ID
+			       LEFT JOIN TL_CTRT_CUST_ITEM I        ON PD.CTRT_NO = I.CTRT_NO and PD.ITEM_SYS_NO = I.ITEM_SYS_NO
+
+	   WHERE PD.PLAN_NO  = #plan_no#
+	   
+	      ) T
+	  ORDER BY T.WIB_BK_NO ASC
+	         , T.PO_SYS_NO ASC
+		     , T.ITEM_SYS_NO ASC
+		     , T.LOT_ID ASC
+		     , T.FR_WH_LOC_CD_NM ASC   
+             
+	</select>
+	
+	<select id="selectInvMoveDetail" parameterClass="com.clt.apps.fis.mob.invt.dto.MoveParamVO" resultClass="com.clt.apps.fis.mob.invt.dto.MoveItemCmplVO">
+	
+	SELECT  PD.CTRT_NO
+			,PD.PLAN_NO
+			,PD.ITEM_CD
+			,PD.ITEM_NM
+			,PD.LOT_ID
+			,LT.LOT_ATTRIB_02 AS LOT_NO
+			,LT.LOT_ATTRIB_04 AS LOT_4
+			,LT.LOT_ATTRIB_05 AS LOT_5
+			,PD.LIC_PLAT_NO
+			,PD.PL_FR_WH_LOC_CD
+			,PD.PL_FR_EA_QTY
+			,PD.ITEM_SYS_NO
+			,PD.WH_CD                                       
+	
+	FROM TL_WH_INV_MOVE_PLAN_DTL PD   
+	/*
+	    LEFT OUTER JOIN
+	        TL_WH_INV_LOC INL         
+	            ON PD.WIB_BK_NO = INL.WIB_BK_NO           
+	            AND PD.PO_SYS_NO = INL.PO_SYS_NO 
+	            AND PD.ITEM_SYS_NO = INL.ITEM_SYS_NO           
+	            AND PD.LOT_ID = INL.LOT_ID 
+	            AND PD.PL_FR_WH_LOC_CD = INL.WH_LOC_CD          
+	            AND ISNULL(PD.PO_NO,   '') = ISNULL(INL.PO_NO,   '')          
+	   		  AND ISNULL(PD.ITEM_SER_NO,    '') = ISNULL(INL.ITEM_SER_NO, '')          
+	      	  AND ISNULL(PD.LIC_PLAT_NO,    '') = ISNULL(INL.LIC_PLAT_NO,  '')    
+	*/      	  
+	    LEFT JOIN
+	        TL_CTRT_CUST_ITEM_LOT LT   
+	            ON PD.CTRT_NO = LT.CTRT_NO 
+	            and PD.ITEM_SYS_NO = LT.ITEM_SYS_NO 
+	            and PD.LOT_ID = LT.LOT_ID  		
+	            AND PD.WH_CD = LT.WH_CD 	
+	   WHERE PD.PLAN_NO  = #plan_no#
+	     AND PD.PLAN_SEQ = #plan_seq#
+             
+	</select>
+
+
+	<update id="modifyInvMovePlan" parameterClass="com.clt.apps.fis.mob.invt.dto.MoveItemCmplVO">
+		/*MobInvtSQL.xml > modifyInvMovePlan*/ 
+		DECLARE @WH_CD VARCHAR(20)
+	 	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+		UPDATE TL_WH_INV_MOVE_PLAN
+		   SET 
+		       MOVE_DT = #p_move_date#    
+		     , MODI_ID = #modi_id#
+		     , MODI_OFC_CD = #modi_ofc_cd#
+		     , MODI_SYS_DT = GETDATE()
+		     , MODI_LOC_DT = (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+												 + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+												 + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+												 + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+		 	WHERE PLAN_NO = #plan_no#
+	</update>
+	
+	<update id="modifyInvMovePlanDtl" parameterClass="com.clt.apps.fis.mob.invt.dto.MoveItemCmplVO">
+	/*MobInvtSQL.xml > modifyInvMovePlanDtl*/
+		UPDATE TL_WH_INV_MOVE_PLAN_DTL
+		   SET PL_TO_WH_LOC_PROP_CD = #pl_to_wh_loc_prop_cd#  
+		     , PL_TO_WH_LOC_CD      = #pl_to_wh_loc_cd#   
+		     , PL_TO_EA_QTY         = #pl_to_ea_qty#  	   
+
+	         , PL_TO_CBM            = #to_cbm#  
+	         , PL_TO_CBF            = #to_cbf#  
+	         , PL_TO_GRS_KGS        = #to_grs_kgs#  
+	         , PL_TO_GRS_LBS        = #to_grs_lbs#  
+	         , PL_TO_NET_KGS        = #to_net_kgs#  
+	        , PL_TO_NET_LBS        = #to_net_lbs# 	 
+	     		       
+		     , MODI_ID              = #modi_id#
+		     , MODI_OFC_CD          = #modi_ofc_cd#
+		     , MODI_SYS_DT          = GETDATE()
+		     , MODI_LOC_DT          = CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),120)
+		     , LIC_PLAT_NO          = #lic_plat_no#
+		 WHERE PLAN_NO  = #plan_no#
+		   AND PLAN_SEQ = #plan_seq#
+	</update>			
+	
+	
+	<insert id="saveInvMoveMgmt" parameterClass="com.clt.apps.fis.mob.invt.dto.MoveItemCmplVO">
+	/*MobInvtSQL.xml > saveInvMoveMgmt*/
+	DECLARE @WH_CD VARCHAR(20)
+ 	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	INSERT INTO TL_WH_INV_MOVE
+		 ( MOVE_NO
+	     , MOVE_SEQ
+	     , MV_TP_CD
+	     , PO_SYS_NO
+	     , ITEM_SYS_NO
+	     , LOT_ID
+	     , CTRT_NO
+	     , WH_CD
+	     , ITEM_CD
+	     , ITEM_NM
+	     , FR_WH_LOC_PROP_CD
+	     , FR_WH_LOC_CD
+	     , FR_EA_QTY
+	     , TO_WH_LOC_PROP_CD
+	     , TO_WH_LOC_CD
+	     , TO_EA_QTY
+	     , RMK
+	     , SO_NO
+	     , WIB_BK_NO
+	     , PO_NO
+	     , PLAN_NO
+	     , FR_CBM
+	     , FR_CBF
+	     , FR_GRS_KGS
+	     , FR_GRS_LBS
+	     , FR_NET_KGS
+	     , FR_NET_LBS	
+	     , TO_CBM
+	     , TO_CBF
+	     , TO_GRS_KGS
+	     , TO_GRS_LBS
+	     , TO_NET_KGS
+	     , TO_NET_LBS	     
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , ITEM_SER_NO
+	     , LIC_PLAT_NO
+	     )
+	SELECT #move_no#   
+		 , PLAN_SEQ      
+		 , MV_TP_CD
+		 , PO_SYS_NO
+		 , ITEM_SYS_NO
+		 , LOT_ID
+		 , CTRT_NO
+		 , WH_CD
+		 , ITEM_CD
+		 , ITEM_NM
+		 , PL_FR_WH_LOC_PROP_CD
+		 , PL_FR_WH_LOC_CD
+		 , PL_FR_EA_QTY
+		 , PL_TO_WH_LOC_PROP_CD
+		 , PL_TO_WH_LOC_CD
+		 , PL_TO_EA_QTY
+		 , RMK
+		 , SO_NO
+		 , WIB_BK_NO
+		 , PO_NO     
+		 , PLAN_NO   
+		 , PL_FR_CBM
+	     , PL_FR_CBF
+	     , PL_FR_GRS_KGS
+	     , PL_FR_GRS_LBS
+	     , PL_FR_NET_KGS
+	     , PL_FR_NET_LBS	
+	     , PL_TO_CBM
+	     , PL_TO_CBF
+	     , PL_TO_GRS_KGS
+	     , PL_TO_GRS_LBS
+	     , PL_TO_NET_KGS
+	     , PL_TO_NET_LBS  
+		 , #rgst_id#         
+		 , #rgst_ofc_cd#       
+		 , GETDATE()  
+		 , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+	       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+	       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+	       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	     , ITEM_SER_NO
+	     , LIC_PLAT_NO
+	  FROM TL_WH_INV_MOVE_PLAN_DTL
+	 WHERE PLAN_NO =  #plan_no#
+	   AND PLAN_SEQ = #plan_seq#
+	</insert>
+	
+	<update id="modifyPlanStsCd" parameterClass="com.clt.apps.fis.mob.invt.dto.MoveItemCmplVO">
+	/*MobInvtSQL.xml > modifyPlanStsCd*/
+	DECLARE @WH_CD VARCHAR(20)
+ 	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	UPDATE TL_WH_INV_MOVE_PLAN
+	   SET PLAN_STS_CD = 'C'
+	     , MODI_ID              = #modi_id#
+	     , MODI_OFC_CD          = #modi_ofc_cd#
+	     , MODI_SYS_DT          = GETDATE()
+	     , MODI_LOC_DT          = (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+							       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+							       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+							       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	 WHERE PLAN_NO  = #plan_no#
+	</update>
+
+    <!-- #2451 [WMS4.0]MOBILE - Inventory Search by Item/Serial/LP# 기능 추가 (S) -->
+    <select id="selectInvtSrchList" parameterClass="com.clt.apps.fis.mob.invt.dto.MobInvtParamVO" resultClass="com.clt.apps.fis.mob.invt.dto.MobInvtItemVO">
+        /* MobInvtSQL.xml > selectInvtSrchList */
+        SELECT I.ITEM_CD
+             , I.ITEM_NM
+             , I.ITEM_SEQ
+             , CONVERT(VARCHAR(10), CONVERT(DATETIME, L.LOT_ATTRIB_01, 120), 110) AS INBOUND_DT
+             , L.LOT_ATTRIB_02 AS LOT_NO
+             , L.LOT_ID AS LOT_ID
+             , I.WH_LOC_CD
+             , dbo.TL_GET_WH_LOC_NM(I.WH_CD, I.WH_LOC_CD) AS WH_LOC_NM
+             , REPLACE(CONVERT(VARCHAR(30), CAST(ISNULL (I.IN_QTY, 0) - ISNULL (I.ALLC_QTY, 0) - ISNULL (I.HOLD_QTY, 0) - ISNULL (I.DMG_QTY, 0) AS MONEY), 1), '.00', '') AS STC_QTY
+             , REPLACE(CONVERT(VARCHAR(30), CAST(ISNULL (I.ALLC_QTY, 0) - ISNULL (I.OUT_QTY, 0) AS MONEY), 1), '.00', '') AS ALLC_QTY
+             , REPLACE(CONVERT(VARCHAR(30), CAST(ISNULL (I.HOLD_QTY, 0) AS MONEY), 1), '.00', '') AS HOLD_QTY
+             , REPLACE(CONVERT(VARCHAR(30), CAST(ISNULL (I.DMG_QTY, 0) AS MONEY), 1), '.00', '') AS DMG_QTY
+             , REPLACE(CONVERT(VARCHAR(30), CAST(ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0) AS MONEY), 1), '.00', '') AS TOT_QTY
+             , I.WH_CD
+             , dbo.TL_GET_LOC_NM(I.WH_CD) AS WH_NM
+             , I.CTRT_NO
+             , dbo.TL_GET_CTRT_NM (I.CTRT_NO) AS CTRT_NM
+             , L.LOT_ATTRIB_04 AS LOT_04
+             , L.LOT_ATTRIB_05 AS LOT_05
+             , I.WIB_BK_NO
+             , I.LIC_PLAT_NO
+             , I.ITEM_SER_NO
+             , (SELECT PCK_NM FROM TB_PCK_UT_CD WHERE PCK_UT_CD = CI.PKG_LV1_UNIT_CD) AS PCK_NM
+             , B.CUST_ORD_NO
+          FROM TL_WH_INV_LOC I
+          LEFT JOIN TL_WH_IB B 
+          	ON I.WIB_BK_NO = B.WIB_BK_NO
+          ,TL_CTRT_CUST_ITEM CI
+          ,TL_CTRT_CUST_ITEM_LOT L
+           
+         WHERE 1 = 1
+           
+           AND I.CTRT_NO       = CI.CTRT_NO
+           AND I.ITEM_SYS_NO   = CI.ITEM_SYS_NO
+           AND CI.ITEM_USE_FLG = 'Y'
+           AND I.CTRT_NO       = L.CTRT_NO
+           AND I.ITEM_SYS_NO   = L.ITEM_SYS_NO
+           AND I.LOT_ID        = L.LOT_ID
+           
+           <!-- #3557 [BINEX WMS] MOBILE - INVENTORY SEARCH 에 Contract 조회조건 추가 -->
+           <!-- Default Warehouse 검색 조건에서 누락되어 추가 조치 -->
+           AND I.WH_CD		   = #whCd#
+           
+           AND ISNULL (I.IN_QTY, 0) - ISNULL (I.OUT_QTY, 0) > 0
+         <isNotEmpty property="ctrtNo">
+           AND I.CTRT_NO       = #ctrtNo#
+         </isNotEmpty> 
+         <isNotEmpty property="wibBkNo">
+           AND I.WIB_BK_NO     = #wibBkNo#
+         </isNotEmpty>
+         <isNotEmpty property="itemSerNo">
+           AND I.ITEM_SER_NO   = #itemSerNo#
+         </isNotEmpty>
+         <isNotEmpty property="itemCd">
+           AND I.ITEM_CD       = #itemCd#
+         </isNotEmpty>
+         <isNotEmpty property="itemSeq">
+           AND I.ITEM_SEQ      = #itemSeq#
+         </isNotEmpty>
+         <isNotEmpty property="licPlatNo">
+           AND I.LIC_PLAT_NO   = #licPlatNo#
+         </isNotEmpty>
+         <isNotEmpty property="whLocCd">
+           AND I.WH_LOC_CD     = #whLocCd#
+         </isNotEmpty>
+         <isNotEmpty property="whLocNm">
+           AND dbo.TL_GET_WH_LOC_NM(I.WH_CD, I.WH_LOC_CD) = #whLocNm#
+         </isNotEmpty>
+         
+         <!-- #3557 관련 세부 검색조건 추가 -->
+         <isNotEmpty property="lotId">
+           AND I.LOT_ID     = #lotId#
+         </isNotEmpty>
+         
+         ORDER BY I.CTRT_NO, I.ITEM_CD, L.LOT_ATTRIB_01, I.WH_LOC_CD, I.WIB_BK_NO 
+    </select>
+    <!-- #2451 [WMS4.0]MOBILE - Inventory Search by Item/Serial/LP# 기능 추가 (E) -->
+
+</sqlMap>

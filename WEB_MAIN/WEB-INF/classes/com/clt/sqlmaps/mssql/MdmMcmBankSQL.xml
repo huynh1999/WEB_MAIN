@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.mcm.bank">
+
+	<select id="selectBankList" resultClass="com.clt.apps.fis.mdm.mcm.bank.dto.BankVO">
+		SELECT	bank_seq,			bank_nm,			gl_cd,
+				chk_form,			init_amt,			curr_cd,
+				rvn_flg,			cost_flg,			CONVERT(VARCHAR, inact_tms, 112) AS inact_tms,
+				use_flg,
+				cur_chk_no, lst_chk_no, chk_no_cell, clr_dt_cell, amt_cell, BANK_OFC_CD,
+				chk_no_use_flg
+		  FROM	tb_bank
+		 <!-- WHERE  use_flg = 'Y'   -->
+		 ORDER BY bank_nm ASC
+	</select>
+	
+	<select id="selectUseBankList" resultClass="com.clt.apps.fis.mdm.mcm.bank.dto.BankVO">
+		SELECT	bank_seq,		bank_nm,		gl_cd,
+				chk_form,		init_amt,		curr_cd,
+				rvn_flg,		cost_flg,		CONVERT(VARCHAR, inact_tms, 112) AS inact_tms,
+				use_flg,		cur_chk_no,		lst_chk_no,
+				chk_no_cell, 	clr_dt_cell, 	amt_cell,
+				chk_no_use_flg
+		  FROM	tb_bank
+		 WHERE  use_flg = 'Y'
+		 <!-- #2113 [PATENT] Bank Account - Office 항목 지정에 따른 사용분류
+		 <isNotNull property="ofc_bank_yn">
+		AND isnull(bank_ofc_cd,'') IN ((CASE WHEN (SELECT ISNULL(MAX(A.USE_FLG), 'N') 
+											  FROM TB_ROLE_FNC A, TB_USR B
+											 WHERE A.ROLE_CD = B.ROLE_CD
+											     AND ROLE_FNC_CD = 'A12' 
+											     AND B.USRID  = #usrid#) = 'Y' THEN isnull(bank_ofc_cd,'') ELSE #ofc_cd# END),'')	 
+		</isNotNull>
+		-->
+		<!-- #2113 [PATENT] Bank Account - Office 항목 지정에 따른 사용분류 -->
+		 <isNotNull property="s_ofc_cd">
+		 AND (isnull(BANK_OFC_CD,'') ='' OR BANK_OFC_CD=#ofc_cd#)
+		 </isNotNull>
+		 ORDER BY 
+		 BANK_OFC_CD desc,  <!-- #2457 [PATENT] Multi Bank Deposit/Payment Enty, Invoice 기준으로 변경 -->
+		 bank_nm ASC
+	</select>
+	
+	
+	<select id="getBankSel" resultClass="java.util.HashMap">
+		SELECT	TOP 1
+		        bank_seq, curr_cd
+		  FROM	tb_bank
+		 WHERE  use_flg = 'Y'
+		   AND  rvn_flg = 'Y'
+	</select>
+	
+	<select id="getChkBankSel" resultClass="java.util.HashMap">
+		SELECT	TOP 1
+				bank_seq, curr_cd
+		  FROM	tb_bank
+		 WHERE  use_flg  = 'Y'
+		   AND  cost_flg = 'Y'
+	</select>
+	
+	<select id="getBranchBankSel" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		SELECT TOP 1
+		       c.bank_seq, c.curr_cd		
+		FROM   (   
+				SELECT	TOP 1
+				        1 SEQ,
+						B.BANK_SEQ, B.CURR_CD
+				  FROM	TB_OFC A , TB_BANK B 
+				 WHERE  A.RVN_BANK_SEQ = B.BANK_SEQ 
+				   AND  A.USE_FLG  = 'Y'
+				   AND  B.USE_FLG  = 'Y'
+				   AND  A.OFC_CD  = #ofc_cd#
+				   
+			    UNION ALL	   
+				   
+			    SELECT	TOP 1
+			            2 SEQ,
+						BANK_SEQ, CURR_CD
+				  FROM	TB_BANK 
+				 WHERE  USE_FLG  = 'Y'
+				   AND  RVN_FLG = 'Y'	   
+				) C
+		ORDER BY C.SEQ	
+	</select>
+	
+	<select id="getBranchChkBankSel" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		SELECT TOP 1
+		       c.bank_seq, c.curr_cd		
+		FROM   (   
+				SELECT	TOP 1
+				        1 SEQ,
+						B.BANK_SEQ, B.CURR_CD
+				  FROM	TB_OFC A , TB_BANK B 
+				 WHERE  A.COST_BANK_SEQ = B.BANK_SEQ 
+				   AND  A.USE_FLG  = 'Y'
+				   AND  B.USE_FLG  = 'Y'
+				   AND  A.OFC_CD  = #ofc_cd#
+				   
+			    UNION ALL	   
+				   
+			    SELECT	TOP 1
+			            2 SEQ,
+						BANK_SEQ, CURR_CD
+				  FROM	TB_BANK 
+				 WHERE  USE_FLG  = 'Y'
+				   AND  COST_FLG = 'Y'	   
+				) C
+		ORDER BY C.SEQ		
+	</select>	
+	
+	<insert id="insertMDM_MCM_0320" parameterClass="com.clt.apps.fis.mdm.mcm.bank.dto.BankVO">
+		INSERT INTO tb_bank (
+			bank_seq,
+			bank_nm,			gl_cd,				chk_form,
+			init_amt,			curr_cd,			rvn_flg,		cost_flg,
+			inact_tms,
+			use_flg,		
+			rgst_usrid,			rgst_ofc_cd,		rgst_tms,
+			modi_usrid,			modi_ofc_cd,		modi_tms,
+			cur_chk_no,			lst_chk_no,
+			chk_no_cell,		clr_dt_cell, 		amt_cell,		bank_ofc_cd,
+			chk_no_use_flg
+		) VALUES (
+			#bank_seq#,
+			#bank_nm#,			#gl_cd#,			#chk_form#,
+			#init_amt#,			#curr_cd#,			#rvn_flg#,			#cost_flg#,
+			<dynamic>
+				<isEmpty property="inact_tms">
+	                NULL,
+	            </isEmpty>
+	            <isNotEmpty property="inact_tms">
+	                CONVERT(datetime, #inact_tms#),
+	            </isNotEmpty>
+			</dynamic>
+			#use_flg#,
+			#rgst_usrid#,		#rgst_ofc_cd#,		getdate(),
+			#modi_usrid#,		#modi_ofc_cd#,		GETUTCDATE(),
+			#cur_chk_no#,		#lst_chk_no#,
+			#chk_no_cell#,		#clr_dt_cell#,		#amt_cell#,		#bank_ofc_cd#,
+			#chk_no_use_flg#
+		)
+	</insert>
+	
+	<update id="updateMDM_MCM_0320" parameterClass="com.clt.apps.fis.mdm.mcm.bank.dto.BankVO">
+		/** MdmMcmBankSQL.xml > updateMDM_MCM_0320 **/
+		UPDATE	tb_bank
+		   SET	bank_nm = #bank_nm#,			
+		        gl_cd = #gl_cd#,
+		   		chk_form = #chk_form#,			
+		   		init_amt = #init_amt#,
+		   		curr_cd = #curr_cd#,
+		   		rvn_flg = #rvn_flg#,			
+		   		cost_flg = #cost_flg#,
+		   		bank_ofc_cd = #bank_ofc_cd#,
+		   		<dynamic>
+					<isEmpty property="inact_tms">
+		                inact_tms = NULL,
+		            </isEmpty>
+		            <isNotEmpty property="inact_tms">
+		                inact_tms = CONVERT(datetime, #inact_tms#),
+		            </isNotEmpty>
+				</dynamic>
+		   		use_flg = #use_flg#,			
+		   		modi_usrid = #modi_usrid#,
+		   		modi_ofc_cd = #modi_ofc_cd#,	
+		   		modi_tms = GETUTCDATE(),
+		   		cur_chk_no = #cur_chk_no#,	
+		   		lst_chk_no = #lst_chk_no#,
+		   		chk_no_cell = #chk_no_cell#,
+		   		clr_dt_cell = #clr_dt_cell#,
+		   		amt_cell = #amt_cell#,
+		   		chk_no_use_flg = #chk_no_use_flg#
+		 WHERE	bank_seq = #bank_seq#
+	</update>
+	
+	<select id="selectCurrCdList" resultClass="String">
+		/* MdmMcmBankSQL.xml > mdm.mcm.bank.selectCurrCdList  */
+		SELECT	cd_val
+		  FROM	tb_com_cd_dtl
+		 WHERE	com_cd  = 'C010'
+		   AND  use_flg  = 'Y' <!-- #2627 - [CLT] ACCT REPORT - ONE CURRENCY OPTION CURRENCY SETUP - item 1  by thoa.dien 170828 -->
+		   AND  delt_flg = 'N'
+	  ORDER BY  cd_val
+	</select>
+	
+	<select id="selectOfcCdList" resultClass="com.clt.apps.fis.mdm.mcm.office.dto.OfcVO">
+		SELECT OFC_CD
+		FROM TB_OFC
+		ORDER BY OFC_CD
+	</select>
+	
+	
+	<select id="selectBankPopList" resultClass="com.clt.apps.fis.mdm.mcm.bank.dto.BankVO">
+		SELECT	TOP $topCnt$
+				bank_seq,			bank_nm,			gl_cd,
+				(select rmk from TB_GL_CD gl where gl.GL_CD = bk.GL_CD) AS gl_desc,
+				chk_form,			init_amt,			curr_cd,
+				rvn_flg,			cost_flg,			CONVERT(VARCHAR, inact_tms, 112) AS inact_tms,
+				use_flg
+		  FROM	tb_bank bk
+		 WHERE  use_flg = 'Y'
+		 <!--//#2113 [PATENT] Bank Account - Office 항목 지정에 따른 사용분류-->
+		 <isNotNull property="s_ofc_cd">
+		 AND (isnull(BANK_OFC_CD,'') ='' OR BANK_OFC_CD=#s_ofc_cd#)
+		 </isNotNull>			 
+		 ORDER BY bank_seq ASC
+	</select>
+	
+	
+	<select id="selectBankPopList_CNT" resultClass="Integer">
+		SELECT	count(bank_seq)
+		  FROM	tb_bank
+		 WHERE  use_flg = 'Y'
+		 <!--//#2113 [PATENT] Bank Account - Office 항목 지정에 따른 사용분류-->
+		 <isNotNull property="s_ofc_cd">
+		 AND (isnull(BANK_OFC_CD,'') ='' OR BANK_OFC_CD=#s_ofc_cd#)
+		 </isNotNull>		 
+	</select>
+	
+	<select id="selectCheckFormCdList" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO">
+		SELECT	cd_val, cd_nm
+		  FROM	tb_com_cd_dtl
+		 WHERE	com_cd = 'C098'
+		ORDER BY srt_seq
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	<select id="getDepositPaymentLevel" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select 
+			isnull(MAX((case when z.dp_flag = 'D' then z.level_value end)),1) deposit_level
+			,isnull(MAX((case when z.dp_flag = 'P' then z.level_value end)),1) payment_level
+			from
+			(
+			SELECT
+					(case when pgm_url = './ACC_JOR_0010.clt' then 'D' <!--  Deposit -->
+					when pgm_url = './ACC_JOR_0011.clt' then 'D' <!-- Deposit Lv2 -->
+					when pgm_url = './ACC_JOR_0030.clt' then 'P' <!-- Payment -->
+					when pgm_url = './ACC_JOR_0031.clt' then 'P' <!-- Payment Lv2 -->
+					when pgm_url = './ACC_JOR_0032.clt' then 'P' <!-- Payment Lv3 -->
+					end ) dp_flag,
+					(case when pgm_url = './ACC_JOR_0010.clt' then '1' <!-- Deposit -->
+					when pgm_url = './ACC_JOR_0011.clt' then '2' <!-- Deposit Lv2 -->
+					when pgm_url = './ACC_JOR_0030.clt' then '1' <!-- Payment -->
+					when pgm_url = './ACC_JOR_0031.clt' then '2' <!-- Payment Lv2 -->
+					when pgm_url = './ACC_JOR_0032.clt' then '3' <!-- Payment Lv3 -->
+					end ) level_value
+			    FROM
+			        tb_pgm pgm ,			 
+			        TB_PGM_ROLE rol         
+			            WHERE      pgm.pgm_seq = rol.pgm_seq 
+			            AND rol.role_cd in (select  role_cd from tb_usr where USRID  = #usrid#)   			                
+			        AND pgm.role_grd <![CDATA[>=]]>   '1'     			   
+			   and PGM_URL in ( './ACC_JOR_0010.clt','./ACC_JOR_0011.clt','./ACC_JOR_0030.clt','./ACC_JOR_0031.clt','./ACC_JOR_0032.clt')
+			) z  
+	</select>
+	
+		
+	
+</sqlMap>

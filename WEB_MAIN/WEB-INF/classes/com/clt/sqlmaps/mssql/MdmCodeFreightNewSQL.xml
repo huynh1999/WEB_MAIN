@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.code.freight.new">	
+	<!-- Freight Code List    -->
+    <select id="selectFRT_CD_NW_LIST" resultClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdNwVO">
+     /* MdmCodeFreightSQL.xml => selectFRT_CD_NW_LIST */
+       SELECT  TOP $topCnt$
+			   FRT.frt_cd		,FRT.frt_cd_nm
+			  ,frt_curr		
+			  ,CASE pfmc_flg WHEN 'Y' THEN 1 ELSE 0 END AS pfmc_flg			 
+			  ,gl_cd_rev
+			  ,(SELECT TOP 1 GL_NM FROM TB_GL_CD_NW WHERE GL_CD = GL_CD_REV) AS gl_rmk_rev	
+			  ,gl_cd_cost		
+			  ,(SELECT TOP 1 GL_NM FROM TB_GL_CD_NW WHERE GL_CD = GL_CD_COST) AS gl_rmk_cost	
+			  ,gl_cd_prnr
+			  ,(SELECT TOP 1 GL_NM FROM TB_GL_CD_NW WHERE GL_CD = GL_CD_PRNR) AS gl_rmk_prnr
+			  ,gl_cd_prnr2
+			  ,(SELECT TOP 1 GL_NM FROM TB_GL_CD_NW WHERE GL_CD = GL_CD_PRNR2) AS gl_rmk_prnr2
+			  ,CASE ar_flg WHEN 'Y' THEN 1 ELSE 0 END AS ar_flg
+			  ,CASE ap_flg WHEN 'Y' THEN 1 ELSE 0 END AS ap_flg
+			  ,CASE dc_flg WHEN 'Y' THEN 1 ELSE 0 END AS dc_flg
+			  ,CASE gnr_flg WHEN 'Y' THEN 1 ELSE 0 END AS gnr_flg
+			  ,CASE oim_flg WHEN 'Y' THEN 1 ELSE 0 END AS oim_flg
+			  ,CASE oih_flg WHEN 'Y' THEN 1 ELSE 0 END AS oih_flg
+			  ,CASE aim_flg WHEN 'Y' THEN 1 ELSE 0 END AS aim_flg
+			  ,CASE aih_flg WHEN 'Y' THEN 1 ELSE 0 END AS aih_flg
+			  ,CASE oem_flg WHEN 'Y' THEN 1 ELSE 0 END AS oem_flg
+			  ,CASE oeh_flg WHEN 'Y' THEN 1 ELSE 0 END AS oeh_flg
+			  ,CASE aem_flg WHEN 'Y' THEN 1 ELSE 0 END AS aem_flg
+			  ,CASE aeh_flg WHEN 'Y' THEN 1 ELSE 0 END AS aeh_flg
+			  ,CASE wms_flg WHEN 'Y' THEN 1 ELSE 0 END AS wms_flg			  
+			  ,frt_clss_cd	,srt_seq			  
+			  ,CASE use_flg WHEN 'Y' THEN 1 ELSE 0 END AS use_flg
+			  ,CASE FRT.dflt_flg WHEN 'Y' THEN 1 ELSE 0 END AS dflt_flg
+			  ,frt_grp_cd			  
+		 FROM  TB_FRT_CD_NW FRT		
+ 		WHERE  1=1
+		  AND FRT.delt_flg = 'N'
+		<isNotEmpty property="s_bill_cd">
+			AND FRT.frt_cd LIKE #s_bill_cd# + '%'
+		</isNotEmpty>
+		<isNotEmpty property="s_bill_nm">
+			AND FRT.frt_cd_nm LIKE '%' + #s_bill_nm# + '%'
+		</isNotEmpty>
+		<isNotEmpty property="s_gl_cd">
+			AND (
+				gl_cd_rev = #s_gl_cd# 
+			  OR 
+			  	gl_cd_cost = #s_gl_cd# 	
+			  OR
+			  	gl_cd_prnr = #s_gl_cd# 
+			  OR
+			  	gl_cd_prnr2 = #s_gl_cd# 
+			)
+		</isNotEmpty>		
+		ORDER  BY  FRT.frt_cd ASC
+	</select>
+	
+	<!-- Freight Code Count    -->
+    <select id="selectFRT_CD_NW_CNT" resultClass="Integer">
+     /* MdmCodeFreightSQL.xml => selectFRT_CD_NW_CNT */
+        SELECT  count(*)
+		  FROM  tb_frt_cd_nw  FRT		 
+		 WHERE  FRT.delt_flg = 'N'
+		<isNotEmpty property="s_bill_cd">
+			AND FRT.frt_cd = #s_bill_cd#
+		</isNotEmpty>
+		<isNotEmpty property="s_bill_nm">
+			AND FRT.frt_cd_nm LIKE '%' + #s_bill_nm# + '%'
+		</isNotEmpty>
+		<isNotEmpty property="s_gl_cd">
+			AND (
+				gl_cd_rev = #s_gl_cd# 
+			  OR 
+			  	gl_cd_cost = #s_gl_cd# 	
+			  OR
+			  	gl_cd_prnr = #s_gl_cd# 
+			  OR
+			  	gl_cd_prnr2 = #s_gl_cd# 
+			)
+		</isNotEmpty>			
+	</select>
+	
+	<!-- Package Code Update    -->
+	<update id="updateMDM_MCM_0160_NEW" parameterClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdNwVO">
+		UPDATE  tb_frt_cd_nw
+		   SET	modi_usrid = #modi_usrid#
+		   	  , modi_ofc_cd = #modi_ofc_cd#
+		      , modi_tms = GETUTCDATE()  
+			<isNotNull property="frt_cd_nm">
+				,frt_cd_nm = #frt_cd_nm#
+			</isNotNull>
+			<isNotNull property="frt_clss_cd">
+				,frt_clss_cd = #frt_clss_cd#
+			</isNotNull>			
+			<isNotNull property="descr">
+				,descr = #descr#
+			</isNotNull>
+			<isNotNull property="delt_flg">
+				,delt_flg = #delt_flg#
+			</isNotNull>			
+			<isNotNull property="frt_curr">
+				,frt_curr = #frt_curr#
+			</isNotNull>			
+			<isNotNull property="pfmc_flg">
+				,pfmc_flg = #pfmc_flg#
+			</isNotNull>			
+			<isNotNull property="gl_cd_rev">
+				,gl_cd_rev = #gl_cd_rev#
+			</isNotNull>
+			<isNotNull property="gl_cd_cost">
+				,gl_cd_cost = #gl_cd_cost#
+			</isNotNull>
+			<isNotNull property="gl_cd_prnr">
+				,gl_cd_prnr = #gl_cd_prnr#
+			</isNotNull>
+			<isNotNull property="gl_cd_prnr2">
+				,gl_cd_prnr2 = #gl_cd_prnr2#
+			</isNotNull>
+			<isNotNull property="ar_flg">
+				,ar_flg = #ar_flg#
+			</isNotNull>
+			<isNotNull property="ap_flg">
+				,ap_flg = #ap_flg#
+			</isNotNull>
+			<isNotNull property="dc_flg">
+				,dc_flg = #dc_flg#
+			</isNotNull>
+			<isNotNull property="gnr_flg">
+				,gnr_flg = #gnr_flg#
+			</isNotNull>
+			<isNotNull property="oim_flg">
+				,oim_flg = #oim_flg#
+			</isNotNull>
+			<isNotNull property="oih_flg">
+				,oih_flg = #oih_flg#
+			</isNotNull>
+			<isNotNull property="aim_flg">
+				,aim_flg = #aim_flg#
+			</isNotNull>
+			<isNotNull property="aih_flg">
+				,aih_flg = #aih_flg#
+			</isNotNull>
+			<isNotNull property="oem_flg">
+				,oem_flg = #oem_flg#
+			</isNotNull>
+			<isNotNull property="oeh_flg">
+				,oeh_flg = #oeh_flg#
+			</isNotNull>
+			<isNotNull property="aem_flg">
+				,aem_flg = #aem_flg#
+			</isNotNull>
+			<isNotNull property="aeh_flg">
+				,aeh_flg = #aeh_flg#
+			</isNotNull>
+			<isNotNull property="wms_flg">
+				,wms_flg = #wms_flg#
+			</isNotNull>
+			<isNotNull property="srt_seq">
+				,srt_seq = #srt_seq#
+			</isNotNull>
+			<isNotNull property="use_flg">
+				,use_flg = #use_flg#
+			</isNotNull>
+			<isNotNull property="dflt_flg">
+				,dflt_flg = #dflt_flg#
+			</isNotNull>
+			<isNotNull property="frt_grp_cd">
+				,frt_grp_cd = #frt_grp_cd#
+			</isNotNull>			
+		 WHERE  frt_cd = #frt_cd#
+	</update>
+	
+	<delete id="deleteMDM_MCM_0160_NEW" parameterClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdNwVO">
+		DELETE TB_FRT_CD_NW
+		 WHERE frt_cd = #frt_cd#
+	</delete>
+	
+	<!-- Package Code Insert    -->
+	<insert id="insertMDM_MCM_0160_NEW" parameterClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdNwVO">
+		INSERT INTO tb_frt_cd_nw (
+			frt_cd,        frt_cd_nm,       frt_clss_cd, 
+		
+			frt_curr,      descr,
+		
+			rgst_usrid,    rgst_ofc_cd,     rgst_tms, 
+			modi_usrid,    modi_ofc_cd,     modi_tms,       delt_flg,
+		       
+			pfmc_flg,
+			gl_cd_rev,		gl_cd_cost,		gl_cd_prnr,		gl_cd_prnr2,
+
+			ar_flg,			ap_flg,			gnr_flg,		oim_flg,
+			oih_flg,		aim_flg,		aih_flg,		oem_flg,
+			oeh_flg,		aem_flg,		aeh_flg,		wms_flg,
+			dc_flg,			srt_seq,		use_flg,		dflt_flg,		frt_grp_cd
+		) VALUES (
+			#frt_cd#,      #frt_cd_nm#,     #frt_clss_cd#, 
+		
+			#frt_curr#,    #descr#, 
+			#rgst_usrid#,  #rgst_ofc_cd#,   getdate(), 
+			#modi_usrid#,  #modi_ofc_cd#,   GETUTCDATE(),      'N',
+			
+			#pfmc_flg#,
+			#gl_cd_rev#,		#gl_cd_cost#,	#gl_cd_prnr#,	#gl_cd_prnr2#,
+			
+			#ar_flg#,			#ap_flg#,		#gnr_flg#,		#oim_flg#,
+			#oih_flg#,			#aim_flg#,		#aih_flg#,		#oem_flg#,
+			#oeh_flg#,			#aem_flg#,		#aeh_flg#,		#wms_flg#,
+			#dc_flg#,			#srt_seq#,		#use_flg#,		#dflt_flg#,		#frt_grp_cd#
+		)
+	</insert>
+	<insert id="insertHistoryMDM_MCM_0160_NEW" parameterClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdNwVO">
+	    INSERT INTO TB_FRT_CD_HIS_NW (
+               MODI_SEQ,    HIS_TYPE,         
+               FRT_CD,      FRT_CD_NM,        FRT_CLSS_CD, 
+               DESCR,       FRT_CURR,         PFMC_FLG, 
+               GL_CD_REV,   GL_CD_COST,       GL_CD_PRNR, 
+               AR_FLG,      AP_FLG,           GNR_FLG,          OIM_FLG,        OIH_FLG, 
+               AIM_FLG,     AIH_FLG,          OEM_FLG,          OEH_FLG,        AEM_FLG, 
+               AEH_FLG,     SRT_SEQ,          USE_FLG,          DFLT_FLG,       FRT_GRP_CD, 
+               DC_FLG,      WMS_FLG, 		  GL_CD_PRNR2,
+               DELT_FLG,    RGST_USRID, 	  RGST_OFC_CD, 	    RGST_TMS,  		MODI_USRID,      MODI_OFC_CD, 	MODI_TMS
+               )
+        SELECT 
+               (SELECT ISNULL(MAX(MODI_SEQ)+1,1) 
+                  FROM TB_FRT_CD_HIS_NW
+                 WHERE 1 = 1
+                   AND FRT_CD = #frt_cd#) AS MODI_SEQ, 
+               (CASE WHEN #ibflag# = 'I' THEN 'C'
+                     WHEN #ibflag# = 'U' THEN 'U'
+				     WHEN #ibflag# = 'D' THEN 'D'
+				 END) AS HIS_TYPE, 
+               FRT_CD,      FRT_CD_NM,        FRT_CLSS_CD, 
+               DESCR,       FRT_CURR,         PFMC_FLG, 
+		       GL_CD_REV,   GL_CD_COST,       GL_CD_PRNR, 
+		       AR_FLG,      AP_FLG,           GNR_FLG,          OIM_FLG,        OIH_FLG, 
+		       AIM_FLG,     AIH_FLG,          OEM_FLG,          OEH_FLG,        AEM_FLG, 
+		       AEH_FLG,     SRT_SEQ,          USE_FLG,          DFLT_FLG,       FRT_GRP_CD, 
+		       DC_FLG,      WMS_FLG, 		  GL_CD_PRNR2,
+		       DELT_FLG, 	#rgst_usrid#, 	  #rgst_ofc_cd#, 	GETUTCDATE(), 	#rgst_usrid#, 	 #rgst_ofc_cd#, GETUTCDATE()
+		  FROM TB_FRT_CD_NW
+		 WHERE 1 = 1
+		   AND FRT_CD = #frt_cd#          
+	</insert>	
+	<select id="selectMDM_MCM_0160_NEW_CODE" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT frt_cd
+		FROM tb_frt_cd_nw
+		WHERE frt_cd = #s_frt_cd#
+	</select>
+	
+	<select id="selectFreightCodeList_COMMON" resultClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdVO" parameterClass="java.util.HashMap">
+		SELECT  frt_cd, frt_cd_nm, frt_clss_cd, 
+		        CASE WHEN use_flg = 'N' THEN 0 ELSE 1 END AS use_flg
+		  FROM  tb_frt_cd
+		 WHERE  1=1
+		   AND  DELT_FLG = 'N'
+	  ORDER BY  frt_cd
+	</select>
+	
+	<!-- Freight Code List    -->
+	<select id="selectGl_CD_REV_LIST" resultClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdNwVO" parameterClass="java.util.HashMap">
+		SELECT  frt_cd, frt_cd_nm, frt_clss_cd, gl_cd_rev, gl_cd_cost,
+		        CASE WHEN use_flg = 'N' THEN 0 ELSE 1 END AS use_flg
+		  FROM  tb_frt_cd
+		 WHERE  1=1
+		   AND  DELT_FLG = 'N'
+	  		ORDER BY  frt_cd
+	</select>
+	
+    <select id="searchFreightCodeHistoryNewList" resultClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdNwVO">
+        /*searchFreightCodeHistoryNewList*/
+        SELECT 
+        
+                <!-- CONVERT(VARCHAR(10),
+		        DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), HIS.MODI_TMS ),
+		        110)+' '+CONVERT(VARCHAR(5),
+		        DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), HIS.MODI_TMS ),
+		        108) AS MODI_TMS -->
+		        
+		        DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), HIS.MODI_TMS ) AS MODI_TMS
+	        
+               ,HIS.modi_usrid
+	           ,(CASE WHEN HIS.HIS_TYPE = 'C'
+			          THEN 'Create' 
+			 		  WHEN HIS.HIS_TYPE = 'U'
+		 			  THEN 'Update'
+		 			  WHEN HIS.HIS_TYPE = 'D' 
+		 			  THEN 'Delete'
+	 				  ELSE ''
+                  END) AS HIS_TYPE
+               ,HIS.frt_cd		,HIS.frt_cd_nm
+			   ,HIS.frt_curr		
+			   ,CASE HIS.pfmc_flg WHEN 'Y' THEN 1 ELSE 0 END AS pfmc_flg
+			   ,HIS.gl_cd_rev
+			   ,(SELECT TOP 1 GL_NM FROM TB_GL_CD_NW WHERE GL_CD = HIS.GL_CD_REV) AS gl_rmk_rev	
+			   ,HIS.gl_cd_cost		
+			   ,(SELECT TOP 1 GL_NM FROM TB_GL_CD_NW WHERE GL_CD = HIS.GL_CD_COST) AS gl_rmk_cost	
+			   ,HIS.gl_cd_prnr
+			   ,(SELECT TOP 1 GL_NM FROM TB_GL_CD_NW WHERE GL_CD = HIS.GL_CD_PRNR) AS gl_rmk_prnr
+			   ,HIS.gl_cd_prnr2
+			   ,(SELECT TOP 1 GL_NM FROM TB_GL_CD_NW WHERE GL_CD = HIS.GL_CD_PRNR2) AS gl_rmk_prnr2
+			   ,CASE HIS.ar_flg WHEN 'Y' THEN 1 ELSE 0 END AS ar_flg
+			   ,CASE HIS.ap_flg WHEN 'Y' THEN 1 ELSE 0 END AS ap_flg
+			   ,CASE HIS.dc_flg WHEN 'Y' THEN 1 ELSE 0 END AS dc_flg
+			   ,CASE HIS.gnr_flg WHEN 'Y' THEN 1 ELSE 0 END AS gnr_flg
+			   ,CASE HIS.oim_flg WHEN 'Y' THEN 1 ELSE 0 END AS oim_flg
+			   ,CASE HIS.oih_flg WHEN 'Y' THEN 1 ELSE 0 END AS oih_flg
+			   ,CASE HIS.aim_flg WHEN 'Y' THEN 1 ELSE 0 END AS aim_flg
+			   ,CASE HIS.aih_flg WHEN 'Y' THEN 1 ELSE 0 END AS aih_flg
+			   ,CASE HIS.oem_flg WHEN 'Y' THEN 1 ELSE 0 END AS oem_flg
+			   ,CASE HIS.oeh_flg WHEN 'Y' THEN 1 ELSE 0 END AS oeh_flg
+			   ,CASE HIS.aem_flg WHEN 'Y' THEN 1 ELSE 0 END AS aem_flg
+			   ,CASE HIS.aeh_flg WHEN 'Y' THEN 1 ELSE 0 END AS aeh_flg
+			   ,CASE HIS.wms_flg WHEN 'Y' THEN 1 ELSE 0 END AS wms_flg			  
+			   ,HIS.frt_clss_cd	
+			   ,HIS.srt_seq
+			   ,CASE HIS.use_flg WHEN 'Y' THEN 1 ELSE 0 END AS use_flg
+			   ,CASE HIS.dflt_flg WHEN 'Y' THEN 1 ELSE 0 END AS dflt_flg
+			   ,HIS.frt_grp_cd
+		  FROM TB_FRT_CD_HIS_NW HIS
+		  
+		    LEFT OUTER JOIN
+		        TB_OFC TOF     
+		            ON HIS.RGST_OFC_CD = TOF.OFC_CD            
+		    LEFT OUTER JOIN
+		        TB_COM_CD_DTL CCD     
+		            ON CCD.COM_CD = 'TIMEZN'     
+		            AND TOF.TIME_ZONE = CCD.CD_VAL   
+		  
+		 WHERE 1 = 1
+		   AND HIS.delt_flg = 'N'
+		   AND HIS.frt_cd   = #frt_cd_s#
+		 ORDER BY HIS.MODI_TMS DESC
+	</select>
+	
+    <select id="getVat_rt_dp_cnt" parameterClass="HashMap" resultClass="String">
+       /** getVat_rt_dp_cnt **/
+		SELECT  <!-- #512 [BNX] VND(베트남) - USD 환율 차로 인한 환율 계산 오류 -->
+				isnull(a.VAT_RT_DP_CNT, '') + '^@@^' + isnull(a.XCH_RT_DP_CNT, '')
+		   FROM  tb_ofc a
+	      WHERE  a.delt_flg = 'N'
+		<isNotNull property="s_ofc_cd">
+			AND  a.ofc_cd = #s_ofc_cd#
+		</isNotNull>
+			AND  a.use_flg = 'Y'
+    </select>
+    
+    <select id="getTaxOpt" parameterClass="HashMap" resultClass="String">
+       /** getTaxOpt **/
+		SELECT  <!-- #1098 [BNX] INDIA 오피스 - 요구사항 항목 -->
+				isnull(a.TAX_OPT, '')
+		   FROM  tb_ofc a
+	      WHERE  a.delt_flg = 'N'
+		<isNotNull property="s_ofc_cd">
+			AND  a.ofc_cd = #s_ofc_cd#
+		</isNotNull>
+			AND  a.use_flg = 'Y'
+    </select>
+    
+    <!-- #828 [EH] Office 별 Billing Code Name, VAT, Default New  -->
+	<insert id="insertOFCMDM_MCM_0160_NEW" parameterClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdVO">
+		INSERT INTO tb_ofc_frt_cd (
+			ofc_cd,        frt_cd,        frt_cd_nm,       frt_locl_nm, 
+			tax_flg,	   tax_rate,	  whld_tax_rate,   dflt_flg,	
+			rgst_usrid,    rgst_ofc_cd,   rgst_tms, 
+			modi_usrid,    modi_ofc_cd,    modi_tms,
+			<!-- #1098 [BNX] INDIA 오피스 - 요구사항 항목 -->
+			tax_rate1, tax_rate2
+			<!-- #1773 [PATENT] Freight Default Unit Option -->
+			, fcl_dflt_aply_ut_cd, lcl_dflt_aply_ut_cd, air_dflt_aply_ut_cd
+			<!-- #1774 [Split - 1] [PATENT] Freight Default Unit Option -->
+			, sell_rat_amt, buy_rat_amt
+		) VALUES (
+			#ofc_cd#,      #frt_cd#,        #ofc_frt_cd_nm#,      #ofc_local_nm#, 
+			#ofc_tax_flg#, #ofc_tax_rate#,  #ofc_wtax_rate#,  #ofc_dflt_flg#,
+			#rgst_usrid#,  #rgst_ofc_cd#,   getdate(), 
+			#modi_usrid#,  #modi_ofc_cd#,   GETUTCDATE(),
+			#ofc_tax_rate1#, #ofc_tax_rate2#
+			, #fcl_dflt_aply_ut_cd#, #lcl_dflt_aply_ut_cd#, #air_dflt_aply_ut_cd#
+			, #sell_rat_amt#, #buy_rat_amt#
+		)
+	</insert>	
+	<update id="updateOFCMDM_MCM_0160_NEW" parameterClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdVO">
+		UPDATE  tb_ofc_frt_cd
+		   SET	modi_usrid = #modi_usrid#
+		   	  , modi_ofc_cd = #modi_ofc_cd#
+		      , modi_tms = GETUTCDATE()  
+			<isNotNull property="ofc_frt_cd_nm">
+				,frt_cd_nm = #ofc_frt_cd_nm#
+			</isNotNull>
+			<isNotNull property="ofc_local_nm">
+				,frt_locl_nm = #ofc_local_nm#
+			</isNotNull>			
+			<isNotNull property="ofc_tax_flg">
+				,tax_flg = #ofc_tax_flg#
+			</isNotNull>
+			<isNotNull property="ofc_tax_rate">
+				,tax_rate = #ofc_tax_rate#
+			</isNotNull>
+			<isNotNull property="ofc_wtax_rate">
+				,whld_tax_rate = #ofc_wtax_rate#
+			</isNotNull>
+			<isNotNull property="ofc_dflt_flg">
+				,dflt_flg = #ofc_dflt_flg#
+			</isNotNull>
+			
+			<!-- #1098 [BNX] INDIA 오피스 - 요구사항 항목 -->
+			<isNotNull property="ofc_tax_rate1">
+				,tax_rate1 = #ofc_tax_rate1#
+			</isNotNull>
+			
+			<isNotNull property="ofc_tax_rate2">
+				,tax_rate2 = #ofc_tax_rate2#
+			</isNotNull>
+			<!-- #1773 [PATENT] Freight Default Unit Option -->
+			<isNotNull property="fcl_dflt_aply_ut_cd">
+				,fcl_dflt_aply_ut_cd = #fcl_dflt_aply_ut_cd#
+			</isNotNull>
+			<isNotNull property="lcl_dflt_aply_ut_cd">
+				,lcl_dflt_aply_ut_cd = #lcl_dflt_aply_ut_cd#
+			</isNotNull>
+			<isNotNull property="air_dflt_aply_ut_cd">
+				,air_dflt_aply_ut_cd = #air_dflt_aply_ut_cd#
+			</isNotNull>
+			<!-- #1774 [Split - 1] [PATENT] Freight Default Unit Option -->
+			<isNotNull property="sell_rat_amt">
+				,sell_rat_amt = #sell_rat_amt#
+			</isNotNull>
+			<isNotNull property="buy_rat_amt">
+				,buy_rat_amt = #buy_rat_amt#
+			</isNotNull>		
+		 WHERE  frt_cd = #frt_cd#
+		 		and ofc_cd = #ofc_cd#
+	</update>	
+    <select id="selectOFC_FRT_CD_NEW_CNT" resultClass="Integer">
+     /* MdmCodeFreightSQL.xml => selectOFC_FRT_CD_CNT */
+        SELECT  count(*)
+		  FROM  tb_ofc_frt_cd
+		 WHERE  frt_cd = #frt_cd#
+		 		and ofc_cd = #ofc_cd#
+	</select>	
+	<delete id="deleteOFCMDM_MCM_0160_NEW" parameterClass="com.clt.apps.fis.mdm.code.freight.dto.FrtCdVO">
+		DELETE TB_OFC_FRT_CD
+		 WHERE frt_cd = #frt_cd#
+	</delete>
+	
+	<!-- #2131 [BINEX V442] NO G/L MAPPING, BUT CAN ISSUE INVOICE USING BILLING CODE -->
+    <select id="checkUseGlCodeNew" resultClass="Integer">
+     /* MdmCodeFreightSQL.xml => checkUseGlCode */
+        SELECT  count(*)
+		  FROM  tb_frt_cd_nw   FRT
+		 WHERE  FRT.delt_flg = 'N'
+		<isNotEmpty property="s_bill_cd">
+			AND FRT.frt_cd = #s_bill_cd#
+		</isNotEmpty>
+		<isEqual property="invType" compareValue="AR">
+			AND gl_cd_rev = (select gl_cd from tb_gl_cd where use_flg = 'Y' AND gl_cd = #s_gl_cd#)
+			AND isnull(gl_cd_rev, '') <![CDATA[ <> '' ]]>
+		</isEqual>
+		<isEqual property="invType" compareValue="AP">
+			AND gl_cd_cost = (select gl_cd from tb_gl_cd where use_flg = 'Y' AND gl_cd = #s_gl_cd#)
+			AND isnull(gl_cd_cost, '') <![CDATA[ <> '' ]]>
+		</isEqual>
+		<isEqual property="invType" compareValue="DC">
+			AND gl_cd_prnr = (select gl_cd from tb_gl_cd where use_flg = 'Y' AND gl_cd = #s_gl_cd#)
+			AND gl_cd_prnr2 = (select gl_cd from tb_gl_cd where use_flg = 'Y' AND gl_cd = #s_gl_cd2#)
+		</isEqual>
+		<isEqual property="invType" compareValue="BillingCode">
+			AND (
+				gl_cd_rev = #s_gl_cd# 
+			  OR 
+			  	gl_cd_cost = #s_gl_cd# 	
+			  OR
+			  	gl_cd_prnr = #s_gl_cd# 
+			  OR
+			  	gl_cd_prnr2 = #s_gl_cd# 
+			)
+		</isEqual>
+	</select>
+	
+	<!-- Local Setting List    -->
+    <select id="selectLOCL_ACCT_LIST" resultClass="com.clt.apps.fis.mdm.code.freight.dto.LoclAcctVO">
+     /* MdmCodeFreightSQL.xml => selectLCL_ACCT_LIST */
+       	SELECT  
+       		co_ofc_cd,   cd_tp_cd,   ref_cd,  locl_nm
+       		,CASE use_flg WHEN 'Y' THEN 1 ELSE 0 END AS use_flg
+       		,CASE blk_flg WHEN 'Y' THEN 1 ELSE 0 END AS blk_flg
+		FROM  TB_LOCL_ACCT LOCL
+ 		WHERE  1=1
+		<isNotEmpty property="s_cd_tp_cd">
+			AND LOCL.cd_tp_cd = #s_cd_tp_cd#
+		</isNotEmpty>
+		<isNotEmpty property="frt_cd_s">
+			AND LOCL.ref_cd = #frt_cd_s#
+		</isNotEmpty>
+	</select>
+	
+	<!-- Local Setting Insert    -->
+	<insert id="insertMDM_MCM_01602_NEW" parameterClass="com.clt.apps.fis.mdm.code.freight.dto.LoclAcctVO">
+	/* MdmCodeFreightSQL.xml => insertMDM_MCM_01602_NEW */
+		INSERT INTO TB_LOCL_ACCT (
+			co_ofc_cd,      cd_tp_cd,   	ref_cd,
+			locl_nm,        use_flg,		blk_flg,
+			
+			rgst_usrid,    rgst_ofc_cd,     rgst_tms, 
+			modi_usrid,    modi_ofc_cd,     modi_tms
+		) VALUES (
+			#co_ofc_cd#,   #cd_tp_cd#,      #ref_cd#,		
+			#locl_nm#,      #use_flg#, 	    #blk_flg#,
+			
+			#rgst_usrid#,  #rgst_ofc_cd#,   getdate(), 
+			#modi_usrid#,  #modi_ofc_cd#,   GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- Local Setting Update    -->
+	<update id="updateMDM_MCM_01602_NEW" parameterClass="com.clt.apps.fis.mdm.code.freight.dto.LoclAcctVO">
+	/* MdmCodeFreightSQL.xml => updateMDM_MCM_01602_NEW */
+		UPDATE  TB_LOCL_ACCT
+		   SET	modi_usrid = #modi_usrid#
+		   	  , modi_ofc_cd = #modi_ofc_cd#
+		      , modi_tms = GETUTCDATE()  
+			<isNotNull property="locl_nm">
+				,locl_nm = #locl_nm#
+			</isNotNull>			
+			<isNotNull property="use_flg">
+				,use_flg = #use_flg#
+			</isNotNull>			
+			<isNotNull property="blk_flg">
+				,blk_flg = #blk_flg#
+			</isNotNull>		
+		 WHERE  ref_cd = #ref_cd#
+		        AND cd_tp_cd = #cd_tp_cd#
+		        AND co_ofc_cd = #co_ofc_cd#
+	</update>
+	
+	<!-- Local Setting Delete -->
+	<delete id="deleteMDM_MCM_01602_NEW" parameterClass="com.clt.apps.fis.mdm.code.freight.dto.LoclAcctVO">
+	/* MdmCodeFreightSQL.xml => deleteMDM_MCM_01602_NEW */
+		DELETE TB_LOCL_ACCT
+		 WHERE ref_cd = #ref_cd#
+		       AND cd_tp_cd = #cd_tp_cd#
+		       AND co_ofc_cd = #co_ofc_cd#
+	</delete>
+
+</sqlMap>

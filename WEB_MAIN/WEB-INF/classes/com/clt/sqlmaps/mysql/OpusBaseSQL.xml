@@ -1,0 +1,890 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="opusbase.sql">
+
+	<typeAlias alias="loginVO" type="com.clt.apps.opusbase.login.dto.UserInfoVO"/>
+	<typeAlias alias="StatisticsVO" type="com.clt.apps.opusbase.login.dto.StatisticsVO"/>
+	
+	<!-- 로그인시 사용되는 SQL구문임   -->
+	<select id="selectUSR" resultClass="loginVO" parameterClass="String">
+        SELECT  a.usrid,                    a.pwd,           a.use_flg, 
+                a.eng_usr_nm  user_name,    a.eml,
+                a.use_lang_cd,              a.ofc_cd,        a.role_cd,
+		        a.eml_svc_tp,               a.lgin_chk_val,
+				b.ofc_eng_nm,               b.cnt_cd  AS ofc_cnt_cd
+        FROM    tb_usr a,      tb_ofc b
+        WHERE   a.usrid = #value# AND a.ofc_cd = b.ofc_cd
+		  AND   b.delt_flg = 'N'
+	</select>
+	
+	<!-- 로그인시 세션키 생성   -->
+	<update id="updateUSR_SESSIONKEY" parameterClass="HashMap">
+		UPDATE tb_usr
+		   SET lgin_chk_val = #lgin_chk_val#
+		 WHERE usrid = #usrid#  AND  pwd = #pwd#
+	</update>
+	
+<!-- #### 게시판 관리 시작 ####  -->
+    <!-- 게시판 목록 조회   -->
+    <select id="selectBRD_LIST" resultClass="com.clt.apps.opusbase.service.notice.dto.BrdVO" parameterClass="java.util.HashMap">
+          SELECT  a.brd_seq,     a.prnt_brd_seq,
+                  a.brd_tp,      a.brd_tit_cd,     a.dp_scp,
+                  a.dp_bgn_dt,   a.dp_end_dt, 
+                  a.brd_tit,     
+                  a.modi_usrid,  a.modi_ofc_cd,    a.modi_tms,    a.modi_eng_usr_nm
+           FROM   tb_brd a
+          WHERE   a.brd_tp   = #f_brd_tp# AND delt_flg = 'N'
+        <dynamic>
+            <isEqual property="f_brd_tp" compareValue="N">
+	  <![CDATA[ AND  ( ( a.dp_scp = 'P' AND a.dp_bgn_dt <= GETDATE()+0   AND   a.dp_end_dt >= GETDATE()+0 ) OR ( a.modi_usrid = #proc_usrid# ) ) ]]>
+            </isEqual>
+            <isEqual property="f_brd_tp" compareValue="P">
+                AND  a.dp_scp = 'M' AND a.modi_usrid = #proc_usrid#
+            </isEqual>
+            <isNotNull property="f_dp_bgn_dt">
+                <![CDATA[ AND   a.dp_bgn_dt BETWEEN #f_dp_bgn_dt# AND #f_dp_end_dt# ]]>
+            </isNotNull>
+            <isNotNull property="f_modi_usrid">
+                AND  a.modi_usrid        LIKE  '%$f_modi_usrid$%'
+            </isNotNull>
+            <isNotNull property="f_modi_eng_usr_nm">
+                AND  a.modi_eng_usr_nm   LIKE  '%$f_modi_eng_usr_nm$%'
+            </isNotNull>
+        </dynamic>      
+        ORDER BY a.brd_seq DESC 
+    </select>
+    
+    <!--게시물 전체 카운트  -->
+    <select id="selectBRD_CNT" resultClass="Integer" parameterClass="java.util.HashMap">
+          SELECT  COUNT(a.brd_seq)
+           FROM   tb_brd a
+          WHERE   a.brd_tp   = #f_brd_tp#  AND  delt_flg = 'N'
+        <dynamic>
+            <isEqual property="f_brd_tp" compareValue="N">
+      <![CDATA[ AND  ( ( a.dp_scp = 'P' AND a.dp_bgn_dt <= GETDATE()+0   AND   a.dp_end_dt >= GETDATE()+0 ) OR ( a.modi_usrid = #proc_usrid# ) ) ]]>
+            </isEqual>
+            <isEqual property="f_brd_tp" compareValue="P">
+                AND  a.dp_scp = 'M' AND a.modi_usrid = #proc_usrid#
+            </isEqual>
+            <isNotNull property="f_dp_bgn_dt">
+                <![CDATA[ AND   a.dp_bgn_dt BETWEEN #f_dp_bgn_dt# AND #f_dp_end_dt# ]]>
+            </isNotNull>
+            <isNotNull property="f_modi_usrid">
+                AND  a.modi_usrid        LIKE  '%$f_modi_usrid$%'
+            </isNotNull>
+            <isNotNull property="f_modi_eng_usr_nm">
+                AND  a.modi_eng_usr_nm   LIKE  '%$f_modi_eng_usr_nm$%'
+            </isNotNull>
+        </dynamic>   
+    </select>
+    
+    <!--TB_BRD PK생성   -->
+    <select id="selectBRD_PK" resultClass="String" parameterClass="HashMap">
+       SELECT ISNULL(MAX(brd_seq),0) +1 
+       FROM   tb_brd
+    </select>
+    
+    <!--TB_BRD 입력(게시물)  -->
+    <insert id="insertBRD" parameterClass="com.clt.apps.opusbase.service.notice.dto.BrdVO">
+            INSERT INTO tb_brd(
+                 brd_seq,        prnt_brd_seq,
+                 brd_tp,         brd_tit_cd,       dp_scp,
+                 dp_bgn_dt,      dp_end_dt, 
+                 brd_tit,        brd_ctnt,
+                 rgst_usrid,     rgst_ofc_cd,      rgst_tms,
+                 modi_usrid,     modi_ofc_cd,      modi_tms,   modi_eng_usr_nm
+            )VALUES(
+                 #brd_seq#,        #prnt_brd_seq#,
+                 #brd_tp#,         #brd_tit_cd#,   #dp_scp#,
+                 #dp_bgn_dt#,      #dp_end_dt#, 
+                 #brd_tit#,        #brd_ctnt#,
+                 #proc_usrid#,     #proc_ofccd#,    GETDATE(),     
+                 #proc_usrid#,     #proc_ofccd#,    GETDATE(),     #modi_eng_usr_nm#
+            )
+    </insert>
+    
+    <!-- 게시물 수정함  -->
+    <update id="updateBRD" parameterClass="com.clt.apps.opusbase.service.notice.dto.BrdVO">
+            UPDATE  tb_brd
+               SET  brd_tit_cd = #brd_tit_cd#,   dp_scp     = #dp_scp#,
+                    dp_bgn_dt  = #dp_bgn_dt#,    dp_end_dt  = #dp_end_dt#, 
+                    brd_tit    = #brd_tit#,      brd_ctnt   = #brd_ctnt#,
+                    modi_usrid = #proc_usrid#,   modi_ofc_cd= #proc_ofccd#, modi_tms= GETDATE(),   modi_eng_usr_nm= #modi_eng_usr_nm#
+             WHERE  brd_seq = #brd_seq#
+    </update>
+
+    <!-- 게시물 삭제   -->
+    <update id="deleteBRD" parameterClass="com.clt.apps.opusbase.service.notice.dto.BrdVO">
+            UPDATE  tb_brd
+               SET  delt_flg = 'Y',
+                    modi_usrid = #proc_usrid#,   modi_ofc_cd= #proc_ofccd#, modi_tms= GETDATE(),   modi_eng_usr_nm= #modi_eng_usr_nm#
+             WHERE  brd_seq = #brd_seq#
+    </update>
+    
+    <!--게시물 첨부파일 테이블  --> 
+    <insert id="insertBRD_FILE" parameterClass="com.clt.apps.opusbase.service.notice.dto.BrdFile">
+            INSERT INTO tb_brd_file(
+                brd_seq,      file_seq,        file_url,
+                rgst_usrid,   rgst_ofc_cd,     rgst_tms,
+                modi_usrid,   modi_ofc_cd,     modi_tms
+            )VALUES(
+                #brd_seq#,    #file_seq#,      #file_url#,
+                #proc_usrid#, #proc_ofccd#,    GETDATE(),     
+                #proc_usrid#, #proc_ofccd#,    GETDATE()
+            )
+    </insert>
+
+    <!-- 게시물 첨부파일을 수정함  -->
+    <update id="updateBRD_FILE" parameterClass="com.clt.apps.opusbase.service.notice.dto.BrdFile">
+           UPDATE  tb_brd_file
+              SET  file_url   = #file_url#,
+                   modi_usrid = #proc_usrid#,  modi_ofc_cd= #proc_ofccd#, modi_tms= GETDATE()
+            WHERE  brd_seq = #brd_seq# AND file_seq = #file_seq#
+    </update>
+
+    <!-- 게시물 첨부파일을 삭제함   -->
+    <update id="deleteBRD_FILE" parameterClass="com.clt.apps.opusbase.service.notice.dto.BrdFile">
+           UPDATE  tb_brd_file
+              SET  delt_flg = 'Y',
+                   modi_usrid = #proc_usrid#,  modi_ofc_cd= #proc_ofccd#, modi_tms= GETDATE()
+            WHERE  brd_seq = #brd_seq# AND file_seq = #file_seq#
+    </update>
+    
+    <!-- 게시물 첨부파일을 삭제함   -->
+    <delete id="deleteBRD_FILE_ONLY" parameterClass="com.clt.apps.opusbase.service.notice.dto.BrdFile">
+           DELETE  FROM tb_brd_file
+            WHERE  brd_seq = #brd_seq# AND file_seq = #file_seq#
+    </delete>
+            
+    <!--게시물 확인  -->
+    <select id="selectBRD_READ" resultClass="com.clt.apps.opusbase.service.notice.dto.BrdVO" parameterClass="HashMap">
+          SELECT  a.brd_seq,     a.prnt_brd_seq,
+                  a.brd_tp,      a.brd_tit_cd,     a.dp_scp,
+                  a.dp_bgn_dt,   a.dp_end_dt, 
+                  a.brd_tit,     a.brd_ctnt,
+                  a.modi_usrid,  a.modi_tms,    a.modi_eng_usr_nm,
+                  b.file_url
+           FROM   tb_brd a   
+LEFT OUTER JOIN   tb_brd_file b ON a.brd_seq = b.brd_seq   AND   b.delt_flg = 'N'
+        
+          WHERE   a.brd_tp   = #f_brd_tp#   AND   a.brd_seq = #f_brd_seq# 
+            AND   a.delt_flg = 'N'          
+            AND   ( a.dp_scp = 'P' OR ( a.dp_scp = 'M' AND a.modi_usrid = #proc_usrid# ))
+    </select>
+<!-- #### 게시판 관리 종료 ####  -->
+	
+	
+<!-- #### 스케줄 관리 시작 ####  -->
+    <!-- 개인 스케줄 PK생성   -->
+    <select id="selectPSON_SKD_PK" resultClass="Integer">
+        SELECT ISNULL(MAX(skd_seq),0) +1
+        FROM   tb_pson_skd
+    </select>
+    
+    <!-- 개인 스케줄 등록   -->
+    <insert id="insertPSON_SKD" parameterClass="HashMap">
+        INSERT tb_pson_skd  ( 
+            skd_seq,      usrid,         skd_dt, 
+            skd_tp,       skd_tit,       skd_bgn_tm,    skd_end_tm,
+            rgst_usrid,   rgst_ofc_cd,   rgst_tms, 
+            modi_usrid,   modi_ofc_cd,   modi_tms    
+        )VALUES(
+            #skd_seq#,     #proc_usrid#,  #skd_dt#, 
+            #skd_tp#,      #skd_tit#,     #skd_bgn_tm#, #skd_end_tm#,
+            #proc_usrid#,  #proc_ofc_cd#, GETDATE(),
+            #proc_usrid#,  #proc_ofc_cd#, GETDATE()
+        )
+    </insert>
+    
+    <!-- 개인 스케줄 수정   -->
+    <update id="updatePSON_SKD" parameterClass="HashMap">
+        UPDATE  tb_pson_skd
+           SET  skd_tit    = #skd_tit#,
+                modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofc_cd#,   modi_tms = GETDATE()
+         WHERE  skd_seq = #skd_seq# AND rgst_usrid = #proc_usrid#
+    </update>
+        
+    <!-- 개인 스케줄 삭제   -->
+    <update id="deletePSON_SKD" parameterClass="HashMap">
+        UPDATE  tb_pson_skd
+           SET  delt_flg = 'Y',
+                modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofc_cd#,   modi_tms = GETDATE()
+         WHERE  skd_seq = #skd_seq# AND rgst_usrid = #proc_usrid#
+    </update>
+    
+    <!-- 개인의 스케줄을 조회한다   -->
+    <select id="selectPSON_SKD" resultClass="com.clt.apps.opusbase.main.dto.PsonSkdVO" parameterClass="HashMap">
+        SELECT   skd_seq,      skd_tp,       skd_tit,
+                 skd_bgn_tm,   skd_end_tm,   skd_dt,
+		         CASE WHEN skd_bgn_tm = '24' THEN '0' ELSE skd_bgn_tm END AS time_ord
+          FROM   tb_pson_skd
+         WHERE   usrid = #proc_usrid#  AND delt_flg = 'N'
+        <dynamic>
+            <isNotNull property="f_skd_dt">
+               AND   skd_dt = #f_skd_dt#
+            </isNotNull>
+            <isNotNull property="f_skd_begin">
+                AND   skd_dt BETWEEN #f_skd_begin# AND #f_skd_end#
+            </isNotNull>
+        </dynamic>      
+           
+      ORDER BY   skd_dt ASC, skd_tp ASC, time_ord ASC, CAST(skd_bgn_tm AS decimal(2,0)) ASC
+    </select>
+<!-- #### 스케줄 관리 종료 ####  -->
+
+<!-- #### 메뉴 관리 시작 ####  -->
+    <!--메뉴  PK생성  -->
+    <select id="selectMenu_MkPK" resultClass="String">
+        SELECT max(mnu_seq)+1
+        FROM   tb_mnu
+    </select>
+
+	<!-- 최상위 메뉴 조회  -->
+	<select id="selectTopMenuList" resultClass="java.util.HashMap">
+        SELECT  mnu.mnu_seq,       mnu.mnu_nm,        mnu.srt_seq,      
+                mnu.mnu_desc,      mnu.use_flg,
+                mnu.prnt_mnu_seq,  count(sbmn.mnu_seq) AS cur_cnt
+          FROM  tb_mnu mnu LEFT OUTER JOIN  tb_mnu sbmn ON mnu.mnu_seq = sbmn.prnt_mnu_seq
+         WHERE  mnu.prnt_mnu_seq IS NULL
+      GROUP BY  mnu.mnu_seq, mnu.mnu_nm 
+      ORDER BY  mnu.mnu_seq, mnu.srt_seq
+    </select>
+
+	    
+    <!--메뉴관리  -->
+    <select id="selectMenuList" resultClass="java.util.HashMap">
+        SELECT  mnu.mnu_seq,      mnu.mnu_nm,    mnu.srt_seq,      mnu.mnu_desc,    mnu.use_flg,
+                mnu.prnt_mnu_seq, count(rol.mnu_seq) AS cur_cnt
+         FROM   tb_mnu mnu LEFT OUTER JOIN  tb_mnu_role rol 
+		   ON   mnu.mnu_seq = rol.mnu_seq
+        WHERE   mnu.prnt_mnu_seq = #caller_level#
+                GROUP BY mnu.mnu_seq
+                ORDER BY mnu.srt_seq ASC
+    </select>
+    
+    <!-- 최상위 메뉴등록   -->
+    <insert id="insertMenuTop" parameterClass="com.clt.apps.opusbase.system.menu.dto.MenuVO">    
+        INSERT INTO tb_mnu(
+            mnu_seq,      mnu_nm,        srt_seq,    mnu_desc,     use_flg,
+            rgst_usrid,   rgst_ofc_cd,   rgst_tms,   modi_usrid,   modi_ofc_cd,   modi_tms
+        )VALUES(
+            #mnu_seq#,      #mnu_nm#,     #srt_seq#,  #mnu_desc#,  #use_flg#,
+            #proc_usrid#,   #proc_ofccd#, GETDATE(),      #proc_usrid#,#proc_ofccd#,  GETDATE()
+        )
+    </insert>
+    
+    <!-- 메뉴등록   -->
+    <insert id="insertMenuSub" parameterClass="com.clt.apps.opusbase.system.menu.dto.MenuVO">    
+        INSERT INTO tb_mnu(
+            mnu_seq,      mnu_nm,       srt_seq,    mnu_desc,     use_flg,      prnt_mnu_seq,
+            rgst_usrid,   rgst_ofc_cd,  rgst_tms,   modi_usrid,   modi_ofc_cd,  modi_tms 
+        )VALUES(
+            #mnu_seq#,    #mnu_nm#,     #srt_seq#,  #mnu_desc#,   #use_flg#,    #prnt_mnu_seq#,
+            #proc_usrid#, #proc_ofccd#, GETDATE(),      #proc_usrid#, #proc_ofccd#, GETDATE()
+        )
+    </insert>
+    
+    <!-- 메뉴 수정   -->
+    <update id="updateMenu" parameterClass="com.clt.apps.opusbase.system.menu.dto.MenuVO">
+        UPDATE  tb_mnu
+           SET  mnu_nm = #mnu_nm#,    srt_seq = #srt_seq#,      mnu_desc = #mnu_desc#,    use_flg = #use_flg#
+         WHERE  mnu_seq  = #mnu_seq#
+    </update>
+     
+    <!-- 메뉴 수정   -->
+    <delete id="deleteMenu" parameterClass="int">
+        DELETE FROM  tb_mnu
+              WHERE  mnu_seq  = #orderId#
+    </delete>
+    
+    <!--메뉴 트리 조회  -->
+    <select id="selectMenuTreeList" resultClass="com.clt.apps.opusbase.system.menu.dto.MenuTreeVO">
+        SELECT t1.mnu_seq AS l1seq,  t1.mnu_nm AS lev1, 
+               t2.mnu_seq AS l2seq,  t2.mnu_nm AS lev2, 
+               t3.mnu_seq AS l3seq,  t3.mnu_nm AS lev3, 
+               t4.mnu_seq AS l4seq,  t4.mnu_nm AS lev4 
+        FROM   tb_mnu AS t1
+        LEFT JOIN tb_mnu AS t2 ON t2.prnt_mnu_seq = t1.mnu_seq
+        LEFT JOIN tb_mnu AS t3 ON t3.prnt_mnu_seq = t2.mnu_seq
+        LEFT JOIN tb_mnu AS t4 ON t4.prnt_mnu_seq = t3.mnu_seq
+        WHERE t1.prnt_mnu_seq IS NULL
+        ORDER BY t1.srt_seq, t2.srt_seq, t3.srt_seq, t4.srt_seq
+    </select>
+    
+    <!-- 프로그램 관리 목록에서 조회   -->
+    <select id="selectProgramMngList" resultClass="com.clt.apps.opusbase.system.menu.dto.ProgramVO" parameterClass="java.util.HashMap">
+		SELECT  pgm.pgm_seq,   pgm.mnu_seq,   pgm.pgm_nm,  pgm.pgm_url,                 
+				pgm.pgm_desc,  pgm.srt_seq,   pgm.use_flg, count(rol.role_cd) AS cur_cnt
+		  FROM  tb_pgm pgm LEFT OUTER JOIN tb_pgm_role rol 
+		    ON  pgm.pgm_seq = rol.pgm_seq
+		 WHERE  pgm.mnu_seq = #parent_seq# 
+	  GROUP BY  pgm.pgm_seq
+      ORDER BY  pgm.mnu_seq, pgm.srt_seq
+    </select>
+    
+    <!-- 프로그램 목록조회   -->
+    <select id="selectProgramList" resultClass="com.clt.apps.opusbase.system.menu.dto.ProgramVO" parameterClass="java.util.HashMap">
+        SELECT  pgm_seq,   mnu_seq,   pgm_nm,  pgm_url,
+                pgm_desc,  srt_seq,   use_flg
+        FROM    tb_pgm
+        <dynamic prepend="WHERE">
+            <isNotNull property="parent_seq">
+                mnu_seq = #parent_seq#
+            </isNotNull>
+        </dynamic>
+        ORDER BY mnu_seq, srt_seq  
+    </select>
+    
+
+    <!--프로그램 PK생성  -->
+    <select id="selectProgram_MkPK" resultClass="String">
+        SELECT max(pgm_seq)+1
+        FROM   tb_pgm
+    </select>
+    
+    <!-- 프로그램 등록   -->
+    <insert id="insertProgram" parameterClass="com.clt.apps.opusbase.system.menu.dto.ProgramVO">    
+        INSERT INTO tb_pgm(
+            pgm_seq,     mnu_seq,      pgm_nm,     pgm_url,
+            pgm_desc,    srt_seq,      use_flg,
+            rgst_usrid,  rgst_ofc_cd,  rgst_tms,   modi_usrid,   modi_ofc_cd,  modi_tms 
+        )VALUES(
+            #pgm_seq#,    #mnu_seq#,    #pgm_nm#,  #pgm_url#,
+            #pgm_desc#,   #srt_seq#,    #use_flg#,
+            #proc_usrid#, #proc_ofccd#, GETDATE(),     #proc_usrid#,     #proc_ofccd#,  GETDATE()
+        )
+    </insert>
+    
+    <!-- 프로그램 수정   -->
+    <update id="updateProgram" parameterClass="com.clt.apps.opusbase.system.menu.dto.ProgramVO">
+        UPDATE  tb_pgm
+           SET  pgm_nm = #pgm_nm#,   pgm_url = #pgm_url#,      pgm_desc = #pgm_desc#,    
+                srt_seq= #srt_seq#,  use_flg = #use_flg#
+         WHERE  pgm_seq = #pgm_seq#
+    </update>
+    
+    <!-- 프로그램 삭제  -->
+    <delete id="deleteProgram" parameterClass="int">
+        DELETE FROM  tb_pgm
+              WHERE  pgm_seq  = #pgm_seq#
+    </delete>
+    
+    <!--롤 코드 조회  -->
+    <select id="selectRoleCodeList" resultClass="com.clt.apps.opusbase.system.systemcode.dto.CodeVO" parameterClass="String">
+        SELECT  role_cd code,  role_nm code_label
+          FROM  tb_role
+         WHERE  use_flg = #value#
+         ORDER  BY srt_seq
+    </select>
+
+    <!-- 롤관리에서 전체 롤 조회   -->      
+    <select id="selectRoleList" resultClass="com.clt.apps.opusbase.system.role.dto.RoleVO">
+        SELECT  role_cd, role_nm, srt_seq, role_desc, use_flg
+          FROM  tb_role
+         ORDER  BY srt_seq
+    </select>
+
+    <!--롤 저장  -->
+    <insert id="insertRole" parameterClass="com.clt.apps.opusbase.system.role.dto.RoleVO">
+        INSERT INTO tb_role(
+            role_cd,     role_nm,      srt_seq,    role_desc,    use_flg,
+            rgst_usrid,  rgst_ofc_cd,  rgst_tms,   modi_usrid,   modi_ofc_cd,  modi_tms 
+        )VALUES(
+            #role_cd#,    #role_nm#,    #srt_seq#,  #role_desc#,  #use_flg#,
+            #proc_usrid#, #proc_ofccd#, GETDATE(),      #proc_usrid#, #proc_ofccd#,  GETDATE()
+        )
+    </insert>
+    
+    <!--롤 수정  -->
+    <insert id="updateRole" parameterClass="com.clt.apps.opusbase.system.role.dto.RoleVO">
+        UPDATE  tb_role
+           SET  role_nm = #role_nm#,    srt_seq = #srt_seq#,    role_desc = #role_desc#,    use_flg = #use_flg#
+         WHERE  role_cd = #role_cd#
+    </insert>
+    
+    <!--롤 삭제  -->
+    <delete id="deleteRole" parameterClass="String">
+        DELETE FROM  tb_role
+              WHERE  role_cd  = #roleCd#
+    </delete>
+    
+    <!--메뉴/롤 Mapping Tbl 삭제  -->
+    <delete id="deleteMenuRole" parameterClass="String">
+        DELETE FROM tb_mnu_role
+        WHERE role_cd = #roleCd#
+    </delete>
+
+    <!--프로그램/롤 Mapping Tbl 삭제  -->
+    <delete id="deletePgmRole" parameterClass="String">
+        DELETE FROM tb_pgm_role
+        WHERE role_cd = #roleCd#
+    </delete>
+    
+    <!--메뉴/롤 Mapping Tbl 입력  -->
+    <insert id="insertMenuRole" parameterClass="HashMap">
+        INSERT INTO tb_mnu_role( role_cd, mnu_seq, rgst_usrid, rgst_ofc_cd, rgst_tms)
+        VALUES ( #role_cd#, #mnu_seq#, #rgst_usrid#, #rgst_ofc_cd#, GETDATE())
+    </insert>
+
+    <!--프로그램/롤 Mapping Tbl 입력  -->
+    <insert id="insertPgmRole" parameterClass="HashMap">
+        INSERT INTO tb_pgm_role( role_cd, pgm_seq, rgst_usrid, rgst_ofc_cd, rgst_tms)
+        VALUES (#role_cd#, #pgm_seq#, #rgst_usrid#, #rgst_ofc_cd#, GETDATE())
+    </insert>
+    
+    <!-- 프로그램 목록조회   -->
+    <select id="selectProgramRoleList" resultClass="com.clt.apps.opusbase.system.menu.dto.ProgramVO" parameterClass="java.util.HashMap">
+        SELECT  pgm.pgm_seq,   pgm.mnu_seq,   pgm.pgm_nm,  pgm.pgm_url,
+                pgm.pgm_desc,  pgm.srt_seq,   pgm.use_flg,
+                rol.role_cd
+        FROM    tb_pgm pgm LEFT OUTER JOIN tb_pgm_role rol
+        ON      pgm.pgm_seq = rol.pgm_seq AND rol.role_cd = #f_rolecd_cd#
+        ORDER BY mnu_seq, srt_seq  
+    </select>
+    
+    <!-- Role Program Mapping   -->
+    <select id="selectMenuRoleList" resultClass="String" parameterClass="java.util.HashMap">
+        SELECT mnu_seq
+          FROM tb_mnu_role
+         WHERE role_cd = #f_rolecd_cd#
+        ORDER BY mnu_seq ASC
+    </select>
+	
+    <!-- 최상위 메뉴 조회   -->
+    <select id="selectTopMenuRoleList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.opusbase.system.menu.dto.MenuTreeVO">
+        SELECT  menu1.mnu_seq l1seq,      menu1.mnu_nm lev1,     menu2.mnu_seq l2seq,    menu2.mnu_nm lev2
+          FROM  tb_mnu menu1 JOIN tb_mnu menu2
+            ON  menu1.mnu_seq = menu2.prnt_mnu_seq
+        <dynamic>
+            <isNull property="f_parent_seq">
+               AND menu1.prnt_mnu_seq IS NULL
+            </isNull>    
+        </dynamic>
+           AND  menu1.use_flg = #use_flg#
+           AND  menu2.use_flg = #use_flg#
+          JOIN tb_mnu_role rol1 ON rol1.mnu_seq = menu1.mnu_seq AND rol1.role_cd =  #f_rolecd_cd#
+          JOIN tb_mnu_role rol2 ON rol2.mnu_seq = menu2.mnu_seq AND rol2.role_cd =  #f_rolecd_cd#
+          ORDER BY menu1.srt_seq ASC, menu2.srt_seq ASC
+    </select>
+    
+    <!-- 최상위 메뉴 조회   -->
+    <select id="selectSubMenuRoleList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.opusbase.system.menu.dto.MenuTreeVO">
+        SELECT   menu2.mnu_seq l1seq,    menu2.mnu_nm lev1,
+                 menu3.mnu_seq l2seq,    menu3.mnu_nm lev2,     
+                 menu4.mnu_seq l3seq,    menu4.mnu_nm lev3
+          FROM   tb_mnu menu1 JOIN tb_mnu menu2  ON  menu1.mnu_seq = menu2.prnt_mnu_seq  AND  menu1.prnt_mnu_seq IS NULL AND  menu2.mnu_seq = #f_parent_seq#
+     LEFT JOIN   tb_mnu menu3  ON  menu2.mnu_seq = menu3.prnt_mnu_seq
+     LEFT JOIN   tb_mnu menu4  ON  menu3.mnu_seq = menu4.prnt_mnu_seq
+           AND   menu3.use_flg = #use_flg#
+           AND   menu4.use_flg = #use_flg#
+          JOIN   tb_mnu_role rol1 ON (rol1.mnu_seq = menu2.mnu_seq) OR (rol1.mnu_seq = menu3.mnu_seq) OR (rol1.mnu_seq = menu4.mnu_seq   )
+         WHERE   rol1.role_cd =  #f_rolecd_cd#
+          ORDER BY menu3.srt_seq ASC, menu4.srt_seq ASC
+    </select>
+    
+    
+    <!-- 프로그램 목록조회   -->
+    <select id="selectSubProgramRoleList" resultClass="com.clt.apps.opusbase.system.menu.dto.ProgramVO" parameterClass="java.util.HashMap">
+        SELECT  pgm.pgm_seq,   pgm.mnu_seq,   pgm.pgm_nm,  pgm.pgm_url,
+                pgm.pgm_desc,  pgm.srt_seq,   pgm.use_flg,
+                rol.role_cd
+        FROM    tb_pgm pgm JOIN tb_pgm_role rol
+        ON      pgm.pgm_seq = rol.pgm_seq AND rol.role_cd = #f_rolecd_cd#
+        ORDER BY mnu_seq, srt_seq  
+    </select>
+	
+<!-- #### 메뉴 관리 종료 ####  -->
+
+<!-- #### 시스템 관리자 사용자 관리 시작 ####  -->
+    <!-- 사용자정보 조회   -->
+    <select id="selectUSR_LIST" resultClass="com.clt.apps.opusbase.user.dto.UsrVO">
+        SELECT a.usrid,       a.pwd,  
+               a.eng_usr_nm,  a.locl_usr_nm,
+               a.eml,         a.phn,         a.addr,        a.use_flg,
+               a.use_lang_cd, a.ofc_cd,      a.role_cd,
+               b.ofc_eng_nm
+        FROM   tb_usr a,      tb_ofc b
+        WHERE  a.delt_flg = 'N'  AND b.delt_flg = 'N'
+          AND  a.ofc_cd   = b.ofc_cd
+    </select>
+    
+    <!-- 사용자정보 조회   -->
+    <insert id="insertUSR" parameterClass="com.clt.apps.opusbase.user.dto.UsrVO">
+        INSERT INTO tb_usr ( 
+             usrid,        pwd,  
+             eng_usr_nm,   locl_usr_nm,
+             eml,          phn,         addr,        use_flg,
+             use_lang_cd,  ofc_cd,      role_cd,
+             rgst_usrid,   rgst_ofc_cd, rgst_tms,    modi_usrid,   modi_ofc_cd,   modi_tms
+        )VALUES(
+             #usrid#,        #pwd#,  
+             #eng_usr_nm#,   #locl_usr_nm#,
+             #eml#,          #phn#,         #addr#,        #use_flg#,
+             #use_lang_cd#,  #ofc_cd#,      #role_cd#,
+             #proc_usrid#,   #proc_ofccd#,  GETDATE(),         #proc_usrid#,  #proc_ofccd#,  GETDATE()
+        )
+    </insert>
+    
+    <!-- 사용자정보 조회   -->
+    <update id="updateUSR" parameterClass="com.clt.apps.opusbase.user.dto.UsrVO">
+        UPDATE  tb_usr 
+           SET  eng_usr_nm = #eng_usr_nm#,   locl_usr_nm = #locl_usr_nm#,
+                eml = #eml#,                 phn = #phn#,                   addr = #addr#,     use_flg = #use_flg#,
+                use_lang_cd = #use_lang_cd#, ofc_cd = #ofc_cd#,             role_cd = #role_cd#,
+                modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,    modi_tms = GETDATE()
+         WHERE  usrid = #usrid#
+    </update>
+    
+    <!-- 관리자가 사용자정보 관리중 패스워드 초기화시   -->
+    <update id="updateUSR_PWD" parameterClass="com.clt.apps.opusbase.user.dto.UsrVO">
+        UPDATE  tb_usr 
+           SET  pwd = #pwd#,  
+                modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,    modi_tms = GETDATE()
+         WHERE  usrid = #usrid#
+    </update>
+<!-- #### 시스템 관리자 사용자 관리 종료 ####  -->
+	
+	
+<!-- #### 마이페이지 종료 ####  -->
+    <!--개인정보 관리화면시 사용자의 회원정보를 전부 조회함  -->
+    <select id="selectUSR_USERINFO" parameterClass="String" resultClass="com.clt.apps.opusbase.user.dto.UsrVO">
+        SELECT   a.usrid,            a.eng_usr_nm,
+                 a.locl_usr_nm,      a.pwd,              a.use_lang_cd,
+                 a.eml,              a.phn,              a.addr,
+                 a.ofc_cd,           b.ofc_eng_nm,
+                 a.eml_svc_tp,       a.eml_svc_prov,     a.eml_id,         a.eml_pass
+        FROM     tb_usr a, tb_ofc b
+        WHERE    a.ofc_cd = b.ofc_cd  AND   a.use_flg='Y'
+          AND    a.delt_flg = 'N'     AND   b.delt_flg = 'N'
+          AND    a.usrid = #value#
+    </select>
+	
+    <!-- 메일 발송시 사용되는 발송자 외부 SMTP 정보   -->
+    <select id="selectUSR_MAILINFO" parameterClass="String" resultClass="com.clt.apps.opusbase.user.dto.UsrVO">
+        SELECT   eml_svc_prov,     eml_id,         eml_pass
+        FROM     tb_usr
+        WHERE    use_flg='Y'  AND    usrid = #value#
+    </select>
+	
+    <!-- 사용자 개인 정보 변경   -->
+    <update id="updateUSR_USERINFO" parameterClass="com.clt.apps.opusbase.user.dto.UsrVO">
+        UPDATE  tb_usr 
+           SET  eng_usr_nm   = #eng_usr_nm#,   locl_usr_nm = #locl_usr_nm#,
+                eml = #eml#,                   phn = #phn#,                   addr = #addr#,     
+                use_lang_cd  = #use_lang_cd#,
+                eml_svc_tp   = #eml_svc_tp#,   
+                eml_svc_prov = #eml_svc_prov#, eml_id = #eml_id#,             eml_pass = #eml_pass#,
+                modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,    modi_tms = GETDATE()
+         WHERE  usrid = #usrid#
+    </update>
+
+	
+    <!-- 사용자 개인 정보 변경   -->
+    <update id="updateUSR_USERINFO_NO_EML_PASS" parameterClass="com.clt.apps.opusbase.user.dto.UsrVO">
+        UPDATE  tb_usr 
+           SET  eng_usr_nm   = #eng_usr_nm#,   locl_usr_nm = #locl_usr_nm#,
+                eml = #eml#,                   phn = #phn#,                   addr = #addr#,     
+                use_lang_cd  = #use_lang_cd#,
+                eml_svc_tp   = #eml_svc_tp#,   
+                eml_svc_prov = #eml_svc_prov#, eml_id = #eml_id#,
+                modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,    modi_tms = GETDATE()
+         WHERE  usrid = #usrid#
+    </update>
+
+    <!-- 사용자가 자신의 패스워드를 수정할 경우   -->
+    <update id="updateUSR_PWD_USRINFO" parameterClass="HashMap">
+        UPDATE  tb_usr 
+           SET  pwd = #newPwd#,  
+                modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,    modi_tms = GETDATE()
+         WHERE  usrid = #proc_usrid# AND pwd = #pwd#
+    </update>
+<!-- #### 마이페이지 종료 ####  -->
+	
+<!-- #### 코드조회 SQL 시작 ####  -->
+    <!--한번에 여러 코드를 조회할 경우 사용되는 SQL구문임. PARAM1 ~ PARAM10을 키값으로 상위 코드(sub_com_cd)를 넣어 조회함   --> 
+    <select id="selectCOM_CD_DTL_MULTI_LIST" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO" parameterClass="java.util.HashMap">
+        SELECT  com_cd,   cd_val,    sub_com_cd,
+                cd_nm,    srt_seq,   use_flg,      rmk
+          FROM  tb_com_cd_dtl
+         WHERE  delt_flg = 'N' 
+      <dynamic>
+         <isNotNull property="PARAM1">
+             AND  com_cd IN ( #PARAM1#
+           <isNotNull property="PARAM2">     
+                 , #PARAM2#
+                <isNotNull property="PARAM3">     
+                     , #PARAM3#
+                    <isNotNull property="PARAM4">     
+                         , #PARAM4#
+                        <isNotNull property="PARAM5">     
+                             , #PARAM5#
+                            <isNotNull property="PARAM6">     
+                                 , #PARAM6#
+                                <isNotNull property="PARAM7">     
+                                     , #PARAM7#
+                                </isNotNull>
+                                    <isNotNull property="PARAM8">     
+                                         , #PARAM8#
+                                        <isNotNull property="PARAM9">     
+                                             , #PARAM9#
+                                            <isNotNull property="PARAM10">     
+                                                 , #PARAM10#
+                                            </isNotNull>
+                                        </isNotNull>
+                                    </isNotNull>
+                            </isNotNull>
+                        </isNotNull>
+                    </isNotNull>
+                </isNotNull>
+           </isNotNull>          
+             )
+         </isNotNull>
+      </dynamic>
+      ORDER BY  com_cd ASC, srt_seq ASC
+    </select>
+	
+	<!--USE FLAG이 Y인것만 조회  -->
+	<select id="selectCOM_CD_DTL_MULTI_LIST_USEY" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO" parameterClass="java.util.HashMap">
+        SELECT  com_cd,   cd_val,    sub_com_cd,
+                cd_nm,    srt_seq,   use_flg,      rmk
+          FROM  tb_com_cd_dtl
+         WHERE  delt_flg = 'N' AND use_flg = 'Y'
+      <dynamic>
+         <isNotNull property="PARAM1">
+             AND  com_cd IN ( #PARAM1#
+           <isNotNull property="PARAM2">     
+                 , #PARAM2#
+                <isNotNull property="PARAM3">     
+                     , #PARAM3#
+                    <isNotNull property="PARAM4">     
+                         , #PARAM4#
+                        <isNotNull property="PARAM5">     
+                             , #PARAM5#
+                            <isNotNull property="PARAM6">     
+                                 , #PARAM6#
+                                <isNotNull property="PARAM7">     
+                                     , #PARAM7#
+                                </isNotNull>
+                                    <isNotNull property="PARAM8">     
+                                         , #PARAM8#
+                                        <isNotNull property="PARAM9">     
+                                             , #PARAM9#
+                                            <isNotNull property="PARAM10">     
+                                                 , #PARAM10#
+                                            </isNotNull>
+                                        </isNotNull>
+                                    </isNotNull>
+                            </isNotNull>
+                        </isNotNull>
+                    </isNotNull>
+                </isNotNull>
+           </isNotNull>          
+             )
+         </isNotNull>
+      </dynamic>
+      ORDER BY  com_cd ASC, srt_seq ASC
+    </select>
+	
+    <!-- Sub Code 조회시  -->
+    <select id="selectCOM_CD_DTL_SUBCD_LIST" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO" parameterClass="java.util.HashMap">
+        SELECT  com_cd,   cd_val,    sub_com_cd,
+                cd_nm,    srt_seq,   use_flg,      rmk
+          FROM  tb_com_cd_dtl
+         WHERE  delt_flg = 'N' AND com_cd = #PARAM1# AND sub_com_cd = #SUBPARAM1#
+    </select>
+	
+    <!--최상위 메뉴 조회  -->
+    <select id="selectCOM_CD_LIST" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdVO" parameterClass="java.util.HashMap">
+        SELECT  com_cd,      prnt_com_cd,   com_cd_nm,     cd_spc_qty,
+                sys_cd_flg,  use_flg,       rmk
+          FROM  tb_com_cd
+         WHERE  delt_flg = 'N' 
+    </select>
+    
+    <!-- 최상위 메뉴등록   -->
+    <insert id="insertCOM_CD" parameterClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdVO">    
+        INSERT INTO tb_com_cd(
+                com_cd,      prnt_com_cd,   com_cd_nm,     cd_spc_qty,
+                sys_cd_flg,  use_flg,       rmk,
+                rgst_usrid,  rgst_ofc_cd,   rgst_tms,      modi_usrid,   modi_ofc_cd,   modi_tms
+        )VALUES(
+            #com_cd#,        #prnt_com_cd#, #com_cd_nm#,   #cd_spc_qty#,
+            #sys_cd_flg#,    #use_flg#,     #rmk#,
+            #proc_usrid#,    #proc_ofccd#,  GETDATE(),         #proc_usrid#, #proc_ofccd#,  GETDATE()
+        )
+    </insert>
+    
+    
+    <!-- 최상위 메뉴등록. prnt_com_cd 코드가 Null인 경우   -->
+    <update id="updateCOM_CD" parameterClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdVO">    
+        UPDATE  tb_com_cd
+           SET  com_cd_nm  = #com_cd_nm#,   cd_spc_qty = #cd_spc_qty#,
+                sys_cd_flg = #sys_cd_flg#,  use_flg    = #use_flg#,      rmk      = #rmk#,
+                modi_usrid = #proc_usrid#,  modi_ofc_cd= #proc_ofccd#,   modi_tms = GETDATE()
+         WHERE  com_cd = #com_cd# 
+    </update>
+    
+    <!--서브코드 조회  -->
+    <select id="selectCOM_CD_DTL_LIST" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO" parameterClass="java.util.HashMap">
+        SELECT  com_cd,   cd_val,    sub_com_cd,
+                cd_nm,    srt_seq,   use_flg,      rmk
+          FROM  tb_com_cd_dtl
+         WHERE  delt_flg = 'N' AND com_cd = #f_com_cd#
+      <dynamic>
+         <isNull property="f_sub_com_cd">
+           AND  sub_com_cd IS NULL
+         </isNull>
+         <isNotNull property="f_sub_com_cd">
+           AND  sub_com_cd = #f_sub_com_cd#
+         </isNotNull>
+      </dynamic>
+      ORDER BY  srt_seq ASC
+    </select>
+    
+    
+<!-- #### 코드조회 SQL 끝 ####  -->
+	
+	
+    <!-- Office Code Hierarchy 조회시 사용   -->
+    <select id="selectOfc_Hierarchy_List" resultClass="com.clt.apps.opusbase.user.dto.OfcVO">
+        SELECT a.prnt_ofc_cd,    a.ofc_cd,       a.ofc_eng_nm,     a.cnt_cd,    a.ofc_addr, 
+               fc_ofc_depth(ofc_cd) ofc_depth, b.cnt_eng_nm 
+        FROM   tb_ofc a,     tb_cnt b   
+        WHERE  a.delt_flg = 'N' AND a.use_flg = #value# 
+          AND  a.cnt_cd   = b.cnt_cd 
+          AND  a.prnt_ofc_cd IS NOT NULL
+        ORDER BY fc_ofc_rank(ofc_cd)
+    </select>
+    
+    <!--Office Code등록   -->
+    <update id="updateOFC_HIERARCHY" parameterClass="com.clt.apps.opusbase.user.dto.OfcVO">
+        UPDATE  tb_ofc
+           SET  prnt_ofc_cd = #prnt_ofc_cd#, 
+                modi_usrid  = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,    modi_tms = GETDATE()
+         WHERE  ofc_cd = #ofc_cd#
+    </update>
+    
+    <!--Office Code삭제   -->
+    <update id="removeOFC_HIERARCHY" parameterClass="com.clt.apps.opusbase.user.dto.OfcVO">
+        UPDATE  tb_ofc
+           SET  prnt_ofc_cd = null, 
+                modi_usrid  = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,    modi_tms = GETDATE()
+         WHERE  ofc_cd = #ofc_cd#
+    </update>
+    
+    
+    <!-- Statistic BLInfo 조회   -->
+    <select id="selectStatisticsBLinfo" resultClass="StatisticsVO">
+        SELECT A.cls_total
+		      ,A.cls_close
+			  ,A.cls_nomal
+			  ,ROUND(A.cls_nomal/A.cls_total * 100, 0) AS cls_rate
+		FROM (
+		
+					select 
+								 count(*) as cls_total 
+								,sum(case when y.pln_dt is null then 1 else 0 end) as cls_close 
+								,sum(case when y.pln_dt > Z.loc_date then 1 else 0 end) as cls_nomal 
+								
+					from (
+								SELECT B.intg_bl_seq, B.bnd_clss_cd
+									FROM tb_intg_bl A, tb_add_info_bnd B
+								WHERE A.biz_clss_cd = 'H'
+									AND A.intg_bl_seq = B.intg_bl_seq
+									AND B.rgst_usrid = #proc_usrid#
+									AND B.rgst_tms >= ADDDATE(GETDATE(),-3)
+									AND B.cxl_flg = 'N'
+						) X left outer join (
+								SELECT min(C.JB_PLN_DT_TM) pln_dt, 
+											B.intg_bl_seq, B.bnd_clss_cd
+									FROM tb_intg_bl A, tb_add_info_bnd B, tb_wrk_flow C
+								WHERE A.biz_clss_cd = 'H'
+									AND A.intg_bl_seq = B.intg_bl_seq
+									AND B.rgst_usrid = #proc_usrid#
+									AND B.rgst_tms >= ADDDATE(GETDATE(),-3)
+									AND B.cxl_flg = 'N'
+									and C.intg_bl_seq = B.INTG_BL_SEQ 
+									and C.BND_CLSS_CD = B.BND_CLSS_CD 
+									and C.jb_sts_cd = 'P'
+								group by B.intg_bl_seq, B.bnd_clss_cd
+						) Y ON x.intg_bl_seq = y.intg_bl_seq and x.bnd_clss_cd = y.bnd_clss_cd 
+						, (
+								select date_format(date_add(GETDATE(),INTERVAL  b.td_qty hour), '%Y%m%d%H%i%s') loc_date
+									from tb_ofc a,
+										 tb_loc b,
+										 tb_usr c
+								where a.loc_cd = b.loc_cd
+								  and a.ofc_cd = c.ofc_cd
+								  and usrid = #proc_usrid#
+						) Z
+				) A
+    </select>
+    
+    <!-- Statistic WOInfo 조회   -->
+    <select id="selectStatisticsWOinfo" resultClass="StatisticsVO">
+        SELECT COUNT(DISTINCT X.WO_NO) wo_cnt,
+		       SUM(PERF_AMT) wo_amt
+		  FROM (
+				SELECT wo_no
+					FROM tb_intg_bl A, tb_add_info_bnd B
+					     left outer join tb_wo C 
+							 ON C.intg_bl_seq = B.intg_bl_seq
+							 and C.BND_CLSS_CD = B.BND_CLSS_CD
+				WHERE A.biz_clss_cd = 'H'
+					AND A.intg_bl_seq = B.intg_bl_seq
+					AND B.rgst_usrid = #proc_usrid#
+					AND B.rgst_tms >= ADDDATE(GETDATE(),-3)
+					AND B.cxl_flg = 'N' ) X 
+			  LEFT OUTER JOIN TB_FRT Y
+			  ON X.WO_NO = Y.WO_NO AND Y.DELT_FLG = 'N'
+    </select>
+    
+    <!-- Statistic Profit Info 조회   -->
+    <select id="selectStatisticsPRinfo" resultClass="StatisticsVO">
+        SELECT SUM( CASE WHEN SELL_BUY_TP_CD IN ('S','D') THEN PERF_AMT ELSE (PERF_AMT*-1) END ) profit_amt
+			FROM tb_intg_bl A, tb_add_info_bnd B, 
+			     tb_frt C
+			     LEFT OUTER JOIN (SELECT FRT_SEQ AS FRT_SEQ1, CFM_FLG AS CFM_FLG1 FROM TB_FRT_BLCK) BLCK ON C.FRT_SEQ = BLCK.FRT_SEQ1  
+		WHERE A.biz_clss_cd = 'H'
+			AND A.intg_bl_seq = B.intg_bl_seq
+			AND B.rgst_usrid = #proc_usrid#
+			AND B.rgst_tms >= ADDDATE(GETDATE(),-3)
+			AND B.cxl_flg = 'N'
+			AND C.intg_bl_seq = B.intg_bl_seq
+	        AND C.BND_CLSS_CD = B.BND_CLSS_CD
+	        AND C.DELT_FLG = 'N'
+	        AND C.SCG_INCL_FLG = 'N'
+			AND ISNULL(BLCK.CFM_FLG1, C.CFM_FLG) = 'Y'
+    </select>
+    
+    <!-- 서브코드 등록   -->
+    <insert id="insertCOM_CD_DTL" parameterClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO">    
+        INSERT INTO tb_com_cd_dtl(
+                com_cd,      cd_val,        sub_com_cd,
+                cd_nm,       srt_seq,       use_flg,       rmk,
+                rgst_usrid,  rgst_ofc_cd,   rgst_tms,      modi_usrid,   modi_ofc_cd,   modi_tms
+        )VALUES(
+            #com_cd#,        #cd_val#,      #sub_com_cd#, 
+            #cd_nm#,         #srt_seq#,     #use_flg#,     #rmk#,
+            #proc_usrid#,    #proc_ofccd#,  GETDATE(),         #proc_usrid#, #proc_ofccd#,  GETDATE()
+        ) 
+    </insert>
+    
+    <!-- 서브코드 수정   -->
+    <update id="updateCOM_CD_DTL" parameterClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO">    
+        UPDATE  tb_com_cd_dtl
+           SET  cd_nm      = #cd_nm#,        srt_seq     = #srt_seq#,          
+                use_flg    = #use_flg#,      rmk         = #rmk#,
+                modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,   modi_tms = GETDATE()
+         WHERE  com_cd = #com_cd#   AND  cd_val = #cd_val#        
+    </update>
+    
+    <select id="selectPgmSeq" resultClass="String" parameterClass="String">
+       SELECT pgm_seq
+       FROM   tb_pgm
+       WHERE  pgm_url like '%' + #pgmUrl# + '%'
+    </select>    
+</sqlMap>

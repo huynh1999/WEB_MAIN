@@ -1,0 +1,1137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="wms.cyclecount">
+	<!-- ACC INVOICE CREATE B/L Search    -->
+	
+<!-- Duy.Nguyen (S)  -->
+	
+	<typeAlias alias="WHCyclecountCondVO" type="com.clt.apps.fis.wms.cyclecount.dto.WHCyclecountCondVO"/>
+	<typeAlias alias="Grd01WHCyclecountListVO" type="com.clt.apps.fis.wms.cyclecount.dto.Grd01WHCyclecountListVO"/>
+	
+	<parameterMap class="com.clt.apps.fis.wms.cyclecount.dto.CyclecountCancelVO" id="callCyclecountCancel_Param">
+	 <parameter property="cycle_cnt_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="call_MAKE_TL_WH_CYCLE_CANCEL_PRC"  parameterMap="callCyclecountCancel_Param">
+		{ CALL dbo.PKG_MAKE_TL_WH_CYCLE_CANCEL_PRC (?,
+										        	?,
+										        	?,
+										        	?,
+										        	?) }
+	</procedure>
+	
+<!-- 	<procedure id="call_MAKE_TL_WH_CYCLE_CANCEL_PRC" parameterClass="java.util.HashMap"> -->
+<!--      	 { CALL PKG_MAKE_TL_WH_CYCLE_CANCEL_PRC(#cycle_cnt_no#, #org_cd#, #user_id#, '', '') } -->
+<!--     </procedure> -->
+	
+	<insert id="saveWHCyclecountList" parameterClass="java.util.HashMap">
+	/*saveWHCyclecountList*/
+	INSERT INTO TL_WH_CYCLE_CNT_INV(
+	CYCLE_CNT_NO,
+	PO_SYS_NO,
+	ITEM_SYS_NO,
+	LOT_ID,
+	WH_LOC_CD,
+	CTRT_NO,
+	WH_CD,
+	ITEM_CD,
+	ITEM_NM,
+	INV_QTY,
+	CNT_QTY,
+	RMK,
+	RGST_ID,
+	RGST_OFC_CD,
+	RGST_SYS_DT,
+	RGST_LOC_DT,
+	MODI_ID,
+	MODI_OFC_CD,
+	MODI_SYS_DT,
+	MODI_LOC_DT,
+	SO_NO,
+	WIB_BK_NO,
+	PO_NO,
+	ITEM_SER_NO,
+	LIC_PLAT_NO,
+	ITEM_SEQ
+	)VALUES(
+	#cycle_cnt_no#,
+	#po_sys_no#,
+	#item_sys_no#,
+	#lot_id#,
+	#wh_loc_cd#,
+	#ctrt_no#,
+	#wh_cd#,
+	#item_cd#,
+	#item_nm#,
+	ISNULL((SELECT CONVERT(NUMERIC(18,3), CAST(#inv_qty# AS FLOAT))),0),
+	ISNULL((SELECT CONVERT(NUMERIC(18,3), CAST(#cnt_qty# AS FLOAT))),0),
+<!-- 	#inv_qty#, -->
+<!-- 	#cnt_qty#, -->
+	#rmk#,
+	#user_id#,
+	#org_cd#,
+	GETDATE(),
+	CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),120),
+	#user_id#,
+	#org_cd#,
+	GETDATE(),
+	CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),120),
+	#so_no#,
+	#wib_bk_no#,
+	#po_no#,
+	#item_ser_no#,
+	#lic_plat_no#,
+	(
+			SELECT ISNULL(MAX(T.ITEM_SEQ),0) + 1 FROM TL_WH_CYCLE_CNT_INV T 
+			WHERE T.CYCLE_CNT_NO = #cycle_cnt_no#
+				AND T.PO_SYS_NO = #po_sys_no#
+				AND T.ITEM_SYS_NO = #item_sys_no#
+				AND T.LOT_ID = #lot_id#
+				AND T.WIB_BK_NO = #wib_bk_no#
+	)
+	)
+	</insert>
+	
+	<update id="updateWHCyclecountMgmtList" parameterClass="java.util.HashMap">
+	/*updateWHCyclecountMgmtList*/
+		UPDATE TL_WH_CYCLE_CNT_INV
+		   SET 
+		   		CNT_QTY			= #cnt_qty#
+		   	,RMK				= #rmk#
+		 WHERE CYCLE_CNT_NO		= #cycle_cnt_no#
+		   AND PO_SYS_NO		= #po_sys_no#
+		   AND ITEM_SYS_NO		= #item_sys_no#
+		   AND LOT_ID			= #lot_id#
+		   AND WH_LOC_CD		= #wh_loc_cd#
+		   AND PO_NO			= #po_no#
+		   AND ITEM_SER_NO		= #item_ser_no#
+		   AND LIC_PLAT_NO		= #lic_plat_no#
+	</update>
+	
+	<update id="updateWHCyclecountMgmtHead" parameterClass="java.util.HashMap">
+	/*updateWHCyclecountMgmtHead*/
+		UPDATE TL_WH_CYCLE_CNT
+		   SET CYCLE_CNT_DT		= replace(#cycle_cnt_dt#,    '-', '')
+		      ,CYCLE_CNT_HM_FR	= replace(#cycle_cnt_hm_fr#, ':', '')
+		      ,CYCLE_CNT_HM_TO	= replace(#cycle_cnt_hm_to#, ':', '')
+		      ,WORKER_NM		= #worker_nm#
+		      ,RMK				= #rmk#
+		 WHERE CYCLE_CNT_NO		= #cycle_cnt_no#
+	</update>
+	<typeAlias alias="ZoneBlockVO"  type="com.clt.apps.fis.wms.cyclecount.dto.ZoneBlockVO"/>
+
+	<select id="searchCycleCountMgmtList" parameterClass="java.util.HashMap" resultClass="WHCyclecountCondVO">
+	/*searchCycleCountMgmtList*/
+		SELECT * from (SELECT ROW_NUMBER () OVER (ORDER BY I.CTRT_NO DESC) AS RN ,I.ITEM_CD
+		      ,I.ITEM_NM
+		      ,T.LOT_ATTRIB_02                                  AS LOT_NO
+		      ,L.ZONE_CD
+		      ,L.BLOCK_CD
+		      ,L.PROP_CD
+		      ,L.WH_LOC_CD
+		      ,dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD)           AS WH_LOC_CD_NM
+		      ,I.INV_QTY
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_CBM      AS CBM
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_GRS_KGS  AS GRS_KGS
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_NET_KGS  AS NET_KGS
+		      ,ISNULL(I.CNT_QTY, 0) AS CNT_QTY
+		      ,ISNULL(I.INV_QTY, 0) - ISNULL(I.CNT_QTY, 0) 			AS GAP_QTY
+		      ,I.RMK
+		      ,I.WIB_BK_NO
+		      ,T.LOT_ATTRIB_01 	AS INBOUND_DT
+		      ,I.PO_NO
+		      ,T.LOT_ATTRIB_03 	AS EXP_DT
+		      ,T.LOT_ATTRIB_04 	AS LOT_04
+		      ,T.LOT_ATTRIB_05 	AS LOT_05
+		      ,I.LOT_ID
+		      ,T.WH_CD
+		      ,dbo.TL_GET_LOC_NM(I.WH_CD) AS WH_NM
+		      ,I.CTRT_NO
+		      ,I.SO_NO
+		      ,I.PO_SYS_NO
+		      ,I.ITEM_SYS_NO
+		      ,I.CYCLE_CNT_NO
+		      ,I.ITEM_SER_NO
+		      ,I.LIC_PLAT_NO
+		  FROM TL_WH_CYCLE_CNT_INV I
+		      ,TL_CTRT_CUST_ITEM_LOT T
+		      ,TL_WH_LOC L
+		      ,TL_CTRT_CUST_ITEM CI
+		 WHERE 1=1
+		   AND I.CTRT_NO     = T.CTRT_NO
+		   AND I.ITEM_SYS_NO = T.ITEM_SYS_NO
+		   AND I.LOT_ID      = T.LOT_ID 
+		   AND I.WH_CD       = L.LOC_CD
+		   AND I.WH_LOC_CD   = L.WH_LOC_CD
+		   AND I.CTRT_NO     = CI.CTRT_NO
+		   AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		   AND I.CYCLE_CNT_NO = #cycle_cnt_no#
+		    ) as TTT <![CDATA[ where TTT.RN > #beginIdx# AND TTT.RN <= #topCnt#	]]>
+	</select>
+	<select id="searchCycleCountMgmtList_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+	/* searchCycleCountMgmtList_CNT */
+		select COUNT(*) from (SELECT ROW_NUMBER () OVER (ORDER BY I.CTRT_NO DESC) AS RN ,I.ITEM_CD
+		      ,I.ITEM_NM
+		      ,T.LOT_ATTRIB_02                                  AS LOT_NO
+		      ,L.ZONE_CD
+		      ,L.BLOCK_CD
+		      ,L.PROP_CD
+		      ,L.WH_LOC_CD
+		      ,dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD)           AS WH_LOC_CD_NM
+		      ,I.INV_QTY
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_CBM      AS CBM
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_GRS_KGS  AS GRS_KGS
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_NET_KGS  AS NET_KGS
+		      ,ISNULL(I.CNT_QTY, 0) AS CNT_QTY
+		      ,ISNULL(I.INV_QTY, 0) - ISNULL(I.CNT_QTY, 0) 			AS GAP_QTY
+		      ,I.RMK
+		      ,I.WIB_BK_NO
+		      ,T.LOT_ATTRIB_01 	AS INBOUND_DT
+		      ,I.PO_NO
+		      ,T.LOT_ATTRIB_03 	AS EXP_DT
+		      ,T.LOT_ATTRIB_04 	AS LOT_04
+		      ,T.LOT_ATTRIB_05 	AS LOT_05
+		      ,I.LOT_ID
+		      ,T.WH_CD
+		      ,dbo.TL_GET_LOC_NM(I.WH_CD) AS WH_NM
+		      ,I.CTRT_NO
+		      ,I.SO_NO
+		      ,I.PO_SYS_NO
+		      ,I.ITEM_SYS_NO
+		      ,I.CYCLE_CNT_NO
+		  FROM TL_WH_CYCLE_CNT_INV I
+		      ,TL_CTRT_CUST_ITEM_LOT T
+		      ,TL_WH_LOC L
+		      ,TL_CTRT_CUST_ITEM CI
+		 WHERE 1=1
+		   AND I.CTRT_NO     = T.CTRT_NO
+		   AND I.ITEM_SYS_NO = T.ITEM_SYS_NO
+		   AND I.LOT_ID      = T.LOT_ID 
+		   AND I.WH_CD       = L.LOC_CD
+		   AND I.WH_LOC_CD   = L.WH_LOC_CD
+		   AND I.CTRT_NO     = CI.CTRT_NO
+		   AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		   AND I.CYCLE_CNT_NO = #cycle_cnt_no#
+		    ) as TTT 
+	</select>
+	<select id="searchCycleCountMgmtInfo" parameterClass="java.util.HashMap" resultClass="WHCyclecountCondVO">
+	/*searchCycleCountMgmtInfo*/
+		SELECT 
+		       MAX(INV.WH_CD)							AS WH_CD
+		      ,MAX(dbo.TL_GET_LOC_NM(INV.WH_CD))			AS WH_NM
+		      ,MAX(INV.CTRT_NO)							AS CTRT_NO
+		      ,MAX(dbo.TL_GET_CTRT_CUST_NM(INV.CTRT_NO)) 	AS CTRT_NM
+		      ,MAX(CNT.CYCLE_CNT_TP_CD)					AS CYCLE_CNT_TP_CD
+		      ,MAX(dbo.TL_GET_COMM_NM('WCC', CNT.CYCLE_CNT_TP_CD)) AS CYCLE_CNT_TP_NM
+		      ,MAX(CNT.WORKER_NM)						AS WORKER_NM
+		      ,CONVERT(VARCHAR(10), MAX(CNT.CYCLE_CNT_DT), 102)		AS CYCLE_CNT_DT
+		      ,CASE WHEN MAX(CNT.CYCLE_CNT_HM_FR) IS NOT NULL THEN  SUBSTRING(MAX(CNT.CYCLE_CNT_HM_FR), 0,3) + ':' +  SUBSTRING(MAX(CNT.CYCLE_CNT_HM_FR), 3,5)
+			       ELSE NULL
+			   END AS CYCLE_CNT_HM_FR
+			  ,CASE WHEN MAX(CNT.CYCLE_CNT_HM_TO) IS NOT NULL THEN  SUBSTRING(MAX(CNT.CYCLE_CNT_HM_TO), 0,3) + ':' +  SUBSTRING(MAX(CNT.CYCLE_CNT_HM_TO), 3,5)
+			       ELSE NULL
+			   END AS CYCLE_CNT_HM_TO
+		      ,MAX(CNT.RMK)					AS RMK
+		  FROM TL_WH_CYCLE_CNT CNT
+		      ,TL_WH_CYCLE_CNT_INV INV
+		 WHERE CNT.CYCLE_CNT_NO = INV.CYCLE_CNT_NO
+		   		AND CNT.CYCLE_CNT_NO = #cycle_cnt_no# 
+		 GROUP BY INV.CYCLE_CNT_NO
+	</select>
+	
+    <select id="searchCycleCountList" parameterClass="java.util.HashMap" resultClass="WHCyclecountCondVO">
+	/*searchCycleCountList*/
+		SELECT * from (SELECT ROW_NUMBER () OVER (ORDER BY I.CTRT_NO DESC) AS RN, C.CYCLE_CNT_NO
+		      ,C.CYCLE_CNT_TP_CD
+		      ,dbo.TL_GET_COMM_NM('WCC', C.CYCLE_CNT_TP_CD) 		AS CYCLE_CNT_TP_NM
+		      ,C.CYCLE_CNT_DT
+		      ,I.ITEM_CD
+		      ,I.ITEM_NM
+		      ,T.LOT_ATTRIB_02                                  AS LOT_NO
+		      ,L.ZONE_CD
+		      ,L.BLOCK_CD
+		      ,L.PROP_CD
+		      ,L.WH_LOC_CD
+		      ,dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD)           AS WH_LOC_CD_NM
+		      ,I.INV_QTY
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_CBM      				AS CBM
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_GRS_KGS  				AS GRS_KGS
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_NET_KGS  				AS NET_KGS
+		      ,I.CNT_QTY
+		      ,ISNULL(I.INV_QTY, 0) - ISNULL(I.CNT_QTY, 0) 			AS GAP_QTY
+		      ,I.RMK
+		      ,I.WIB_BK_NO
+		      ,T.LOT_ATTRIB_01 	AS INBOUND_DT
+		      ,I.PO_NO
+		      ,T.LOT_ATTRIB_03 	AS EXP_DT
+		      ,T.LOT_ATTRIB_04 	AS LOT_04
+		      ,T.LOT_ATTRIB_05 	AS LOT_05
+		      ,I.LOT_ID
+		      ,T.WH_CD
+		      ,dbo.TL_GET_LOC_NM(I.WH_CD) AS WH_NM
+		      ,I.CTRT_NO
+		      ,I.SO_NO
+		      ,I.PO_SYS_NO
+		      ,I.ITEM_SYS_NO
+		      ,I.ITEM_SER_NO
+		      ,I.LIC_PLAT_NO
+		  FROM TL_WH_CYCLE_CNT_INV I
+		      ,TL_WH_CYCLE_CNT C
+		      ,TL_CTRT_CUST_ITEM_LOT T
+		      ,TL_WH_LOC L
+		      ,TL_CTRT_CUST_ITEM CI
+		 WHERE 1=1
+		   AND I.CYCLE_CNT_NO 	= C.CYCLE_CNT_NO
+		   AND I.CTRT_NO     	= T.CTRT_NO
+		   AND I.ITEM_SYS_NO 	= T.ITEM_SYS_NO
+		   AND I.LOT_ID      	= T.LOT_ID 
+		   AND I.WH_CD       	= L.LOC_CD
+		   AND I.WH_LOC_CD   	= L.WH_LOC_CD
+		   AND I.CTRT_NO     	= CI.CTRT_NO
+		   AND I.ITEM_SYS_NO 	= CI.ITEM_SYS_NO
+		   AND I.WH_CD   	 	= #wh_cd#
+		   <isNotEmpty property="ctrt_no">
+           	AND I.CTRT_NO = #ctrt_no#
+           </isNotEmpty>
+		   <isNotEmpty property="cycle_cnt_no">
+           	AND I.CYCLE_CNT_NO = #cycle_cnt_no#
+           </isNotEmpty>
+		   <isNotEmpty property="cycle_cnt_tp_cd">
+           	AND C.CYCLE_CNT_TP_CD = #cycle_cnt_tp_cd#
+           </isNotEmpty>
+		   <isNotEmpty property="cycle_cnt_dt_fm">
+           	<![CDATA[ AND C.CYCLE_CNT_DT >= replace(#cycle_cnt_dt_fm#, '-', '') ]]>
+           </isNotEmpty>
+		   <isNotEmpty property="cycle_cnt_dt_to">
+           	<![CDATA[ AND C.CYCLE_CNT_DT <= replace(#cycle_cnt_dt_to#, '-', '') ]]>
+           </isNotEmpty>
+		   <isNotEqual property="gap_tp" compareValue="All">
+				<isEqual property="gap_tp" compareValue="Y">
+					AND ISNULL(I.INV_QTY, 0) - ISNULL(I.CNT_QTY, 0) != 0
+		   		</isEqual>
+		   		<isEqual property="gap_tp" compareValue="N">
+					AND ISNULL(I.INV_QTY, 0) - ISNULL(I.CNT_QTY, 0) = 0
+		   		</isEqual>
+		   </isNotEqual>
+		   ) as TTT <![CDATA[ where TTT.RN > #beginIdx# AND TTT.RN <= #topCnt#	]]>
+	</select>	
+	
+	<select id="searchCycleCountList_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+	/* searchCycleCountList_CNT */
+		select COUNT(*) from (SELECT ROW_NUMBER () OVER (ORDER BY I.CTRT_NO DESC) AS RN, C.CYCLE_CNT_NO
+		      ,C.CYCLE_CNT_TP_CD
+		      ,dbo.TL_GET_COMM_NM('WCC', C.CYCLE_CNT_TP_CD) 		AS CYCLE_CNT_TP_NM
+		      ,C.CYCLE_CNT_DT
+		      ,I.ITEM_CD
+		      ,I.ITEM_NM
+		      ,T.LOT_ATTRIB_02                                  AS LOT_NO
+		      ,L.ZONE_CD
+		      ,L.BLOCK_CD
+		      ,L.PROP_CD
+		      ,L.WH_LOC_CD
+		      ,dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD)           AS WH_LOC_CD_NM
+		      ,I.INV_QTY
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_CBM      				AS CBM
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_GRS_KGS  				AS GRS_KGS
+		      ,ISNULL(I.INV_QTY, 0) * CI.LV1_NET_KGS  				AS NET_KGS
+		      ,I.CNT_QTY
+		      ,ISNULL(I.INV_QTY, 0) - ISNULL(I.CNT_QTY, 0) 			AS GAP_QTY
+		      ,I.RMK
+		      ,I.WIB_BK_NO
+		      ,T.LOT_ATTRIB_01 	AS INBOUND_DT
+		      ,I.PO_NO
+		      ,T.LOT_ATTRIB_03 	AS EXP_DT
+		      ,T.LOT_ATTRIB_04 	AS LOT_04
+		      ,T.LOT_ATTRIB_05 	AS LOT_05
+		      ,I.LOT_ID
+		      ,T.WH_CD
+		      ,dbo.TL_GET_LOC_NM(I.WH_CD) AS WH_NM
+		      ,I.CTRT_NO
+		      ,I.SO_NO
+		      ,I.PO_SYS_NO
+		      ,I.ITEM_SYS_NO
+		  FROM TL_WH_CYCLE_CNT_INV I
+		      ,TL_WH_CYCLE_CNT C
+		      ,TL_CTRT_CUST_ITEM_LOT T
+		      ,TL_WH_LOC L
+		      ,TL_CTRT_CUST_ITEM CI
+		 WHERE 1=1
+		   AND I.CYCLE_CNT_NO 	= C.CYCLE_CNT_NO
+		   AND I.CTRT_NO     	= T.CTRT_NO
+		   AND I.ITEM_SYS_NO 	= T.ITEM_SYS_NO
+		   AND I.LOT_ID      	= T.LOT_ID 
+		   AND I.WH_CD       	= L.LOC_CD
+		   AND I.WH_LOC_CD   	= L.WH_LOC_CD
+		   AND I.CTRT_NO     	= CI.CTRT_NO
+		   AND I.ITEM_SYS_NO 	= CI.ITEM_SYS_NO
+		   AND I.WH_CD   	 	= #wh_cd#
+		   <isNotEmpty property="ctrt_no">
+           	AND I.CTRT_NO = #ctrt_no#
+           </isNotEmpty>
+		   <isNotEmpty property="cycle_cnt_no">
+           	AND I.CYCLE_CNT_NO = #cycle_cnt_no#
+           </isNotEmpty>
+		   <isNotEmpty property="cycle_cnt_tp_cd">
+           	AND C.CYCLE_CNT_TP_CD = #cycle_cnt_tp_cd#
+           </isNotEmpty>
+		   <isNotEmpty property="cycle_cnt_dt_fm">
+           	<![CDATA[ AND C.CYCLE_CNT_DT >= replace(#cycle_cnt_dt_fm#, '-', '') ]]>
+           </isNotEmpty>
+		   <isNotEmpty property="cycle_cnt_dt_to">
+           	<![CDATA[ AND C.CYCLE_CNT_DT <= replace(#cycle_cnt_dt_to#, '-', '') ]]>
+           </isNotEmpty>
+		   <isNotEqual property="gap_tp" compareValue="All">
+				<isEqual property="gap_tp" compareValue="Y">
+					AND ISNULL(I.INV_QTY, 0) - ISNULL(I.CNT_QTY, 0) != 0
+		   		</isEqual>
+		   		<isEqual property="gap_tp" compareValue="N">
+					AND ISNULL(I.INV_QTY, 0) - ISNULL(I.CNT_QTY, 0) = 0
+		   		</isEqual>
+		   </isNotEqual>) as TTT 
+	</select>
+<!-- Duy.Nguyen (E)  -->
+	
+	<!-- Lap.Nguyen (S)-->
+	<!-- [CycleCountPlan] Cycle Count Plan-->
+	<select id="searchWHCyclecountListTotal" parameterClass="java.util.HashMap" resultClass="WHCyclecountCondVO">
+	/*wms.cyclecount.searchWHCyclecountListTotal*/
+		SELECT TB_T.* FROM (SELECT ROW_NUMBER () OVER (ORDER BY I.ITEM_CD,T.LOT_ATTRIB_01) AS SEQ, 
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">
+			   		<isNotEmpty property="trs_fm_dt">
+			   		(
+			        SELECT  CONVERT(VARCHAR(10),MAX(TRS_LOC_DT), 120) 
+			        FROM TL_WH_TRS_HST HM
+	  					  ,TL_WH_TRS_HST_ITEM HI                          
+				    WHERE HM.TRS_NO      = HI.TRS_NO
+			           	AND HI.PO_SYS_NO   = I.PO_SYS_NO
+			           	AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+			           	AND HI.LOT_ID	  = I.LOT_ID
+			           	AND HI.WH_LOC_CD	  = I.WH_LOC_CD			           	
+					    AND HM.WH_CD		  = #wh_cd#
+			           	<![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+			           	<isNotEmpty property="trs_to_dt">
+			   				<![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+			   			</isNotEmpty>
+			   			) AS TRS_DT ,
+			   		</isNotEmpty>
+			   </isEqual>
+		       I.ITEM_CD
+		      ,T.LOT_ATTRIB_01
+		      ,I.ITEM_NM
+		      ,T.LOT_ATTRIB_02                                  AS LOT_NO
+		      ,L.ZONE_CD
+		      ,L.BLOCK_CD
+		      ,L.PROP_CD
+		      ,L.WH_LOC_CD
+		      ,dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD)           AS WH_LOC_CD_NM
+		      ,I.IN_QTY  - ISNULL(I.OUT_QTY, 0)                    AS INV_QTY
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_CBM      AS CBM
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_GRS_KGS  AS GRS_KGS
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_NET_KGS  AS NET_KGS
+		      ,I.WIB_BK_NO
+		      ,T.LOT_ATTRIB_01 AS INBOUND_DT
+		      ,I.PO_NO
+		      ,T.LOT_ATTRIB_03 AS EXP_DT
+		      ,T.LOT_ATTRIB_04 AS LOT_04
+		      ,T.LOT_ATTRIB_05 AS LOT_05
+		      ,I.LOT_ID
+		      ,T.WH_CD
+		      ,dbo.TL_GET_LOC_NM(I.WH_CD) AS WH_NM
+		      ,I.CTRT_NO
+		      ,I.SO_NO
+		      ,I.PO_SYS_NO
+		      ,I.ITEM_SYS_NO
+		      ,I.ITEM_SER_NO
+		      ,I.LIC_PLAT_NO
+		  FROM TL_WH_INV_LOC I JOIN TL_CTRT_CUST_ITEM_LOT T ON I.CTRT_NO     = T.CTRT_NO AND I.ITEM_SYS_NO = T.ITEM_SYS_NO
+              JOIN TL_WH_LOC L ON I.LOT_ID      = T.LOT_ID AND I.WH_CD       = L.LOC_CD
+              JOIN TL_CTRT_CUST_ITEM CI ON I.WH_LOC_CD   = L.WH_LOC_CD AND I.CTRT_NO     = CI.CTRT_NO AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		 WHERE 1 = 1
+		   AND I.WH_CD   	 = #wh_cd#
+		   <isNotEmpty property="ctrt_no">
+		     AND I.CTRT_NO 	 = #ctrt_no#   
+		   </isNotEmpty>
+		   <isNotEqual property="cycle_cnt_tp_cd" compareValue="A">
+		       <isNotEqual property="zone_cd" compareValue="All">
+			     AND L.ZONE_CD = #zone_cd#
+			   </isNotEqual>
+			   <isNotEmpty property="wh_loc_cd">
+			     AND L.WH_LOC_CD = #wh_loc_cd#
+			   </isNotEmpty>
+			   <isNotEqual property="block_cd" compareValue="All">
+			     AND L.BLOCK_CD = #block_cd#
+			   </isNotEqual>
+			   <isNotEqual property="wh_loc_prop_cd" compareValue="All">
+			     AND L.PROP_CD = #wh_loc_prop_cd#
+			   </isNotEqual>
+			   
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">	   
+				   <isNotEmpty property="trs_fm_dt">
+				     AND EXISTS ( SELECT 'X'
+		                            FROM TL_WH_TRS_HST HM
+		    						    ,TL_WH_TRS_HST_ITEM HI                          
+			 			           WHERE HM.TRS_NO      = HI.TRS_NO
+						             AND HI.PO_SYS_NO   = I.PO_SYS_NO
+						             AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						             AND HI.LOT_ID		= I.LOT_ID
+						             AND HI.WH_LOC_CD	= I.WH_LOC_CD
+						             AND HM.WH_CD		= #wh_cd#
+						            <![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+						            <isNotEmpty property="trs_to_dt">
+						            <![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+						            </isNotEmpty>
+						         ) 	
+				    </isNotEmpty>
+				</isEqual>
+			</isNotEqual>
+			
+			<![CDATA[ AND I.IN_QTY  - ISNULL(I.OUT_QTY, 0)  > 0 ]]>) AS TB_T
+			<![CDATA[ WHERE TB_T.SEQ > #beginIdx# AND TB_T.SEQ <= #topCnt#	]]>
+		ORDER BY TB_T.ITEM_CD,TB_T.LOT_ATTRIB_01	
+	</select>
+	<select id="searchWHCyclecountListTotal_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+	select COUNT(*) from (SELECT ROW_NUMBER () OVER (ORDER BY I.ITEM_CD,T.LOT_ATTRIB_01) AS SEQ, 
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">
+			   		<isNotEmpty property="trs_fm_dt">
+			   		(
+			        SELECT  CONVERT(VARCHAR(10),MAX(TRS_LOC_DT), 120) 
+			        FROM TL_WH_TRS_HST HM
+	  					  ,TL_WH_TRS_HST_ITEM HI                          
+				    WHERE HM.TRS_NO      = HI.TRS_NO
+			           	AND HI.PO_SYS_NO   = I.PO_SYS_NO
+			           	AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+			           	AND HI.LOT_ID	  = I.LOT_ID
+			           	AND HI.WH_LOC_CD	  = I.WH_LOC_CD			           	
+					   <isNotEqual property="wh_cd" compareValue="All">		   	
+					   	AND HM.WH_CD		  = #wh_cd#
+					   </isNotEqual>
+			           	<![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+			           	<isNotEmpty property="trs_to_dt">
+			   				<![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+			   			</isNotEmpty>
+			   			) AS TRS_DT ,
+			   		</isNotEmpty>
+			   </isEqual>
+		       I.ITEM_CD
+		      ,T.LOT_ATTRIB_01
+		      ,I.ITEM_NM
+		      ,T.LOT_ATTRIB_02                                  AS LOT_NO
+		      ,L.ZONE_CD
+		      ,L.BLOCK_CD
+		      ,L.PROP_CD
+		      ,L.WH_LOC_CD
+		      ,dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD)           AS WH_LOC_CD_NM
+		      ,I.IN_QTY  - ISNULL(I.OUT_QTY, 0)                    AS INV_QTY
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_CBM      AS CBM
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_GRS_KGS  AS GRS_KGS
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_NET_KGS  AS NET_KGS
+		      ,I.WIB_BK_NO
+		      ,T.LOT_ATTRIB_01 AS INBOUND_DT
+		      ,I.PO_NO
+		      ,T.LOT_ATTRIB_03 AS EXP_DT
+		      ,T.LOT_ATTRIB_04 AS LOT_04
+		      ,T.LOT_ATTRIB_05 AS LOT_05
+		      ,I.LOT_ID
+		      ,T.WH_CD
+		      ,dbo.TL_GET_LOC_NM(I.WH_CD) AS WH_NM
+		      ,I.CTRT_NO
+		      ,I.SO_NO
+		      ,I.PO_SYS_NO
+		      ,I.ITEM_SYS_NO
+		      
+		  FROM TL_WH_INV_LOC I JOIN TL_CTRT_CUST_ITEM_LOT T ON I.CTRT_NO     = T.CTRT_NO AND I.ITEM_SYS_NO = T.ITEM_SYS_NO
+              JOIN TL_WH_LOC L ON I.LOT_ID      = T.LOT_ID AND I.WH_CD       = L.LOC_CD
+              JOIN TL_CTRT_CUST_ITEM CI ON I.WH_LOC_CD   = L.WH_LOC_CD AND I.CTRT_NO     = CI.CTRT_NO AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		 WHERE 1 = 1
+		   <isNotEqual property="wh_cd" compareValue="All">		   	
+		   	AND I.WH_CD   	 = #wh_cd#
+		   </isNotEqual>
+		   <isNotEmpty property="ctrt_no">
+		     AND I.CTRT_NO 	 = #ctrt_no#   
+		   </isNotEmpty>
+		   <isNotEqual property="cycle_cnt_tp_cd" compareValue="A">
+		       <isNotEqual property="zone_cd" compareValue="All">
+			     AND L.ZONE_CD = #zone_cd#
+			   </isNotEqual>
+			   <isNotEmpty property="wh_loc_cd">
+			     AND L.WH_LOC_CD = #wh_loc_cd#
+			   </isNotEmpty>
+			   <isNotEqual property="block_cd" compareValue="All">
+			     AND L.BLOCK_CD = #block_cd#
+			   </isNotEqual>
+			   <isNotEqual property="wh_loc_prop_cd" compareValue="All">
+			     AND L.PROP_CD = #wh_loc_prop_cd#
+			   </isNotEqual>
+			   
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">	   
+				   <isNotEmpty property="trs_fm_dt">
+				     AND EXISTS ( SELECT 'X'
+		                            FROM TL_WH_TRS_HST HM
+		    						    ,TL_WH_TRS_HST_ITEM HI                          
+			 			           WHERE HM.TRS_NO      = HI.TRS_NO
+						             AND HI.PO_SYS_NO   = I.PO_SYS_NO
+						             AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						             AND HI.LOT_ID		= I.LOT_ID
+						             AND HI.WH_LOC_CD	= I.WH_LOC_CD
+						             <isNotEqual property="wh_cd" compareValue="All">		   	
+									   	AND HM.WH_CD		= #wh_cd#
+									   </isNotEqual>
+						            <![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+						            <isNotEmpty property="trs_to_dt">
+						            <![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+						            </isNotEmpty>
+						         ) 	
+				    </isNotEmpty>
+				</isEqual>
+			</isNotEqual>
+			
+			<![CDATA[ AND I.IN_QTY  - ISNULL(I.OUT_QTY, 0)  > 0 ]]>) as TB_T 
+	</select>
+	<select id="searchWHCyclecountListPart" parameterClass="java.util.HashMap" resultClass="WHCyclecountCondVO">
+	/*wms.cyclecount.searchWHCyclecountListPart*/
+		SELECT TB_T.* FROM (SELECT ROW_NUMBER () OVER (ORDER BY I.ITEM_CD,T.LOT_ATTRIB_01) AS SEQ,
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">
+				   <isNotEmpty property="trs_fm_dt"> 
+			       (
+			        SELECT CONVERT(VARCHAR(10),MAX(TRS_LOC_DT), 120) 
+			          FROM TL_WH_TRS_HST HM
+	  					  ,TL_WH_TRS_HST_ITEM HI                          
+				     WHERE HM.TRS_NO      = HI.TRS_NO
+			           AND HI.PO_SYS_NO   = I.PO_SYS_NO
+			           AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+			           AND HI.LOT_ID	  = I.LOT_ID
+			           AND HI.WH_LOC_CD	  = I.WH_LOC_CD
+			           <isNotEqual property="wh_cd" compareValue="All">		   	
+					   	AND HM.WH_CD		  = #wh_cd#
+					   </isNotEqual>
+			           <![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+		               <isNotEmpty property="trs_to_dt">
+		               <![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+		               </isNotEmpty>
+			        ) AS TRS_DT ,
+			       </isNotEmpty>
+			   </isEqual>
+		       I.ITEM_CD
+		      ,T.LOT_ATTRIB_01
+		      ,I.ITEM_NM
+		      ,T.LOT_ATTRIB_02                                  AS LOT_NO
+		      ,L.ZONE_CD
+		      ,L.BLOCK_CD
+		      ,L.PROP_CD
+		      ,L.WH_LOC_CD
+		      ,dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD)           AS WH_LOC_CD_NM
+		      ,I.IN_QTY  - ISNULL(I.OUT_QTY, 0)                    AS INV_QTY
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_CBM      AS CBM
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_GRS_KGS  AS GRS_KGS
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_NET_KGS  AS NET_KGS
+		      ,I.WIB_BK_NO
+		      ,T.LOT_ATTRIB_01 AS INBOUND_DT
+		      ,I.PO_NO
+		      ,T.LOT_ATTRIB_03 AS EXP_DT
+		      ,T.LOT_ATTRIB_04 AS LOT_04
+		      ,T.LOT_ATTRIB_05 AS LOT_05
+		      ,I.LOT_ID
+		      ,T.WH_CD
+		      ,dbo.TL_GET_LOC_NM(T.WH_CD) AS WH_NM
+		      ,I.CTRT_NO
+		      ,I.SO_NO
+		      ,I.PO_SYS_NO
+		      ,I.ITEM_SYS_NO
+		      ,I.ITEM_SER_NO
+		      ,I.LIC_PLAT_NO
+		  FROM TL_WH_INV_LOC I
+              ,TL_CTRT_CUST_ITEM_LOT T
+              ,TL_WH_LOC L
+              ,TL_CTRT_CUST_ITEM CI
+		 WHERE I.CTRT_NO     = T.CTRT_NO
+		   AND I.ITEM_SYS_NO = T.ITEM_SYS_NO
+		   AND I.LOT_ID      = T.LOT_ID 
+		   AND I.WH_CD       = L.LOC_CD
+		   AND I.WH_LOC_CD   = L.WH_LOC_CD
+		   AND I.CTRT_NO     = CI.CTRT_NO
+		   AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		   AND I.WH_CD   	 = #wh_cd#
+		   <isNotEmpty property="ctrt_no">
+		     AND I.CTRT_NO 	 = #ctrt_no#   
+		   </isNotEmpty>
+		   <isNotEqual property="cycle_cnt_tp_cd" compareValue="A">
+		   
+		       <isNotEqual property="zone_cd" compareValue="All">
+			     AND L.ZONE_CD = #zone_cd#
+			   </isNotEqual>
+			   <isNotEmpty property="wh_loc_cd">
+			     AND L.WH_LOC_CD = #wh_loc_cd#
+			   </isNotEmpty>
+			   <isNotEqual property="block_cd" compareValue="All">
+			     AND L.BLOCK_CD = #block_cd#
+			   </isNotEqual>
+			   
+			   <isNotEqual property="wh_loc_prop_cd" compareValue="All">
+			     AND L.PROP_CD = #wh_loc_prop_cd#
+			   </isNotEqual>
+			   
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">	   
+				   <isNotEmpty property="trs_fm_dt">
+				     AND EXISTS ( SELECT 'X'
+		                            FROM TL_WH_TRS_HST HM
+		    						    ,TL_WH_TRS_HST_ITEM HI                          
+			 			           WHERE HM.TRS_NO      = HI.TRS_NO
+						             AND HI.PO_SYS_NO   = I.PO_SYS_NO
+						             AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						             AND HI.LOT_ID		= I.LOT_ID
+						             AND HI.WH_LOC_CD	= I.WH_LOC_CD
+						             AND HM.WH_CD		= #wh_cd#
+						             <isNotEqual property="wh_cd" compareValue="All">		   	
+									   	AND HM.WH_CD		= #wh_cd#
+									   </isNotEqual>
+						            <![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+						            <isNotEmpty property="trs_to_dt">
+						            <![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+						            </isNotEmpty>
+						         ) 	
+				    </isNotEmpty>
+				</isEqual>
+			</isNotEqual>
+			
+			<![CDATA[ AND I.IN_QTY  - ISNULL(I.OUT_QTY, 0)  > 0 ]]>) AS TB_T
+			<![CDATA[ WHERE TB_T.SEQ > #beginIdx# AND TB_T.SEQ <= #topCnt#	]]>
+		ORDER BY TB_T.ITEM_CD,TB_T.LOT_ATTRIB_01	
+	</select>
+	<select id="searchWHCyclecountListPart_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+	select COUNT(*) from (SELECT ROW_NUMBER () OVER (ORDER BY I.ITEM_CD,T.LOT_ATTRIB_01) AS SEQ,
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">
+				   <isNotEmpty property="trs_fm_dt"> 
+			       (
+			        SELECT CONVERT(VARCHAR(10),MAX(TRS_LOC_DT), 120) 
+			          FROM TL_WH_TRS_HST HM
+	  					  ,TL_WH_TRS_HST_ITEM HI                          
+				     WHERE HM.TRS_NO      = HI.TRS_NO
+			           AND HI.PO_SYS_NO   = I.PO_SYS_NO
+			           AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+			           AND HI.LOT_ID	  = I.LOT_ID
+			           AND HI.WH_LOC_CD	  = I.WH_LOC_CD
+			           <isNotEqual property="wh_cd" compareValue="All">		   	
+					   	AND HM.WH_CD		  = #wh_cd#
+					   </isNotEqual>
+			           <![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+		               <isNotEmpty property="trs_to_dt">
+		               <![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+		               </isNotEmpty>
+			        ) AS TRS_DT ,
+			       </isNotEmpty>
+			   </isEqual>
+		       I.ITEM_CD
+		      ,T.LOT_ATTRIB_01
+		      ,I.ITEM_NM
+		      ,T.LOT_ATTRIB_02                                  AS LOT_NO
+		      ,L.ZONE_CD
+		      ,L.BLOCK_CD
+		      ,L.PROP_CD
+		      ,L.WH_LOC_CD
+		      ,dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD)           AS WH_LOC_CD_NM
+		      ,I.IN_QTY  - ISNULL(I.OUT_QTY, 0)                    AS INV_QTY
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_CBM      AS CBM
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_GRS_KGS  AS GRS_KGS
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_NET_KGS  AS NET_KGS
+		      ,I.WIB_BK_NO
+		      ,T.LOT_ATTRIB_01 AS INBOUND_DT
+		      ,I.PO_NO
+		      ,T.LOT_ATTRIB_03 AS EXP_DT
+		      ,T.LOT_ATTRIB_04 AS LOT_04
+		      ,T.LOT_ATTRIB_05 AS LOT_05
+		      ,I.LOT_ID
+		      ,T.WH_CD
+		      ,dbo.TL_GET_LOC_NM(T.WH_CD) AS WH_NM
+		      ,I.CTRT_NO
+		      ,I.SO_NO
+		      ,I.PO_SYS_NO
+		      ,I.ITEM_SYS_NO
+		  FROM TL_WH_INV_LOC I
+              ,TL_CTRT_CUST_ITEM_LOT T
+              ,TL_WH_LOC L
+              ,TL_CTRT_CUST_ITEM CI
+		 WHERE I.CTRT_NO     = T.CTRT_NO
+		   AND I.ITEM_SYS_NO = T.ITEM_SYS_NO
+		   AND I.LOT_ID      = T.LOT_ID 
+		   AND I.WH_CD       = L.LOC_CD
+		   AND I.WH_LOC_CD   = L.WH_LOC_CD
+		   AND I.CTRT_NO     = CI.CTRT_NO
+		   AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		   AND I.WH_CD   	 = #wh_cd#
+		   <isNotEmpty property="ctrt_no">
+		     AND I.CTRT_NO 	 = #ctrt_no#   
+		   </isNotEmpty>
+		   <isNotEqual property="cycle_cnt_tp_cd" compareValue="A">
+		   
+		       <isNotEqual property="zone_cd" compareValue="All">
+			     AND L.ZONE_CD = #zone_cd#
+			   </isNotEqual>
+			   <isNotEmpty property="wh_loc_cd">
+			     AND L.WH_LOC_CD = #wh_loc_cd#
+			   </isNotEmpty>
+			   <isNotEqual property="block_cd" compareValue="All">
+			     AND L.BLOCK_CD = #block_cd#
+			   </isNotEqual>
+			   
+			   <isNotEqual property="wh_loc_prop_cd" compareValue="All">
+			     AND L.PROP_CD = #wh_loc_prop_cd#
+			   </isNotEqual>
+			   
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">	   
+				   <isNotEmpty property="trs_fm_dt">
+				     AND EXISTS ( SELECT 'X'
+		                            FROM TL_WH_TRS_HST HM
+		    						    ,TL_WH_TRS_HST_ITEM HI                          
+			 			           WHERE HM.TRS_NO      = HI.TRS_NO
+						             AND HI.PO_SYS_NO   = I.PO_SYS_NO
+						             AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						             AND HI.LOT_ID		= I.LOT_ID
+						             AND HI.WH_LOC_CD	= I.WH_LOC_CD
+						             AND HM.WH_CD		= #wh_cd#
+						             <isNotEqual property="wh_cd" compareValue="All">		   	
+									   	AND HM.WH_CD		= #wh_cd#
+									   </isNotEqual>
+						            <![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+						            <isNotEmpty property="trs_to_dt">
+						            <![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+						            </isNotEmpty>
+						         ) 	
+				    </isNotEmpty>
+				</isEqual>
+			</isNotEqual>
+			
+			<![CDATA[ AND I.IN_QTY  - ISNULL(I.OUT_QTY, 0)  > 0 ]]>) as TB_T 
+	</select>
+	<select id="searchWHCyclecountListTransation" parameterClass="java.util.HashMap" resultClass="WHCyclecountCondVO">
+	/*wms.cyclecount.searchWHCyclecountListTransation*/
+		SELECT TB_T.* FROM (SELECT ROW_NUMBER () OVER (ORDER BY I.ITEM_CD,T.LOT_ATTRIB_01) AS SEQ,
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">
+				   <isNotEmpty property="trs_fm_dt"> 
+			       (
+			        SELECT CONVERT(VARCHAR(10),MAX(TRS_LOC_DT), 120) 
+			          FROM TL_WH_TRS_HST HM
+	  					  ,TL_WH_TRS_HST_ITEM HI                          
+				     WHERE HM.TRS_NO      = HI.TRS_NO
+			           AND HI.PO_SYS_NO   = I.PO_SYS_NO
+			           AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+			           AND HI.LOT_ID	  = I.LOT_ID
+			           AND HI.WH_LOC_CD	  = I.WH_LOC_CD
+			           AND HM.CTRT_NO     = #ctrt_no#
+			           <isNotEqual property="wh_cd" compareValue="All">		   	
+					   	AND HM.WH_CD		  = #wh_cd#
+					   </isNotEqual>
+			           <![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+			           <isNotEmpty property="trs_to_dt">
+			           <![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+			           </isNotEmpty>
+			        ) AS TRS_DT ,
+			       </isNotEmpty>
+			   </isEqual>
+		       I.ITEM_CD
+		      ,T.LOT_ATTRIB_01 
+		      ,I.ITEM_NM
+		      ,T.LOT_ATTRIB_02                                  AS LOT_NO
+		      ,L.ZONE_CD
+		      ,L.BLOCK_CD
+		      ,L.PROP_CD
+		      ,L.WH_LOC_CD
+		      ,dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD)           AS WH_LOC_CD_NM
+		      ,I.IN_QTY  - ISNULL(I.OUT_QTY, 0)                    AS INV_QTY
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_CBM      AS CBM
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_GRS_KGS  AS GRS_KGS
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_NET_KGS  AS NET_KGS
+		      ,I.WIB_BK_NO
+		      ,T.LOT_ATTRIB_01 AS INBOUND_DT
+		      ,I.PO_NO
+		      ,T.LOT_ATTRIB_03 AS EXP_DT
+		      ,T.LOT_ATTRIB_04 AS LOT_04
+		      ,T.LOT_ATTRIB_05 AS LOT_05
+		      ,I.LOT_ID
+		      ,T.WH_CD
+		      ,dbo.TL_GET_LOC_NM(T.WH_CD) AS WH_NM
+		      ,I.CTRT_NO
+		      ,I.SO_NO
+		      ,I.PO_SYS_NO
+		      ,I.ITEM_SYS_NO
+		      ,I.ITEM_SER_NO
+		      ,I.LIC_PLAT_NO
+		  FROM TL_WH_INV_LOC I
+              ,TL_CTRT_CUST_ITEM_LOT T
+              ,TL_WH_LOC L
+              ,TL_CTRT_CUST_ITEM CI
+		 WHERE I.CTRT_NO     = T.CTRT_NO
+		   AND I.ITEM_SYS_NO = T.ITEM_SYS_NO
+		   AND I.LOT_ID      = T.LOT_ID 
+		   AND I.WH_CD       = L.LOC_CD
+		   AND I.WH_LOC_CD   = L.WH_LOC_CD
+		   AND I.CTRT_NO     = CI.CTRT_NO
+		   AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		   <isNotEqual property="wh_cd" compareValue="All">		   	
+		   	AND I.WH_CD   	 = #wh_cd#
+		   </isNotEqual>
+		   <isNotEmpty property="ctrt_no">
+		     AND I.CTRT_NO 	 = #ctrt_no#   
+		   </isNotEmpty>
+		   <isNotEqual property="cycle_cnt_tp_cd" compareValue="A">
+		   
+		       <isNotEqual property="zone_cd" compareValue="All">
+			     AND L.ZONE_CD = #zone_cd#
+			   </isNotEqual>
+			   <isNotEmpty property="wh_loc_cd">
+			     AND L.WH_LOC_CD = #wh_loc_cd#
+			   </isNotEmpty>
+			   <isNotEqual property="block_cd" compareValue="All">
+			     AND L.BLOCK_CD = #block_cd#
+			   </isNotEqual>
+			   
+			   <isNotEqual property="wh_loc_prop_cd" compareValue="All">
+			     AND L.PROP_CD = #wh_loc_prop_cd#
+			   </isNotEqual>
+			   
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">	   
+				   <isNotEmpty property="trs_fm_dt">
+				     AND EXISTS ( SELECT 'X'
+		                            FROM TL_WH_TRS_HST HM
+		    						    ,TL_WH_TRS_HST_ITEM HI                          
+			 			           WHERE HM.TRS_NO      = HI.TRS_NO
+						             AND HI.PO_SYS_NO   = I.PO_SYS_NO
+						             AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						             AND HI.LOT_ID		= I.LOT_ID
+						             AND HI.WH_LOC_CD	= I.WH_LOC_CD
+						             AND HM.CTRT_NO     = #ctrt_no#  
+						             <isNotEqual property="wh_cd" compareValue="All">		   	
+									  	AND HM.WH_CD		= #wh_cd#
+									  </isNotEqual>
+						            <![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+						            <isNotEmpty property="trs_to_dt">
+						            <![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+						            </isNotEmpty>
+						         ) 	
+				    </isNotEmpty>
+				</isEqual>
+			</isNotEqual>
+			<![CDATA[ AND I.IN_QTY  - ISNULL(I.OUT_QTY, 0)  > 0 ]]>) AS TB_T
+			<![CDATA[ WHERE TB_T.SEQ > #beginIdx# AND TB_T.SEQ <= #topCnt#	]]>
+			ORDER BY TB_T.ITEM_CD,TB_T.LOT_ATTRIB_01	
+	</select>
+	<select id="searchWHCyclecountListTransation_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+	select COUNT(*) from (SELECT ROW_NUMBER () OVER (ORDER BY I.ITEM_CD,T.LOT_ATTRIB_01) AS SEQ,
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">
+				   <isNotEmpty property="trs_fm_dt"> 
+			       (
+			        SELECT CONVERT(VARCHAR(10),MAX(TRS_LOC_DT), 120) 
+			          FROM TL_WH_TRS_HST HM
+	  					  ,TL_WH_TRS_HST_ITEM HI                          
+				     WHERE HM.TRS_NO      = HI.TRS_NO
+			           AND HI.PO_SYS_NO   = I.PO_SYS_NO
+			           AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+			           AND HI.LOT_ID	  = I.LOT_ID
+			           AND HI.WH_LOC_CD	  = I.WH_LOC_CD
+			           AND HM.CTRT_NO     = #ctrt_no#
+			           <isNotEqual property="wh_cd" compareValue="All">		   	
+					   	AND HM.WH_CD		  = #wh_cd#
+					   </isNotEqual>
+			           <![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+			           <isNotEmpty property="trs_to_dt">
+			           <![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+			           </isNotEmpty>
+			        ) AS TRS_DT ,
+			       </isNotEmpty>
+			   </isEqual>
+		       I.ITEM_CD
+		      ,T.LOT_ATTRIB_01 
+		      ,I.ITEM_NM
+		      ,T.LOT_ATTRIB_02                                  AS LOT_NO
+		      ,L.ZONE_CD
+		      ,L.BLOCK_CD
+		      ,L.PROP_CD
+		      ,L.WH_LOC_CD
+		      ,dbo.TL_GET_WH_LOC_NM(I.WH_CD, L.WH_LOC_CD)           AS WH_LOC_CD_NM
+		      ,I.IN_QTY  - ISNULL(I.OUT_QTY, 0)                    AS INV_QTY
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_CBM      AS CBM
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_GRS_KGS  AS GRS_KGS
+		      ,(I.IN_QTY - ISNULL(I.OUT_QTY, 0)) * CI.LV1_NET_KGS  AS NET_KGS
+		      ,I.WIB_BK_NO
+		      ,T.LOT_ATTRIB_01 AS INBOUND_DT
+		      ,I.PO_NO
+		      ,T.LOT_ATTRIB_03 AS EXP_DT
+		      ,T.LOT_ATTRIB_04 AS LOT_04
+		      ,T.LOT_ATTRIB_05 AS LOT_05
+		      ,I.LOT_ID
+		      ,T.WH_CD
+		      ,dbo.TL_GET_LOC_NM(T.WH_CD) AS WH_NM
+		      ,I.CTRT_NO
+		      ,I.SO_NO
+		      ,I.PO_SYS_NO
+		      ,I.ITEM_SYS_NO
+		  FROM TL_WH_INV_LOC I
+              ,TL_CTRT_CUST_ITEM_LOT T
+              ,TL_WH_LOC L
+              ,TL_CTRT_CUST_ITEM CI
+		 WHERE I.CTRT_NO     = T.CTRT_NO
+		   AND I.ITEM_SYS_NO = T.ITEM_SYS_NO
+		   AND I.LOT_ID      = T.LOT_ID 
+		   AND I.WH_CD       = L.LOC_CD
+		   AND I.WH_LOC_CD   = L.WH_LOC_CD
+		   AND I.CTRT_NO     = CI.CTRT_NO
+		   AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		   <isNotEqual property="wh_cd" compareValue="All">		   	
+		   	AND I.WH_CD   	 = #wh_cd#
+		   </isNotEqual>
+		   <isNotEmpty property="ctrt_no">
+		     AND I.CTRT_NO 	 = #ctrt_no#   
+		   </isNotEmpty>
+		   <isNotEqual property="cycle_cnt_tp_cd" compareValue="A">
+		   
+		       <isNotEqual property="zone_cd" compareValue="All">
+			     AND L.ZONE_CD = #zone_cd#
+			   </isNotEqual>
+			   <isNotEmpty property="wh_loc_cd">
+			     AND L.WH_LOC_CD = #wh_loc_cd#
+			   </isNotEmpty>
+			   <isNotEqual property="block_cd" compareValue="All">
+			     AND L.BLOCK_CD = #block_cd#
+			   </isNotEqual>
+			   
+			   <isNotEqual property="wh_loc_prop_cd" compareValue="All">
+			     AND L.PROP_CD = #wh_loc_prop_cd#
+			   </isNotEqual>
+			   
+			   <isEqual property="cycle_cnt_tp_cd" compareValue="T">	   
+				   <isNotEmpty property="trs_fm_dt">
+				     AND EXISTS ( SELECT 'X'
+		                            FROM TL_WH_TRS_HST HM
+		    						    ,TL_WH_TRS_HST_ITEM HI                          
+			 			           WHERE HM.TRS_NO      = HI.TRS_NO
+						             AND HI.PO_SYS_NO   = I.PO_SYS_NO
+						             AND HI.ITEM_SYS_NO = I.ITEM_SYS_NO
+						             AND HI.LOT_ID		= I.LOT_ID
+						             AND HI.WH_LOC_CD	= I.WH_LOC_CD
+						             AND HM.CTRT_NO     = #ctrt_no#  
+						             <isNotEqual property="wh_cd" compareValue="All">		   	
+									  	AND HM.WH_CD		= #wh_cd#
+									  </isNotEqual>
+						            <![CDATA[ AND HM.TRS_LOC_DT >= CONVERT(DATETIME,replace(#trs_fm_dt#, '-', ''), 102) ]]>
+						            <isNotEmpty property="trs_to_dt">
+						            <![CDATA[ AND HM.TRS_LOC_DT <= CONVERT(DATETIME,replace(#trs_to_dt#, '-', ''), 102) ]]>
+						            </isNotEmpty>
+						         ) 	
+				    </isNotEmpty>
+				</isEqual>
+			</isNotEqual>
+			<![CDATA[ AND I.IN_QTY  - ISNULL(I.OUT_QTY, 0)  > 0 ]]>) as TB_T 
+	</select>
+	<select id="searchWarehouseZoneCode" parameterClass="java.util.HashMap" resultClass="ZoneBlockVO">
+		/*searchWarehouseZoneCode*/
+	    SELECT 
+      		 dbo.TL_GET_ROWTOCOLL_CycleCountPlan_2(#f_loc_cd#, '|') AS ZONE_CD
+	</select>
+	<select id="searchWarehouseBlockCode" parameterClass="java.util.HashMap" resultClass="ZoneBlockVO">
+		/*searchWarehouseBlockCode*/
+		SELECT 
+      		  dbo.TL_GET_ROWTOCOLL_CycleCountPlan_1(#f_loc_cd#,#f_zone_cd#,'|') AS BLOCK_CD
+	</select>
+	<insert id="saveWHCyclecountHead" parameterClass="com.clt.apps.fis.wms.cyclecount.dto.Grd00WHCyclecountHeadVO">
+	/*wms.cyclecount.saveWHCyclecountHead*/
+	 	DECLARE @WH_CD VARCHAR(20)
+ 		SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+		INSERT INTO TL_WH_CYCLE_CNT(
+					CYCLE_CNT_NO, 
+					CYCLE_CNT_TP_CD, 
+					CYCLE_CNT_DT, 
+					CYCLE_CNT_HM_FR, 
+					CYCLE_CNT_HM_TO, 
+					WORKER_NM, 
+					RMK, 
+					RGST_ID, 
+					RGST_OFC_CD, 
+					RGST_SYS_DT, 
+					RGST_LOC_DT, 
+					MODI_ID, 
+					MODI_OFC_CD, 
+					MODI_SYS_DT, 
+					MODI_LOC_DT
+		)VALUES(
+					#cycle_cnt_no#, 
+					#cycle_cnt_tp_cd#, 
+					replace(#cycle_cnt_dt#, '-', ''), 
+					replace(#cycle_cnt_hm_fr#, ':', ''),  
+					replace(#cycle_cnt_hm_to#, ':', ''), 
+					#worker_nm#, 
+					#rmk#, 
+					#user_id#, 
+					#org_cd#, 
+					GETDATE(), 
+					(SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+      				+ ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+       				+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+       				+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2)),
+					#user_id#, 
+					#org_cd#, 
+					GETDATE(),  
+					(SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+       				+ ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+       				+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+       				+ ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+		)
+	</insert>
+<!-- 	<insert id="saveWHCyclecountList" parameterClass="java.util.HashMap"> -->
+<!-- 	/*wms.cyclecount.saveWHCyclecountList*/ -->
+<!-- 		INSERT INTO TL_WH_CYCLE_CNT_INV( -->
+<!-- 					CYCLE_CNT_NO,  -->
+<!-- 					PO_SYS_NO,  -->
+<!-- 					ITEM_SYS_NO,  -->
+<!-- 					LOT_ID,  -->
+<!-- 					WH_LOC_CD,  -->
+<!-- 					CTRT_NO,  -->
+<!-- 					WH_CD,  -->
+<!-- 					ITEM_CD,  -->
+<!-- 					ITEM_NM,  -->
+<!-- 					INV_QTY,  -->
+<!-- 					CNT_QTY, -->
+<!-- 					RMK, -->
+<!-- 					RGST_ID,  -->
+<!-- 					RGST_OFC_CD,  -->
+<!-- 					RGST_SYS_DT,  -->
+<!-- 					RGST_LOC_DT,  -->
+<!-- 					MODI_ID,  -->
+<!-- 					MODI_OFC_CD,  -->
+<!-- 					MODI_SYS_DT,  -->
+<!-- 					MODI_LOC_DT,  -->
+<!-- 					SO_NO,  -->
+<!-- 					WIB_BK_NO,  -->
+<!-- 					PO_NO -->
+<!-- 		)VALUES( -->
+<!-- 					#cycle_cnt_no#,  -->
+<!-- 					#po_sys_no#,  -->
+<!-- 					#item_sys_no#,  -->
+<!-- 					#lot_id#,  -->
+<!-- 					#wh_loc_cd#,  -->
+<!-- 					#ctrt_no#,  -->
+<!-- 					#wh_cd#,  -->
+<!-- 					#item_cd#,  -->
+<!-- 					#item_nm#,  -->
+<!-- 					#inv_qty#,  -->
+<!-- 					#cnt_qty#,  -->
+<!-- 					#rmk#,  -->
+<!-- 					#user_id#,  -->
+<!-- 					#org_cd#,  -->
+<!-- 					GETDATE(),  -->
+<!-- 					CONVERT(DATETIME, dbo.TL_GET_TM_ZONE_DATE(#wh_cd#), 102), -->
+<!-- 					#user_id#,  -->
+<!-- 					#org_cd#,  -->
+<!-- 					GETDATE(),   -->
+<!-- 					CONVERT(DATETIME, dbo.TL_GET_TM_ZONE_DATE(#wh_cd#), 102), -->
+<!-- 					#so_no#, -->
+<!-- 					#wib_bk_no#,  -->
+<!-- 					#po_no# -->
+<!-- 		) -->
+<!-- 	</insert> -->
+	<!-- Lap.Nguyen (E) -->
+	
+</sqlMap>

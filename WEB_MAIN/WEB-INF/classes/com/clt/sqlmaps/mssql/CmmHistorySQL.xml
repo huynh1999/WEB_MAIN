@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+    
+<sqlMap namespace="cmm.utils.history">
+
+    <!-- TB_INTG_BL 에서 데이터를 가져온다    -->
+    <select id="selectTB_INTG_BL" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.IntgblVO">
+	    SELECT *
+	    FROM TB_INTG_BL with(nolock)
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </select>
+    
+    
+    <!-- TB_ADD_INFO_BND 에서 데이터를 가져온다    -->
+    <select id="selectTB_ADD_INFO_BND" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.AddinfobndVO">
+	    SELECT *
+	    FROM TB_ADD_INFO_BND
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </select>
+    
+    <!-- TB_CNTR_SMRY 에서 데이터를 가져온다    -->
+    <select id="selectTB_CNTR_SMRY" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.CntrsmryVO">
+	    SELECT *
+	    FROM TB_CNTR_SMRY
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   delt_flg = 'N'
+    </select>
+    
+    <!-- TB_CNTR_LIST 에서 데이터를 가져온다    -->
+    <select id="selectTB_CNTR_LIST" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.CntrlistVO">
+	    SELECT *
+	    FROM TB_CNTR_LIST
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   delt_flg = 'N'
+    </select>
+    
+    
+    <!-- TB_SHP_CMDT 에서 데이터를 가져온다    -->
+    <select id="selectTB_SHP_CMDT" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.ShpcmdtVO">
+	    SELECT *
+	    FROM TB_SHP_CMDT
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   delt_flg = 'N'
+    </select>
+    
+    <!-- TB_DIM 에서 데이터를 가져온다    -->
+    <select id="selectTB_DIM" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.DimVO">
+	    SELECT *
+	    FROM TB_DIM
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   delt_flg = 'N'
+    </select>
+    
+    <!-- TB_CGO_RT 에서 데이터를 가져온다    -->
+    <select id="selectTB_CGO_RT" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.CgortVO">
+	    SELECT *
+	    FROM TB_CGO_RT
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   delt_flg = 'N'
+    </select>
+    
+    <!-- TB_FRT 에서 데이터를 가져온다    -->
+    <select id="selectTB_FRT" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.FrtVO">
+	    SELECT *
+	    FROM TB_FRT
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   delt_flg = 'N'
+    </select>
+    
+    <!-- TB_INV 에서 데이터를 가져온다    -->
+    <select id="selectTB_INV" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.InvVO">
+	    SELECT *
+	    FROM TB_INV
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   delt_flg = 'N'
+    </select>
+    
+    <!-- TB_INV 에서 데이터를 가져온다    -->
+    <select id="selectTB_EDI_INFO" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.EdiinfoVO">
+	    SELECT *
+	    FROM TB_EDI_INFO
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   delt_flg = 'N'
+    </select>
+    
+    
+    <!-- TB_INTG_BL_RLT 에서 데이터를 가져온다    -->
+    <select id="selectTB_INTG_BL_RLT" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.IntgblrltVO">
+	    SELECT *
+	    FROM TB_INTG_BL_RLT
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   delt_flg = 'N'
+    </select>
+
+    <select id="selectTB_BL_PRNR" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.IntgblVO">
+	    SELECT 
+	    <isEqual property="bl_trdp_tp_cd" compareValue="S01">
+	    	trdp_nm as shpr_trdp_nm
+	    </isEqual>
+	    <isEqual property="bl_trdp_tp_cd" compareValue="C01">
+	    	trdp_nm as cnee_trdp_nm
+	    </isEqual>
+	    FROM TB_BL_PRNR
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   bl_trdp_tp_cd = #bl_trdp_tp_cd#
+	    AND   delt_flg = 'N'
+    </select>
+
+	<!-- #2363 [Split - 1] [BINEX VISIBILITY] Costco TW Visibility 기능 요청 -->
+    <select id="selectUSR_DEFINE" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.BlUdfVO">
+	    SELECT UDF_VAL AS RE
+	    FROM TB_BL_UDF
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   udf_cd = 'RE'
+    </select>
+    
+    <!-- #23 #52878 - [ZEN] TRADE PARTNER EDIT HISTORY MANAGEMENT -->
+    <!-- TB_TRDP 에서 데이터를 가져온다    -->
+    <select id="selectTB_TRDP" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.TrdpVO">
+	    SELECT *
+	    FROM TB_TRDP
+	    WHERE trdp_cd = cast(#intg_bl_seq# as varchar)
+	    AND   delt_flg = 'N'
+    </select>    
+     
+    <!-- TB_CNG_PPT에서 변경할 항목을 가져온다    -->
+    <select id="selectItem" parameterClass="String" resultClass="com.clt.apps.common.dto.CngpptVO">
+            SELECT cng_attr_seq, 
+                   lower(phys_attr_nm) phys_attr_nm
+            FROM tb_cng_ppt
+            WHERE phys_ett_nm = #value#
+              AND delt_flg = 'N'
+    </select>
+     
+    <!-- TB_INTG_CNG_HIS 테이블에 변경할 항목을 저장한다.    -->
+    <insert id="insert" parameterClass="com.clt.apps.common.dto.IntgcnghisVO">
+        INSERT INTO tb_intg_cng_his_aif(
+             intg_cng_his_seq
+			,intg_bl_seq
+			,sub_key_seq
+			,inv_no
+			,bnd_clss_cd
+			,ett_nm
+			,cng_attr_seq
+			,bl_his_cd
+			,bfr_cng_txt
+			,aft_cng_txt
+			,rgst_usrid
+			,rgst_ofc_cd
+			,rgst_tms
+			,modi_seq
+        ) select 
+        	(select isnull(max(intg_cng_his_seq),0)+1 
+        	   from tb_intg_cng_his_aif)
+        	,#intg_bl_seq#
+			,#sub_key_seq#
+			,#inv_no#
+			,#bnd_clss_cd#
+			,#ett_nm#
+			,#cng_attr_seq#
+			,#bl_his_cd#
+			,#bfr_cng_txt#
+			,#aft_cng_txt#
+			,#rgst_usrid#
+			,#rgst_ofc_cd#
+			,getdate()
+			,#modi_seq#
+    </insert>
+    
+    <!-- MaxModiSeq를 가져옴.   -->
+    <select id="selectMax_Modi_Seq" parameterClass="String" resultClass="Integer">
+	    SELECT isnull(max(modi_seq), 0) + 1
+	    FROM tb_intg_cng_his_aif with(nolock)
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </select>
+    <!-- #23 #52878 - [ZEN] TRADE PARTNER EDIT HISTORY MANAGEMENT -->
+    <!-- TB_TRDP_CNG_HIS 테이블에 변경할 항목을 저장한다.    -->
+    <insert id="insertTRDP" parameterClass="com.clt.apps.common.dto.IntgcnghisVO">
+        INSERT INTO TB_TRDP_CNG_HIS(
+             TRDP_CNG_HIS_SEQ
+			,TRDP_CD
+			,CNG_ATTR_SEQ
+			,BFR_CNG_TXT
+			,AFT_CNG_TXT
+			,RGST_USRID
+			,RGST_OFC_CD
+			,RGST_TMS
+			,MODI_SEQ
+			,MM
+        ) select 
+        	(SELECT ISNULL(MAX(TRDP_CNG_HIS_SEQ),0)+1 
+        	   FROM TB_TRDP_CNG_HIS)
+        	,#intg_bl_seq#
+			,#cng_attr_seq#
+			,#bfr_cng_txt#
+			,#aft_cng_txt#
+			,#rgst_usrid#
+			,#rgst_ofc_cd#
+			,getdate()
+			,#modi_seq#
+			,#mm#
+    </insert>
+    
+    <!-- MaxModiSeq를 가져옴.   -->
+    <select id="selectTRDPMax_Modi_Seq" parameterClass="String" resultClass="Integer">
+	    SELECT ISNULL(MAX(modi_seq), 0) + 1
+	    FROM TB_TRDP_CNG_HIS
+	    WHERE TRDP_CD = cast(#intg_bl_seq# as varchar)
+    </select>
+    
+    <select id="selectTB_BL_ISS_CARRIER_PRNR" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.IntgblVO">
+	    SELECT 
+			TRDP_CD AS iss_trdp_cd
+	    FROM TB_BL_PRNR
+	    WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	    AND   bl_trdp_tp_cd = 'I01'
+	    AND   delt_flg = 'N'
+    </select>    
+       
+</sqlMap>

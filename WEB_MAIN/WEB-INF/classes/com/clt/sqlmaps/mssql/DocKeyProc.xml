@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="DocKeyMapper">
+	<parameterMap class="com.clt.apps.fis.wms.common.dto.DocKeyVO" id="callDocKeyNoProc_Param">
+	 <parameter property="doc_tp_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="wh_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="doc_key_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callDocKeyNoProc"  parameterMap="callDocKeyNoProc_Param">
+		{ CALL dbo.PKG_MAKE_TL_WH_DOC_KEY_NO_PRC (?,
+										        	?,
+										        	?,
+										        	?,
+										        	?,
+										          	?,
+										          	?) }
+	</procedure>
+</sqlMap>

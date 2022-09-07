@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.code.currency">
+    
+	<!-- Trade country List pop select    -->
+    <select id="selectCOUNTRY_LIST" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.CntVO">
+    	SELECT a.cnt_cd,	a.cnt_eng_nm, a.curr_cd
+		FROM 
+			(SELECT  	'' cnt_cd, 	'ALL' cnt_eng_nm,		''curr_cd
+			UNION all
+	        SELECT  	
+				cnt_cd, 	cnt_eng_nm,		curr_cd
+			FROM tb_cnt
+			WHERE delt_flg = 'N'
+			AND   use_flg ='Y'
+			
+		<dynamic prepend="AND">
+		
+		<isNotNull prepend="AND" property="s_continent_code">
+			conti_cd IN (select conti_cd from tb_conti where conti_cd = #s_continent_code# )
+		</isNotNull>
+			) a
+		</dynamic>
+		
+	</select>
+	
+	<!-- Trade currency List pop select    -->
+    <select id="selectCMM_POP_0040_LIST" resultClass="com.clt.apps.fis.mdm.code.currency.dto.ComCdDtlVO">
+        SELECT  com_cd,  	    cd_val,     cd_nm,	  rmk
+		  FROM  tb_com_cd_dtl 
+		 WHERE  com_cd = 'C010' 
+		   AND  use_flg = 'Y'    AND  delt_flg = 'N'
+		<dynamic prepend="AND">
+			<isNotNull prepend="AND" property="s_continent_code">
+			  cd_val IN(SELECT  curr_cd  FROM tb_cnt
+						 WHERE delt_flg = 'N'
+							AND   use_flg ='Y' 
+							AND   conti_cd IN (SELECT conti_cd FROM tb_conti WHERE conti_cd = #s_continent_code#)
+						)
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_currency_code">
+				cd_val = #s_currency_code#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- Trade currency List pop select count    -->
+    <select id="selectCMM_POP_0040_CNT" resultClass="Integer">
+        SELECT  count(*)
+		  FROM  tb_com_cd_dtl 
+		 WHERE  com_cd = 'C010' 
+		   AND  use_flg = 'Y'    AND delt_flg = 'N'
+        <dynamic prepend="AND">
+            <isNotNull prepend="AND" property="s_continent_code">
+              cd_val IN(SELECT  curr_cd  FROM tb_cnt
+                         WHERE delt_flg = 'N'
+                            AND   use_flg ='Y' 
+                            AND   conti_cd IN (SELECT conti_cd FROM tb_conti WHERE conti_cd = #s_continent_code#)
+                        )
+            </isNotNull>
+            <isNotNull prepend="AND" property="s_currency_code">
+                cd_val = #s_currency_code#
+            </isNotNull>
+        </dynamic>
+	</select>
+	
+</sqlMap>

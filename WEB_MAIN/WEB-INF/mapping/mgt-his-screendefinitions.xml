@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+    <!--  HISTORY Management   -->
+    <screen name="MGT_HIS_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/his/hismgt/jsp/MGT_HIS_0020.jsp"/>
+    </screen>
+    
+    <screen name="MGT_HIS_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/his/hismgt/jsp/MGT_HIS_0020GS.jsp"/>
+    </screen>
+    
+    <screen name="MGT_HIS_0020_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/his/hismgt/jsp/MGT_HIS_0020_1GS.jsp"/>
+    </screen>
+    
+    <!--  HISTORY Management (Email, Print) Start  -->
+    <screen name="MGT_HIS_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/his/hismgt/jsp/MGT_HIS_0040.jsp"/>
+    </screen>
+    
+    <screen name="MGT_HIS_0041" template="templatePop">
+        <parameter key="body"  value="/apps/fis/mgt/his/hismgt/jsp/MGT_HIS_0040.jsp"/>
+    </screen>
+    
+    <screen name="MGT_HIS_0040GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/his/hismgt/jsp/MGT_HIS_0040GS.jsp"/>
+    </screen>  
+    <!--  HISTORY Management (Email, Print) End  -->  
+</screen-definitions>

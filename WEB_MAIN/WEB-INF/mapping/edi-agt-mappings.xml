@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <url-mapping url="EDI_AGT_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.agt.event.EDI_AGT_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_AGT_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="EDI_AGT_0010GS.clt" screen="EDI_AGT_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.agt.event.EDI_AGT_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.edi.agt.event.EdiAgtEvent</event-class>
+        <service-action-class>com.clt.apps.fis.edi.agt.EdiAgtSC</service-action-class>
+    </event-mapping>
+    
+</mappings>

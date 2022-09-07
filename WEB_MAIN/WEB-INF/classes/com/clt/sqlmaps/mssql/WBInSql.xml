@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="WBIn">
+
+	<select id="existsWB" resultClass="String">      
+      SELECT COUNT(*) AS CNT
+        FROM TL_WB
+       WHERE WB_NO = #wb_no#
+     </select>
+</sqlMap>
+
+<!-- <?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="WBIn">
+	<resultMap type="com.clt.business.oms.warehousebooking.dto.WBInfoDto" id="WBInfoDto">
+	</resultMap>
+
+	<resultMap type="com.clt.business.oms.warehousebooking.dto.WBItemDto" id="WBItemDto">
+	</resultMap>
+
+	<resultMap type="com.clt.business.oms.warehousebooking.dto.WBDocDto" id="WBDocDto">
+	</resultMap>
+
+	<resultMap type="com.clt.business.oms.warehousebooking.dto.WBAttachmentDto" id="WBAttachmentDto">
+	</resultMap>
+
+	<select id="searchWBNo" resultType="String">
+       SELECT SUBSTR(#{org_cd# ,3 ,3) ||#{fwd_dir#|| 'I' || TO_CHAR(SYSDATE,'YYMM') || LPAD(WB_IN_SEQ.NEXTVAL,5,'0') AS WB_NO
+         FROM DUAL
+	</select>
+
+	<insert id="addWBInfo">
+      INSERT INTO TL_WB 
+      (
+        WB_NO,
+        SO_NO,
+        CTRT_NO,
+        RTP_NO,
+        SALES_OFC_CD,
+        SALES_PIC_ID,
+        SUPP_CD,
+        SUPP_NM,
+        SUPP_ADDR1,
+        SUPP_ADDR2,
+        SUPP_ADDR3,
+        SUPP_ADDR4,
+        SUPP_ADDR5,
+        BUYER_CD,
+        BUYER_NM,
+        BUYER_ADDR1,
+        BUYER_ADDR2,
+        BUYER_ADDR3,
+        BUYER_ADDR4,
+        BUYER_ADDR5,
+        CG_RD_DT,
+        RCV_LOC_CD,
+        RCV_LOC_NM,
+        BK_STFF_ID,
+        BK_STFF_OFC_CD,
+        BK_DATE,
+        EST_CMPL_DT,
+        BK_STS_CD,
+        BK_MODE,
+        REMARK,
+        RGST_ID,
+        RGST_SYS_DT,
+        MODI_ID,
+        MODI_SYS_DT,
+        REF_NO,
+        ORDER_REL,
+        HBL_NO,
+        MBL_NO,
+        POR,
+        POL,
+        POD,
+        DEL,
+        POR_DT,
+        ETD,
+        ETA,
+        DEL_DT,
+        VSL_CD,
+        VSL_NM,
+        VOY,
+        CUST_INV_NO,
+        CG_AV_DT,
+        FWD_DIR,
+        JOB_NO,
+        OWNER_CD,
+        OWNER_ADDR1,
+        OWNER_ADDR2,
+        OWNER_ADDR3,
+        OWNER_ADDR4,
+        OWNER_ADDR5,
+        CARRIER_CD,
+        WB_SRC_CD
+      )
+      VALUES
+      (
+      #{wb_no#,
+      #{so_no#,
+      #{ctrt_no#,
+      #{rtp_no#,
+      #{sales_ofc_cd#,
+      #{sales_pic_id#,
+      #{supp_cd#,
+      TL_GET_CUST_NM(#{supp_cd#),
+      #{supp_addr1#,
+      #{supp_addr2#,
+      #{supp_addr3#,
+      #{supp_addr4#,
+      #{supp_addr5#,
+      #{buyer_cd#,
+      TL_GET_CUST_NM(#{buyer_cd#),
+      #{buyer_addr1#,
+      #{buyer_addr2#,
+      #{buyer_addr3#,
+      #{buyer_addr4#,
+      #{buyer_addr5#,
+      REPLACE(#{cg_rd_dt#,'-',''),
+      #{rcv_loc_cd#,
+      #{rcv_loc_nm#,
+      #{bk_stff_id#,
+      #{bk_stff_ofc_cd#,
+      REPLACE(#{bk_date, 	javaType=String, jdbcType=VARCHAR} ,'-',''),
+      REPLACE(#{bk_date, 	javaType=String, jdbcType=VARCHAR} ,'-',''),
+      DECODE(#{issue#, 'Y', 'I', #{bk_sts_cd#),
+      'R',
+      #{remark#,
+      #{user_id#,
+      sysdate, 
+      #{user_id#,
+      sysdate, 
+      #{ref_no#,
+      #{order_rel#,
+      #{hbl_no#,
+      #{mbl_no#,
+      #{por#,
+      #{pol#,
+      #{pod#,
+      #{del#,
+      #{por_dt#,
+      REPLACE(#{etd#,'-',''),
+      REPLACE(#{eta#,'-',''),
+      #{del_dt#,
+      #{vsl_cd#,
+      #{vsl_nm#,
+      #{voy#,
+      #{cust_inv_no#,
+      REPLACE(#{cg_av_dt#,'-',''),
+      #{fwd_dir#,
+      #{job_no#,
+      #{owner_cd#,
+      #{owner_addr1#,
+      #{owner_addr2#,
+      #{owner_addr3#,
+      #{owner_addr4#,
+      #{owner_addr5#,
+      #{carrier_cd#,
+      #{wb_src_cd#
+      )
+	</insert>
+
+	<update id="modifyWBInfo">
+      UPDATE TL_WB
+         SET SO_NO          = #{so_no#
+              ,CTRT_NO        = #{ctrt_no#
+              ,RTP_NO         = #{rtp_no#
+              ,SALES_OFC_CD   = #{sales_ofc_cd#
+              ,SALES_PIC_ID   = #{sales_pic_id#
+              ,SUPP_CD        = #{supp_cd#
+              ,SUPP_NM        = TL_GET_CUST_NM(#{supp_cd#)
+              ,SUPP_ADDR1     = #{supp_addr1#
+              ,SUPP_ADDR2     = #{supp_addr2#
+              ,SUPP_ADDR3     = #{supp_addr3#
+              ,SUPP_ADDR4     = #{supp_addr4#
+              ,SUPP_ADDR5     = #{supp_addr5#
+              ,BUYER_CD       = #{buyer_cd#
+              ,BUYER_NM       = TL_GET_CUST_NM(#{buyer_cd#)
+              ,BUYER_ADDR1    = #{buyer_addr1#
+              ,BUYER_ADDR2    = #{buyer_addr2#
+              ,BUYER_ADDR3    = #{buyer_addr3#
+              ,BUYER_ADDR4    = #{buyer_addr4#
+              ,BUYER_ADDR5    = #{buyer_addr5#
+              ,CG_RD_DT       = REPLACE(#{cg_rd_dt#,'-','')
+              ,CG_AV_DT       = REPLACE(#{cg_av_dt#,'-','')
+              ,RCV_LOC_CD     = #{rcv_loc_cd#
+              ,RCV_LOC_NM     = #{rcv_loc_nm#
+              ,BK_STFF_ID     = #{bk_stff_id#
+              ,BK_STFF_OFC_CD = #{bk_stff_ofc_cd#
+              ,BK_DATE        = REPLACE(#{bk_date# ,'-','') 
+              ,BK_STS_CD      = DECODE(#{issue#, 'Y', 'I', #{bk_sts_cd#)
+              ,BK_MODE        = #{bk_mode#
+              ,REMARK         = #{remark#
+              ,MODI_ID        = #{user_id#
+              ,MODI_SYS_DT    = sysdate
+              ,REF_NO         = #{ref_no#
+              ,ORDER_REL      = #{order_rel#
+              ,HBL_NO         = #{hbl_no#
+              ,MBL_NO         = #{mbl_no#
+              ,POR            = #{por#
+              ,POL            = #{pol#
+              ,POD            = #{pod#
+              ,DEL            = #{del#
+              ,POR_DT         = #{por_dt#
+              ,ETD            = REPLACE(#{etd# ,'-','') 
+              ,ETA            = REPLACE(#{eta# ,'-','') 
+              ,DEL_DT         = #{del_dt#
+              ,VSL_CD         = #{vsl_cd#
+              ,VSL_NM         = #{vsl_nm#
+              ,VOY            = #{voy#
+              ,CUST_INV_NO    = #{cust_inv_no#
+              ,FWD_DIR       = #{fwd_dir#
+              ,JOB_NO        = #{job_no#
+              ,OWNER_CD      = #{owner_cd#
+              ,OWNER_ADDR1   = #{owner_addr1#
+              ,OWNER_ADDR2   = #{owner_addr2#
+              ,OWNER_ADDR3   = #{owner_addr3#
+              ,OWNER_ADDR4   = #{owner_addr4#
+              ,OWNER_ADDR5   = #{owner_addr5#
+              ,CARRIER_CD     = #{carrier_cd#
+              ,WB_SRC_CD     = #{wb_src_cd#
+       WHERE WB_NO = #{wb_no#
+	</update>
+
+	<delete id="removeWBItemList">
+      DELETE FROM TL_WB_ITEM
+       WHERE WB_NO       = #{wb_no#
+         AND PO_SYS_NO   = #{po_sys_no#
+         AND ITEM_SYS_NO = #{item_sys_no#
+	</delete>
+
+	<delete id="removePOItemList">
+      DELETE FROM TL_PO_ITEM T
+      WHERE T.PO_SYS_NO = #{po_sys_no#
+         AND T.ITEM_SYS_NO = (SELECT I.ITEM_SYS_NO 
+                                        FROM TL_WB_ITEM I
+                                       WHERE I.WB_NO = #{wb_no#
+                                          AND I.PO_SYS_NO = #{po_sys_no#
+                                          AND I.ITEM_SYS_NO = #{item_sys_no#
+                                          AND I.LOAD_FLG IN ('N', 'H')
+                                          )	
+	</delete>
+
+	<delete id="removePOInfo">
+      DELETE FROM TL_PO T
+       WHERE T.PO_SYS_NO = #{po_sys_no#
+         AND NOT EXISTS ( SELECT 'X'
+                            FROM TL_PO_ITEM I
+                           WHERE I.PO_SYS_NO = T.PO_SYS_NO )	
+	</delete>
+	
+	<delete id="removeInventoryList">
+      DELETE TL_INVENTORY_IN T
+       WHERE T.PO_SYS_NO   = #{po_sys_no#
+         AND T.ITEM_SYS_NO = #{item_sys_no#	
+	</delete>
+
+	<update id="modifyWBItemList">
+      UPDATE TL_WB_ITEM
+         SET ITEM_QTY     = #{item_qty#
+               ,ITEM_CBM     = #{item_cbm#
+               ,ITEM_KGS     = #{item_kgs#
+               ,ITEM_PKGQTY  = #{item_pkgqty#
+               ,ITEM_PKGUNIT = #{item_pkgunit#
+               ,MODI_ID      = #{user_id#
+               ,MODI_SYS_DT  = sysdate
+               ,LOT_NO       = #{lot_no#
+               ,CUST_ITEM_CD = #{cust_item_cd#
+               ,ITEM_NET_WGT = #{item_net_wgt#
+               ,UNIT_PRICE   = #{unit_price#
+               ,CURR_CD      = #{curr_cd#
+              ,CUSTMS_REF_NO   =  #{custms_ref_no#
+              ,PALLET_NO       = #{pallet_no#
+              ,CNTR_NO         = #{cntr_no#
+              ,CNTR_TPSZ_CD  = #{cntr_tpsz_cd#
+              ,CNTR_REF_NO     = #{cntr_ref_no#
+              ,HBL_NO          = #{hbl_no#
+              ,MBL_NO          = #{mbl_no#
+              ,POL             = #{pol#
+              ,POD             = #{pod#
+              ,DEL             = #{del#
+              ,ETD             = #{etd#
+              ,ETA             = #{eta#
+              ,CARRIER_CD      = #{carrier_cd#
+              ,VSL_CD          = #{vsl_cd#
+              ,VSL_NM          = #{vsl_nm#
+              ,VOY             = #{voy#
+       WHERE WB_NO        = #{wb_no#
+         AND PO_SYS_NO    = #{po_sys_no#
+         AND ITEM_SYS_NO  = #{item_sys_no#	
+	</update>
+
+	<update id="modifyPOCustInfo">
+      UPDATE TL_PO P
+         SET CTRT_NO = #{ctrt_no#
+               ,CUST_CD = (SELECT CTRT_CUST_CD
+                                       FROM TL_CTRT
+                                     WHERE CTRT_NO = #{ctrt_no#
+                                   )
+               ,SUPP_CD = #{supp_cd# 
+               ,SUPP_NM = #{supp_addr1#
+               ,SUPP_TEL = (SELECT TL_CUST.TEL 
+                                         FROM TL_CUST 
+                                       WHERE TL_CUST.CUST_CD = #{supp_cd# 
+                                            AND TL_CUST.SUPP_FLG = 'Y')
+               ,SUPP_FAX = (SELECT TL_CUST.FAX 
+                                        FROM TL_CUST 
+                                      WHERE TL_CUST.CUST_CD = #{supp_cd# 
+                                           AND TL_CUST.SUPP_FLG = 'Y')
+               ,BUYER_CD = #{buyer_cd# 
+               ,BUYER_NM = #{buyer_addr1#
+               ,BUYER_TEL = (SELECT TL_CUST.TEL 
+                                          FROM TL_CUST 
+                                        WHERE TL_CUST.CUST_CD = #{buyer_cd# 
+                                             AND TL_CUST.BUYER_FLG = 'Y')
+               ,BUYER_FAX = (SELECT TL_CUST.FAX 
+                                          FROM TL_CUST 
+                                        WHERE TL_CUST.CUST_CD = #{buyer_cd# 
+                                             AND TL_CUST.BUYER_FLG = 'Y')
+               ,MODI_ID = #{user_id#
+               ,MODI_SYS_DT = sysdate
+       WHERE 1 = 1
+            AND EXISTS (SELECT *
+                                    FROM TL_WB_ITEM I
+                                 WHERE I.WB_NO = #{wb_no#
+                                      AND I.PO_SYS_NO = P.PO_SYS_NO)
+	</update>
+
+	<update id="modifyPOItemList">
+      UPDATE TL_PO_ITEM 
+         SET ITEM_CD      = #{item_cd# 
+            ,ITEM_NM      = #{item_nm# 
+            ,ITEM_QTY     = #{item_qty# 
+            ,ITEM_CBM     = #{item_cbm# 
+            ,ITEM_KGS     = #{item_kgs# 
+            ,ITEM_PKGQTY  = #{item_pkgqty# 
+            ,ITEM_PKGUNIT = #{item_pkgunit# 
+            ,MODI_ID      = #{user_id# 
+            ,MODI_SYS_DT  = sysdate
+            ,LOT_NO       = #{lot_no#
+            ,ITEM_NET_WGT       = #{item_net_wgt#
+            ,PALLET_NO       = #{pallet_no#
+       WHERE PO_SYS_NO    = #{po_sys_no#
+         AND ITEM_SYS_NO  = #{item_sys_no#
+	</update>
+
+	<select id="searchWBInfo" resultMap="WBInfoDto">
+       SELECT S.WB_NO, 
+              S.SO_NO, 
+              S.CTRT_NO, 
+			  TL_GET_CTRT_NM(S.CTRT_NO) AS CTRT_NM,
+		      TL_GET_CTRT_CUST_CD(S.CTRT_NO) AS CTRT_CUST_CD,
+              S.RTP_NO, 
+              S.SALES_OFC_CD, 
+              TL_GET_ORG_NM(S.SALES_OFC_CD) AS SALES_OFC_NM, 
+              S.SALES_PIC_ID, 
+              TL_GET_PIC_NM(S.SALES_PIC_ID) AS SALES_PIC_NM, 
+  			  TL_GET_SVO_MAIN_SVC_TYPE(S.SO_NO) AS MAIN_SVC_TYPE,
+  			  TL_GET_COMM_NM('FG', TL_GET_SVO_MAIN_SVC_TYPE(S.SO_NO)) AS MAIN_SVC_NM,
+			  TL_GET_CTRT_ORD_TP_NM(S.CTRT_NO, S.RTP_NO) AS CTRT_ORD_TP_NM,
+              S.SUPP_CD, 
+              S.SUPP_NM, 
+              S.SUPP_ADDR1, 
+              S.SUPP_ADDR2, 
+              S.SUPP_ADDR3, 
+              S.SUPP_ADDR4, 
+              S.SUPP_ADDR5, 
+              DECODE(S.SUPP_CD, '', '', 'S') AS SUPP_TYPE, 
+              S.BUYER_CD, 
+              S.BUYER_NM, 
+              S.BUYER_ADDR1, 
+              S.BUYER_ADDR2, 
+              S.BUYER_ADDR3, 
+              S.BUYER_ADDR4, 
+              S.BUYER_ADDR5, 
+              DECODE(S.BUYER_CD, '', '', 'S') AS BUYER_TYPE, 
+              NVL2(S.CG_RD_DT, TO_CHAR(TO_DATE(S.CG_RD_DT, 'YYYYMMDD'), 'YYYY-MM-DD'), S.CG_RD_DT) AS CG_RD_DT,
+              NVL2(S.CG_AV_DT, TO_CHAR(TO_DATE(S.CG_AV_DT, 'YYYYMMDD'), 'YYYY-MM-DD'), S.CG_AV_DT) AS CG_AV_DT, 
+              NVL2(S.EST_CMPL_DT, TO_CHAR(TO_DATE(S.EST_CMPL_DT, 'YYYYMMDD'), 'YYYY-MM-DD'), S.EST_CMPL_DT) AS EST_CMPL_DT,
+              S.RCV_LOC_CD, 
+              S.RCV_LOC_NM, 
+              S.RCV_LOC_ADDR1, 
+              S.BK_STFF_ID, 
+              TL_GET_USER_NM(S.BK_STFF_ID) AS BK_STFF_NM, 
+              (SELECT T.TEL FROM TL_USER T WHERE T.USER_ID = S.BK_STFF_ID) AS BK_STFF_TEL, 
+              (SELECT T.FAX FROM TL_USER T WHERE T.USER_ID = S.BK_STFF_ID) AS BK_STFF_FAX, 
+              S.BK_STFF_OFC_CD, 
+              TL_GET_ORG_NM(S.BK_STFF_OFC_CD) AS BK_STFF_OFC_NM, 
+              NVL2(S.BK_DATE, TO_CHAR(TO_DATE(S.BK_DATE, 'YYYYMMDD'), 'YYYY-MM-DD'), S.BK_DATE) AS BK_DATE,
+              S.BK_STS_CD, 
+              S.REMARK, 
+              (SELECT DECODE(MAX(I.LOAD_FLG), 'Y', 'Y', 'N', 'N', '') AS LOAD_FLG 
+                 FROM TL_WB_ITEM I 
+                WHERE I.WB_NO = S.WB_NO) AS LOAD_FLG, 
+              S.BK_MODE, 
+              S.REF_NO, 
+              S.ORDER_REL, 
+              S.HBL_NO, 
+              S.MBL_NO, 
+              S.POR, 
+              S.POL, 
+              S.POD, 
+              S.DEL, 
+              S.POR_DT, 
+              NVL2(S.ETD, TO_CHAR(TO_DATE(S.ETD, 'YYYYMMDD'), 'YYYY-MM-DD'), S.ETD) AS ETD,
+              NVL2(S.ETA, TO_CHAR(TO_DATE(S.ETA, 'YYYYMMDD'), 'YYYY-MM-DD'), S.ETA) AS ETA,
+              S.DEL_DT, 
+              S.VSL_CD, 
+              S.VSL_NM, 
+              S.VOY, 
+              S.CUST_INV_NO, 
+              TL_GET_LOC_NM(S.POR) AS POR_NM, 
+              TL_GET_LOC_NM(S.POL) AS POL_NM, 
+              TL_GET_LOC_NM(S.POD) AS POD_NM, 
+              TL_GET_LOC_NM(S.DEL) AS DEL_NM,
+              S.FWD_DIR,
+              S.JOB_NO,
+              S.OWNER_CD,
+              S.OWNER_ADDR1,
+              S.OWNER_ADDR2,
+              S.OWNER_ADDR3,
+              S.OWNER_ADDR4,
+              S.OWNER_ADDR5,
+              S.CARRIER_CD,
+              TL_GET_CUST_NM(S.CARRIER_CD) CARRIER_NM,
+              S.WB_SRC_CD,
+		      (SELECT MAX(J.JOB_NO)
+		         FROM TL_SO_JOB J
+		        WHERE J.SO_NO = S.SO_NO
+		          AND J.OFC_CD = #{org_cd} ) AS LOC_JOB_NO,
+		      (SELECT MAX(J.JOB_FLG)
+                 FROM TL_SO_JOB J
+                WHERE J.SO_NO = S.SO_NO
+                  AND J.OFC_CD = #{org_cd} ) AS LOC_JOB_FLG,   
+		      TL_GET_COMM_NM('J01',(SELECT MAX(J.JOB_FLG)
+		                              FROM TL_SO_JOB J
+		                             WHERE J.SO_NO = S.SO_NO
+		                               AND J.OFC_CD = #{org_cd} )) AS LOC_JOB_FLG_NM,
+		      TO_CHAR((SELECT MAX(J.JOB_CLOSE_SYS_DT)
+		                 FROM TL_SO_JOB J
+		                WHERE J.SO_NO = S.SO_NO
+		                  AND J.OFC_CD = #{org_cd} ),'YYYY-MM-DD') AS LOC_JOB_CLOSE_DT,
+		      TO_CHAR((SELECT MAX(J.JOB_CLOSE_SYS_DT)
+		                 FROM TL_SO_JOB J
+		                WHERE J.SO_NO = S.SO_NO
+		                  AND J.OFC_CD = #{org_cd} ),'HH24:MI') AS LOC_JOB_CLOSE_DT_HM, 
+		      TL_GET_FRT_CLOSE_DT(S.SO_NO,#{org_cd},S.EST_CMPL_DT,'S') AS FRT_CLOSING_DT,    
+              CASE WHEN TL_GET_FRT_CLOSE_DT(S.SO_NO,#{org_cd},S.EST_CMPL_DT,'S') IS NULL THEN ''
+	               WHEN <![CDATA[ TO_DATE(TL_GET_FRT_CLOSE_DT(S.SO_NO,#{org_cd},S.EST_CMPL_DT,'S'),'YYYY-MM-DD HH24:MI:SS') >= ]]> TO_DATE(TL_GET_TM_ZONE_DATE_BY_ORG(#{org_cd}),'YYYY-MM-DD HH24:MI:SS') THEN 'Open'
+                   ELSE 'Close'
+              END AS FRT_CLOSING_FLG_NM              
+         FROM TL_WB  S
+        WHERE S.WB_NO = #{c_wb_no#
+           AND S.BK_MODE = 'R'	
+	</select>
+
+	<resultMap type="com.clt.business.oms.warehousebooking.dto.WBInfoHouseBlDto" id="WBInfoHouseBlDto">
+	</resultMap>
+
+	<select id="searchWBHouseBlList" resultMap="WBInfoHouseBlDto">
+       SELECT HBL_NO 
+         FROM TL_WB_ITEM
+        WHERE WB_NO = #{c_wb_no#
+             AND HBL_NO IS NOT NULL
+       GROUP BY HBL_NO
+       ORDER BY HBL_NO
+	</select>
+
+	<resultMap type="com.clt.business.oms.warehousebooking.dto.WBInfoMasterBlDto" id="WBInfoMasterBlDto">
+	</resultMap>
+
+	<select id="searchWBMasterBlList" resultMap="WBInfoMasterBlDto">
+       SELECT MBL_NO 
+         FROM TL_WB_ITEM
+        WHERE WB_NO = #{c_wb_no#
+             AND MBL_NO IS NOT NULL
+       GROUP BY MBL_NO
+       ORDER BY MBL_NO
+	</select>
+
+
+	<select id="searchWBItemList" resultMap="WBItemDto">
+       SELECT WBI.PO_SYS_NO,
+              WBI.PO_NO,
+              WBI.ITEM_SYS_NO,
+              WBI.ITEM_CD,
+              NVL(WBI.ITEM_NM, CI.ITEM_NM) AS ITEM_NM,
+              WBI.ITEM_QTY,
+              WBI.ITEM_PKGQTY,
+              WBI.ITEM_PKGUNIT,
+              WBI.ITEM_CBM,
+              WBI.ITEM_KGS,
+              WBI.LOT_NO,
+              WBI.ITEM_NET_WGT,
+              WBI.PALLET_NO,
+              WBI.CUSTMS_REF_NO,
+              WBI.CNTR_NO, 
+              WBI.CNTR_TPSZ_CD,
+              WBI.CNTR_REF_NO, 
+              WBI.HBL_NO, 
+              WBI.MBL_NO, 
+              WBI.POL, 
+              WBI.ETD, 
+              WBI.POD, 
+              WBI.ETA, 
+              WBI.DEL, 
+              WBI.CARRIER_CD, 
+              TL_GET_CUST_NM(WBI.CARRIER_CD) CARRIER_NM,
+              WBI.VSL_CD,
+              WBI.VSL_NM,
+              WBI.VOY,
+              NVL(CI.ITEM_PKGBASEQTY, 0) AS BASE_PACK,
+              NVL(CI.ITEM_CBM, 0) AS BASE_CBM,
+              NVL(CI.ITEM_KGS, 0) AS BASE_KGS,
+              NVL(CI.ITEM_NET_WGT, 0) AS BASE_NET_WGT,
+              WBI.ITEM_QTY AS ORG_QTY,
+              WBI.LOAD_FLG,
+              WBI.REF_PO_SYS_NO,
+              WBI.REF_ITEM_SYS_NO
+         FROM TL_WB WB, 
+              TL_WB_ITEM WBI,
+              TL_CTRT_CUST_ITEM CI
+        WHERE WB.WB_NO = WBI.WB_NO
+          AND WB.WB_NO = #{c_wb_no#
+          AND WB.CTRT_NO = CI.CTRT_NO
+          AND WBI.ITEM_SYS_NO = CI.ITEM_SYS_NO
+        ORDER BY WBI.PO_SYS_NO, WBI.ITEM_CD, WBI.LOT_NO
+	</select>
+
+	<select id="searchWBDocList" resultMap="WBDocDto">
+		SELECT FIELD_NAME, FIELD_VAL, DOC_TYPE
+		  FROM (
+		        SELECT DISTINCT 'Inbound Complete' AS FIELD_NAME,
+		                         T.WO_NO AS FIELD_VAL,
+		                         'CR' AS DOC_TYPE,
+		                         '4' AS DISP
+		          FROM TL_WB S, TL_EO_WO T
+		         WHERE S.WB_NO = T.RCV_BK_NO
+		           AND S.BK_MODE = 'R'
+		           AND NVL(T.CR_FLG, 'N') = 'Y'
+		           AND T.WO_ACT_TP_CD = 'CR'
+		           AND S.WB_NO = #{c_wb_no#
+		        UNION
+		        SELECT DISTINCT 'Work Order No' AS FIELD_NAME,
+		                        T.WO_NO AS FIELD_VAL,
+		                        'WO' AS DOC_TYPE,
+		                        '5' AS DISP
+		          FROM TL_WB S, TL_EO_WO T
+		         WHERE S.WB_NO = T.RCV_BK_NO
+		           AND S.BK_MODE = 'R'
+		           <![CDATA[ AND NVL(T.CR_FLG, 'N') <> 'Y' ]]>
+		           AND S.WB_NO = #{c_wb_no#
+		       )
+		 ORDER BY DISP, FIELD_VAL
+ 	</select>
+
+	<select id="searchWBFileList" resultMap="WBAttachmentDto">
+      SELECT R.DOC_NO,
+               R.FILE_ORG_NM, 
+               R.FILE_PATH,
+               R.FILE_SYS_NM, 
+               R.FILE_SIZE,
+               TO_CHAR(R.RGST_SYS_DT,'YYYYMMDD') AS UPLOAD_DATE
+       FROM TL_FILE_REP R
+      WHERE 1=1
+         AND R.DOC_REF_NO = ( SELECT T.WB_NO
+                                        FROM TL_WB T
+                                       WHERE T.WB_NO   = #{c_wb_no#
+                                          AND T.BK_MODE = 'R'
+                                      )
+         AND R.DOC_REF_TP_CD = 'WB'
+         AND R.SVC_TP_CD       = 'WB'
+         AND R.DOC_TP_CD      = 'WB'	
+	</select>
+	
+     
+     
+     <select id="existsWO" resultType="String">      
+      SELECT DISTINCT W.WO_NO
+           , DECODE(W.WO_STS_CD,'C',DECODE((SELECT COUNT(*) FROM TL_WO_CR_ITEM_HST H WHERE H.WO_NO = W.WO_NO),0,'C','I'),W.WO_STS_CD) AS WO_STS_CD
+        FROM TL_WO W
+       WHERE W.RCV_BK_NO = #{c_wb_no#
+     </select>
+     
+     <select id="searchFileNo" resultType="String">      
+      SELECT  'HJD'|| TO_CHAR(SYSDATE,'YYMMDD')|| LPAD(TO_NUMBER(NVL(MAX(SUBSTR(DOC_NO, 10, 6)), 0) + 1), 6, 0) AS DOC_NO
+        FROM TL_FILE_REP
+       WHERE DOC_NO LIKE 'HJD'||TO_CHAR(SYSDATE, 'YYMMDD')||'%'
+     </select>
+     
+     <insert id="addFile">
+      INSERT INTO TL_FILE_REP 
+      (
+        DOC_NO, 
+        SVC_TP_CD, 
+        DOC_REF_TP_CD, 
+        DOC_REF_NO, 
+        DOC_REF_NO2, 
+        DOC_TP_CD, 
+        FILE_PATH, 
+        FILE_SYS_NM, 
+        FILE_ORG_NM, 
+        FILE_SIZE,
+        RGST_ID, 
+        RGST_SYS_DT
+      )
+      		SELECT #{doc_no#,
+                   #{svc_tp_cd#, 
+                   #{doc_ref_tp_cd#, 
+                   #{doc_ref_no#, 
+                   #{doc_ref_no2#, 
+                   #{doc_tp_cd#, 
+                   FILE_URL,
+                   FILE_ID,
+                   FILE_NM,
+                   FILE_CAPA,
+                   #{user_id#,
+                   SYSDATE
+       FROM COM_UPLD_FILE
+      WHERE FILE_ID  = #{fileKey#
+    </insert>
+    
+    <delete id="removeFile">
+      DELETE FROM TL_FILE_REP
+       WHERE DOC_NO = #{doc_no#
+    </delete>	
+	
+</mapper> -->

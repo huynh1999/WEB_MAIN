@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bookmark.mng"> 
+    <typeAlias alias="BookmarkListVO"         type="com.clt.apps.opusbase.system.bookmark.dto.BookmarkListVO"/><!-- 즐겨찾기 조회 정보   -->
+    	    
+    <!--Bookmark 정보 조회  -->
+    <select id="searchBookmarkList" parameterClass="HashMap" resultClass="BookmarkListVO">
+    	/* BookmarkMngSQL.xml > searchBookmarkList */
+		/*SELECT
+			mypgm.dp_nm,
+			mypgm.fol_flg,
+			mypgm.pgm_no, 
+			mypgm.dp_seq,
+			mypgm.prnt_pgm_no, 
+			pgm.pgm_nm, 
+			pgm.pgm_url, 
+			mypgm.usr_id
+    	FROM
+        	com_bookmark mypgm        
+    	LEFT OUTER JOIN
+        	tb_pgm pgm ON mypgm.pgm_no = pgm.pgm_seq        
+    	WHERE
+        	1=1       
+        AND mypgm.usr_id =  'usr_id'
+    	ORDER BY mnu_seq, srt_seq */
+    	
+    	with pgm(srt_seq, mnu_seq1, mnu_seq2, pgm_no, dp_nm, pgm_url) as
+		(
+			select
+				row_number() over(order by t1.srt_seq, t2.srt_seq, pgm.srt_seq) srt_seq,
+		        t1.mnu_seq as mnu_seq1,
+		        t2.mnu_seq as mnu_seq2,
+		        mypgm.pgm_no,
+		        mypgm.dp_nm,
+		        pgm.pgm_url
+		    from
+		        tb_mnu as t1 WITH(NOLOCK)                 
+		    join
+		        tb_mnu as t2 WITH(NOLOCK) 
+		            on t2.prnt_mnu_seq = t1.mnu_seq   
+		    join 
+				tb_pgm as pgm WITH(NOLOCK)
+					on t2.mnu_seq = pgm.mnu_seq      
+			join
+				com_bookmark as mypgm WITH(NOLOCK)
+					on pgm.pgm_seq = mypgm.pgm_no  
+		    where
+				mypgm.usr_id = #usr_id#	
+			and t1.prnt_mnu_seq is null 
+		)
+				
+		select lvl, pgm_no, dp_nm, pgm_url
+		from (
+			select '1' lvl, min(pgm.srt_seq) srt_seq, mnu1.mnu_seq pgm_no, mnu1.mnu_nm dp_nm, '' pgm_url
+			from tb_mnu mnu1 WITH(NOLOCK)
+			join pgm WITH(NOLOCK) on mnu1.mnu_seq = pgm.mnu_seq1
+			group by mnu1.mnu_seq, mnu1.mnu_nm
+		
+			union all
+		
+			select '2' lvl, min(pgm.srt_seq) srt_seq, mnu2.mnu_seq pgm_no, mnu2.mnu_nm dp_nm, '' pgm_url
+			from tb_mnu mnu2 WITH(NOLOCK)
+			join pgm on mnu2.mnu_seq = pgm.mnu_seq2
+			group by mnu2.mnu_seq, mnu2.mnu_nm
+		
+			union all
+		
+			select '3' lvl, srt_seq, pgm_no, dp_nm, pgm_url
+			from pgm WITH(NOLOCK)
+		) inval
+
+		order by srt_seq, pgm_no
+    </select>    
+    
+    <!-- Bookmark 정보 등록  -->
+    <insert id="insertBookmarkList" parameterClass="HashMap">
+    	INSERT INTO COM_BOOKMARK (
+			USR_ID, 
+			FOL_FLG,
+			PGM_NO,
+			DP_SEQ,
+			DP_NM,
+			PRNT_PGM_NO,
+			CRE_DT,
+			CRE_USR_ID,
+			UPD_DT,
+			UPD_USR_ID
+		) VALUES (
+			#usr_id#,
+			'N',
+			#pgm_no#,
+			(select ISNULL(max(dp_seq) +1,1) from com_bookmark where usr_id = #usr_id# and prnt_pgm_no = (select max(MNU_SEQ) from TB_PGM where PGM_SEQ = #pgm_no#)),
+			#dp_nm#,
+			(select max(MNU_SEQ) from TB_PGM where PGM_SEQ = #pgm_no#),
+			getdate(),
+			#usr_id#,
+			getdate(),
+			#usr_id#
+		)
+    </insert>
+    
+    <!-- Bookmark 정보 삭제  -->
+    <delete id="deleteBookmarkList" parameterClass="BookmarkListVO">
+        DELETE  COM_BOOKMARK                                                      
+         WHERE  usr_id = #usr_id#   AND  pgm_no = #pgm_no#
+    </delete>
+    
+</sqlMap>

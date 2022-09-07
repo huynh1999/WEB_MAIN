@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="WHOutbk">
+<typeAlias alias="WHOutbkInfoVO" 	type="com.clt.apps.fis.wms.whoutbooking.dto.WHOutbkInfoVO"/>
+<typeAlias alias="WHOutbkListVO" 	type="com.clt.apps.fis.wms.whoutbooking.dto.WHOutbkListVO"/>
+<!-- Outbound Complete No 중복 체크 (By Booking) -->		
+	<select id="searchWHOCByBkDupCheck" resultClass="WHOutbkInfoVO">
+		/* WHOutbk.searchWHOCByBkDupCheck */
+			SELECT COUNT (*) AS OUT_CNT
+			  FROM TL_WH_OB B
+			      ,TL_WH_ALLC A
+			      ,TL_WH_ISSU S
+			 WHERE B.WOB_BK_NO = A.WOB_BK_NO
+			   AND A.WALC_NO = S.WALC_NO
+			   AND B.WOB_BK_NO = #wob_bk_no#		
+	</select>
+	
+	<!-- Outbound Booking Search	 -->
+	<select id="searchWHOutbkList" resultClass="WHOutbkListVO">
+		<!-- /* WHOutbk.searchWHOutbkList */-->
+		 /* SQLID:wms.whoutbooking.searchWHOutbkList */ 
+		SELECT T.*
+		     , DENSE_RANK () OVER (ORDER BY T.WOB_BK_NO ASC) AS SEQ
+		     , CASE WHEN T.BK_STS_CD = 'BK' OR T.BK_STS_CD = 'LP' THEN 'Completed' 
+			        WHEN T.BK_STS_CD = 'P' THEN 'Planned' 
+			        WHEN T.BK_STS_CD = 'A' THEN 'Allocated' 
+			        WHEN T.BK_STS_CD = 'I' THEN 'Issued' 
+			        WHEN T.BK_STS_CD = 'N' THEN 'Booked' 
+			        WHEN T.BK_STS_CD = 'C' THEN 'Cancel'
+			   END AS BK_STS_NM
+		  FROM ( 
+			SELECT B.BK_DATE,
+			       B.WOB_BK_NO,			       
+			       B.ORD_TP_CD,
+			       dbo.TL_GET_COMM_NM ('WB3', B.ORD_TP_CD) AS ORD_TP_NM,
+			       BI.ITEM_SYS_NO,
+			       BI.ITEM_SEQ,
+			       BI.ITEM_CD,
+			       BI.ITEM_NM,
+			       BI.ITEM_PKGUNIT,
+			       BI.ITEM_PKGQTY,
+			       BI.ITEM_EA_QTY,
+			       BI.INBOUND_DT,
+			       BI.LOT_NO,
+			       BI.ITEM_CBM,
+			       BI.ITEM_CBF,
+			       BI.ITEM_GRS_KGS,
+			       BI.ITEM_GRS_LBS,
+			       BI.ITEM_NET_KGS,
+			       BI.ITEM_NET_LBS,
+			       B.BUYER_CD,
+			       dbo.TL_GET_CUST_NM (B.BUYER_CD) AS BUYER_NM,
+			       B.CTRT_NO,
+			       dbo.TL_GET_CTRT_NM (B.CTRT_NO) AS CTRT_NM,
+			       BI.EXP_DT,
+			       BI.LOT_04,
+			       BI.LOT_05,
+			       BI.FIX_LOT_ID AS LOT_ID,
+			       B.SO_NO,
+			       B.WH_CD,
+			       dbo.TL_GET_LOC_NM (B.WH_CD) AS WH_NM,
+			       CASE WHEN (
+		                 SELECT COUNT (1)
+		                   FROM TL_WH_ISSU I
+		                      , TL_WH_ISSU_ITEM II
+		                  WHERE I.WOB_OUT_NO = II.WOB_OUT_NO
+		                    AND B.WOB_BK_NO = II.WOB_BK_NO) > 0 THEN 'BK' /* BK : X*/
+			            WHEN ( 
+			                 SELECT COUNT (1)
+			                   FROM TL_WH_LOAD_PLAN LP
+			                      , TL_WH_LOAD_PLAN_ITEM LPI
+			                  WHERE LP.LP_NO = LPI.LP_NO
+			                    AND LP.LP_STS_CD = 'L'
+			                    AND B.WOB_BK_NO = LPI.WOB_BK_NO) > 0 THEN 'LP' /* LP : X*/
+			            WHEN ( 
+			                 SELECT COUNT (1)
+			                   FROM TL_WH_LOAD_PLAN LP
+			                      , TL_WH_LOAD_PLAN_ITEM LPI
+			                  WHERE LP.LP_NO = LPI.LP_NO
+			                    AND LP.LP_STS_CD = 'P'
+			                    AND B.WOB_BK_NO = LPI.WOB_BK_NO) > 0 THEN 'P' 
+			            WHEN (
+			                 SELECT COUNT (1)
+			                   FROM TL_WH_ALLC A
+			                      , TL_WH_ALLC_ITEM AI
+			                  WHERE A.WALC_NO = AI.WALC_NO
+			                    AND B.WOB_BK_NO = AI.WOB_BK_NO) > 0 THEN 'A' 
+			            WHEN B.BK_STS_CD = 'I' THEN 'I' 
+			            WHEN B.BK_STS_CD = 'N' THEN 'N' 
+			            WHEN B.BK_STS_CD = 'C' THEN 'C'
+			       END AS BK_STS_CD
+		          ,ISNULL(B.CUST_ORD_NO, ' ') AS CUST_ORD_NO
+		          ,dbo.TL_GET_WH_PACK_MST_INFO(CI.PKG_LV1_QTY, CI.PKG_LV1_UNIT_CD, CI.ITEM_PKGBASEQTY, CI.ITEM_PKGUNIT
+                                         , CI.PKG_LV3_QTY, CI.PKG_LV3_UNIT_CD, CI.PKG_LV4_QTY, CI.PKG_LV4_UNIT_CD) AS PKG_INFO
+                  ,BI.RGST_TIMESTAMP
+                  ,B.REF_NO
+                  ,(SELECT
+					WAVE_NO FROM
+		            TL_WH_WAVE_OB 
+					WHERE
+		            WOB_BK_NO = B.WOB_BK_NO) AS WAVE_NO
+			  FROM TL_WH_OB B, TL_WH_OB_ITEM BI, TL_CTRT_CUST_ITEM CI
+			 WHERE B.WOB_BK_NO = BI.WOB_BK_NO
+			   AND B.CTRT_NO = CI.CTRT_NO
+               AND BI.ITEM_SYS_NO = CI.ITEM_SYS_NO
+           <isNotEmpty prepend="AND" property="ctrt_no">	                     
+               B.CTRT_NO = #ctrt_no#                               /* CONTRACT NO */
+           </isNotEmpty>		                     			 
+           <isNotEmpty prepend="AND" property="wh_cd"> 
+               B.WH_CD = #wh_cd#                                   /* WAREHOUSE CODE */
+           </isNotEmpty>			 
+           <isNotEmpty prepend="AND" property="buyer_cd">                 
+               B.BUYER_CD = #buyer_cd#                            /* CONSIGNEE CODE */
+           </isNotEmpty>           
+     	   <isNotEmpty prepend="AND" property="cond_no">                              
+	           <isEqual  property="cond_flag" compareValue="WOB_BK_NO">	                     
+	               B.WOB_BK_NO = #cond_no#                             /* BOOKING NO */
+	           </isEqual>		        		                              
+	           <isEqual property="cond_flag" compareValue="CUST_ORD_NO">		                     
+	               B.CUST_ORD_NO = #cond_no#                           /* CUSTOMER ORDER NO */
+	           </isEqual>
+       		</isNotEmpty>		                                
+           <isNotEmpty prepend="AND" property="fm_bk_date">                     
+     			<![CDATA[ B.BK_DATE >= ]]> REPLACE (#fm_bk_date#, '-', '')    /* Booking Date */
+           </isNotEmpty>	                     
+           <isNotEmpty prepend="AND" property="to_bk_date">	                     
+     			<![CDATA[ B.BK_DATE <= ]]> REPLACE (#to_bk_date#, '-', '')
+           </isNotEmpty>
+           <isNotEqual prepend="AND" property="ord_tp_cd" compareValue="ALL" >		                     
+                B.ORD_TP_CD = #ord_tp_cd#                           /* ORDER TYPE */
+           </isNotEqual>		                     
+           <isNotEmpty prepend="AND" property="item_cd">		                     
+                BI.ITEM_CD = #item_cd#                              /* ITEM CODE */
+           </isNotEmpty>
+           <isNotEmpty prepend="AND" property="lot_no">	     
+		        BI.LOT_NO = #lot_no#                                /* LOT NO */
+	       </isNotEmpty>	
+	       <isNotEmpty prepend="AND" property="ref_no">	                     
+                B.REF_NO = #ref_no#                               /* Reference No */
+           </isNotEmpty>		   
+     ) T
+	<isNotEqual property="bk_sts_cd" compareValue="ALL" >		   
+	   WHERE (CASE T.BK_STS_CD WHEN 'BK' THEN 'X' WHEN 'LP' THEN 'X' ELSE T.BK_STS_CD END ) = #bk_sts_cd# /* PROGRESS STATUS(C/X/P/A/I/N) */               
+	</isNotEqual>	                     
+			 ORDER BY T.WOB_BK_NO,
+			          T.RGST_TIMESTAMP,
+			          T.ITEM_CD,
+			          T.ITEM_SEQ,
+			          T.INBOUND_DT,
+			          T.LOT_NO		
+	</select>			
+</sqlMap>

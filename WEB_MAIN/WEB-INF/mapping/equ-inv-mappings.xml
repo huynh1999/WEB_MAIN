@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--####  Equipment Start ####  -->
+    <!-- Invoice 등록 및 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_INV_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_INV_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_INV_0010GS.clt" screen="EQU_INV_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="EQU_INV_0010_1GS.clt" screen="EQU_INV_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- invoice supply 조회 및 메일발송 Daesoo, Kang(2009.11.05)  -->
+    <url-mapping url="EQU_INV_0012.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0012HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_INV_0012.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_INV_0012GS.clt" screen="EQU_INV_0012GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0012HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Invoice popup 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_POP_0110.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_POP_0110HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_POP_0110.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_POP_0110GS.clt" screen="EQU_POP_0110GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_POP_0110HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- TypeSize Amount popup 조회. Daesoo, Kang(2010.02.11)  -->
+    <url-mapping url="EQU_POP_0120.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_POP_0120HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_POP_0120.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_POP_0120GS.clt" screen="EQU_POP_0120GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_POP_0120HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Container popup 조회. Daesoo, Kang(2010.05.18)  -->
+    <url-mapping url="EQU_POP_0130.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_POP_0130HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_POP_0130.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_POP_0130GS.clt" screen="EQU_POP_0130GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_POP_0130HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Invoice Master 등록 및 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_INV_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_INV_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_INV_0020GS.clt" screen="EQU_INV_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0020HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="EQU_INV_0020_1GS.clt" screen="EQU_INV_0020_1GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+        <!-- Invoice Mapping 등록 및 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_INV_0021.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0021HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_INV_0021.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_INV_0021GS.clt" screen="EQU_INV_0021GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0021HTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Invoice List 등록 및 조회. Daesoo, Kang(2010.05.11)  -->
+    <url-mapping url="EQU_INV_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_INV_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_INV_0030GS.clt" screen="EQU_INV_0030GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.inv.invoice.event.EQU_INV_0030HTMLAction</web-action-class>
+    </url-mapping>
+    <event-mapping>
+        <event-class>com.clt.apps.fis.equ.inv.invoice.event.EquInvoiceEvent</event-class>
+        <service-action-class>com.clt.apps.fis.equ.inv.invoice.EquInvoiceSC</service-action-class>
+    </event-mapping>
+</mappings>

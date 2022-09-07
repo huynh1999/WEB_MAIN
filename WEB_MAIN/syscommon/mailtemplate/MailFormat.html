@@ -1,0 +1,132 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr" />
+<title>^ML_TITLE^</title>
+<link href="http://211.52.110.122:8000/opusfwd/web/css/default.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+<!--
+.style1 {
+    font-size: 15px;
+    font-weight: bold;
+}
+-->
+</style>
+
+<script language="javascript">
+	function loadPage(){
+		var arg = window.dialogArguments;
+		
+		form.recipient.value = "Recipient : " + arg[2];
+		form.send.value = "Sender : " + arg[3];
+		form.title.value = "Title : " + arg[0];
+		form.time.value = "Send Time : " + arg[5];
+		form.contents.value = "Contents : " + "\r\n" + arg[1];
+	}
+</script>
+
+</head>
+<body onload="javascript:loadPage();">
+<form name="form" method="POST" action="./">
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+	<tr>
+		<td width="100%" class="bigtitle">
+		    &nbsp;Mail Info
+		</td>
+	</tr>
+	      <tr>
+	          <td height="4"><img src="http://211.52.110.122:8000/opusfwd/web/img/main/blank.gif"/></td>
+	      </tr>
+	<tr>
+		<td height="10" align="right">
+			<table border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="cursor:hand" onclick="window.close();">
+						<table height="19" border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td width="11"><img src="http://211.52.110.122:8000/opusfwd/web/img/main/bt_left.gif" width="11" height="19"/></td>
+								<td background="http://211.52.110.122:8000/opusfwd/web/img/main/bt_bg.gif" class="bt_name">Close</td>
+								<td width="8"><img src="http://211.52.110.122:8000/opusfwd/web/img/main/bt_right.gif" width="8" height="19"/></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+  <tr>
+    <td colspan=2 align=left background="http://211.52.110.122:8000/opusfwd/web/img/main/email/top_bg.gif" height=84>
+     <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td><img src="http://211.52.110.122:8000/opusfwd/web/img/main/email/top_l.gif"></td>
+        <td align="right"><img src="http://211.52.110.122:8000/opusfwd/web/img/main/email/top_r.gif"></td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td clspan=2 height=100% valign=top><table border=0 cellpadding=0 cellspacing=0 width=100%>
+      <tr>
+        <td width=30 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/text_bg_l.gif"></td>
+        <td width=8 height=8>&nbsp;</td>
+        <td width="*">
+        	<textarea width="300" id="recipient" name="recipient" value="" style="width:100%;overflow:hidden;border-style:none;border-top-width:0px;border-bottom-width:0px;font-family:Verdana;">
+        	</textarea>
+        </td>
+        <td width=8 height=8>&nbsp;</td>
+        <td width=30 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/text_bg_r.gif"></td>
+      </tr>
+      <tr>
+        <td width=30 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/text_bg_l.gif"></td>
+        <td width=8 height=8>&nbsp;</td>
+        <td width="*">
+        	<textarea id="send" name="send" value="" style="width:100%;overflow:hidden;border-style:none;border-top-width:0px;border-bottom-width:0px;font-family:Verdana;">
+        	</textarea>
+        </td>
+        <td width=8 height=8>&nbsp;</td>
+        <td width=30 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/text_bg_r.gif"></td>
+      </tr>
+      <tr>
+        <td width=30 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/text_bg_l.gif"></td>
+        <td width=8 height=8>&nbsp;</td>
+        <td width="*">
+        	<textarea id="title" name="title" value="" style="width:100%;overflow:hidden;border-style:none;border-top-width:0px;border-bottom-width:0px;font-family:Verdana;">
+        	</textarea>
+        </td>
+        <td width=8 height=8>&nbsp;</td>
+        <td width=30 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/text_bg_r.gif"></td>
+      </tr>
+      <tr>
+        <td width=30 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/text_bg_l.gif"></td>
+        <td width=8 height=8>&nbsp;</td>
+        <td width="*">
+        	<textarea id="time" name="time" value="" style="width:100%;overflow:hidden;border-style:none;border-top-width:0px;border-bottom-width:0px;font-family:Verdana;">
+        	</textarea>
+        </td>
+        <td width=8 height=8>&nbsp;</td>
+        <td width=30 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/text_bg_r.gif"></td>
+      </tr>
+      <tr>
+        <td width=30 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/text_bg_l.gif"></td>
+        <td width=8 height=8>&nbsp;</td>
+        <td width="*">
+        	<textarea id="contents" name="contents" value="" style="width:100%;height:300px;overflow:hidden;border-style:none;border-top-width:0px;border-bottom-width:0px;font-family:Verdana;">
+        	</textarea>
+        </td>
+        <td width=8 height=8>&nbsp;</td>
+        <td width=30 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/text_bg_r.gif"></td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td colspan=2 background="http://211.52.110.122:8000/opusfwd/web/img/main/email/bottom_bg.gif" height=47>
+     <table width="100%" border="0" cellspacing="0" cellpadding=0>
+      <tr>
+        <td><img src="http://211.52.110.122:8000/opusfwd/web/img/main/email/bottom_l.gif"></td>
+        <td align="right"><img src="http://211.52.110.122:8000/opusfwd/web/img/main/email/bottom_r.gif"></td>
+      </tr>
+     </table>    
+    </td>
+  </tr>
+</table>
+</form>
+</body>
+</html>

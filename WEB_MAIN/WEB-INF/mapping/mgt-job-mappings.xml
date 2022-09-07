@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### Workflow Management ####  -->
+    <url-mapping url="MGT_JOB_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_JOB_0010.screen"/>
+            <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_JOB_0010GS.clt" screen="MGT_JOB_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0010HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="MGT_JOB_0010_1GS.clt" screen="MGT_JOB_0010_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0010HTMLAction</web-action-class>
+    </url-mapping>  
+       
+    <!--  Job Visibility Summary   -->
+    <url-mapping url="MGT_JOB_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_JOB_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_JOB_0020GS.clt" screen="MGT_JOB_0020GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--  Job Visibility Detail   -->
+    <url-mapping url="MGT_JOB_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_JOB_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_JOB_0030GS.clt" screen="MGT_JOB_0030GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!--  Job Visibility Summary   -->
+    <url-mapping url="MGT_JOB_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_JOB_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_JOB_0040GS.clt" screen="MGT_JOB_0040GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0040HTMLAction</web-action-class>
+    </url-mapping>
+ 
+    <!--  Job WorkFlow Basic Data   -->
+    <url-mapping url="MGT_JOB_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_JOB_0050.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_JOB_0050GS.clt" screen="MGT_JOB_0050GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0050HTMLAction</web-action-class>
+    </url-mapping>
+      
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mgt.job.jobmgt.event.MgtJobMgmtEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mgt.job.jobmgt.MgtJobMgmtSC</service-action-class>
+    </event-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mgt.job.jobmgt.event.MGT_JOB_0030HTMLAction</event-class>
+        <service-action-class>com.clt.apps.fis.mgt.job.jobmgt.MgtJobMgmtSC</service-action-class>
+    </event-mapping>
+	
+    <!--#### Notice Management End ####  -->
+</mappings>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+
+
+    <!-- Other Warehouse Receipt Details   -->
+    <url-mapping url="OTH_WHR_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.oth.whr.details.event.OTH_WHR_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="OTH_WHR_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+        
+    <url-mapping url="OTH_WHR_0010GS.clt" screen="OTH_WHR_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.oth.whr.details.event.OTH_WHR_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="OTH_WHR_0011GS.clt" screen="OTH_WHR_0011GS.screen">
+        <web-action-class>com.clt.apps.fis.oth.whr.details.event.OTH_WHR_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <event-mapping>
+        <event-class>com.clt.apps.fis.oth.whr.details.event.OthWhrDetailsEvent</event-class>
+        <service-action-class>com.clt.apps.fis.oth.whr.details.OthWhrDetailsSC</service-action-class>
+    </event-mapping>
+
+
+
+
+	<!-- Other Warehouse Receipt List   -->
+    <url-mapping url="OTH_WHR_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.oth.whr.list.event.OTH_WHR_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="OTH_WHR_0020.screen"/>
+            <handler-result result="EXCEL"   screen="ExcelDownload.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="OTH_WHR_0020GS.clt" screen="OTH_WHR_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.oth.whr.list.event.OTH_WHR_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Warehouse Receipt PopUp   -->
+    <url-mapping url="WHR_POP_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.oth.whr.list.event.WHR_POP_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHR_POP_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="WHR_POP_0010GS.clt" screen="WHR_POP_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.oth.whr.list.event.WHR_POP_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <event-mapping>
+        <event-class>com.clt.apps.fis.oth.whr.list.event.OthWhrListEvent</event-class>
+        <service-action-class>com.clt.apps.fis.oth.whr.list.OthWhrListSC</service-action-class>
+    </event-mapping>
+	<!-- Ajax loading -->
+	<url-mapping url="OTH_WHR_0010AJ.clt" screen="OTH_WHR_0010AJ.screen">
+        <web-action-class>com.clt.apps.fis.oth.whr.details.event.OTH_WHR_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+
+
+    
+    
+    
+    
+    
+</mappings>

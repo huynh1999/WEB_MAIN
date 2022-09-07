@@ -1,0 +1,956 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="WHInvMove">
+		
+	 <insert id="saveInvMovePlan" parameterClass="java.util.HashMap">
+	/*WHInvMove.saveInvMovePlan*/
+	DECLARE @WH_CD VARCHAR(20)
+ 	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	INSERT INTO TL_WH_INV_MOVE_PLAN
+		 ( PLAN_NO
+	     , SUPV_NM
+	     , WORK_NM
+	     , MOVE_DT
+	     , MOVE_HM_FR
+	     , MOVE_HM_TO
+	     , RMK
+	     , PLAN_STS_CD
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     )
+	VALUES
+	     ( #plan_no#                  
+	     , #supv_nm#          
+	     , #work_nm#         
+	     , REPLACE(#move_dt#, '-', '')       
+	     , REPLACE(#move_hm_fr#, ':', '')           
+	     , REPLACE(#move_hm_to#, ':', '')           
+	     , #rmk#        
+	     , 'P'       
+	     , #rgst_id#           
+	     , #rgst_ofc_cd#       
+	     , GETDATE()  
+	     , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+											 + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+											 + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+											 + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	     , #modi_id#           
+	     , #modi_ofc_cd#       
+	     , GETDATE()  
+	     , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+											 + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+											 + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+											 + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	     )  
+	</insert>	
+	<update id="modifyInvMovePlan" parameterClass="java.util.HashMap">
+	/*WHInvMove.modifyInvMovePlan*/
+	DECLARE @WH_CD VARCHAR(20)
+ 	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	UPDATE TL_WH_INV_MOVE_PLAN
+	   SET SUPV_NM = #supv_nm# 
+	     , WORK_NM = #work_nm#   
+	     , MOVE_DT = REPLACE(#move_dt#, '-', '')    
+	     , MOVE_HM_FR = REPLACE(#move_hm_fr#, ':', '')  
+	     , MOVE_HM_TO = REPLACE(#move_hm_to#, ':', '')          
+	     , RMK = #rmk#  
+	     , MODI_ID = #modi_id#
+	     , MODI_OFC_CD = #modi_ofc_cd#
+	     , MODI_SYS_DT = GETDATE()
+	     , MODI_LOC_DT = (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+											 + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+											 + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+											 + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	 	WHERE PLAN_NO = #plan_no#
+	</update>		
+	
+	
+	<select id="getPlanSeq" parameterClass="java.util.HashMap" resultClass="String">
+	/*WHInvMove.getPlanSeq*/
+	SELECT ISNULL(MAX(PLAN_SEQ), 0) + 1
+	  FROM TL_WH_INV_MOVE_PLAN_DTL
+	 WHERE PLAN_NO = #plan_no#
+	</select>	
+	
+		
+	<insert id="saveInvMovePlanDtl" parameterClass="com.clt.apps.fis.wms.whinventory.dto.Grd01WHInvMoveMgmtVO">
+	/*WHInvMove.saveInvMovePlanDtl*/
+	INSERT INTO TL_WH_INV_MOVE_PLAN_DTL
+		 ( PLAN_NO
+	     , PLAN_SEQ
+	     , MV_TP_CD
+	     , PO_SYS_NO
+	     , ITEM_SYS_NO
+	     , LOT_ID
+	     , CTRT_NO
+	     , WH_CD
+	     , ITEM_CD
+	     , ITEM_NM
+	     , PL_FR_WH_LOC_PROP_CD
+	     , PL_FR_WH_LOC_CD
+	     , PL_FR_EA_QTY
+	     , PL_TO_WH_LOC_PROP_CD
+	     , PL_TO_WH_LOC_CD
+	     , PL_TO_EA_QTY
+	     , RMK
+	     , SO_NO
+	     , WIB_BK_NO
+	     , PO_NO
+	     , PL_FR_CBM
+	     , PL_FR_CBF
+	     , PL_FR_GRS_KGS
+	     , PL_FR_GRS_LBS
+	     , PL_FR_NET_KGS
+	     , PL_FR_NET_LBS
+	     , PL_TO_CBM
+	     , PL_TO_CBF
+	     , PL_TO_GRS_KGS
+	     , PL_TO_GRS_LBS
+	     , PL_TO_NET_KGS
+	     , PL_TO_NET_LBS	     
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     , ITEM_SER_NO
+	     , LIC_PLAT_NO
+	     )
+	VALUES
+	     ( #plan_no#           
+	     , #plan_seq#           
+	     , #to_mv_tp_cd#          
+	     , #po_sys_no#         
+	     , #item_sys_no#       
+	     , #lot_id#            
+	     , #ctrt_no#           
+	     , #wh_cd#             
+	     , #item_cd#           
+	     , #item_nm#           
+	     , #fr_wh_loc_prop_cd# 
+	     , #fr_wh_loc_cd#      
+	     , #fr_ea_qty#         
+	     , #to_wh_loc_prop_cd# 
+	     , #to_wh_loc_cd#      
+	     , #to_ea_qty#         
+	     , #rmk#               
+	     , #so_no#             
+	     , #wib_bk_no#         
+	     , #po_no# 	     
+	     , #fr_cbm#           
+	     , #fr_cbf#           
+	     , #fr_grs_kgs# 
+	     , #fr_grs_lbs#      
+	     , #fr_net_kgs#         
+	     , #fr_net_lbs# 
+	     , #to_cbm#      
+	     , #to_cbf#         
+	     , #to_grs_kgs#               
+	     , #to_grs_lbs#             
+	     , #to_net_kgs#         
+	     , #to_net_lbs#	            
+	     , #rgst_id#           
+	     , #rgst_ofc_cd#       
+	     , GETDATE()  
+	     , CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),120)
+	     , #modi_id#           
+	     , #modi_ofc_cd#       
+	     , GETDATE() 
+	     , CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),120)
+	     , #item_ser_no#
+	     , #lic_plat_no#
+	     )  
+	</insert>	
+	<update id="modifyInvMovePlanDtl" parameterClass="com.clt.apps.fis.wms.whinventory.dto.Grd01WHInvMoveMgmtVO">
+	/*WHInvMove.modifyInvMovePlanDtl*/
+	UPDATE TL_WH_INV_MOVE_PLAN_DTL
+	   SET PL_TO_WH_LOC_PROP_CD = #to_wh_loc_prop_cd#  
+	     , PL_TO_WH_LOC_CD      = #to_wh_loc_cd#   
+	     , PL_TO_EA_QTY         = #to_ea_qty#  	     
+	     , PL_TO_CBM            = #to_cbm#  
+	     , PL_TO_CBF            = #to_cbf#  
+	     , PL_TO_GRS_KGS        = #to_grs_kgs#  
+	     , PL_TO_GRS_LBS        = #to_grs_lbs#  
+	     , PL_TO_NET_KGS        = #to_net_kgs#  
+	     , PL_TO_NET_LBS        = #to_net_lbs# 	         
+	     , RMK                  = #rmk#  
+	     , MODI_ID              = #modi_id#
+	     , MODI_OFC_CD          = #modi_ofc_cd#
+	     , MODI_SYS_DT          = GETDATE()
+	     , MODI_LOC_DT          = CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),120)
+	     , ITEM_SER_NO          = #item_ser_no#
+	     , LIC_PLAT_NO          = #lic_plat_no#
+	 WHERE PLAN_NO  = #plan_no#
+	   AND PLAN_SEQ = #plan_seq#
+	</update>
+	
+	<!-- Inventory Movement & Hold & Damage Mgmt Search (Header) -->		
+	<select id="searchInvMoveMgmtInfo" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whinventory.dto.InvMoveMgmtInVO">
+	/*WHInvMove.searchInvMoveMgmtInfo*/
+	SELECT PL.PLAN_NO
+	     , dbo.TL_GET_COMM_NM('WPS',PL.PLAN_STS_CD) AS PLAN_STS_CD_NM
+	     , PL.PLAN_STS_CD
+	     , CONVERT(VARCHAR(11),PL.RGST_LOC_DT,110) AS PLAN_DT
+	     , PL.SUPV_NM
+	     , PL.WORK_NM
+	     , CONVERT(VARCHAR(11),CONVERT(DATETIME,PL.MOVE_DT),110) AS MOVE_DT
+	     , CASE WHEN PL.MOVE_HM_FR IS NULL OR PL.MOVE_HM_FR = '' THEN ''
+		        ELSE SUBSTRING(PL.MOVE_HM_FR, 1, 2) + ':' + SUBSTRING(PL.MOVE_HM_FR, 3, 2)  END AS MOVE_HM_FR
+		 , CASE WHEN PL.MOVE_HM_TO IS NULL OR PL.MOVE_HM_TO = '' THEN ''
+		        ELSE SUBSTRING(PL.MOVE_HM_TO, 1, 2) + ':' + SUBSTRING(PL.MOVE_HM_TO, 3, 2)  END AS MOVE_HM_TO	    
+	     , PL.RMK
+	     , PD.WH_CD
+	     , dbo.TL_GET_LOC_NM(PD.WH_CD) AS WH_NM
+	     , PD.CTRT_NO
+	     , dbo.TL_GET_CTRT_NM(PD.CTRT_NO) AS CTRT_NM	       
+	  FROM TL_WH_INV_MOVE_PLAN PL
+	     , (SELECT MIN(WH_CD) AS WH_CD
+	             , MIN(CTRT_NO) AS CTRT_NO
+	          FROM TL_WH_INV_MOVE_PLAN_DTL D WHERE PLAN_NO = #in_plan_no#
+	       ) PD
+	 WHERE PLAN_NO = #in_plan_no#
+	</select>
+
+<!-- 	Inventory Movement & Hold & Damage Mgmt Search (Detail) -->		
+	<select id="searchInvMoveMgmtDtl" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whinventory.dto.Grd01WHInvMoveMgmtVO">
+	/*WHInvMove.searchInvMoveMgmtDtl*/
+	SELECT T.*
+	     , 'MV' AS MD
+	     <![CDATA[  , CASE WHEN (T.FR_EA_QTY > T.STOCK_QTY) AND (T.TO_SUM_EA_QTY > T.STOCK_QTY) THEN 'N' 
+	                       WHEN (T.FR_CBM > T.STOCK_CBM) AND (T.TO_SUM_CBM > T.STOCK_CBM) THEN 'N'
+	                       WHEN (T.FR_CBF > T.STOCK_CBF) AND (T.TO_SUM_CBF > T.STOCK_CBF) THEN 'N'
+	                       WHEN (T.FR_GRS_KGS > T.STOCK_GRS_KGS) AND (T.TO_SUM_GRS_KGS > T.STOCK_GRS_KGS) THEN 'N'
+	                       WHEN (T.FR_GRS_LBS > T.STOCK_GRS_LBS) AND (T.TO_SUM_GRS_LBS > T.STOCK_GRS_LBS) THEN 'N'
+	                       WHEN (T.FR_NET_KGS > T.STOCK_NET_KGS) AND (T.TO_SUM_NET_KGS > T.STOCK_NET_KGS) THEN 'N'
+	                       WHEN (T.FR_NET_LBS > T.STOCK_NET_LBS) AND (T.TO_SUM_NET_LBS > T.STOCK_NET_LBS) THEN 'N'
+	                       ELSE 'Y' END AS EDIT_YN ]]>
+	     
+	  FROM ( 
+			SELECT PD.ITEM_SYS_NO + '|' + ISNULL(PD.WIB_BK_NO,'') + '|' + ISNULL(PD.PO_SYS_NO,'') + '|' + ISNULL(PD.LOT_ID,'') + '|' + ISNULL(PD.PL_FR_WH_LOC_CD,'') 
+					+ '|' + ISNULL(PD.ITEM_SER_NO,'') + '|' + ISNULL(PD.LIC_PLAT_NO,'') + '|' + ISNULL(PD.PO_NO,'') AS MERGE_KEY
+			     , ISNULL(MV.MOVE_NO, ' ') AS MOVE_NO
+			     , PD.PLAN_NO
+			     , PD.PLAN_SEQ
+			     , PD.PO_SYS_NO
+			     , PD.ITEM_SYS_NO
+			     , PD.LOT_ID
+			     , PD.CTRT_NO
+			     , PD.WH_CD
+			     , PD.ITEM_CD
+			     , PD.ITEM_NM
+			     , PD.PL_FR_WH_LOC_PROP_CD AS FR_WH_LOC_PROP_CD
+			     , PD.PL_FR_WH_LOC_CD AS FR_WH_LOC_CD
+			     , dbo.TL_GET_WH_LOC_NM(PD.WH_CD, PD.PL_FR_WH_LOC_CD) AS FR_WH_LOC_CD_NM
+			     , PD.PL_FR_EA_QTY AS FR_EA_QTY			     
+			     , CASE WHEN PD.PL_FR_WH_LOC_PROP_CD = 'DMG' OR PD.PL_FR_WH_LOC_PROP_CD = 'HLD' THEN PD.PL_FR_WH_LOC_PROP_CD
+					                ELSE 'MV' 
+					           END AS FR_MV_TP_CD
+			     , CASE WHEN PD.PL_FR_WH_LOC_PROP_CD = 'DMG' OR PD.PL_FR_WH_LOC_PROP_CD = 'HLD' THEN dbo.TL_GET_COMM_NM('WL0', PD.PL_FR_WH_LOC_PROP_CD)
+					                ELSE 'Normal' 
+					           END AS FR_MV_TP_CD_NM
+			     , PD.PL_TO_WH_LOC_PROP_CD AS TO_WH_LOC_PROP_CD
+			     , PD.PL_TO_WH_LOC_CD AS TO_WH_LOC_CD
+			     , dbo.TL_GET_WH_LOC_NM(PD.WH_CD, PD.PL_TO_WH_LOC_CD) AS TO_WH_LOC_CD_NM
+			     , PD.MV_TP_CD AS TO_MV_TP_CD
+			     , CASE WHEN PD.MV_TP_CD = 'DMG' OR PD.MV_TP_CD = 'HLD' THEN dbo.TL_GET_COMM_NM('WL0', PD.MV_TP_CD)
+					                ELSE 'Normal' 
+					           END AS TO_MV_TP_CD_NM
+			     , PD.PL_TO_EA_QTY AS TO_EA_QTY
+			     , ISNULL(INL.IN_QTY, 0) - ISNULL(INL.ALLC_QTY, 0) AS STOCK_QTY
+			     /* Inventory Stock Measure Info S */
+                  <![CDATA[ 
+			      ,CASE WHEN ISNULL(INL.IN_CBM, 0)     - ISNULL(INL.ALLC_CBM, 0)     < 0 THEN 0 ELSE ISNULL(INL.IN_CBM, 0)     - ISNULL(INL.ALLC_CBM, 0)     END AS STOCK_CBM
+			      ,CASE WHEN ISNULL(INL.IN_CBF, 0)     - ISNULL(INL.ALLC_CBF, 0)     < 0 THEN 0 ELSE ISNULL(INL.IN_CBF, 0)     - ISNULL(INL.ALLC_CBF, 0)     END AS STOCK_CBF
+			      ,CASE WHEN ISNULL(INL.IN_GRS_KGS, 0) - ISNULL(INL.ALLC_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(INL.IN_GRS_KGS, 0) - ISNULL(INL.ALLC_GRS_KGS, 0) END AS STOCK_GRS_KGS
+			      ,CASE WHEN ISNULL(INL.IN_GRS_LBS, 0) - ISNULL(INL.ALLC_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(INL.IN_GRS_LBS, 0) - ISNULL(INL.ALLC_GRS_LBS, 0) END AS STOCK_GRS_LBS
+			      ,CASE WHEN ISNULL(INL.IN_NET_KGS, 0) - ISNULL(INL.ALLC_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(INL.IN_NET_KGS, 0) - ISNULL(INL.ALLC_NET_KGS, 0) END AS STOCK_NET_KGS
+			      ,CASE WHEN ISNULL(INL.IN_NET_LBS, 0) - ISNULL(INL.ALLC_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(INL.IN_NET_LBS, 0) - ISNULL(INL.ALLC_NET_LBS, 0) END AS STOCK_NET_LBS
+			      ]]>
+			      /* Inventory Stock Measure Info E */
+			     
+			     , SUM(ISNULL(PD.PL_TO_EA_QTY,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_EA_QTY
+			     , SUM(ISNULL(PD.PL_TO_CBM,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_CBM
+			     , SUM(ISNULL(PD.PL_TO_CBF,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_CBF
+			     , SUM(ISNULL(PD.PL_TO_GRS_KGS,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_GRS_KGS
+			     , SUM(ISNULL(PD.PL_TO_GRS_LBS,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_GRS_LBS
+			     , SUM(ISNULL(PD.PL_TO_NET_KGS,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_NET_KGS
+			     , SUM(ISNULL(PD.PL_TO_NET_LBS,0)) OVER ( PARTITION BY PD.ITEM_SYS_NO, PD.WIB_BK_NO, PD.PO_SYS_NO, PD.LOT_ID, PD.PL_FR_WH_LOC_CD) AS TO_SUM_NET_LBS
+			     
+			     , PD.RMK
+			     , PD.SO_NO
+			     , PD.WIB_BK_NO
+			     , PD.PO_NO
+			     , LT.LOT_ATTRIB_01 AS INBOUND_DT             /*INBOUND_DT*/
+			     , ISNULL(LT.LOT_ATTRIB_02, ' ') AS LOT_NO       /*ITEM LOT NO*/
+			     , F.FILE_SEQ
+			     , F.FILE_PATH
+			     , F.FILE_SYS_NM
+			     , F.FILE_ORG_NM
+			     , F.FILE_SIZE
+			     , CASE WHEN F.FILE_SEQ IS NULL THEN 'Add' ELSE 'Download' END AS ATTACH_ADD
+	     	     , CASE WHEN F.FILE_SEQ IS NULL THEN '' ELSE 'Del' END AS ATTACH_DEL
+	     	     
+	     	     /* Item Pack Master Level1 Info S */
+                 , ISNULL(I.PKG_LV1_QTY, 0) AS PKG_LV1_QTY			      
+			     , ISNULL(I.LV1_CBM, 0) AS LV1_CBM
+			     , ISNULL(I.LV1_CBF, 0) AS LV1_CBF
+			     , ISNULL(I.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+			     , ISNULL(I.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+			     , ISNULL(I.LV1_NET_KGS, 0) AS LV1_NET_KGS
+			     , ISNULL(I.LV1_NET_LBS, 0) AS LV1_NET_LBS
+			     /* Item Pack Master Level1 Info E */
+			     , PD.PL_FR_CBM     AS FR_CBM
+			     , PD.PL_FR_CBF     AS FR_CBF
+			     , PD.PL_FR_GRS_KGS AS FR_GRS_KGS
+			     , PD.PL_FR_GRS_LBS AS FR_GRS_LBS
+			     , PD.PL_FR_NET_KGS AS FR_NET_KGS
+			     , PD.PL_FR_NET_LBS AS FR_NET_LBS	
+			     , PD.PL_TO_CBM     AS TO_CBM
+			     , PD.PL_TO_CBF     AS TO_CBF
+			     , PD.PL_TO_GRS_KGS AS TO_GRS_KGS
+			     , PD.PL_TO_GRS_LBS AS TO_GRS_LBS
+			     , PD.PL_TO_NET_KGS AS TO_NET_KGS
+			     , PD.PL_TO_NET_LBS AS TO_NET_LBS	
+			     , PD.ITEM_SER_NO
+			     , PD.LIC_PLAT_NO	      
+			  FROM TL_WH_INV_MOVE_PLAN_DTL PD 
+				   LEFT JOIN TL_WH_INV_LOC INL         ON PD.WIB_BK_NO = INL.WIB_BK_NO 
+				   		and PD.PO_SYS_NO = INL.PO_SYS_NO and PD.ITEM_SYS_NO = INL.ITEM_SYS_NO 
+				   		and PD.LOT_ID = INL.LOT_ID and PD.PL_FR_WH_LOC_CD = INL.WH_LOC_CD
+				   		AND ISNULL(PD.PO_NO,'') = ISNULL(INL.PO_NO,'')
+				   		AND ISNULL(PD.ITEM_SER_NO,'') = ISNULL(INL.ITEM_SER_NO,'')
+				   		AND ISNULL(PD.LIC_PLAT_NO,'') = ISNULL(INL.LIC_PLAT_NO,'')
+				   LEFT JOIN TL_WH_INV_MOVE MV          ON PD.PLAN_NO = MV.PLAN_NO and PD.PLAN_SEQ = MV.MOVE_SEQ
+			       LEFT JOIN TL_WH_INV_MOVE_FILE_REP F  ON MV.MOVE_NO = F.MOVE_NO and MV.MOVE_SEQ = F.MOVE_SEQ and F.FILE_SEQ = 1
+				
+			       LEFT JOIN TL_CTRT_CUST_ITEM_LOT LT   ON PD.CTRT_NO = LT.CTRT_NO and PD.ITEM_SYS_NO = LT.ITEM_SYS_NO and PD.LOT_ID = LT.LOT_ID
+			       LEFT JOIN TL_CTRT_CUST_ITEM I        ON PD.CTRT_NO = I.CTRT_NO and PD.ITEM_SYS_NO = I.ITEM_SYS_NO
+               
+			   WHERE PD.PLAN_NO = #in_plan_no#
+	      ) T
+	  ORDER BY T.WIB_BK_NO ASC
+	         , T.PO_SYS_NO ASC
+		     , T.ITEM_SYS_NO ASC
+		     , T.LOT_ID ASC
+		     , T.FR_WH_LOC_CD_NM ASC
+		     , T.FR_MV_TP_CD_NM ASC
+		     , T.TO_MV_TP_CD_NM ASC
+		     , T.TO_WH_LOC_CD_NM ASC
+	</select>
+
+
+	<insert id="saveInvMoveMgmt" parameterClass="com.clt.apps.fis.wms.whinventory.dto.Grd01WHInvMoveMgmtVO">
+	/*WHInvMove.saveInvMoveMgmt*/
+	DECLARE @WH_CD VARCHAR(20)
+ 	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	INSERT INTO TL_WH_INV_MOVE
+		 ( MOVE_NO
+	     , MOVE_SEQ
+	     , MV_TP_CD
+	     , PO_SYS_NO
+	     , ITEM_SYS_NO
+	     , LOT_ID
+	     , CTRT_NO
+	     , WH_CD
+	     , ITEM_CD
+	     , ITEM_NM
+	     , FR_WH_LOC_PROP_CD
+	     , FR_WH_LOC_CD
+	     , FR_EA_QTY
+	     , TO_WH_LOC_PROP_CD
+	     , TO_WH_LOC_CD
+	     , TO_EA_QTY
+	     , RMK
+	     , SO_NO
+	     , WIB_BK_NO
+	     , PO_NO
+	     , PLAN_NO
+	     , FR_CBM
+	     , FR_CBF
+	     , FR_GRS_KGS
+	     , FR_GRS_LBS
+	     , FR_NET_KGS
+	     , FR_NET_LBS	
+	     , TO_CBM
+	     , TO_CBF
+	     , TO_GRS_KGS
+	     , TO_GRS_LBS
+	     , TO_NET_KGS
+	     , TO_NET_LBS	     
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , ITEM_SER_NO
+	     , LIC_PLAT_NO
+	     )
+	SELECT #move_no#   
+		 , PLAN_SEQ      
+		 , MV_TP_CD
+		 , PO_SYS_NO
+		 , ITEM_SYS_NO
+		 , LOT_ID
+		 , CTRT_NO
+		 , WH_CD
+		 , ITEM_CD
+		 , ITEM_NM
+		 , PL_FR_WH_LOC_PROP_CD
+		 , PL_FR_WH_LOC_CD
+		 , PL_FR_EA_QTY
+		 , PL_TO_WH_LOC_PROP_CD
+		 , PL_TO_WH_LOC_CD
+		 , PL_TO_EA_QTY
+		 , RMK
+		 , SO_NO
+		 , WIB_BK_NO
+		 , PO_NO     
+		 , PLAN_NO   
+		 , PL_FR_CBM
+	     , PL_FR_CBF
+	     , PL_FR_GRS_KGS
+	     , PL_FR_GRS_LBS
+	     , PL_FR_NET_KGS
+	     , PL_FR_NET_LBS	
+	     , PL_TO_CBM
+	     , PL_TO_CBF
+	     , PL_TO_GRS_KGS
+	     , PL_TO_GRS_LBS
+	     , PL_TO_NET_KGS
+	     , PL_TO_NET_LBS  
+		 , #rgst_id#         
+		 , #rgst_ofc_cd#       
+		 , GETDATE()  
+		 , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+	       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+	       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+	       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	     , ITEM_SER_NO
+	     , LIC_PLAT_NO
+	  FROM TL_WH_INV_MOVE_PLAN_DTL
+	 WHERE PLAN_NO =  #plan_no#
+	   AND PLAN_SEQ = #plan_seq#
+	</insert>
+
+	<update id="modifyPlanStsCd" parameterClass="com.clt.apps.fis.wms.whinventory.dto.InvMovePlanStsCdVO">
+	/*WHInvMove.modifyPlanStsCd*/
+	DECLARE @WH_CD VARCHAR(20)
+ 	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	UPDATE TL_WH_INV_MOVE_PLAN
+	   SET PLAN_STS_CD = 'C'
+	     , MODI_ID              = #modi_id#
+	     , MODI_OFC_CD          = #modi_ofc_cd#
+	     , MODI_SYS_DT          = GETDATE()
+	     , MODI_LOC_DT          = (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+							       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+							       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+							       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	 WHERE PLAN_NO  = #plan_no#
+	</update>	
+	
+	
+	<delete id="cancelInvMoveMgmtAllDtl" parameterClass="java.util.HashMap">
+	/*WHInvMove.cancelInvMoveMgmtAllDtl*/
+	DELETE FROM TL_WH_INV_MOVE_PLAN_DTL
+	 WHERE PLAN_NO  = #plan_no#
+	</delete>
+	
+	<delete id="cancelInvMoveMgmtAllHeader" parameterClass="java.util.HashMap">
+	/*WHInvMove.cancelInvMoveMgmtAllHeader*/
+	DELETE FROM TL_WH_INV_MOVE_PLAN
+	 WHERE PLAN_NO  = #plan_no#
+	</delete>
+
+	<delete id="cancelInvMoveMgmtPartial" parameterClass="com.clt.apps.fis.wms.whinventory.dto.Grd01WHInvMoveMgmtVO">
+	/*WHInvMove.cancelInvMoveMgmtPartial*/
+	DELETE FROM TL_WH_INV_MOVE_PLAN_DTL
+	 WHERE PLAN_NO  = #plan_no#
+	   AND PLAN_SEQ = #plan_seq#
+	</delete>
+
+	<!-- Inventory Movement & Hold & Damage List Search -->		
+	<select id="searchInvMoveList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whinventory.dto.Grd01WHInvMoveListVO">
+	/*WHInvMove.searchInvMoveList*/
+	select * from (SELECT ROW_NUMBER() OVER (ORDER BY T.PLAN_DT DESC) AS RN 
+	     , T.*
+	  FROM (
+			SELECT PL.PLAN_NO
+			     , PL.RGST_LOC_DT AS PLAN_DT
+			     , PL.PLAN_STS_CD
+			     , dbo.TL_GET_COMM_NM('WPS',PL.PLAN_STS_CD) AS PLAN_STS_CD_NM
+			     , MV.MOVE_NO
+			     , MV.MOVE_SEQ   
+			     , PL.MOVE_DT AS MOVE_DT
+			     , MV.MV_TP_CD
+			     , CASE WHEN MV.MV_TP_CD = 'DMG' OR MV.MV_TP_CD = 'HLD' THEN dbo.TL_GET_COMM_NM('WL0', MV.MV_TP_CD)
+		                ELSE 'Normal' 
+		           END AS MV_TP_CD_NM
+			     , PD.PO_SYS_NO
+			     , PD.ITEM_SYS_NO
+			     , PD.LOT_ID
+			     , PD.CTRT_NO
+			     , dbo.TL_GET_CTRT_NM(PD.CTRT_NO) AS CTRT_NM
+			     , PD.WH_CD
+			     , dbo.TL_GET_LOC_NM(PD.WH_CD) AS WH_NM
+			     , PD.ITEM_CD
+			     , PD.ITEM_NM
+			     , IT_LOT.LOT_ATTRIB_01 AS INBOUND_DT
+			     , IT_LOT.LOT_ATTRIB_02 AS LOT_NO
+			     , IT_LOT.LOT_ATTRIB_03 AS EXP_DT
+			     , IT_LOT.LOT_ATTRIB_04 AS LOT_04
+			     , IT_LOT.LOT_ATTRIB_05 AS LOT_05
+			     , PD.PL_FR_WH_LOC_PROP_CD AS FR_WH_LOC_PROP_CD
+			     , CASE WHEN PD.PL_FR_WH_LOC_PROP_CD = 'DMG' OR PD.PL_FR_WH_LOC_PROP_CD = 'HLD' THEN dbo.TL_GET_COMM_NM('WL0', PD.PL_FR_WH_LOC_PROP_CD)
+		                ELSE 'Normal' END AS FR_TYPE		                
+			     , PD.PL_FR_WH_LOC_CD AS FR_WH_LOC_CD
+			     , dbo.TL_GET_WH_LOC_NM(PD.WH_CD, PD.PL_FR_WH_LOC_CD) AS FR_WH_LOC_CD_NM
+			     , CONVERT(NUMERIC,PD.PL_FR_EA_QTY) AS FR_EA_QTY
+			     , PD.PL_TO_WH_LOC_PROP_CD AS TO_WH_LOC_PROP_CD
+			     , CASE WHEN PD.PL_TO_WH_LOC_PROP_CD = 'DMG' OR PD.PL_TO_WH_LOC_PROP_CD = 'HLD' THEN dbo.TL_GET_COMM_NM('WL0', PD.PL_TO_WH_LOC_PROP_CD)
+		                ELSE 'Normal' END AS TO_TYPE
+			     , PD.PL_TO_WH_LOC_CD AS TO_WH_LOC_CD
+			     , dbo.TL_GET_WH_LOC_NM(PD.WH_CD, PD.PL_TO_WH_LOC_CD) AS TO_WH_LOC_CD_NM
+			     , PD.PL_TO_EA_QTY AS TO_EA_QTY
+			     , PD.PL_FR_CBM     AS FR_CBM
+			     , PD.PL_FR_CBF     AS FR_CBF
+			     , PD.PL_FR_GRS_KGS AS FR_GRS_KGS
+			     , PD.PL_FR_GRS_LBS AS FR_GRS_LBS
+			     , PD.PL_FR_NET_KGS AS FR_NET_KGS
+			     , PD.PL_FR_NET_LBS AS FR_NET_LBS	
+			     , PD.PL_TO_CBM     AS TO_CBM
+			     , PD.PL_TO_CBF     AS TO_CBF
+			     , PD.PL_TO_GRS_KGS AS TO_GRS_KGS
+			     , PD.PL_TO_GRS_LBS AS TO_GRS_LBS
+			     , PD.PL_TO_NET_KGS AS TO_NET_KGS
+			     , PD.PL_TO_NET_LBS AS TO_NET_LBS
+			     , PD.RMK
+			     , PD.SO_NO
+			     , PD.WIB_BK_NO
+			     , IB.CUST_ORD_NO
+			     , PD.PO_NO
+			     , F.FILE_SEQ
+			     , F.FILE_PATH
+			     , F.FILE_SYS_NM
+			     , F.FILE_ORG_NM
+			     , F.FILE_SIZE
+			     , PD.ITEM_SER_NO
+			     , PD.LIC_PLAT_NO
+			  FROM TL_WH_INV_MOVE_PLAN PL
+			     , TL_WH_INV_MOVE_PLAN_DTL PD LEFT JOIN TL_WH_INV_MOVE MV ON PD.PLAN_NO = MV.PLAN_NO AND PD.PLAN_SEQ = MV.MOVE_SEQ LEFT JOIN TL_WH_IB IB ON PD.WIB_BK_NO = IB.WIB_BK_NO
+				 LEFT JOIN TL_WH_INV_MOVE_FILE_REP F ON MV.MOVE_NO = F.MOVE_NO AND MV.MOVE_SEQ = F.MOVE_SEQ AND F.FILE_SEQ = 1
+			     , TL_CTRT_CUST_ITEM_LOT IT_LOT
+			 WHERE PL.PLAN_NO = PD.PLAN_NO
+			   
+			   AND PD.CTRT_NO = IT_LOT.CTRT_NO
+			   AND PD.ITEM_SYS_NO = IT_LOT.ITEM_SYS_NO
+			   AND PD.LOT_ID = IT_LOT.LOT_ID
+			   
+	       ) T
+	 WHERE 1 = 1	
+	<isNotEqual property="plan_sts_cd" compareValue="ALL">
+		   AND T.plan_sts_cd = #plan_sts_cd# /*조건-status*/
+	</isNotEqual>    
+	<isNotEmpty property="wh_cd">	
+		   AND T.WH_CD = #wh_cd# /*조건-Warehouse*/
+	</isNotEmpty>   
+	<isNotEmpty property="ctrt_no">	
+		   AND T.CTRT_NO = #ctrt_no# /*조건-Contract No*/
+	</isNotEmpty>   
+	<isNotEmpty property="item_cd">	
+		   AND T.ITEM_CD = #item_cd# /*조건-Item cd*/
+	</isNotEmpty>  
+	<isNotEmpty property="move_no">	
+		<isEqual property="move_plan_no_tp" compareValue="MOVE_NO">
+			AND T.MOVE_NO = #move_no#
+		</isEqual>
+		<isEqual property="move_plan_no_tp" compareValue="PLAN_NO">
+			AND T.PLAN_NO = #move_no#
+		</isEqual>
+	</isNotEmpty>  
+	<isNotEmpty property="lot_attrib">	
+		<isEqual property="lot_attrib_tp" compareValue="LOT_NO">
+			AND T.LOT_NO = #lot_attrib#
+		</isEqual>
+		<isEqual property="lot_attrib_tp" compareValue="LOT_ID">
+			AND T.LOT_ID = #lot_attrib#
+		</isEqual>
+		<isEqual property="lot_attrib_tp" compareValue="LOT_04">
+			AND T.LOT_04 = #lot_attrib#
+		</isEqual>
+		<isEqual property="lot_attrib_tp" compareValue="LOT_05">
+			AND T.LOT_05 = #lot_attrib#
+		</isEqual>
+	</isNotEmpty>  
+	<isNotEmpty property="search_no">	
+		<isEqual property="search_tp" compareValue="WIB_BK_NO">
+			AND T.WIB_BK_NO = #search_no#
+		</isEqual>
+		<isEqual property="search_tp" compareValue="CUST_ORD_NO">
+			AND T.CUST_ORD_NO = #search_no#
+		</isEqual>
+	</isNotEmpty> 
+	<isNotEmpty property="fm_in_date">
+		<isEqual property="date_tp" compareValue="INBOUND_DT">
+			AND T.INBOUND_DT BETWEEN REPLACE(#fm_in_date#, '-', '')  AND REPLACE(#to_in_date#, '-','')
+		</isEqual>
+		<isEqual property="date_tp" compareValue="EXP_DT">
+			AND T.EXP_DT BETWEEN REPLACE(#fm_in_date#, '-', '')  AND REPLACE(#to_in_date#, '-','')
+		</isEqual>
+	</isNotEmpty>
+	<isNotEmpty property="fm_mv_date">
+		<isEqual property="move_plan_dt_tp" compareValue="MOVE_DT">
+			AND T.MOVE_DT BETWEEN REPLACE(#fm_mv_date#, '-', '')  AND REPLACE(#to_mv_date#, '-','')
+		</isEqual>
+		<isEqual property="move_plan_dt_tp" compareValue="PLAN_DT">
+			AND T.PLAN_DT BETWEEN REPLACE(#fm_mv_date#, '-', '')  AND REPLACE(#to_mv_date#, '-','')
+		</isEqual>
+	</isNotEmpty>
+	<isNotEmpty property="wh_loc_cd">	
+		<isEqual property="fr_to_tp" compareValue="FR">
+			AND T.FR_WH_LOC_CD = #wh_loc_cd#
+		</isEqual>
+		<isEqual property="fr_to_tp" compareValue="TO">
+			AND T.TO_WH_LOC_CD = #wh_loc_cd#
+		</isEqual>
+	</isNotEmpty>  
+	
+	) as TTT <![CDATA[ where TTT.RN > #beginIdx# AND TTT.RN <= #topCnt#	]]>
+	 
+	 ORDER BY TTT.PLAN_NO ASC, TTT.PLAN_DT ASC, TTT.MOVE_DT ASC, TTT.MOVE_NO ASC, TTT.ITEM_CD ASC, TTT.ITEM_NM ASC
+	</select>
+	<select id="searchInvMoveList_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+	/*WHInvMove.searchInvMoveList*/
+	select COUNT (*)  FROM (SELECT *  
+	  FROM (
+			SELECT PL.PLAN_NO
+			     , PL.RGST_LOC_DT AS PLAN_DT
+			     , PL.PLAN_STS_CD
+			     , dbo.TL_GET_COMM_NM('WPS',PL.PLAN_STS_CD) AS PLAN_STS_CD_NM
+			     , MV.MOVE_NO
+			     , MV.MOVE_SEQ   
+			     , PL.MOVE_DT AS MOVE_DT
+			     , MV.MV_TP_CD
+			     , CASE WHEN MV.MV_TP_CD = 'DMG' OR MV.MV_TP_CD = 'HLD' THEN dbo.TL_GET_COMM_NM('WL0', MV.MV_TP_CD)
+		                ELSE 'Normal' 
+		           END AS MV_TP_CD_NM
+			     , PD.PO_SYS_NO
+			     , PD.ITEM_SYS_NO
+			     , PD.LOT_ID
+			     , PD.CTRT_NO
+			     , dbo.TL_GET_CTRT_NM(PD.CTRT_NO) AS CTRT_NM
+			     , PD.WH_CD
+			     , dbo.TL_GET_LOC_NM(PD.WH_CD) AS WH_NM
+			     , PD.ITEM_CD
+			     , PD.ITEM_NM
+			     , IT_LOT.LOT_ATTRIB_01 AS INBOUND_DT
+			     , IT_LOT.LOT_ATTRIB_02 AS LOT_NO
+			     , IT_LOT.LOT_ATTRIB_03 AS EXP_DT
+			     , IT_LOT.LOT_ATTRIB_04 AS LOT_04
+			     , IT_LOT.LOT_ATTRIB_05 AS LOT_05
+			     , PD.PL_FR_WH_LOC_PROP_CD AS FR_WH_LOC_PROP_CD
+			     , CASE WHEN PD.PL_FR_WH_LOC_PROP_CD = 'DMG' OR PD.PL_FR_WH_LOC_PROP_CD = 'HLD' THEN dbo.TL_GET_COMM_NM('WL0', PD.PL_FR_WH_LOC_PROP_CD)
+		                ELSE 'Normal' END AS FR_TYPE		                
+			     , PD.PL_FR_WH_LOC_CD AS FR_WH_LOC_CD
+			     , dbo.TL_GET_WH_LOC_NM(PD.WH_CD, PD.PL_FR_WH_LOC_CD) AS FR_WH_LOC_CD_NM
+			     , CONVERT(NUMERIC,PD.PL_FR_EA_QTY) AS FR_EA_QTY
+			     , PD.PL_TO_WH_LOC_PROP_CD AS TO_WH_LOC_PROP_CD
+			     , CASE WHEN PD.PL_TO_WH_LOC_PROP_CD = 'DMG' OR PD.PL_TO_WH_LOC_PROP_CD = 'HLD' THEN dbo.TL_GET_COMM_NM('WL0', PD.PL_TO_WH_LOC_PROP_CD)
+		                ELSE 'Normal' END AS TO_TYPE
+			     , PD.PL_TO_WH_LOC_CD AS TO_WH_LOC_CD
+			     , dbo.TL_GET_WH_LOC_NM(PD.WH_CD, PD.PL_TO_WH_LOC_CD) AS TO_WH_LOC_CD_NM
+			     , PD.PL_TO_EA_QTY AS TO_EA_QTY
+			     , PD.PL_FR_CBM     AS FR_CBM
+			     , PD.PL_FR_CBF     AS FR_CBF
+			     , PD.PL_FR_GRS_KGS AS FR_GRS_KGS
+			     , PD.PL_FR_GRS_LBS AS FR_GRS_LBS
+			     , PD.PL_FR_NET_KGS AS FR_NET_KGS
+			     , PD.PL_FR_NET_LBS AS FR_NET_LBS	
+			     , PD.PL_TO_CBM     AS TO_CBM
+			     , PD.PL_TO_CBF     AS TO_CBF
+			     , PD.PL_TO_GRS_KGS AS TO_GRS_KGS
+			     , PD.PL_TO_GRS_LBS AS TO_GRS_LBS
+			     , PD.PL_TO_NET_KGS AS TO_NET_KGS
+			     , PD.PL_TO_NET_LBS AS TO_NET_LBS
+			     , PD.RMK
+			     , PD.SO_NO
+			     , PD.WIB_BK_NO
+			     , IB.CUST_ORD_NO
+			     , PD.PO_NO
+			     , F.FILE_SEQ
+			     , F.FILE_PATH
+			     , F.FILE_SYS_NM
+			     , F.FILE_ORG_NM
+			     , F.FILE_SIZE
+			  FROM TL_WH_INV_MOVE_PLAN PL
+			     , TL_WH_INV_MOVE_PLAN_DTL PD LEFT JOIN TL_WH_INV_MOVE MV ON PD.PLAN_NO = MV.PLAN_NO AND PD.PLAN_SEQ = MV.MOVE_SEQ LEFT JOIN TL_WH_IB IB ON PD.WIB_BK_NO = IB.WIB_BK_NO
+				 LEFT JOIN TL_WH_INV_MOVE_FILE_REP F ON MV.MOVE_NO = F.MOVE_NO AND MV.MOVE_SEQ = F.MOVE_SEQ AND F.FILE_SEQ = 1
+			     , TL_CTRT_CUST_ITEM_LOT IT_LOT
+			 WHERE PL.PLAN_NO = PD.PLAN_NO
+			   
+			   AND PD.CTRT_NO = IT_LOT.CTRT_NO
+			   AND PD.ITEM_SYS_NO = IT_LOT.ITEM_SYS_NO
+			   AND PD.LOT_ID = IT_LOT.LOT_ID
+			   
+	       ) T
+	 WHERE 1 = 1	
+	<isNotEqual property="plan_sts_cd" compareValue="ALL">
+		   AND T.plan_sts_cd = #plan_sts_cd# /*조건-status*/
+	</isNotEqual>    
+	<isNotEmpty property="wh_cd">	
+		   AND T.WH_CD = #wh_cd# /*조건-Warehouse*/
+	</isNotEmpty>   
+	<isNotEmpty property="ctrt_no">	
+		   AND T.CTRT_NO = #ctrt_no# /*조건-Contract No*/
+	</isNotEmpty>   
+	<isNotEmpty property="item_cd">	
+		   AND T.ITEM_CD = #item_cd# /*조건-Item cd*/
+	</isNotEmpty>  
+	<isNotEmpty property="move_no">	
+		<isEqual property="move_plan_no_tp" compareValue="MOVE_NO">
+			AND T.MOVE_NO = #move_no#
+		</isEqual>
+		<isEqual property="move_plan_no_tp" compareValue="PLAN_NO">
+			AND T.PLAN_NO = #move_no#
+		</isEqual>
+	</isNotEmpty>  
+	<isNotEmpty property="lot_attrib">	
+		<isEqual property="lot_attrib_tp" compareValue="LOT_NO">
+			AND T.LOT_NO = #lot_attrib#
+		</isEqual>
+		<isEqual property="lot_attrib_tp" compareValue="LOT_ID">
+			AND T.LOT_ID = #lot_attrib#
+		</isEqual>
+		<isEqual property="lot_attrib_tp" compareValue="LOT_04">
+			AND T.LOT_04 = #lot_attrib#
+		</isEqual>
+		<isEqual property="lot_attrib_tp" compareValue="LOT_05">
+			AND T.LOT_05 = #lot_attrib#
+		</isEqual>
+	</isNotEmpty>  
+	<isNotEmpty property="search_no">	
+		<isEqual property="search_tp" compareValue="WIB_BK_NO">
+			AND T.WIB_BK_NO = #search_no#
+		</isEqual>
+		<isEqual property="search_tp" compareValue="CUST_ORD_NO">
+			AND T.CUST_ORD_NO = #search_no#
+		</isEqual>
+	</isNotEmpty> 
+	<isNotEmpty property="fm_in_date">
+		<isEqual property="date_tp" compareValue="INBOUND_DT">
+			AND T.INBOUND_DT BETWEEN REPLACE(#fm_in_date#, '-', '')  AND REPLACE(#to_in_date#, '-','')
+		</isEqual>
+		<isEqual property="date_tp" compareValue="EXP_DT">
+			AND T.EXP_DT BETWEEN REPLACE(#fm_in_date#, '-', '')  AND REPLACE(#to_in_date#, '-','')
+		</isEqual>
+	</isNotEmpty>
+	<isNotEmpty property="fm_mv_date">
+		<isEqual property="move_plan_dt_tp" compareValue="MOVE_DT">
+			AND T.MOVE_DT BETWEEN REPLACE(#fm_mv_date#, '-', '')  AND REPLACE(#to_mv_date#, '-','')
+		</isEqual>
+		<isEqual property="move_plan_dt_tp" compareValue="PLAN_DT">
+			AND T.PLAN_DT BETWEEN REPLACE(#fm_mv_date#, '-', '')  AND REPLACE(#to_mv_date#, '-','')
+		</isEqual>
+	</isNotEmpty>
+	<isNotEmpty property="wh_loc_cd">	
+		<isEqual property="fr_to_tp" compareValue="FR">
+			AND T.FR_WH_LOC_CD = #wh_loc_cd#
+		</isEqual>
+		<isEqual property="fr_to_tp" compareValue="TO">
+			AND T.TO_WH_LOC_CD = #wh_loc_cd#
+		</isEqual>
+	</isNotEmpty>  
+	
+	) as TTT 
+	</select>
+	
+	<!-- Inventory Movement & Hold & Damage List Search화면에서 파일첨부를 한다. -->	
+    <!-- <insert id="addFileInvMoveFileUpload">
+    /* WHInvMove.addFileInvMoveFileUpload */    
+    INSERT INTO TL_WH_INV_MOVE_FILE_REP
+         ( MOVE_NO
+         , MOVE_SEQ
+         , FILE_SEQ       /*Key Sequence*/
+         , FILE_PATH      /*File Path  파일 저장 디렉토리*/
+         , FILE_SYS_NM    /*File System Name*/
+         , FILE_ORG_NM    /*File Original Name*/
+         , FILE_SIZE      /*File Size*/
+         , RGST_ID        /*등록 ID*/
+         , RGST_SYS_DT    /*등록 일자*/
+         , MODI_ID        /*수정 ID*/
+         , MODI_SYS_DT    /*수정일자*/
+         )
+    SELECT #{move_no}
+         , #{move_seq}
+         , (SELECT ISNULL(MAX(FILE_SEQ),0) + 1 
+              FROM TL_WH_INV_MOVE_FILE_REP
+             WHERE MOVE_NO   = #{move_no}
+               AND MOVE_SEQ  = #{move_seq}
+           )
+         , FILE_URL
+         , FILE_ID
+         , FILE_NM
+         , FILE_CAPA
+         , #{rgst_id}
+         , GETDATE()
+         , #{rgst_id}
+         , GETDATE()     
+      FROM COM_UPLD_FILE
+     WHERE FILE_ID = #{fileKey}
+	</insert>-->	
+	<!--Inventory Movement & Hold & Damage List Search화면에서 첨부된 파일을 삭제한다.	-->
+    <delete id="removeFileInvMoveFile" parameterClass="java.util.HashMap">
+	/* WHInvMove.removeFileInvMoveFile */
+	DELETE FROM TL_WH_INV_MOVE_FILE_REP
+	 WHERE MOVE_NO   = #move_no#
+	   AND MOVE_SEQ  = #move_seq#
+	   AND FILE_SEQ  = #file_seq#
+    </delete>
+   	<select id="searchInvMoveMgmtForWaveUnList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whinventory.dto.Grd01WHInvMoveMgmtVO">
+	/*WHInvMove.searchInvMoveMgmtForWaveUnList*/
+			SELECT T.* 
+			  FROM (
+					SELECT 'WAVE' AS MD
+					     , LOC.ITEM_SYS_NO + '|' + LOC.WIB_BK_NO + '|' + LOC.PO_SYS_NO + '|' + LOC.LOT_ID + '|' + LOC.WH_LOC_CD AS MERGE_KEY 
+					     , LOC.WH_CD
+					     , LOC.CTRT_NO
+					     , LOC.ITEM_SYS_NO
+					     , LOC.PO_SYS_NO
+					     , LOC.LOT_ID
+					     , ' ' AS MOVE_NO
+					     , LOC.ITEM_CD
+					     , LOC.ITEM_NM
+					     , LOC.WIB_BK_NO
+					     , LOC.SO_NO
+					     , LOC.PO_NO
+					     , LOC.WH_LOC_CD AS FR_WH_LOC_CD
+					     , dbo.TL_GET_WH_LOC_NM (LOC.WH_CD, LOC.WH_LOC_CD) AS FR_WH_LOC_CD_NM
+					     , CASE WHEN L.PROP_CD = 'DMG' OR L.PROP_CD = 'HLD' THEN L.PROP_CD
+								ELSE 'MV' 
+						   END AS FR_MV_TP_CD
+					     , CASE WHEN L.PROP_CD = 'DMG' OR L.PROP_CD = 'HLD' THEN dbo.TL_GET_COMM_NM('WL0', L.PROP_CD)
+								ELSE 'Normal' 
+						   END AS FR_MV_TP_CD_NM
+					     , L.PROP_CD AS FR_WH_LOC_PROP_CD     
+					     , LOC.IN_QTY - ISNULL(LOC.ALLC_QTY,0) AS FR_EA_QTY
+					     , LOC.IN_QTY - ISNULL(LOC.ALLC_QTY,0) AS STOCK_QTY
+					     , LOT.LOT_ATTRIB_01 AS INBOUND_DT
+						 , ISNULL(LOT.LOT_ATTRIB_02, ' ') AS LOT_NO
+						 , LOT.LOT_ATTRIB_03 AS EXP_DT
+						 , LOT.LOT_ATTRIB_04 AS LOT_04
+						 , LOT.LOT_ATTRIB_05 AS LOT_05
+						 
+						 /* Item Pack Master Level1 Info S */
+					     , ISNULL(I.PKG_LV1_QTY, 0) AS PKG_LV1_QTY			      
+					     , ISNULL(I.LV1_CBM, 0) AS LV1_CBM
+					     , ISNULL(I.LV1_CBF, 0) AS LV1_CBF
+					     , ISNULL(I.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+					     , ISNULL(I.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+					     , ISNULL(I.LV1_NET_KGS, 0) AS LV1_NET_KGS
+					     , ISNULL(I.LV1_NET_LBS, 0) AS LV1_NET_LBS
+					     /* Item Pack Master Level1 Info E */
+					     /* Inventory Stock Measure Info S */
+					     <![CDATA[ 
+					      ,CASE WHEN ISNULL(LOC.IN_CBM, 0)     - ISNULL(LOC.ALLC_CBM, 0)     < 0 THEN 0 ELSE ISNULL(LOC.IN_CBM, 0)     - ISNULL(LOC.ALLC_CBM, 0)     END AS FR_CBM
+					      ,CASE WHEN ISNULL(LOC.IN_CBF, 0)     - ISNULL(LOC.ALLC_CBF, 0)     < 0 THEN 0 ELSE ISNULL(LOC.IN_CBF, 0)     - ISNULL(LOC.ALLC_CBF, 0)     END AS FR_CBF
+					      ,CASE WHEN ISNULL(LOC.IN_GRS_KGS, 0) - ISNULL(LOC.ALLC_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(LOC.IN_GRS_KGS, 0) - ISNULL(LOC.ALLC_GRS_KGS, 0) END AS FR_GRS_KGS
+					      ,CASE WHEN ISNULL(LOC.IN_GRS_LBS, 0) - ISNULL(LOC.ALLC_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(LOC.IN_GRS_LBS, 0) - ISNULL(LOC.ALLC_GRS_LBS, 0) END AS FR_GRS_LBS
+					      ,CASE WHEN ISNULL(LOC.IN_NET_KGS, 0) - ISNULL(LOC.ALLC_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(LOC.IN_NET_KGS, 0) - ISNULL(LOC.ALLC_NET_KGS, 0) END AS FR_NET_KGS
+					      ,CASE WHEN ISNULL(LOC.IN_NET_LBS, 0) - ISNULL(LOC.ALLC_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(LOC.IN_NET_LBS, 0) - ISNULL(LOC.ALLC_NET_LBS, 0) END AS FR_NET_LBS
+					      
+					      ,CASE WHEN ISNULL(LOC.IN_CBM, 0)     - ISNULL(LOC.ALLC_CBM, 0)     < 0 THEN 0 ELSE ISNULL(LOC.IN_CBM, 0)     - ISNULL(LOC.ALLC_CBM, 0)     END AS STOCK_CBM
+					      ,CASE WHEN ISNULL(LOC.IN_CBF, 0)     - ISNULL(LOC.ALLC_CBF, 0)     < 0 THEN 0 ELSE ISNULL(LOC.IN_CBF, 0)     - ISNULL(LOC.ALLC_CBF, 0)     END AS STOCK_CBF
+					      ,CASE WHEN ISNULL(LOC.IN_GRS_KGS, 0) - ISNULL(LOC.ALLC_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(LOC.IN_GRS_KGS, 0) - ISNULL(LOC.ALLC_GRS_KGS, 0) END AS STOCK_GRS_KGS
+					      ,CASE WHEN ISNULL(LOC.IN_GRS_LBS, 0) - ISNULL(LOC.ALLC_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(LOC.IN_GRS_LBS, 0) - ISNULL(LOC.ALLC_GRS_LBS, 0) END AS STOCK_GRS_LBS
+					      ,CASE WHEN ISNULL(LOC.IN_NET_KGS, 0) - ISNULL(LOC.ALLC_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(LOC.IN_NET_KGS, 0) - ISNULL(LOC.ALLC_NET_KGS, 0) END AS STOCK_NET_KGS
+					      ,CASE WHEN ISNULL(LOC.IN_NET_LBS, 0) - ISNULL(LOC.ALLC_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(LOC.IN_NET_LBS, 0) - ISNULL(LOC.ALLC_NET_LBS, 0) END AS STOCK_NET_LBS
+					      ]]>
+					    		           
+					  FROM (
+					        SELECT TT.WH_CD
+					             , TT.CTRT_NO
+					            
+					             , TT.ITEM_SYS_NO
+					          FROM (SELECT OB.WH_CD
+					                     , OB.CTRT_NO
+					                   
+					                     , OB_ITEM.*
+					                     , (SELECT SUM(ISNULL(PICK_ITEM_EA_QTY,0))
+					        			      FROM TL_WH_ALLC_ITEM AL
+					        			      WHERE AL.WOB_BK_NO   = OB_ITEM.WOB_BK_NO
+					        			        AND AL.SAO_SYS_NO  = OB_ITEM.SAO_SYS_NO
+					        			        AND AL.ITEM_SYS_NO = OB_ITEM.ITEM_SYS_NO
+					        			        AND AL.ITEM_SEQ    = OB_ITEM.ITEM_SEQ) AS PICK_ITEM_EA_QTY
+					                           FROM TL_WH_OB_ITEM OB_ITEM
+					                              , TL_WH_OB OB
+					                          WHERE OB_ITEM.WOB_BK_NO = OB.WOB_BK_NO				          
+					                            AND OB_ITEM.WOB_BK_NO IN (SELECT WOB_BK_NO
+					                                                        FROM TL_WH_WAVE_OB
+					                                                       WHERE WAVE_NO =  #wave_no#
+					                                                      )
+					        
+					               ) TT
+					       <![CDATA[  WHERE ISNULL(TT.ITEM_EA_QTY,0) - ISNULL(TT.PICK_ITEM_EA_QTY,0) > 0 ]]>
+					         GROUP BY TT.WH_CD
+					                , TT.CTRT_NO
+					              
+					                , TT.ITEM_SYS_NO
+					       ) UN_AC 
+					     , TL_WH_INV_LOC LOC LEFT JOIN TL_WH_IB IB ON LOC.WIB_BK_NO = IB.WIB_BK_NO
+					     , TL_CTRT_CUST_ITEM_LOT LOT
+					     , TL_WH_LOC L
+					     , TL_CTRT_CUST_ITEM I
+					 WHERE UN_AC.ITEM_SYS_NO = LOC.ITEM_SYS_NO
+					   AND UN_AC.WH_CD = LOC.WH_CD
+					   AND UN_AC.CTRT_NO = LOC.CTRT_NO
+					   
+					   AND LOC.CTRT_NO = LOT.CTRT_NO
+					   AND LOC.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+					   AND LOC.LOT_ID = LOT.LOT_ID
+					   
+					   AND LOC.WH_CD = L.LOC_CD
+					   AND LOC.WH_LOC_CD = L.WH_LOC_CD
+					   
+					   AND LOC.CTRT_NO = I.CTRT_NO
+					   AND LOC.ITEM_SYS_NO = I.ITEM_SYS_NO
+					   
+					   <![CDATA[ AND LOC.IN_QTY - ISNULL(LOC.ALLC_QTY,0) > 0 ]]>
+					   AND EXISTS 
+						      (SELECT 'X'
+						               FROM TL_WH_LOC WL, TL_WH_PROP WP
+						              WHERE WL.LOC_CD = WP.LOC_CD
+						                AND WL.WH_LOC_CD = LOC.WH_LOC_CD
+						                AND WL.USE_FLG = 'Y'
+						                AND WL.PROP_CD = WP.PROP_CD
+						                AND WP.MOVE_FLG = 'Y'
+						                AND WP.USE_FLG = 'Y')
+					   
+			       ) T
+			   ORDER BY T.WIB_BK_NO ASC
+			          , T.PO_SYS_NO ASC
+			          , T.ITEM_SYS_NO ASC
+					  , T.LOT_ID ASC
+					  , T.FR_WH_LOC_CD_NM ASC
+				</select>
+				
+		<parameterMap class="com.clt.apps.fis.wms.whinventory.dto.ProcWHInvMoveVO" id="callWHInvMoveProc_Map">
+			<parameter property="move_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+			<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+			<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+			<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+			<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		</parameterMap>
+		
+	    <procedure id="callWHInvMoveProc" parameterMap="callWHInvMoveProc_Map">
+	     { CALL PKG_MAKE_TL_WH_INV_MOVE_PRC(?, ?, ?, ?, ?) }
+	      
+	    </procedure>
+</sqlMap>

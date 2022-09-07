@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans 
+							http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="validationFactory" class="com.clt.balloon.utility.ResultSetFactory">
+		<property name="connectionManager" ref="connectionManager" />
+		<property name="sqlService" ref="validationSqlMapper" />
+	</bean>
+	
+	<bean id="validator" class="com.clt.balloon.validator.Validator">
+		<property name="classMap" ref="validatonClassMapper" />
+		<property name="sqlMap" ref="validationSqlMapper" />
+	</bean>
+	
+	<bean id="arrivalNoticeValidator" class="com.clt.balloon.validator.biz.ArrivalNoticeValidator">
+		<property name="resultSetFactory" ref="validationFactory" />
+	</bean>
+
+	<bean id="validatonClassMapper" class="com.clt.balloon.validator.ValidatorMapper">
+		<property name="classMap">
+			<map>
+				<entry key="arrival_notice_oi_hbl_us_01.mrd" value-ref="arrivalNoticeValidator" />
+			</map>
+		</property>
+	</bean>
+	<bean id="validationSqlMapper" class="com.clt.balloon.SqlService">
+		<property name="sqlMap">
+			<map>
+				<entry key="arrival_notice_oi_hbl_us_01.mrd">
+					<value>
+					SELECT hbl.bl_no AS hbl_no
+     , mbl.bl_no AS mbl_no
+     , hbl.ref_no AS href_no
+     , mbl.sub_bl_no AS msub_bl_no
+     , hbl.sub_bl_no AS hsub_bl_no
+     , hbl.modi_usr_nm AS hmodi_usr_nm
+     , hbl.ams_no AS hams_no
+     , hbl.cust_ref_no AS hcust_ref_no
+     , hbl.trnk_vsl_nm AS htrnk_vsl_nm
+     , hbl.trnk_voy AS htrnk_voy
+     , hbl.pol_nm AS hpol_nm
+     , hbl.pod_nm AS hpod_nm
+     , hbl.del_nm AS hdel_nm
+     , hbl.fnl_dest_loc_nm AS hfnl_dest_loc_nm
+     , hbl.etd_dt_tm AS hetd_dt_tm
+     , hbl.eta_dt_tm AS heta_dt_tm
+     , hbl.d_eta_dt_tm AS hd_eta_dt_tm
+     , hbl.f_eta_dt_tm AS hf_eta_dt_tm
+     , cfs_trdp.eng_nm AS hcfs_nm
+     , cfs_ctp.pic_phn AS hcfs_phn
+     , cfs_ctp.pic_fax AS hcfs_fax
+     , cfs_trdp.iata_cd AS hiata_cd     
+     , trdp.eng_nm AS hfnl_wh_nm
+     , (SELECT rep_phn
+          FROM tb_trdp x
+         WHERE x.trdp_cd = hbl.fnl_wh_cd) AS hfnl_wh_phn
+     , hbl.rep_cmdt_nm AS hrep_cmdt_nm
+     , hbl.avail_dt_tm AS havail_dt_tm
+     , (SELECT x.eng_nm
+          FROM tb_trdp x
+         WHERE x.trdp_cd = hbl.rt_trdp_cd) AS hrt_trdp_nm
+     , (SELECT x.eng_nm
+          FROM tb_trdp x
+         WHERE x.trdp_cd = mbl.rt_trdp_cd) AS mrt_trdp_nm
+     , (SELECT x.eng_nm
+          FROM tb_trdp x
+         WHERE x.trdp_cd = mbl.cy_trdp_cd) AS mcy_trdp_nm    
+     , hbl.lfd_dt_tm AS hlfd_dt_tm
+     , hbl.go_dt_tm AS hgo_dt_tm
+     , hbl.it_no AS hit_no
+     , hbl.te_dt_tm AS hte_dt_tm
+     , hbl.it_loc AS hit_loc
+     , hbl.ccn_no AS ccn_no
+     , hbl.pck_qty AS hpck_qty
+     , hbl.pck_ut_cd AS hpck_ut_cd
+     , (SELECT pck.pck_nm
+          FROM tb_pck_ut_cd pck
+         WHERE pck.pck_ut_cd = hbl.pck_ut_cd) AS hpck_ut_nm
+     , hbl.grs_wgt AS wgt
+     , hbl.grs_wgt1 AS wgt1
+     , hbl.meas AS meas
+     , hbl.meas1 AS meas1
+     , UPPER(ref_ofc.cnt_cd) AS ref_ofc_cnt_cd
+     , ref_ofc.oi_an_rmk
+     , hbl.desc_txt AS hdesc_txt
+     , hbl.desc_txt1 AS hdesc_txt1
+     , hbl.express_tp_cd AS hexpress_tp_cd
+     , hbl.org_bl_rcvd_flg AS horg_bl_rcvd_flg
+     , hbl.ror_flg AS hror_flg
+     , hbl.fm_svc_term_cd AS hfm_svc_term_cd
+     , hbl.to_svc_term_cd AS hto_svc_term_cd
+     , (SELECT cod.cd_nm
+          FROM tb_com_cd_dtl cod
+         WHERE cod.com_cd = 'C031'
+           AND cod.cd_val = hbl.fm_svc_term_cd) AS hfm_svc_term_nm
+     , (SELECT cod.cd_nm
+          FROM tb_com_cd_dtl cod
+         WHERE cod.com_cd = 'C031'
+           AND cod.cd_val = hbl.to_svc_term_cd) AS hto_svc_term_nm
+     , hbl.mk_txt AS hmk_txt
+   , (SELECT COUNT(rowindex) + (select count(CONT.CNTR_NO) from TB_CNTR_LIST CONT where CONT.INTG_BL_SEQ = ? AND CONT.DELT_FLG = 'N')
+          FROM DBO.FN_SPLIT_LEN((SELECT bl.mk_txt FROM tb_intg_bl bl where bl.intg_bl_seq =  hbl.intg_bl_seq AND bl.delt_flg = 'N'), CHAR(13)+CHAR(10), 25) 
+        ) AS mk_txt_row
+     , hbl.desc_txt AS hdesc_txt
+     , (SELECT COUNT(rowindex)
+          FROM DBO.FN_SPLIT_LEN((SELECT bl.desc_txt FROM tb_intg_bl bl where bl.intg_bl_seq =  hbl.intg_bl_seq AND bl.delt_flg = 'N'), CHAR(13)+CHAR(10), 30) 
+       ) AS desc_txt_row
+     , hbl.rmk AS hrmk
+     , hbl.an_inv_no
+     , hbl.an_due_dt
+     , hbl.an_curr_cd
+     , X.INV_SEQ
+     , X.INV_NO
+     , X.INV_DUE_DT
+     , X.INV_APLY_CURR_CD
+     , (SELECT COUNT('X')
+          FROM tb_intg_bl_rlt rlt2
+         WHERE rlt2.RLT_INTG_BL_SEQ = mbl.INTG_BL_SEQ
+           AND rlt2.INTG_BL_SEQ IS NOT NULL) AS hbl_cnt
+     , shp.trdp_nm AS hshp_nm
+     , shp.trdp_addr AS hshp_addr
+     , shp.trdp_pic AS hshp_pic
+     , shp.trdp_phn AS hshp_phn
+     , shp.trdp_fax AS hshp_fax
+     , cne.trdp_nm AS hcne_nm
+     , cne.trdp_addr AS hcne_addr
+     , cne.trdp_pic AS hcne_pic
+     , cne.trdp_phn AS hcne_phn
+     , cne.trdp_faX AS hcne_fax
+     , ntf.trdp_nm AS hntf_nm
+     , ntf.trdp_addr AS hntf_addr
+     , ntf.trdp_pic AS hntf_pic
+     , ntf.trdp_phn AS hntf_phn
+     , ntf.trdp_faX AS hntf_fax
+     , brk.trdp_nm AS hbrk_nm
+     , brk.trdp_addr AS hbrk_addr
+     , brk.trdp_pic AS hbrk_pic
+     , brk.trdp_phn AS hbrk_phn
+     , brk.trdp_faX AS hbrk_fax
+     , ofc.ofc_cd
+     , ofc.ofc_locl_nm
+     , replace(ofc.ofc_addr,  char(13)+char(10), ' ') as ofc_addr
+     , ofc.ofc_phn
+     , ofc.ofc_fax
+     , ofc.ofc_email
+     , hbl.isf_no
+     , hbl.shp_mod_cd as shp_mod_cd
+     , mbl_cfs_trdp.eng_nm AS mcfs_nm
+     , mbl_cfs_ctp.pic_phn AS mcfs_phn
+     , mbl_cfs_ctp.pic_fax AS mcfs_fax
+     , mbl_cfs_trdp.iata_cd AS miata_cd
+, (SELECT ISNULL(VALUE_2, '') from TB_OFC_SETTINGS where ofc_cd =  hbl.ref_ofc_cd and set_type = 'CLOGO_1') AS logo1
+, (SELECT ISNULL(VALUE_2, '') from TB_OFC_SETTINGS where ofc_cd =  hbl.ref_ofc_cd and set_type = 'CLOGO_2') AS logo2
+, (SELECT ISNULL(VALUE_2, '') from TB_OFC_SETTINGS where ofc_cd =  hbl.ref_ofc_cd and set_type = 'CLOGO_3') AS logo3
+, (select count(1) from tb_cntr_list cntr where hbl.intg_bl_seq = cntr.intg_bl_seq) AS cntr_list_cnt
+, CHAR(13)+CHAR(13) AS CHAR_13
+FROM tb_intg_bl hbl
+LEFT OUTER JOIN (
+SELECT TOP 1 * FROM 
+(
+SELECT FRT.INTG_BL_SEQ
+, ISNULL(X.INV_SEQ, '') AS INV_SEQ
+, ISNULL(X.INV_NO, '') AS INV_NO
+, ISNULL(X.INV_DUE_DT, '') AS INV_DUE_DT
+, ISNULL(X.INV_APLY_CURR_CD, '') AS INV_APLY_CURR_CD
+ , RANK() OVER (PARTITION BY INTG_BL_SEQ ORDER BY INV_RGST_TMS ASC) RNK   
+ , INV_RGST_TMS
+FROM TB_FRT FRT
+LEFT OUTER JOIN (
+SELECT *  
+  FROM 
+  (
+  SELECT INV_SEQ, INV_NO, INV_DUE_DT, INV_APLY_CURR_CD, RGST_TMS AS INV_RGST_TMS
+  FROM TB_INV_DTL
+  WHERE DELT_FLG = 'N'
+  ) AA
+) X ON FRT.INV_SEQ = X.INV_SEQ
+WHERE FRT.INTG_BL_SEQ = ?
+AND FRT.SELL_BUY_TP_CD = 'S'
+AND FRT.AIR_SEA_CLSS_CD = 'S'
+AND FRT.BND_CLSS_CD = 'I'
+AND FRT.DELT_FLG = 'N'
+AND TRDP_CD IN (SELECT TRDP_CD FROM TB_BL_PRNR WHERE INTG_BL_SEQ = ? AND BL_TRDP_TP_CD IN ('S02', 'C03') )
+AND INV_RGST_TMS IS NOT NULL
+) AA
+WHERE  AA.RNK = 1
+) X ON hbl.INTG_BL_SEQ = X.INTG_BL_SEQ
+LEFT OUTER JOIN tb_intg_bl_rlt rlt
+ON rlt.intg_bl_seq = hbl.intg_bl_seq AND rlt.delt_flg = 'N'
+LEFT OUTER JOIN tb_intg_bl mbl
+ON mbl.intg_bl_seq = rlt.rlt_intg_bl_seq AND mbl.delt_flg = 'N'
+LEFT OUTER JOIN tb_trdp trdp
+ON trdp.trdp_cd = hbl.fnl_wh_cd
+LEFT OUTER JOIN tb_trdp cfs_trdp
+ON cfs_trdp.trdp_cd = hbl.cfs_trdp_cd
+LEFT OUTER JOIN tb_trdp_cntc_pson cfs_ctp
+ON cfs_ctp.trdp_cd = cfs_trdp.trdp_cd AND cfs_ctp.rep_flg = 'Y' AND cfs_ctp.delt_flg = 'N'
+LEFT OUTER JOIN tb_trdp mbl_cfs_trdp 
+ON mbl_cfs_trdp.trdp_cd = mbl.cfs_trdp_cd 
+LEFT OUTER JOIN tb_trdp_cntc_pson mbl_cfs_ctp 
+ON mbl_cfs_ctp.trdp_cd = mbl_cfs_trdp.trdp_cd    AND mbl_cfs_ctp.rep_flg = 'Y' AND mbl_cfs_ctp.delt_flg = 'N' 
+LEFT OUTER JOIN tb_bl_prnr shp
+ON hbl.intg_bl_seq = shp.intg_bl_seq AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+LEFT OUTER JOIN tb_bl_prnr cne
+ON hbl.intg_bl_seq = cne.intg_bl_seq AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+LEFT OUTER JOIN tb_bl_prnr ntf
+ON hbl.intg_bl_seq = ntf.intg_bl_seq AND ntf.bl_trdp_tp_cd = 'N01' AND ntf.delt_flg = 'N'
+LEFT OUTER JOIN tb_bl_prnr brk
+ON hbl.intg_bl_seq = brk.intg_bl_seq AND brk.bl_trdp_tp_cd = 'C03' AND brk.delt_flg = 'N'
+LEFT OUTER JOIN tb_ofc ref_ofc
+ON hbl.ref_ofc_cd = ref_ofc.ofc_cd AND ref_ofc.delt_flg = 'N'
+JOIN tb_ofc ofc
+ON ofc.ofc_cd = ?
+WHERE hbl.intg_bl_seq = ?
+					</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+</beans>

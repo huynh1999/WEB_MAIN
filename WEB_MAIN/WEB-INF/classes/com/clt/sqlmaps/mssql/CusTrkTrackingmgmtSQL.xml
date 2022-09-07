@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cus.trk.trackingmgmt">
+    
+	<!-- Container 조회   -->
+    <select id="selectBLCONTAINER_LIST" resultClass="com.clt.apps.fis.cus.trk.trackingmgt.dto.TrackingVO" parameterClass="java.util.HashMap">
+          SELECT  a.etd_dt_tm,     a.bl_no hbl_no,   b.bl_no mbl_no,  d.cntr_no,  d.cntr_list_seq,
+                  a.trnk_vsl_cd,   a.trnk_voy,       a.bkg_no,
+		          b.intg_bl_seq  mbl_pk,             a.intg_bl_seq hbl_pk   
+            FROM  tb_intg_bl a 
+            JOIN  tb_cntr_list d   ON   a.intg_bl_seq    = d.intg_bl_seq  AND d.delt_flg = 'N'
+ LEFT OUTER JOIN  tb_intg_bl_rlt c ON   a.intg_bl_seq    = c.intg_bl_seq  AND c.delt_flg = 'N'
+ LEFT OUTER JOIN  tb_bl_prnr p     ON   a.intg_bl_seq    = p.intg_bl_seq  AND p.bl_trdp_tp_cd   = 'L01' AND p.delt_flg = 'N'
+ LEFT OUTER JOIN  tb_intg_bl b     ON   c.rlt_intg_bl_seq= b.intg_bl_seq  AND b.biz_clss_cd = 'M'       AND d.delt_flg = 'N'
+           WHERE  a.biz_clss_cd     = 'H'    AND a.delt_flg = 'N'      
+		<dynamic>
+			<isNotNull property="f_etd_begin">
+				AND  a.etd_dt_tm BETWEEN #f_etd_begin# AND #f_etd_end#
+			</isNotNull>
+            <isNotNull property="f_mbl_no"> /*Master BL*/
+                AND  b.bl_no   LIKE '%$f_mbl_no$%'   
+            </isNotNull>
+            <isNotNull property="f_hbl_no"> /*House BL*/			  
+			  AND  a.bl_no   LIKE '%$f_hbl_no$%'              
+            </isNotNull>
+            <isNotNull property="f_cntr_no">
+			  AND  d.cntr_no LIKE '%$f_cntr_no$%'
+            </isNotNull>
+            <isNotNull property="f_ln_cd">
+			  AND  p.trdp_cd LIKE '%$f_ln_cd$%'
+            </isNotNull>
+        </dynamic>			
+			ORDER BY b.bl_no ASC, a.bl_no ASC, d.cntr_no ASC  
+    </select>
+
+	<!-- Container별 처리 상태조회   -->	
+    <select id="selectCARGOSTATUS_LIST" resultClass="com.clt.apps.fis.cus.trk.trackingmgt.dto.CgoTrakVO" parameterClass="HashMap">
+			SELECT  a.cntr_list_seq,  a.cgo_trak_sts_cd,   
+			  	    a.loc_cd,         a.nod_cd,           
+				    a.pln_dt_tm,         a.act_dt_tm
+			FROM    tb_cgo_trak a,    tb_com_cd_dtl c
+			WHERE   a.cgo_trak_sts_cd = c.cd_val
+			  AND   c.com_cd = 'S001'
+			  AND   a.cntr_list_seq = #disp_cntr_list_seq#
+			  AND   a.delt_flg = 'N' AND c.delt_flg = 'N'
+			ORDER BY c.srt_seq ASC
+    </select>
+
+	<!-- Master B/L Pk로 Container List 조회   -->
+    <select id="selectMBLPK_LIST" resultClass="String" parameterClass="String">
+        SELECT  c.cntr_list_seq
+          FROM  tb_intg_bl_rlt r, tb_cntr_list c
+         WHERE  rlt_intg_bl_seq = #value#
+           AND  r.delt_flg = 'N'
+           AND  r.intg_bl_seq   = c.intg_bl_seq
+           AND  c.delt_flg = 'N'
+    </select>
+		
+	<!-- House B/L Pk로 Container List 조회   -->
+	<select id="selectHBLPK_LIST" resultClass="String" parameterClass="String">
+		SELECT  c.cntr_list_seq
+		  FROM  tb_intg_bl r, tb_cntr_list c
+		 WHERE  r.intg_bl_seq = #value#
+           AND  r.delt_flg = 'N' AND r.biz_clss_cd = 'H'
+		   AND  r.intg_bl_seq = c.intg_bl_seq
+           AND  c.delt_flg = 'N' 
+    </select>
+	
+	<!-- 처리 상태 등록   -->
+    <insert id="insertCGO_TRAK" parameterClass="com.clt.apps.fis.cus.trk.trackingmgt.dto.CgoTrakVO">
+			INSERT INTO tb_cgo_trak(
+				 cntr_list_seq,  cgo_trak_sts_cd,
+				 loc_cd,         nod_cd,
+				 pln_dt_tm,         act_dt_tm,
+				 rgst_usrid,     rgst_ofc_cd,      rgst_tms,
+				 modi_usrid,     modi_ofc_cd,      modi_tms
+			)VALUES(
+				 #cntr_list_seq#,  #cgo_trak_sts_cd#,
+				 #loc_cd#,         #nod_cd#,
+				 #pln_dt_tm#,         #act_dt_tm#,
+				 #proc_usrid#,     #proc_ofccd#, now(),
+				 #proc_usrid#,     #proc_ofccd#, GETUTCDATE()
+			)
+    </insert>
+
+	<!-- Cargo Tracking 목록조회  -->
+    <select id="selectTRACKINGSTATUS_LIST" resultClass="com.clt.apps.fis.cus.trk.trackingmgt.dto.TrackingVO" parameterClass="HashMap">
+			SELECT a.mbl_no,          a.hbl_no,         a.cntr_no,  
+				   a.loc_cd,          a.nod_cd,         a.cgo_trak_sts_cd,
+		           substr(a.pln_dt_tm, 1, 8) AS pln_dt_tm,   
+		           substr(a.pln_dt_tm, 9)    AS pln_tm,
+
+                   substr(a.act_dt_tm, 1, 8) AS act_dt_tm,   
+                   substr(a.act_dt_tm, 9)    AS act_tm,
+   
+				   a.cd_nm,
+				   a.cntr_list_seq,
+				   nd.nod_eng_nm,     lc.loc_nm
+			FROM   
+			(
+			  SELECT  a.etd_dt_tm,     a.bl_no hbl_no,   b.bl_no mbl_no,     d.cntr_no,  d.cntr_list_seq,
+					  t.loc_cd,        t.nod_cd,         t.cgo_trak_sts_cd,  t.pln_dt_tm,   t.act_dt_tm,         cd.cd_nm
+				FROM  tb_intg_bl a 
+	 LEFT OUTER JOIN  tb_intg_bl_rlt c ON   a.intg_bl_seq    = c.intg_bl_seq 
+	 LEFT OUTER JOIN  tb_bl_prnr p     ON   a.intg_bl_seq    = p.intg_bl_seq   AND p.bl_trdp_tp_cd   = 'L01'
+	 LEFT OUTER JOIN  tb_intg_bl b     ON   c.rlt_intg_bl_seq= b.intg_bl_seq   AND b.biz_clss_cd = 'M'
+                JOIN  tb_cntr_list d   ON   a.intg_bl_seq    = d.intg_bl_seq
+				JOIN  tb_cgo_trak t    ON   d.cntr_list_seq  = t.cntr_list_seq AND t.delt_flg = 'N'
+				JOIN  tb_com_cd_dtl cd ON   t.cgo_trak_sts_cd = cd.cd_val      AND cd.com_cd = 'S001'  AND cd.delt_flg = 'N'
+			   WHERE  a.biz_clss_cd     = 'H' AND a.delt_flg= 'N'  
+        <dynamic>
+            <isEqual property="disp_type" compareValue="M">
+              AND  c.rlt_intg_bl_seq = #mbl_seq#
+            </isEqual>
+            <isEqual property="disp_type" compareValue="H">
+              AND  a.intg_bl_seq   = #hbl_seq#
+            </isEqual>
+            <isEqual property="disp_type" compareValue="C">
+              AND  d.cntr_list_seq = #disp_cntr_list_seq#
+            </isEqual>
+        </dynamic>          
+			)a 
+			LEFT OUTER JOIN tb_nod nd ON a.nod_cd = nd.nod_cd AND nd.delt_flg = 'N' 
+			LEFT OUTER JOIN tb_loc lc ON a.loc_cd = lc.loc_cd AND lc.delt_flg = 'N' 
+    </select>
+	
+    <!-- Cargo Tracking정보 수    -->
+    <update id="updateCGO_TRAK" parameterClass="com.clt.apps.fis.cus.trk.trackingmgt.dto.TrackingVO">
+   		 UPDATE  tb_cgo_trak
+		    SET  loc_cd = #loc_cd#,          nod_cd = #nod_cd#, 
+			 	 pln_dt_tm = #pln_dt_tm#,    act_dt_tm = #act_dt_tm#,
+		         modi_usrid = #proc_usrid#,  modi_ofc_cd = #proc_ofccd#,   modi_tms = GETUTCDATE()
+		  WHERE  cntr_list_seq   = #cntr_list_seq# 
+		    AND  cgo_trak_sts_cd = #cgo_trak_sts_cd#
+    </update>
+
+    <delete id="deleteCGO_TRAK" parameterClass="com.clt.apps.fis.cus.trk.trackingmgt.dto.TrackingVO">
+         DELETE  FROM  tb_cgo_trak
+          WHERE  cntr_list_seq   = #cntr_list_seq# AND  cgo_trak_sts_cd = #cgo_trak_sts_cd#
+    </delete>	
+</sqlMap>

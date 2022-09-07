@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!-- Volume Report Option 화면   -->
+    <url-mapping url="PFM_MGT_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Volume Report   -->
+    <url-mapping url="PFM_MGT_0020GS.clt" screen="PFM_MGT_0020GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0020HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Profit Report Option 화면   -->
+    <url-mapping url="PFM_MGT_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Profit Report   -->
+    <url-mapping url="PFM_MGT_0030GS.clt" screen="PFM_MGT_0030GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0030HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0030_1GS.clt" screen="PFM_MGT_0030_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0030HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0030_2GS.clt" screen="PFM_MGT_0030_2GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Batch Profit Report Option 화면   -->
+    <url-mapping url="PFM_MGT_0031.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0031HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0031.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Batch Profit Report   -->
+    <url-mapping url="PFM_MGT_0031GS.clt" screen="PFM_MGT_0031GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0031HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Sales Report Option 화면   -->
+    <url-mapping url="PFM_MGT_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Sales Profit Report   -->
+    <url-mapping url="PFM_MGT_0040GS.clt" screen="PFM_MGT_0040GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0040HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0040_1GS.clt" screen="PFM_MGT_0040_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0040HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0040_2GS.clt" screen="PFM_MGT_0040_2GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0040HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Sales Volume Report Option 화면   -->
+    <url-mapping url="PFM_MGT_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0050.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Sales Volume Report   -->
+    <url-mapping url="PFM_MGT_0050GS.clt" screen="PFM_MGT_0050GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0050HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Total Profit Report (A) 화면   -->
+    <url-mapping url="PFM_MGT_0060.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0060HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0060.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Total Profit Report (A) Grid  -->
+    <url-mapping url="PFM_MGT_0060_1GS.clt" screen="PFM_MGT_0060_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0060HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0060_2GS.clt" screen="PFM_MGT_0060_2GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0060HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Total Profit Report (B) 화면   -->
+    <url-mapping url="PFM_MGT_0070.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0070HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0070.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Total Profit Report (B) Grid  -->
+    <url-mapping url="PFM_MGT_0070_1GS.clt" screen="PFM_MGT_0070_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0070HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0070_2GS.clt" screen="PFM_MGT_0070_2GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0070HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- G/L Report   -->
+    <url-mapping url="PFM_MGT_0090.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0090HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0090.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0090GS.clt" screen="PFM_MGT_0090GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0090HTMLAction</web-action-class>
+    </url-mapping>
+
+	<url-mapping url="PFM_MGT_0090_1GS.clt" screen="PFM_MGT_0090_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0090HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- G/L Report 2  -->
+    <url-mapping url="PFM_MGT_0091.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0091HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0091.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0091GS.clt" screen="PFM_MGT_0091GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0091HTMLAction</web-action-class>
+    </url-mapping>
+
+
+    <!-- Balance Sheet   -->
+    <url-mapping url="PFM_MGT_0100.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0100HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0100.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0100GS.clt" screen="PFM_MGT_0100GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0100HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="PFM_MGT_0100_1GS.clt" screen="PFM_MGT_0100_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0100HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Trial Balance Report   -->
+    <url-mapping url="PFM_MGT_0180.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0180HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0180.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0180GS.clt" screen="PFM_MGT_0180GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0180HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Customized Report   -->
+    <url-mapping url="PFM_MGT_0110.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0110HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0110.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0110GS.clt" screen="PFM_MGT_0110GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0110HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Customer Performance Report   -->
+    <url-mapping url="PFM_MGT_0120.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0120HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0120.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0120GS.clt" screen="PFM_MGT_0120GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0120HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Performance Trend By Customer   -->
+    <url-mapping url="PFM_MGT_0130.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0130HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0130.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Vendor Performance Report   -->
+    <url-mapping url="PFM_MGT_0140.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0140HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0140.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0140GS.clt" screen="PFM_MGT_0140GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0140HTMLAction</web-action-class>
+    </url-mapping>
+
+   <!-- Agent Performance Report   -->
+    <url-mapping url="PFM_MGT_0150.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0150HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0150.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0150GS.clt" screen="PFM_MGT_0150GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0150HTMLAction</web-action-class>
+    </url-mapping>
+    
+   <!-- Volume & Profit Report -->
+    <url-mapping url="PFM_MGT_0160.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0160HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0160.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0160GS.clt" screen="PFM_MGT_0160GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0160HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0161GS.clt" screen="PFM_MGT_0161GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0160HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Volume Profit By Month -->
+    <url-mapping url="PFM_MGT_0170.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0170HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0170.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0170GS.clt" screen="PFM_MGT_0170GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0170HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0171GS.clt" screen="PFM_MGT_0171GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0170HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Employee Performance Report #50640   -->
+    <url-mapping url="PFM_MGT_0190.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0190HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0190.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0190GS.clt" screen="PFM_MGT_0190GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0190HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Tax Report   -->
+    <url-mapping url="PFM_MGT_0200.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0200HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_MGT_0200.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="PFM_MGT_0200GS.clt" screen="PFM_MGT_0200GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0200HTMLAction</web-action-class>
+    </url-mapping>
+
+	<url-mapping url="PFM_MGT_0200_1GS.clt" screen="PFM_MGT_0200_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.pfm.mgt.management.event.PFM_MGT_0200HTMLAction</web-action-class>
+    </url-mapping>
+    
+
+    <event-mapping>
+        <event-class>com.clt.apps.fis.pfm.mgt.management.event.MgtMgmtEvent</event-class>
+        <service-action-class>com.clt.apps.fis.pfm.mgt.management.MgtMgmtSC</service-action-class>
+    </event-mapping>
+    
+</mappings>

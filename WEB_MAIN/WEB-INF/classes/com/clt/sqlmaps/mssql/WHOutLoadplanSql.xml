@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="WHOutLoadplanSql">
+	<select id="existsLOADPLAN" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whoutloadplan.dto.LOADPLANExistsVO">
+		SELECT DISTINCT MAX(T.CONSOL_NO) AS CONSOL_NO
+			   ,COUNT(DISTINCT T.CONSOL_NO) AS ROW_CNT
+				<!-- ,CASE ISNULL((SELECT COUNT(*) FROM TL_EO_WB WB WHERE WB.SO_NO = T.SO_NO), 0) TinLuong Modify : Table TL_EO_WB not use-->	
+				<!-- WHEN 0 THEN 'SB' 
+				ELSE 'WB' END AS SB_YN -->
+			   ,'SB' AS SB_YN
+			   , MAX(OB.WH_CD) AS WH_CD
+			FROM TL_WH_PSUDO_LP_SHIP T
+			LEFT JOIN TL_WH_OB OB ON T.WOB_BK_NO = OB.WOB_BK_NO
+		 WHERE T.CONSOL_NO = #consol_no#
+		 GROUP BY T.SO_NO
+	</select>
+		
+	<select id="searchLPShipmentList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanShipListVO">
+	/*searchLPShipmentList*/
+		SELECT '' CHK
+		      ,P.WOB_BK_NO AS TREE_VALUE
+		      ,P.WOB_BK_NO AS TREE_NAME
+		      ,'1' AS tree_nodetype
+		      ,'' AS IMAGE
+		      ,'' AS ITEM_CD
+		      ,'' AS ITEM_NM
+		      ,'' AS SO_NO
+		      ,'' AS PO_SYS_NO
+		      ,'' AS PO_NO
+		      ,'' AS ITEM_SYS_NO
+		      ,'' AS SHIPNO
+		      ,0 AS SHIPNO_SEQ
+		      ,'' AS SHIP_NO_SEQ
+		      ,SUM(P.LP_ITEM_EA_QTY) AS ITEM_QTY
+		      ,SUM(P.LP_ITEM_CBM) AS ITEM_CBM
+		      ,SUM(P.LP_ITEM_GRS_KGS) AS ITEM_GRS_KGS
+		      ,SUM(P.LP_ITEM_NET_KGS) AS ITEM_NET_KGS
+		      ,'' AS SAO_NO
+		      ,'' AS MERGE_YN
+		      ,MAX(P.CONSOL_NO) AS CONSOL_NO
+		      ,'' AS ITEM_LOT
+		      ,'' AS LOT_ID
+		      ,'' AS SAO_SYS_NO
+		  FROM TL_WH_PSUDO_LP_SHIP P
+		 WHERE 1 = 1
+		   AND P.CONSOL_NO = #consol_no#
+		   AND P.LP_ID IS NULL
+		   AND P.LP_STATUS = 'G'
+		 GROUP BY P.CONSOL_NO
+		         ,P.WOB_BK_NO
+		UNION
+		SELECT '' CHK
+		      ,ISNULL(P.WOB_BK_NO,'') + ISNULL(P.ITEM_SYS_NO,'') AS TREE_VALUE
+		      ,ISNULL(P.ITEM_CD,'') AS TREE_NAME
+		      ,'2' AS tree_nodetype
+		      ,'' AS IMAGE
+		      ,'' AS ITEM_CD
+		      ,'' AS ITEM_NM
+		      ,'' AS SO_NO
+		      ,'' AS PO_SYS_NO
+		      ,'' AS PO_NO
+		      ,'' AS ITEM_SYS_NO
+		      ,'' AS SHIPNO
+		      ,0 AS SHIPNO_SEQ
+		      ,'' AS SHIP_NO_SEQ
+		      ,SUM(P.LP_ITEM_EA_QTY) AS ITEM_QTY
+		      ,SUM(P.LP_ITEM_CBM) AS ITEM_CBM
+		      ,SUM(P.LP_ITEM_GRS_KGS) AS ITEM_GRS_KGS
+		      ,SUM(P.LP_ITEM_NET_KGS) AS ITEM_NET_KGS
+		      ,'' AS SAO_NO
+		      ,'' AS MERGE_YN
+		      ,MAX(P.CONSOL_NO) AS CONSOL_NO
+		      ,'' AS ITEM_LOT
+		      ,'' AS LOT_ID
+		      ,'' AS SAO_SYS_NO
+		  FROM TL_WH_PSUDO_LP_SHIP P
+		 WHERE 1 = 1
+		   AND P.CONSOL_NO = #consol_no#
+		   AND P.LP_ID IS NULL
+		   AND P.LP_STATUS = 'G'
+		 GROUP BY P.CONSOL_NO
+		         ,P.WOB_BK_NO
+		         ,P.ITEM_SYS_NO
+		         ,P.ITEM_CD
+		UNION
+		SELECT '' CHK
+		      ,ISNULL(P.WOB_BK_NO,'') + ISNULL(P.ITEM_SYS_NO,'') + ISNULL(P.LOT_ID,'') + '(' + ISNULL(P.WH_LOC_CD,'') + ')' AS TREE_VALUE
+		      ,ISNULL(P.LOT_ID,'') + '(' + ISNULL(P.WH_LOC_CD,'') + ')' AS TREE_NAME
+		      ,'3' AS tree_nodetype
+		      ,'' AS IMAGE
+		      ,'' AS ITEM_CD
+		      ,'' AS ITEM_NM
+		      ,'' AS SO_NO
+		      ,'' AS PO_SYS_NO
+		      ,'' AS PO_NO
+		      ,'' AS ITEM_SYS_NO
+		      ,'' AS SHIPNO
+		      ,0 AS SHIPNO_SEQ
+		      ,'' AS SHIP_NO_SEQ
+		      ,SUM(P.LP_ITEM_EA_QTY) AS ITEM_QTY
+		      ,SUM(P.LP_ITEM_CBM) AS ITEM_CBM
+		      ,SUM(P.LP_ITEM_GRS_KGS) AS ITEM_GRS_KGS
+		      ,SUM(P.LP_ITEM_NET_KGS) AS ITEM_NET_KGS
+		      ,'' AS SAO_NO
+		      ,'' AS MERGE_YN
+		      ,MAX(P.CONSOL_NO) AS CONSOL_NO
+		      ,'' AS ITEM_LOT
+		      ,'' AS LOT_ID
+		      ,'' AS SAO_SYS_NO
+		  FROM TL_WH_PSUDO_LP_SHIP P
+		 WHERE 1 = 1
+		   AND P.CONSOL_NO = #consol_no#
+		   AND P.LP_ID IS NULL
+		   AND P.LP_STATUS = 'G'
+		 GROUP BY P.CONSOL_NO
+		         ,P.WOB_BK_NO
+		         ,P.ITEM_SYS_NO
+		         ,P.LOT_ID
+		         ,P.WH_LOC_CD
+		UNION
+		SELECT '' CHK,
+				INVAL.TREE_VALUE, INVAL.TREE_NAME
+				,'4' AS tree_nodetype
+		        ,'' AS IMAGE
+		        ,'' AS ITEM_CD
+		        ,'' AS ITEM_NM
+		        ,'' AS SO_NO
+		        ,'' AS PO_SYS_NO
+		        ,'' AS PO_NO
+		        ,'' AS ITEM_SYS_NO
+		        ,'' AS SHIPNO
+		        ,0 AS SHIPNO_SEQ
+		        ,'' AS SHIP_NO_SEQ
+				, SUM(INVAL.ITEM_QTY) AS ITEM_QTY
+				, SUM(INVAL.ITEM_CBM) AS ITEM_CBM
+				, SUM(INVAL.ITEM_GRS_KGS) AS ITEM_GRS_KGS
+				, SUM(INVAL.ITEM_NET_KGS) AS ITEM_NET_KGS
+				,'' AS SAO_NO
+				, CASE WHEN MAX(INVAL.MERGE_YN) = 0 THEN 'Y' ELSE 'N' END AS MERGE_YN
+				, MAX(INVAL.CONSOL_NO) AS CONSOL_NO
+				,'' AS ITEM_LOT
+		        ,'' AS LOT_ID
+		        ,'' AS SAO_SYS_NO
+		FROM (
+			SELECT
+		        ISNULL(P.WOB_BK_NO,'') + ISNULL(P.ITEM_SYS_NO,'') + ISNULL(P.LOT_ID,'') + '(' + ISNULL(P.WH_LOC_CD,'') + ')' + ISNULL(P.WIB_BK_NO,'') AS TREE_VALUE         ,
+		        ISNULL(P.WIB_BK_NO, '') AS TREE_NAME ,        
+		        P.LP_ITEM_EA_QTY AS ITEM_QTY         ,
+		        P.LP_ITEM_CBM AS ITEM_CBM         ,
+		        P.LP_ITEM_GRS_KGS AS ITEM_GRS_KGS         ,
+		        P.LP_ITEM_NET_KGS AS ITEM_NET_KGS         ,
+		        (SELECT
+		                COUNT(*)                    
+		            FROM
+		                TL_WH_PSUDO_LP_SHIP T                 
+		            WHERE
+		                T.CONSOL_NO = P.CONSOL_NO                     
+		                AND T.SHIPNO    = P.SHIPNO                     
+		                AND T.LP_STATUS = 'G'                     
+		                AND T.SHIPNO_SEQ = 0) MERGE_YN         ,
+		        P.CONSOL_NO AS CONSOL_NO
+		    FROM
+		        TL_WH_PSUDO_LP_SHIP P    
+		    WHERE
+		        1 = 1      
+		        AND P.CONSOL_NO =  #consol_no#   
+		        AND P.LP_ID IS NULL      
+		        AND P.LP_STATUS = 'G') INVAL
+		GROUP BY INVAL.TREE_VALUE, INVAL.TREE_NAME
+		UNION
+		SELECT '' CHK
+		      ,ISNULL(P.WOB_BK_NO,'') + ISNULL(P.ITEM_SYS_NO,'') + ISNULL(P.LOT_ID,'') + '(' + ISNULL(P.WH_LOC_CD,'') + ')' +
+		       ISNULL(P.WIB_BK_NO,'') + ISNULL(P.SHIPNO,'') AS TREE_VALUE
+		      ,ISNULL(P.SHIPNO,'') AS TREE_NAME
+		      ,'5' AS tree_nodetype
+		      ,'' AS IMAGE
+		      ,P.ITEM_CD
+		      ,P.ITEM_NM
+		      ,P.SO_NO
+		      ,P.PO_SYS_NO
+		      ,P.PO_NO
+		      ,P.ITEM_SYS_NO
+		      ,P.SHIPNO
+		      ,P.SHIPNO_SEQ
+		      ,'' AS SHIP_NO_SEQ
+		      ,P.LP_ITEM_EA_QTY AS ITEM_QTY
+		      ,P.LP_ITEM_CBM AS ITEM_CBM
+		      ,P.LP_ITEM_GRS_KGS AS ITEM_GRS_KGS
+		      ,P.LP_ITEM_NET_KGS AS ITEM_NET_KGS
+		      ,P.SAO_NO AS SAO_NO
+		      ,CASE(SELECT COUNT(*) AS PC_CNT
+		                FROM TL_WH_PSUDO_LP_SHIP T
+		               WHERE T.CONSOL_NO = P.CONSOL_NO
+		                 AND T.WOB_BK_NO = P.WOB_BK_NO
+		                 AND T.ITEM_CD = P.ITEM_CD
+		                 AND T.LOT_ID = P.LOT_ID
+		                 AND T.WH_LOC_CD = P.WH_LOC_CD
+		                 AND T.WIB_BK_NO = P.WIB_BK_NO) WHEN 1 THEN '999' ELSE
+		              CONVERT(VARCHAR(10),(SELECT COUNT(*) AS PC_CNT
+		                         FROM TL_WH_PSUDO_LP_SHIP T
+		                        WHERE T.CONSOL_NO = P.CONSOL_NO
+		                          AND T.WOB_BK_NO = P.WOB_BK_NO
+		                          AND T.ITEM_CD = P.ITEM_CD
+		                          AND T.LOT_ID = P.LOT_ID
+		                          AND T.WH_LOC_CD = P.WH_LOC_CD
+		                          AND T.WIB_BK_NO = P.WIB_BK_NO
+		                          AND T.LP_ID IS NOT NULL)) END AS MERGE_YN
+		      ,P.CONSOL_NO
+		      ,(SELECT MAX(L.LOT_ATTRIB_02)
+		          FROM TL_CTRT_CUST_ITEM_LOT L 
+		              ,TL_WH_OB O
+		         WHERE L.CTRT_NO = O.CTRT_NO
+		           AND L.ITEM_SYS_NO = P.ITEM_SYS_NO
+		           AND L.LOT_ID = P.LOT_ID
+		           AND O.WOB_BK_NO = P.WOB_BK_NO ) AS ITEM_LOT
+		      ,P.LOT_ID
+		      ,P.SAO_SYS_NO
+		  FROM TL_WH_PSUDO_LP_SHIP P
+		 WHERE 1 = 1
+		   AND P.CONSOL_NO = #consol_no#
+		   AND P.LP_ID IS NULL
+		   AND P.LP_STATUS = 'G'
+		   ORDER by tree_value, tree_nodetype
+	</select>	
+	<select id="searchLPCNTRParentList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanContainerListVO">
+	/*searchLPCNTRParentList*/
+		SELECT	'' CHK
+			   ,R.TREE_VALUE
+               ,R.TREE_NAME
+               ,R.TREE_NODETYPE
+               ,R.ID
+               ,R.SEQ
+               ,R.ID_SEQ
+               ,R.ITEM_CD
+               ,R.ITEM_NM
+               ,R.ITEM_LOT
+               ,R.CUST_ORD_NO
+               ,R.LP_ITEM_EA_QTY
+               ,R.LP_ITEM_CBM
+               ,R.LP_ITEM_CBF
+               ,R.LP_ITEM_GRS_KGS
+               ,R.LP_ITEM_GRS_LBS
+               ,R.LP_ITEM_NET_KGS
+               ,R.LP_ITEM_NET_LBS
+               ,R.LOT_ID
+               ,R.SHIPNO
+               ,R.SHIPNO_SEQ
+               ,R.SO_NO
+               ,R.WOB_BK_NO
+               ,R.WIB_BK_NO
+               ,R.SAO_SYS_NO
+               ,R.PO_SYS_NO
+               ,R.ITEM_SYS_NO
+               ,R.WH_LOC_CD
+               ,R.ITEM_SEQ
+               ,R.SAO_NO
+               ,R.PO_NO
+               ,R.LP_STATUS
+               ,R.LP_SHIP_LTNO
+               ,R.LP_SHIP_SEQ_LTNO
+               ,R.LP_OLD_ID
+               ,R.LP_OLD_SEQ
+               ,R.LP_ID
+               ,R.LP_SEQ
+               ,R.EQ_TP_CD
+			FROM (
+			        SELECT ISNULL(G.LP_ID,'') + '-' + ISNULL(dbo.LPAD(G.LP_SEQ,2,0),0)+'1'  	AS TREE_VALUE
+			              ,''      					 				AS TREE_NAME
+			              ,'1'                       				AS TREE_NODETYPE
+			              ,ISNULL(G.LP_ID,'') + '-' + ISNULL(dbo.LPAD(G.LP_SEQ,2,0),0)     	AS WOB_BK_NO
+			              ,G.LP_ID                   AS ID
+			              ,G.LP_SEQ                  AS SEQ
+			              ,ISNULL(G.LP_ID,'') + '-' + CONVERT(VARCHAR(11),ISNULL(G.LP_SEQ,0))    AS ID_SEQ
+			              ,MAX(P.EQ_NO)              AS ITEM_CD
+			              ,MAX(P.LP_NO)              AS ITEM_NM
+			              ,MAX(CASE WHEN P.LP_STS_CD = 'P' THEN 'Load Plan'
+			                        WHEN P.LP_STS_CD = 'L' THEN 'Complete'
+			                    	ELSE NULL
+			               END)               		 AS ITEM_LOT
+			              ,''                        AS CUST_ORD_NO
+			              
+			              ,CONVERT(VARCHAR(22),CONVERT(NUMERIC(18),SUM(S.LP_ITEM_EA_QTY)))    		AS LP_ITEM_EA_QTY
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_CBM)))      	AS LP_ITEM_CBM
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_CBF)))       	AS LP_ITEM_CBF
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_GRS_KGS)))    	AS LP_ITEM_GRS_KGS
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_GRS_LBS)))   	AS LP_ITEM_GRS_LBS
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_NET_KGS)))   	AS LP_ITEM_NET_KGS
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_NET_LBS)))   	AS LP_ITEM_NET_LBS
+			              ,''			         AS LOT_ID
+			              
+			              ,''         AS SHIPNO         
+			              ,0    	  AS SHIPNO_SEQ
+			              ,MAX(S.SO_NO)          AS SO_NO
+			              
+			              ,MAX(S.WIB_BK_NO)      AS WIB_BK_NO
+			              ,MAX(S.SAO_SYS_NO)     AS SAO_SYS_NO
+			              ,MAX(S.PO_SYS_NO)      AS PO_SYS_NO
+			              ,MAX(S.ITEM_SYS_NO)    AS ITEM_SYS_NO
+			              ,MAX(S.WH_LOC_CD)      AS WH_LOC_CD
+			              ,MAX(S.ITEM_SEQ)       AS ITEM_SEQ
+			              ,MAX(S.SAO_NO)         AS SAO_NO    
+			              ,MAX(S.PO_NO)          AS PO_NO
+			              ,MAX(S.LP_STATUS)      AS LP_STATUS
+			              ,MAX(S.LP_SHIP_LTNO)   AS LP_SHIP_LTNO
+			              ,MAX(S.LP_SHIP_SEQ_LTNO)   AS LP_SHIP_SEQ_LTNO
+			              ,MAX(S.LP_OLD_ID)      AS LP_OLD_ID
+			              ,MAX(S.LP_OLD_SEQ)     AS LP_OLD_SEQ
+			              ,MAX(G.LP_ID)	         AS LP_ID
+			              ,MAX(G.LP_SEQ)         AS LP_SEQ
+			              ,MAX(G.EQ_TP_CD)		 AS EQ_TP_CD
+			          FROM TL_WH_PSUDO_LP_GRP  G LEFT JOIN TL_WH_PSUDO_LP_SHIP S ON G.CONSOL_NO   = S.CONSOL_NO AND G.LP_ID = S.LP_ID AND G.LP_SEQ = S.LP_SEQ 
+							LEFT JOIN TL_WH_LOAD_PLAN P ON G.CONSOL_NO   = P.CONSOL_NO AND G.LP_ID       = P.LP_ID AND G.LP_SEQ      = P.LP_SEQ
+							LEFT JOIN TL_WH_OB B ON S.WOB_BK_NO   = B.WOB_BK_NO
+			         WHERE G.CONSOL_NO   = #consol_no#
+			         GROUP BY G.LP_ID, G.LP_SEQ
+			           
+			        UNION All
+			        
+			        SELECT ISNULL(G.LP_ID,'') + '-' + ISNULL(dbo.LPAD(G.LP_SEQ,2,0),0)+'2'  	AS TREE_VALUE
+			              ,''                        				AS TREE_NAME
+			              ,'2'                       				AS TREE_NODETYPE
+			              ,'Booking No'					AS WOB_BK_NO
+			              ,G.LP_ID                   	AS ID
+			              ,G.LP_SEQ                  	AS SEQ
+			              ,G.LP_ID+'-'+CONVERT(VARCHAR(11),ISNULL(G.LP_SEQ,0))    	AS ID_SEQ
+			              ,'Item'                    	AS ITEM_CD
+			              ,'Item Name'               	AS ITEM_NM
+			              ,'Item Lot'                	AS ITEM_LOT
+			              ,'Cust Order No'           	AS CUST_ORD_NO
+			              ,'EA Qty'      				AS LP_ITEM_EA_QTY
+			              ,'CBM'         				AS LP_ITEM_CBM
+			              ,'CBF'         				AS LP_ITEM_CBF
+			              ,'GWT'         				AS LP_ITEM_GRS_KGS
+			              ,'GLB'         				AS LP_ITEM_GRS_LBS
+			              ,'NWT'         				AS LP_ITEM_NET_KGS
+			              ,'NLB'         				AS LP_ITEM_NET_LBS
+			              ,'Lot ID'
+			              ,''         AS SHIPNO         
+			              ,0    	  AS SHIPNO_SEQ
+			              ,MAX(S.SO_NO)
+						  ,MAX(S.WIB_BK_NO)
+			              ,MAX(S.SAO_SYS_NO)
+			              ,MAX(S.PO_SYS_NO)
+			              ,MAX(S.ITEM_SYS_NO)
+			              ,MAX(S.WH_LOC_CD)
+			              ,MAX(S.ITEM_SEQ)
+			              ,MAX(S.SAO_NO)
+			              ,MAX(S.PO_NO)
+			              ,MAX(S.LP_STATUS)
+			              ,MAX(S.LP_SHIP_LTNO)
+			              ,MAX(S.LP_SHIP_SEQ_LTNO)
+			              ,MAX(S.LP_OLD_ID)
+			              ,MAX(S.LP_OLD_SEQ)
+			              ,MAX(G.LP_ID)
+			              ,MAX(G.LP_SEQ)
+			              ,MAX(G.EQ_TP_CD)
+			          FROM TL_WH_PSUDO_LP_GRP  G LEFT JOIN TL_WH_PSUDO_LP_SHIP S ON G.CONSOL_NO   = S.CONSOL_NO AND G.LP_ID = S.LP_ID AND G.LP_SEQ = S.LP_SEQ 
+							LEFT JOIN TL_WH_LOAD_PLAN P ON G.CONSOL_NO   = P.CONSOL_NO AND G.LP_ID       = P.LP_ID AND G.LP_SEQ      = P.LP_SEQ
+							LEFT JOIN TL_WH_OB B ON S.WOB_BK_NO   = B.WOB_BK_NO
+			         WHERE G.CONSOL_NO   = #consol_no#
+			         GROUP BY G.LP_ID
+			                 ,G.LP_SEQ
+			                 ,G.CONSOL_NO
+			           
+			        UNION ALL
+			        
+			        SELECT ISNULL(S.LP_ID,'') + '-' + ISNULL(dbo.LPAD(S.LP_SEQ,2,0),0)+'3'  	AS TREE_VALUE
+			              ,''										AS TREE_NAME
+			              ,'2'                       				AS TREE_NODETYPE
+			              ,S.WOB_BK_NO
+			              ,S.LP_ID                   AS ID
+			              ,S.LP_SEQ                  AS SEQ
+			              ,S.LP_ID+'-'+CONVERT(VARCHAR(11),ISNULL(S.LP_SEQ,0))    AS ID_SEQ
+			              ,S.ITEM_CD
+			              ,S.ITEM_NM
+			              ,(SELECT MAX(L.LOT_ATTRIB_02)
+					          FROM TL_CTRT_CUST_ITEM_LOT L 
+					              ,TL_WH_OB O
+					         WHERE L.CTRT_NO = O.CTRT_NO
+					           AND L.ITEM_SYS_NO = S.ITEM_SYS_NO
+					           AND L.LOT_ID 	 = S.LOT_ID
+					           AND O.WOB_BK_NO   = S.WOB_BK_NO ) AS ITEM_LOT
+			              ,''                        AS CUST_ORD_NO
+			              ,CONVERT(VARCHAR(22),CONVERT(NUMERIC(18),SUM(S.LP_ITEM_EA_QTY)))    		AS LP_ITEM_EA_QTY
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_CBM)))      	AS LP_ITEM_CBM
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_CBF)))       	AS LP_ITEM_CBF
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_GRS_KGS)))    	AS LP_ITEM_GRS_KGS
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_GRS_LBS)))   	AS LP_ITEM_GRS_LBS
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_NET_KGS)))   	AS LP_ITEM_NET_KGS
+			              ,CONVERT(VARCHAR(21),CONVERT(DECIMAL(15,3),SUM(S.LP_ITEM_NET_LBS)))   	AS LP_ITEM_NET_LBS
+			              ,S.LOT_ID
+			              
+			              ,S.SHIPNO
+			              ,S.SHIPNO_SEQ
+			              ,S.SO_NO
+			              
+			              ,S.WIB_BK_NO
+			              ,S.SAO_SYS_NO
+			              ,S.PO_SYS_NO
+			              ,S.ITEM_SYS_NO
+			              ,S.WH_LOC_CD
+			              ,S.ITEM_SEQ
+			              ,S.SAO_NO
+			              ,S.PO_NO
+			              ,S.LP_STATUS
+			              ,S.LP_SHIP_LTNO
+			              ,S.LP_SHIP_SEQ_LTNO
+			              ,S.LP_OLD_ID
+			              ,S.LP_OLD_SEQ
+			              ,S.LP_ID
+			              ,S.LP_SEQ
+			              ,''	AS EQ_TP_CD
+			          FROM TL_WH_PSUDO_LP_SHIP S LEFT JOIN TL_WH_LOAD_PLAN P ON S.CONSOL_NO   = P.CONSOL_NO AND S.LP_ID = P.LP_ID AND S.LP_SEQ = P.LP_SEQ
+						   LEFT JOIN TL_WH_OB B ON S.WOB_BK_NO = B.WOB_BK_NO
+			         WHERE S.CONSOL_NO   = #consol_no#
+			           AND S.LP_ID IS NOT NULL
+		   	   		   AND S.LP_STATUS = 'G'
+						GROUP BY S.LP_ID, S.LP_SEQ, S.WOB_BK_NO, S.ITEM_CD, S.ITEM_NM
+						  , S.ITEM_SYS_NO, S.LOT_ID, S.SHIPNO, S.SHIPNO_SEQ, S.SO_NO
+						  , S.WIB_BK_NO, S.SAO_SYS_NO, S.PO_SYS_NO, S.WH_LOC_CD, S.ITEM_SEQ
+						  , S.SAO_NO, S.PO_NO, S.LP_STATUS, S.LP_SHIP_LTNO, S.LP_SHIP_SEQ_LTNO
+						  ,S.LP_OLD_ID, S.LP_OLD_SEQ
+			                  ) R
+			ORDER BY TREE_VALUE
+		</select>
+		<select id="searchLPVolume" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanVolumeVO">			
+		/*searchLPVolume*/
+		    SELECT CONSOL_NO			AS F_CONSOL_NO
+			      ,CAST(SUM(LP_ITEM_EA_QTY) as INTEGER)  AS TTL_ITEM_EA_QTY
+			      ,CAST(SUM(LP_ITEM_CBM) AS DECIMAL(15,3))     AS TTL_ITEM_CBM
+			      ,CAST(SUM(LP_ITEM_GRS_KGS)AS DECIMAL(15,3))   AS TTL_ITEM_GRS_KGS
+			      ,CAST(SUM(LP_ITEM_NET_KGS)AS DECIMAL(15,3))   AS TTL_ITEM_NET_KGS
+			  FROM TL_WH_PSUDO_LP_SHIP
+			 WHERE CONSOL_NO = #consol_no#
+			   AND LP_STATUS = 'G'
+			 GROUP BY CONSOL_NO
+		</select>
+		<select id="searchShipNo" parameterClass="com.clt.apps.fis.wms.common.dto.Grd00ShipSplitConVO" resultClass="String">
+		/*searchShipNo*/
+		DECLARE @PRE_FIX VARCHAR (20)
+		SET @PRE_FIX = ('A')
+		SELECT
+		'S' 
+		+ SUBSTRING (#org_cd#, 3, 3)
+		+ ISNULL(@PRE_FIX, '')
+		+ CASE ISNULL(@PRE_FIX, 'NULL')
+		WHEN 'NULL' THEN RIGHT(CONVERT (VARCHAR(8), GETDATE(), 112), 8)
+		ELSE RIGHT(CONVERT (VARCHAR(8), GETDATE(), 112), 7)
+		END
+		+ dbo.LPAD ((SELECT SEQ + 1 FROM TB_MJR_NO_SEQ WHERE NO_TP_CD = 'SHIP'), 6, '0') 
+		AS SHIP_NO
+  		</select>
+  		
+  		<insert id="insertSeqShipNo">
+  		/*insertSeqShipNo*/
+  		INSERT INTO TB_MJR_NO_SEQ(NO_TP_CD, SEQ, MAX_SEQ, DESCR) values ('SHIP', 0, 9999999, 'SHIP SEQ')
+  		</insert>
+  		
+  		<update id="updateSeqShipNo">
+  			/*updateSeqShipNo*/
+  			UPDATE TB_MJR_NO_SEQ SET SEQ = SEQ + 1 where NO_TP_CD = 'SHIP'
+  		</update>
+  		<insert id="addCONSOL" parameterClass="com.clt.apps.fis.wms.common.dto.Grd01CONSOLLoadSaveDetailVO">
+  		/*addCONSOL*/
+			INSERT INTO TL_WH_PSUDO_LP_SHIP(
+				CONSOL_NO, 
+				SHIPNO, 
+				SHIPNO_SEQ, 
+				SO_NO, 
+				WOB_BK_NO, 
+				WIB_BK_NO, 
+				SAO_SYS_NO, 
+				PO_SYS_NO, 
+				ITEM_SYS_NO, 
+				LOT_ID, 
+				WH_LOC_CD, 
+				ITEM_SEQ, 
+				SAO_NO, 
+				PO_NO, 
+				ITEM_CD, 
+				ITEM_NM, 
+				LP_ITEM_EA_QTY, 
+				LP_ITEM_CBM, 
+				LP_ITEM_CBF, 
+				LP_ITEM_GRS_KGS, 
+				LP_ITEM_GRS_LBS, 
+				LP_ITEM_NET_KGS, 
+				LP_ITEM_NET_LBS, 
+				LP_STATUS, 
+				RGST_ID, 
+				RGST_OFC_CD, 
+				RGST_SYS_DT, 
+				RGST_LOC_DT, 
+				MODI_ID, 
+				MODI_OFC_CD, 
+				MODI_SYS_DT, 
+				MODI_LOC_DT
+			)VALUES(
+				#consol_no#, 
+				#shipno#, 
+				0, 
+				#so_no#, 
+				#wob_bk_no#, 
+				#wib_bk_no#, 
+				#sao_sys_no#, 
+				#po_sys_no#, 
+				#item_sys_no#, 
+				#lot_id#, 
+				#wh_loc_cd#, 
+				#item_seq#, 
+				#sao_no#, 
+				#po_no#, 
+				#item_cd#, 
+				#item_nm#, 
+				#lp_item_ea_qty#, 
+				#lp_item_cbm#, 
+				#lp_item_cbf#, 
+				#lp_item_grs_kgs#, 
+				#lp_item_grs_lbs#, 
+				#lp_item_net_kgs#, 
+				#lp_item_net_lbs#, 
+				'G', 
+				#user_id#, 
+				#org_cd#, 
+				GETDATE(), 
+				CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)), 
+				#user_id#, 
+				#org_cd#, 
+				GETDATE(), 
+				CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+			)
+				    
+		</insert>
+</sqlMap>

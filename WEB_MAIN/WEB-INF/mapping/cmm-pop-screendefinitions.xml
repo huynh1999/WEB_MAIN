@@ -1,0 +1,869 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### CMM POP 관련 프로그램  Start ####  -->
+    
+    <!--####CMM_POP_0010 ####  -->
+    <screen name="CMM_POP_0010" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0010.jsp" />
+    </screen>
+    <screen name="CMM_POP_0010GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0010GS.jsp" />
+    </screen>
+    <screen name="CMM_POP_0011" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0011.jsp" />
+    </screen>
+    <screen name="CMM_POP_0340" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0340.jsp" />
+    </screen>
+    <screen name="CMM_POP_0340GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0340GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0020 ####  -->
+    <screen name="CMM_POP_0020" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0020.jsp" />
+    </screen>
+    <screen name="CMM_POP_0020GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0020GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0030 ####  -->
+    <screen name="CMM_POP_0030" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0030.jsp" />
+    </screen>
+    <screen name="CMM_POP_0030GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0030GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0040 ####  -->
+    <screen name="CMM_POP_0040" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/currency/jsp/CMM_POP_0040.jsp" />
+    </screen>
+    <screen name="CMM_POP_0040GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/currency/jsp/CMM_POP_0040GS.jsp" />
+    </screen>    
+    
+    <!--####CMM_POP_0050 ####  -->
+    <screen name="CMM_POP_0050" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/CMM_POP_0050.jsp" />
+    </screen>
+    <screen name="CMM_POP_0050GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/CMM_POP_0050GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0060 ####  -->
+    <screen name="CMM_POP_0060" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/aut/user/jsp/CMM_POP_0060.jsp" />
+    </screen>
+    <screen name="CMM_POP_0060GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/aut/user/jsp/CMM_POP_0060GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0070 ####  -->
+    <screen name="CMM_POP_0070" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/CMM_POP_0070.jsp" />
+    </screen>
+    <screen name="CMM_POP_0070GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/CMM_POP_0070GS.jsp" />
+    </screen>
+    <!--####CMM_POP_0075 ####  -->
+    <screen name="CMM_POP_0075" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/CMM_POP_0075.jsp" />
+    </screen>
+    <screen name="CMM_POP_0075GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/CMM_POP_0075GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0080 ####  -->
+    <screen name="CMM_POP_0080" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/container/jsp/CMM_POP_0080.jsp" />
+    </screen>
+    <screen name="CMM_POP_0080GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/container/jsp/CMM_POP_0080GS.jsp" />
+    </screen>
+    
+    
+    
+     <!--  Bank Pop up    -->
+    <screen name="CMM_POP_0090" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/bank/jsp/CMM_POP_0090.jsp"/>
+    </screen>
+
+    <!--  Bank Setup    -->
+    <screen name="CMM_POP_0090GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/mcm/bank/jsp/CMM_POP_0090GS.jsp"/>
+    </screen>
+    
+    
+    <!--####CMM_POP_0100 ####  -->
+    <screen name="CMM_POP_0100" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/workflow/jsp/CMM_POP_0100.jsp" />
+    </screen>
+    <screen name="CMM_POP_0100GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/workflow/jsp/CMM_POP_0100GS.jsp" />
+    </screen>
+    
+     <!--####CMM_POP_0110 ####  -->
+    <screen name="CMM_POP_0110" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/commodity/jsp/CMM_POP_0110.jsp" />
+    </screen>
+    <screen name="CMM_POP_0110GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/commodity/jsp/CMM_POP_0110GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0120 ####  -->
+    <screen name="CMM_POP_0120" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/packages/jsp/CMM_POP_0120.jsp" />
+    </screen>
+    <screen name="CMM_POP_0120GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/packages/jsp/CMM_POP_0120GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0120 ####  -->
+    <screen name="CMM_POP_0130" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/status/jsp/CMM_POP_0130.jsp" />
+    </screen>
+    <screen name="CMM_POP_0130GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/status/jsp/CMM_POP_0130GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0140 ####  -->
+    <screen name="CMM_POP_0140" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/vessel/jsp/CMM_POP_0140.jsp" />
+    </screen>
+    <screen name="CMM_POP_0140GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/vessel/jsp/CMM_POP_0140GS.jsp" />
+    </screen>
+    
+     <!--####CMM_POP_0050 ####  -->
+    <screen name="CMM_POP_0150" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/CMM_POP_0150.jsp" />
+    </screen>
+    <screen name="CMM_POP_0150GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/CMM_POP_0150GS.jsp" />
+    </screen>
+    
+    <!-- house search pop 2009.01.23	  -->
+	<screen name="CMM_POP_0170" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0170.jsp" />
+    </screen>
+    <screen name="CMM_POP_0170GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0170GS.jsp" />
+    </screen>
+
+    <!-- PO Item search pop 2015.01.09	  -->
+	<screen name="CMM_POP_0400" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0400.jsp" />
+    </screen>
+    <screen name="CMM_POP_0400GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0400GS.jsp" />
+    </screen>
+    
+    <!-- PO search pop 2015.01.20	  -->
+	<screen name="CMM_POP_0500" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/booking/jsp/CMM_POP_0500.jsp" />
+    </screen>
+    <screen name="CMM_POP_0500GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/booking/jsp/CMM_POP_0500GS.jsp" />
+    </screen>
+    
+    <!-- master search pop 2009.01.28	  -->
+	<screen name="CMM_POP_0180" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/masterbl/jsp/CMM_POP_0180.jsp" />
+    </screen>
+    <screen name="CMM_POP_0180GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/masterbl/jsp/CMM_POP_0180GS.jsp" />
+    </screen>
+    <screen name="CMM_POP_0181GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/masterbl/jsp/CMM_POP_0181GS.jsp" />
+    </screen>
+    
+    <!-- master search pop 2009.01.28	  -->
+	<screen name="CMM_POP_0190" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/srno/jsp/CMM_POP_0190.jsp" />
+    </screen>
+    <screen name="CMM_POP_0190GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/srno/jsp/CMM_POP_0190GS.jsp" />
+    </screen>
+    <screen name="CMM_POP_0191GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/srno/jsp/CMM_POP_0191GS.jsp" />
+    </screen>
+    
+    <!-- workorder search pop 2009.01.28	  -->
+	<screen name="CMM_POP_0200" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/workorder/jsp/CMM_POP_0200.jsp" />
+    </screen>
+    <screen name="CMM_POP_0200GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/workorder/jsp/CMM_POP_0200GS.jsp" />
+    </screen>
+    
+    <!-- workorder search pop 2012.03.12	  -->
+	<screen name="CMM_POP_0350" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/workorder/jsp/CMM_POP_0350.jsp" />
+    </screen>
+    <screen name="CMM_POP_0350GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/workorder/jsp/CMM_POP_0350GS.jsp" />
+    </screen>
+    
+    <!-- booking search pop 2009.01.28	  -->
+	<screen name="CMM_POP_0210" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/booking/jsp/CMM_POP_0210.jsp" />
+    </screen>
+    <screen name="CMM_POP_0210GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/booking/jsp/CMM_POP_0210GS.jsp" />
+    </screen>
+
+	<!-- Carrier booking search popup 2016.11.02	  -->
+	<screen name="CMM_POP_0280" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/booking/jsp/CMM_POP_0280.jsp" />
+    </screen>
+    <screen name="CMM_POP_0280GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/booking/jsp/CMM_POP_0280GS.jsp" />
+    </screen>
+    
+    <!-- Carrier booking Reject/Cancel Reason popup 2016.12.14	  -->
+	<screen name="CMM_POP_0290" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/booking/jsp/CMM_POP_0290.jsp" />
+    </screen>
+    
+    <!-- 환률 관련 시작  -->
+    <!-- 재무환율 조회   -->
+    <screen name="CMM_POP_0230" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/exchangemgt/jsp/CMM_POP_0230.jsp" />
+    </screen>
+    <screen name="CMM_POP_0230GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/exchangemgt/jsp/CMM_POP_0230GS.jsp" />
+    </screen>
+
+    <!-- Invoice 환율 조회   -->
+    <screen name="CMM_POP_0220" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/exchangemgt/jsp/CMM_POP_0220.jsp" />
+    </screen>
+    <screen name="CMM_POP_0220GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/exchangemgt/jsp/CMM_POP_0220GS.jsp" />
+    </screen>
+    <!-- 환률 관련 종료  -->
+    
+	<!-- invoice search pop 2009.03.09	  -->
+	<screen name="CMM_POP_0240" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/inv/jsp/CMM_POP_0240.jsp" />
+    </screen>
+    <screen name="CMM_POP_0240GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/inv/jsp/CMM_POP_0240GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0250 ####  -->
+    <screen name="CMM_POP_0250" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/warehouse/jsp/CMM_POP_0250.jsp" />
+    </screen>
+    <screen name="CMM_POP_0250GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/warehouse/jsp/CMM_POP_0250GS.jsp" />
+    </screen>
+    
+    
+    <!--####CMM_POP_0260 GL_CODE####  -->
+    <screen name="CMM_POP_0260" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/CMM_POP_0260.jsp" />
+    </screen>
+    <screen name="CMM_POP_0260GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/CMM_POP_0260GS.jsp" />
+    </screen>
+    
+    <screen name="CMM_POP_0261" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/CMM_POP_0261.jsp" />
+    </screen>
+    <screen name="CMM_POP_0261GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/CMM_POP_0261GS.jsp" />
+    </screen>
+    
+    <screen name="CMM_POP_0261_NEW" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/CMM_POP_0261_NEW.jsp" />
+    </screen>
+    <screen name="CMM_POP_0261GS_NEW" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/CMM_POP_0261GS_NEW.jsp" />
+    </screen>
+    
+	<!-- bl search pop 2013.11.07	  -->
+	<screen name="CMM_POP_0270" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/inv/jsp/CMM_POP_0270.jsp" />
+    </screen>
+    <screen name="CMM_POP_0270GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/inv/jsp/CMM_POP_0270GS.jsp" />
+    </screen>
+    
+    <!--#### MDM관련 프로그램 End ####  -->
+
+	<screen name="RPT_PRN_0010" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0010.jsp" />
+    </screen>
+
+    <screen name="RPT_PRN_0020" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0020.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0030" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0030.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0040">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0040.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0050">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0050.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0060">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0060.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0070">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0070.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0080" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0080.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0090">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0090.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0100">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0100.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0110">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0110.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0120" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0120.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0130" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0130.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0140" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0140.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0150" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0150.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0150GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0150GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0160" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0160.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0170" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0170.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0180" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0180.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0180GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0180GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0181GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0181GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0182GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0182GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0183GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0183GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0190" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0190.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0190GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0190GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0191GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0191GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0200" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0200.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0200GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0200GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0201GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0201GS.jsp" />
+    </screen>
+    <screen name="RPT_PRN_0202GS" template="templateIBSheet">  <!-- //#1906 [PATENT] SHIPMENT DETAIL 화면 수정 요청 -->
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0202GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0210" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0210.jsp" />
+    </screen>
+    
+     <screen name="RPT_PRN_0210GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0210GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0211GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0211GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0212GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0212GS.jsp" />
+    </screen>
+    
+    <!-- Booking Confirmation Pop -->
+    <screen name="RPT_PRN_0221">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0221.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0230" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0230.jsp" />
+    </screen>    
+    <screen name="RPT_PRN_0240" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0240.jsp" />
+    </screen>
+    <screen name="RPT_PRN_0241" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0241.jsp" />
+    </screen>
+    <screen name="RPT_PRN_0242" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0242.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0250" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0250.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0260" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0260.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0260GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0260GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0261GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0261GS.jsp" />
+    </screen>
+    
+    <screen name="bank_draft_01">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/BANK_DRAFT_01.jsp" />
+    </screen>
+    
+    <screen name="TMP_POP_0020" template="templatePop">
+        <parameter key="body"  value="/apps/fis/cmm/pop/template/jsp/TMP_POP_0020.jsp" />
+    </screen>
+    
+    <!--  2011.10.17 Kim,Jin-Hyuk STATE POPUP   -->
+    <screen name="CMM_POP_0310" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0310.jsp" />
+    </screen>
+    <screen name="CMM_POP_0310GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0310GS.jsp" />
+    </screen>
+    <!-- #5064 A/N Print 시에 Error Log 확인 필요(v5.0 동일 처리 - RPT_RD_0010 두 번 호출되는 오류수정) -->
+    <screen name="RPT_RD_0010"  template="templateEmpty">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_RD_0010.jsp" />
+    </screen>
+	<screen name="RPT_RD_0050"  template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_RD_0050.jsp" />
+    </screen>
+    <screen name="RPT_RD_0070" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_RD_0070.jsp" />
+    </screen>
+    
+    <screen name="RPT_RD_0051"  template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_RD_0051.jsp" />
+    </screen>
+    <screen name="RPT_RD_0020"   template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_RD_0020.jsp" />
+    </screen>
+    <screen name="RPT_RD_0030"   template="templatePop">
+    	<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_RD_0030.jsp" />
+    </screen>
+    <screen name="RPT_RD_0011">
+    	<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_RD_0011.jsp" />
+    </screen>
+    <screen name="RPT_RD_0031">
+    	<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_RD_0031.jsp" />
+    </screen>
+    <screen name="RPT_RD_0040" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_RD_0040.jsp" />
+    </screen>
+    <screen name="RPT_FAX_0010">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_FAX_0010.jsp" />
+    </screen>
+    <screen name="RPT_FAX_0020" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_FAX_0020.jsp" />
+    </screen>
+    <!-- #27546 [BINEX] Arrival Notice Mail/Fax 전송 시 수신자 설정 -->
+    <screen name="RPT_MAIL_0010" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_MAIL_0010.jsp" />
+    </screen>
+    
+    <screen name="RPT_FAX_0011">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_FAX_0011.jsp" />
+    </screen>
+    
+    <screen name="RPT_FAX_0010GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_FAX_0010GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_FAX_0010_2GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_FAX_0010_2GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_FAX_0020GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_FAX_0020GS.jsp" />
+    </screen>
+    
+    <!-- #27546 [BINEX] Arrival Notice Mail/Fax 전송 시 수신자 설정 -->
+    <screen name="RPT_MAIL_0010GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_MAIL_0010GS.jsp" />
+    </screen>
+
+	<!-- Ocean Import > House B/L > Delivery Order (팝업)   -->
+    <screen name="CMM_POP_0320" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0320.jsp"/>
+    </screen>	    
+
+	<!-- BL COPY (팝업)   -->
+    <screen name="CMM_POP_0330"  template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0330.jsp" />
+    </screen>
+
+    <!-- Other > Other Operation > Other Sales List > Delivery Order (팝업)   -->
+    <screen name="CMM_POP_0321" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0321.jsp"/>
+    </screen>	    
+
+
+	<!-- Other > Other Operation > Other Sales List > Delivery Order (팝업)   -->
+    <screen name="CMM_POP_0322" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0322.jsp"/>
+    </screen>
+    
+     <!-- insert Master BL from House BL	  -->
+    <screen name="CMM_POP_0450" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0450.jsp" />
+    </screen>
+    
+    <screen name="CMM_POP_0450GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0450GS.jsp" />
+    </screen>
+    
+    <screen name="CMM_POP_0451" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0451.jsp" />
+    </screen>
+    
+    <screen name="CMM_POP_0451GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0451GS.jsp" />
+    </screen>
+    
+    <screen name="CMM_POP_0452" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0452.jsp" />
+    </screen>
+    
+    <screen name="CMM_POP_0452GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0452GS.jsp" />
+    </screen>
+    
+    <screen name="CMM_POP_0453" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0453.jsp" />
+    </screen>
+    
+    <screen name="CMM_POP_0453GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0453GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0360 ####  -->
+    <screen name="CMM_POP_0360" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0360.jsp" />
+    </screen>
+    <screen name="CMM_POP_0360GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0360GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0370 ####  -->
+    <screen name="CMM_POP_0370" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/CMM_POP_0370.jsp" />
+    </screen>
+    <screen name="CMM_POP_0370GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/CMM_POP_0370GS.jsp" />
+    </screen>
+    
+    <screen name="RPT_PRN_0220" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0220.jsp" />
+    </screen>
+
+	<!--####CMM_POP_0380 ####  -->
+    <screen name="CMM_POP_0380" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0380.jsp" />
+    </screen>
+    <screen name="CMM_POP_0380GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0380GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0390 ####  -->
+    <screen name="CMM_POP_0390" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0390.jsp" />
+    </screen>
+    <screen name="CMM_POP_0390GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0390GS.jsp" />
+    </screen>    
+        
+    <!--####CMM_POP_0410 #### LSY #51932 [ZEN] Trade partner group 컬럼 추가 -->
+    <screen name="CMM_POP_0410" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0410.jsp" />
+    </screen>
+    <screen name="CMM_POP_0410GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0410GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0420 UN LOC Code 조회 #### -->
+    <screen name="CMM_POP_0420" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0420.jsp" />
+    </screen>
+    <screen name="CMM_POP_0420GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0420GS.jsp" />
+    </screen>
+    
+    <screen name="RoleBtnAssignPop" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/RoleBtnAssignPop.jsp" />
+    </screen>
+    <screen name="RoleCopyPop" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/RoleCopyPop.jsp" />
+    </screen>
+    <screen name="RoleBtnAssignPopGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/RoleBtnAssignPopGS.jsp" />
+    </screen>
+    
+     <!-- CO Load Entry print   --> 
+    <screen name="RPT_PRN_0022" template="templatePop">
+        <parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0022.jsp" />
+    </screen>
+    
+    <screen name="CMM_MSG_0010" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/msg/jsp/CMM_MSG_0010.jsp" />
+    </screen>    
+    
+    <!-- Wave Order List Selection -->
+    <screen name="WaveOrderSelectPopup" template="templatePop">
+    	<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WaveOrderSelectPopup.jsp" />
+    </screen>
+    <screen name="searchWaveSimpleNewOrderLGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WaveOrderSelectPopupGS.jsp" />
+    </screen>
+    
+     <!-- Shipment Split -->
+      <screen name="LPShipSplitWaveSmp" template="templatePop">
+    	<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/LPShipSplitWaveSmp.jsp" />
+    </screen>
+    <screen name="addLPSplitShipWaveSimpleGS" template="templateIBSheet">
+    	<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtReturnValue.jsp" />
+    </screen>
+    
+    <!-- Deposit/Payment (Automatic Process) -->
+    <screen name="CMM_POP_0430"  template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/jor/jsp/CMM_POP_0430.jsp" />
+    </screen>
+    <!--####CMM_POP_0600 ####  -->
+    <screen name="CMM_POP_0600" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/team/jsp/CMM_POP_0600.jsp" />
+    </screen>
+    <screen name="CMM_POP_0600GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/team/jsp/CMM_POP_0600GS.jsp" />
+    </screen>    
+    
+	<!-- BL COPY (팝업)   -->
+    <screen name="CMM_POP_0700"  template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0700.jsp" />
+    </screen> 
+    
+    <!-- Cosolidation (팝업)   -->
+    <screen name="CMM_POP_0440"  template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0440.jsp" />
+    </screen>   
+    <screen name="CMM_POP_0440GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0440GS.jsp" />
+    </screen> 
+    <screen name="CMM_POP_0460"  template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0460.jsp" />
+    </screen>  
+    
+    <!-- booking split search pop 	  -->
+	<screen name="CMM_POP_0510" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/booking/jsp/CMM_POP_0510.jsp" />
+    </screen>
+    <screen name="CMM_POP_0510GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/booking/jsp/CMM_POP_0510GS.jsp" />
+    </screen>
+    
+    <!-- #1307 [Starway/Starcluser] EDI with Hyundai Glovis America (Weight Ratio) -->
+   	<screen name="CMM_POP_0800" template="templatePop">
+   		<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"    value="/apps/fis/cmm/pop/housebl/jsp/CMM_POP_0800.jsp" />
+    </screen>
+
+	<!-- #2177 [ACROCARGO] OCEAN IMPORT DISCLAIMER / GUARANTEE OF CHARGES -->
+	<screen name="RPT_PRN_0270" template="templatePop">
+		<parameter key="body"  value="/apps/fis/rpt/jsp/RPT_PRN_0270.jsp" />
+	</screen>
+	
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+   	<screen name="CMM_POP_0900" template="templatePop">
+   		<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"    value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0900.jsp" />
+    </screen>
+    <screen name="CMM_POP_0900GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/CMM_POP_0900GS.jsp" />
+    </screen>    
+    
+    <!-- warehouse workorder search pop 2017.09.12	  -->
+	<screen name="CMM_POP_0470" template="templatePop">
+        <parameter key="body"    value="/apps/fis/cmm/pop/workorder/jsp/CMM_POP_0470.jsp" />
+    </screen>
+    <screen name="CMM_POP_0470GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/cmm/pop/workorder/jsp/CMM_POP_0470GS.jsp" />
+    </screen>
+    
+    <!-- Air Import > Master AWB > AIM AWB List > Transfer Request (팝업)   -->
+    <screen name="CMM_POP_0480" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/masterbl/jsp/CMM_POP_0480.jsp"/>
+    </screen>
+    
+    <!-- lane code pop 2018.01.16	  -->
+	<screen name="CMM_POP_0490" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"    value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0490.jsp" />
+    </screen>
+    <screen name="CMM_POP_0490GS" template="templateIBSheet" >
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"    value="/apps/fis/mdm/mcm/location/jsp/CMM_POP_0490GS.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_RPT ####  -->
+    <screen name="ReportSetPop" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/ReportSetPop.jsp" />
+    </screen>
+    
+    <!--####CMM_POP_0260 GL_CODE####  -->
+    <screen name="CMM_POP_0260_NW" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/CMM_POP_0260_NW.jsp" />
+    </screen>
+    <screen name="CMM_POP_0260_NWGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/CMM_POP_0260_NWGS.jsp" />
+    </screen>
+    
+   	<!-- Warehouse >    -->
+    <screen name="CMM_POP_1000" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cmm/pop/wms/jsp/CMM_POP_1000.jsp"/>
+    </screen>	
+    
+</screen-definitions>

@@ -1,0 +1,2540 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="cmm.ajax">
+
+	<typeAlias alias="CmmAjaxVO" 	type="com.clt.apps.common.dto.CmmAjaxVO"/>
+			
+	<!-- select Trade partner    -->
+    <select id="selectTradePartner" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">	
+       /* CmmAjaxSQL.xml > selectTradePartner */
+    <!-- OFVFOUR-7911 [AIF] MANAGING/ALERT CUSTOMER'S OUTSTANDING (OVERDUE) -->
+	<!-- with overdue as(SELECT
+		trdp_cd
+		,SUM(summ.over_1_30_amt) + SUM(summ.over_31_60_amt) + SUM(summ.over_61_90_amt) + SUM(summ.over_91_amt) AS overdue_total
+	FROM
+    (
+        SELECT
+            disp.trdp_cd
+            ,disp.INV_NO
+            ,ISNULL(SUM(disp.pay_amt), 0) AS pay_amt
+            ,disp.over_dt
+            ,ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) AS inv_sum_amt
+            ,CASE WHEN disp.over_dt <![CDATA[ < ]]> 1 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS current_amt
+            ,CASE WHEN disp.over_dt <![CDATA[ > ]]> 0 AND disp.over_dt <![CDATA[ < ]]> 31 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_1_30_amt
+            ,CASE WHEN disp.over_dt <![CDATA[ > ]]> 30 AND disp.over_dt <![CDATA[ < ]]> 61 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_31_60_amt
+            ,CASE WHEN disp.over_dt <![CDATA[ > ]]> 60 AND disp.over_dt <![CDATA[ < ]]> 91 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_61_90_amt
+            ,CASE WHEN disp.over_dt <![CDATA[ > ]]> 90 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_91_amt
+        FROM
+            (
+			SELECT
+				dtl.trdp_cd
+				,dtl.INV_NO
+				,(
+					CASE WHEN dtl.sell_buy_tp_cd = 'B' THEN sum(dtl.inv_sum_amt) * -1 ELSE sum(dtl.inv_sum_amt) END
+				) * (
+					CASE WHEN dtl.INV_APLY_CURR_CD = dtl.option_curr THEN 1 ELSE ISNULL( DD_EX_RT_INV.XCH_RT_UT, ISNULL( MM_EX_RT_INV.XCH_RT_UT, ISNULL( DD_INV_EX_RT_INV.XCH_RT_UT, ISNULL(MM_INV_EX_RT_INV.XCH_RT_UT, 0) ) ) ) END
+				) AS inv_sum_amt
+				,max(
+					dtl.pay_amt * ( CASE WHEN dtl.INV_APLY_CURR_CD = dtl.option_curr THEN 1 ELSE ISNULL( DD_EX_RT_JNR.XCH_RT_UT, ISNULL( MM_EX_RT_JNR.XCH_RT_UT, ISNULL( DD_INV_EX_RT_JNR.XCH_RT_UT, ISNULL(MM_INV_EX_RT_JNR.XCH_RT_UT, 0) ) ) ) END )
+				) AS pay_amt
+				,dtl.inv_dt
+				,dtl.post_dt
+				,dtl.over_dt
+				,dtl.sell_buy_tp_cd
+			FROM
+				(
+					SELECT
+						trdp.trdp_cd
+						,idt.INV_NO
+						,CASE
+							WHEN frt.sell_buy_tp_cd = 'C' THEN frt.cr_amt * -1
+							ELSE frt.inv_sum_amt
+						END AS inv_sum_amt
+						,inv.sell_buy_tp_cd
+						,CASE
+							WHEN jms.post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+							AND NOT ( jms.VOID_YN = 'Y' AND jms.VOID_DT <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112) ) 
+							THEN 
+								CASE 
+									WHEN inv.sell_buy_tp_cd IN ('C', 'B') 
+									THEN jdt.pay_amt * -1 
+									ELSE jdt.pay_amt 
+								END
+							ELSE 0
+						END AS pay_amt
+						,jdt.jnr_no
+						,idt.inv_dt
+						,jms.post_dt
+						,DATEDIFF( "D", CONVERT(DATETIME, idt.inv_due_dt), CONVERT(DATETIME, CONVERT(VARCHAR, getDate(), 112)) ) AS over_dt
+						,inv_aply_curr_cd
+						,( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' ) AS option_curr
+					FROM
+						tb_trdp trdp
+						LEFT OUTER JOIN tb_trdp_cntc_pson ctp ON ctp.trdp_cd = trdp.trdp_cd
+						AND ctp.rep_flg = 'Y'
+						AND ctp.delt_flg = 'N'
+						JOIN tb_inv inv ON inv.trdp_cd = trdp.trdp_cd
+						AND inv.delt_flg = 'N'
+						AND(
+							1 = 2
+							OR inv.sell_buy_tp_cd = 'D'
+							OR (
+								inv.sell_buy_tp_cd = 'S'
+								AND inv.air_sea_clss_cd != 'G'
+							)
+							OR inv.sell_buy_tp_cd = 'C'
+							OR (
+								inv.sell_buy_tp_cd = 'B'
+								AND inv.air_sea_clss_cd != 'G'
+							)
+							OR (
+								inv.sell_buy_tp_cd = 'B'
+								AND inv.air_sea_clss_cd = 'G'
+							)
+							OR (
+								inv.sell_buy_tp_cd = 'S'
+								AND inv.air_sea_clss_cd = 'G'
+							)
+						)
+						AND(
+							1 = 2
+							OR inv.inv_dept_cd IN ('SIM', 'SIH')
+							OR inv.inv_dept_cd IN ('SOM', 'SOH')
+							OR inv.inv_dept_cd IN ('OTH')
+							OR inv.inv_dept_cd IN ('AIM', 'AIH')
+							OR inv.inv_dept_cd IN ('AOM', 'AOH')
+							OR inv.inv_dept_cd IN ('GNR')
+							OR inv.inv_dept_cd IN ('WMS')
+						)
+						JOIN tb_inv_dtl idt ON idt.inv_seq = inv.inv_seq
+						AND idt.delt_flg = 'N'
+						LEFT OUTER JOIN (
+							SELECT
+								D.JNR_NO,
+								D.INV_SEQ,
+								SUM(D.pay_amt) AS pay_amt
+							FROM
+								TB_JNR_DTL D,
+								TB_JNR_MST M
+							WHERE
+								D.JNR_NO = M.JNR_NO
+								AND ISNULL(D.DELT_FLG, 'N') = 'N'
+								AND ISNULL(M.DELT_FLG, 'N') = 'N'
+							GROUP BY
+								D.JNR_NO,
+								D.INV_SEQ
+						) JDT ON JDT.INV_SEQ = INV.INV_SEQ
+						LEFT OUTER JOIN TB_JNR_MST JMS ON JMS.JNR_NO = JDT.JNR_NO
+						AND JMS.DELT_FLG = 'N'
+						JOIN tb_frt frt ON frt.inv_seq = inv.inv_seq
+						AND frt.delt_flg = 'N'
+					WHERE
+						1 = 1
+						AND frt.inv_post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+					UNION
+					ALL
+					SELECT
+						trdp.trdp_cd
+						,idt.INV_NO
+						,CASE
+							WHEN ( SELECT OPT_VAL FROM TB_SYS_OPT WHERE OPT_KEY = 'BINEX_SHOW_AGING_REPORT' ) = 'Y' 
+							THEN 
+								CASE
+									WHEN frt.sell_buy_tp_cd = 'C' THEN frt.cr_amt * -1
+									ELSE frt.inv_sum_amt
+								END
+							ELSE 0
+						END AS inv_sum_amt
+						,inv.sell_buy_tp_cd
+						,CASE
+							WHEN jms.post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+							AND NOT (
+								jms.VOID_YN = 'Y'
+								AND jms.VOID_DT <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+							) THEN CASE
+								WHEN inv.sell_buy_tp_cd IN ('C', 'B') THEN jdt.pay_amt * -1
+								ELSE jdt.pay_amt
+							END
+							ELSE 0
+						END AS pay_amt
+						,jdt.jnr_no
+						,idt.inv_dt
+						,jms.post_dt
+						,DATEDIFF(
+							"D",
+							CONVERT(DATETIME, idt.inv_due_dt),
+							CONVERT(DATETIME, CONVERT(VARCHAR, getDate(), 112))
+						) AS over_dt
+						,inv_aply_curr_cd
+						,(
+							select
+								OPT_VAL
+							from
+								TB_SYS_OPT
+							where
+								OPT_KEY = 'TP_OVER_AMT_FLG'
+						) AS option_curr
+					FROM
+						tb_trdp trdp
+						LEFT OUTER JOIN tb_trdp_cntc_pson ctp ON ctp.trdp_cd = trdp.trdp_cd
+						AND ctp.rep_flg = 'Y'
+						AND ctp.delt_flg = 'N'
+						JOIN tb_inv inv ON inv.trdp_cd = trdp.trdp_cd
+						AND inv.delt_flg = 'N'
+						AND(
+							1 = 2
+							OR inv.sell_buy_tp_cd = 'D'
+							OR (
+								inv.sell_buy_tp_cd = 'S'
+								AND inv.air_sea_clss_cd != 'G'
+							)
+							OR inv.sell_buy_tp_cd = 'C'
+							OR (
+								inv.sell_buy_tp_cd = 'B'
+								AND inv.air_sea_clss_cd != 'G'
+							)
+							OR (
+								inv.sell_buy_tp_cd = 'B'
+								AND inv.air_sea_clss_cd = 'G'
+							)
+							OR (
+								inv.sell_buy_tp_cd = 'S'
+								AND inv.air_sea_clss_cd = 'G'
+							)
+						)
+						AND(
+							1 = 2
+							OR inv.inv_dept_cd IN ('SIM', 'SIH')
+							OR inv.inv_dept_cd IN ('SOM', 'SOH')
+							OR inv.inv_dept_cd IN ('OTH')
+							OR inv.inv_dept_cd IN ('AIM', 'AIH')
+							OR inv.inv_dept_cd IN ('AOM', 'AOH')
+							OR inv.inv_dept_cd IN ('GNR')
+							OR inv.inv_dept_cd IN ('WMS')
+						)
+						JOIN tb_inv_dtl idt ON idt.inv_seq = inv.inv_seq
+						AND ISNULL(idt.delt_flg, 'N') = 'N'
+						JOIN (
+							SELECT
+								JNR_NO,
+								INV_SEQ,
+								SUM(pay_amt) AS pay_amt
+							FROM
+								tb_jnr_dtl
+							WHERE
+								ISNULL(delt_flg, 'N') = 'N'
+							GROUP BY
+								JNR_NO,
+								INV_SEQ
+						) jdt ON jdt.inv_seq = inv.inv_seq
+						JOIN tb_jnr_mst jms ON jms.jnr_no = jdt.jnr_no
+						JOIN tb_frt frt ON frt.inv_seq = inv.inv_seq
+						AND frt.delt_flg = 'N'
+					WHERE
+						1 = 1
+						AND frt.inv_post_dt <![CDATA[ > ]]> CONVERT(VARCHAR, getDate(), 112)
+						AND jms.post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+						AND jms.delt_flg = 'N'
+				) dtl
+				/* DD EX RT INV */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT DD_EX_RT_INV WITH(NOLOCK) ON DD_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_EX_RT_INV.DELT_FLG = 'N'
+				AND DD_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_EX_RT_INV.DT_CLSS_CD = 'D'
+				AND DD_EX_RT_INV.APLY_FM_DT = dtl.inv_dt
+				/* MM EX RT INV */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT MM_EX_RT_INV WITH(NOLOCK) ON MM_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND MM_EX_RT_INV.DELT_FLG = 'N'
+				AND MM_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND MM_EX_RT_INV.DT_CLSS_CD = 'M'
+				AND SUBSTRING(MM_EX_RT_INV.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+				/* DD EX RT JNR */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT DD_EX_RT_JNR WITH(NOLOCK) ON DD_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_EX_RT_JNR.DELT_FLG = 'N'
+				AND DD_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_EX_RT_JNR.DT_CLSS_CD = 'D'
+				AND DD_EX_RT_JNR.APLY_FM_DT = dtl.inv_dt
+				/* MM EX RT JNR */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT MM_EX_RT_JNR WITH(NOLOCK) ON MM_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND MM_EX_RT_JNR.DELT_FLG = 'N'
+				AND MM_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND MM_EX_RT_JNR.DT_CLSS_CD = 'M'
+				AND SUBSTRING(MM_EX_RT_JNR.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+				/* DD INV EX RT INV */
+				LEFT OUTER JOIN TB_INV_XCRT DD_INV_EX_RT_INV WITH(NOLOCK) ON DD_INV_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_INV_EX_RT_INV.DELT_FLG = 'N'
+				AND DD_INV_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_INV_EX_RT_INV.DT_CLSS_CD = 'D'
+				AND DD_INV_EX_RT_INV.CURR_TP_CD = 'S'
+				AND DD_INV_EX_RT_INV.APLY_FM_DT = dtl.inv_dt
+				/* MM INV EX RT INV */
+				LEFT OUTER JOIN TB_INV_XCRT MM_INV_EX_RT_INV WITH(NOLOCK) ON DD_INV_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_INV_EX_RT_INV.DELT_FLG = 'N'
+				AND DD_INV_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_INV_EX_RT_INV.CURR_TP_CD = 'S'
+				AND DD_INV_EX_RT_INV.DT_CLSS_CD = 'M'
+				AND SUBSTRING(DD_INV_EX_RT_INV.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+				/* DD INV EX RT JNR */
+				LEFT OUTER JOIN TB_INV_XCRT DD_INV_EX_RT_JNR WITH(NOLOCK) ON DD_INV_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_INV_EX_RT_JNR.DELT_FLG = 'N'
+				AND DD_INV_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_INV_EX_RT_JNR.DT_CLSS_CD = 'D'
+				AND DD_INV_EX_RT_JNR.CURR_TP_CD = 'S'
+				AND DD_INV_EX_RT_JNR.APLY_FM_DT = dtl.inv_dt
+				/* MM INV EX RT JNR */
+				LEFT OUTER JOIN TB_INV_XCRT MM_INV_EX_RT_JNR WITH(NOLOCK) ON MM_INV_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND MM_INV_EX_RT_JNR.DELT_FLG = 'N'
+				AND MM_INV_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND MM_INV_EX_RT_JNR.CURR_TP_CD = 'S'
+				AND MM_INV_EX_RT_JNR.DT_CLSS_CD = 'M'
+				AND SUBSTRING(MM_INV_EX_RT_JNR.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+			group by
+				dtl.trdp_cd
+				,dtl.INV_NO
+				,dtl.inv_dt
+				,dtl.post_dt
+				,dtl.over_dt
+				,dtl.sell_buy_tp_cd
+				,dtl.jnr_no
+				,dtl.inv_aply_curr_cd
+				,dd_ex_rt_inv.xch_rt_ut
+				,mm_ex_rt_inv.xch_rt_ut
+				,dd_inv_ex_rt_inv.xch_rt_ut
+				,mm_inv_ex_rt_inv.xch_rt_ut
+				,dtl.option_curr
+            ) disp
+        GROUP BY
+            disp.trdp_cd
+            ,disp.INV_NO
+            ,disp.inv_sum_amt
+            ,disp.inv_dt
+            ,disp.over_dt
+		) summ
+	GROUP BY
+		summ.trdp_cd
+	HAVING
+    	SUM(summ.inv_sum_amt) != 0
+		)  -->
+    	 SELECT A.TRDP_CD  AS SELECT_CODE
+    	       ,A.ENG_ADDR AS SELECT_SUB_CODE
+    	       ,A.ENG_NM   AS CODE_NAME
+    	       ,ISNULL(A.SHRT_NM,'')  AS CODE_SHRT_NAME
+    	       ,B.PIC_NM
+    	       ,B.PIC_PHN
+    	       ,B.PIC_FAX
+    	       ,A.RMK AS CODE_DESC
+    	       ,A.SLS_GP_CD
+    	       ,ISNULL(A.CRD_LMT_AMT,0) AS CRD_LMT_AMT
+    	       <!-- #660 - [BINEX] CURRENT BALANCE, OVER LIMIT LOGIC (2017.01.12) -->
+    	       <!-- ,A.CUR_LMT_AMT -->
+    	       ,ISNULL(INV.CUR_LMT_AMT,0) AS CUR_LMT_AMT
+			   ,ISNULL(INV.OVER_DUE,0) AS OVER_DUE
+			   ,ISNULL(INV.OVER_LIMIT,0) - ISNULL(A.CRD_LMT_AMT, 0) AS OVER_LIMIT
+			   ,ISNULL(INV.GRAND_TOTAL,0) AS GRAND_TOTAL
+    	       ,A.CR_TERM_CD
+    	       ,A.CR_TERM_DT
+    	       ,CASE WHEN ISNULL(A.CITY_NM , '')='' THEN ISNULL(A.LGL_ADDR, '')
+				     ELSE ISNULL(A.LGL_ADDR, '') + CHAR(13)+CHAR(10) + ISNULL(A.CITY_NM , '')+ ', ' + ISNULL(C.STATE_CD, '')+' ' + ISNULL(A.REP_ZIP, '') 
+				 END AS TRDP_ADDR
+			   ,ISNULL(A.TAX_ISS_ADDR, '') AS TRDP_ADDR2
+			   ,A.LOCL_NM AS LOCL_NM
+			   ,A.IATA_CD 
+	           ,A.PREFIX
+	           ,B.PIC_EML
+				<!-- ,(SELECT SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT),
+				CONVERT(DATETIME,GETDATE())) > 0
+				THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+				THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT 	END) ELSE 0
+				END) AS OVER_DUE
+				FROM TB_TRDP TRDP
+				JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+				JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE())
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+				WHERE 1=1
+				AND TRDP.TRDP_CD = #s_code# ) AS OVER_DUE
+				,(SELECT SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE()))  < 1
+			    THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B') 
+			    THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END) ELSE 0 END) - MAX(ISNULL(TRDP.CRD_LMT_AMT, 0))  AS OVER_LIMIT
+				FROM TB_TRDP TRDP
+				JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+				JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE()) 
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+				WHERE 1=1
+				AND TRDP.TRDP_CD = #s_code# ) AS OVER_LIMIT
+				,(SELECT SUM(IDT.BAL_AMT)
+				FROM TB_TRDP TRDP
+				JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+				JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE()) 
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+				WHERE 1=1
+				AND TRDP.TRDP_CD = #s_code# ) AS GRAND_TOTAL -->
+				,A.RESERVE_FIELD09	
+				,A.PROFIT_SHARE
+				,A.AN_BOND_NO
+				<![CDATA[ 
+				,CASE WHEN LEN( A.AN_BOND_EXP_DT) > 0 THEN  CONVERT(VARCHAR(10),CONVERT(DATETIME, SUBSTRING(ISNULL( A.AN_BOND_EXP_DT, ''), 1, 8)), 110)  ELSE '' END  AN_BOND_EXP_DT   
+				]]>
+	            ,ISNULL(A.LGL_ADDR,'') + 
+				 (CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+				  	   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ' ' + A.STATE_CD
+					   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13)+CHAR(10) + A.CITY_NM
+					   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ', ' + A.REP_ZIP
+					   ELSE '' END) AS DFLT_ADDR
+				,CASE WHEN ISNULL(A.OFC_FM_HR, '') = '' THEN '' ELSE SUBSTRING(ISNULL(A.OFC_FM_HR, ''), 1, 2)+':'+SUBSTRING(ISNULL(A.OFC_FM_HR, ''), 2, 2) END  AS OFC_FM_HR
+	   			,CASE WHEN ISNULL(A.OFC_TO_HR, '') = '' THEN '' ELSE SUBSTRING(ISNULL(A.OFC_TO_HR, ''), 1, 2)+':'+SUBSTRING(ISNULL(A.OFC_TO_HR, ''), 2, 2) END  AS OFC_TO_HR
+	   			<!-- OFVFOUR-7736 [SENKO USA] Consignee and Delivery Location -->
+	   			,A.LGL_ADDR	   
+	   			<!-- OFVFOUR-7911 [AIF] MANAGING/ALERT CUSTOMER'S OUTSTANDING (OVERDUE) -->
+				<!--  ,OVD.overdue_total AS overdue_total  -->
+				,0 AS overdue_total
+		  FROM TB_TRDP A 
+		  LEFT JOIN TB_TRDP_CNTC_PSON B ON A.TRDP_CD = B.TRDP_CD AND B.REP_FLG = 'Y'
+		  LEFT JOIN TB_STATE C ON A.STATE_CD 	= C.STATE_CD AND A.CNT_CD 	= C.CNT_CD
+		  LEFT OUTER JOIN (SELECT INV.TRDP_CD, 
+						          SUM(CASE WHEN INV.SELL_BUY_TP_CD IN ('S','D','C') THEN CASE WHEN INV.SELL_BUY_TP_CD = 'C' THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END ELSE 0 END) AS CUR_LMT_AMT,
+								  SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT),CONVERT(DATETIME,GETDATE())) <![CDATA[ > ]]> 0
+									       THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+										   		      THEN IDT.BAL_AMT * -1 
+													  ELSE IDT.BAL_AMT 
+												 END) 
+									 	   ELSE 0
+								      END) AS OVER_DUE,
+								  SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE())) <![CDATA[ < ]]> 1
+									       THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B') 
+										   		      THEN IDT.BAL_AMT * -1 
+													  ELSE IDT.BAL_AMT 
+												 END) 
+										   ELSE 0 END) AS OVER_LIMIT,
+								  SUM(IDT.BAL_AMT) AS GRAND_TOTAL
+						   FROM TB_INV INV
+						   JOIN TB_INV_DTL IDT ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N' AND (IDT.INV_DT <![CDATA[ <= ]]> GETDATE()) AND IDT.INV_APLY_CURR_CD = 'USD'
+						   WHERE 1 = 1
+						   AND INV.TRDP_CD = #s_code#
+						   AND INV.DELT_FLG = 'N'
+						   GROUP BY INV.TRDP_CD) INV ON A.TRDP_CD = INV.TRDP_CD
+		<!-- OFVFOUR-7911 [AIF] MANAGING/ALERT CUSTOMER'S OUTSTANDING (OVERDUE) -->
+		<!-- LEFT OUTER JOIN overdue OVD on A.TRDP_CD = OVD.TRDP_CD  -->
+		 WHERE A.DELT_FLG 	= 'N'
+		   AND A.TRDP_CD  	= #s_code#
+		   
+		<isEqual prepend="AND" property="s_default_maincmp_yn" compareValue="Y">
+			A.TRDP_CD NOT LIKE '%DEFAULT' and A.TRDP_CD NOT LIKE '%MAINCMP'  
+		</isEqual>		
+		   
+	</select>
+	
+	<!-- select Trade partner    #581 -->
+    <select id="selectTradePartnerIATA" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+     /* AirBlSQL.xml > getTrdpInfo */
+    	 SELECT TOP 1
+    	 		A.TRDP_CD  AS SELECT_CODE
+    	       ,A.ENG_ADDR AS SELECT_SUB_CODE
+    	       ,A.ENG_NM   AS CODE_NAME
+    	       ,ISNULL(A.SHRT_NM,'')  AS CODE_SHRT_NAME
+    	       ,A.RMK AS CODE_DESC
+    	       ,A.SLS_GP_CD
+    	       ,ISNULL(A.CRD_LMT_AMT,0) AS CRD_LMT_AMT
+    	       ,A.CR_TERM_CD
+    	       ,A.CR_TERM_DT
+			   ,ISNULL(A.TAX_ISS_ADDR, '') AS TRDP_ADDR2
+			   ,A.LOCL_NM AS LOCL_NM
+			   ,A.IATA_CD 
+	           ,A.PREFIX
+		  FROM TB_TRDP A 
+		 WHERE A.DELT_FLG 	= 'N'
+		   AND A.IATA_CD  	= #s_code#
+		   
+    </select>   	
+	
+    <select id="selectDelTradePartner" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">	
+       /* CmmAjaxSQL.xml > selectDelTradePartner */
+    	 SELECT A.TRDP_CD  AS SELECT_CODE
+    	       ,A.ENG_ADDR AS SELECT_SUB_CODE
+    	       ,A.ENG_NM   AS CODE_NAME
+    	       ,ISNULL(A.SHRT_NM,'')  AS CODE_SHRT_NAME
+    	       ,B.PIC_NM
+    	       ,B.PIC_PHN
+    	       ,B.PIC_FAX
+    	       ,A.RMK AS CODE_DESC
+    	       ,A.SLS_GP_CD
+    	       ,A.CRD_LMT_AMT
+    	       <!-- #660 - [BINEX] CURRENT BALANCE, OVER LIMIT LOGIC (2017.01.12) -->
+    	       <!-- ,A.CUR_LMT_AMT -->
+    	       ,INV.CUR_LMT_AMT
+			   ,INV.OVER_DUE
+			   ,INV.OVER_LIMIT - ISNULL(A.CRD_LMT_AMT, 0) AS OVER_LIMIT
+			   ,INV.GRAND_TOTAL
+    	       ,A.CR_TERM_CD
+    	       ,A.CR_TERM_DT
+    	       ,CASE WHEN ISNULL(A.CITY_NM , '')='' THEN ISNULL(A.LGL_ADDR, '')
+				     ELSE ISNULL(A.LGL_ADDR, '') + CHAR(13)+CHAR(10) + ISNULL(A.CITY_NM , '')+ ', ' + ISNULL(C.STATE_CD, '')+' ' + ISNULL(A.REP_ZIP, '') 
+				 END AS TRDP_ADDR
+			   ,ISNULL(A.TAX_ISS_ADDR, '') AS TRDP_ADDR2
+			   ,A.LOCL_NM AS LOCL_NM
+			   ,A.IATA_CD 
+	           ,A.PREFIX
+	           ,B.PIC_EML
+	           <!-- 
+	           	<![CDATA[ 
+				,(SELECT SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT),
+				CONVERT(DATETIME,GETDATE())) > 0
+				THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+				THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT 	END) ELSE 0
+				END) AS OVER_DUE
+				FROM TB_TRDP TRDP
+				JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+				JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE())
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+				WHERE 1=1
+				AND TRDP.TRDP_CD = #s_code# ) AS OVER_DUE
+				,(SELECT SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE()))  < 1
+			    THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B') 
+			    THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END) ELSE 0 END) - MAX(ISNULL(TRDP.CRD_LMT_AMT, 0))  AS OVER_LIMIT
+				FROM TB_TRDP TRDP
+				JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+				JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE()) 
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+				WHERE 1=1
+				AND TRDP.TRDP_CD = #s_code# ) AS OVER_LIMIT
+				,(SELECT SUM(IDT.BAL_AMT)
+				FROM TB_TRDP TRDP
+				JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+				JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE()) 
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+				WHERE 1=1
+				AND TRDP.TRDP_CD = #s_code# ) AS GRAND_TOTAL
+				]]> -->
+	           
+		  FROM TB_TRDP A 
+		  LEFT JOIN TB_TRDP_CNTC_PSON B ON A.TRDP_CD = B.TRDP_CD AND B.REP_FLG = 'Y'
+		  LEFT JOIN TB_STATE C ON A.STATE_CD 	= C.STATE_CD AND A.CNT_CD 	= C.CNT_CD
+		  LEFT OUTER JOIN (SELECT INV.TRDP_CD, 
+						          SUM(CASE WHEN INV.SELL_BUY_TP_CD IN ('S','D','C') THEN CASE WHEN INV.SELL_BUY_TP_CD = 'C' THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END ELSE 0 END) AS CUR_LMT_AMT,
+								  SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT),CONVERT(DATETIME,GETDATE())) <![CDATA[ > ]]> 0
+									       THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+										   		      THEN IDT.BAL_AMT * -1 
+													  ELSE IDT.BAL_AMT 
+												 END) 
+									 	   ELSE 0
+								      END) AS OVER_DUE,
+								  SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE())) <![CDATA[ < ]]> 1
+									       THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B') 
+										   		      THEN IDT.BAL_AMT * -1 
+													  ELSE IDT.BAL_AMT 
+												 END) 
+										   ELSE 0 END) AS OVER_LIMIT,
+								  SUM(IDT.BAL_AMT) AS GRAND_TOTAL
+						   FROM TB_INV INV
+						   JOIN TB_INV_DTL IDT ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N' AND (IDT.INV_DT <![CDATA[ <= ]]> GETDATE()) AND IDT.INV_APLY_CURR_CD = 'USD'
+						   WHERE 1 = 1
+						   AND INV.TRDP_CD = #s_code#
+						   AND INV.DELT_FLG = 'N'
+						   GROUP BY INV.TRDP_CD) INV ON A.TRDP_CD = INV.TRDP_CD
+		 WHERE 1=1
+		   AND A.TRDP_CD  	= #s_code#
+		   
+		<isEqual prepend="AND" property="s_default_maincmp_yn" compareValue="Y">
+			A.TRDP_CD NOT LIKE '%DEFAULT' and A.TRDP_CD NOT LIKE '%MAINCMP'  
+		</isEqual>
+		   
+	</select>
+	
+	<!-- select Trade carrier    -->
+    <select id="selectCarrier" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">		
+		SELECT  a.trdp_cd  AS select_code, 		  ISNULL(a.shrt_nm,'') AS code_shrt_name,	 a.full_nm  AS code_name	, 
+			    ISNULL(b.pic_nm,'')  AS pic_nm,	  ISNULL(b.pic_phn,'') AS pic_phn,    	     ISNULL(b.pic_fax,'') AS pic_fax,
+			    ISNULL(b.pic_eml,'') AS pic_eml,  ISNULL(b.pic_desc,'')AS pic_desc
+		 FROM 	
+		 	tb_trdp a LEFT OUTER JOIN
+		 	(
+		 	SELECT 
+		 			trdp_cd,      pic_nm,      pic_phn,      pic_fax,     pic_eml,       pic_desc
+			FROM tb_trdp_cntc_pson
+			WHERE (TRDP_CD,CNTC_PSON_SEQ) IN 
+					( SELECT TRDP_CD,
+						MIN(CNTC_PSON_SEQ) CNTC_PSON_SEQ
+					FROM tb_trdp_cntc_pson
+					WHERE delt_flg = 'N'
+					GROUP BY TRDP_CD)
+		 	) b	ON a.trdp_cd=b.trdp_cd
+			AND   a.delt_flg = 'N'
+		WHERE a.delt_flg = 'N'
+		AND  a.trdp_cd = #s_code#
+		AND  a.trdp_tp_cd = 'AC'
+	</select>
+	
+	<!-- Trade country select    -->
+    <select id="selectTradeCountry" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+        SELECT cnt_cd AS select_code, 	cnt_eng_nm AS code_name
+		  FROM tb_cnt
+		 WHERE delt_flg = 'N'
+		   AND use_flg ='Y'
+		   AND cnt_cd = #s_code#
+	</select>
+	
+	<!-- Trade location/node select     -->
+    <select id="selectTradeLoc" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+        SELECT  loc.loc_cd  AS select_code, ISNULL(nod.nod_cd,'') AS select_sub_code,  
+                loc.loc_nm  AS code_name,   cnt.cnt_eng_nm AS code_desc, cnt.cnt_cd AS code_shrt_name
+                , loc.ams_loc_val AS ams_loc_val
+                ,loc.svc_lane_nm
+          FROM  tb_loc loc
+LEFT OUTER JOIN  tb_cnt cnt
+            ON  cnt.cnt_cd = loc.cnt_cd
+LEFT OUTER JOIN tb_nod nod
+            ON  loc.loc_cd = nod.loc_cd AND nod.use_flg = 'Y' AND nod.delt_flg = 'N' 
+LEFT OUTER JOIN tb_loc_tp_cd_list list 
+			ON loc.loc_cd = list.loc_cd
+LEFT OUTER JOIN tb_com_cd_dtl com_cd_dtl 
+			ON  com_cd = 'C023' AND list.LOC_TP_CD =  com_cd_dtl.CD_val  
+         WHERE  loc.use_flg = 'Y'    AND   loc.delt_flg = 'N'
+            AND loc.loc_cd = #s_code#
+           <isNotNull prepend="AND" property="air_sea_clss_cd">
+				<isEqual property="air_sea_clss_cd" compareValue="S">
+				<!-- #6783 [JSL LOGIS] DEFAULT LOCATION CODE TYPE TO ALL FOR DEL/F.DEST -->
+					(com_cd_dtl.CD_VAL = 'L01' OR NOT EXISTS (SELECT 'A' FROM TB_LOC_TP_CD_LIST TP WHERE LOC.LOC_CD = TP.LOC_CD))											
+		   		</isEqual>
+		   		<isEqual property="air_sea_clss_cd" compareValue="A">
+		   			com_cd_dtl.CD_VAL = 'L02'
+		   		</isEqual>
+		   </isNotNull>
+	</select>
+	
+	<!-- Trade location/node select     -->
+    <select id="selectTradeLocOnly" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT a.loc_cd AS select_code, ISNULL(b.nod_cd,'') AS select_sub_code,  a.loc_nm	AS code_name				     
+		  FROM tb_loc a LEFT OUTER JOIN
+				(SELECT loc_cd,  nod_cd,   nod_eng_nm
+				FROM 	tb_nod			WHERE use_flg = 'Y' AND delt_flg = 'N' 
+				) b on a.loc_cd = b.loc_cd
+		WHERE  a.use_flg = 'Y'    AND   a.delt_flg = 'N'
+		  AND  a.loc_cd = #s_code#
+	</select>
+	
+	<!-- Trade location/node select     -->
+    <select id="selectTradeLocIATA" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT a.loc_cd AS select_code, ISNULL(b.nod_cd,'') AS select_sub_code,  a.loc_nm	AS code_name				     
+		  FROM tb_loc a LEFT OUTER JOIN
+				(SELECT loc_cd,  nod_cd,   nod_eng_nm
+				FROM 	tb_nod			WHERE use_flg = 'Y' AND delt_flg = 'N' 
+				) b on a.loc_cd = b.loc_cd
+		WHERE  a.use_flg = 'Y'    AND   a.delt_flg = 'N'
+		  AND  a.loc_cd = #s_code# 
+		  AND  a.loc_clss_cd = 'I'
+	</select>
+	
+	<!-- Location Ams select     -->
+    <select id="selectLocAms" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT	ams_loc_val AS select_code, loc_nm AS select_sub_code, loc_cd AS code_shrt_name
+		  FROM	tb_loc
+		 WHERE	use_flg = 'Y'
+		   AND	delt_flg = 'N'
+		   AND	ams_loc_val = #s_code# 
+	</select>
+	
+	<!-- Trade currency select    -->
+    <select id="selectTradeCurrency" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+    	SELECT  cd_val AS select_code,   cd_nm AS code_name		
+		  FROM  tb_com_cd_dtl 
+		 WHERE  com_cd = 'C010' 
+		   AND  use_flg = 'Y'
+		   AND  delt_flg = 'N'
+		   AND  cd_val = #s_code#		
+	</select>
+	
+	<!-- Trade office select    -->
+    <select id="selectTradeOffice" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+       SELECT  ofc_cd AS select_code,  ofc_eng_nm AS code_name		
+		 FROM  tb_ofc
+		WHERE  delt_flg = 'N'
+		  AND  use_flg = 'Y' 
+		  AND  ofc_cd = #s_code#					
+	</select>
+	
+	<!-- Trade user select    -->
+   	<select id="selectTradeUser" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+       SELECT  usrid AS select_code,			eng_usr_nm AS code_name,			locl_usr_nm AS code_desc
+		 FROM  tb_usr
+		WHERE  usr_tp = 'I'
+		  AND  use_flg ='Y'
+		  AND  delt_flg = 'N'
+		  AND  usrid = #s_code#
+	</select>
+	
+	<!-- Trade freight select    -->
+    <select id="selectTradeFreight" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+      SELECT  FRT.frt_cd AS select_code,			FRT.frt_cd_nm AS code_name
+              ,ISNULL(frt_clss_cd, '') as frt_clss_cd, ISNULL(FRT.tax_rate, 0)  as tax_rate
+              ,FRT.frt_cd_locl_nm as locl_nm
+          <isNotEmpty property="frt_ofc_cd">
+	          <isEqual property="air_sea_clss_cd" compareValue="S">
+		          <isEqual property="frt_shp_mod" compareValue="FCL">
+		          ,fcl_dflt_aply_ut_cd as unit
+		          </isEqual>
+		          <isNotEqual property="frt_shp_mod" compareValue="FCL">
+		          ,lcl_dflt_aply_ut_cd as unit
+		          </isNotEqual>
+	          </isEqual>  
+	          <isEqual property="air_sea_clss_cd" compareValue="A">
+	          ,air_dflt_aply_ut_cd as unit
+	          </isEqual> 
+	          <isEqual property="tabStr" compareValue="">
+					,sell_rat_amt as sell_buy_rate
+			  </isEqual>
+			  <isEqual property="tabStr" compareValue="b_">
+					,buy_rat_amt as sell_buy_rate
+			  </isEqual>
+			  <isEqual property="tabStr" compareValue="dc_">
+			        <!-- OFVFOUR-7601 [BNX] Adding new function onto A/R and DC Entry screen -->
+					,dc_rat_amt as sell_buy_rate
+			  </isEqual>
+          </isNotEmpty>
+          <isEmpty property="frt_ofc_cd">
+          ,'' as unit ,'' as sell_buy_rate
+          </isEmpty>
+		FROM  tb_frt_cd FRT
+		 <isNotEmpty property="frt_ofc_cd">
+		 LEFT OUTER JOIN TB_OFC_FRT_CD OFCFRT
+ 				ON FRT.FRT_CD = OFCFRT.FRT_CD				
+ 				AND OFCFRT.OFC_CD = #frt_ofc_cd#
+ 		 </isNotEmpty>		
+	   WHERE  FRT.delt_flg = 'N'
+		 AND  FRT.frt_cd = #s_code#
+		<isEqual property="wms_flg" compareValue="Y">
+	    	AND WMS_FLG = 'Y'
+	    </isEqual>
+	<isEqual property="air_sea_clss_cd" compareValue="S">
+		<isEqual property="bnd_clss_cd" compareValue="O">
+			<isEqual property="biz_clss_cd" compareValue="H">
+					AND  OEH_FLG = 'Y'
+				<isEqual property="tabStr" compareValue="">
+					AND  AR_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="b_">
+					AND  AP_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="dc_">
+					AND  DC_FLG = 'Y'
+				</isEqual>
+			</isEqual>
+			<isEqual property="biz_clss_cd" compareValue="M">
+					AND  OEM_FLG = 'Y'
+				<isEqual property="tabStr" compareValue="">
+					AND  AR_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="b_">
+					AND  AP_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="dc_">
+					AND  DC_FLG = 'Y'
+				</isEqual>
+			</isEqual>
+		</isEqual>
+		<isEqual property="bnd_clss_cd" compareValue="I">
+			<isEqual property="biz_clss_cd" compareValue="H">
+					AND  OIH_FLG = 'Y'
+				<isEqual property="tabStr" compareValue="">
+					AND  AR_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="b_">
+					AND  AP_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="dc_">
+					AND  DC_FLG = 'Y'
+				</isEqual>
+			</isEqual>
+			<isEqual property="biz_clss_cd" compareValue="M">
+					AND  OIM_FLG = 'Y'
+				<isEqual property="tabStr" compareValue="">
+					AND  AR_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="b_">
+					AND  AP_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="dc_">
+					AND  DC_FLG = 'Y'
+				</isEqual>
+			</isEqual>
+		</isEqual>
+    </isEqual>
+    <isEqual property="air_sea_clss_cd" compareValue="A">
+		<isEqual property="bnd_clss_cd" compareValue="O">
+			<isEqual property="biz_clss_cd" compareValue="H">
+					AND  AEH_FLG = 'Y'
+				<isEqual property="tabStr" compareValue="">
+					AND  AR_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="b_">
+					AND  AP_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="dc_">
+					AND  DC_FLG = 'Y'
+				</isEqual>
+			</isEqual>
+			<isEqual property="biz_clss_cd" compareValue="M">
+					AND  AEM_FLG = 'Y'
+				<isEqual property="tabStr" compareValue="">
+					AND  AR_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="b_">
+					AND  AP_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="dc_">
+					AND  DC_FLG = 'Y'
+				</isEqual>
+			</isEqual>
+		</isEqual>
+		<isEqual property="bnd_clss_cd" compareValue="I">
+			<isEqual property="biz_clss_cd" compareValue="H">
+					AND  AIH_FLG = 'Y'
+				<isEqual property="tabStr" compareValue="">
+					AND  AR_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="b_">
+					AND  AP_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="dc_">
+					AND  DC_FLG = 'Y'
+				</isEqual>
+			</isEqual>
+			<isEqual property="biz_clss_cd" compareValue="M">
+					AND  AIM_FLG = 'Y'
+				<isEqual property="tabStr" compareValue="">
+					AND  AR_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="b_">
+					AND  AP_FLG = 'Y'
+				</isEqual>
+				<isEqual property="tabStr" compareValue="dc_">
+					AND  DC_FLG = 'Y'
+				</isEqual>
+			</isEqual>
+		</isEqual>
+    </isEqual>		
+	</select>
+	
+	<!-- Trade container select    -->
+    <select id="selectTradeContainer" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+        SELECT cntr_tpsz_cd AS select_code,			ISNULL(iso_cntr_cd,'') AS select_sub_code,			`desc` AS code_name
+		  FROM tb_cntr_tpsz
+		 WHERE use_flg = 'Y'
+		   AND delt_flg = 'N'
+		   AND cntr_tpsz_cd = #s_code#
+	</select>
+	
+	<!-- Trade Commodity select    -->
+    <select id="selectTradeCommodity" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+        SELECT  cmdt_cd  AS select_code,		 ISNULL(cmdt_grp_cd,'') AS select_sub_code,		 cmdt_nm AS code_name,
+        		cmdt_ut1 AS code_shrt_name,		 cmdt_ut2 AS code_desc, 						 hs_grp_cd
+		  FROM  tb_cmdt_cd
+		 WHERE 	delt_flg ='N'
+		   AND	cmdt_cd = #s_code#
+	</select>
+	
+	<!-- Trade Commodity select    -->
+    <select id="selectTradeCommoditySb" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+        SELECT  cmdt_cd  AS select_code,		 ISNULL(cmdt_grp_cd,'') AS select_sub_code,		 cmdt_nm AS code_name,
+        		cmdt_ut1 AS code_shrt_name,		 cmdt_ut2 AS code_desc
+		  FROM  tb_cmdt_cd
+		 WHERE 	delt_flg ='N'
+		   AND	cmdt_cd = #s_code#
+		   AND	hs_grp_cd = 'SB'
+	</select>
+	
+	<!-- Trade Commodity select   #581 [BINEX] MAWB 자동생성  -->
+    <select id="selectTradeCommoditynm" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+        SELECT  cmdt_cd  AS select_code,		 ISNULL(cmdt_grp_cd,'') AS select_sub_code,		 cmdt_nm AS code_name,
+        		cmdt_ut1 AS code_shrt_name,		 cmdt_ut2 AS code_desc, 						 hs_grp_cd
+		  FROM  tb_cmdt_cd
+		 WHERE 	delt_flg ='N'
+		   AND	cmdt_nm = #s_code_nm#
+	</select>
+		
+	<!-- Trade Package select    -->
+    <select id="selectTradePackage" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT 	pck_ut_cd AS select_code,			pck_nm AS code_name
+		  FROM  tb_pck_ut_cd
+		 WHERE  delt_flg = 'N'
+		   AND  pck_ut_cd = #s_code#
+	</select>
+	
+	<!-- Trade cargo status List pop select    -->
+    <select id="selectTradeCargo" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT  cd_val AS select_code, cd_nm AS code_name
+		  FROM  tb_com_cd_dtl
+		 WHERE  use_flg ='Y'
+		   AND  delt_flg = 'N'
+		   AND  com_cd = 'S001'
+		   AND  cd_val = #s_code#
+	</select>
+	
+	<!-- Trade Vessel select    -->
+    <select id="selectTradeVessel" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+        SELECT  vsl_cd AS select_code,		vsl_nm AS code_name
+		  FROM  tb_vsl 
+		 WHERE  use_flg = 'Y'			
+		   AND  vsl_cd = #s_code#		
+	</select>
+	
+	<!-- Trade location/node select     -->
+    <select id="selectTradeNode" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT  nod.nod_cd AS select_code,      ISNULL(nod.loc_cd,'') AS select_sub_code,      nod.nod_eng_nm AS code_name,
+                cnt.cnt_eng_nm AS code_desc
+          FROM  tb_nod nod
+          JOIN  tb_loc loc
+            ON  loc.loc_cd = nod.loc_cd  AND nod.use_flg = 'Y'  AND nod.delt_flg = 'N'
+		 
+          JOIN  tb_cnt cnt
+            ON  cnt.cnt_cd = loc.cnt_cd  AND cnt.use_flg = 'Y'  AND cnt.delt_flg = 'N'
+		
+         WHERE  nod.use_flg = 'Y'    AND   nod.delt_flg = 'N'
+           AND  nod.nod_cd = #s_code#
+	</select>
+	
+	<!-- Default Freight 코드 조회   
+	#2242 [BNX US] BILLING CODE SORT DOES NOT REFLECT WHEN USING [DEFAULT NEW]
+	-->
+	<select id="selectFRT_DFLT_LIST" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT * FROM (
+		       SELECT  TOP (select COUNT(*) from tb_frt_cd where delt_flg = 'N' AND  dflt_flg = 'Y')
+		       		   frt_cd AS select_code, 
+		       <!-- #1824 [Split - 1] [PATENT]Freight Local Name 적용(AR, AP) -->
+		       <isEqual property="tabStr" compareValue="dc_">    
+		       		   frt_cd_nm AS code_name,   
+			   </isEqual>  
+			   <isNotEqual property="tabStr" compareValue="dc_">    
+		       		   frt_cd_locl_nm AS code_name,   
+			   </isNotEqual>  
+		       		   frt_curr AS select_sub_code,
+		       		   tax_flg, tax_rate, frt_clss_cd
+		         FROM  tb_frt_cd
+		        WHERE  delt_flg = 'N'
+		          AND  dflt_flg = 'Y'
+		          <!-- #4044 [CNR] DISABLED BILLING CODE BEING USED -->
+		          AND  USE_FLG = 'Y'
+			<isEqual property="air_sea_clss_cd" compareValue="S">
+				<isEqual property="bnd_clss_cd" compareValue="O">
+					<isEqual property="biz_clss_cd" compareValue="H">
+							AND  OEH_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+					<isEqual property="biz_clss_cd" compareValue="M">
+							AND  OEM_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+				</isEqual>
+				<isEqual property="bnd_clss_cd" compareValue="I">
+					<isEqual property="biz_clss_cd" compareValue="H">
+							AND  OIH_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+					<isEqual property="biz_clss_cd" compareValue="M">
+							AND  OIM_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+				</isEqual>
+		    </isEqual>
+		    <isEqual property="air_sea_clss_cd" compareValue="A">
+				<isEqual property="bnd_clss_cd" compareValue="O">
+					<isEqual property="biz_clss_cd" compareValue="H">
+							AND  AEH_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+					<isEqual property="biz_clss_cd" compareValue="M">
+							AND  AEM_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+				</isEqual>
+				<isEqual property="bnd_clss_cd" compareValue="I">
+					<isEqual property="biz_clss_cd" compareValue="H">
+							AND  AIH_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+					<isEqual property="biz_clss_cd" compareValue="M">
+							AND  AIM_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+				</isEqual>
+		    </isEqual>
+		    
+		    <!-- #4044 [CNR] DISABLED BILLING CODE BEING USED -->
+		    <isEqual property="air_sea_clss_cd" compareValue="">
+				<isEqual property="bnd_clss_cd" compareValue="">
+					<isEqual property="biz_clss_cd" compareValue="">
+							AND  GNR_FLG  != 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>					
+				</isEqual>				
+		    </isEqual>
+		    AND ISNULL(SRT_SEQ, '') <![CDATA[  <> ]]> ''
+		    ORDER BY SRT_SEQ ASC
+		    
+		    UNION ALL
+		    
+		       SELECT  TOP (select COUNT(*) from tb_frt_cd where delt_flg = 'N' AND  dflt_flg = 'Y')
+		       		   frt_cd AS select_code, 
+		       <!-- #1824 [Split - 1] [PATENT]Freight Local Name 적용(AR, AP) -->
+		       <isEqual property="tabStr" compareValue="dc_">    
+		       		   frt_cd_nm AS code_name,   
+			   </isEqual>  
+			   <isNotEqual property="tabStr" compareValue="dc_">    
+		       		   frt_cd_locl_nm AS code_name,   
+			   </isNotEqual>  
+		       		   frt_curr AS select_sub_code,
+		       		   tax_flg, tax_rate, frt_clss_cd
+		         FROM  tb_frt_cd
+		        WHERE  delt_flg = 'N'
+		          AND  dflt_flg = 'Y'
+		          <!-- #4044 [CNR] DISABLED BILLING CODE BEING USED -->
+		          AND  USE_FLG = 'Y'
+			<isEqual property="air_sea_clss_cd" compareValue="S">
+				<isEqual property="bnd_clss_cd" compareValue="O">
+					<isEqual property="biz_clss_cd" compareValue="H">
+							AND  OEH_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+					<isEqual property="biz_clss_cd" compareValue="M">
+							AND  OEM_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+				</isEqual>
+				<isEqual property="bnd_clss_cd" compareValue="I">
+					<isEqual property="biz_clss_cd" compareValue="H">
+							AND  OIH_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+					<isEqual property="biz_clss_cd" compareValue="M">
+							AND  OIM_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+				</isEqual>
+		    </isEqual>
+		    <isEqual property="air_sea_clss_cd" compareValue="A">
+				<isEqual property="bnd_clss_cd" compareValue="O">
+					<isEqual property="biz_clss_cd" compareValue="H">
+							AND  AEH_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+					<isEqual property="biz_clss_cd" compareValue="M">
+							AND  AEM_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+				</isEqual>
+				<isEqual property="bnd_clss_cd" compareValue="I">
+					<isEqual property="biz_clss_cd" compareValue="H">
+							AND  AIH_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+					<isEqual property="biz_clss_cd" compareValue="M">
+							AND  AIM_FLG = 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>
+				</isEqual>
+		    </isEqual>
+		    <!-- #4044 [CNR] DISABLED BILLING CODE BEING USED -->
+		    <isEqual property="air_sea_clss_cd" compareValue="">
+				<isEqual property="bnd_clss_cd" compareValue="">
+					<isEqual property="biz_clss_cd" compareValue="">
+							AND  GNR_FLG  != 'Y'
+						<isEqual property="tabStr" compareValue="">
+							AND  AR_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="b_">
+							AND  AP_FLG = 'Y'
+						</isEqual>
+						<isEqual property="tabStr" compareValue="dc_">
+							AND  DC_FLG = 'Y'
+						</isEqual>
+					</isEqual>					
+				</isEqual>				
+		    </isEqual>
+		    AND ISNULL(SRT_SEQ, '') = ''
+		    ORDER BY frt_cd_nm ASC
+	    ) T1
+    </select>
+	
+	<!-- Agreement code select     -->
+    <select id="selectAgreementList" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT a.agmt_no AS select_code, ISNULL(a.eff_dt,'') AS select_sub_code,  a.agmt_no	AS code_name				     
+		  FROM tb_cntr_agmt a
+		WHERE  a.agmt_no = #s_code#
+	</select>
+	
+	<!-- Booking code select     -->
+    <select id="selectBookingList" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT a.bkg_no AS select_code, ISNULL(a.INTG_BL_SEQ,'') AS select_sub_code,  a.bkg_no	AS code_name				     
+		  FROM TB_INTG_BL a
+		 WHERE  a.BKG_NO = #s_code#
+		   AND a.BKG_NO is not null
+	</select>
+	
+	<!-- GROUP CODE   -->
+    <select id="selectHisGrp" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		select upper(x.name) as select_code,
+		       upper(x.name) as select_sub_code
+		  from sysobjects x
+		 where x.xtype = 'U'
+		   and (x.name like 'TB[_]%' or x.name like 'WHM[_]%')
+		 order by select_code
+    </select>
+
+    <select id="selectAlertEttList" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT upper(COLUMN_NAME) as select_code,
+			   upper(COLUMN_NAME) as select_sub_code
+		FROM  INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_NAME = #table_nm#
+		<isEqual property="alert_tp" compareValue="A">
+			AND ( COLUMN_NAME like '%[_]DT%' OR  COLUMN_NAME like '%[_]TM%')
+		</isEqual>
+    </select>
+    
+    <select id="selectAlertAttrList" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT upper(COLUMN_NAME) as select_code,
+			   upper(COLUMN_NAME) as select_sub_code
+		FROM  INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_NAME = #table_nm#
+		<isEqual property="alert_tp" compareValue="A">
+			AND ( COLUMN_NAME like '%[_]DT%' OR  COLUMN_NAME like '%[_]TM%')
+		</isEqual>
+    </select>
+
+    <select id="selectNotiAttrList" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		<!-- SELECT   	upper(A.column_name) as select_code,
+					upper(A.column_name) as select_sub_code
+	          FROM  (
+	                    /* DB에만 존재하는 데이터(NEW) */
+	                      select   upper(x.name) as table_name  
+	                              ,y.name  column_name
+	                              ,z.lgc_attr_nm
+	                              ,z.cng_grp_attr_seq
+	                              ,column_key = (select max(j.xtype)
+	                                               from sysindexkeys i, sysobjects j, sysindexkeys k
+	                                              where k.id         = y.id
+	                                                and k.colid      = y.colid
+	                                                and i.id         = k.id
+	                                                and i.indid      = k.indid
+	                                                and j.parent_obj = i.id
+	                                                and j.xtype      in ('PK', 'F')
+	                                            )
+	                              ,z.use_flg
+	                              ,case when z.phys_ett_nm is null or z.phys_ett_nm = '' then 'new'
+	                                    else 'normal'
+	                                end as warning
+	                              ,(select text from syscomments m where y.cdefault = m.id and m.colid = 1) comments
+	                              ,y.colid colno
+	                        from  sysobjects x
+	                        join  syscolumns y on x.id = y.id
+	             left outer join  (select * from tb_cng_ppt where delt_flg = 'N') z
+	                          on  x.name = z.PHYS_ETT_NM and y.name = z.phys_attr_nm 
+	                       where  x.xtype = 'U'
+	                        <isNotNull property="Table_in">
+	                          and x.name like '%' + #Table_in# + '%'
+	                        </isNotNull>
+	                          and x.id = y.id
+	                          and x.name like 'TB_%' 
+	                ) A
+	    WHERE  A.warning = 'normal'
+	    AND A.table_name = #Table_in# -->
+ 	    SELECT 
+ 	    	upper(cd_val) as select_code,
+ 	    	upper(cd_nm) as select_sub_code
+		FROM tb_com_cd_dtl 
+		WHERE com_cd =  #com_cd#
+        AND use_flg ='Y' ORDER BY srt_seq
+
+    </select>
+    
+    <!-- State Code   -->
+    <select id="selectState" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+        SELECT state_cd AS select_code, 	state_eng_nm AS code_name, cnt_cd AS code_shrt_name, 
+        	state_locl_nm AS locl_nm
+		  FROM tb_state
+		 WHERE use_flg ='Y'
+		   AND state_cd = #s_code#
+		<isNotEmpty property="s_cnt_cd">
+           AND cnt_cd = #s_cnt_cd#
+        </isNotEmpty>  
+	</select>
+    
+    <!-- State Code   -->
+    <select id="selectStateUs" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+        SELECT state_cd AS select_code, 	state_eng_nm AS code_name
+		  FROM tb_state
+		 WHERE use_flg ='Y'
+		   AND cnt_cd = 'US'
+		   AND state_cd = #s_code#
+	</select>
+    
+    <!-- Fax Create No   -->
+    <select id="selectFaxCreNo" resultClass="CmmAjaxVO">
+		SELECT	REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR,GETDATE(),25),'-',''),':',''),' ',''),'.','') AS select_code
+	</select>
+	
+	<!-- select Edi Trade partner    -->
+    <select id="selectEdiTrdpCd" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">	
+    	SELECT  trdp.trdp_cd  AS select_code,     
+				trdp.eng_nm   AS code_name,
+				edi_trdp.code_01 AS select_sub_code 
+		  FROM  tb_trdp trdp
+			    LEFT OUTER JOIN tb_edi_dak_trdp edi_trdp
+			      ON trdp.trdp_cd = edi_trdp.trdp_cd
+		 WHERE  trdp.delt_flg = 'N'
+		   AND  trdp.trdp_cd = #s_code#
+		   
+	</select>
+
+	<!-- UserID Count   -->
+	<select id="selectAllUserCount" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+	/* CmmAjaxSQL > selectAllUserCount */
+		SELECT COUNT(USRID) AS code_name
+		  FROM TB_USR
+		 WHERE USRID = #s_code#
+	</select>
+	
+	<select id="selectPierPassFrtListByCntrForAR" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+		/* CmmAjaxSQL > selectPierPassFrtListByCntrForAR */
+		SELECT CC.FRT_CD
+		           , CC.FRT_CD_NM 
+				   , (SELECT ISNULL(TRDP_CD, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_CD
+		           , CASE WHEN BB.CNTR_GRP_CD = '20' THEN  CC.PPS_CNTR20_RT
+				          WHEN BB.CNTR_GRP_CD = '40' THEN  CC.PPS_CNTR40_RT  END AS RU
+		           , BB.CNTR_GRP_CD
+		           , BB.CNTR_TPSZ_CD
+				   , (SELECT ISNULL(TRDP_NM, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_NM
+			       , COUNT(AA.CNTR_NO) AS QTY
+				   , CASE WHEN BB.CNTR_GRP_CD = '20' THEN CC.PPS_CNTR20_RT * COUNT(AA.CNTR_NO) 
+						  WHEN BB.CNTR_GRP_CD = '40' THEN CC.PPS_CNTR40_RT * COUNT(AA.CNTR_NO) END AS INV_AMT
+		  FROM TB_CNTR_LIST AA, TB_CNTR_TPSZ BB,
+			       (
+					SELECT A.FRT_CD, A.FRT_CD_NM, B.PPS_PAYTO_TRDP_CD, B.PPS_CNTR20_RT, B.PPS_CNTR40_RT, B.PPS_CBM_RT
+					  FROM TB_FRT_CD A,
+						   (SELECT PPS_PAYTO_TRDP_CD, PPS_CNTR20_RT, PPS_CNTR40_RT, PPS_CBM_RT 
+						      FROM TB_OFC 
+						     WHERE OFC_CD = (SELECT REF_OFC_CD FROM TB_INTG_BL WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)) ) B
+					 WHERE DELT_FLG = 'N' 
+					     AND USE_FLG = 'Y'
+					     AND FRT_CLSS_CD = 'PPS' 
+						AND AR_FLG = 'Y' 
+						<isEqual property="bnd_clss_cd" compareValue="I">
+							 AND OIH_FLG = 'Y'
+						</isEqual>
+						<isEqual property="bnd_clss_cd" compareValue="O">
+							 AND OEH_FLG = 'Y'
+						</isEqual>
+				    ) CC 
+		WHERE AA.CNTR_TPSZ_CD = BB.CNTR_TPSZ_CD
+			AND AA.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		 GROUP BY CC.FRT_CD, CC.FRT_CD_NM, CC.PPS_PAYTO_TRDP_CD, CC.PPS_CNTR20_RT, CC
+			                .PPS_CNTR40_RT, CC.PPS_CBM_RT, BB.CNTR_GRP_CD, BB.CNTR_TPSZ_CD
+	</select>
+	
+	<select id="selectPierPassFrtListByCntrForAP" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+		/* CmmAjaxSQL > selectPierPassFrtListByCntrForAP */
+		SELECT AA.CNTR_NO
+		           , CC.FRT_CD
+		           , CC.FRT_CD_NM
+				   , ISNULL(CC.PPS_PAYTO_TRDP_CD, '') AS TRDP_CD
+		           , CASE WHEN BB.CNTR_GRP_CD = '20' THEN  CC.PPS_CNTR20_RT
+				             WHEN BB.CNTR_GRP_CD = '40' THEN  CC.PPS_CNTR40_RT  
+				     END AS RU
+		           , BB.CNTR_GRP_CD
+		           , BB.CNTR_TPSZ_CD 
+				   , ISNULL((SELECT X.LOCL_NM FROM TB_TRDP X WHERE TRDP_CD = CC.PPS_PAYTO_TRDP_CD), '') AS TRDP_NM
+			       , 1 AS QTY
+				   , CASE WHEN BB.CNTR_GRP_CD = '20' THEN CC.PPS_CNTR20_RT 
+						     WHEN BB.CNTR_GRP_CD = '40' THEN CC.PPS_CNTR40_RT 
+					 END AS INV_AMT
+		  FROM TB_CNTR_LIST AA, TB_CNTR_TPSZ BB,
+			       (
+					SELECT A.FRT_CD, A.FRT_CD_NM, B.PPS_PAYTO_TRDP_CD, B.PPS_CNTR20_RT, B.PPS_CNTR40_RT, B.PPS_CBM_RT
+					  FROM TB_FRT_CD A,
+						   (SELECT PPS_PAYTO_TRDP_CD, PPS_CNTR20_RT, PPS_CNTR40_RT, PPS_CBM_RT 
+						      FROM TB_OFC 
+						     WHERE OFC_CD = (SELECT REF_OFC_CD FROM TB_INTG_BL WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)) ) B
+					 WHERE DELT_FLG = 'N' 
+					     AND USE_FLG = 'Y'
+					     AND FRT_CLSS_CD = 'PPS' 
+						AND AP_FLG = 'Y' 
+						<isEqual property="bnd_clss_cd" compareValue="I">
+							 AND OIM_FLG = 'Y'
+						</isEqual>
+						<isEqual property="bnd_clss_cd" compareValue="O">
+							 AND OEM_FLG = 'Y'
+						</isEqual>
+				    ) CC 
+		WHERE AA.CNTR_TPSZ_CD = BB.CNTR_TPSZ_CD
+			AND AA.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		 ORDER BY AA.CNTR_LIST_SEQ 
+	</select>
+	
+	<select id="selectPierPassFrtListByCbm" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+		/* CmmAjaxSQL > selectPierPassFrtListByCbm */
+		SELECT AA.MEAS
+			       , BB.FRT_CD
+		           , BB.FRT_CD_NM
+		           <isEqual property="biz_clss_cd" compareValue="M">     
+						  , ISNULL(BB.PPS_PAYTO_TRDP_CD, '') AS TRDP_CD
+					</isEqual>
+					<isEqual property="biz_clss_cd" compareValue="H">     
+						, (SELECT ISNULL(TRDP_CD, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_CD
+					</isEqual>
+				   , BB.PPS_CBM_RT AS RU
+				   , '' AS CNTR_TPSZ_CD 
+				   <isEqual property="biz_clss_cd" compareValue="M">     
+						   , ISNULL((SELECT X.LOCL_NM FROM TB_TRDP X WHERE TRDP_CD = BB.PPS_PAYTO_TRDP_CD), '') AS TRDP_NM
+					</isEqual>
+					<isEqual property="biz_clss_cd" compareValue="H">     
+						, (SELECT ISNULL(TRDP_NM, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_NM
+					</isEqual>
+			       , AA.MEAS AS QTY
+							   , AA.MEAS * BB.PPS_CBM_RT  AS INV_AMT
+			  FROM TB_INTG_BL AA,
+								(
+								SELECT A.FRT_CD, A.FRT_CD_NM, B.PPS_PAYTO_TRDP_CD, B.PPS_CNTR20_RT, B.PPS_CNTR40_RT, B.PPS_CBM_RT
+								  FROM TB_FRT_CD A,
+									   (SELECT PPS_PAYTO_TRDP_CD, PPS_CNTR20_RT, PPS_CNTR40_RT, PPS_CBM_RT 
+									      FROM TB_OFC 
+									     WHERE OFC_CD = (SELECT REF_OFC_CD FROM TB_INTG_BL WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)) ) B
+								 WHERE DELT_FLG = 'N' 
+								     AND USE_FLG = 'Y'
+								     AND FRT_CLSS_CD = 'PPS' 
+								<isEqual property="biz_clss_cd" compareValue="M">     
+									AND AP_FLG = 'Y' 
+									<isEqual property="bnd_clss_cd" compareValue="I">
+										 AND OIM_FLG = 'Y'
+									</isEqual>
+									<isEqual property="bnd_clss_cd" compareValue="O">
+										 AND OEM_FLG = 'Y'
+									</isEqual>
+								</isEqual>
+								<isEqual property="biz_clss_cd" compareValue="H">     
+									AND AR_FLG = 'Y' 
+									<isEqual property="bnd_clss_cd" compareValue="I">
+										 AND OIH_FLG = 'Y'
+									</isEqual>
+									<isEqual property="bnd_clss_cd" compareValue="O">
+										 AND OEH_FLG = 'Y'
+									</isEqual>
+								</isEqual>
+							    ) BB 
+			 WHERE AA.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+
+    <select id="selectGglCode" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+    	/* CmmAjaxSQL > selectGglCode */
+		SELECT ggl_cd     AS select_code,
+		       ggl_type   AS select_sub_code,
+		       ggl_grp_cd AS code_shrt_name,
+		       rmk        AS code_name
+		  FROM tb_ggl_cd
+		 WHERE 1=1
+		   AND use_flg = 'Y'
+		   AND ggl_cd = #s_code#
+	</select>
+	
+	<!-- Menu Level 취득  -->
+    <select id="selectMENU_LVL" parameterClass="CmmAjaxVO" resultClass="String">
+		SELECT isnull(mn_lvl,'') AS mn_lvl   
+		  FROM com_usr_thm
+		 WHERE usr_id  = #user_id#
+	</select>
+	
+	<!-- Menu Level 생성  -->
+    <insert id="insertMENU_LVL" parameterClass="CmmAjaxVO">
+    	INSERT INTO com_usr_thm (usr_id, mn_lvl) VALUES (#user_id#, #menu_level#)
+    </insert>
+    
+	<!-- Menu Level 수정  -->
+    <update id="updateMENU_LVL" parameterClass="CmmAjaxVO">
+    	UPDATE com_usr_thm SET mn_lvl = #menu_level# WHERE usr_id = #user_id#
+    </update>
+    
+    <!-- User Theme 취득  -->
+    <select id="selectUSER_THEME" parameterClass="CmmAjaxVO" resultClass="String">
+		SELECT isnull(usr_thm,'') AS usr_thm       
+		  FROM com_usr_thm
+		 WHERE usr_id  = #user_id#
+	</select>
+    
+    <update id="updateUSER_THEME" parameterClass="CmmAjaxVO">
+         MERGE INTO com_usr_thm X1   
+               USING (SELECT #user_id#      usr_id
+							,#user_theme#	usr_thm
+               ) X2  
+       	ON ( X1.usr_id = X2.usr_id)   
+        WHEN MATCHED THEN  
+        	UPDATE  
+            SET    usr_thm = X2.usr_thm
+        WHEN NOT MATCHED THEN   
+            INSERT (   usr_id               
+                      ,usr_thm
+                   )   
+            VALUES (    X2.usr_id             
+                      , X2.usr_thm   
+				   );
+    </update>
+    
+    <!-- Bold Y/N 취득  -->
+    <select id="selectBOLD_YN" parameterClass="CmmAjaxVO" resultClass="String">
+		SELECT isnull(bold_yn,'') AS bold_yn   
+		  FROM com_usr_thm
+		 WHERE usr_id  = #user_id#
+	</select>
+	
+	<!-- Bold Y/N 생성  -->
+    <insert id="insertBOLD_YN" parameterClass="CmmAjaxVO">
+    	INSERT INTO com_usr_thm (usr_id, bold_yn) VALUES (#user_id#, #bold_yn#)
+    </insert>
+    
+    <!-- Bold Y/N 수정  -->
+    <update id="updateBOLD_YN" parameterClass="CmmAjaxVO">
+    	UPDATE com_usr_thm SET bold_yn = #bold_yn# WHERE usr_id = #user_id#
+    </update>
+	
+	<!-- TB_SYS_OPT 테이블에서 데이터 조회  -->
+    <select id="selectSYS_OPT" parameterClass="String" resultClass="String">
+		SELECT ISNULL(OPT_VAL,'') AS OPT_VAL   
+		  FROM TB_SYS_OPT
+		 WHERE OPT_KEY = #opt_key#
+	</select>
+	
+	<!--  WMS module -->
+	<select id="searchCtrtInfo" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+    	/* CmmAjaxSQL > searchCtrtInfo */
+		SELECT CTRT_NO     AS select_code,
+		       CTRT_NM       AS code_name,
+		       UNIT AS unit ,
+               CTRT_CUST_CD    ,                                      <!-- wms #1069 Closing other entry  -->
+               dbo.TL_GET_CUST_NM(CTRT_CUST_CD) AS CTRT_CUST_NM     <!-- wms #1069 Closing other entry  -->		       
+		FROM TL_CTRT
+		WHERE 1=1
+		   AND CTRT_USE_FLG = 'Y'
+		   AND CTRT_NO = #s_code#
+	</select>
+	
+	<select id="searchTlLocInfo" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+    	/* CmmAjaxSQL > searchTlLocInfo */
+		SELECT WH_CD     AS select_code,
+		       WH_NM       AS code_name,
+		       WH_ADDR AS lgl_addr
+		FROM TL_WH
+		WHERE 1=1
+		   AND use_flg = 'Y'
+		   AND WH_CD = #s_code#
+	</select>
+	<select id="searchTlTradePartner" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+	SELECT
+            a.trdp_cd,
+            a.eng_nm trdp_nm
+        FROM
+            tb_trdp a  
+        WHERE
+            a.delt_flg = 'N'   
+            AND a.trdp_cd =  #cust_cd#
+     </select>
+     
+     <select id="selectCtfFrtListByCntrForAR" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+		/*selectCtfFrtListByCntrForAR*/
+		SELECT CC.FRT_CD
+		           , CC.FRT_CD_NM 
+				   , (SELECT ISNULL(TRDP_CD, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_CD
+		           , CASE WHEN BB.CNTR_GRP_CD = '20' THEN  CC.CTF_CNTR20_RT
+				          WHEN BB.CNTR_GRP_CD = '40' THEN  CC.CTF_CNTR40_RT  END AS RU
+		           , BB.CNTR_GRP_CD
+		           , BB.CNTR_TPSZ_CD
+				   , (SELECT ISNULL(TRDP_NM, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_NM
+			       , COUNT(AA.CNTR_NO) AS QTY
+				   , CASE WHEN BB.CNTR_GRP_CD = '20' THEN CC.CTF_CNTR20_RT * COUNT(AA.CNTR_NO) 
+						  WHEN BB.CNTR_GRP_CD = '40' THEN CC.CTF_CNTR40_RT * COUNT(AA.CNTR_NO) END AS INV_AMT
+		  FROM TB_CNTR_LIST AA, TB_CNTR_TPSZ BB,
+			       (
+					SELECT A.FRT_CD, A.FRT_CD_NM, B.CTF_PAYTO_TRDP_CD, B.CTF_CNTR20_RT, B.CTF_CNTR40_RT, B.CTF_CBM_RT
+					  FROM TB_FRT_CD A,
+						   (SELECT CTF_PAYTO_TRDP_CD, CTF_CNTR20_RT, CTF_CNTR40_RT, CTF_CBM_RT 
+						      FROM TB_OFC 
+						     WHERE OFC_CD = (SELECT REF_OFC_CD FROM TB_INTG_BL WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)) ) B
+					 WHERE DELT_FLG = 'N' 
+					     AND USE_FLG = 'Y'
+					     AND FRT_CLSS_CD = 'CTF' 
+						AND AR_FLG = 'Y' 
+						<isEqual property="bnd_clss_cd" compareValue="I">
+							 AND OIH_FLG = 'Y'
+						</isEqual>
+						<isEqual property="bnd_clss_cd" compareValue="O">
+							 AND OEH_FLG = 'Y'
+						</isEqual>
+				    ) CC 
+		WHERE AA.CNTR_TPSZ_CD = BB.CNTR_TPSZ_CD
+			AND AA.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		 GROUP BY CC.FRT_CD, CC.FRT_CD_NM, CC.CTF_PAYTO_TRDP_CD, CC.CTF_CNTR20_RT, CC.CTF_CNTR40_RT, CC.CTF_CBM_RT, BB.CNTR_GRP_CD, BB.CNTR_TPSZ_CD
+	</select>
+	<select id="selectCfFrtListByCntrForAR" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+		/*selectCfFrtListByCntrForAR*/
+		SELECT CC.FRT_CD
+		           , CC.FRT_CD_NM 
+				   , (SELECT ISNULL(TRDP_CD, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_CD
+		           , CASE WHEN BB.CNTR_GRP_CD = '20' THEN  CC.CF_CNTR20_RT
+				          WHEN BB.CNTR_GRP_CD = '40' THEN  CC.CF_CNTR40_RT  END AS RU
+		           , BB.CNTR_GRP_CD
+		           , BB.CNTR_TPSZ_CD
+				   , (SELECT ISNULL(TRDP_NM, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_NM
+			       , COUNT(AA.CNTR_NO) AS QTY
+				   , CASE WHEN BB.CNTR_GRP_CD = '20' THEN CC.CF_CNTR20_RT * COUNT(AA.CNTR_NO) 
+						  WHEN BB.CNTR_GRP_CD = '40' THEN CC.CF_CNTR40_RT * COUNT(AA.CNTR_NO) END AS INV_AMT
+		  FROM TB_CNTR_LIST AA, TB_CNTR_TPSZ BB,
+			       (
+					SELECT A.FRT_CD, A.FRT_CD_NM, B.CF_PAYTO_TRDP_CD, B.CF_CNTR20_RT, B.CF_CNTR40_RT, B.CF_CBM_RT
+					  FROM TB_FRT_CD A,
+						   (SELECT CF_PAYTO_TRDP_CD, CF_CNTR20_RT, CF_CNTR40_RT, CF_CBM_RT 
+						      FROM TB_OFC 
+						     WHERE OFC_CD = (SELECT REF_OFC_CD FROM TB_INTG_BL WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)) ) B
+					 WHERE DELT_FLG = 'N' 
+					     AND USE_FLG = 'Y'
+					     AND FRT_CLSS_CD = 'CF' 
+						AND AR_FLG = 'Y' 
+						<isEqual property="bnd_clss_cd" compareValue="I">
+							 AND OIH_FLG = 'Y'
+						</isEqual>
+						<isEqual property="bnd_clss_cd" compareValue="O">
+							 AND OEH_FLG = 'Y'
+						</isEqual>
+				    ) CC 
+		WHERE AA.CNTR_TPSZ_CD = BB.CNTR_TPSZ_CD
+			AND AA.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		 GROUP BY CC.FRT_CD, CC.FRT_CD_NM, CC.CF_PAYTO_TRDP_CD, CC.CF_CNTR20_RT, CC.CF_CNTR40_RT, CC.CF_CBM_RT, BB.CNTR_GRP_CD, BB.CNTR_TPSZ_CD
+	</select>
+	
+	<select id="selectCtfFrtListByCbm" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+		/* CmmAjaxSQL > selectCtfFrtListByCbm */
+			SELECT AA.MEAS
+			       , BB.FRT_CD
+		           , BB.FRT_CD_NM
+				   <isEqual property="biz_clss_cd" compareValue="M">     
+				   , ISNULL(BB.CTF_PAYTO_TRDP_CD, '') AS TRDP_CD
+				   </isEqual>
+				   <isEqual property="biz_clss_cd" compareValue="H">     
+				   , (SELECT ISNULL(TRDP_CD, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_CD
+				   </isEqual>
+				   , BB.CTF_CBM_RT AS RU
+				   , '' AS CNTR_TPSZ_CD 
+				   <isEqual property="biz_clss_cd" compareValue="M">     
+				   , ISNULL((SELECT X.LOCL_NM FROM TB_TRDP X WHERE TRDP_CD = BB.CTF_PAYTO_TRDP_CD), '') AS TRDP_NM
+				   </isEqual>
+				   <isEqual property="biz_clss_cd" compareValue="H">     
+				   , (SELECT ISNULL(TRDP_NM, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_NM
+				   </isEqual>
+			       , AA.MEAS AS QTY
+				   , AA.MEAS * BB.CTF_CBM_RT  AS INV_AMT
+			  FROM TB_INTG_BL AA,
+								(
+								SELECT A.FRT_CD, A.FRT_CD_NM, B.CTF_PAYTO_TRDP_CD, B.CTF_CNTR20_RT, B.CTF_CNTR40_RT, B.CTF_CBM_RT
+								  FROM TB_FRT_CD A,
+									   (SELECT CTF_PAYTO_TRDP_CD, CTF_CNTR20_RT, CTF_CNTR40_RT, CTF_CBM_RT 
+									      FROM TB_OFC 
+									     WHERE OFC_CD = (SELECT REF_OFC_CD FROM TB_INTG_BL WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)) ) B
+								 WHERE DELT_FLG = 'N' 
+								     AND USE_FLG = 'Y'
+								     AND FRT_CLSS_CD = 'CTF' 
+								<isEqual property="biz_clss_cd" compareValue="M">     
+									AND AP_FLG = 'Y' 
+									<isEqual property="bnd_clss_cd" compareValue="I">
+										 AND OIM_FLG = 'Y'
+									</isEqual>
+									<isEqual property="bnd_clss_cd" compareValue="O">
+										 AND OEM_FLG = 'Y'
+									</isEqual>
+								</isEqual>
+								<isEqual property="biz_clss_cd" compareValue="H">     
+									AND AR_FLG = 'Y' 
+									<isEqual property="bnd_clss_cd" compareValue="I">
+										 AND OIH_FLG = 'Y'
+									</isEqual>
+									<isEqual property="bnd_clss_cd" compareValue="O">
+										 AND OEH_FLG = 'Y'
+									</isEqual>
+								</isEqual>
+							    ) BB 
+			 WHERE AA.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<select id="selectCfFrtListByCbm" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+		/* CmmAjaxSQL > selectCfFrtListByCbm */
+			SELECT AA.MEAS
+			       , BB.FRT_CD
+		           , BB.FRT_CD_NM
+				   <isEqual property="biz_clss_cd" compareValue="M">     
+				   , ISNULL(BB.CF_PAYTO_TRDP_CD, '') AS TRDP_CD
+				   </isEqual>
+				   <isEqual property="biz_clss_cd" compareValue="H">     
+				   , (SELECT ISNULL(TRDP_CD, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_CD
+				   </isEqual>
+				   , BB.CF_CBM_RT AS RU
+				   , '' AS CNTR_TPSZ_CD 
+				   <isEqual property="biz_clss_cd" compareValue="M">     
+				   , ISNULL((SELECT X.LOCL_NM FROM TB_TRDP X WHERE TRDP_CD = BB.CF_PAYTO_TRDP_CD), '') AS TRDP_NM
+				   </isEqual>
+				   <isEqual property="biz_clss_cd" compareValue="H">     
+				   , (SELECT ISNULL(TRDP_NM, '')  FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = 'S02' AND DELT_FLG = 'N' ) AS TRDP_NM
+				   </isEqual>
+			       , AA.MEAS AS QTY
+				   , AA.MEAS * BB.CF_CBM_RT  AS INV_AMT
+			  FROM TB_INTG_BL AA,
+								(
+								SELECT A.FRT_CD, A.FRT_CD_NM, B.CF_PAYTO_TRDP_CD, B.CF_CNTR20_RT, B.CF_CNTR40_RT, B.CF_CBM_RT
+								  FROM TB_FRT_CD A,
+									   (SELECT CF_PAYTO_TRDP_CD, CF_CNTR20_RT, CF_CNTR40_RT, CF_CBM_RT 
+									      FROM TB_OFC 
+									     WHERE OFC_CD = (SELECT REF_OFC_CD FROM TB_INTG_BL WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)) ) B
+								 WHERE DELT_FLG = 'N' 
+								     AND USE_FLG = 'Y'
+								     AND FRT_CLSS_CD = 'CF' 
+								<isEqual property="biz_clss_cd" compareValue="M">     
+									AND AP_FLG = 'Y' 
+									<isEqual property="bnd_clss_cd" compareValue="I">
+										 AND OIM_FLG = 'Y'
+									</isEqual>
+									<isEqual property="bnd_clss_cd" compareValue="O">
+										 AND OEM_FLG = 'Y'
+									</isEqual>
+								</isEqual>
+								<isEqual property="biz_clss_cd" compareValue="H">     
+									AND AR_FLG = 'Y' 
+									<isEqual property="bnd_clss_cd" compareValue="I">
+										 AND OIH_FLG = 'Y'
+									</isEqual>
+									<isEqual property="bnd_clss_cd" compareValue="O">
+										 AND OEH_FLG = 'Y'
+									</isEqual>
+								</isEqual>
+							    ) BB 
+			 WHERE AA.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	
+	<select id="selectPrefixTradePartner" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">	
+       /* CmmAjaxSQL.xml > selectPrefixTradePartner */
+    	 SELECT A.TRDP_CD  AS SELECT_CODE
+    	       ,A.ENG_ADDR AS SELECT_SUB_CODE
+    	       ,A.ENG_NM   AS CODE_NAME
+    	       ,ISNULL(A.SHRT_NM,'')  AS CODE_SHRT_NAME
+    	       ,B.PIC_NM
+    	       ,B.PIC_PHN
+    	       ,B.PIC_FAX
+    	       ,A.RMK AS CODE_DESC
+    	       ,A.SLS_GP_CD
+    	       ,A.CRD_LMT_AMT
+    	       <!-- #660 - [BINEX] CURRENT BALANCE, OVER LIMIT LOGIC (2017.01.12) -->
+    	       <!-- ,A.CUR_LMT_AMT -->
+    	       ,INV.CUR_LMT_AMT
+			   ,INV.OVER_DUE
+			   ,INV.OVER_LIMIT - ISNULL(A.CRD_LMT_AMT, 0) AS OVER_LIMIT
+			   ,INV.GRAND_TOTAL
+    	       ,A.CR_TERM_CD
+    	       ,A.CR_TERM_DT
+    	       ,CASE WHEN ISNULL(A.CITY_NM , '')='' THEN ISNULL(A.LGL_ADDR, '')
+				     ELSE ISNULL(A.LGL_ADDR, '') + CHAR(13)+CHAR(10) + ISNULL(A.CITY_NM , '')+ ', ' + ISNULL(C.STATE_CD, '')+' ' + ISNULL(A.REP_ZIP, '') 
+				 END AS TRDP_ADDR
+			   ,ISNULL(A.TAX_ISS_ADDR, '') AS TRDP_ADDR2
+			   ,A.LOCL_NM AS LOCL_NM
+			   ,A.IATA_CD 
+	           ,A.PREFIX
+	           ,B.PIC_EML
+	           <!-- 
+				,(SELECT SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT),
+				CONVERT(DATETIME,GETDATE())) > 0
+				THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+				THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT 	END) ELSE 0
+				END) AS OVER_DUE
+				FROM TB_TRDP TRDP
+				JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+				JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE())
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+				WHERE 1=1
+				AND TRDP.prefix = #s_code# ) AS OVER_DUE
+				,(SELECT SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE()))  < 1
+			    THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B') 
+			    THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END) ELSE 0 END) - MAX(ISNULL(TRDP.CRD_LMT_AMT, 0))  AS OVER_LIMIT
+				FROM TB_TRDP TRDP
+				JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+				JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE()) 
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+				WHERE 1=1
+				AND TRDP.prefix = #s_code# ) AS OVER_LIMIT
+				,(SELECT SUM(IDT.BAL_AMT)
+				FROM TB_TRDP TRDP
+				JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+				JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE()) 
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+				WHERE 1=1
+				AND TRDP.prefix = #s_code# ) AS GRAND_TOTAL
+				 -->
+				,A.RESERVE_FIELD09	
+				,A.PROFIT_SHARE
+				,A.AN_BOND_NO
+				<![CDATA[ 
+				,CASE WHEN LEN( A.AN_BOND_EXP_DT) > 0 THEN  CONVERT(VARCHAR(10),CONVERT(DATETIME, SUBSTRING(ISNULL( A.AN_BOND_EXP_DT, ''), 1, 8)), 110)  ELSE '' END  AN_BOND_EXP_DT   
+				]]>
+	            ,ISNULL(A.LGL_ADDR,'') + 
+				 (CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+				  	   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ' ' + A.STATE_CD
+					   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13)+CHAR(10) + A.CITY_NM
+					   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ', ' + A.REP_ZIP
+					   ELSE '' END) AS DFLT_ADDR
+		  FROM TB_TRDP A 
+		  LEFT JOIN TB_TRDP_CNTC_PSON B ON A.TRDP_CD = B.TRDP_CD AND B.REP_FLG = 'Y'
+		  LEFT JOIN TB_STATE C ON A.STATE_CD 	= C.STATE_CD AND A.CNT_CD 	= C.CNT_CD
+		  LEFT OUTER JOIN (SELECT INV.TRDP_CD, 
+						          SUM(CASE WHEN INV.SELL_BUY_TP_CD IN ('S','D','C') THEN CASE WHEN INV.SELL_BUY_TP_CD = 'C' THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END ELSE 0 END) AS CUR_LMT_AMT,
+								  SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT),CONVERT(DATETIME,GETDATE())) <![CDATA[ > ]]> 0
+									       THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+										   		      THEN IDT.BAL_AMT * -1 
+													  ELSE IDT.BAL_AMT 
+												 END) 
+									 	   ELSE 0
+								      END) AS OVER_DUE,
+								  SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE())) <![CDATA[ < ]]> 1
+									       THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B') 
+										   		      THEN IDT.BAL_AMT * -1 
+													  ELSE IDT.BAL_AMT 
+												 END) 
+										   ELSE 0 END) AS OVER_LIMIT,
+								  SUM(IDT.BAL_AMT) AS GRAND_TOTAL
+						   FROM TB_INV INV
+						   JOIN TB_INV_DTL IDT ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N' AND (IDT.INV_DT <![CDATA[ <= ]]> GETDATE()) AND IDT.INV_APLY_CURR_CD = 'USD'
+						   WHERE 1 = 1
+						   AND INV.DELT_FLG = 'N'
+						   GROUP BY INV.TRDP_CD) INV ON A.TRDP_CD = INV.TRDP_CD
+		 WHERE A.DELT_FLG 	= 'N'
+		   AND A.PREFIX  	= #s_code#
+		   
+		<isEqual prepend="AND" property="s_default_maincmp_yn" compareValue="Y">
+			A.TRDP_CD NOT LIKE '%DEFAULT' and A.TRDP_CD NOT LIKE '%MAINCMP'  
+		</isEqual>		
+		   
+	</select>
+	
+	<!-- Location UN select     -->
+    <select id="selectLocUn" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT	un_loc_cd AS select_code, loc_nm AS code_name
+		  FROM	tb_loc
+		 WHERE	use_flg = 'Y'
+		   AND	delt_flg = 'N'
+		   AND	un_loc_cd = #s_code# 
+	</select>
+	
+	<!-- Location CBSA select     -->
+    <select id="selectLocCbsa" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT	wh_id AS select_code, wh_nm AS code_name
+		  FROM	tb_edi_cbsa_sub_loc
+		 WHERE	delt_flg = 'N'
+		   AND	wh_id = #s_code# 
+		   AND  loc_tp_cd = 'O'
+	</select>
+	
+	<!-- CBSA Sub-Location select     -->
+    <select id="selectLocCbsaSub" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+		SELECT	wh_id AS select_code, wh_nm AS code_name
+		  FROM	tb_edi_cbsa_sub_loc
+		 WHERE	delt_flg = 'N'
+		   AND	wh_id = #s_code# 
+		   AND  loc_tp_cd = 'W'
+	</select>
+	
+	<!-- Trade Vessel Call Sign Code select    -->
+    <select id="selectVesselCallSgnCd" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+        SELECT  call_sgn_cd AS select_code, vsl_nm AS code_name, cnt_cd AS code_shrt_name
+		  FROM  tb_vsl 
+		 WHERE  use_flg = 'Y'		
+		   AND  call_sgn_cd = #s_code#		
+	</select>
+	
+	<select id="checkAutoCompleteYn" parameterClass="java.util.HashMap" resultClass="String">	
+	    SELECT ISNULL(OPT_VAL , '') AS AUTO_COMPLETE_YN
+		  FROM TB_SYS_OPT
+		 WHERE OPT_KEY = 'AUTO_COMPLETE_YN'		 
+    </select>
+    
+	<!-- TRDP customer info select -->
+	<select id="searchTlRecommendCustInfoList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+	/* CmmAjaxSQL.xml > searchTlRecommendCustInfoList */
+	<!-- OFVFOUR-7911 [AIF] MANAGING/ALERT CUSTOMER'S OUTSTANDING (OVERDUE) -->
+	<!--  with overdue as(
+    SELECT
+		trdp_cd
+		,SUM(summ.over_1_30_amt) + SUM(summ.over_31_60_amt) + SUM(summ.over_61_90_amt) + SUM(summ.over_91_amt) AS overdue_total
+	FROM
+    (
+        SELECT
+            disp.trdp_cd
+            ,disp.INV_NO
+            ,ISNULL(SUM(disp.pay_amt), 0) AS pay_amt
+            ,disp.over_dt
+            ,ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) AS inv_sum_amt
+            ,CASE WHEN disp.over_dt <![CDATA[ < ]]> 1 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS current_amt
+            ,CASE WHEN disp.over_dt <![CDATA[ > ]]> 0 AND disp.over_dt <![CDATA[ < ]]> 31 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_1_30_amt
+            ,CASE WHEN disp.over_dt <![CDATA[ > ]]> 30 AND disp.over_dt <![CDATA[ < ]]> 61 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_31_60_amt
+            ,CASE WHEN disp.over_dt <![CDATA[ > ]]> 60 AND disp.over_dt <![CDATA[ < ]]> 91 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_61_90_amt
+            ,CASE WHEN disp.over_dt <![CDATA[ > ]]> 90 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_91_amt
+        FROM
+            (
+			SELECT
+				dtl.trdp_cd
+				,dtl.INV_NO
+				,(
+					CASE WHEN dtl.sell_buy_tp_cd = 'B' THEN sum(dtl.inv_sum_amt) * -1 ELSE sum(dtl.inv_sum_amt) END
+				) * (
+					CASE WHEN dtl.INV_APLY_CURR_CD = dtl.option_curr THEN 1 ELSE ISNULL( DD_EX_RT_INV.XCH_RT_UT, ISNULL( MM_EX_RT_INV.XCH_RT_UT, ISNULL( DD_INV_EX_RT_INV.XCH_RT_UT, ISNULL(MM_INV_EX_RT_INV.XCH_RT_UT, 0) ) ) ) END
+				) AS inv_sum_amt
+				,max(
+					dtl.pay_amt * ( CASE WHEN dtl.INV_APLY_CURR_CD = dtl.option_curr THEN 1 ELSE ISNULL( DD_EX_RT_JNR.XCH_RT_UT, ISNULL( MM_EX_RT_JNR.XCH_RT_UT, ISNULL( DD_INV_EX_RT_JNR.XCH_RT_UT, ISNULL(MM_INV_EX_RT_JNR.XCH_RT_UT, 0) ) ) ) END )
+				) AS pay_amt
+				,dtl.inv_dt
+				,dtl.post_dt
+				,dtl.over_dt
+				,dtl.sell_buy_tp_cd
+			FROM
+				(
+					SELECT
+						trdp.trdp_cd
+						,idt.INV_NO
+						,CASE
+							WHEN frt.sell_buy_tp_cd = 'C' THEN frt.cr_amt * -1
+							ELSE frt.inv_sum_amt
+						END AS inv_sum_amt
+						,inv.sell_buy_tp_cd
+						,CASE
+							WHEN jms.post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+							AND NOT ( jms.VOID_YN = 'Y' AND jms.VOID_DT <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112) ) 
+							THEN 
+								CASE 
+									WHEN inv.sell_buy_tp_cd IN ('C', 'B') 
+									THEN jdt.pay_amt * -1 
+									ELSE jdt.pay_amt 
+								END
+							ELSE 0
+						END AS pay_amt
+						,jdt.jnr_no
+						,idt.inv_dt
+						,jms.post_dt
+						,DATEDIFF( "D", CONVERT(DATETIME, idt.inv_due_dt), CONVERT(DATETIME, CONVERT(VARCHAR, getDate(), 112)) ) AS over_dt
+						,inv_aply_curr_cd
+						,( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' ) AS option_curr
+					FROM
+						tb_trdp trdp
+						LEFT OUTER JOIN tb_trdp_cntc_pson ctp ON ctp.trdp_cd = trdp.trdp_cd
+						AND ctp.rep_flg = 'Y'
+						AND ctp.delt_flg = 'N'
+						JOIN tb_inv inv ON inv.trdp_cd = trdp.trdp_cd
+						AND inv.delt_flg = 'N'
+						AND(
+							1 = 2
+							OR inv.sell_buy_tp_cd = 'D'
+							OR (
+								inv.sell_buy_tp_cd = 'S'
+								AND inv.air_sea_clss_cd != 'G'
+							)
+							OR inv.sell_buy_tp_cd = 'C'
+							OR (
+								inv.sell_buy_tp_cd = 'B'
+								AND inv.air_sea_clss_cd != 'G'
+							)
+							OR (
+								inv.sell_buy_tp_cd = 'B'
+								AND inv.air_sea_clss_cd = 'G'
+							)
+							OR (
+								inv.sell_buy_tp_cd = 'S'
+								AND inv.air_sea_clss_cd = 'G'
+							)
+						)
+						AND(
+							1 = 2
+							OR inv.inv_dept_cd IN ('SIM', 'SIH')
+							OR inv.inv_dept_cd IN ('SOM', 'SOH')
+							OR inv.inv_dept_cd IN ('OTH')
+							OR inv.inv_dept_cd IN ('AIM', 'AIH')
+							OR inv.inv_dept_cd IN ('AOM', 'AOH')
+							OR inv.inv_dept_cd IN ('GNR')
+							OR inv.inv_dept_cd IN ('WMS')
+						)
+						JOIN tb_inv_dtl idt ON idt.inv_seq = inv.inv_seq
+						AND idt.delt_flg = 'N'
+						LEFT OUTER JOIN (
+							SELECT
+								D.JNR_NO,
+								D.INV_SEQ,
+								SUM(D.pay_amt) AS pay_amt
+							FROM
+								TB_JNR_DTL D,
+								TB_JNR_MST M
+							WHERE
+								D.JNR_NO = M.JNR_NO
+								AND ISNULL(D.DELT_FLG, 'N') = 'N'
+								AND ISNULL(M.DELT_FLG, 'N') = 'N'
+							GROUP BY
+								D.JNR_NO,
+								D.INV_SEQ
+						) JDT ON JDT.INV_SEQ = INV.INV_SEQ
+						LEFT OUTER JOIN TB_JNR_MST JMS ON JMS.JNR_NO = JDT.JNR_NO
+						AND JMS.DELT_FLG = 'N'
+						JOIN tb_frt frt ON frt.inv_seq = inv.inv_seq
+						AND frt.delt_flg = 'N'
+					WHERE
+						1 = 1
+						AND frt.inv_post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+					UNION
+					ALL
+					SELECT
+						trdp.trdp_cd
+						,idt.INV_NO
+						,CASE
+							WHEN ( SELECT OPT_VAL FROM TB_SYS_OPT WHERE OPT_KEY = 'BINEX_SHOW_AGING_REPORT' ) = 'Y' 
+							THEN 
+								CASE
+									WHEN frt.sell_buy_tp_cd = 'C' THEN frt.cr_amt * -1
+									ELSE frt.inv_sum_amt
+								END
+							ELSE 0
+						END AS inv_sum_amt
+						,inv.sell_buy_tp_cd
+						,CASE
+							WHEN jms.post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+							AND NOT (
+								jms.VOID_YN = 'Y'
+								AND jms.VOID_DT <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+							) THEN CASE
+								WHEN inv.sell_buy_tp_cd IN ('C', 'B') THEN jdt.pay_amt * -1
+								ELSE jdt.pay_amt
+							END
+							ELSE 0
+						END AS pay_amt
+						,jdt.jnr_no
+						,idt.inv_dt
+						,jms.post_dt
+						,DATEDIFF(
+							"D",
+							CONVERT(DATETIME, idt.inv_due_dt),
+							CONVERT(DATETIME, CONVERT(VARCHAR, getDate(), 112))
+						) AS over_dt
+						,inv_aply_curr_cd
+						,(
+							select
+								OPT_VAL
+							from
+								TB_SYS_OPT
+							where
+								OPT_KEY = 'TP_OVER_AMT_FLG'
+						) AS option_curr
+					FROM
+						tb_trdp trdp
+						LEFT OUTER JOIN tb_trdp_cntc_pson ctp ON ctp.trdp_cd = trdp.trdp_cd
+						AND ctp.rep_flg = 'Y'
+						AND ctp.delt_flg = 'N'
+						JOIN tb_inv inv ON inv.trdp_cd = trdp.trdp_cd
+						AND inv.delt_flg = 'N'
+						AND(
+							1 = 2
+							OR inv.sell_buy_tp_cd = 'D'
+							OR (
+								inv.sell_buy_tp_cd = 'S'
+								AND inv.air_sea_clss_cd != 'G'
+							)
+							OR inv.sell_buy_tp_cd = 'C'
+							OR (
+								inv.sell_buy_tp_cd = 'B'
+								AND inv.air_sea_clss_cd != 'G'
+							)
+							OR (
+								inv.sell_buy_tp_cd = 'B'
+								AND inv.air_sea_clss_cd = 'G'
+							)
+							OR (
+								inv.sell_buy_tp_cd = 'S'
+								AND inv.air_sea_clss_cd = 'G'
+							)
+						)
+						AND(
+							1 = 2
+							OR inv.inv_dept_cd IN ('SIM', 'SIH')
+							OR inv.inv_dept_cd IN ('SOM', 'SOH')
+							OR inv.inv_dept_cd IN ('OTH')
+							OR inv.inv_dept_cd IN ('AIM', 'AIH')
+							OR inv.inv_dept_cd IN ('AOM', 'AOH')
+							OR inv.inv_dept_cd IN ('GNR')
+							OR inv.inv_dept_cd IN ('WMS')
+						)
+						JOIN tb_inv_dtl idt ON idt.inv_seq = inv.inv_seq
+						AND ISNULL(idt.delt_flg, 'N') = 'N'
+						JOIN (
+							SELECT
+								JNR_NO,
+								INV_SEQ,
+								SUM(pay_amt) AS pay_amt
+							FROM
+								tb_jnr_dtl
+							WHERE
+								ISNULL(delt_flg, 'N') = 'N'
+							GROUP BY
+								JNR_NO,
+								INV_SEQ
+						) jdt ON jdt.inv_seq = inv.inv_seq
+						JOIN tb_jnr_mst jms ON jms.jnr_no = jdt.jnr_no
+						JOIN tb_frt frt ON frt.inv_seq = inv.inv_seq
+						AND frt.delt_flg = 'N'
+					WHERE
+						1 = 1
+						AND frt.inv_post_dt <![CDATA[ > ]]> CONVERT(VARCHAR, getDate(), 112)
+						AND jms.post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+						AND jms.delt_flg = 'N'
+				) dtl
+				/* DD EX RT INV */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT DD_EX_RT_INV WITH(NOLOCK) ON DD_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_EX_RT_INV.DELT_FLG = 'N'
+				AND DD_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_EX_RT_INV.DT_CLSS_CD = 'D'
+				AND DD_EX_RT_INV.APLY_FM_DT = dtl.inv_dt
+				/* MM EX RT INV */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT MM_EX_RT_INV WITH(NOLOCK) ON MM_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND MM_EX_RT_INV.DELT_FLG = 'N'
+				AND MM_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND MM_EX_RT_INV.DT_CLSS_CD = 'M'
+				AND SUBSTRING(MM_EX_RT_INV.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+				/* DD EX RT JNR */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT DD_EX_RT_JNR WITH(NOLOCK) ON DD_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_EX_RT_JNR.DELT_FLG = 'N'
+				AND DD_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_EX_RT_JNR.DT_CLSS_CD = 'D'
+				AND DD_EX_RT_JNR.APLY_FM_DT = dtl.inv_dt
+				/* MM EX RT JNR */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT MM_EX_RT_JNR WITH(NOLOCK) ON MM_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND MM_EX_RT_JNR.DELT_FLG = 'N'
+				AND MM_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND MM_EX_RT_JNR.DT_CLSS_CD = 'M'
+				AND SUBSTRING(MM_EX_RT_JNR.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+				/* DD INV EX RT INV */
+				LEFT OUTER JOIN TB_INV_XCRT DD_INV_EX_RT_INV WITH(NOLOCK) ON DD_INV_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_INV_EX_RT_INV.DELT_FLG = 'N'
+				AND DD_INV_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_INV_EX_RT_INV.DT_CLSS_CD = 'D'
+				AND DD_INV_EX_RT_INV.CURR_TP_CD = 'S'
+				AND DD_INV_EX_RT_INV.APLY_FM_DT = dtl.inv_dt
+				/* MM INV EX RT INV */
+				LEFT OUTER JOIN TB_INV_XCRT MM_INV_EX_RT_INV WITH(NOLOCK) ON DD_INV_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_INV_EX_RT_INV.DELT_FLG = 'N'
+				AND DD_INV_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_INV_EX_RT_INV.CURR_TP_CD = 'S'
+				AND DD_INV_EX_RT_INV.DT_CLSS_CD = 'M'
+				AND SUBSTRING(DD_INV_EX_RT_INV.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+				/* DD INV EX RT JNR */
+				LEFT OUTER JOIN TB_INV_XCRT DD_INV_EX_RT_JNR WITH(NOLOCK) ON DD_INV_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_INV_EX_RT_JNR.DELT_FLG = 'N'
+				AND DD_INV_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_INV_EX_RT_JNR.DT_CLSS_CD = 'D'
+				AND DD_INV_EX_RT_JNR.CURR_TP_CD = 'S'
+				AND DD_INV_EX_RT_JNR.APLY_FM_DT = dtl.inv_dt
+				/* MM INV EX RT JNR */
+				LEFT OUTER JOIN TB_INV_XCRT MM_INV_EX_RT_JNR WITH(NOLOCK) ON MM_INV_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND MM_INV_EX_RT_JNR.DELT_FLG = 'N'
+				AND MM_INV_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND MM_INV_EX_RT_JNR.CURR_TP_CD = 'S'
+				AND MM_INV_EX_RT_JNR.DT_CLSS_CD = 'M'
+				AND SUBSTRING(MM_INV_EX_RT_JNR.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+			group by
+				dtl.trdp_cd
+				,dtl.INV_NO
+				,dtl.inv_dt
+				,dtl.post_dt
+				,dtl.over_dt
+				,dtl.sell_buy_tp_cd
+				,dtl.jnr_no
+				,dtl.inv_aply_curr_cd
+				,dd_ex_rt_inv.xch_rt_ut
+				,mm_ex_rt_inv.xch_rt_ut
+				,dd_inv_ex_rt_inv.xch_rt_ut
+				,mm_inv_ex_rt_inv.xch_rt_ut
+				,dtl.option_curr
+			) disp
+			GROUP BY
+				disp.trdp_cd
+				,disp.INV_NO
+				,disp.inv_sum_amt
+				,disp.inv_dt
+				,disp.over_dt
+		) summ
+	GROUP BY
+		summ.trdp_cd
+	HAVING
+		SUM(summ.inv_sum_amt) != 0
+	)  -->
+	SELECT
+		  TOP 5 A.SHRT_NM 				AS SHRT_NM
+		, A.TRDP_CD						AS TRDP_CD
+		, A.ENG_ADDR                    AS ENG_ADDR
+		, A.CNT_CD                      AS CNT_CD  
+		, A.LOCL_NM                     AS LOCL_NM 
+		, CNT.CNT_ENG_NM 				AS CNT_NM
+		, A.ACCT_CD                     AS ACCT_CD   
+		, A.FULL_NM                     AS FULL_NM   
+		, A.TRDP_TP_CD                  AS TRDP_TP_CD
+		, A.RMK 						AS CMP_RMK
+		, A.ENG_NM                      AS ENG_NM      
+		, B.PIC_NM                      AS PIC_NM      
+		, B.PIC_PHN                     AS PIC_PHN     
+		, B.PIC_FAX                     AS PIC_FAX     
+		, B.PIC_EML                     AS PIC_EML     
+		, B.PIC_DESC                    AS PIC_DESC    
+		, A.REP_ZIP                     AS REP_ZIP     
+		, A.SLS_GP_CD                   AS SLS_GP_CD   
+		, A.CRD_LMT_AMT                 AS CRD_LMT_AMT 
+		<!-- #660 - [BINEX] CURRENT BALANCE, OVER LIMIT LOGIC (2017.01.12) -->
+		<!-- , A.CUR_LMT_AMT                 AS CUR_LMT_AMT  -->
+		, INV.CUR_LMT_AMT
+	    , INV.OVER_DUE
+	    , INV.OVER_LIMIT - ISNULL(A.CRD_LMT_AMT, 0) AS OVER_LIMIT
+	    , INV.GRAND_TOTAL
+		, A.LGL_ADDR                    AS LGL_ADDR    
+		, A.TAX_ISS_ADDR                AS TAX_ISS_ADDR
+		, A.CR_TERM_CD                  AS CR_TERM_CD  
+		, A.CR_TERM_DT                  AS CR_TERM_DT  
+		, A.CITY_NM                     AS CITY_NM     
+		, A.STATE_CD                    AS STATE_CD    
+		, A.PREFIX                      AS PREFIX      
+		, A.IATA_CD                     AS IATA_CD     
+		, A.BIZ_NO                      AS BIZ_NO      
+		, A.CMDT_CD                     AS CMDT_CD     
+		, A.TP_GRP                      AS TP_GRP      
+		, A.SLS_USRID                   AS SLS_USRID   
+		, D.LOCL_USR_NM 				AS SLS_USRNM     
+		, (SELECT CMDT_NM FROM TB_CMDT_CD WHERE CMDT_CD = A.CMDT_CD AND DELT_FLG = 'N' ) AS CMDT_NM
+		, CASE WHEN ISNULL(A.CITY_NM , '') = '' THEN 
+					ISNULL(A.LGL_ADDR, '')
+			   ELSE ISNULL(A.LGL_ADDR, '') + CHAR(13)+CHAR(10) + ISNULL(A.CITY_NM , '')+ ', ' + ISNULL(C.STATE_CD, '') + ' ' + ISNULL(A.REP_ZIP, '')
+		  END AS TRDP_ADDR
+		, ISNULL(A.TAX_ISS_ADDR, '') 	AS TRDP_ADDR2
+		, A.TAX_TYPE                    AS TAX_TYPE       
+		, A.RESERVE_FIELD09             AS RESERVE_FIELD09
+		, A.PROFIT_SHARE                AS PROFIT_SHARE   
+		<!-- 
+		, (SELECT SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE())) > 0 THEN 
+								(CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B') THEN 
+										   IDT.BAL_AMT * -1 
+									  ELSE IDT.BAL_AMT 	END) 
+						   ELSE 0 END) 	AS OVER_DUE
+			FROM TB_TRDP TRDP
+			JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+			JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE())
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+			WHERE 1=1
+			AND TRDP.TRDP_CD = A.TRDP_CD ) AS OVER_DUE
+		,(SELECT SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE()))  < 1 THEN 
+							  (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B') THEN 
+							  			 IDT.BAL_AMT * -1 
+							  	    ELSE IDT.BAL_AMT END) 
+					      ELSE 0 END) - MAX(ISNULL(TRDP.CRD_LMT_AMT, 0))  AS OVER_LIMIT
+		 FROM TB_TRDP TRDP
+		 JOIN TB_INV INV
+			 ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+		 JOIN TB_INV_DTL IDT
+			 ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+			 AND (IDT.INV_DT <= GETDATE()) 
+			 AND IDT.INV_APLY_CURR_CD = 'USD'
+		 WHERE 1=1
+		 AND TRDP.TRDP_CD = A.TRDP_CD) 	AS OVER_LIMIT
+		,(SELECT SUM(IDT.BAL_AMT)
+		  FROM TB_TRDP TRDP
+			JOIN TB_INV INV
+				ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+			JOIN TB_INV_DTL IDT
+				ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+				AND (IDT.INV_DT <= GETDATE()) 
+				AND IDT.INV_APLY_CURR_CD = 'USD'
+			WHERE 1=1
+			AND TRDP.TRDP_CD = A.TRDP_CD ) AS GRAND_TOTAL -->
+		,A.AN_BOND_NO					AS AN_BOND_NO
+		<![CDATA[
+		,CASE WHEN LEN( A.AN_BOND_EXP_DT) > 0 THEN  
+				   CONVERT(VARCHAR(10),CONVERT(DATETIME, SUBSTRING(ISNULL( A.AN_BOND_EXP_DT, ''), 1, 8)), 110)  
+			  ELSE '' END  				AN_BOND_EXP_DT   	
+		]]>
+		,ISNULL(A.LGL_ADDR,'') 
+			+ (CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN 
+						 CHAR(13)+CHAR(10) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND	ISNULL(A.REP_ZIP,'') = '' THEN 
+						 CHAR(13)+CHAR(10) + A.CITY_NM + ' ' + A.STATE_CD
+					WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN 
+						 CHAR(13)+CHAR(10) + A.CITY_NM
+					WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN 
+						 CHAR(13)+CHAR(10) + A.CITY_NM + ', ' +	A.REP_ZIP
+					ELSE '' END) 		AS DFLT_ADDR
+		,CASE WHEN ISNULL(A.OFC_FM_HR, '') = '' THEN '' ELSE SUBSTRING(ISNULL(A.OFC_FM_HR, ''), 1, 2)+':'+SUBSTRING(ISNULL(A.OFC_FM_HR, ''), 2, 2) END  AS OFC_FM_HR
+	   	,CASE WHEN ISNULL(A.OFC_TO_HR, '') = '' THEN '' ELSE SUBSTRING(ISNULL(A.OFC_TO_HR, ''), 1, 2)+':'+SUBSTRING(ISNULL(A.OFC_TO_HR, ''), 2, 2) END  AS OFC_TO_HR			
+		<!-- OFVFOUR-7911 [AIF] MANAGING/ALERT CUSTOMER'S OUTSTANDING (OVERDUE) -->
+		<!-- ,OVD.overdue_total AS overdue_total  -->
+		,0 AS overdue_total
+		FROM TB_TRDP A
+			LEFT OUTER JOIN TB_CNT CNT ON A.CNT_CD = CNT.CNT_CD AND CNT.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_TRDP_CNTC_PSON B ON A.TRDP_CD=B.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_STATE C ON A.STATE_CD = C.STATE_CD AND A.CNT_CD = C.CNT_CD AND C.USE_FLG = 'Y'
+			LEFT OUTER JOIN TB_USR D ON D.USR_TP = 'I' AND A.SLS_USRID = D.USRID
+			LEFT OUTER JOIN (SELECT INV.TRDP_CD, 
+						          SUM(CASE WHEN INV.SELL_BUY_TP_CD IN ('S','D','C') THEN CASE WHEN INV.SELL_BUY_TP_CD = 'C' THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END ELSE 0 END) AS CUR_LMT_AMT,
+								  SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT),CONVERT(DATETIME,GETDATE())) <![CDATA[ > ]]> 0
+									       THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+										   		      THEN IDT.BAL_AMT * -1 
+													  ELSE IDT.BAL_AMT 
+												 END) 
+									 	   ELSE 0
+								      END) AS OVER_DUE,
+								  SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE())) <![CDATA[ < ]]> 1
+									       THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B') 
+										   		      THEN IDT.BAL_AMT * -1 
+													  ELSE IDT.BAL_AMT 
+												 END) 
+										   ELSE 0 END) AS OVER_LIMIT,
+								  SUM(IDT.BAL_AMT) AS GRAND_TOTAL
+						   FROM TB_INV INV
+						   JOIN TB_INV_DTL IDT ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N' AND (IDT.INV_DT <![CDATA[ <= ]]> GETDATE()) AND IDT.INV_APLY_CURR_CD = 'USD'
+						   WHERE 1 = 1
+						   AND INV.DELT_FLG = 'N'
+						   GROUP BY INV.TRDP_CD) INV ON A.TRDP_CD = INV.TRDP_CD
+			<!-- OFVFOUR-7911 [AIF] MANAGING/ALERT CUSTOMER'S OUTSTANDING (OVERDUE) -->
+			<!-- LEFT OUTER JOIN overdue OVD on A.TRDP_CD = OVD.TRDP_CD  -->
+		WHERE A.DELT_FLG = 'N'
+		<isNotNull property="dataformat">
+			<isEqual property="dataformat" compareValue="multiLanguage">
+				AND A.LOCL_NM 	LIKE  #shrt_nm#   + '%'
+			</isEqual>
+			<isNotEqual property="dataformat" compareValue="multiLanguage">
+				AND A.ENG_NM 	LIKE  #shrt_nm# + '%'
+			</isNotEqual>
+		</isNotNull>
+		<isNull property="dataformat">
+			AND A.ENG_NM 	LIKE  #shrt_nm# + '%'
+		</isNull>
+		
+		<isNotNull property="tpType">
+	      AND A.TRDP_TP_CD = #tpType#
+	    </isNotNull>       
+		ORDER BY A.ENG_NM ASC
+	</select>
+	
+	<!-- TRDP Locate info select -->
+	<select id="searchTlRecommendLocInfoList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.location.dto.LocVO">	
+       /* CmmAjaxSQL.xml > searchTlRecommendLocInfoList */
+		SELECT  
+			  TOP 5 A.LOC_NM 				AS LOC_NAME
+			, A.LOC_CLSS_CD                 AS LOC_CLSS_CD
+			, A.AMS_LOC_VAL                 AS AMS_LOC_VAL
+			, A.LOC_CD 						AS LOC_CODE
+			, A.LOC_CD                      AS LOC_CD
+			, A.LOC_NM                      AS LOC_NM
+			, '' 							AS NOD_CD
+			, '' 							AS NOD_ENG_NM
+			, A.LOC_TP_DESC					AS LOC_TP_DESC
+			, B.CNT_ENG_NM  				AS CNT_NM
+			, B.CNT_CD                      AS CNT_CD     
+			, A.STN_NO                      AS STN_NO     
+			, A.STATE_CD                    AS STATE_CD   
+			, A.CBSA_LOC_CD                 AS CBSA_LOC_CD
+			, A.UN_LOC_CD                   AS UN_LOC_CD  
+			, CASE WHEN CHARINDEX( #loc_nm# , A.LOC_NM) = 0 THEN 
+						99999999 
+				   ELSE CHARINDEX( #loc_nm# , A.LOC_NM)
+			  END 							AS O_LOC_NM
+		FROM  TB_LOC A 			
+	            <isNotNull property="tpType">
+	            JOIN TB_LOC_TP_CD_LIST TP             
+	            ON  A.LOC_CD = TP.LOC_CD
+	            AND TP.LOC_TP_CD = #tpType#
+	            </isNotNull>
+			LEFT OUTER JOIN TB_CNT B
+				ON  A.CNT_CD = B.CNT_CD
+			LEFT OUTER JOIN TB_LOC ITA 
+				ON  A.LOC_CD = ITA.PRNT_LOC_CD 
+				AND ITA.LOC_CLSS_CD = 'I' 
+				AND ITA.DELT_FLG = 'N' 
+				AND ITA.USE_FLG = 'Y' 
+		WHERE A.DELT_FLG = 'N'   
+		  AND A.USE_FLG  = 'Y'      
+		  AND A.LOC_NM IS NOT NULL
+		  AND A.LOC_NM LIKE #loc_nm# + '%'
+		ORDER BY A.LOC_NM ASC
+	</select>
+	
+	<!-- VSL info select  #3873 -->
+	<select id="searchTlRecommendVesselInfoList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.code.vessel.dto.VslVO">	
+       /* CmmAjaxSQL.xml > searchTlRecommendVesselInfoList */
+		SELECT  
+			  TOP 5
+                a.vsl_cd,       a.vsl_nm,           
+                a.cnt_cd,       a.lnr_trdp_cd,  b.shrt_nm, b.eng_nm AS lnr_trdp_nm, a.call_sgn_cd , a.lloyd_no  
+          FROM  tb_vsl a   
+		LEFT OUTER JOIN tb_trdp b ON a.lnr_trdp_cd = b.trdp_cd AND  b.delt_flg = 'N' 
+         WHERE  a.use_flg = 'Y'		
+           AND  a.vsl_nm LIKE #vsl_nm# + '%'
+        ORDER  BY a.vsl_cd
+	</select>
+	
+	<!-- OFVFOUR-7814 [AIF] ADDING TEAM INFORMATION ON THE ALL ENTRY SCREEN -->
+	<select id="searchIssuedbyTeamInfo" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+	SELECT 
+		cd_nm as select_code
+	FROM tb_usr usr 
+	LEFT JOIN tb_com_cd_dtl team_cd ON usr.team_cd = team_cd.cd_val
+		AND team_cd.com_cd = 'C133'
+		AND team_cd.delt_flg = 'N'
+		AND team_cd.use_flg = 'Y'
+	WHERE 
+		usr.usrid = #issued_by#
+	</select>
+
+	<!-- OFVFOUR-8064 [ABC LOGIS] Add 2 more charges for Default 'B/L Rate' -->
+	<select id="searchSubCode" parameterClass="java.util.HashMap" resultClass="CmmAjaxVO">
+	SELECT
+		sub_cd.CD_VAL   as select_code
+		,sub_cd.CD_NM   as code_name
+	FROM tb_com_cd mtr_cd
+	LEFT OUTER JOIN tb_com_cd_dtl sub_cd ON mtr_cd.COM_CD = sub_cd.COM_CD
+	WHERE 1=1
+		AND mtr_cd.DELT_FLG = 'N' AND mtr_cd.USE_FLG = 'Y'
+		AND sub_cd.DELT_FLG = 'N' AND sub_cd.USE_FLG = 'Y'
+		AND sub_cd.COM_CD = #comCd#
+	ORDER BY
+		SRT_SEQ ASC
+	</select>
+	<!-- OFVFOUR-7685: [Binex] M-Files API Documentation -->
+	<select id="searchCarrierBkgNo" parameterClass="java.util.HashMap" resultClass="String">	
+       /* CmmAjaxSQL.xml > searchCarrierBkgNo */
+		SELECT TOP 1 lnr_bkg_no
+		FROM TB_INTG_BL
+		WHERE 1=1
+		<isNotEmpty property="intg_bl_seq">
+	      AND INTG_BL_SEQ = #intg_bl_seq#
+	    </isNotEmpty>
+		<isNotEmpty property="inv_seq">
+	      AND INTG_BL_SEQ = (SELECT TOP 1 INTG_BL_SEQ
+			FROM TB_FRT
+			WHERE INV_SEQ = #inv_seq# AND DELT_FLG = 'N')
+	    </isNotEmpty>
+	</select>
+	<select id="searchITN_No" parameterClass="java.util.HashMap" resultClass="String">	
+       /* CmmAjaxSQL.xml > searchITN_No */
+		SELECT TOP 1 ITN_NO
+		FROM TB_INTG_BL
+		WHERE 1=1
+		<isNotEmpty property="intg_bl_seq">
+	      AND INTG_BL_SEQ = #intg_bl_seq#
+	    </isNotEmpty>
+	</select>
+	<insert id="insertMfileData" parameterClass="java.util.HashMap">
+    	INSERT INTO TB_MFILE_INFO (
+		        MFILE_NO,
+		        MFILE_VAULTGUID,
+		        MFILE_USERNAME,
+		        MFILE_PASSWORD,
+		        MFILE_PREFIX,
+		        MFILE_PARAM,
+		        REPORT_PORT,
+		        REPORT_PARAM,
+		        REPORT_FILE,
+		        MFILE_STATUS,
+		        RGST_TMS,
+		        RGST_USRID,
+		        MODI_TMS,
+		        MODI_USRID
+		    )VALUES(
+		        #mfile_no#, 
+		        #mfile_vaultguid#,
+		        #mfile_username#, 
+		        #mfile_password#,
+		        #mfile_prefix#, 
+		        #mfile_param#,
+		        #report_port#, 
+		        #report_param#,
+		        #report_file#, 
+		        '1',
+		        GETDATE(),
+		        #usrid#,
+		        GETUTCDATE(),
+		        #usrid#
+		    )
+    </insert>
+	<select id="selectMF_CD_DTL" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO"
+            parameterClass="java.util.HashMap">
+        SELECT top 1 com_cd, cd_val,
+        cd_nm, srt_seq, use_flg, rmk
+        FROM tb_com_cd_dtl
+        WHERE delt_flg = 'N'
+        AND com_cd = #f_com_cd#
+        AND cd_val = #f_cd_val#
+        ORDER BY srt_seq ASC
+    </select>
+</sqlMap>

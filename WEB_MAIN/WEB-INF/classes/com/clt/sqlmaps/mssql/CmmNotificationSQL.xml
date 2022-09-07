@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+    
+<sqlMap namespace="cmm.utils.notification">
+
+	<!-- BL의 변경된 항목을 가져온다.    -->
+	<select id="selectBlHistory" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.NotificationVO">
+		SELECT
+			PPT.PHYS_ATTR_NM AS ATTR_CODE
+		FROM
+			TB_INTG_CNG_HIS_AIF HIS
+		JOIN
+			TB_CNG_PPT PPT ON HIS.CNG_ATTR_SEQ = PPT.CNG_ATTR_SEQ
+		WHERE 1 = 1
+			AND HIS.INTG_BL_SEQ =  cast(#intg_bl_seq# as varchar)
+			AND ISNULL(HIS.MODI_SEQ, 0) > 1
+			AND HIS.MODI_SEQ = (SELECT MAX(MODI_SEQ) FROM TB_INTG_CNG_HIS_AIF WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar))
+	</select>
+
+	<!-- BL의 변경후 항목을 가져온다.    -->
+	<select id="selectBlInfo" parameterClass="HashMap" resultClass="HashMap">
+		SELECT ISNULL(A.BL_NO, '') AS BL_NO
+			 , ISNULL(A.POL_CD, '') AS POL_CD
+			 , ISNULL(A.POL_NM, '') AS POL_NM
+			 , ISNULL(A.POD_CD, '') AS POD_CD
+			 , ISNULL(A.POD_NM, '') AS POD_NM
+			 , CASE WHEN ISNULL(ETD_DT_TM, '') != '' THEN CONVERT(VARCHAR, CONVERT(DATETIME,CONVERT(CHAR(8),A.ETD_DT_TM),112), 110) ELSE '' END AS ETD_DT_TM
+			 , CASE WHEN ISNULL(ETA_DT_TM, '') != '' THEN CONVERT(VARCHAR, CONVERT(DATETIME,CONVERT(CHAR(8),A.ETA_DT_TM),112), 110) ELSE '' END AS ETA_DT_TM
+			 , ISNULL(A.TRNK_VSL_CD, '') AS TRNK_VSL_CD
+			 , ISNULL(A.TRNK_VSL_NM, '') AS TRNK_VSL_NM
+			 , CONVERT(VARCHAR, getdate(), 110) + ' ' + CONVERT(VARCHAR, getdate(), 108) AS SND_DATE
+			 , ISNULL(A.FLT_NO, '') AS FLT_NO
+			 , ISNULL(A.INTG_BL_SEQ, '') AS INTG_BL_SEQ
+			 <!-- #1059 [CLA, COMMON] ALERT/NOTIFICATION DEFINE #USER_NAME# -->
+			 , ISNULL((SELECT LOCL_USR_NM FROM TB_USR WHERE USRID = #usrid#), '') AS USER_NAME
+			 <!-- #2363 [Split - 1] [BINEX VISIBILITY] Costco TW Visibility 기능 요청 -->
+			 <isEqual property="attr_code" compareValue="RE">
+			 , CASE WHEN #usr_param# <![CDATA[ <= ]]> REPLACE(CONVERT(VARCHAR, DATEDIFF(DD, SUBSTRING(A.ETA_DT_TM, 1, 8), B.UDF_VAL)), '-', '')
+			   THEN (CASE WHEN CONVERT(DATETIME,CONVERT(CHAR(8),SUBSTRING(A.ETA_DT_TM, 1, 8))) <![CDATA[ < ]]> CONVERT(DATETIME,CONVERT(CHAR(8),SUBSTRING(REPLACE(B.UDF_VAL, '-',''),5, 8) + SUBSTRING(REPLACE(B.UDF_VAL, '-',''),1, 2) + SUBSTRING(REPLACE(B.UDF_VAL, '-',''),3, 2))) THEN 'N' ELSE 'Y' END) ELSE 'N' END  AS ETA_RETA_CHECK
+			 , CASE WHEN ISNULL(B.UDF_VAL, '') = '' THEN '' ELSE REPLACE(CONVERT(VARCHAR, DATEDIFF(DD, B.UDF_VAL, CONVERT(DATETIME, SUBSTRING(A.ETA_DT_TM, 1, 8)))), '-', '') END AS DIFF
+			 </isEqual>
+			 <isNotEqual property="attr_code" compareValue="RE">
+				 <isNotEqual property="attr_code" compareValue="ETA_DT_TM">
+				 , 'N' AS ETA_RETA_CHECK
+				 , '' AS DIFF
+				 </isNotEqual>
+				 <isEqual property="attr_code" compareValue="ETA_DT_TM">
+				 , CASE WHEN #usr_param# <![CDATA[ <= ]]> REPLACE(CONVERT(VARCHAR, DATEDIFF(DD, SUBSTRING(A.ETA_DT_TM, 1, 8), B.UDF_VAL)), '-', '')
+				   THEN (CASE WHEN CONVERT(DATETIME,CONVERT(CHAR(8),SUBSTRING(A.ETA_DT_TM, 1, 8))) <![CDATA[ < ]]> CONVERT(DATETIME,CONVERT(CHAR(8),SUBSTRING(REPLACE(B.UDF_VAL, '-',''),5, 8) + SUBSTRING(REPLACE(B.UDF_VAL, '-',''),1, 2) + SUBSTRING(REPLACE(B.UDF_VAL, '-',''),3, 2))) THEN 'N' ELSE 'Y' END) ELSE 'N' END  AS ETA_RETA_CHECK
+				 , CASE WHEN ISNULL(B.UDF_VAL, '') = '' THEN '' ELSE REPLACE(CONVERT(VARCHAR, DATEDIFF(DD, B.UDF_VAL, CONVERT(DATETIME, SUBSTRING(A.ETA_DT_TM, 1, 8)))), '-', '') END AS DIFF
+				 </isEqual>
+			 </isNotEqual>
+			 , ISNULL(B.UDF_VAL, '') AS RETA
+			 , ISNULL(A.PO_NO,'') AS PO_NO
+			 <!-- #2449 [OCEAN BLUE] ALERT/NOTIFICATION FINAL ETA CONTENT -->
+			 , CASE WHEN ISNULL(A.F_ETA_DT_TM, '') != '' THEN CONVERT(VARCHAR, CONVERT(DATETIME,CONVERT(CHAR(8),A.F_ETA_DT_TM),112), 110) ELSE '' END AS F_ETA
+			 FROM TB_INTG_BL A
+			 LEFT OUTER JOIN TB_BL_UDF B ON A.INTG_BL_SEQ = B.INTG_BL_SEQ AND B.UDF_CD = 'RE'
+			 WHERE A.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+			 <isEqual property="attr_code" compareValue="RE">
+			 AND ISNULL(B.UDF_VAL, '')  <![CDATA[ <> ]]> ''
+			 </isEqual>
+	</select>
+
+	<!-- Invoice의 변경후 항목을 가져온다.    -->
+	<select id="selectInvInfo" parameterClass="HashMap" resultClass="HashMap">
+		SELECT
+			  B.INV_NO AS INV_NO
+			, CONVERT(VARCHAR, getdate(), 110) + ' ' + CONVERT(VARCHAR, getdate(), 108) AS SND_DATE
+			, A.INV_ISS_FLG AS ISS_FLG
+			, CONVERT(VARCHAR, CONVERT(MONEY, A.INV_TTL_AMT), 1) AS TTL_AMT
+			, CONVERT(VARCHAR, CONVERT(MONEY, B.PAY_AMT ), 1)    AS PAY_AMT
+			, CASE WHEN ISNULL(B.INV_POST_DT, '') != '' THEN CONVERT(VARCHAR, CONVERT(DATETIME,CONVERT(CHAR(8),B.INV_POST_DT),112), 110) ELSE '' END AS POST_DT
+			, CASE WHEN ISNULL(B.INV_DUE_DT, '') != '' THEN CONVERT(VARCHAR, CONVERT(DATETIME,CONVERT(CHAR(8),B.INV_DUE_DT),112), 110) ELSE '' END AS DUE_DT
+			, (SELECT ORG_EML FROM TB_USR WHERE USRID = A.RGST_USRID) AS CREATOR_EML
+			<isNotEmpty property="bill_flg">
+			, (SELECT COUNT(*) FROM TB_TRDP WHERE TRDP_CD = A.TRDP_CD AND SLS_GP_CD = 'CH') AS CREDIT_HOLD
+			, (SELECT COUNT(*) FROM TB_TRDP WHERE TRDP_CD = A.TRDP_CD AND SLS_GP_CD = 'CO') AS COD
+			, (SELECT COUNT(*) FROM TB_TRDP WHERE TRDP_CD = A.TRDP_CD AND SLS_GP_CD = 'KO') AS KOINFO
+			<!-- #660 - [BINEX] CURRENT BALANCE, OVER LIMIT LOGIC (2017.01.12) -->
+			, (SELECT COUNT(*) FROM TB_TRDP TRDP WHERE TRDP_CD = A.TRDP_CD AND ISNULL(crd_lmt_amt ,0) > 0 AND
+			<!-- #1202 [BNX] Not over credit, but alert email sent out -->
+			  (ISNULL(crd_lmt_amt ,0) - ISNULL((SELECT SUM(CASE WHEN INV.SELL_BUY_TP_CD = 'C' THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END) AS CUR_LMT_AMT
+				       FROM TB_INV INV
+				       JOIN TB_INV_DTL IDT ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N' AND IDT.INV_APLY_CURR_CD = 'USD'
+				       WHERE 1=1
+				       AND INV.TRDP_CD = TRDP.TRDP_CD
+				       AND INV.SELL_BUY_TP_CD IN ('S','D','C')
+				       AND INV.DELT_FLG = 'N'),0)) <![CDATA[ <= ]]>  0 ) AS OVER_CREDIT
+			</isNotEmpty>
+			<isEmpty property="bill_flg">
+			, 0 AS CREDIT_HOLD
+			, 0 AS COD
+			, 0 AS KOINFO
+			, 0 AS OVER_CREDIT
+			</isEmpty>
+			<!-- #1059 [CLA, COMMON] ALERT/NOTIFICATION DEFINE #USER_NAME# -->
+			, (SELECT LOCL_USR_NM FROM TB_USR WHERE USRID = #usrid#) AS USER_NAME
+			, B.BUY_INV_NO AS BUY_INV_NO
+		FROM
+			TB_INV A
+		JOIN
+			TB_INV_DTL B
+		ON
+			A.INV_SEQ = B.INV_SEQ
+		WHERE 1 = 1
+		AND   A.INV_SEQ = #inv_seq#
+		<isNotEmpty property="inv_ttl_amt">
+			<![CDATA[ AND   A.INV_TTL_AMT >= #inv_ttl_amt# ]]>
+		</isNotEmpty>
+		<isNotEmpty property="over_day">
+			<![CDATA[ AND   ABS((DATEDIFF(day, CONVERT(VARCHAR, A.RGST_TMS, 112), B.INV_POST_DT))) >= #over_day#  ]]>
+		</isNotEmpty>
+	</select>
+	
+	<!-- Trdp의 변경후 항목을 가져온다.    -->
+	<select id="selectTrdpInfo" parameterClass="HashMap" resultClass="HashMap">
+		SELECT ISNULL(TP.TRDP_CD, '') AS TRDP_CD
+			 , ISNULL(TP.ENG_NM, '') AS ENG_NM
+			 , ISNULL(
+				CASE WHEN TP.CR_TERM_CD = 'A' THEN CONVERT(VARCHAR, TP.CR_TERM_DT) + ' days'
+					 WHEN TP.CR_TERM_CD = 'B' THEN 'end of Month'
+					 WHEN TP.CR_TERM_CD = 'C' THEN 'end of Next Month'
+					 ELSE CONVERT(VARCHAR, TP.CR_TERM_DT) + 'th of Next Month'
+				END
+				, '') AS PAY_TERM
+			<!-- #3198 [IMPEX] [개선] TP CODE UPDATE ALERT -->
+			 , CONVERT(VARCHAR, CONVERT(MONEY, ISNULL(TP.CRD_LMT_AMT, 0)), 1) AS CRD_LMT
+			 , CONVERT(VARCHAR, getdate(), 110) + ' ' + CONVERT(VARCHAR, getdate(), 108) AS SND_DATE
+			 , ISNULL((SELECT LOCL_USR_NM FROM TB_USR WHERE USRID = #usrid#), '') AS USER_NAME
+			 ,         ISNULL(LGL_ADDR, '')
+			  + ', ' + ISNULL(CITY_NM, '')
+			  + ', ' + ISNULL((SELECT STATE_ENG_NM FROM TB_STATE WHERE STATE_CD = TP.STATE_CD AND USE_FLG = 'Y' AND CNT_CD = TP.CNT_CD AND DELT_FLG = 'N'), '')
+			  + ', ' + ISNULL(REP_ZIP, '')
+			  + ', ' + ISNULL((SELECT ISNULL(CNT_ENG_NM, '') FROM TB_CNT WHERE CNT_CD = TP.CNT_CD AND USE_FLG = 'Y' AND DELT_FLG = 'N'), '')
+			  AS TRDP_ADDR
+			 FROM TB_TRDP TP
+			 WHERE TP.TRDP_CD = #trdp_cd#
+	</select>
+	
+	<!-- Notification 정보를 가져온다.    -->
+	<select id="selectNotificationInfo" parameterClass="HashMap" resultClass="com.clt.apps.common.dto.NotificationVO">
+		SELECT
+			  ALT.ALT_SEQ      AS ALT_SEQ
+			, ALT.ALT_NM       AS ALT_NM
+			, ALT.PHYS_ATTR_NM AS ATTR_CODE
+			, SUBSTRING(
+				(SELECT T1.OFC_CD + ','
+				 FROM  TB_ALT T1
+				 WHERE 1 = 1
+				 AND   T1.ALT_NM = ALT.ALT_NM
+				 AND   T1.PHYS_ETT_NM = ALT.PHYS_ETT_NM
+				 AND   T1.PHYS_ATTR_NM = ALT.PHYS_ATTR_NM
+				 AND   T1.DELT_FLG !='Y'
+				 AND   T1.USE_FLG = '1'
+				 AND   T1.ALT_TP = 'N'
+				 FOR XML PATH(''), ELEMENTS
+				), 1, 100
+			  ) AS OFC_CD
+			, SUBSTRING(
+				(SELECT T2.EML_TO + ','
+				 FROM TB_ALT T2
+				 WHERE 1 = 1
+				 AND   T2.ALT_NM = ALT.ALT_NM
+				 AND   T2.PHYS_ETT_NM = ALT.PHYS_ETT_NM
+				 AND   T2.PHYS_ATTR_NM = ALT.PHYS_ATTR_NM
+				 AND   T2.DELT_FLG !='Y'
+				 AND   T2.USE_FLG = '1'
+				 AND   T2.ALT_TP = 'N'
+				 FOR XML PATH(''), ELEMENTS
+				), 1, 100
+			  ) AS EMAIL
+			, CASE WHEN SUBSTRING(
+				(SELECT T3.EML_CC + ';'
+				 FROM TB_ALT T3
+				 WHERE 1 = 1
+				 AND   T3.ALT_NM = ALT.ALT_NM
+				 AND   T3.PHYS_ETT_NM = ALT.PHYS_ETT_NM
+				 AND   T3.PHYS_ATTR_NM = ALT.PHYS_ATTR_NM
+				 AND   T3.DELT_FLG !='Y'
+				 AND   T3.USE_FLG = '1'
+				 AND   T3.ALT_TP = 'N'
+				 FOR XML PATH(''), ELEMENTS
+				), 1, 100
+			  ) = ';' THEN '' ELSE SUBSTRING(
+				(SELECT T4.EML_CC + ';'
+				 FROM TB_ALT T4
+				 WHERE 1 = 1
+				 AND   T4.ALT_NM = ALT.ALT_NM
+				 AND   T4.PHYS_ETT_NM = ALT.PHYS_ETT_NM
+				 AND   T4.PHYS_ATTR_NM = ALT.PHYS_ATTR_NM
+				 AND   T4.DELT_FLG !='Y'
+				 AND   T4.USE_FLG = '1'
+				 AND   T4.ALT_TP = 'N'
+				 FOR XML PATH(''), ELEMENTS
+				), 1, 100
+			  ) END AS EML_CC
+			, FOM.FOM_TIT AS FOM_TIT
+			, FOM.FOM_CTNT AS FOM_CTNT
+			, (SELECT LOCL_USR_NM FROM TB_USR WHERE USRID = #usrid#) AS USR_NM
+			, (SELECT ORG_EML FROM TB_USR WHERE USRID = #usrid#) AS USR_EML
+			, (SELECT ORG_PHN FROM TB_USR WHERE USRID = #usrid#) AS USR_PHONE
+			, (SELECT EML_PASS FROM TB_USR WHERE USRID = #usrid#) AS USR_EML_PASS
+			, ALT.TRDP_CD
+			, ALT.TP_GRP
+			, ALT.USR_PARAM
+		FROM
+			TB_ALT ALT LEFT JOIN TB_ALT_FOM FOM 
+			ON ALT.ALT_SEQ = FOM.ALT_SEQ AND FOM.DELT_FLG != 'Y'   
+		WHERE 1 = 1
+			AND ALT.DELT_FLG !='Y'
+			AND ALT.USE_FLG = '1'
+			AND ALT.ALT_TP = 'N'
+			<isEqual property="air_see_class" compareValue="A">
+			AND UPPER (ALT.ALT_NM) LIKE '%' + UPPER( 'AIR' ) + '%'
+			</isEqual>
+			<isEqual property="air_see_class" compareValue="O">
+			AND UPPER (ALT.ALT_NM) NOT LIKE '%' + UPPER( 'AIR' ) + '%'
+			</isEqual>
+			<isNotNull property="noti_type">
+				<isEqual property="noti_type" compareValue="INVOICE">
+				AND ALT.PHYS_ETT_NM = 'TB_INV_DTL'
+				</isEqual>
+				<isEqual property="noti_type" compareValue="TRDP">
+				AND ALT.PHYS_ETT_NM = 'TB_TRDP'
+				</isEqual>
+				<isEqual property="noti_type" compareValue="BL">
+				AND ALT.PHYS_ETT_NM = 'TB_INTG_BL'
+				</isEqual>
+			</isNotNull>
+			<isNotNull property="attr_code">
+				AND ALT.PHYS_ATTR_NM = #attr_code#
+			</isNotNull>
+	</select>
+	
+	<insert id="insert_Mail_Info" parameterClass="com.clt.apps.common.dto.NotificationVO">
+		INSERT INTO COM_EML_SND_INFO(
+			  EML_SND_NO
+			, RD_SUB_SYS_CD
+			, BAT_FLG
+			, EML_TIT_NM
+			, EML_PROC_STS_CD
+			, SNDR_NM
+			, SNDR_EML
+			, TO_EML_CTNT
+			, SMTP_IP
+			, EML_DT
+			, EML_ERR_MSG
+			, DELT_FLG
+			, THD_ID
+			, CC_EML_CTNT
+			, BCC_EML_CTNT
+			, RPT_MRG_FLG
+			, RPT_MRG_FILE_NM
+			, RPT_SPLIT_CAPA
+			, RPT_SPLIT_QTY
+			, EML_SPLIT_CAPA
+			, CRE_USR_ID
+			, CRE_DT
+			, UPD_USR_ID
+			, UPD_DT
+			, APPL_SVR_NM
+			, SNDR_EML_PWD
+			, SNDR_SVR_NM
+		) VALUES (
+			  #mail_sndNo#
+			, 'EML'
+			, 'N'
+			, #mail_fom_tit#
+			, '1'
+			, #mail_snd_nm#
+			, #mail_snd_eml#
+			<isEmpty property="trdp_cd">
+				<isNotEmpty property="mail_to_eml">
+			 	, (SELECT B.PIC_EML + ';' FROM  TB_TRDP A
+			 		JOIN TB_TRDP_CNTC_PSON B
+			 		ON A.TRDP_CD = B.TRDP_CD
+					AND A.DELT_FLG = 'N' 
+					AND B.REP_FLG = 'Y'
+			 		WHERE 1 = 1 AND B.TRDP_CD IN (SELECT TRDP_CD FROM TB_BL_PRNR X WHERE 1 = 1 AND X.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) 
+			 	
+				 	<isNotEmpty property="mail_to_eml_in">
+					 	AND BL_TRDP_TP_CD IN 
+					 	(
+					 	<iterate property="mail_to_eml_in" conjunction=",">	
+							#mail_to_eml_in[]# 
+						</iterate>
+						)
+					</isNotEmpty>
+					)
+					<isNotEmpty property="tp_grp">
+					 AND A.TP_GRP LIKE '%' + #tp_grp# '%'
+					</isNotEmpty>
+				 	 AND ISNULL(B.PIC_EML, '') <![CDATA[ <> ]]> ''
+				 	 AND B.PIC_EML_FLG = 'Y' FOR XML path(''), elements)
+			 	</isNotEmpty>
+				<isNotEmpty property="mail_creator_eml">
+				, #mail_creator_eml#
+				</isNotEmpty>
+				<isNotEmpty property="mail_cc_to">
+				, (SELECT EML_CC FROM TB_ALT WHERE ALT_SEQ = #mail_cc_to#)
+				</isNotEmpty>
+			</isEmpty>
+			
+			<isNotEmpty property="trdp_cd">
+				, (SELECT B.PIC_EML + ';' FROM  TB_TRDP A
+					JOIN TB_TRDP_CNTC_PSON B 
+					ON A.TRDP_CD = B.TRDP_CD 
+					AND A.DELT_FLG = 'N' 
+					AND B.REP_FLG = 'Y'
+				
+				WHERE 1 = 1 AND B.TRDP_CD IN 
+				  (SELECT TRDP_CD FROM TB_BL_PRNR X WHERE 1 = 1 AND X.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD = #trdp_cd#)
+					<isNotEmpty property="tp_grp">
+					 AND UPPER(ISNULL(A.TP_GRP, '')) LIKE '%' + UPPER(#tp_grp#) + '%'
+					</isNotEmpty>
+				 	 AND ISNULL(B.PIC_EML, '') <![CDATA[ <> ]]> ''
+				 	 AND B.PIC_EML_FLG = 'Y' FOR XML path(''), elements)
+			</isNotEmpty>
+			
+			, #mail_smtpAddr#
+			, getdate()
+			, null
+			, 'N'
+			, #mail_sndNo#
+			, #mail_eml_cc#
+			, null
+			, null
+			, null
+			, null
+			, null
+			, null
+			, 'TestMail'
+			, getdate()
+			, 'TestMail'
+			, getdate()
+			,'ForwardingAgentTest'
+			, #mail_sndr_eml_pwd#
+			, (SELECT PRE_FIX FROM TB_SEQ WHERE SEQ_TYPE = 'LOCAL_DB_CD')
+		)
+	</insert>
+	
+	<insert id="insert_Mail_body" parameterClass="com.clt.apps.common.dto.NotificationVO">
+		INSERT INTO COM_EML_SND_CTNT(
+			  EML_SND_NO
+			, EML_CTNT
+			, CRE_USR_ID
+			, CRE_DT
+			, UPD_USR_ID
+			, UPD_DT
+		) VALUES (
+			  #mail_sndNo#
+			, <![CDATA[ '<TextBodyPart>' + #mail_fom_ctnt# + '</TextBodyPart>' ]]>
+			, 'TestMail'
+			, getdate()
+			, 'TestMail'
+			, getdate()
+		)
+	</insert>
+	
+	<update id="updateLastSendDt" parameterClass="com.clt.apps.common.dto.NotificationVO">
+		UPDATE TB_ALT
+		SET LAST_SND_TM = getdate()
+		WHERE 1 = 1
+		AND ALT_SEQ = #alt_seq#
+	</update>
+</sqlMap>

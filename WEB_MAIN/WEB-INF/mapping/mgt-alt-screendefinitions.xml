@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+   
+    <screen name="MGT_ALT_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/alt/alertmgt/jsp/MGT_ALT_0010.jsp"/>
+    </screen>
+    
+    <screen name="MGT_ITF_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/alt/alertmgt/jsp/MGT_ITF_0010.jsp"/>
+    </screen>
+    <screen name="MGT_ITF_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/alt/alertmgt/jsp/MGT_ITF_0010GS.jsp"/>
+    </screen>
+    <screen name="MGT_ITF_0010_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/alt/alertmgt/jsp/MGT_ITF_0010_2GS.jsp"/>
+    </screen>
+    
+    <screen name="MGT_ITF_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/alt/alertmgt/jsp/MGT_ITF_0020.jsp"/>
+    </screen>
+    <screen name="MGT_ITF_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/alt/alertmgt/jsp/MGT_ITF_0020GS.jsp"/>
+    </screen>
+    
+    <screen name="MGT_ALT_0011GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/alt/alertmgt/jsp/MGT_ALT_0011GS.jsp"/>
+    </screen>
+    
+    <screen name="MGT_ALT_0012GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/alt/alertmgt/jsp/MGT_ALT_0012GS.jsp"/>
+    </screen>  
+    
+	<screen name="MGT_POP_0010" template="templatePop">
+		<parameter key="title" value="FIS" direct="true"/>
+		<parameter key="body"  value="/apps/fis/mgt/alt/alertmgt/jsp/MGT_POP_0010.jsp" />
+	</screen>
+</screen-definitions>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.cyberlogictec.com/fw/mappings" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.cyberlogictec.com/fw/mappings" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xsd:element name="mappings" type="mappings-type"/>
+	<xsd:complexType name="mappings-type">
+		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+			<xsd:element name="url-mapping">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="web-action-class" type="xsd:string" minOccurs="0"/>
+						<xsd:element name="flow-handler" minOccurs="0">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="handler-result" maxOccurs="unbounded">
+										<xsd:complexType>
+											<xsd:attribute name="result" type="xsd:string" use="required"/>
+											<xsd:attribute name="screen" type="xsd:string" use="required"/>
+										</xsd:complexType>
+									</xsd:element>
+								</xsd:sequence>
+								<xsd:attribute name="class" type="xsd:string" use="required"/>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+					<xsd:attribute name="url" type="xsd:string" use="required"/>
+					<xsd:attribute name="screen" type="xsd:string"/>
+					<xsd:attribute name="isAction" type="xsd:boolean"/>
+					<xsd:attribute name="useFlowHandler" type="xsd:boolean"/>
+					<xsd:attribute name="isTransaction" type="xsd:boolean"/>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="event-mapping">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="event-class" type="xsd:string"/>
+						<xsd:element name="service-action-class" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="default-screen" type="xsd:string"/>
+			<xsd:element name="exception-mapping">
+				<xsd:complexType>
+					<xsd:attribute name="exception-class" type="xsd:string" use="required"/>
+					<xsd:attribute name="screen" type="xsd:string" use="required"/>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:choice>
+	</xsd:complexType>
+</xsd:schema>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!-- EDI AWB -->
+    <url-mapping url="EDI_AWB_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.awb.event.EDI_AWB_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_AWB_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- MAWB 데이터 조회   -->
+    <url-mapping url="EDI_AWB_0010GS.clt" screen="EDI_AWB_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.awb.event.EDI_AWB_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- HAWB 데이터 조회   -->
+    <url-mapping url="EDI_AWB_0011GS.clt" screen="EDI_AWB_0011GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.awb.event.EDI_AWB_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- History 조회 -->
+    <url-mapping url="EDI_AWB_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.awb.event.EDI_AWB_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_AWB_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EDI_AWB_0020GS.clt" screen="EDI_AWB_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.awb.event.EDI_AWB_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- AWB Event와 SC Mapping함   -->
+    <event-mapping>
+        <event-class>com.clt.apps.fis.edi.awb.event.EdiAwbEvent</event-class>
+        <service-action-class>com.clt.apps.fis.edi.awb.EdiAwbSC</service-action-class>
+    </event-mapping>
+    
+</mappings>

@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="whm.warehouse.entry">
+	<typeAlias alias="WhEtrVO" 	type="com.clt.apps.fis.whm.warehouse.entry.dto.WhEtrVO"/>
+	<typeAlias alias="WhEtrWhVO" 	type="com.clt.apps.fis.whm.warehouse.entry.dto.WhEtrWhVO"/>
+	<typeAlias alias="WhEtrCntcPsonVO" 	type="com.clt.apps.fis.whm.warehouse.entry.dto.WhEtrCntcPsonVO"/>
+	<typeAlias alias="WhEtrLocVO" 	type="com.clt.apps.fis.whm.warehouse.entry.dto.WhEtrLocVO"/>
+	<typeAlias alias="HashMap" 	type="java.util.HashMap"/>
+	
+	<select id="selectCOM_CD_DTL_LIST" resultClass="com.clt.apps.common.dto.ComcddtlVO" parameterClass="java.util.HashMap">
+	 	 /*  WhmWarehouseEntrySQL.xml > selectCOM_CD_DTL_LIST */
+	 	 
+          SELECT  com_cd,      CD_VAL,   CD_NM
+          FROM  TB_COM_CD_DTL
+	   	 WHERE  delt_flg = 'N' and use_flg = 'Y' 
+	   	 <isNotEmpty property="PARAM1">
+	       AND com_cd = #PARAM1#
+       	</isNotEmpty>
+       	ORDER By SRT_SEQ
+    </select>	
+	
+	<select id = "searchWarehouseRSQL" parameterClass="HashMap" resultClass="WhEtrWhVO">
+		/* WhmWarehouseEntrySQL.xml > searchWarehouseRSQL */
+			SELECT 
+					WH_CD,
+				    WH_NM,
+				    WH_ALS_NM,
+				    WH_ADDR,
+				    WH_CTY_NM,
+				    WH_STE_CD,
+				    WH_ZIP_CD,
+				    WH_PHN_NO,
+				    WH_FAX_NO,
+				    WH_RMK,
+				    USE_FLG
+			FROM WHM_WH
+			WHERE 1=1
+				AND WH_CD = UPPER(#wh_cd#)
+	</select>
+	
+	<select id = "searchContactPersonRSQL" parameterClass="HashMap" resultClass="WhEtrCntcPsonVO">
+		/* WhmWarehouseEntrySQL.xml > searchContactPersonRSQL */
+			SELECT
+				CNTC_PSON_SEQ,
+			    CNTC_PSON_NM,
+			    CNTC_PSON_EML_ADDR,
+			    CNTC_PSON_PHN_NO,
+			    CNTC_PSON_FAX_NO,
+			    CNTC_PSON_RMK,
+			    RCV_EML_FLG,
+			    REP_FLG
+			FROM WHM_CNTC_PSON
+			WHERE 1=1
+				AND WH_CD = UPPER(#wh_cd#)
+				AND ISNULL(DELT_FLG,'N') = 'N'
+	</select>
+	
+	<select id="getMaxLocIdRSQL"  resultClass="String">
+	/** WhmWarehouseEntrySQL.xml > getMaxLocIdRSQL*/
+	  SELECT 
+	  	'LC' + right(replicate('0',3) + CONVERT(VARCHAR(10),ISNULL(MAX(SUBSTRING (LOC_ID,3,4)),0)+1),4)
+	  FROM WHM_LOC
+	  WHERE LOC_ID LIKE 'LC%'
+    </select>
+	
+	<select id = "searchLocationRSQL" parameterClass="HashMap" resultClass="WhEtrLocVO">
+		/* WhmWarehouseEntrySQL.xml > searchLocationRSQL */
+			SELECT 
+				LOC_ID,
+			    LOC_CD,
+			    ISNULL(LOC_LINE_NO,0) AS LOC_LINE_NO,
+			    ISNULL(LOC_ROW_NO,0) AS LOC_ROW_NO,
+			    ISNULL(LOC_FLR_NO,0) AS LOC_FLR_NO,
+			    LOC_TP_CD,
+			    LOC_SPC_TP_CD,
+			    ISNULL(LOC_MAX_VOL,0) AS LOC_MAX_VOL,
+			    ISNULL(LOC_MAX_VOL_CFT,0) AS LOC_MAX_VOL_FT,
+			    ISNULL(LOC_MAX_WGT,0) AS LOC_MAX_WGT,
+			    ISNULL(LOC_MAX_WGT_LBS,0) AS LOC_MAX_LBS,
+			    USE_FLG,
+			    LOC_RMK
+			FROM WHM_LOC
+			WHERE 1=1
+				AND WH_CD = #wh_cd#
+				AND LOC_CD NOT IN ('DUMMY')
+	</select>
+	
+	<insert id="saveWarehouseCSQL" parameterClass="WhEtrWhVO">
+	/* WhmWarehouseEntrySQL.xml > saveWarehouseCSQL */
+		INSERT
+		INTO WHM_WH
+		  (
+		    WH_CD,
+		    WH_NM,
+		    WH_ALS_NM,
+		    WH_ADDR,
+		    WH_CTY_NM,
+		    WH_STE_CD,
+		    WH_ZIP_CD,
+		    WH_PHN_NO,
+		    WH_FAX_NO,
+		    WH_RMK,
+		    USE_FLG,
+		    CRE_DT,
+		    CRE_USR_ID,
+		    UPD_DT,
+		    UPD_USR_ID
+		  )
+		  VALUES
+		  (
+		   UPPER(#wh_cd#),
+		    UPPER(#wh_nm#),
+		    UPPER(#wh_als_nm#),
+		    #wh_addr#,
+		    #wh_cty_nm#,
+		    UPPER(#wh_ste_cd#),
+		    #wh_zip_cd#,
+		    #wh_phn_no#,
+		    #wh_fax_no#,
+		    #wh_rmk#,
+		    #use_flg#,
+		    GETDATE(),
+		    #cre_usr_id#,
+		  	GETDATE(),
+		    #upd_usr_id#
+		  )		
+	</insert>
+	
+	<insert id="saveContactPersonCSQL" parameterClass="WhEtrCntcPsonVO">
+	/* WhmWarehouseEntrySQL.xml > saveContactPersonCSQL */
+		INSERT
+		INTO WHM_CNTC_PSON
+		  (
+		    WH_CD,
+			CNTC_PSON_SEQ,
+		    CNTC_PSON_NM,
+		    CNTC_PSON_EML_ADDR,
+		    CNTC_PSON_PHN_NO,
+		    CNTC_PSON_FAX_NO,
+		    CNTC_PSON_RMK,
+		    RCV_EML_FLG,
+		    REP_FLG,
+		    DELT_FLG,
+		    CRE_DT,
+		    CRE_USR_ID,
+		    UPD_DT,
+		    UPD_USR_ID
+		  )
+		  VALUES
+		  (
+		   UPPER(#wh_cd#),
+			(SELECT  isnull(max(CNTC_PSON_SEQ),0)+1 from WHM_CNTC_PSON
+				where WH_CD = UPPER(#wh_cd#)),
+		    #cntc_pson_nm#,
+		    #cntc_pson_eml_addr#,
+		    #cntc_pson_phn_no#,
+		    #cntc_pson_fax_no#,
+		    #cntc_pson_rmk#,
+		    #rcv_eml_flg#,
+		    #rep_flg#,
+		    #delt_flg#,
+		   	GETDATE(),
+		    #cre_usr_id#,
+		    GETDATE(),
+		    #upd_usr_id#
+		  )
+	</insert>
+	
+	<select id="CheckLocationCode" resultClass="String" parameterClass="HashMap">
+		/* WhmWarehouseEntrySQL.xml > CheckLocationCode */
+		SELECT COUNT(*) 
+		FROM WHM_LOC 
+		WHERE WH_CD=#wh_cd# 
+			AND LOC_CD=#loc_cd#
+			<isNotEmpty property="loc_id">
+			AND LOC_ID not in (#loc_id#)
+			</isNotEmpty>
+	</select>
+	
+	<select id="CheckLocationInUse" resultClass="String" parameterClass="HashMap">
+		/* WhmWarehouseEntrySQL.xml > CheckLocationInUse */
+		SELECT(
+			(
+				SELECT COUNT(*)
+				FROM WHM_ITM_INVT
+				WHERE LOC_ID = #loc_id#
+			)
+			+
+			(
+				SELECT COUNT(*)
+				FROM WHM_RCV_SHP_ITM
+				
+				WHERE ITM_LOC_ID = #loc_id#
+			)
+		) as RES
+	</select>
+	
+	<select id="CheckLineRowFloor" resultClass="String" parameterClass="HashMap">
+		/* WhmWarehouseEntrySQL.xml > CheckLineRowFloor */
+		select count(*)
+  		 from WHM_LOC 
+  		 where wh_cd = #wh_cd#
+      		and LOC_LINE_NO = #loc_line_no#
+      		and LOC_ROW_NO = #loc_row_no#
+      		and LOC_FLR_NO = #loc_flr_no#
+      		<isNotEmpty property="loc_id">
+      		and LOC_ID not in ( #loc_id# )
+      		</isNotEmpty>
+      		
+	</select>
+	
+	<insert id="saveLocationCSQL" parameterClass="WhEtrLocVO">
+	/* WhmWarehouseEntrySQL.xml > saveLocationCSQL */
+		INSERT
+		INTO WHM_LOC
+		  (
+		    WH_CD,
+		    LOC_ID,
+		    LOC_CD,
+		    LOC_LINE_NO,
+		    LOC_ROW_NO,
+		    LOC_FLR_NO,
+		    LOC_TP_CD,
+		    LOC_SPC_TP_CD,
+		    LOC_MAX_VOL,
+		    LOC_MAX_VOL_CFT,
+		    LOC_MAX_WGT,		    
+			LOC_MAX_WGT_LBS,		    
+		    USE_FLG,
+		    LOC_RMK,
+		    CRE_DT,
+		    CRE_USR_ID,
+		    UPD_DT,
+		    UPD_USR_ID
+		  )
+		  VALUES
+		  (		   
+			UPPER(#wh_cd#),
+			#loc_id#,
+		    #loc_cd#,
+		    #loc_line_no#,
+		    #loc_row_no#,
+		    #loc_flr_no#,
+		    #loc_tp_cd#,
+		    #loc_spc_tp_cd#,
+		    #loc_max_vol#,
+		    #loc_max_vol_ft#,
+		    #loc_max_wgt#,
+		    #loc_max_lbs#,
+		    #use_flg#,
+		    #loc_rmk#,
+		    GETDATE(),
+		    #cre_usr_id#,
+		    GETDATE(),
+		    #upd_usr_id#
+		  )
+
+	</insert>
+	
+	 <update id="saveWarehouseUSQL" parameterClass="WhEtrWhVO">
+	 /* WhmWarehouseEntrySQL.xml > saveWarehouseUSQL */
+    	UPDATE WHM_WH
+		SET WH_NM    = UPPER(#wh_nm#),
+		  WH_ALS_NM  = UPPER(#wh_als_nm#),
+		  WH_ADDR    = #wh_addr#,
+		  WH_CTY_NM  = #wh_cty_nm#,
+		  WH_STE_CD  = UPPER(#wh_ste_cd#),
+		  WH_ZIP_CD  = #wh_zip_cd#,
+		  WH_PHN_NO  = #wh_phn_no#,
+		  WH_FAX_NO  = #wh_fax_no#,
+		  WH_RMK     = #wh_rmk#,
+		  USE_FLG	 = #use_flg#,
+		  UPD_DT     = GETDATE(),
+		  UPD_USR_ID = #upd_usr_id#
+		WHERE WH_CD  = #wh_cd#
+    </update>
+    
+    <update id="saveContactPersonUSQL" parameterClass="WhEtrCntcPsonVO">
+	 /* WhmWarehouseEntrySQL.xml > saveContactPersonUSQL */
+    	UPDATE WHM_CNTC_PSON
+		SET 
+		  CNTC_PSON_NM = #cntc_pson_nm#,
+		  CNTC_PSON_EML_ADDR = #cntc_pson_eml_addr#,
+		  CNTC_PSON_PHN_NO = #cntc_pson_phn_no#,
+		  CNTC_PSON_FAX_NO = #cntc_pson_fax_no#,
+		  CNTC_PSON_RMK = #cntc_pson_rmk#,
+		  RCV_EML_FLG = #rcv_eml_flg#,
+		  REP_FLG = #rep_flg#,
+		  DELT_FLG = #delt_flg#,
+		  UPD_DT     = GETDATE(),
+		  UPD_USR_ID = #upd_usr_id#
+		WHERE CNTC_PSON_SEQ  = #cntc_pson_seq#
+			AND WH_CD = #wh_cd#
+    </update>
+    
+    <update id="saveLocationUSQL" parameterClass="WhEtrLocVO">
+	 /* WhmWarehouseEntrySQL.xml > saveLocationUSQL */
+    	UPDATE WHM_LOC
+		SET LOC_CD        =#loc_cd#,
+		  LOC_LINE_NO     =#loc_line_no#,
+		  LOC_ROW_NO      =#loc_row_no#,
+		  LOC_FLR_NO      =#loc_flr_no#,
+		  LOC_TP_CD       =#loc_tp_cd#,
+		  LOC_SPC_TP_CD   =#loc_spc_tp_cd#,
+		  LOC_MAX_VOL 	  =#loc_max_vol#,
+		  LOC_MAX_VOL_CFT =#loc_max_vol_ft#,			
+		  LOC_MAX_WGT  	  =#loc_max_wgt#,
+		  LOC_MAX_WGT_LBS =#loc_max_lbs#,
+		  USE_FLG    	  =#use_flg#,
+		  LOC_RMK		  =#loc_rmk#,
+		  UPD_DT          = GETDATE(),
+		  UPD_USR_ID      = #upd_usr_id#
+		WHERE LOC_ID      = #loc_id#
+    </update>
+    
+    <update id="saveLocationDSQL" parameterClass="WhEtrLocVO">
+    	 /* WhmWarehouseEntrySQL.xml > saveLocationDSQL */
+		DELETE 
+			FROM WHM_LOC 
+		WHERE LOC_ID = #loc_id#
+    </update>
+    
+    <update id="saveContactPersonDSQL" parameterClass="WhEtrCntcPsonVO">
+    	 /* WhmWarehouseEntrySQL.xml > saveContactPersonDSQL */
+		UPDATE WHM_CNTC_PSON
+		SET 
+		  DELT_FLG = 'Y'
+		WHERE CNTC_PSON_SEQ = #cntc_pson_seq#
+			AND WH_CD = #wh_cd#
+    </update>
+    
+    
+    
+    <select id = "searchWarehouseRSQL1" parameterClass="HashMap" resultClass="WhEtrWhVO">
+		/* WhmWarehouseEntrySQL.xml > searchWarehouseRSQL1 */
+			SELECT 
+					WH_CD,
+				    WH_NM,
+				    WH_ALS_NM,
+				    WH_ADDR,
+				    WH_CTY_NM,
+				    WH_STE_CD,
+				    WH_ZIP_CD,
+				    WH_PHN_NO,
+				    WH_FAX_NO,
+				    WH_RMK,
+				    WH_OFC_CD,
+				    USE_FLG,
+				    INCL_OB_DT_FLG
+			FROM TL_WH
+			WHERE 1=1
+				AND WH_CD = UPPER(#wh_cd#)
+	</select>
+	
+	<select id = "searchContactPersonRSQL1" parameterClass="HashMap" resultClass="WhEtrCntcPsonVO">
+		/* WhmWarehouseEntrySQL.xml > searchContactPersonRSQL1 */
+			SELECT
+				CNTC_PSON_SEQ,
+			    CNTC_PSON_NM,
+			    CNTC_PSON_EML_ADDR,
+			    CNTC_PSON_PHN_NO,
+			    CNTC_PSON_FAX_NO,
+			    CNTC_PSON_RMK,
+			    ISNULL(RCV_EML_FLG,'N') AS RCV_EML_FLG,
+			    ISNULL(REP_FLG,'N') AS REP_FLG
+			FROM TL_WH_CNTC_PSON
+			WHERE 1=1
+				AND WH_CD = UPPER(#wh_cd#)
+				AND ISNULL(DELT_FLG,'N') = 'N'
+	</select>
+	
+	<insert id="saveWarehouseCSQL1" parameterClass="WhEtrWhVO">
+	/* WhmWarehouseEntrySQL.xml > saveWarehouseCSQL1 */
+		INSERT
+		INTO TL_WH
+		  (
+		    WH_CD,
+		    WH_NM,
+		    WH_ALS_NM,
+		    WH_ADDR,
+		    WH_CTY_NM,
+		    WH_STE_CD,
+		    WH_ZIP_CD,
+		    WH_PHN_NO,
+		    WH_FAX_NO,
+		    WH_RMK,
+		    WH_OFC_CD,
+		    USE_FLG,
+		    CRE_DT,
+		    CRE_USR_ID,
+		    UPD_DT,
+		    UPD_USR_ID,
+		    INCL_OB_DT_FLG
+		  )
+		  VALUES
+		  (
+		   UPPER(#wh_cd#),
+		    UPPER(#wh_nm#),
+		    UPPER(#wh_als_nm#),
+		    #wh_addr#,
+		    #wh_cty_nm#,
+		    UPPER(#wh_ste_cd#),
+		    #wh_zip_cd#,
+		    #wh_phn_no#,
+		    #wh_fax_no#,
+		    #wh_rmk#,
+		    #wh_ofc_cd#,
+		    #use_flg#,
+		    GETDATE(),
+		    #cre_usr_id#,
+		  	GETDATE(),
+		    #upd_usr_id#,
+		    #incl_ob_dt_flg#
+		  )		
+	</insert>
+	
+	<update id="saveWarehouseUSQL1" parameterClass="WhEtrWhVO">
+	 /* WhmWarehouseEntrySQL.xml > saveWarehouseUSQL1 */
+    	UPDATE TL_WH
+		SET WH_NM    = UPPER(#wh_nm#),
+		  WH_ALS_NM  = UPPER(#wh_als_nm#),
+		  WH_ADDR    = #wh_addr#,
+		  WH_CTY_NM  = #wh_cty_nm#,
+		  WH_STE_CD  = UPPER(#wh_ste_cd#),
+		  WH_ZIP_CD  = #wh_zip_cd#,
+		  WH_PHN_NO  = #wh_phn_no#,
+		  WH_FAX_NO  = #wh_fax_no#,
+		  WH_RMK     = #wh_rmk#,
+		  WH_OFC_CD  = #wh_ofc_cd#,
+		  USE_FLG	 = #use_flg#,
+		  UPD_DT     = GETDATE(),
+		  UPD_USR_ID = #upd_usr_id#,
+		  INCL_OB_DT_FLG = #incl_ob_dt_flg#
+		WHERE WH_CD  = #wh_cd#
+    </update>
+    
+    <insert id="saveContactPersonCSQL1" parameterClass="WhEtrCntcPsonVO">
+	/* WhmWarehouseEntrySQL.xml > saveContactPersonCSQL1 */
+		INSERT
+		INTO TL_WH_CNTC_PSON
+		  (
+		    WH_CD,
+			CNTC_PSON_SEQ,
+		    CNTC_PSON_NM,
+		    CNTC_PSON_EML_ADDR,
+		    CNTC_PSON_PHN_NO,
+		    CNTC_PSON_FAX_NO,
+		    CNTC_PSON_RMK,
+		    RCV_EML_FLG,
+		    REP_FLG,
+		    DELT_FLG,
+		    CRE_DT,
+		    CRE_USR_ID,
+		    UPD_DT,
+		    UPD_USR_ID
+		  )
+		  VALUES
+		  (
+		   UPPER(#wh_cd#),
+			(SELECT  isnull(max(CNTC_PSON_SEQ),0)+1 from TL_WH_CNTC_PSON
+				where WH_CD = UPPER(#wh_cd#)),
+		    #cntc_pson_nm#,
+		    #cntc_pson_eml_addr#,
+		    #cntc_pson_phn_no#,
+		    #cntc_pson_fax_no#,
+		    #cntc_pson_rmk#,
+		    #rcv_eml_flg#,
+		    #rep_flg#,
+		    #delt_flg#,
+		   	GETDATE(),
+		    #cre_usr_id#,
+		    GETDATE(),
+		    #upd_usr_id#
+		  )
+	</insert>
+	
+	<update id="saveContactPersonUSQL1" parameterClass="WhEtrCntcPsonVO">
+	 /* WhmWarehouseEntrySQL.xml > saveContactPersonUSQL */
+    	UPDATE TL_WH_CNTC_PSON
+		SET 
+		  CNTC_PSON_NM = #cntc_pson_nm#,
+		  CNTC_PSON_EML_ADDR = #cntc_pson_eml_addr#,
+		  CNTC_PSON_PHN_NO = #cntc_pson_phn_no#,
+		  CNTC_PSON_FAX_NO = #cntc_pson_fax_no#,
+		  CNTC_PSON_RMK = #cntc_pson_rmk#,
+		  RCV_EML_FLG = #rcv_eml_flg#,
+		  REP_FLG = #rep_flg#,
+		  DELT_FLG = #delt_flg#,
+		  UPD_DT     = GETDATE(),
+		  UPD_USR_ID = #upd_usr_id#
+		WHERE CNTC_PSON_SEQ  = #cntc_pson_seq#
+			AND WH_CD = #wh_cd#
+    </update>
+    
+    <update id="saveContactPersonDSQL1" parameterClass="WhEtrCntcPsonVO">
+    	 /* WhmWarehouseEntrySQL.xml > saveContactPersonDSQL */
+		UPDATE TL_WH_CNTC_PSON
+		SET 
+		  DELT_FLG = 'Y'
+		WHERE CNTC_PSON_SEQ = #cntc_pson_seq#
+			AND WH_CD = #wh_cd#
+    </update>
+    
+    <insert id="defaultQC_Location_Create" parameterClass="WhEtrWhVO">
+	/* WhmWarehouseEntrySQL.xml > defaultQC_Location_Create */
+		INSERT INTO TL_WH_LOC
+		  (
+		    LOC_CD, WH_LOC_CD, WH_LOC_NM, ZONE_CD, LOC_LINE, 
+		    LOC_ROW, LOC_FLOOR, SPACE_TP_CD, PUT_TP_CD, PROP_CD, 
+		    ABC_CD, MAX_CBM, MAX_KGS, WIDTH, LENGTH, 
+		    HEIGHT, USE_FLG, RMK, RGST_ID, RGST_SYS_DT, 
+		    MODI_ID, MODI_SYS_DT 
+		  )
+		  VALUES
+		  (
+		  	UPPER(#wh_cd#), 'QC010101', 'QC', 'QC', 1, 
+		  	1, 1, 'N', 'N', 'NON', 
+		  	'A', 0, 0, 0, 0, 
+		  	0, 'Y', 'System Code', #upd_usr_id#, GETDATE(), 
+		  	#upd_usr_id#, GETDATE()   
+		  )
+	</insert>
+	<insert id="defaultQC_Zone_Create" parameterClass="WhEtrWhVO">
+	/* WhmWarehouseEntrySQL.xml > defaultQC_Zone_Create */
+		INSERT INTO TL_WH_ZONE
+		  (
+		    LOC_CD, ZONE_CD, SPACE_TP_CD, PUT_TP_CD, ABC_CD,   
+		    USE_FLG, RMK, RGST_ID, RGST_SYS_DT, MODI_ID, MODO_SYS_DT
+		  )
+		  VALUES
+		  (
+		  	UPPER(#wh_cd#), 'QC', 'N', 'N', 'A', 
+		  	'Y', 'System Code', #upd_usr_id#, GETDATE(), #upd_usr_id#, GETDATE()
+		  )
+	</insert>
+	
+	<insert id="updatewarehouseinfo" parameterClass="WhEtrWhVO">
+	/* WhmWarehouseEntrySQL.xml > updatewarehouseinfo */
+		
+		  INSERT INTO TB_SEQ (SEQ_TYPE, PRE_FIX, SEQ) VALUES ('WH_CD', UPPER(#wh_cd#), 1)
+	</insert>
+	
+	<insert id="insertDefaultValueProp" parameterClass="HashMap">
+	/* WhmWarehouseEntrySQL.xml > insertDefaultValueProp */
+		
+		  INSERT INTO TL_WH_PROP (
+				LOC_CD,
+				PROP_CD,
+				PUTAWAY_FLG,
+				ALLOC_FLG,
+				MOVE_FLG,
+				REPLENISH_FLG,
+				ADJUST_FLG,
+				USE_FLG,
+				RMK,
+				RGST_ID,
+				RGST_SYS_DT,
+				MODI_ID,
+				MODI_SYS_DT
+			)
+			VALUES
+			(
+				#wh_cd# 
+				,#prop_cd#
+				,'Y'
+				,'Y'
+				,'Y'
+				,'Y'
+				,'Y'
+				,'Y' 
+				,'' 
+				,#cre_usr_id#
+				,GETDATE()
+				,''
+				,GETDATE()
+			)
+	</insert>
+</sqlMap>

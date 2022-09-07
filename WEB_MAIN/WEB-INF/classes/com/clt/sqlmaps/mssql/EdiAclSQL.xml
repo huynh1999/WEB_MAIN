@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="edi.acl">
+
+	<typeAlias alias="EdiAclVO"  			type="com.clt.apps.fis.edi.acl.dto.EdiAclVO"/>
+	<typeAlias alias="EdiAclCntrVO"  		type="com.clt.apps.fis.edi.acl.dto.EdiAclCntrVO"/>
+	<typeAlias alias="EdiAclMkVO"  			type="com.clt.apps.fis.edi.acl.dto.EdiAclMkVO"/>
+	<typeAlias alias="EdiAclGdsVO"  		type="com.clt.apps.fis.edi.acl.dto.EdiAclGdsVO"/>
+	
+	<select id="selectEdiAclList" parameterClass="HashMap" resultClass="EdiAclVO">
+		/*	EdiAclSQL.xml -> selectAciList */
+    	SELECT  msg_no
+    			,hdr_desc
+				,rgst_dt+rgst_tm as rgst_dt
+				,rgst_tm
+				,acl_rgst_id
+				,crr_nm
+				,shpr_cd
+				,shpr_nm
+				,shpr_addr
+				,cnee_cd
+				,cnee_nm
+				,cnee_addr
+				,ntfy_cd
+				,ntfy_nm
+				,ntfy_addr
+				,crr_cd
+				,bkg_no+bkg_seq as bkg_no
+				,bkg_seq
+				,ttl_trns_knt
+				,mbl_no
+				,fwd_cd
+				,fwd_nm
+				,bil_iden_cd
+				,rcv_doc_iden_cd
+				,frt_arng_cd
+				,inter_ref_no
+				,por_cd
+				,cnee_svc_tp_nm
+				,por_nm
+				,cnee_svc_tp_cd
+				,vsl_load_cd
+				,vsl_load_nm
+				,voy_no
+				,pol_cd
+				,pol_nm
+				,pod_cd
+				,pod_nm
+				,del_cd
+				,del_svc_tp_nm
+				,del_nm
+				,del_svc_tp_cd
+				,fnal_dest_cd
+				,fnal_dest_nm
+				,cntr_knt
+				,ttl_pkg_knt
+				,ttl_pkg_sts_cd
+				,ttl_pkg_sts_nm
+				,rep_hs_cd
+				,ttl_grs_wgt
+				,ttl_grs_wgt_ut_cd
+				,convert(varchar(20),ttl_grs_wgt)+' '+ttl_grs_wgt_ut_cd as ttl_wgt
+				,ttl_net_wgt
+				,ttl_net_wgt_ut_cd
+				,ttl_grs_meas
+				,ttl_grs_meas_ut_cd
+				,convert(varchar(20),ttl_grs_meas)+' '+ttl_grs_meas_ut_cd as ttl_meas
+				,ttl_net_meas
+				,ttl_net_meas_ut_cd
+				,CASE WHEN ISNULL((SELECT  top 1 MK_NO FROM  tb_edi_acl_mk where bkg_no=acl.bkg_no and bkg_seq=acl.bkg_seq order by rgst_dt,rgst_tm desc),'') = '' 
+				      THEN acl.mk_no
+					  ELSE (SELECT  top 1 MK_NO FROM  tb_edi_acl_mk where bkg_no=acl.bkg_no and bkg_seq=acl.bkg_seq order by rgst_dt,rgst_tm desc)
+                 END as mk_no
+				,CASE WHEN ISNULL((SELECT  top 1 MK_NO FROM  tb_edi_acl_mk where bkg_no=acl.bkg_no and bkg_seq=acl.bkg_seq order by rgst_dt,rgst_tm desc),'') = '' 
+				      THEN 'N'
+					  ELSE 'Y'
+                 END as mk_flg
+				,CASE WHEN ISNULL((SELECT  top 1 GDS_DESC FROM  tb_edi_acl_gds where bkg_no=acl.bkg_no and bkg_seq=acl.bkg_seq order by rgst_dt,rgst_tm desc),'') = '' 
+				      THEN acl.gds_desc
+					  ELSE (SELECT  top 1 GDS_DESC FROM  tb_edi_acl_gds where bkg_no=acl.bkg_no and bkg_seq=acl.bkg_seq order by rgst_dt,rgst_tm desc)
+                 END as gds_desc
+				,CASE WHEN ISNULL((SELECT  top 1 GDS_DESC FROM  tb_edi_acl_gds where bkg_no=acl.bkg_no and bkg_seq=acl.bkg_seq order by rgst_dt,rgst_tm desc),'') = '' 
+				      THEN 'N'
+					  ELSE 'Y'
+                 END as gds_flg
+				,hs_cd
+				,pkg_knt
+				,pck_sts_cd
+				,pck_sts_nm
+				,grs_wgt
+				,grs_wgt_ut_cd
+				,net_wgt
+				,net_wgt_ut_cd
+				,grs_meas
+				,grs_meas_ut_cd
+				,net_meas
+				,net_meas_ut_cd
+				,ttl_desc
+				,pay_loc_cd
+				,pay_loc_nm
+				,pay_cd
+				,bl_iss_loc_cd
+				,bl_iss_loc_nm
+				,bl_iss_knt
+				,fax_no
+				,shpr_ctct_eml
+				,inv_no
+				,ord_no
+				,lc_no
+				,cgo_tp_cd
+				,pic_nm
+				,pic_tel_no
+				,rmk_desc
+				,exp_ctrl_no
+				,hbl_trsm_cd
+				,noti_pty_cd1
+				,noti_pty_cd2
+				,noti_pty_cd3
+				,msg_tp_cd
+				,dl_sts_cd
+				,intg_bl_seq
+				,(select bl_no       from tb_intg_bl bl where bl.intg_bl_seq = acl.intg_bl_seq AND bl.delt_flg = 'N') as bl_no
+				,(select ref_no      from tb_intg_bl bl where bl.intg_bl_seq = acl.intg_bl_seq AND bl.delt_flg = 'N') as ref_no
+				,(select biz_clss_cd from tb_intg_bl bl where bl.intg_bl_seq = acl.intg_bl_seq AND bl.delt_flg = 'N') as bl_tp_cd
+				,rgst_usrid
+				,rgst_ofc_cd
+				,rgst_tms
+				,modi_usrid
+				,modi_ofc_cd
+				,modi_tms
+				,file_nm 
+		  FROM  tb_edi_acl acl
+		 WHERE 1=1 
+		   <isNotEmpty property="f_bkg_no">
+                  AND  acl.bkg_no LIKE '%' + #f_bkg_no# + '%'
+           </isNotEmpty>
+           <isNotEmpty property="f_shpr_nm">
+                  AND  acl.shpr_nm LIKE '%' + #f_shpr_nm# + '%'
+           </isNotEmpty>
+           <isNotEmpty property="f_cnee_nm">
+                  AND  acl.cnee_nm LIKE '%' + #f_cnee_nm# + '%'
+           </isNotEmpty>
+           <isNotEmpty property="f_hbl_no">
+                  AND  acl.intg_bl_seq in (select intg_bl_seq from tb_intg_bl where bl_no LIKE '%' + #f_hbl_no# + '%' and delt_flg = 'N')
+           </isNotEmpty>
+           <isNotEmpty property="f_cntr_no">
+                  AND  acl.msg_no in (select msg_no from tb_edi_acl_cntr where cntr_no = #f_cntr_no# )
+           </isNotEmpty>
+           <isNotEmpty property="f_pol_nm">
+                  AND  acl.pol_nm LIKE '%' + #f_pol_nm# + '%'
+           </isNotEmpty>
+           <isNotEmpty property="f_pod_nm">
+                  AND  acl.pod_nm LIKE '%' + #f_pod_nm# + '%'
+           </isNotEmpty>
+           
+           <isNotEmpty property="f_mbl_no">
+                  AND  acl.mbl_no LIKE '%' + #f_mbl_no# + '%'
+           </isNotEmpty>
+           <isNotEmpty property="f_crr_nm">
+                  AND  acl.crr_nm LIKE '%' + #f_crr_nm# + '%'
+           </isNotEmpty>
+           <isNotEmpty property="f_trnk_vsl_nm">
+                  AND  acl.vsl_load_nm LIKE '%' + #f_trnk_vsl_nm# + '%'
+           </isNotEmpty>
+           <isNotEmpty property="f_trnk_voy_no">
+                  AND  acl.voy_no = #f_trnk_voy_no#
+           </isNotEmpty>
+           <isNotEmpty property="f_exp_ctrl_no">
+                  AND  acl.exp_ctrl_no LIKE '%' + #f_exp_ctrl_no# + '%'
+           </isNotEmpty>
+           <isNotEmpty property="f_rgst_strdt">
+                  <![CDATA[ AND  (acl.rgst_dt >=#f_rgst_strdt# AND acl.rgst_dt <=#f_rgst_enddt#) ]]> 
+           </isNotEmpty>
+           <isNotEmpty property="msg_no">
+                  AND msg_no = #msg_no#
+           </isNotEmpty>
+		  
+       ORDER BY  rgst_dt+rgst_tm desc
+	</select>
+
+	<select id="selectEdiAclCntrList" parameterClass="HashMap" resultClass="EdiAclCntrVO">
+		/*	EdiAclSQL.xml -> selectAciCntrList */
+    	SELECT  msg_no
+				,msg_no_seq
+				,cntr_no
+				,seal_no1
+				,seal_no2
+				,seal_no3
+				,seal_no4
+				,cntr_sz_cd
+				,cntr_tp_cd
+				,cntr_sz_cd+cntr_tp_cd as cntr_cd
+				,pkg_knt
+				,pck_sts_cd
+				,pck_sts_nm
+				,grs_wgt
+				,convert(numeric(12,3),ROUNd(grs_wgt*2.20462262185,3)) as grs_wgt1
+				,grs_wgt_ut_cd
+				,convert(varchar(20), grs_wgt)+' '+grs_wgt_ut_cd as cntr_wgt
+				,grs_meas
+				,convert(numeric(12,3),ROUNd(grs_meas*35.3165,3)) AS grs_meas1
+				,grs_meas_ut_cd
+				,convert(varchar(20), grs_meas)+' '+grs_meas_ut_cd as cntr_meas
+				,tare_wgt
+				,tare_wgt_ut_cd
+				,convert(varchar(20), tare_wgt)+' '+tare_wgt_ut_cd as cntr_tare
+				,temp_val
+				,temp_ut_cd
+				,SUBSTRING(temp_ut_cd,1,1) AS temp_cd
+				,convert(varchar(20), temp_val)+' '+temp_ut_cd as cntr_temp
+				,rgst_usrid
+				,rgst_ofc_cd
+				,rgst_tms
+		  FROM  tb_edi_acl_cntr
+		 WHERE 1=1 
+		   <isNotEmpty property="msg_no">
+                  AND msg_no = #msg_no#
+           </isNotEmpty>
+       ORDER BY  msg_no_seq
+	</select>
+	
+	<select id="selectTbIntgHBlList" parameterClass="HashMap" resultClass="EdiAclVO">
+		/*	EdiAclSQL.xml -> "selectTbIntgHBlList" */
+    	
+			SELECT INTG_BL_SEQ,	
+			       BL_NO
+			  FROM TB_INTG_BL
+			 WHERE intg_bl_seq IN 
+			            (
+			            SELECT intg_bl_seq                                   
+			              FROM tb_intg_bl_rlt                                  
+			            WHERE  rlt_intg_bl_seq =  #rlt_intg_bl_seq#                                 
+			                AND  intg_bl_rlt_cd  ='HTM'    
+			            )
+			  AND DELT_FLG='N'
+			  AND BIZ_CLSS_CD='H'			         
+			  
+	</select>
+	
+	<insert id="insertTB_EDI_ACL" parameterClass="EdiAclVO">
+		/** EdiAclSQL.xml -> insertTB_EDI_ACL **/
+		INSERT INTO tb_edi_acl 
+				(
+				msg_no,hdr_desc,rgst_dt,rgst_tm,acl_rgst_id,crr_nm,shpr_cd,shpr_nm,shpr_addr,cnee_cd,cnee_nm,cnee_addr,ntfy_cd,ntfy_nm,ntfy_addr,crr_cd,bkg_no,
+				bkg_seq,ttl_trns_knt,mbl_no,fwd_cd,fwd_nm,bil_iden_cd,rcv_doc_iden_cd,frt_arng_cd,inter_ref_no,por_cd,cnee_svc_tp_nm,por_nm,cnee_svc_tp_cd,
+				vsl_load_cd,vsl_load_nm,voy_no,pol_cd,pol_nm,pod_cd,pod_nm,del_cd,del_svc_tp_nm,del_nm,del_svc_tp_cd,fnal_dest_cd,fnal_dest_nm,cntr_knt,
+				ttl_pkg_knt,ttl_pkg_sts_cd,ttl_pkg_sts_nm,rep_hs_cd,ttl_grs_wgt,ttl_grs_wgt_ut_cd,ttl_net_wgt,ttl_net_wgt_ut_cd,ttl_grs_meas,ttl_grs_meas_ut_cd,
+				ttl_net_meas,ttl_net_meas_ut_cd,mk_no,gds_desc,hs_cd,pkg_knt,pck_sts_cd,pck_sts_nm,grs_wgt,grs_wgt_ut_cd,net_wgt,net_wgt_ut_cd,grs_meas,grs_meas_ut_cd,
+				net_meas,net_meas_ut_cd,ttl_desc,pay_loc_cd,pay_loc_nm,pay_cd,bl_iss_loc_cd,bl_iss_loc_nm,bl_iss_knt,fax_no,shpr_ctct_eml,inv_no,ord_no,lc_no,
+				cgo_tp_cd,pic_nm,pic_tel_no,rmk_desc,exp_ctrl_no,hbl_trsm_cd,noti_pty_cd1,noti_pty_cd2,noti_pty_cd3,msg_tp_cd,dl_sts_cd,intg_bl_seq,rgst_usrid,rgst_ofc_cd,
+				rgst_tms,file_nm
+				)
+		 VALUES 				
+		 		(
+				#msg_no#,#hdr_desc#,#rgst_dt#,#rgst_tm#,#acl_rgst_id#,#crr_nm#,#shpr_cd#,#shpr_nm#,#shpr_addr#,#cnee_cd#,#cnee_nm#,#cnee_addr#,#ntfy_cd#,#ntfy_nm#,#ntfy_addr#,#crr_cd#,#bkg_no#,
+				#bkg_seq#,#ttl_trns_knt#,#mbl_no#,#fwd_cd#,#fwd_nm#,#bil_iden_cd#,#rcv_doc_iden_cd#,#frt_arng_cd#,#inter_ref_no#,#por_cd#,#cnee_svc_tp_nm#,#por_nm#,#cnee_svc_tp_cd#,
+				#vsl_load_cd#,#vsl_load_nm#,#voy_no#,#pol_cd#,#pol_nm#,#pod_cd#,#pod_nm#,#del_cd#,#del_svc_tp_nm#,#del_nm#,#del_svc_tp_cd#,#fnal_dest_cd#,#fnal_dest_nm#,CONVERT(NUMERIC(5),#cntr_knt#),
+				CONVERT(NUMERIC(5),#ttl_pkg_knt#),#ttl_pkg_sts_cd#,#ttl_pkg_sts_nm#,#rep_hs_cd#,CONVERT(NUMERIC(10,3),#ttl_grs_wgt#),#ttl_grs_wgt_ut_cd#,CONVERT(NUMERIC(10,3),#ttl_net_wgt#),#ttl_net_wgt_ut_cd#,CONVERT(NUMERIC(10,3),#ttl_grs_meas#),#ttl_grs_meas_ut_cd#,
+				CONVERT(NUMERIC(10,3),#ttl_net_meas#),#ttl_net_meas_ut_cd#,#mk_no#,#gds_desc#,#hs_cd#,CONVERT(NUMERIC(5),#pkg_knt#),#pck_sts_cd#,#pck_sts_nm#,CONVERT(NUMERIC(10,3),#grs_wgt#),#grs_wgt_ut_cd#,CONVERT(NUMERIC(10,3),#net_wgt#),#net_wgt_ut_cd#,CONVERT(NUMERIC(10,3),#grs_meas#),#grs_meas_ut_cd#,
+				CONVERT(NUMERIC(10,3),#net_meas#),#net_meas_ut_cd#,#ttl_desc#,#pay_loc_cd#,#pay_loc_nm#,#pay_cd#,#bl_iss_loc_cd#,#bl_iss_loc_nm#,CONVERT(NUMERIC(5),#bl_iss_knt#),#fax_no#,#shpr_ctct_eml#,#inv_no#,#ord_no#,#lc_no#,
+				#cgo_tp_cd#,#pic_nm#,#pic_tel_no#,#rmk_desc#,#exp_ctrl_no#,#hbl_trsm_cd#,#noti_pty_cd1#,#noti_pty_cd2#,#noti_pty_cd3#,#msg_tp_cd#,#dl_sts_cd#,#intg_bl_seq#,#rgst_usrid#,#rgst_ofc_cd#,
+				GETDATE(),#file_nm#
+				)
+	</insert>
+	
+	<insert id="insertTB_EDI_ACL_CNTR" parameterClass="EdiAclCntrVO">
+		/** EdiAclSQL.xml -> insertTB_EDI_ACL_CNTR **/
+		INSERT INTO tb_edi_acl_cntr 
+				(
+				msg_no,msg_no_seq,cntr_no,seal_no1,seal_no2,seal_no3,seal_no4,cntr_sz_cd,cntr_tp_cd,pkg_knt,pck_sts_cd,pck_sts_nm,grs_wgt,	
+				grs_wgt_ut_cd,grs_meas,grs_meas_ut_cd,tare_wgt,tare_wgt_ut_cd,temp_val,temp_ut_cd,rgst_usrid,rgst_ofc_cd,rgst_tms
+				)
+		 VALUES 				
+		 		(
+				#msg_no#,CONVERT(NUMERIC(5),#msg_no_seq#),#cntr_no#,#seal_no1#,#seal_no2#,#seal_no3#,#seal_no4#,#cntr_sz_cd#,#cntr_tp_cd#,CONVERT(NUMERIC(5),#pkg_knt#),#pck_sts_cd#,#pck_sts_nm#,CONVERT(NUMERIC(10,3),#grs_wgt#),
+				#grs_wgt_ut_cd#,CONVERT(NUMERIC(10,3),#grs_meas#),#grs_meas_ut_cd#,CONVERT(NUMERIC(10,3),#tare_wgt#),#tare_wgt_ut_cd#,CONVERT(NUMERIC(10,3),#temp_val#),#temp_ut_cd#,#rgst_usrid#,#rgst_ofc_cd#,GETDATE()
+				)
+	</insert>
+	
+	<insert id="insertTB_EDI_ACL_MK" parameterClass="EdiAclMkVO">
+		/** EdiAclSQL.xml -> insertTB_EDI_ACL_MK **/
+		INSERT INTO tb_edi_acl_mk 
+				(
+				msg_no,hdr_desc,rgst_dt,rgst_tm,vsl_load_cd,vsl_load_nm,voy_no,pol_cd,pol_nm,crr_cd,bkg_no,bkg_seq,
+				ttl_trns_knt,acl_rgst_id,mk_no,msg_tp_cd,dl_sts_cd,intg_bl_seq,rgst_usrid,rgst_ofc_cd,rgst_tms,file_nm
+				)
+		 VALUES 				
+		 		(
+				#msg_no#,#hdr_desc#,#rgst_dt#,#rgst_tm#,#vsl_load_cd#,#vsl_load_nm#,#voy_no#,#pol_cd#,#pol_nm#,#crr_cd#,#bkg_no#,#bkg_seq#,
+				#ttl_trns_knt#,#acl_rgst_id#,#mk_no#,#msg_tp_cd#,#dl_sts_cd#,#intg_bl_seq#,#rgst_usrid#,#rgst_ofc_cd#,GETDATE(),#file_nm#
+				)
+	</insert>
+	
+	<insert id="insertTB_EDI_ACL_GDS" parameterClass="EdiAclGdsVO">
+		/** EdiAclSQL.xml -> insertTB_EDI_ACL_GDS **/
+		INSERT INTO tb_edi_acl_gds 
+				(
+				msg_no,hdr_desc,rgst_dt,rgst_tm,acl_rgst_id,bkg_no,bkg_seq,ttl_trns_knt,crr_cd,vsl_load_cd,vsl_load_nm,	
+				voy_no,pol_cd,pol_nm,gds_desc,pkg_knt,pck_sts_cd,pck_sts_nm,grs_wgt,grs_wgt_ut_cd,grs_meas,grs_meas_ut_cd,
+				net_wgt,net_wgt_ut_cd,net_meas,net_meas_ut_cd,msg_tp_cd,dl_sts_cd,intg_bl_seq,rgst_usrid,rgst_ofc_cd,rgst_tms,file_nm
+				)
+		 VALUES 				
+		 		(
+				#msg_no#,#hdr_desc#,#rgst_dt#,#rgst_tm#,#acl_rgst_id#,#bkg_no#,#bkg_seq#,#ttl_trns_knt#,#crr_cd#,#vsl_load_cd#,#vsl_load_nm#,
+				#voy_no#,#pol_cd#,#pol_nm#,#gds_desc#,CONVERT(NUMERIC(5),#pkg_knt#),#pck_sts_cd#,#pck_sts_nm#,CONVERT(NUMERIC(10,3),#grs_wgt#),#grs_wgt_ut_cd#,
+				CONVERT(NUMERIC(10,3),#grs_meas#),#grs_meas_ut_cd#,CONVERT(NUMERIC(10,3),#net_wgt#),#net_wgt_ut_cd#,CONVERT(NUMERIC(10,3),#net_meas#),
+				#net_meas_ut_cd#,#msg_tp_cd#,#dl_sts_cd#,#intg_bl_seq#,#rgst_usrid#,#rgst_ofc_cd#,GETDATE(),#file_nm#
+				)
+	</insert>
+	
+	<update id="updateTB_EDI_ACL" parameterClass="EdiAclVO">
+     /** EdiAclSQL.xml > updateTB_EDI_ACL **/
+        UPDATE  tb_edi_acl SET  
+        	dl_sts_cd    	= #dl_sts_cd#,    
+        	intg_bl_seq	 	= #intg_bl_seq#,   
+            modi_usrid 		= #modi_usrid#,
+            modi_ofc_cd 	= #modi_ofc_cd#,
+            modi_tms   		= GETUTCDATE()    	           
+      	WHERE  msg_no 		= #msg_no# 
+    </update>
+    
+    <update id="updateTB_EDI_ACL_MK" parameterClass="EdiAclMkVO">
+     /** EdiAclSQL.xml > updateTB_EDI_ACL_MK **/
+        UPDATE  tb_edi_acl_mk SET  
+        	dl_sts_cd    	= #dl_sts_cd#,    
+        	intg_bl_seq	 	= #intg_bl_seq#,   
+            modi_usrid 		= #modi_usrid#,
+            modi_ofc_cd 	= #modi_ofc_cd#,
+            modi_tms   		= GETUTCDATE()   	           
+      	WHERE  msg_no 		= #msg_no# 
+    </update>
+    
+    <update id="updateTB_EDI_ACL_GDS" parameterClass="EdiAclGdsVO">
+     /** EdiAclSQL.xml > updateTB_EDI_ACL_GDS **/
+        UPDATE  tb_edi_acl_gds SET  
+        	dl_sts_cd    	= #dl_sts_cd#,    
+        	intg_bl_seq	 	= #intg_bl_seq#,   
+            modi_usrid 		= #modi_usrid#,
+            modi_ofc_cd 	= #modi_ofc_cd#,
+            modi_tms   		= GETUTCDATE()     	           
+      	WHERE  msg_no 		= #msg_no# 
+    </update>
+	
+	<select id="selectMaxMkInfo" parameterClass="HashMap" resultClass="String">
+	
+	/** EdiAclSQL.xml > selectMaxMkInfo **/
+	
+        SELECT  TOP 1 mk_no
+          FROM  tb_edi_acl_mk
+         WHERE  bkg_no 		= #f_bkg_no# 
+           AND  bkg_no_seq 	= #f_bkg_no_seq# 
+         ORDER BY rgst_dt,rgst_tm desc  
+    </select>
+    
+    <select id="selectMaxGdsInfo" parameterClass="HashMap" resultClass="String">
+    
+    /** EdiAclSQL.xml > selectMaxGdsInfo **/
+    
+        SELECT  TOP 1 gds_desc
+          FROM  tb_edi_acl_gds
+         WHERE  bkg_no 		= #f_bkg_no# 
+           AND  bkg_no_seq 	= #f_bkg_no_seq# 
+         ORDER BY rgst_dt,rgst_tm desc  
+    </select>
+    
+    <select id="selectAclMsgNo" resultClass="String">
+    
+    /** EdiAclSQL.xml > selectAclMsgNo **/
+    
+        SELECT 'ACL' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + ISNULL(dbo.LPAD(MAX(SUBSTRING(MSG_NO, 10, 5))+1, 5, '0'), '00001') AS MSG_NO	
+		  FROM TB_EDI_ACL																																	
+		 WHERE MSG_NO LIKE 'ACL' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + '%' 
+    </select>
+    
+    <select id="selectAclMkMsgNo" resultClass="String">
+    
+    /** EdiAclSQL.xml > selectAclMkMsgNo **/
+    
+        SELECT 'ACL' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + ISNULL(dbo.LPAD(MAX(SUBSTRING(MSG_NO, 10, 5))+1, 5, '0'), '00001') AS MSG_NO	
+		  FROM TB_EDI_ACL_MK																																	
+		 WHERE MSG_NO LIKE 'ACL' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + '%' 
+    </select>
+    
+    <select id="selectAclGdsMsgNo" resultClass="String">
+    
+    /** EdiAclSQL.xml > selectAclGdsMsgNo **/
+    
+        SELECT 'ACL' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + ISNULL(dbo.LPAD(MAX(SUBSTRING(MSG_NO, 10, 5))+1, 5, '0'), '00001') AS MSG_NO	
+		  FROM TB_EDI_ACL_GDS																																	
+		 WHERE MSG_NO LIKE 'ACL' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + '%' 
+    </select>
+	
+	
+	<update id="updateTbIntgBlInfo" parameterClass="EdiAclVO">
+   		
+   		/** EdiAclSQL.xml > updateTbIntgBlInfo **/
+   		
+        UPDATE  tb_intg_bl
+           SET  pck_qty        = #ttl_pkg_knt#,
+           		pck_ut_cd      = #ttl_pkg_sts_cd#,
+           		rep_cmdt_cd    = #rep_hs_cd#,
+           		grs_wgt        = #ttl_grs_wgt#, 
+           		grs_wgt1	   = convert(numeric(12,3),ROUNd(convert(numeric(12,3),#ttl_grs_wgt#)*2.20462262185,3)),
+           		meas   		   = #ttl_grs_meas#,
+           		meas1		   = convert(numeric(12,3),ROUNd(convert(numeric(12,3),#ttl_grs_meas#)*35.3165,3)),
+           		mk_grs_wgt	   = #ttl_grs_wgt#, 	
+           		mk_grs_wgt1    = convert(numeric(12,3),ROUNd(convert(numeric(12,3),#ttl_grs_wgt#)*2.20462262185,3)),
+           		mk_meas   	   = #ttl_grs_meas#,
+           		mk_meas1	   = convert(numeric(12,3),ROUNd(convert(numeric(12,3),#ttl_grs_meas#)*35.3165,3)),
+           		mk_txt         = #mk_no#,
+           		desc_txt   	   = #gds_desc#,
+           		say_txt        = #ttl_desc#,
+           		modi_usrid     = #modi_usrid#,          
+           		modi_ofc_cd    = #modi_ofc_cd#,  
+                modi_tms       = GETUTCDATE()
+         WHERE  intg_bl_seq    = cast(#intg_bl_seq# as varchar)
+           
+    </update>
+    
+    <insert id="insertTbCntrList" parameterClass="EdiAclCntrVO">
+    
+    /** EdiAclSQL.xml > insertTbCntrList **/
+    INSERT INTO TB_CNTR_LIST( 
+	       INTG_BL_SEQ, 
+	       CNTR_LIST_SEQ,
+	       CNTR_NO,
+		   CNTR_TPSZ_CD,
+		   CGO_PCK_QTY,
+		   CGO_PCK_UT,
+		   CGO_WGT,
+		   CGO_WGT1,
+		   CGO_MEAS,
+		   CGO_MEAS1,
+		   SEAL_NO1,
+		   SEAL_NO2,
+		   TEMP_CD,
+		   TEMP_VAL,
+		   DG_GDS_FLG,
+		   DELT_FLG,
+		   RGST_USRID,
+		   RGST_OFC_CD,
+		   RGST_TMS,
+		   MODI_USRID,
+		   MODI_OFC_CD,
+		   MODI_TMS
+		   
+		   )
+    SELECT #intg_bl_seq#,
+	       #cntr_list_seq# AS cntr_list_seq,
+		   CNTR_NO,
+		   (select TOP 1 CNTR_TPSZ_CD from TB_CNTR_TPSZ WHERE ISO_CNTR_CD=CNTR.CNTR_SZ_CD+CNTR_TP_CD OR CSTMS_CNTR_CD= CNTR.CNTR_SZ_CD+CNTR_TP_CD) AS CNTR_TPSZ_CD,
+		   PKG_KNT,
+		   PCK_STS_CD,
+		   GRS_WGT,
+		   convert(numeric(12,3),ROUNd(GRS_WGT*2.20462262185,3)) as GRS_WGT1,
+		   GRS_MEAS,
+		   convert(numeric(12,3),ROUNd(GRS_MEAS*35.3165,3)) AS GRS_MEAS1,
+		   SEAL_NO1,
+		   SEAL_NO2,
+		   SUBSTRING(TEMP_UT_CD,1,1) AS TEMP_CD,
+		   TEMP_VAL,
+		   'N',
+		   'N',
+		   #rgst_usrid#,
+	       #rgst_ofc_cd#,
+	       GETDATE(),
+	       #rgst_usrid#,
+	       #rgst_ofc_cd#,
+	       GETDATE()
+	  FROM TB_EDI_ACL_CNTR CNTR
+	 WHERE MSG_NO = #msg_no#
+	 AND   MSG_NO_SEQ = #msg_no_seq#
+
+    </insert>
+    
+    <update id="updateTbCntrList" parameterClass="EdiAclCntrVO">
+    
+    /** EdiAclSQL.xml > updateTbCntrList **/
+    UPDATE TB_CNTR_LIST
+     SET CNTR_TPSZ_CD =(select TOP 1 CNTR_TPSZ_CD from TB_CNTR_TPSZ WHERE ISO_CNTR_CD=#cntr_cd# OR CSTMS_CNTR_CD= #cntr_cd#),
+		   CGO_PCK_QTY=#pkg_knt#,
+		   CGO_PCK_UT =#pck_sts_cd#,
+		   CGO_WGT    =#grs_wgt#, 
+		   CGO_WGT1	  =#grs_wgt1#, 
+		   CGO_MEAS	  =#grs_meas#, 
+		   CGO_MEAS1  =#grs_meas1#, 
+		   SEAL_NO1	  =#seal_no1#, 
+		   SEAL_NO2   =#seal_no2#, 
+		   TEMP_CD    =#temp_cd#,
+		   TEMP_VAL   =#temp_val#,
+		   MODI_TMS   =GETDATE()
+	WHERE  INTG_BL_SEQ=cast(#intg_bl_seq# as varchar)
+	  AND  CNTR_LIST_SEQ=#cntr_list_seq#	   
+
+    </update>
+    
+     <update id="updateTbShpCmdt" parameterClass="EdiAclCntrVO">
+    
+    /** EdiAclSQL.xml > updateTbShpCmdt **/
+    UPDATE TB_SHP_CMDT
+     SET 
+		   PCK_QTY	  =#pkg_knt#,
+		   PCK_UT_CD  =#pck_sts_cd#,
+		   WGT    	  =#grs_wgt#, 
+		   LBS_WGT	  =#grs_wgt1#, 
+		   MEAS	      =#grs_meas#, 
+		   CFT_MEAS   =#grs_meas1#,
+		   MODI_TMS   =GETDATE()
+	WHERE  INTG_BL_SEQ=cast(#intg_bl_seq# as varchar)
+	  AND  CNTR_LIST_SEQ=#cntr_list_seq#	   
+
+    </update>
+    
+    
+    <select id="selectCntrSeqByAclInfo" resultClass="String" parameterClass="HashMap">
+        SELECT top 1 cntr_list_seq as cntr_list_seq
+          FROM TB_CNTR_LIST 
+         WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+           AND cntr_no     = #cntr_no# 
+           AND delt_flg    = 'N'
+    </select>
+    
+    <update id="updateTbCntrListDeltFlg" parameterClass="EdiAclVO">
+   		
+   		/** EdiAclSQL.xml > updateTbCntrListDeltFlg **/
+   		
+        UPDATE  tb_cntr_list
+           SET  delt_flg = 'Y',
+           		modi_usrid     = #modi_usrid#,          
+           		modi_ofc_cd    = #modi_ofc_cd#,          
+                modi_tms       = GETUTCDATE()
+         WHERE  intg_bl_seq    = cast(#intg_bl_seq# as varchar)
+         AND    ISNULL(cntr_no,'') = ''
+           
+    </update>
+	
+</sqlMap>

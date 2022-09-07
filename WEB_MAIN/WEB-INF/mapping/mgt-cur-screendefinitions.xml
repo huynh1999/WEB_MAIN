@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--####   ####  -->
+    <screen name="MGT_CUR_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/cur/exchangemgt/jsp/MGT_CUR_0010.jsp"/>
+    </screen>
+    <screen name="MGT_CUR_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/cur/exchangemgt/jsp/MGT_CUR_0010GS.jsp"/>
+    </screen>
+
+
+    <screen name="MGT_CUR_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/cur/exchangemgt/jsp/MGT_CUR_0020.jsp"/>
+    </screen>
+    <screen name="MGT_CUR_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/cur/exchangemgt/jsp/MGT_CUR_0020GS.jsp"/>
+    </screen>
+
+    <!--#### ####  -->
+</screen-definitions>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.log.fax">
+
+	<typeAlias alias="FaxVO" type="com.clt.apps.fis.mgt.log.fax.dto.FaxVO"/>
+<!-- 
+	<insert id="insertMailLog" parameterClass="MailVO">
+		INSERT INTO tb_mail_log
+		(
+		title, contents, recipient, sender, send_type, status, 
+		rgst_usrid, rgst_ofc_cd, rgst_tms 
+		)
+		VALUES
+		(
+		#title#, #contents#, #recipient#, #sender#, #send_type#, #status#, 
+		#rgst_usrid#, #rgst_ofc_cd#, GETDATE() 
+		)
+	</insert>
+   -->	
+	<select id="selectLogFax" parameterClass="java.util.HashMap" resultClass="FaxVO">
+		SELECT	fax_cre_no,				fax_seq,				fax_title,
+				snd_pic_nm,				rcpt_cmp_nm,			rcpt_pic_nm,
+				fax_no,					fax_status,				CONVERT(VARCHAR, rgst_tms, 20) AS rgst_tms
+		  FROM tb_fax
+		<![CDATA[
+		 WHERE CONVERT(VARCHAR, rgst_tms, 112) >= #f_fm_date#
+		   AND CONVERT(VARCHAR, rgst_tms, 112) <= #f_to_date#
+		]]>
+	  ORDER BY rgst_tms DESC
+	</select>
+	
+</sqlMap>

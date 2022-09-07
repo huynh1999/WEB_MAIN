@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.ofc.incentive">
+
+    <!-- 지점별 인센티브 조회   -->    
+    <select id="selectOFC_INCNT_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.ofc.incentive.dto.OfcIncntVO">
+        SELECT  TOP $topCnt$      
+		        ofc_incnt_seq,		ofc_cd,     		yrmon,         		
+		        tgt_amt,		    ofc_incnt_pct,      opr_incnt_pct,		
+		        acctg_incnt_pct,    use_flg,       		delt_flg,
+                rgst_usrid,        	rgst_ofc_cd,        rgst_tms,
+                modi_usrid,			modi_ofc_cd, 		modi_tms
+          FROM  tb_ofc_add_info
+		 WHERE  delt_flg = 'N'
+        <dynamic>
+        	<isNotEmpty property="f_ofc_cd">
+                AND ofc_cd = #f_ofc_cd#
+            </isNotEmpty>
+            <isNotEmpty property="f_yrmon">
+                AND yrmon = #f_yrmon#
+            </isNotEmpty>
+        </dynamic>
+        ORDER BY ofc_cd, yrmon DESC 
+    </select>
+	
+    
+    <!-- 지점별 인센티브 조회 Counting   -->
+    <select id="selectOFC_INCNT_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT  count(*)
+          FROM  tb_ofc_add_info
+		 WHERE  delt_flg = 'N'
+        <dynamic>
+        	<isNotEmpty property="f_ofc_cd">
+                AND ofc_cd = #f_ofc_cd#
+            </isNotEmpty>
+            <isNotEmpty property="f_yrmon">
+                AND yrmon = #f_yrmon#
+            </isNotEmpty>
+        </dynamic>
+    </select>   
+    
+    <!-- 지점별 인센티브 PK    -->
+    <select id="selectOFC_INCNT_PK" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT  max(ofc_incnt_seq)
+          FROM  tb_ofc_add_info                       
+    </select>
+    
+    <!-- 지점별 인센티브 추가   -->
+    <insert id="insertOFC_INCNT" parameterClass="com.clt.apps.fis.mgt.ofc.incentive.dto.OfcIncntVO">
+        INSERT INTO tb_ofc_add_info 
+        (
+            ofc_incnt_seq,		ofc_cd,   			yrmon,    			tgt_amt,   		
+            ofc_incnt_pct,		opr_incnt_pct,  	acctg_incnt_pct,	use_flg,     		delt_flg,
+            rgst_usrid,     	rgst_ofc_cd,   		rgst_tms,
+            modi_usrid,     	modi_ofc_cd,   		modi_tms 
+        )VALUES(
+            #ofc_incnt_seq#,	#ofc_cd#,   		#yrmon#,   			#tgt_amt#,    	
+            #ofc_incnt_pct#,	#opr_incnt_pct#,  	#acctg_incnt_pct#,	#use_flg#,     		'N',
+            #proc_usrid#,     	#proc_ofccd#,   	getdate(),
+            #proc_usrid#,     	#proc_ofccd#,   	GETUTCDATE()
+        )
+    </insert>
+    
+    <!-- 지점별 인센티브 수정  -->
+    <update id="updateOFC_INCNT" parameterClass="com.clt.apps.fis.mgt.ofc.incentive.dto.OfcIncntVO">
+        UPDATE  tb_ofc_add_info
+           SET  tgt_amt = #tgt_amt#,
+                ofc_incnt_pct = #ofc_incnt_pct#,   
+                opr_incnt_pct = #opr_incnt_pct#,
+                acctg_incnt_pct  = #acctg_incnt_pct#,
+                use_flg = #use_flg#,
+                modi_usrid = #proc_usrid#,   
+                modi_ofc_cd = #proc_ofccd#,   
+                modi_tms = GETUTCDATE()
+         WHERE  ofc_incnt_seq = #ofc_incnt_seq#
+    </update>
+    
+    <!-- 지점별 인센티브 삭제    -->
+    <update id="deleteOFC_INCNT" parameterClass="com.clt.apps.fis.mgt.ofc.incentive.dto.OfcIncntVO">
+        UPDATE  tb_ofc_add_info
+           SET  delt_flg = 'Y', 
+                modi_usrid = #proc_usrid#,   
+                modi_ofc_cd = #proc_ofccd#,   
+                modi_tms = GETUTCDATE()
+         WHERE  ofc_incnt_seq = #ofc_incnt_seq#
+    </update>
+    
+    <!--지점별 인센티브 중복 체크  -->
+    <select id="selectOFC_INCNT_CHECK" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+        SELECT count(*) 
+          FROM tb_ofc_add_info
+         WHERE ofc_cd = #ofc_cd#
+           AND yrmon = #yrmon#
+           AND delt_flg = 'N'
+    </select>
+</sqlMap>

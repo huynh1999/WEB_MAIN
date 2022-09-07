@@ -1,0 +1,2461 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="WHOC">
+
+<!-- Outbound Progress Search -->	
+	<typeAlias alias="WHOCProgListVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.WHOCProgListVO"/>	
+	<typeAlias alias="WHOCListVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.WHOCListVO"/>
+	<typeAlias alias="WHOCListCondVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.WHOCListCondVO"/>
+	<typeAlias alias="WHOCUpdateHeaderByBookingInOutVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.WHOCUpdateHeaderByBookingInOutVO"/>
+	<typeAlias alias="Grd01WHOCUpdateVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.Grd01WHOCUpdateVO"/>
+	<typeAlias alias="WHOCUpdateHeaderByLoadPlanInOutVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.WHOCUpdateHeaderByLoadPlanInOutVO"/>
+	<typeAlias alias="Grd02WHOCUpdateVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.Grd02WHOCUpdateVO"/>
+	
+	<typeAlias alias="DocinWHOCUpdateVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.DocinWHOCUpdateVO"/>
+	<typeAlias alias="DocinWHOCMgmtVO" 		type="com.clt.apps.fis.wms.whoutboundcomplete.dto.DocinWHOCMgmtVO"/>
+	<typeAlias alias="ProcWHOCMakeIssuVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.ProcWHOCMakeIssuVO"/>
+	<typeAlias alias="ProcWHOCMakeLpVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.ProcWHOCMakeLpVO"/>
+	
+	<typeAlias alias="WHOCMgmtHeaderByBookingInOutVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.WHOCMgmtHeaderByBookingInOutVO"/>
+	<typeAlias alias="WHOCMgmtHeaderByLoadPlanInOutVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.WHOCMgmtHeaderByLoadPlanInOutVO"/>
+	
+	<typeAlias alias="Grd01WHOCMgmtVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.Grd01WHOCMgmtVO"/>
+	<typeAlias alias="Grd02WHOCMgmtVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.Grd02WHOCMgmtVO"/>
+	<typeAlias alias="Grd03WHOCMgmtVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.Grd03WHOCMgmtVO"/>
+	<typeAlias alias="Grd04WHOCMgmtVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.Grd04WHOCMgmtVO"/>
+	<typeAlias alias="WHOCPageMoveCompleteVO" 	type="com.clt.apps.fis.wms.whoutboundcomplete.dto.WHOCPageMoveCompleteVO"/>
+	
+	<typeAlias alias="DocKeyVO" type="com.clt.apps.fis.wms.common.dto.DocKeyVO"/>
+	
+    <select id="callDockeyNo_ofTanPham" resultClass="DocKeyVO" parameterClass="DocKeyVO">
+		DECLARE @R_RTNCD  VARCHAR(1000)       
+		DECLARE @R_RTNMSG VARCHAR(1000)
+		DECLARE @R_DOC_KEY_NO VARCHAR(1000)
+		EXEC PKG_MAKE_TL_WH_DOC_KEY_NO_PRC #doc_tp_cd# , #wh_cd#, #org_cd#, #user_id#,@R_DOC_KEY_NO OUTPUT,@R_RTNCD OUTPUT,@R_RTNMSG OUTPUT
+		SELECT @R_RTNCD as RTNCD , @R_RTNMSG as RTNMSG ,@R_DOC_KEY_NO as DOC_KEY_NO
+    </select>
+    
+    <parameterMap class="com.clt.apps.fis.wms.whoutboundcomplete.dto.ProcWHOCMakeLpVO" id="callMap1">
+	<parameter property="lp_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHOCMakeLpCancelProc" parameterMap="callMap1">
+     	 { CALL PKG_MAKE_TL_WH_LP_CANCEL_PRC (?, ?, ?, ?, ?) }
+    </procedure>
+    
+	<parameterMap class="com.clt.apps.fis.wms.whoutboundcomplete.dto.ProcWHOCMakeIssuVO" id="callMap2">
+	<parameter property="wob_out_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+    <procedure id="callWHOCMakeIssuCancelProc" parameterMap="callMap2">
+      	 { CALL PKG_MAKE_TL_WH_ISSU_CANCEL_PRC(?, ?, ?, ?, ?) }
+    </procedure>
+	
+	<parameterMap class="com.clt.apps.fis.wms.whoutboundcomplete.dto.ProcWHOCMakeLpVO" id="callMap3">
+	<parameter property="lp_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHOCMakeLpReinstateProc" parameterMap="callMap3">
+    	 { CALL PKG_MAKE_TL_WH_LP_REINSTATE_PRC (?, ?, ?, ?, ?) } 
+    </procedure> 
+	
+	<parameterMap class="com.clt.apps.fis.wms.whoutboundcomplete.dto.ProcWHOCMakeLpVO" id="callMap4">
+	<parameter property="lp_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHOCMakeLpProc" parameterMap="callMap4">
+     	 { CALL PKG_MAKE_TL_WH_LP_PRC(?, ?, ?, ?, ?) }
+    </procedure>
+	
+	<parameterMap class="com.clt.apps.fis.wms.whoutboundcomplete.dto.ProcWHOCMakeIssuVO" id="callMap5">
+	<parameter property="wob_out_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHOCMakeIssuProc" parameterMap="callMap5">
+		 { CALL PKG_MAKE_TL_WH_ISSU_PRC(?, ?, ?, ?, ?) } 
+	</procedure>
+	
+	<update id="modifyWhLoadPlanItem" parameterClass="Grd04WHOCMgmtVO">
+	/*WHOC.modifyWhLoadPlanItem*/
+	UPDATE TL_WH_LOAD_PLAN_ITEM
+	   SET LOAD_ITEM_EA_QTY          = #load_item_ea_qty#
+	     , LOAD_ITEM_CBM             = #load_item_cbm#
+	     , LOAD_ITEM_CBF             = #load_item_cbf#
+	     , LOAD_ITEM_GRS_KGS         = #load_item_grs_kgs#
+	     , LOAD_ITEM_GRS_LBS         = #load_item_grs_lbs#
+	     , LOAD_ITEM_NET_KGS         = #load_item_net_kgs#
+	     , LOAD_ITEM_NET_LBS         = #load_item_net_lbs#
+	     , MODI_ID        = #modi_id#
+	     , MODI_OFC_CD    = #modi_ofc_cd#
+	     , MODI_SYS_DT    = GETDATE()
+	     , MODI_LOC_DT    = CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	 WHERE LP_NO          = #lp_no# 
+	   AND WOB_BK_NO      = #wob_bk_no#
+	   AND SAO_SYS_NO     = #sao_sys_no#
+	   AND WIB_BK_NO	  = #wib_bk_no#
+	   AND PO_SYS_NO      = #po_sys_no#
+	   AND ITEM_SYS_NO    = #item_sys_no#
+	   AND LOT_ID         = #lot_id#
+	   AND WH_LOC_CD      = #wh_loc_cd#
+	   AND ITEM_SEQ       = #item_seq#
+	</update>
+	
+	<update id="modifyWhLoadPlan" parameterClass="DocinWHOCMgmtVO">
+	/*WHOC.modifyWhLoadPlan*/
+	UPDATE TL_WH_LOAD_PLAN
+	   SET EQ_NO          = #eq_no#
+	     , SEAL_NO        = #seal_no#
+	     , GATE_IN_HM     = REPLACE(#gate_in_hm#, ':', '')
+	     , GATE_OUT_HM    = REPLACE(#gate_out_hm#, ':', '')
+	     , LOAD_HM_FR     = REPLACE(#load_hm_fr#, ':', '')
+	     , LOAD_HM_TO     = REPLACE(#load_hm_to#, ':', '')
+	     , OUTBOUND_DT    = REPLACE(#outbound_dt#, '-', '')
+	     , RMK            = #rmk#
+	     , CUSTMS_REF_NO  = #custms_ref_no#
+	     , LP_STS_CD      = #lp_sts_cd#
+	     , MODI_ID        = #modi_id#
+	     , MODI_OFC_CD    = #modi_ofc_cd#
+	     , MODI_SYS_DT    = GETDATE()
+	     , MODI_LOC_DT    = CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	 WHERE LP_NO          = #lp_no# 
+	</update>
+
+	<insert id="saveWhIssuItem" parameterClass="Grd02WHOCMgmtVO">
+	/*WHOC.saveWhIssuItem*/
+	INSERT INTO TL_WH_ISSU_ITEM
+	     ( WOB_OUT_NO
+	     , WALC_NO
+	     , WOB_BK_NO
+	     , SAO_SYS_NO
+	     , WIB_BK_NO
+	     , PO_SYS_NO
+	     , ITEM_SYS_NO
+	     , LOT_ID
+	     , WH_LOC_CD
+	     , ITEM_SEQ
+	     , SAO_NO
+	     , PO_NO
+	     , ITEM_CD
+	     , CUST_ITEM_CD
+	     , ITEM_NM
+	     , ISSU_ITEM_EA_QTY
+	     , ISSU_ITEM_CBM
+	     , ISSU_ITEM_CBF
+	     , ISSU_ITEM_GRS_KGS
+	     , ISSU_ITEM_GRS_LBS
+	     , ISSU_ITEM_NET_KGS
+	     , ISSU_ITEM_NET_LBS
+	     , EQ_TP_CD
+	     , EQ_TPSZ_CD
+	     , EQ_NO
+	     , SEAL_NO
+	     , GATE_IN_HM
+	     , GATE_OUT_HM
+	     , RMK
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     )
+	VALUES
+	     ( #wob_out_no#
+	     , #walc_no#
+	     , #wob_bk_no#
+	     , #sao_sys_no#
+	     , #wib_bk_no#
+	     , #po_sys_no#
+	     , #item_sys_no#
+	     , #lot_id#
+	     , #wh_loc_cd#
+	     , CONVERT(NUMERIC(4), #item_seq#)
+	     , #sao_no#
+	     , #po_no#
+	     , #item_cd#
+	     , #cust_item_cd#
+	     , #item_nm#
+	     , CONVERT(DECIMAL(18,3), #issu_item_ea_qty#)
+	     , CONVERT(DECIMAL(15,5), #pick_item_cbm#)
+	     , CONVERT(DECIMAL(15,5), #pick_item_cbf#)
+	     , CONVERT(DECIMAL(15,5), #pick_item_grs_kgs#)
+	     , CONVERT(DECIMAL(15,5), #pick_item_grs_lbs#)
+	     , CONVERT(DECIMAL(15,5), #pick_item_net_kgs#)
+	     , CONVERT(DECIMAL(15,5), #pick_item_net_lbs#)
+	     , #eq_tp_cd#
+	     , #eq_tpsz_cd#
+	     , #eq_no#
+	     , #seal_no#
+	     , REPLACE(#gate_in_hm#, ':', '')
+	     , REPLACE(#gate_out_hm#, ':', '')
+	     , NULL
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     , #modi_id#
+	     , #modi_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     )
+	</insert>	
+	
+	<insert id="saveWhIssu" parameterClass="DocinWHOCMgmtVO">
+	/*WHOC.saveWhIssu*/
+	INSERT INTO TL_WH_ISSU
+	     ( WOB_OUT_NO
+	     , WALC_NO
+	     , OUTBOUND_DT
+	     , LOAD_HM_FR
+	     , LOAD_HM_TO
+	     , LOAD_BY
+	     , CUSTMS_REF_NO
+	     , RMK
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     )
+	VALUES
+	     ( #wob_out_no#
+	     , #walc_no#
+	     , REPLACE(#outbound_dt#, '-', '')
+	     , REPLACE(#load_hm_fr#, ':', '')
+	     , REPLACE(#load_hm_to#, ':', '')
+	     , NULL
+	     , #custms_ref_no#
+	     , #rmk#
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+<!-- 	     , TO_DATE(TL_GET_TM_ZONE_DATE(#wh_cd#),'YYYY-MM-DD HH24:MI:SS') -->
+		 , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     , #modi_id#
+	     , #modi_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     )
+	</insert>
+	
+	<select id="searchWHOCMgmtDetailByLoadPlan" parameterClass="Grd03WHOCMgmtVO" resultClass="Grd04WHOCMgmtVO">
+	/*WHOC.searchWHOCMgmtDetailByLoadPlan*/
+	SELECT ROW_NUMBER () OVER (PARTITION BY  T.WOB_BK_NO
+        							 ORDER BY T.WOB_BK_NO DESC) AS RN   
+	     , T.*
+	     , LOT.LOT_ATTRIB_01 AS INBOUND_DT
+		 , LOT.LOT_ATTRIB_02 AS LOT_NO
+		 , LOT.LOT_ATTRIB_03 AS EXP_DT
+		 , LOT.LOT_ATTRIB_04 AS LOT_04
+		 , LOT.LOT_ATTRIB_05 AS LOT_05
+		 , ISNULL(IT.PKG_LV1_QTY, 0) AS PKG_LV1_QTY
+		 , ISNULL(IT.LV1_CBM, 0) AS LV1_CBM
+		 , ISNULL(IT.LV1_CBF, 0) AS LV1_CBF
+		 , ISNULL(IT.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+		 , ISNULL(IT.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+		 , ISNULL(IT.LV1_NET_KGS, 0) AS LV1_NET_KGS
+		 , ISNULL(IT.LV1_NET_LBS, 0) AS LV1_NET_LBS
+	  FROM ( 
+	    SELECT LP.SEQ
+	         , LP_ITEM.LP_NO
+	         , LP_ITEM.LP_NO AS LP_NO_KEY
+	         , LP_ITEM.WOB_BK_NO
+	         , LP_ITEM.SAO_SYS_NO
+	         , LP_ITEM.PO_SYS_NO
+	         , LP_ITEM.ITEM_SYS_NO
+	         , LP_ITEM.LOT_ID
+	         , LP_ITEM.WH_LOC_CD
+	         , dbo.TL_GET_WH_LOC_NM(OB.WH_CD, LP_ITEM.WH_LOC_CD) AS  WH_LOC_CD_NM  
+	         , LP_ITEM.ITEM_SEQ
+	         , LP_ITEM.SO_NO
+	         , LP_ITEM.SAO_NO
+	         , LP_ITEM.ITEM_CD
+	         , LP_ITEM.ITEM_NM
+	         , OB_ITEM.ITEM_PKGUNIT
+	         , OB_ITEM.ITEM_PKGQTY
+	         , OB_ITEM.ITEM_EA_QTY
+	         , ALLC_ITEM.PICK_ITEM_EA_QTY
+	         , LP_ITEM.LP_ITEM_EA_QTY
+	         , LP_ITEM.LOAD_ITEM_EA_QTY
+	         , LP_ITEM.LOAD_ITEM_CBM
+	         , LP_ITEM.LOAD_ITEM_CBF
+	         , LP_ITEM.LOAD_ITEM_GRS_KGS
+	         , LP_ITEM.LOAD_ITEM_GRS_LBS
+	         , LP_ITEM.LOAD_ITEM_NET_KGS
+	         , LP_ITEM.LOAD_ITEM_NET_LBS
+	         , LP_ITEM.LP_ITEM_EA_QTY - LP_ITEM.LOAD_ITEM_EA_QTY AS GAP
+	         , LP.EQ_TPSZ_CD
+	         , LP.EQ_NO
+	         , LP.SEAL_NO
+	         , LP.GATE_IN_HM
+	         , LP.GATE_OUT_HM
+	         , ALLC_ITEM.WIB_BK_NO
+	         , ALLC_ITEM.PO_NO
+	         , OB.CTRT_NO
+	         , WAVE_OB.WAVE_NO  
+	         , OB.WH_CD   
+	      FROM (SELECT A.*
+	                 , RANK() OVER( ORDER BY A.LP_NO ASC) AS SEQ 
+	              FROM TL_WH_LOAD_PLAN A
+	             WHERE A.LP_NO IN 
+						<!-- <foreach collection="lp_no_in" item="l_no" separator=",">#{l_no}</foreach> -->
+						<iterate property="lp_no_in" conjunction="," close=")" open="(" >  #lp_no_in[]#  </iterate>
+	                              
+	           )LP  
+	         , TL_WH_LOAD_PLAN_ITEM LP_ITEM
+	         
+	         LEFT JOIN TL_WH_WAVE_OB WAVE_OB
+										  ON LP_ITEM.WOB_BK_NO = WAVE_OB.WOB_BK_NO
+										  
+	         , TL_WH_ALLC_ITEM ALLC_ITEM
+	         , TL_WH_OB_ITEM OB_ITEM
+	         , TL_WH_OB OB
+	         
+	     WHERE LP.LP_NO = LP_ITEM.LP_NO
+	     
+	       AND LP_ITEM.WOB_BK_NO = ALLC_ITEM.WOB_BK_NO
+	       AND LP_ITEM.SAO_SYS_NO = ALLC_ITEM.SAO_SYS_NO
+	       AND LP_ITEM.WIB_BK_NO = ALLC_ITEM.WIB_BK_NO
+	       AND LP_ITEM.PO_SYS_NO = ALLC_ITEM.PO_SYS_NO
+	       AND LP_ITEM.ITEM_SYS_NO = ALLC_ITEM.ITEM_SYS_NO
+	       AND LP_ITEM.LOT_ID = ALLC_ITEM.LOT_ID
+	       AND LP_ITEM.WH_LOC_CD = ALLC_ITEM.WH_LOC_CD
+	       AND LP_ITEM.ITEM_SEQ = ALLC_ITEM.ITEM_SEQ
+	       
+	       AND LP_ITEM.WOB_BK_NO = OB_ITEM.WOB_BK_NO
+	       AND LP_ITEM.SAO_SYS_NO = OB_ITEM.SAO_SYS_NO
+	       AND LP_ITEM.ITEM_SYS_NO = OB_ITEM.ITEM_SYS_NO
+	       AND LP_ITEM.ITEM_SEQ = OB_ITEM.ITEM_SEQ
+	       
+	       AND LP_ITEM.WOB_BK_NO = OB.WOB_BK_NO
+	       
+	       ) T
+	       
+	       LEFT JOIN TL_CTRT_CUST_ITEM_LOT LOT
+										  ON T.CTRT_NO     = LOT.CTRT_NO
+											AND T.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+											AND T.LOT_ID      = LOT.LOT_ID
+											
+		   LEFT JOIN TL_CTRT_CUST_ITEM IT
+										  ON T.CTRT_NO     = IT.CTRT_NO
+											AND T.ITEM_SYS_NO = IT.ITEM_SYS_NO
+											
+	 ORDER BY T.LP_NO, T.WOB_BK_NO ASC, T.SAO_SYS_NO ASC, T.ITEM_SYS_NO ASC, T.ITEM_SEQ ASC, LOT.LOT_ATTRIB_01 ASC, T.PO_SYS_NO ASC, T.LOT_ID ASC, T.WH_LOC_CD ASC
+	</select>
+	
+	<select id="searchWHOCMgmtDetailByBooking" parameterClass="Grd01WHOCMgmtVO" resultClass="Grd02WHOCMgmtVO">
+	/*WHOC.searchWHOCMgmtDetailByBooking*/
+	SELECT ROW_NUMBER () OVER (PARTITION BY  T.WOB_BK_NO
+        							 ORDER BY T.WOB_BK_NO DESC) AS RN
+	     , T.*
+	     , LOT.LOT_ATTRIB_01 AS INBOUND_DT
+		 , LOT.LOT_ATTRIB_02 AS LOT_NO
+		 , LOT.LOT_ATTRIB_03 AS EXP_DT
+		 , LOT.LOT_ATTRIB_04 AS LOT_04
+		 , LOT.LOT_ATTRIB_05 AS LOT_05
+		 , ISNULL(IT.PKG_LV1_QTY, 0) AS PKG_LV1_QTY
+		 , ISNULL(IT.LV1_CBM, 0) AS LV1_CBM
+		 , ISNULL(IT.LV1_CBF, 0) AS LV1_CBF
+		 , ISNULL(IT.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+		 , ISNULL(IT.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+		 , ISNULL(IT.LV1_NET_KGS, 0) AS LV1_NET_KGS
+		 , ISNULL(IT.LV1_NET_LBS, 0) AS LV1_NET_LBS
+	  FROM (
+	        SELECT ALLC.SEQ         
+	             , ALLC_ITEM.WALC_NO
+	             , ALLC_ITEM.WOB_BK_NO
+	             , ALLC_ITEM.SAO_SYS_NO
+	             , ALLC_ITEM.PO_SYS_NO
+	             , ALLC_ITEM.ITEM_SYS_NO
+	             , ALLC_ITEM.LOT_ID
+	             , ALLC_ITEM.WH_LOC_CD
+	             , ALLC_ITEM.ITEM_SEQ
+	             , ALLC_ITEM.ITEM_CD
+	             , OB_ITEM.ITEM_PKGUNIT
+	             , OB_ITEM.ITEM_PKGQTY
+	             , OB_ITEM.ITEM_EA_QTY
+	             , ALLC_ITEM.PICK_ITEM_EA_QTY
+	             , ALLC_ITEM.PICK_ITEM_EA_QTY AS ISSU_ITEM_EA_QTY
+	             , 0 AS GAP
+	             , ALLC_ITEM.PICK_ITEM_CBM
+	             , ALLC_ITEM.PICK_ITEM_CBF
+	             , ALLC_ITEM.PICK_ITEM_GRS_KGS
+	             , ALLC_ITEM.PICK_ITEM_GRS_LBS
+	             , ALLC_ITEM.PICK_ITEM_NET_KGS
+	             , ALLC_ITEM.PICK_ITEM_NET_LBS             
+	             , dbo.TL_GET_WH_LOC_NM(OB.WH_CD, ALLC_ITEM.WH_LOC_CD) AS  WH_LOC_CD_NM   
+	             , '' AS GATE_IN_HM
+	             , '' AS GATE_OUT_HM  
+	             , WAVE_OB.WAVE_NO     
+	             , OB.SO_NO
+	             , ALLC_ITEM.SAO_NO
+	             , ALLC_ITEM.WIB_BK_NO
+	             , ALLC_ITEM.PO_NO
+	             , ALLC_ITEM.CUST_ITEM_CD
+	             , ALLC_ITEM.ITEM_NM
+	             , OB.CTRT_NO
+	             , OB.WH_CD
+	          FROM (SELECT A.*
+	                     , RANK() OVER( ORDER BY A.WOB_BK_NO ASC) AS SEQ 
+	                  FROM TL_WH_ALLC A
+	                 WHERE A.WALC_NO IN 
+			   						<!-- <foreach collection="walc_no_in" item="w_no" separator=",">#{w_no}</foreach> -->
+                      <iterate property="walc_no_in" conjunction="," close=")" open="(" >  #walc_no_in[]#  </iterate>
+	               )ALLC      
+	             , TL_WH_ALLC_ITEM ALLC_ITEM
+	             
+	             LEFT JOIN TL_WH_ISSU_ITEM ISSU_ITEM
+										  ON ALLC_ITEM.WALC_NO = ISSU_ITEM.WALC_NO
+											AND ALLC_ITEM.WOB_BK_NO = ISSU_ITEM.WOB_BK_NO
+											
+											AND ALLC_ITEM.SAO_SYS_NO = ISSU_ITEM.SAO_SYS_NO
+											AND ALLC_ITEM.WIB_BK_NO = ISSU_ITEM.WIB_BK_NO
+											AND ALLC_ITEM.PO_SYS_NO = ISSU_ITEM.PO_SYS_NO
+											AND ALLC_ITEM.ITEM_SYS_NO = ISSU_ITEM.ITEM_SYS_NO
+											AND ALLC_ITEM.LOT_ID = ISSU_ITEM.LOT_ID
+											AND ALLC_ITEM.WH_LOC_CD = ISSU_ITEM.WH_LOC_CD
+											AND ALLC_ITEM.ITEM_SEQ = ISSU_ITEM.ITEM_SEQ
+											AND ISSU_ITEM.WALC_NO IS NULL
+											
+				 LEFT JOIN TL_WH_WAVE_OB WAVE_OB
+										  ON ALLC_ITEM.WOB_BK_NO = WAVE_OB.WOB_BK_NO
+											
+	             , TL_WH_OB_ITEM OB_ITEM
+	             , TL_WH_OB OB
+
+	         WHERE ALLC.WALC_NO = ALLC_ITEM.WALC_NO
+	           AND ALLC_ITEM.WOB_BK_NO = OB_ITEM.WOB_BK_NO
+	           AND ALLC_ITEM.SAO_SYS_NO = OB_ITEM.SAO_SYS_NO
+	           AND ALLC_ITEM.ITEM_SYS_NO = OB_ITEM.ITEM_SYS_NO
+	           AND ALLC_ITEM.ITEM_SEQ = OB_ITEM.ITEM_SEQ 
+	           AND ALLC_ITEM.WOB_BK_NO = OB.WOB_BK_NO
+	           
+	     ) T
+	     
+	     LEFT JOIN TL_CTRT_CUST_ITEM_LOT LOT
+										  ON T.CTRT_NO     = LOT.CTRT_NO
+											AND T.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+											AND T.LOT_ID      = LOT.LOT_ID
+											
+		 LEFT JOIN TL_CTRT_CUST_ITEM IT
+										  ON T.CTRT_NO     = IT.CTRT_NO
+											AND T.ITEM_SYS_NO = IT.ITEM_SYS_NO
+	    
+	 ORDER BY T.WOB_BK_NO ASC, T.SAO_SYS_NO ASC, T.ITEM_SYS_NO ASC, T.ITEM_SEQ ASC, LOT.LOT_ATTRIB_01 ASC, T.PO_SYS_NO ASC, T.LOT_ID ASC, T.WH_LOC_CD ASC
+	</select>	
+	
+	<select id="searchWHOCMgmtHeaderByLoadPlan" parameterClass="WHOCMgmtHeaderByLoadPlanInOutVO" resultClass="WHOCMgmtHeaderByLoadPlanInOutVO">
+	/*WHOC.searchWHOCMgmtHeaderByLoadPlan*/
+	SELECT T.*
+	     , dbo.TL_GET_COMM_NM('WB3',OB.ORD_TP_CD) AS ORD_TP_NM
+	     , OB.BK_DATE
+	     , OB.EST_OUT_DT
+	     , OB.BUYER_CD
+	     , dbo.TL_GET_CUST_NM(OB.BUYER_CD) AS BUYER_NM
+	     , OB.CTRT_NO
+	     , dbo.TL_GET_CTRT_NM(OB.CTRT_NO) AS CTRT_NM
+	     , OB.WH_CD
+	     , dbo.TL_GET_LOC_NM(OB.WH_CD) AS WH_NM 
+	  FROM (
+	        SELECT LP_ITEM.WOB_BK_NO
+	             , LP.LP_NO
+	             , LP.CONSOL_NO
+<!-- 	             , MAX(TO_CHAR(LP.RGST_LOC_DT, 'YYYYMMDD')) AS LP_DT -->
+				 , MAX(CONVERT(VARCHAR(10),LP.RGST_LOC_DT,120)) AS LP_DT
+	             , SUM(LP_ITEM.LP_ITEM_EA_QTY) AS TTL_EA_QTY         
+	          FROM TL_WH_LOAD_PLAN LP
+	             , TL_WH_LOAD_PLAN_ITEM LP_ITEM
+	         WHERE LP.LP_STS_CD = 'P'
+	           AND LP.LP_NO = LP_ITEM.LP_NO
+	           
+	        <isNotEqual property="lp_fm_plan_dt" compareValue="">
+			   AND REPLACE(
+			CONVERT (
+				VARCHAR (10),
+				LP.RGST_LOC_DT,
+				120
+			),
+			'-',
+			''
+		) BETWEEN REPLACE(#lp_fm_plan_dt#, '-', '')  AND REPLACE(#lp_to_plan_dt#, '-','') /*lp date between*/
+			</isNotEqual> 
+			<isNotEqual property="lp_search_no" compareValue="">	
+				<isEqual property="lp_search_tp" compareValue="LP_NO">	
+					 AND LP.LP_NO IN 
+				<!-- <foreach collection="lp_search_no_in" item="lp_no" separator=",">#{lp_no}</foreach> -->
+				<iterate property="lp_search_no_in" conjunction="," close=")" open="(" >  #lp_search_no_in[]#  </iterate>
+	
+				</isEqual>
+				<isEqual property="lp_search_tp" compareValue="CONSOL_NO">	
+					AND LP.CONSOL_NO IN 
+				<!-- <foreach collection="lp_search_no_in" item="consol_no" separator=",">#{consol_no}</foreach> -->
+				<iterate property="lp_search_no_in" conjunction="," close=")" open="(" >  #lp_search_no_in[]#  </iterate>
+				                     
+				</isEqual>
+				<isEqual property="lp_search_tp" compareValue="WOB_BK_NO">	
+					 AND LP_ITEM.WOB_BK_NO IN
+				<!-- <foreach collection="lp_search_no_in" item="bk_no" separator=",">#{bk_no}</foreach> -->
+				<iterate property="lp_search_no_in" conjunction="," close=")" open="(" >  #lp_search_no_in[]#  </iterate>
+				                     
+				</isEqual>
+				<isEqual property="lp_search_tp" compareValue="WAVE_NO">	
+				   AND LP_ITEM.WOB_BK_NO IN (
+				   						SELECT WOB_BK_NO
+				   						  FROM TL_WH_WAVE_OB 
+				   						 WHERE WAVE_NO IN 
+				   						 <iterate property="lp_search_no_in" conjunction="," close=")" open="(" >  #lp_search_no_in[]#  </iterate> 
+										<!-- <foreach collection="lp_search_no_in" item="w_no" separator=",">#{w_no}</foreach> -->
+				   											
+				                      )
+				</isEqual>
+			</isNotEqual> 
+	         GROUP BY LP.LP_NO, LP.CONSOL_NO, LP_ITEM.WOB_BK_NO
+	       ) T, TL_WH_OB OB
+	 WHERE T.WOB_BK_NO = OB.WOB_BK_NO
+	<isNotEqual property="lp_wh_cd" compareValue="">	
+	   AND OB.WH_CD = #lp_wh_cd# /*조건-Warehouse*/
+	</isNotEqual> 
+	<isNotEqual property="lp_ctrt_no" compareValue="">	
+	   AND OB.CTRT_NO = #lp_ctrt_no# /*조건-Contract No*/
+	</isNotEqual> 
+	<isNotEqual property="lp_ord_tp_cd" compareValue="ALL">	
+	   AND OB.ORD_TP_CD = #lp_ord_tp_cd# /*조건-Order Type*/
+	</isNotEqual>
+	<isNotEqual property="lp_fm_bk_date" compareValue="">
+	   AND OB.BK_DATE BETWEEN REPLACE(#lp_fm_bk_date#, '-', '')  AND REPLACE(#lp_to_bk_date#, '-','') /*Booking date between*/
+	</isNotEqual> 
+	<isNotEqual property="lp_buyer_cd" compareValue="">
+	   AND OB.BUYER_CD = #lp_buyer_cd# /*Buyer (consignee)*/
+	</isNotEqual> 
+	ORDER BY T.LP_NO ASC, T.WOB_BK_NO ASC
+	</select>
+	
+	<select id="searchWHOCMgmtHeaderByBooking" parameterClass="WHOCMgmtHeaderByBookingInOutVO" resultClass="WHOCMgmtHeaderByBookingInOutVO">
+	/*WHOC.searchWHOCMgmtHeaderByBooking*/
+	SELECT A.WOB_BK_NO
+	     , B.WALC_NO
+	     , dbo.TL_GET_COMM_NM('WB3',A.ORD_TP_CD) AS ORD_TP_NM
+	     , A.BK_DATE
+	     , A.EST_OUT_DT
+	     , (SELECT SUM(PICK_ITEM_EA_QTY) FROM TL_WH_ALLC_ITEM C WHERE B.WALC_NO = C.WALC_NO ) AS TTL_EA_QTY
+	     , A.BUYER_CD
+	     , dbo.TL_GET_CUST_NM(A.BUYER_CD) AS BUYER_NM
+	     , A.CTRT_NO
+	     , dbo.TL_GET_CTRT_NM(A.CTRT_NO) AS CTRT_NM
+	     , A.WH_CD
+		 , dbo.TL_GET_LOC_NM(A.WH_CD) AS WH_NM
+	  FROM TL_WH_OB A
+	     , TL_WH_ALLC B
+	     
+	 WHERE A.WOB_BK_NO = B.WOB_BK_NO
+	   AND (SELECT COUNT(1)
+	          FROM TL_WH_PSUDO_LP_SHIP SHIP
+	         WHERE A.WOB_BK_NO = SHIP.WOB_BK_NO) = 0 /*SHIP에 입력된건은 제외시킨다*/
+	         <isNotEmpty property="bk_wh_cd">
+	         	 AND A.WH_CD = #bk_wh_cd#
+	         </isNotEmpty>
+	         
+	         <isNotEmpty property="bk_ctrt_no">
+	         	 AND A.CTRT_NO = #bk_ctrt_no#
+	         </isNotEmpty>
+	<isNotEqual property="bk_ord_tp_cd" compareValue="ALL">	
+	   AND A.ORD_TP_CD = #bk_ord_tp_cd#
+	</isNotEqual>
+	<isNotEmpty property="wob_bk_no">
+		<isEqual property="bk_search_tp" compareValue="WOB_BK_NO">	
+	   AND A.WOB_BK_NO IN 
+	   						<!-- <foreach collection="wob_bk_no_in" item="bk_no" separator=",">#{bk_no}</foreach> -->
+	   						<iterate property="wob_bk_no_in" conjunction="," close=")" open="(" >  #wob_bk_no_in[]#  </iterate>
+	    </isEqual>
+	    <isEqual property="bk_search_tp" compareValue="WAVE_NO">	
+	   AND A.WOB_BK_NO IN (
+	   						SELECT WOB_BK_NO
+	   						  FROM TL_WH_WAVE_OB 
+	   						 WHERE WAVE_NO IN  
+	   											<!-- <foreach collection="wob_bk_no_in" item="w_no" separator=",">#{w_no}</foreach> -->
+	   						<iterate property="wob_bk_no_in" conjunction="," close=")" open="(" >  #wob_bk_no_in[]#  </iterate>
+	                      )
+	    </isEqual>
+	</isNotEmpty>
+	<isNotEmpty property="bk_fm_bk_date">
+		AND A.BK_DATE BETWEEN REPLACE(#bk_fm_bk_date#, '-', '')  AND REPLACE(#bk_to_bk_date#, '-','') /*Booking date between*/
+	</isNotEmpty>
+	<isNotEmpty property="bk_buyer_cd">
+		 AND A.BUYER_CD = #bk_buyer_cd# /*Buyer (consignee)*/
+	</isNotEmpty>
+	<isNotEmpty property="bk_fm_est_out_dt">
+	   AND A.EST_OUT_DT BETWEEN REPLACE(#bk_fm_est_out_dt#, '-', '')  AND REPLACE(#bk_to_est_out_dt#, '-','') /*Estimate date between*/
+	</isNotEmpty> 
+	   AND (SELECT COUNT(1)  /*모두 ISSU된건은 제외시킨다*/
+	          FROM TL_WH_ALLC_ITEM ALLC_ITEM
+	          
+	          LEFT JOIN TL_WH_ISSU_ITEM ISSU_ITEM
+										  ON ALLC_ITEM.WALC_NO = ISSU_ITEM.WALC_NO
+											AND ALLC_ITEM.WOB_BK_NO = ISSU_ITEM.WOB_BK_NO
+											AND ALLC_ITEM.SAO_SYS_NO = ISSU_ITEM.SAO_SYS_NO
+											AND ALLC_ITEM.WIB_BK_NO = ISSU_ITEM.WIB_BK_NO
+											AND ALLC_ITEM.PO_SYS_NO = ISSU_ITEM.PO_SYS_NO
+											AND ALLC_ITEM.ITEM_SYS_NO = ISSU_ITEM.ITEM_SYS_NO
+											AND ALLC_ITEM.LOT_ID = ISSU_ITEM.LOT_ID
+											AND ALLC_ITEM.WH_LOC_CD = ISSU_ITEM.WH_LOC_CD
+											AND ALLC_ITEM.ITEM_SEQ = ISSU_ITEM.ITEM_SEQ
+											
+	         WHERE ALLC_ITEM.WALC_NO = B.WALC_NO
+	           <![CDATA[ AND ISSU_ITEM.WALC_NO IS NULL) > 0 ]]>
+	           
+	  ORDER BY  A.WOB_BK_NO ASC        
+	</select>
+	
+	<update id="modifyWhLoadPlanItemForUpdate" parameterClass="Grd02WHOCUpdateVO">
+	/*WHOC.modifyWhLoadPlanItemForUpdate*/
+	UPDATE TL_WH_LOAD_PLAN_ITEM
+	   SET LOAD_ITEM_EA_QTY          = #load_item_ea_qty#
+	     , LOAD_ITEM_CBM             = #load_item_cbm#
+	     , LOAD_ITEM_CBF             = #load_item_cbf#
+	     , LOAD_ITEM_GRS_KGS         = #load_item_grs_kgs#
+	     , LOAD_ITEM_GRS_LBS         = #load_item_grs_lbs#
+	     , LOAD_ITEM_NET_KGS         = #load_item_net_kgs#
+	     , LOAD_ITEM_NET_LBS         = #load_item_net_lbs#
+	     , RMK                       = #rmk#
+	     , MODI_ID        = #modi_id#
+	     , MODI_OFC_CD    = #modi_ofc_cd#
+	     , MODI_SYS_DT    = GETDATE()
+	     
+ 		 , MODI_LOC_DT    = CONVERT(VARCHAR(23),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),20)
+	     
+	<!--      , MODI_LOC_DT    = TO_DATE(TL_GET_TM_ZONE_DATE(#{wh_cd}),'YYYY-MM-DD HH24:MI:SS') -->
+	 WHERE LP_NO          = #lp_no#
+	   AND WOB_BK_NO      = #wob_bk_no#
+	   AND SAO_SYS_NO     = #sao_sys_no#
+	   AND WIB_BK_NO      = #wib_bk_no#
+	   AND PO_SYS_NO      = #po_sys_no#
+	   AND ITEM_SYS_NO    = #item_sys_no#
+	   AND LOT_ID         = #lot_id#
+	   AND WH_LOC_CD      = #wh_loc_cd#
+	   AND ITEM_SEQ       = #item_seq#
+	</update>
+	
+	<update id="modifyWhLoadPlanForUpdate" parameterClass="DocinWHOCUpdateVO">
+	/*WHOC.modifyWhLoadPlanForUpdate*/
+	UPDATE TL_WH_LOAD_PLAN
+	   SET LOAD_BY        = #load_by#
+		<isEqual property="lp_sts_complete_check" compareValue="L">
+		/* lp_sts_cd 가 'P'에서 COMPLETE로 변경된경우*/	
+			     , LP_STS_CD      = #lp_sts_complete_check#
+			     , OUTBOUND_DT    = REPLACE(#outbound_dt#, '-', '')
+		</isEqual>
+		<isEqual property="lp_sts_cd" compareValue="P">
+		/* 현재 lp_sts_cd 가 'P'일경우*/	
+			     , EQ_NO          = #eq_no#
+			     , SEAL_NO        = #seal_no#	
+		</isEqual>
+	     , GATE_IN_HM     = REPLACE(#gate_in_hm#, ':', '')
+	     , GATE_OUT_HM    = REPLACE(#gate_out_hm#, ':', '')
+	     , LOAD_HM_FR     = REPLACE(#load_hm_fr#, ':', '')
+	     , LOAD_HM_TO     = REPLACE(#load_hm_to#, ':', '')
+	     , RMK            = #rmk#
+	     , CUSTMS_REF_NO  = #custms_ref_no#
+	     , MODI_ID        = #modi_id#
+	     , MODI_OFC_CD    = #modi_ofc_cd#
+	     , MODI_SYS_DT    = GETDATE()
+	 <!--     , MODI_LOC_DT    = TO_DATE(TL_GET_TM_ZONE_DATE(#wh_cd#),'YYYY-MM-DD HH24:MI:SS') -->
+	 	 , MODI_LOC_DT    = CONVERT(VARCHAR(23),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),20)
+	 	
+	 WHERE LP_NO          = #lp_no# 
+	</update>
+	
+	<update id="modifyWhIssuItem" parameterClass="Grd01WHOCUpdateVO">
+	/*WHOC.modifyWhIssuItem*/
+	UPDATE TL_WH_ISSU_ITEM
+	   SET ISSU_ITEM_EA_QTY       = #issu_item_ea_qty#
+	     , ISSU_ITEM_CBM          = #issu_item_cbm#
+		 , ISSU_ITEM_CBF          = #issu_item_cbf#
+		 , ISSU_ITEM_GRS_KGS      = #issu_item_grs_kgs#
+		 , ISSU_ITEM_GRS_LBS      = #issu_item_grs_lbs#
+		 , ISSU_ITEM_NET_KGS      = #issu_item_net_kgs#
+		 , ISSU_ITEM_NET_LBS      = #issu_item_net_lbs#
+		 , EQ_TP_CD               = #eq_tp_cd#
+		 , EQ_TPSZ_CD             = #eq_tpsz_cd#
+		 , EQ_NO                  = #eq_no#
+		 , SEAL_NO                = #seal_no#
+		 , GATE_IN_HM             = REPLACE(#gate_in_hm#, ':', '')
+	     , GATE_OUT_HM            = REPLACE(#gate_out_hm#, ':', '')     
+		 , RMK                    = #rmk#
+	     , MODI_ID                = #modi_id#
+	     , MODI_OFC_CD            = #modi_ofc_cd#
+	     , MODI_SYS_DT            = GETDATE()
+<!-- 	     , MODI_LOC_DT            = TO_DATE(TL_GET_TM_ZONE_DATE(#{wh_cd#),'YYYY-MM-DD HH24:MI:SS') -->
+		 , MODI_LOC_DT            = CONVERT(VARCHAR(23),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),20)
+	 WHERE WOB_OUT_NO             = #wob_out_no# 
+	   AND WALC_NO                = #walc_no#
+	   AND WOB_BK_NO              = #wob_bk_no#
+	   AND SAO_SYS_NO             = #sao_sys_no#
+	   AND WIB_BK_NO			  = #wib_bk_no#
+	   AND PO_SYS_NO              = #po_sys_no#
+	   AND ITEM_SYS_NO            = #item_sys_no#
+	   AND LOT_ID                 = #lot_id#
+	   AND WH_LOC_CD              = #wh_loc_cd#
+	   AND ITEM_SEQ               = #item_seq#
+	</update>	
+	
+	<update id="modifyWhIssu" parameterClass="DocinWHOCUpdateVO">
+	/*WHOC.modifyWhIssu*/
+	UPDATE TL_WH_ISSU
+	   SET LOAD_BY        = #load_by#
+	     , LOAD_HM_FR     = REPLACE(#load_hm_fr#, ':', '')
+	     , LOAD_HM_TO     = REPLACE(#load_hm_to#, ':', '')
+	     , CUSTMS_REF_NO  = #custms_ref_no#
+	     , RMK            = #rmk#
+	     , MODI_ID        = #modi_id#
+	     , MODI_OFC_CD    = #modi_ofc_cd#
+	     , MODI_SYS_DT    = GETDATE()
+<!-- 	     , MODI_LOC_DT    = TO_DATE(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),'YYYY-MM-DD HH24:MI:SS') -->
+		 , MODI_LOC_DT    = CONVERT(VARCHAR(23),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),20)
+	 WHERE WOB_OUT_NO     = #wob_out_no# 
+	</update>
+	
+	 <delete id="removeFileWHOCUpdateItemByLoadPlan" parameterClass="java.util.HashMap">
+	/* WHOC.removeFileWHOCUpdateItemByLoadPlan */
+	DELETE FROM TL_WH_LOAD_PLAN_ITEM_FILE_REP
+	 WHERE LP_NO       = #lp_no#
+       AND WOB_BK_NO   = #wob_bk_no#
+       AND SAO_SYS_NO  = #sao_sys_no#
+       AND WIB_BK_NO   = #wib_bk_no#
+       AND PO_SYS_NO   = #po_sys_no#
+       AND ITEM_SYS_NO = #item_sys_no#
+       AND LOT_ID      = #lot_id#
+       AND WH_LOC_CD   = #wh_loc_cd#
+       AND ITEM_SEQ    = #item_seq#
+	   AND FILE_SEQ    = #file_seq#
+    </delete>
+	
+	<delete id="removeFileWHOCUpdateItemByBooking" parameterClass="java.util.HashMap">
+	/* WHOC.removeFileWHOCUpdateItemByBooking */
+	DELETE FROM TL_WH_ISSU_ITEM_FILE_REP
+	 WHERE WOB_OUT_NO  = #wob_out_no#
+       AND WALC_NO     = #walc_no#
+       AND WOB_BK_NO   = #wob_bk_no#
+       AND SAO_SYS_NO  = #sao_sys_no#
+       AND WIB_BK_NO   = #wib_bk_no#
+       AND PO_SYS_NO   = #po_sys_no#
+       AND ITEM_SYS_NO = #item_sys_no#
+       AND LOT_ID      = #lot_id#
+       AND WH_LOC_CD   = #wh_loc_cd#
+       AND ITEM_SEQ    = #item_seq#
+	   AND FILE_SEQ    = #file_seq#
+    </delete>
+	
+	<select id="searchWHOCUpdateItemByLoadPlan" parameterClass="java.util.HashMap" resultClass="Grd02WHOCUpdateVO">
+	/*WHOC.searchWHOCUpdateItemByLoadPlan*/
+	SELECT ROW_NUMBER () OVER (PARTITION BY  T.WOB_BK_NO
+        							 ORDER BY T.WOB_BK_NO DESC) AS RN   
+     , T.*
+     , LOT.LOT_ATTRIB_01 AS INBOUND_DT
+	 , LOT.LOT_ATTRIB_02 AS LOT_NO
+	 , LOT.LOT_ATTRIB_03 AS EXP_DT
+	 , LOT.LOT_ATTRIB_04 AS LOT_04
+	 , LOT.LOT_ATTRIB_05 AS LOT_05	 
+	 , ISNULL(IT.PKG_LV1_QTY, 0) AS PKG_LV1_QTY
+	 , ISNULL(IT.LV1_CBM, 0) AS LV1_CBM
+	 , ISNULL(IT.LV1_CBF, 0) AS LV1_CBF
+	 , ISNULL(IT.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+	 , ISNULL(IT.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+	 , ISNULL(IT.LV1_NET_KGS, 0) AS LV1_NET_KGS
+	 , ISNULL(IT.LV1_NET_LBS, 0) AS LV1_NET_LBS	 
+  FROM ( 
+    SELECT DENSE_RANK() OVER( ORDER BY LP_ITEM.WOB_BK_NO ASC) AS SEQ
+         , LP_ITEM.LP_NO
+         , LP_ITEM.WOB_BK_NO
+         , LP_ITEM.SAO_SYS_NO
+         , LP_ITEM.PO_SYS_NO
+         , LP_ITEM.ITEM_SYS_NO
+         , LP_ITEM.LOT_ID
+         , LP_ITEM.WH_LOC_CD
+         , dbo.TL_GET_WH_LOC_NM(OB.WH_CD, LP_ITEM.WH_LOC_CD) AS  WH_LOC_CD_NM  
+         , LP_ITEM.ITEM_SEQ
+         , LP_ITEM.SO_NO
+         , LP_ITEM.SAO_NO
+         , LP_ITEM.ITEM_CD
+         , LP_ITEM.ITEM_NM
+         , OB_ITEM.ITEM_PKGUNIT
+         , OB_ITEM.ITEM_PKGQTY
+         , OB_ITEM.ITEM_EA_QTY
+         , ALLC_ITEM.PICK_ITEM_EA_QTY
+         , LP_ITEM.LP_ITEM_EA_QTY
+         , LP_ITEM.LOAD_ITEM_EA_QTY
+         , LP_ITEM.LOAD_ITEM_EA_QTY AS LOAD_ITEM_EA_QTY_ORG
+         , LP_ITEM.LP_ITEM_EA_QTY - LP_ITEM.LOAD_ITEM_EA_QTY AS GAP
+         , LP_ITEM.LOAD_ITEM_CBM
+         , LP_ITEM.LOAD_ITEM_CBF
+         , LP_ITEM.LOAD_ITEM_GRS_KGS
+         , LP_ITEM.LOAD_ITEM_GRS_LBS
+         , LP_ITEM.LOAD_ITEM_NET_KGS
+         , LP_ITEM.LOAD_ITEM_NET_LBS         
+         , ALLC_ITEM.WIB_BK_NO
+         , ALLC_ITEM.PO_NO
+         , OB.CTRT_NO
+         , OB.WH_CD
+         , WAVE_OB.WAVE_NO
+         , LP_ITEM.RMK
+         , F.FILE_SEQ
+	     , F.FILE_PATH
+	     , F.FILE_SYS_NM
+	     , F.FILE_ORG_NM
+	     , F.FILE_SIZE
+	     , CASE WHEN F.FILE_SEQ IS NULL THEN 'Add' ELSE 'Download' END AS ATTACH_ADD
+	     , CASE WHEN F.FILE_SEQ IS NULL THEN '' ELSE 'Del' END AS ATTACH_DEL    
+      FROM TL_WH_LOAD_PLAN_ITEM LP_ITEM
+      
+      		LEFT JOIN TL_WH_LOAD_PLAN_ITEM_FILE_REP F
+										  ON LP_ITEM.LP_NO = F.LP_NO
+											AND LP_ITEM.WOB_BK_NO = F.WOB_BK_NO
+											AND LP_ITEM.SAO_SYS_NO = F.SAO_SYS_NO
+											AND LP_ITEM.WIB_BK_NO = F.WIB_BK_NO
+											AND LP_ITEM.PO_SYS_NO = F.PO_SYS_NO
+											AND LP_ITEM.ITEM_SYS_NO = F.ITEM_SYS_NO
+
+											AND LP_ITEM.LOT_ID = F.LOT_ID
+											AND LP_ITEM.WH_LOC_CD = F.WH_LOC_CD
+											AND LP_ITEM.ITEM_SEQ = F.ITEM_SEQ
+											
+											AND 1 = F.FILE_SEQ
+											
+			LEFT JOIN TL_WH_WAVE_OB WAVE_OB
+										  ON LP_ITEM.WOB_BK_NO = WAVE_OB.WOB_BK_NO
+											
+         , TL_WH_ALLC_ITEM ALLC_ITEM
+         , TL_WH_OB_ITEM OB_ITEM
+         , TL_WH_OB OB
+         
+     WHERE LP_ITEM.WOB_BK_NO = ALLC_ITEM.WOB_BK_NO
+       AND LP_ITEM.SAO_SYS_NO = ALLC_ITEM.SAO_SYS_NO
+       AND LP_ITEM.WIB_BK_NO = ALLC_ITEM.WIB_BK_NO
+       AND LP_ITEM.PO_SYS_NO = ALLC_ITEM.PO_SYS_NO
+       AND LP_ITEM.ITEM_SYS_NO = ALLC_ITEM.ITEM_SYS_NO
+       AND LP_ITEM.LOT_ID = ALLC_ITEM.LOT_ID
+       AND LP_ITEM.WH_LOC_CD = ALLC_ITEM.WH_LOC_CD
+       AND LP_ITEM.ITEM_SEQ = ALLC_ITEM.ITEM_SEQ
+       
+       AND LP_ITEM.WOB_BK_NO = OB_ITEM.WOB_BK_NO
+       AND LP_ITEM.SAO_SYS_NO = OB_ITEM.SAO_SYS_NO
+       AND LP_ITEM.ITEM_SYS_NO = OB_ITEM.ITEM_SYS_NO
+       AND LP_ITEM.ITEM_SEQ = OB_ITEM.ITEM_SEQ
+       
+       AND LP_ITEM.WOB_BK_NO = OB.WOB_BK_NO     
+       
+       <isNotEmpty property="in_lp_no">
+	   AND LP_ITEM.LP_NO = #in_lp_no#
+	   </isNotEmpty>
+       ) T
+        LEFT JOIN TL_CTRT_CUST_ITEM_LOT LOT
+										  ON T.CTRT_NO     = LOT.CTRT_NO
+											AND T.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+											AND T.LOT_ID      = LOT.LOT_ID
+											
+		LEFT JOIN TL_CTRT_CUST_ITEM IT
+										  ON T.CTRT_NO     = IT.CTRT_NO
+											AND T.ITEM_SYS_NO = IT.ITEM_SYS_NO
+											
+ ORDER BY T.WOB_BK_NO ASC, T.SAO_SYS_NO ASC, T.ITEM_SYS_NO ASC, T.ITEM_SEQ ASC, LOT.LOT_ATTRIB_01 ASC, T.PO_SYS_NO ASC, T.LOT_ID ASC, T.WH_LOC_CD ASC
+	</select>
+	
+	<select id="searchWHOCUpdateInfoByLoadPlan" parameterClass="java.util.HashMap" resultClass="WHOCUpdateHeaderByLoadPlanInOutVO">
+	/*WHOC.searchWHOCUpdateInfoByLoadPlan*/
+	SELECT A.LP_NO
+	     , A.CONSOL_NO
+	     , A.LP_STS_CD
+	     , B.WH_CD
+		 , dbo.TL_GET_LOC_NM(B.WH_CD) AS WH_NM
+		 , B.CTRT_NO
+		 , dbo.TL_GET_CTRT_NM(B.CTRT_NO) AS CTRT_NM
+		 , B.BUYER_CD
+		 , dbo.TL_GET_CUST_NM(B.BUYER_CD) AS BUYER_NM
+		 , A.EQ_TPSZ_CD
+		 , A.EQ_NO
+		 , A.SEAL_NO
+		 , CASE WHEN A.GATE_IN_HM IS NULL OR A.GATE_IN_HM = '' THEN ''
+			        ELSE SUBSTRING(A.GATE_IN_HM, 0, 3) + ':' + SUBSTRING(A.GATE_IN_HM, 3, 2)  END AS GATE_IN_HM
+		 , CASE WHEN A.GATE_OUT_HM IS NULL OR A.GATE_OUT_HM = '' THEN ''
+			        ELSE SUBSTRING(A.GATE_OUT_HM, 0, 3) + ':' + SUBSTRING(A.GATE_OUT_HM, 3, 2)  END AS GATE_OUT_HM	
+			        	      
+<!-- 		 , TO_CHAR(TO_DATE(A.OUTBOUND_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS OUTBOUND_DT -->
+		 
+		 ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), A.OUTBOUND_DT, 112), 120),'')  AS OUTBOUND_DT
+		 
+		 , A.LOAD_BY
+		 , CASE WHEN A.LOAD_HM_FR IS NULL OR A.LOAD_HM_FR = '' THEN ''
+			        ELSE SUBSTRING(A.LOAD_HM_FR, 0, 3) + ':' + SUBSTRING(A.LOAD_HM_FR, 3, 2)  END AS LOAD_HM_FR
+		 , CASE WHEN A.LOAD_HM_TO IS NULL OR A.LOAD_HM_TO = '' THEN ''
+			        ELSE SUBSTRING(A.LOAD_HM_TO, 0, 3) + ':' + SUBSTRING(A.LOAD_HM_TO, 3, 2)  END AS LOAD_HM_TO
+		 , A.CUSTMS_REF_NO
+		 , A.MODI_OFC_CD
+		 , dbo.TL_GET_USER_NM(A.MODI_ID) AS MODI_NM
+		 
+		 ,ISNULL (CONVERT(VARCHAR(10), A.MODI_LOC_DT, 120),'')  AS MODI_LOC_DT
+		 
+<!-- 		 , TO_CHAR(A.MODI_LOC_DT, 'YYYY-MM-DD') AS MODI_LOC_DT -->
+
+		 , A.RMK
+	  FROM TL_WH_LOAD_PLAN A
+	     , TL_WH_OB B
+<!-- 	 WHERE B.WOB_BK_NO = (SELECT MIN(WOB_BK_NO)
+	                        FROM TL_WH_LOAD_PLAN_ITEM
+	                       WHERE LP_NO = #in_lp_no#
+	                     )  11:04 17-7-2015 Khanh -->
+	    WHERE 1 = 1
+	<isNotEmpty property="in_lp_no">
+		AND B.WOB_BK_NO = (SELECT MIN(WOB_BK_NO)
+	                        FROM TL_WH_LOAD_PLAN_ITEM
+	                       WHERE LP_NO = #in_lp_no#)
+	
+	   	AND A.LP_NO = #in_lp_no# 
+	</isNotEmpty>
+	</select>	
+	
+	<select id="searchWHOCList" parameterClass="WHOCListCondVO" resultClass="WHOCListVO">
+		/* WHOC.searchWHOCList */
+		SELECT TTTT.* FROM(
+		  SELECT  ROW_NUMBER() OVER (ORDER BY WOUT.WOB_OUT_NO ASC) as ROWNUM
+		  		 ,WOUT.RN as RN,
+		         DENSE_RANK () OVER (ORDER BY WOUT.WOB_OUT_NO ASC, WOUT.WOB_BK_NO ASC, WOUT.ITEM_CD ASC) AS SEQ,
+		         WOUT.WOB_OUT_NO,
+		         ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), WOUT.OUTBOUND_DT, 112), 120),'')  AS OUTBOUND_DT,
+		         WOUT.LP_STS_CD,
+		         dbo.TL_GET_COMM_NM ('WLS', WOUT.LP_STS_CD) AS LP_STS_NM,
+		         B.BK_DATE,
+		         B.WOB_BK_NO,
+		         B.ORD_TP_CD,
+		         dbo.TL_GET_COMM_NM ('WB3', B.ORD_TP_CD) AS ORD_TP_NM,
+		         BI.ITEM_SYS_NO,
+		         BI.ITEM_SEQ,
+		         BI.ITEM_CD,
+		         BI.ITEM_NM,
+		         BI.ITEM_PKGUNIT,
+		         BI.ITEM_PKGQTY,
+		         BI.ITEM_EA_QTY,
+		         ALI.PICK_ITEM_EA_QTY AS ALLOC_EA_QTY,
+                 WOUT.LP_ITEM_EA_QTY,		         
+		         WOUT.OUT_ITEM_EA_QTY,
+		         LOT.LOT_ATTRIB_01 AS INBOUND_DT,
+		         LOT.LOT_ATTRIB_02 AS LOT_NO,
+		         ALI.WH_LOC_CD,
+		         dbo.TL_GET_WH_LOC_NM (B.WH_CD, ALI.WH_LOC_CD) AS WH_LOC_NM,
+		         WOUT.OUT_ITEM_CBM,
+		         WOUT.OUT_ITEM_CBF,
+		         WOUT.OUT_ITEM_GRS_KGS,
+		         WOUT.OUT_ITEM_GRS_LBS,
+		         WOUT.OUT_ITEM_NET_KGS,
+		         WOUT.OUT_ITEM_NET_LBS,
+		         B.CTRT_NO,
+		         dbo.TL_GET_CTRT_NM (B.CTRT_NO) AS CTRT_NM,
+		         B.BUYER_CD,
+		         dbo.TL_GET_CUST_NM (B.BUYER_CD) AS BUYER_NM,         
+		         WOUT.EQ_TPSZ_CD,
+		         WOUT.EQ_NO,
+		         WOUT.SEAL_NO,
+		         WOUT.GATE_IN_HM,
+		         WOUT.GATE_OUT_HM,
+		         WOUT.RMK,
+		         WOUT.FILE_SEQ,
+		         WOUT.FILE_PATH,
+		         WOUT.FILE_SYS_NM,
+		         WOUT.FILE_ORG_NM,
+		         WOUT.FILE_SIZE,
+		         LOT.LOT_ATTRIB_03 AS EXP_DT,
+		         LOT.LOT_ATTRIB_04 AS LOT_04,
+		         LOT.LOT_ATTRIB_05 AS LOT_05,
+		         LOT.LOT_ID,
+		         WAVE_OB.WAVE_NO,
+		         B.SO_NO,         
+		         I.WIB_BK_NO,
+		         I.PO_NO,
+		         B.WH_CD,
+		         dbo.TL_GET_LOC_NM (B.WH_CD) AS WH_NM,
+		         WOUT.WHOC_FLAG,
+		         B.CUST_ORD_NO         
+		    FROM TL_WH_OB B
+		    				LEFT JOIN TL_WH_WAVE_OB WAVE_OB
+							ON B.WOB_BK_NO = WAVE_OB.WOB_BK_NO,
+		         TL_WH_OB_ITEM BI,
+		         TL_WH_ALLC AL,
+		         TL_WH_ALLC_ITEM ALI,
+		         (SELECT ROW_NUMBER () OVER (ORDER BY TTT.WOB_OUT_NO DESC) AS RN , TTT.* from 
+		         
+		         (SELECT WI.WOB_OUT_NO AS WOB_OUT_NO,
+		                 WI.OUTBOUND_DT,
+		                 'L' AS LP_STS_CD,
+		                 WII.WOB_BK_NO,
+		                 WII.SAO_SYS_NO,
+		                 WII.PO_SYS_NO,
+		                 WII.ITEM_SYS_NO,
+		                 WII.LOT_ID,
+		                 WII.WH_LOC_CD,
+		                 WII.WIB_BK_NO,
+		                 WII.ITEM_SEQ,
+		                 WII.ITEM_CD,
+                         0 AS LP_ITEM_EA_QTY,		                 
+		                 WII.ISSU_ITEM_EA_QTY AS OUT_ITEM_EA_QTY,
+		                 WII.ISSU_ITEM_CBM AS OUT_ITEM_CBM,
+		                 WII.ISSU_ITEM_CBF AS OUT_ITEM_CBF,
+		                 WII.ISSU_ITEM_GRS_KGS AS OUT_ITEM_GRS_KGS,
+		                 WII.ISSU_ITEM_GRS_LBS AS OUT_ITEM_GRS_LBS,
+		                 WII.ISSU_ITEM_NET_KGS AS OUT_ITEM_NET_KGS,
+		                 WII.ISSU_ITEM_NET_LBS AS OUT_ITEM_NET_LBS,
+		                 WII.EQ_TPSZ_CD,
+		                 WII.EQ_NO,
+		                 WII.SEAL_NO,
+		                 WII.GATE_IN_HM,
+		                 WII.GATE_OUT_HM,
+		                 WII.RMK,
+		                 WIIF.FILE_SEQ,
+		                 WIIF.FILE_PATH,
+		                 WIIF.FILE_SYS_NM,
+		                 WIIF.FILE_ORG_NM,
+		                 WIIF.FILE_SIZE,
+		                 'BK' AS WHOC_FLAG
+		            FROM TL_WH_ISSU WI,
+		                 TL_WH_ISSU_ITEM WII 
+		                 LEFT JOIN TL_WH_ISSU_ITEM_FILE_REP WIIF
+										  ON WII.WOB_OUT_NO = WIIF.WOB_OUT_NO
+											AND WII.WALC_NO = WIIF.WALC_NO
+											AND WII.WOB_BK_NO = WIIF.WOB_BK_NO
+											AND WII.SAO_SYS_NO = WIIF.SAO_SYS_NO
+											AND WII.WIB_BK_NO = WIIF.WIB_BK_NO
+											AND WII.PO_SYS_NO = WIIF.PO_SYS_NO
+
+											AND WII.ITEM_SYS_NO = WIIF.ITEM_SYS_NO
+											AND WII.LOT_ID = WIIF.LOT_ID
+											AND WII.WH_LOC_CD = WIIF.WH_LOC_CD
+											AND WII.ITEM_SEQ = WIIF.ITEM_SEQ
+											
+											AND 1 = WIIF.FILE_SEQ
+		                 
+		           WHERE WI.WOB_OUT_NO = WII.WOB_OUT_NO
+		           
+		         <isNotEqual property="lp_sts_cd" compareValue="ALL">	
+			         AND 'L' = #lp_sts_cd#
+		         </isNotEqual>	
+		         
+                 <isNotEmpty property="wob_bk_no">		                     
+                     AND WII.WOB_BK_NO = #wob_bk_no#   
+                 </isNotEmpty>                                                               		             
+                 <isNotEmpty property="item_cd">		                     
+                     AND WII.ITEM_CD = #item_cd#  
+                 </isNotEmpty>			                		             
+                 <isNotEmpty property="wob_out_no">		                     
+			         AND WI.WOB_OUT_NO IN <iterate property="wob_out_no_in" conjunction="," close=")" open="(" >  #wob_out_no_in[]#  </iterate>						                     															                       
+                 </isNotEmpty>
+                 <isNotEmpty property="outbound_dt_fm">		                     
+           			<![CDATA[ AND WI.OUTBOUND_DT >= ]]> REPLACE (#outbound_dt_fm#, '-', '')
+                 </isNotEmpty>		                     
+                 <isNotEmpty property="outbound_dt_to">		                     
+          	 		<![CDATA[ AND WI.OUTBOUND_DT <= ]]> REPLACE (#outbound_dt_to#, '-', '')
+                 </isNotEmpty>
+                 
+		          UNION ALL
+		          SELECT LP.LP_NO AS WOB_OUT_NO,
+		                 LP.OUTBOUND_DT,
+                         LP.LP_STS_CD,
+		                 LPI.WOB_BK_NO,
+		                 LPI.SAO_SYS_NO,
+		                 LPI.PO_SYS_NO,
+		                 LPI.ITEM_SYS_NO,
+		                 LPI.LOT_ID,
+		                 LPI.WH_LOC_CD,
+		                 LPI.WIB_BK_NO,
+		                 LPI.ITEM_SEQ,
+		                 LPI.ITEM_CD,
+                         LPI.LP_ITEM_EA_QTY,		                 
+		                 LPI.LOAD_ITEM_EA_QTY AS OUT_ITEM_EA_QTY,
+		                 LPI.LOAD_ITEM_CBM AS OUT_ITEM_CBM,
+		                 LPI.LOAD_ITEM_CBF AS OUT_ITEM_CBF,
+		                 LPI.LOAD_ITEM_GRS_KGS AS OUT_ITEM_GRS_KGS,
+		                 LPI.LOAD_ITEM_GRS_LBS AS OUT_ITEM_GRS_LBS,
+		                 LPI.LOAD_ITEM_NET_KGS AS OUT_ITEM_NET_KGS,
+		                 LPI.LOAD_ITEM_NET_LBS AS OUT_ITEM_NET_LBS,
+		                 LP.EQ_TPSZ_CD,
+		                 LP.EQ_NO,
+		                 LP.SEAL_NO,
+		                 LP.GATE_IN_HM,
+		                 LP.GATE_OUT_HM,
+		                 LPI.RMK,
+		                 LPIF.FILE_SEQ,                 
+		                 LPIF.FILE_PATH,
+		                 LPIF.FILE_SYS_NM,
+		                 LPIF.FILE_ORG_NM,
+		                 LPIF.FILE_SIZE,
+		                 'LP' AS WHOC_FLAG
+		            FROM TL_WH_LOAD_PLAN LP,
+		                 TL_WH_LOAD_PLAN_ITEM LPI
+		                 LEFT JOIN TL_WH_LOAD_PLAN_ITEM_FILE_REP LPIF
+										  ON LPI.LP_NO = LPIF.LP_NO
+											AND LPI.WOB_BK_NO = LPIF.WOB_BK_NO
+											AND LPI.SAO_SYS_NO = LPIF.SAO_SYS_NO
+											AND LPI.WIB_BK_NO = LPIF.WIB_BK_NO
+											AND LPI.PO_SYS_NO = LPIF.PO_SYS_NO
+											AND LPI.ITEM_SYS_NO = LPIF.ITEM_SYS_NO
+
+											AND LPI.LOT_ID = LPIF.LOT_ID
+											AND LPI.WH_LOC_CD = LPIF.WH_LOC_CD
+											AND LPI.ITEM_SEQ = LPIF.ITEM_SEQ
+											AND 1 = LPIF.FILE_SEQ
+		                 
+		           WHERE LP.LP_NO = LPI.LP_NO
+		           
+	             <isNotEqual property="lp_sts_cd" compareValue="ALL">		   
+			         AND LP.LP_STS_CD = #lp_sts_cd#
+		         </isNotEqual>	
+		             
+                 <isNotEmpty property="wob_bk_no">		                     
+                     AND LPI.WOB_BK_NO = #wob_bk_no#
+                 </isNotEmpty>                                                               
+                 <isNotEmpty property="item_cd">		                     
+                     AND LPI.ITEM_CD = #item_cd# 
+                 </isNotEmpty>															                   
+                 <isNotEmpty property="wob_out_no">		                     
+				     AND LP.LP_NO IN 
+<!-- 					     		         <iterate collection="wob_out_no_in" item="in_no" separator=",">#{in_no}</iterate>
+					     		          -->
+						<iterate property="wob_out_no_in" conjunction="," close=")" open="(" >  #wob_out_no_in[]#  </iterate>
+					                 
+                 </isNotEmpty>                 
+                 <isNotEmpty property="outbound_dt_fm">		                     
+           			<![CDATA[ AND LP.OUTBOUND_DT >= ]]> REPLACE (#outbound_dt_fm#, '-', '')
+                 </isNotEmpty>		                     
+                 <isNotEmpty property="outbound_dt_to">		                     
+           			<![CDATA[ AND LP.OUTBOUND_DT <= ]]> REPLACE (#outbound_dt_to#, '-', '')
+                 </isNotEmpty>
+		         ) as TTT
+		         ) WOUT,
+		         TL_WH_INV_LOC I,
+		         TL_CTRT_CUST_ITEM_LOT LOT
+
+		   WHERE B.WOB_BK_NO = BI.WOB_BK_NO
+		     AND B.WOB_BK_NO = AL.WOB_BK_NO
+		     AND AL.WALC_NO = ALI.WALC_NO
+		     AND BI.WOB_BK_NO = ALI.WOB_BK_NO
+		     AND BI.SAO_SYS_NO = ALI.SAO_SYS_NO
+		     AND BI.ITEM_SYS_NO = ALI.ITEM_SYS_NO
+		     AND BI.ITEM_SEQ = ALI.ITEM_SEQ
+		     AND ALI.WOB_BK_NO = WOUT.WOB_BK_NO
+		     AND ALI.SAO_SYS_NO = WOUT.SAO_SYS_NO
+		     AND ALI.WIB_BK_NO = WOUT.WIB_BK_NO
+		     AND ALI.PO_SYS_NO = WOUT.PO_SYS_NO
+		     AND ALI.ITEM_SYS_NO = WOUT.ITEM_SYS_NO
+		     AND ALI.LOT_ID = WOUT.LOT_ID
+		     AND ALI.WH_LOC_CD = WOUT.WH_LOC_CD
+		     AND ALI.ITEM_SEQ = WOUT.ITEM_SEQ
+		     AND ALI.WIB_BK_NO = I.WIB_BK_NO
+		     AND ALI.PO_SYS_NO = I.PO_SYS_NO
+		     AND ALI.ITEM_SYS_NO = I.ITEM_SYS_NO
+		     AND ALI.LOT_ID = I.LOT_ID
+		     AND ALI.WH_LOC_CD = I.WH_LOC_CD
+		     AND B.CTRT_NO = LOT.CTRT_NO
+		     AND B.WH_CD = LOT.WH_CD
+		     AND WOUT.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+		     AND WOUT.LOT_ID = LOT.LOT_ID
+		     
+		     
+
+         <isNotEmpty property="wh_cd"> 
+             AND B.WH_CD = #wh_cd#
+         </isNotEmpty>		     
+         <isNotEmpty property="ctrt_no">		                     
+             AND B.CTRT_NO = #ctrt_no#
+         </isNotEmpty>		                     			                                               		     
+         <isNotEmpty property="buyer_cd">		                     
+             AND B.BUYER_CD = #buyer_cd#
+         </isNotEmpty>		      			                                     		     
+         <isNotEmpty property="wob_bk_no">		                     
+             AND B.WOB_BK_NO = #wob_bk_no#
+         </isNotEmpty>		        		                              		     
+         <isNotEmpty property="bk_date_fm">		                     
+   			<![CDATA[ AND B.BK_DATE >= ]]> REPLACE (#bk_date_fm#, '-', '')
+         </isNotEmpty>		                     
+         <isNotEmpty property="bk_date_to">		                     
+   			<![CDATA[ AND B.BK_DATE <= ]]> REPLACE (#bk_date_to#, '-', '')
+   		 </isNotEmpty>
+         <isNotEmpty property="lot_no">		     
+	         AND LOT.LOT_ATTRIB_02 = #lot_no#
+         </isNotEmpty>	
+		
+		<!-- ORDER BY WOUT.WOB_OUT_NO,
+	             WOUT.WOB_BK_NO,
+	             WOUT.ITEM_CD,
+	             WOUT.ITEM_SEQ,
+	             LOT.LOT_ATTRIB_01,
+	             LOT.LOT_ATTRIB_02,
+	             WOUT.WH_LOC_CD,
+	             I.WIB_BK_NO,
+	             I.PO_NO ASC -->) TTTT
+	             <![CDATA[ where TTTT.ROWNUM > #beginIdx# AND TTTT.ROWNUM <= #topCnt#	]]> 
+	</select>
+	
+	<select id="searchWHOCListCnt" parameterClass="WHOCListCondVO" resultClass="java.lang.Integer">
+		/* WHOC.searchWHOCListCount */
+		SELECT COUNT(*) FROM (
+		SELECT 	 WOUT.RN as RN,
+		         DENSE_RANK () OVER (ORDER BY WOUT.WOB_OUT_NO ASC, WOUT.WOB_BK_NO ASC, WOUT.ITEM_CD ASC) AS SEQ,
+		         WOUT.WOB_OUT_NO,
+		         ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), WOUT.OUTBOUND_DT, 112), 120),'')  AS OUTBOUND_DT,
+		         WOUT.LP_STS_CD,
+		         dbo.TL_GET_COMM_NM ('WLS', WOUT.LP_STS_CD) AS LP_STS_NM,
+		         B.BK_DATE,
+		         B.WOB_BK_NO,
+		         B.ORD_TP_CD,
+		         dbo.TL_GET_COMM_NM ('WB3', B.ORD_TP_CD) AS ORD_TP_NM,
+		         BI.ITEM_SYS_NO,
+		         BI.ITEM_SEQ,
+		         BI.ITEM_CD,
+		         BI.ITEM_NM,
+		         BI.ITEM_PKGUNIT,
+		         BI.ITEM_PKGQTY,
+		         BI.ITEM_EA_QTY,
+		         ALI.PICK_ITEM_EA_QTY AS ALLOC_EA_QTY,
+                 WOUT.LP_ITEM_EA_QTY,		         
+		         WOUT.OUT_ITEM_EA_QTY,
+		         LOT.LOT_ATTRIB_01 AS INBOUND_DT,
+		         LOT.LOT_ATTRIB_02 AS LOT_NO,
+		         ALI.WH_LOC_CD,
+		         dbo.TL_GET_WH_LOC_NM (B.WH_CD, ALI.WH_LOC_CD) AS WH_LOC_NM,
+		         WOUT.OUT_ITEM_CBM,
+		         WOUT.OUT_ITEM_CBF,
+		         WOUT.OUT_ITEM_GRS_KGS,
+		         WOUT.OUT_ITEM_GRS_LBS,
+		         WOUT.OUT_ITEM_NET_KGS,
+		         WOUT.OUT_ITEM_NET_LBS,
+		         B.CTRT_NO,
+		         dbo.TL_GET_CTRT_NM (B.CTRT_NO) AS CTRT_NM,
+		         B.BUYER_CD,
+		         dbo.TL_GET_CUST_NM (B.BUYER_CD) AS BUYER_NM,         
+		         WOUT.EQ_TPSZ_CD,
+		         WOUT.EQ_NO,
+		         WOUT.SEAL_NO,
+		         WOUT.GATE_IN_HM,
+		         WOUT.GATE_OUT_HM,
+		         WOUT.RMK,
+		         WOUT.FILE_SEQ,
+		         WOUT.FILE_PATH,
+		         WOUT.FILE_SYS_NM,
+		         WOUT.FILE_ORG_NM,
+		         WOUT.FILE_SIZE,
+		         LOT.LOT_ATTRIB_03 AS EXP_DT,
+		         LOT.LOT_ATTRIB_04 AS LOT_04,
+		         LOT.LOT_ATTRIB_05 AS LOT_05,
+		         LOT.LOT_ID,
+		         WAVE_OB.WAVE_NO,
+		         B.SO_NO,         
+		         I.WIB_BK_NO,
+		         I.PO_NO,
+		         B.WH_CD,
+		         dbo.TL_GET_LOC_NM (B.WH_CD) AS WH_NM,
+		         WOUT.WHOC_FLAG,
+		         B.CUST_ORD_NO         
+		    FROM TL_WH_OB B
+		    				LEFT JOIN TL_WH_WAVE_OB WAVE_OB
+							ON B.WOB_BK_NO = WAVE_OB.WOB_BK_NO,
+		         TL_WH_OB_ITEM BI,
+		         TL_WH_ALLC AL,
+		         TL_WH_ALLC_ITEM ALI,
+		         (SELECT ROW_NUMBER () OVER (ORDER BY TTT.WOB_OUT_NO DESC) AS RN , TTT.* from 
+		         
+		         (SELECT WI.WOB_OUT_NO AS WOB_OUT_NO,
+		                 WI.OUTBOUND_DT,
+		                 'L' AS LP_STS_CD,
+		                 WII.WOB_BK_NO,
+		                 WII.SAO_SYS_NO,
+		                 WII.PO_SYS_NO,
+		                 WII.ITEM_SYS_NO,
+		                 WII.LOT_ID,
+		                 WII.WH_LOC_CD,
+		                 WII.WIB_BK_NO,
+		                 WII.ITEM_SEQ,
+		                 WII.ITEM_CD,
+                         0 AS LP_ITEM_EA_QTY,		                 
+		                 WII.ISSU_ITEM_EA_QTY AS OUT_ITEM_EA_QTY,
+		                 WII.ISSU_ITEM_CBM AS OUT_ITEM_CBM,
+		                 WII.ISSU_ITEM_CBF AS OUT_ITEM_CBF,
+		                 WII.ISSU_ITEM_GRS_KGS AS OUT_ITEM_GRS_KGS,
+		                 WII.ISSU_ITEM_GRS_LBS AS OUT_ITEM_GRS_LBS,
+		                 WII.ISSU_ITEM_NET_KGS AS OUT_ITEM_NET_KGS,
+		                 WII.ISSU_ITEM_NET_LBS AS OUT_ITEM_NET_LBS,
+		                 WII.EQ_TPSZ_CD,
+		                 WII.EQ_NO,
+		                 WII.SEAL_NO,
+		                 WII.GATE_IN_HM,
+		                 WII.GATE_OUT_HM,
+		                 WII.RMK,
+		                 WIIF.FILE_SEQ,
+		                 WIIF.FILE_PATH,
+		                 WIIF.FILE_SYS_NM,
+		                 WIIF.FILE_ORG_NM,
+		                 WIIF.FILE_SIZE,
+		                 'BK' AS WHOC_FLAG
+		            FROM TL_WH_ISSU WI,
+		                 TL_WH_ISSU_ITEM WII 
+		                 LEFT JOIN TL_WH_ISSU_ITEM_FILE_REP WIIF
+										  ON WII.WOB_OUT_NO = WIIF.WOB_OUT_NO
+											AND WII.WALC_NO = WIIF.WALC_NO
+											AND WII.WOB_BK_NO = WIIF.WOB_BK_NO
+											AND WII.SAO_SYS_NO = WIIF.SAO_SYS_NO
+											AND WII.WIB_BK_NO = WIIF.WIB_BK_NO
+											AND WII.PO_SYS_NO = WIIF.PO_SYS_NO
+
+											AND WII.ITEM_SYS_NO = WIIF.ITEM_SYS_NO
+											AND WII.LOT_ID = WIIF.LOT_ID
+											AND WII.WH_LOC_CD = WIIF.WH_LOC_CD
+											AND WII.ITEM_SEQ = WIIF.ITEM_SEQ
+											
+											AND 1 = WIIF.FILE_SEQ
+		                 
+		           WHERE WI.WOB_OUT_NO = WII.WOB_OUT_NO
+		           
+		         <isNotEqual property="lp_sts_cd" compareValue="ALL">	
+			         AND 'L' = #lp_sts_cd#
+		         </isNotEqual>	
+		         
+                 <isNotEmpty property="wob_bk_no">		                     
+                     AND WII.WOB_BK_NO = #wob_bk_no#   
+                 </isNotEmpty>                                                               		             
+                 <isNotEmpty property="item_cd">		                     
+                     AND WII.ITEM_CD = #item_cd#  
+                 </isNotEmpty>			                		             
+                 <isNotEmpty property="wob_out_no">		                     
+			         AND WI.WOB_OUT_NO IN <iterate property="wob_out_no_in" conjunction="," close=")" open="(" >  #wob_out_no_in[]#  </iterate>						                     															                       
+                 </isNotEmpty>
+                 <isNotEmpty property="outbound_dt_fm">		                     
+           			<![CDATA[ AND WI.OUTBOUND_DT >= ]]> REPLACE (#outbound_dt_fm#, '-', '')
+                 </isNotEmpty>		                     
+                 <isNotEmpty property="outbound_dt_to">		                     
+          	 		<![CDATA[ AND WI.OUTBOUND_DT <= ]]> REPLACE (#outbound_dt_to#, '-', '')
+                 </isNotEmpty>
+                 
+		          UNION ALL
+		          SELECT LP.LP_NO AS WOB_OUT_NO,
+		                 LP.OUTBOUND_DT,
+                         LP.LP_STS_CD,
+		                 LPI.WOB_BK_NO,
+		                 LPI.SAO_SYS_NO,
+		                 LPI.PO_SYS_NO,
+		                 LPI.ITEM_SYS_NO,
+		                 LPI.LOT_ID,
+		                 LPI.WH_LOC_CD,
+		                 LPI.WIB_BK_NO,
+		                 LPI.ITEM_SEQ,
+		                 LPI.ITEM_CD,
+                         LPI.LP_ITEM_EA_QTY,		                 
+		                 LPI.LOAD_ITEM_EA_QTY AS OUT_ITEM_EA_QTY,
+		                 LPI.LOAD_ITEM_CBM AS OUT_ITEM_CBM,
+		                 LPI.LOAD_ITEM_CBF AS OUT_ITEM_CBF,
+		                 LPI.LOAD_ITEM_GRS_KGS AS OUT_ITEM_GRS_KGS,
+		                 LPI.LOAD_ITEM_GRS_LBS AS OUT_ITEM_GRS_LBS,
+		                 LPI.LOAD_ITEM_NET_KGS AS OUT_ITEM_NET_KGS,
+		                 LPI.LOAD_ITEM_NET_LBS AS OUT_ITEM_NET_LBS,
+		                 LP.EQ_TPSZ_CD,
+		                 LP.EQ_NO,
+		                 LP.SEAL_NO,
+		                 LP.GATE_IN_HM,
+		                 LP.GATE_OUT_HM,
+		                 LPI.RMK,
+		                 LPIF.FILE_SEQ,                 
+		                 LPIF.FILE_PATH,
+		                 LPIF.FILE_SYS_NM,
+		                 LPIF.FILE_ORG_NM,
+		                 LPIF.FILE_SIZE,
+		                 'LP' AS WHOC_FLAG
+		            FROM TL_WH_LOAD_PLAN LP,
+		                 TL_WH_LOAD_PLAN_ITEM LPI
+		                 LEFT JOIN TL_WH_LOAD_PLAN_ITEM_FILE_REP LPIF
+										  ON LPI.LP_NO = LPIF.LP_NO
+											AND LPI.WOB_BK_NO = LPIF.WOB_BK_NO
+											AND LPI.SAO_SYS_NO = LPIF.SAO_SYS_NO
+											AND LPI.WIB_BK_NO = LPIF.WIB_BK_NO
+											AND LPI.PO_SYS_NO = LPIF.PO_SYS_NO
+											AND LPI.ITEM_SYS_NO = LPIF.ITEM_SYS_NO
+
+											AND LPI.LOT_ID = LPIF.LOT_ID
+											AND LPI.WH_LOC_CD = LPIF.WH_LOC_CD
+											AND LPI.ITEM_SEQ = LPIF.ITEM_SEQ
+											AND 1 = LPIF.FILE_SEQ
+		                 
+		           WHERE LP.LP_NO = LPI.LP_NO
+		           
+	             <isNotEqual property="lp_sts_cd" compareValue="ALL">		   
+			         AND LP.LP_STS_CD = #lp_sts_cd#
+		         </isNotEqual>	
+		             
+                 <isNotEmpty property="wob_bk_no">		                     
+                     AND LPI.WOB_BK_NO = #wob_bk_no#
+                 </isNotEmpty>                                                               
+                 <isNotEmpty property="item_cd">		                     
+                     AND LPI.ITEM_CD = #item_cd# 
+                 </isNotEmpty>															                   
+                 <isNotEmpty property="wob_out_no">		                     
+				     AND LP.LP_NO IN 
+<!-- 					     		         <iterate collection="wob_out_no_in" item="in_no" separator=",">#{in_no}</iterate>
+					     		          -->
+						<iterate property="wob_out_no_in" conjunction="," close=")" open="(" >  #wob_out_no_in[]#  </iterate>
+					                 
+                 </isNotEmpty>                 
+                 <isNotEmpty property="outbound_dt_fm">		                     
+           			<![CDATA[ AND LP.OUTBOUND_DT >= ]]> REPLACE (#outbound_dt_fm#, '-', '')
+                 </isNotEmpty>		                     
+                 <isNotEmpty property="outbound_dt_to">		                     
+           			<![CDATA[ AND LP.OUTBOUND_DT <= ]]> REPLACE (#outbound_dt_to#, '-', '')
+                 </isNotEmpty>
+		         ) as TTT
+		         ) WOUT,
+		         TL_WH_INV_LOC I,
+		         TL_CTRT_CUST_ITEM_LOT LOT
+
+		   WHERE B.WOB_BK_NO = BI.WOB_BK_NO
+		     AND B.WOB_BK_NO = AL.WOB_BK_NO
+		     AND AL.WALC_NO = ALI.WALC_NO
+		     AND BI.WOB_BK_NO = ALI.WOB_BK_NO
+		     AND BI.SAO_SYS_NO = ALI.SAO_SYS_NO
+		     AND BI.ITEM_SYS_NO = ALI.ITEM_SYS_NO
+		     AND BI.ITEM_SEQ = ALI.ITEM_SEQ
+		     AND ALI.WOB_BK_NO = WOUT.WOB_BK_NO
+		     AND ALI.SAO_SYS_NO = WOUT.SAO_SYS_NO
+		     AND ALI.WIB_BK_NO = WOUT.WIB_BK_NO
+		     AND ALI.PO_SYS_NO = WOUT.PO_SYS_NO
+		     AND ALI.ITEM_SYS_NO = WOUT.ITEM_SYS_NO
+		     AND ALI.LOT_ID = WOUT.LOT_ID
+		     AND ALI.WH_LOC_CD = WOUT.WH_LOC_CD
+		     AND ALI.ITEM_SEQ = WOUT.ITEM_SEQ
+		     AND ALI.WIB_BK_NO = I.WIB_BK_NO
+		     AND ALI.PO_SYS_NO = I.PO_SYS_NO
+		     AND ALI.ITEM_SYS_NO = I.ITEM_SYS_NO
+		     AND ALI.LOT_ID = I.LOT_ID
+		     AND ALI.WH_LOC_CD = I.WH_LOC_CD
+		     AND B.CTRT_NO = LOT.CTRT_NO
+		     AND B.WH_CD = LOT.WH_CD
+		     AND WOUT.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+		     AND WOUT.LOT_ID = LOT.LOT_ID
+		     
+		     
+
+         <isNotEmpty property="wh_cd"> 
+             AND B.WH_CD = #wh_cd#
+         </isNotEmpty>		     
+         <isNotEmpty property="ctrt_no">		                     
+             AND B.CTRT_NO = #ctrt_no#
+         </isNotEmpty>		                     			                                               		     
+         <isNotEmpty property="buyer_cd">		                     
+             AND B.BUYER_CD = #buyer_cd#
+         </isNotEmpty>		      			                                     		     
+         <isNotEmpty property="wob_bk_no">		                     
+             AND B.WOB_BK_NO = #wob_bk_no#
+         </isNotEmpty>		        		                              		     
+         <isNotEmpty property="bk_date_fm">		                     
+   			<![CDATA[ AND B.BK_DATE >= ]]> REPLACE (#bk_date_fm#, '-', '')
+         </isNotEmpty>		                     
+         <isNotEmpty property="bk_date_to">		                     
+   			<![CDATA[ AND B.BK_DATE <= ]]> REPLACE (#bk_date_to#, '-', '')
+   		 </isNotEmpty>
+         <isNotEmpty property="lot_no">		     
+	         AND LOT.LOT_ATTRIB_02 = #lot_no#
+         </isNotEmpty>
+		     ) AS T
+	</select>
+		
+		
+	<select id="searchWHOCUpdateItemByBooking" parameterClass="java.util.HashMap" resultClass="Grd01WHOCUpdateVO">
+	/*WHOC.searchWHOCUpdateItemByBooking*/
+SELECT ROW_NUMBER () OVER (PARTITION BY  T.ITEM_SEQ
+        							 ORDER BY T.ITEM_SEQ DESC) AS RN
+     , T.*
+     , LOT.LOT_ATTRIB_01 AS INBOUND_DT
+	 , LOT.LOT_ATTRIB_02 AS LOT_NO
+	 , LOT.LOT_ATTRIB_03 AS EXP_DT
+	 , LOT.LOT_ATTRIB_04 AS LOT_04
+	 , LOT.LOT_ATTRIB_05 AS LOT_05
+	 , ISNULL(IT.PKG_LV1_QTY, 0) AS PKG_LV1_QTY
+	 , ISNULL(IT.LV1_CBM, 0) AS LV1_CBM
+	 , ISNULL(IT.LV1_CBF, 0) AS LV1_CBF
+	 , ISNULL(IT.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+	 , ISNULL(IT.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+	 , ISNULL(IT.LV1_NET_KGS, 0) AS LV1_NET_KGS
+	 , ISNULL(IT.LV1_NET_LBS, 0) AS LV1_NET_LBS	
+  FROM (
+		SELECT DENSE_RANK() OVER( ORDER BY ISSU_ITEM.SAO_SYS_NO ASC, ISSU_ITEM.ITEM_SYS_NO ASC, ISSU_ITEM.ITEM_SEQ ASC) AS SEQ 
+		     , ISSU_ITEM.WOB_OUT_NO
+		     , ISSU_ITEM.WALC_NO
+		     , ISSU_ITEM.WOB_BK_NO
+		     , ISSU_ITEM.SAO_SYS_NO
+		     , ISSU_ITEM.PO_SYS_NO
+		     , ISSU_ITEM.ITEM_SYS_NO
+		     , ISSU_ITEM.LOT_ID
+		     , ISSU_ITEM.WH_LOC_CD
+		     , dbo.TL_GET_WH_LOC_NM(OB.WH_CD, ISSU_ITEM.WH_LOC_CD) AS  WH_LOC_CD_NM   
+		     , ISSU_ITEM.ITEM_SEQ
+		     , ISSU_ITEM.ITEM_CD
+		     , ISSU_ITEM.CUST_ITEM_CD
+		     , ISSU_ITEM.ITEM_NM
+		     , OB_ITEM.ITEM_PKGUNIT
+		     , OB_ITEM.ITEM_PKGQTY
+		     , OB_ITEM.ITEM_EA_QTY
+		     , ALLC_ITEM.PICK_ITEM_EA_QTY
+		     , ISSU_ITEM.ISSU_ITEM_EA_QTY
+		     , ALLC_ITEM.PICK_ITEM_EA_QTY - ISSU_ITEM.ISSU_ITEM_EA_QTY AS GAP
+		     , ISSU_ITEM.ISSU_ITEM_CBM
+		     , ISSU_ITEM.ISSU_ITEM_CBF
+		     , ISSU_ITEM.ISSU_ITEM_GRS_KGS
+		     , ISSU_ITEM.ISSU_ITEM_GRS_LBS
+		     , ISSU_ITEM.ISSU_ITEM_NET_KGS
+		     , ISSU_ITEM.ISSU_ITEM_NET_LBS
+		     , ISSU_ITEM.EQ_TP_CD
+		     , ISSU_ITEM.EQ_TPSZ_CD
+		     , ISSU_ITEM.EQ_NO
+		     , ISSU_ITEM.SEAL_NO
+		     , ISSU_ITEM.GATE_IN_HM
+		     , ISSU_ITEM.GATE_OUT_HM
+		     , ISSU_ITEM.RMK
+		     , WAVE_OB.WAVE_NO  
+		     , OB.SO_NO
+		     , OB.WH_CD
+		     , OB.CTRT_NO
+		     , OB.BK_DATE
+		     , ISSU_ITEM.WIB_BK_NO
+		     , ISSU_ITEM.PO_NO
+		     , F.FILE_SEQ
+		     , F.FILE_PATH
+		     , F.FILE_SYS_NM
+		     , F.FILE_ORG_NM
+		     , F.FILE_SIZE
+		     , CASE WHEN F.FILE_SEQ IS NULL THEN 'Add' ELSE 'Download' END AS ATTACH_ADD
+		     , CASE WHEN F.FILE_SEQ IS NULL THEN '' ELSE 'Del' END AS ATTACH_DEL
+		     
+		  FROM TL_WH_ISSU_ITEM ISSU_ITEM
+		  LEFT JOIN TL_WH_ISSU_ITEM_FILE_REP F
+										  ON ISSU_ITEM.WOB_OUT_NO = F.WOB_OUT_NO
+											AND ISSU_ITEM.WALC_NO = F.WALC_NO
+											AND ISSU_ITEM.WOB_BK_NO = F.WOB_BK_NO
+											AND ISSU_ITEM.SAO_SYS_NO = F.SAO_SYS_NO
+											AND ISSU_ITEM.WIB_BK_NO = F.WIB_BK_NO
+											AND ISSU_ITEM.PO_SYS_NO = F.PO_SYS_NO
+
+											AND ISSU_ITEM.ITEM_SYS_NO = F.ITEM_SYS_NO
+											AND ISSU_ITEM.LOT_ID = F.LOT_ID
+											AND ISSU_ITEM.WH_LOC_CD = F.WH_LOC_CD
+											AND ISSU_ITEM.ITEM_SEQ = F.ITEM_SEQ
+											
+											AND 1 = F.FILE_SEQ
+			
+		  LEFT JOIN TL_WH_WAVE_OB WAVE_OB 
+										  ON ISSU_ITEM.WOB_BK_NO = WAVE_OB.WOB_BK_NO
+		  
+		     , TL_WH_ALLC_ITEM ALLC_ITEM
+		     , TL_WH_OB_ITEM OB_ITEM
+		     , TL_WH_OB OB	
+		      
+		 WHERE 1 = 1
+		   
+		   AND ISSU_ITEM.WALC_NO = ALLC_ITEM.WALC_NO
+		   AND ISSU_ITEM.WOB_BK_NO = ALLC_ITEM.WOB_BK_NO
+		   AND ISSU_ITEM.SAO_SYS_NO = ALLC_ITEM.SAO_SYS_NO
+		   AND ISSU_ITEM.WIB_BK_NO = ALLC_ITEM.WIB_BK_NO
+		   AND ISSU_ITEM.PO_SYS_NO = ALLC_ITEM.PO_SYS_NO
+		   AND ISSU_ITEM.ITEM_SYS_NO = ALLC_ITEM.ITEM_SYS_NO
+		   AND ISSU_ITEM.LOT_ID = ALLC_ITEM.LOT_ID
+		   AND ISSU_ITEM.WH_LOC_CD = ALLC_ITEM.WH_LOC_CD
+		   AND ISSU_ITEM.ITEM_SEQ = ALLC_ITEM.ITEM_SEQ
+		   
+		   AND ISSU_ITEM.WOB_BK_NO = OB_ITEM.WOB_BK_NO
+		   AND ISSU_ITEM.SAO_SYS_NO = OB_ITEM.SAO_SYS_NO
+		   AND ISSU_ITEM.ITEM_SYS_NO = OB_ITEM.ITEM_SYS_NO
+		   AND ISSU_ITEM.ITEM_SEQ = OB_ITEM.ITEM_SEQ
+		   
+		   AND ISSU_ITEM.WOB_BK_NO = OB.WOB_BK_NO
+		   
+		   <isNotEmpty property="in_wob_out_no">
+		   AND ISSU_ITEM.WOB_OUT_NO = #in_wob_out_no#
+		   </isNotEmpty>
+		   <isNotEmpty property="in_wob_bk_no">
+		   AND ISSU_ITEM.WOB_BK_NO = #in_wob_bk_no#
+		   </isNotEmpty>
+		   
+		   
+     ) T
+      LEFT JOIN TL_CTRT_CUST_ITEM_LOT LOT
+										  ON T.CTRT_NO     = LOT.CTRT_NO
+											AND T.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+											AND T.LOT_ID      = LOT.LOT_ID
+											
+	  LEFT JOIN TL_CTRT_CUST_ITEM IT
+										  ON T.CTRT_NO     = IT.CTRT_NO
+											AND T.ITEM_SYS_NO = IT.ITEM_SYS_NO	
+																
+ ORDER BY T.WOB_BK_NO ASC, T.SAO_SYS_NO ASC, T.ITEM_SYS_NO ASC, T.ITEM_SEQ ASC, LOT.LOT_ATTRIB_01 ASC, T.PO_SYS_NO ASC, T.LOT_ID ASC, T.WH_LOC_CD ASC
+	</select>
+	
+	<select id="searchWHOCUpdateInfoByBooking" parameterClass="java.util.HashMap" resultClass="WHOCUpdateHeaderByBookingInOutVO">
+	/*WHOC.searchWHOCUpdateInfoByBooking*/
+	SELECT A.WOB_OUT_NO
+	     , A.WALC_NO
+	     , B.WOB_BK_NO
+	     , C.SO_NO
+	     , C.WH_CD
+		 , dbo.TL_GET_LOC_NM(C.WH_CD) AS WH_NM
+		 , C.CTRT_NO
+		 , dbo.TL_GET_CTRT_NM(C.CTRT_NO) AS CTRT_NM
+		 , C.BUYER_CD
+		 , dbo.TL_GET_CUST_NM(C.BUYER_CD) AS BUYER_NM
+		 
+		 ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(DATETIME, A.OUTBOUND_DT, 110), 110),'')  AS OUTBOUND_DT
+<!-- 		 ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), A.OUTBOUND_DT, 112), 120),'')  AS OUTBOUND_DT -->
+		 
+<!-- 		 , TO_CHAR(TO_DATE(A.OUTBOUND_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS OUTBOUND_DT -->
+
+		 , A.LOAD_BY
+		 , CASE WHEN A.LOAD_HM_FR IS NULL OR A.LOAD_HM_FR = '' THEN ''
+		        ELSE SUBSTRING(A.LOAD_HM_FR, 0, 3) + ':' + SUBSTRING(A.LOAD_HM_FR, 3, 2)  END AS LOAD_HM_FR
+		 , CASE WHEN A.LOAD_HM_TO IS NULL OR A.LOAD_HM_TO = '' THEN ''
+		        ELSE SUBSTRING(A.LOAD_HM_TO, 0, 3) + ':' + SUBSTRING(A.LOAD_HM_TO, 3, 2)  END AS LOAD_HM_TO
+		 , A.CUSTMS_REF_NO
+		 , A.MODI_OFC_CD
+		 , dbo.TL_GET_USER_NM(A.MODI_ID) AS MODI_NM
+		 
+		 ,ISNULL (CONVERT(VARCHAR(10), A.MODI_LOC_DT, 110),'') AS MODI_LOC_DT
+		 
+<!-- 		 , TO_CHAR(A.MODI_LOC_DT, 'YYYY-MM-DD') AS MODI_LOC_DT -->
+
+		 , A.RMK
+	  FROM TL_WH_ISSU A, TL_WH_ALLC B, TL_WH_OB C
+	 WHERE A.WALC_NO = B.WALC_NO
+	   AND B.WOB_BK_NO = C.WOB_BK_NO
+	   <isNotEmpty property="in_wob_out_no">
+	   AND A.WOB_OUT_NO = #in_wob_out_no#
+	   </isNotEmpty>
+	   <isNotEmpty property="in_wob_bk_no">
+	   AND B.WOB_BK_NO = #in_wob_bk_no# 
+	   </isNotEmpty>
+	</select>	
+	
+	<select id="searchWHOCBkNoDupCheck" parameterClass="java.util.HashMap" resultClass="WHOCUpdateHeaderByBookingInOutVO">
+	/*WHOC.searchWHOCBkNoDupCheck*/
+	SELECT COUNT(*) AS IN_CNT
+	  FROM TL_WH_ISSU A, TL_WH_ALLC B
+	 WHERE A.WALC_NO = B.WALC_NO
+	   AND B.WOB_BK_NO = #in_wob_bk_no#
+	</select>
+	
+	<select id="searchWHOCProgList" resultClass="WHOCProgListVO">
+		/* WHOC.searchWHOCProgList */
+SELECT T.*
+     ,ROW_NUMBER() OVER (ORDER BY T.WOB_BK_NO ASC, T.RGST_TIMESTAMP ASC, T.ITEM_CD ASC, T.ITEM_SEQ ASC, ISNULL(LOT.LOT_ATTRIB_01, T.INBOUND_DT_OB) ASC, ISNULL(LOT.LOT_ATTRIB_02, T.LOT_NO_OB) ASC, T.WH_LOC_NM) AS SEQ /*화면에서 SEQ한값을 넣어 MERGE효과를 중지시킨다*/ 
+     /* LOT 정보 */
+     , ISNULL(LOT.LOT_ATTRIB_01, T.INBOUND_DT_OB) AS INBOUND_DT
+	 , ISNULL(LOT.LOT_ATTRIB_02, T.LOT_NO_OB)     AS LOT_NO
+	 , ISNULL(LOT.LOT_ATTRIB_03, T.EXP_DT_OB)     AS EXP_DT
+	 , ISNULL(LOT.LOT_ATTRIB_04, T.LOT_04_OB)     AS LOT_04
+	 , ISNULL(LOT.LOT_ATTRIB_05, T.LOT_05_OB)     AS LOT_05 
+	 
+	 , dbo.TL_GET_WH_PACK_MST_INFO(CI.PKG_LV1_QTY, CI.PKG_LV1_UNIT_CD, CI.ITEM_PKGBASEQTY, CI.ITEM_PKGUNIT
+                             , CI.PKG_LV3_QTY, CI.PKG_LV3_UNIT_CD, CI.PKG_LV4_QTY, CI.PKG_LV4_UNIT_CD) AS PKG_INFO
+	 
+	 /* Order status */
+   , CASE T.WHOC_FLAG 
+					WHEN 'BK' THEN 'C'
+          WHEN 'LP' THEN 'C' 
+          ELSE T.WHOC_FLAG END AS OB_STATUS
+	 , CASE WHEN T.WHOC_FLAG = 'BK' OR T.WHOC_FLAG = 'LP' THEN 'Completed' 
+	        WHEN T.WHOC_FLAG = 'P' THEN 'Planned' 
+	        WHEN T.WHOC_FLAG = 'A' THEN 'Allocated' 
+	        WHEN T.WHOC_FLAG = 'I' THEN 'Issued' 
+	        WHEN T.WHOC_FLAG = 'N' THEN 'Booked' 
+	   END AS OB_STATUS_NM
+	/* Order status 별 수량 sum */
+	 , CASE WHEN T.WHOC_FLAG = 'A' OR T.WHOC_FLAG = 'P' OR T.WHOC_FLAG = 'BK' OR T.WHOC_FLAG = 'LP' THEN ALLC_PICK_TOT_QTY END AS ALLOC_EA_QTY
+	 , CASE WHEN T.WHOC_FLAG = 'LP' OR T.WHOC_FLAG = 'P' 
+	                           THEN (SELECT SUM (LPI.LP_ITEM_EA_QTY) AS LP_ITEM_EA_QTY
+                                       FROM TL_WH_LOAD_PLAN LP
+                                          , TL_WH_LOAD_PLAN_ITEM LPI
+                                      WHERE LP.LP_NO = LPI.LP_NO
+                                        AND LP.LP_STS_CD IN ('P', 'L')
+                                        AND LPI.WOB_BK_NO = T.WOB_BK_NO
+                                        AND LPI.SAO_SYS_NO = T.SAO_SYS_NO
+                                        AND LPI.ITEM_SYS_NO = T.ITEM_SYS_NO
+                                        AND LPI.ITEM_SEQ = T.ITEM_SEQ
+                                      ) END AS LP_ITEM_EA_QTY
+	 , CASE WHEN T.WHOC_FLAG = 'BK' THEN (SELECT SUM (WII.ISSU_ITEM_EA_QTY) AS OUT_ITEM_EA_QTY
+                                            FROM TL_WH_ISSU WI
+                                               , TL_WH_ISSU_ITEM WII
+                                           WHERE WI.WOB_OUT_NO = WII.WOB_OUT_NO
+                                             AND WII.WOB_BK_NO = T.WOB_BK_NO
+                                             AND WII.SAO_SYS_NO = T.SAO_SYS_NO
+                                             AND WII.ITEM_SYS_NO = T.ITEM_SYS_NO
+                                             AND WII.ITEM_SEQ = T.ITEM_SEQ
+                                     ) 
+            WHEN T.WHOC_FLAG = 'LP' THEN (SELECT SUM (LPI.LOAD_ITEM_EA_QTY) AS OUT_ITEM_EA_QTY
+                                            FROM TL_WH_LOAD_PLAN LP
+                                               , TL_WH_LOAD_PLAN_ITEM LPI
+                                           WHERE LP.LP_NO = LPI.LP_NO
+                                             AND LP.LP_STS_CD = 'L'
+                                             AND LPI.WOB_BK_NO = T.WOB_BK_NO
+                                             AND LPI.SAO_SYS_NO = T.SAO_SYS_NO
+                                             AND LPI.ITEM_SYS_NO = T.ITEM_SYS_NO
+                                             AND LPI.ITEM_SEQ = T.ITEM_SEQ
+                                         ) END AS OUT_ITEM_EA_QTY                                         
+  FROM (
+		SELECT /* OB */
+		       OB.CTRT_NO
+		     , dbo.TL_GET_CTRT_NM (OB.CTRT_NO) AS CTRT_NM
+		     , OB.WH_CD
+		     , OB.BK_DATE
+		     , OB.WOB_BK_NO
+		     , OB.ORD_TP_CD
+		     , dbo.TL_GET_COMM_NM('WB3', OB.ORD_TP_CD) AS ORD_TP_NM
+		     , OB.BUYER_CD
+		     , dbo.TL_GET_CUST_NM(OB.BUYER_CD) AS BUYER_NM
+		     
+		     /* OB ITEM */
+		     , OB_ITEM.SAO_SYS_NO
+		     , OB_ITEM.ITEM_SYS_NO
+		     , OB_ITEM.ITEM_SEQ
+		     , OB_ITEM.ITEM_CD
+		     , OB_ITEM.ITEM_NM
+		     , OB_ITEM.ITEM_PKGUNIT
+		     /*, OB_ITEM.ITEM_PKGQTY
+		     , OB_ITEM.ITEM_EA_QTY*/
+
+             , (SELECT SUM(II.ITEM_PKGQTY) FROM TL_WH_OB_ITEM II WHERE II.WOB_BK_NO = OB.WOB_BK_NO AND II.ITEM_SYS_NO = OB_ITEM.ITEM_SYS_NO AND II.ITEM_PKGUNIT = OB_ITEM.ITEM_PKGUNIT GROUP BY II.ITEM_PKGUNIT) AS ITEM_PKGQTY
+             , (SELECT SUM(II.ITEM_EA_QTY) FROM TL_WH_OB_ITEM II WHERE II.WOB_BK_NO = OB.WOB_BK_NO AND II.ITEM_SYS_NO = OB_ITEM.ITEM_SYS_NO AND II.ITEM_PKGUNIT = OB_ITEM.ITEM_PKGUNIT GROUP BY II.ITEM_PKGUNIT) AS ITEM_EA_QTY
+
+		     , OB_ITEM.INBOUND_DT AS INBOUND_DT_OB
+			 , OB_ITEM.LOT_NO AS LOT_NO_OB
+			 , OB_ITEM.EXP_DT AS EXP_DT_OB
+			 , OB_ITEM.LOT_04 AS LOT_04_OB
+			 , OB_ITEM.LOT_05 AS LOT_05_OB
+			 , OB_ITEM.SAO_NO
+			 , OB_ITEM.RGST_TIMESTAMP
+			 
+			 , RANK() OVER(ORDER BY OB_ITEM.WOB_BK_NO ASC, OB_ITEM.RGST_TIMESTAMP ASC, OB_ITEM.SAO_SYS_NO ASC, OB_ITEM.ITEM_SYS_NO ASC, OB_ITEM.ITEM_SEQ ASC) AS RN
+			 
+			 /* WAVE */
+			 , WAVE_OB.WAVE_NO
+		     
+		     /* ALLC ITEM */
+		     , ALLC_ITEM.WIB_BK_NO
+		     , ALLC_ITEM.PO_SYS_NO
+		     , ALLC_ITEM.PO_NO
+		     , SUM(ISNULL(ALLC_ITEM.PICK_ITEM_EA_QTY, 0)) OVER(PARTITION BY ALLC_ITEM.WOB_BK_NO, ALLC_ITEM.SAO_SYS_NO, ALLC_ITEM.ITEM_SYS_NO, ALLC_ITEM.ITEM_SEQ) ALLC_PICK_TOT_QTY
+		     , ALLC_ITEM.WH_LOC_CD
+		     , dbo.TL_GET_WH_LOC_NM (OB.WH_CD, ALLC_ITEM.WH_LOC_CD) AS WH_LOC_NM
+		     , ISNULL(ALLC_ITEM.PICK_ITEM_EA_QTY, 0) AS PICK_ITEM_EA_QTY
+		     
+		     /* OB ITEM + ALLC ITEM */
+		     , ALLC_ITEM.LOT_ID
+		     , ISNULL(ALLC_ITEM.PICK_ITEM_CBM, OB_ITEM.ITEM_CBM) AS ITEM_CBM
+			 , ISNULL(ALLC_ITEM.PICK_ITEM_CBF, OB_ITEM.ITEM_CBF) AS ITEM_CBF
+			 , ISNULL(ALLC_ITEM.PICK_ITEM_GRS_KGS, OB_ITEM.ITEM_GRS_KGS) AS ITEM_GRS_KGS
+			 , ISNULL(ALLC_ITEM.PICK_ITEM_GRS_LBS, OB_ITEM.ITEM_GRS_LBS) AS ITEM_GRS_LBS
+			 , ISNULL(ALLC_ITEM.PICK_ITEM_NET_KGS, OB_ITEM.ITEM_NET_KGS) AS ITEM_NET_KGS
+			 , ISNULL(ALLC_ITEM.PICK_ITEM_NET_LBS, OB_ITEM.ITEM_NET_LBS) AS ITEM_NET_LBS
+			 
+			 /* 상태값 체크*/
+			 <![CDATA[ 
+			 , CASE WHEN (
+		                 SELECT COUNT (1)
+		                   FROM TL_WH_ISSU I
+		                      , TL_WH_ISSU_ITEM II
+		                  WHERE I.WOB_OUT_NO = II.WOB_OUT_NO
+		                    AND OB.WOB_BK_NO = II.WOB_BK_NO) > 0 THEN 'BK' /* BK : C*/
+		            WHEN ( 
+		                 SELECT COUNT (1)
+		                   FROM TL_WH_LOAD_PLAN LP
+		                      , TL_WH_LOAD_PLAN_ITEM LPI
+		                  WHERE LP.LP_NO = LPI.LP_NO
+		                    AND LP.LP_STS_CD = 'L'
+		                    AND OB.WOB_BK_NO = LPI.WOB_BK_NO) > 0 THEN 'LP' /* LP : C*/
+		            WHEN ( 
+		                 SELECT COUNT (1)
+		                   FROM TL_WH_LOAD_PLAN LP
+		                      , TL_WH_LOAD_PLAN_ITEM LPI
+		                  WHERE LP.LP_NO = LPI.LP_NO
+		                    AND LP.LP_STS_CD = 'P'
+		                    AND OB.WOB_BK_NO = LPI.WOB_BK_NO) > 0 THEN 'P' 
+		            WHEN (
+		                 SELECT COUNT (1)
+		                   FROM TL_WH_ALLC A
+		                      , TL_WH_ALLC_ITEM AI
+		                  WHERE A.WALC_NO = AI.WALC_NO
+		                    AND OB.WOB_BK_NO = AI.WOB_BK_NO) > 0 THEN 'A' 
+		            WHEN OB.BK_STS_CD = 'I' THEN 'I' 
+		            WHEN OB.BK_STS_CD = 'N' THEN 'N' 
+		       END AS WHOC_FLAG
+		  ]]>
+		  FROM  TL_WH_OB_ITEM OB_ITEM LEFT JOIN TL_WH_ALLC_ITEM ALLC_ITEM ON OB_ITEM.WOB_BK_NO  = ALLC_ITEM.WOB_BK_NO
+					and OB_ITEM.SAO_SYS_NO  = ALLC_ITEM.SAO_SYS_NO
+					and OB_ITEM.ITEM_SYS_NO = ALLC_ITEM.ITEM_SYS_NO
+					and OB_ITEM.ITEM_SEQ    = ALLC_ITEM.ITEM_SEQ
+					, TL_WH_OB OB LEFT JOIN TL_WH_WAVE_OB WAVE_OB ON OB.WOB_BK_NO = WAVE_OB.WOB_BK_NO
+		 WHERE OB.WOB_BK_NO = OB_ITEM.WOB_BK_NO
+		 
+		 <![CDATA[ AND OB.BK_STS_CD <> 'C' ]]>
+		   	   
+		<isNotEmpty property="cond_no">		                              
+		    <isEqual property="cond_tp_no" compareValue="WOB_BK_NO">		                     
+		        AND OB.WOB_BK_NO = #cond_no# /* BOOKING NO */
+		    </isEqual>
+		    <isEqual property="cond_tp_no" compareValue="WOB_OUT_NO">		                     
+		        AND (EXISTS (SELECT 'X'
+		                       FROM TL_WH_ISSU S
+		                      WHERE S.WALC_NO = ALLC_ITEM.WALC_NO
+		                        AND S.WOB_OUT_NO = #cond_no# /* ISSU COMPLETE NO */          	                                    
+		                    )
+		          OR EXISTS (SELECT 'X'
+		                       FROM TL_WH_LOAD_PLAN P,
+		                            TL_WH_LOAD_PLAN_ITEM PI
+		                      WHERE P.LP_NO = PI.LP_NO
+		                        AND P.LP_STS_CD = 'L'
+		                        AND PI.WOB_BK_NO = ALLC_ITEM.WOB_BK_NO
+		                        AND P.LP_NO = #cond_no# /* LOAD PLAN COMPLETE NO */
+			                                    	                                        
+		                    )
+		            )
+		    </isEqual>
+		</isNotEmpty>   
+		<isNotEmpty property="ctrt_no">		                     
+		   AND OB.CTRT_NO = #ctrt_no#
+		</isNotEmpty>		                     		                     
+		<isNotEmpty property="wh_cd"> 
+		   AND OB.WH_CD = #wh_cd#
+		</isNotEmpty>
+                 <isEqual property="cond_tp_date" compareValue="BK_DATE">			                  
+					AND OB.BK_DATE BETWEEN REPLACE (#cond_fm_date#, '-', '') AND REPLACE (#cond_to_date#, '-', '') 
+				</isEqual>
+				<isEqual property="cond_tp_date" compareValue="OUTBOUND_DT">
+					AND (EXISTS (SELECT 'X'
+			                       FROM TL_WH_ISSU S
+			                      WHERE S.WALC_NO = ALLC_ITEM.WALC_NO
+			                        AND S.OUTBOUND_DT BETWEEN REPLACE (#cond_fm_date#, '-', '') AND REPLACE (#cond_to_date#, '-', '')          	                                    
+			                    )
+			          OR EXISTS (SELECT 'X'
+			                       FROM TL_WH_LOAD_PLAN P,
+			                            TL_WH_LOAD_PLAN_ITEM PI
+			                      WHERE P.LP_NO = PI.LP_NO
+			                        AND P.LP_STS_CD = 'L'
+			                        AND PI.WOB_BK_NO = ALLC_ITEM.WOB_BK_NO
+			                        AND P.OUTBOUND_DT BETWEEN REPLACE (#cond_fm_date#, '-', '') AND REPLACE (#cond_to_date#, '-', '')
+				                                    	                                        
+			                    )
+			            )
+				</isEqual>
+		<isNotEmpty property="buyer_cd">		                     
+		   AND OB.BUYER_CD = #buyer_cd#
+		</isNotEmpty>		
+		<isNotEqual property="ord_tp_cd" compareValue="ALL">		                     
+		   AND OB.ORD_TP_CD = #ord_tp_cd#
+		</isNotEqual>
+		<isNotEmpty property="item_cd">		                     
+		   AND OB_ITEM.ITEM_CD = #item_cd#
+		</isNotEmpty>
+     ) T LEFT JOIN TL_CTRT_CUST_ITEM_LOT LOT ON T.CTRT_NO = LOT.CTRT_NO
+				and T.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+				AND T.LOT_ID = LOT.LOT_ID
+     , TL_CTRT_CUST_ITEM CI
+
+ WHERE T.CTRT_NO = CI.CTRT_NO
+   AND T.ITEM_SYS_NO = CI.ITEM_SYS_NO
+<isNotEqual property="ob_status" compareValue="ALL">		   
+		AND (CASE T.WHOC_FLAG 
+						WHEN 'BK' THEN 'C'
+							WHEN 'LP' THEN 'C'
+							ELSE T.WHOC_FLAG
+							END) = #ob_status#
+</isNotEqual>
+<isNotEmpty property="lot_no">		     
+   AND (
+	SELECT
+		CASE ISNULL(LOT.LOT_ATTRIB_02, 'NULL') 
+	WHEN 'NULL' THEN
+		T.LOT_NO_OB
+	ELSE
+		LOT.LOT_ATTRIB_02
+	END
+	) = #lot_no#
+</isNotEmpty>
+ ORDER BY T.WOB_BK_NO ASC, T.RGST_TIMESTAMP ASC, T.ITEM_CD ASC, T.ITEM_SEQ ASC, ISNULL(LOT.LOT_ATTRIB_01, T.INBOUND_DT_OB) ASC, ISNULL(LOT.LOT_ATTRIB_02, T.LOT_NO_OB) ASC, T.WH_LOC_NM		   
+</select>
+
+<select id="searchWHOCPageMoveComplete" resultClass="WHOCPageMoveCompleteVO">
+	/*WHOC.searchWHOCPageMoveComplete*/
+	SELECT A.WOB_BK_NO, B.WALC_NO
+	     , CASE WHEN B.WALC_NO IS NULL THEN 0 ELSE 1 END AS WALC_NO_CNT
+	     , CASE WHEN B.WALC_NO IS NULL THEN 0 ELSE (SELECT COUNT(1)
+                                                      FROM TL_WH_ISSU_ITEM ISSU
+                                                     WHERE ISSU.WALC_NO = B.WALC_NO                                                       
+                                                    ) END AS ISSU_CNT
+         , CASE WHEN B.WALC_NO IS NULL THEN 0 ELSE (SELECT COUNT(1)
+                                                      FROM TL_WH_PSUDO_LP_SHIP SHIP
+                                                     WHERE SHIP.WOB_BK_NO = A.WOB_BK_NO
+                                                   ) END AS SHIP_CNT
+         , CASE WHEN B.WALC_NO IS NULL THEN 0 ELSE (SELECT COUNT(1)
+                                                      FROM TL_WH_LOAD_PLAN_ITEM LOAD
+                                                     WHERE LOAD.WOB_BK_NO = A.WOB_BK_NO
+                                                   ) END AS LP_CNT
+	  FROM TL_WH_OB A LEFT JOIN
+	      TL_WH_ALLC B
+		ON A.WOB_BK_NO = B.WOB_BK_NO
+	   where A.WOB_BK_NO = #wob_bk_no#
+	</select>
+	
+	<insert id="addFileWHOCFileUploadByBooking">
+	/* WHOC.addFileWHOCFileUploadByBooking */    
+	INSERT INTO TL_WH_ISSU_ITEM_FILE_REP
+	     ( WOB_OUT_NO
+         , WALC_NO
+         , WOB_BK_NO
+         , SAO_SYS_NO
+         , WIB_BK_NO
+         , PO_SYS_NO
+         , ITEM_SYS_NO
+         , LOT_ID
+         , WH_LOC_CD
+         , ITEM_SEQ
+	     , FILE_SEQ       /*Key Sequence*/
+	     , FILE_PATH      /*File Path  파일 저장 디렉토리*/
+	     , FILE_SYS_NM    /*File System Name*/
+	     , FILE_ORG_NM    /*File Original Name*/
+	     , FILE_SIZE      /*File Size*/
+	     , RGST_ID        /*등록 ID*/
+	     , RGST_SYS_DT    /*등록 일자*/
+	     , MODI_ID        /*수정 ID*/
+	     , MODI_SYS_DT    /*수정일자*/
+	     )
+	VALUES( #wob_out_no#
+         , #walc_no#
+         , #wob_bk_no#
+         , #sao_sys_no#
+         , #wib_bk_no#
+         , #po_sys_no#
+         , #item_sys_no#
+         , #lot_id#
+         , #wh_loc_cd#
+         , #item_seq#
+	     , (SELECT ISNULL(MAX(FILE_SEQ),0) + 1
+	          FROM TL_WH_ISSU_ITEM_FILE_REP
+	         WHERE WOB_OUT_NO  = #wob_out_no#
+               AND WALC_NO     = #walc_no#
+               AND WOB_BK_NO   = #wob_bk_no#
+               AND SAO_SYS_NO  = #sao_sys_no#
+               AND WIB_BK_NO   = #wib_bk_no#
+               AND PO_SYS_NO   = #po_sys_no#
+               AND ITEM_SYS_NO = #item_sys_no#
+               AND LOT_ID      = #lot_id#
+               AND WH_LOC_CD   = #wh_loc_cd#
+               AND ITEM_SEQ    = #item_seq#
+	       )
+	     , #file_url#
+	     , #file_sys_nm#
+	     , #file_nm#
+	     , #file_capa#
+	     , #rgst_id#
+	     , GETDATE()
+	     , #rgst_id#
+	     , GETDATE()
+	 )
+    </insert>	
+    
+    <insert id="addFileWHOCFileUploadByLoadPlan">
+	/* WHOC.addFileWHOCFileUploadByLoadPlan */    
+	INSERT INTO TL_WH_LOAD_PLAN_ITEM_FILE_REP
+	     ( LP_NO
+         , WOB_BK_NO
+         , SAO_SYS_NO
+         , WIB_BK_NO
+         , PO_SYS_NO
+         , ITEM_SYS_NO
+         , LOT_ID
+         , WH_LOC_CD
+         , ITEM_SEQ
+	     , FILE_SEQ       /*Key Sequence*/
+	     , FILE_PATH      /*File Path  파일 저장 디렉토리*/
+	     , FILE_SYS_NM    /*File System Name*/
+	     , FILE_ORG_NM    /*File Original Name*/
+	     , FILE_SIZE      /*File Size*/
+	     , RGST_ID        /*등록 ID*/
+	     , RGST_SYS_DT    /*등록 일자*/
+	     , MODI_ID        /*수정 ID*/
+	     , MODI_SYS_DT    /*수정일자*/
+	     )
+	VALUES( #lp_no#
+         , #wob_bk_no#
+         , #sao_sys_no#
+         , #wib_bk_no#
+         , #po_sys_no#
+         , #item_sys_no#
+         , #lot_id#
+         , #wh_loc_cd#
+         , #item_seq#
+	     , (SELECT ISNULL(MAX(FILE_SEQ),0) + 1
+	          FROM TL_WH_ISSU_ITEM_FILE_REP
+	         WHERE WOB_OUT_NO  = #wob_out_no#
+               AND WALC_NO     = #walc_no#
+               AND WOB_BK_NO   = #wob_bk_no#
+               AND SAO_SYS_NO  = #sao_sys_no#
+               AND WIB_BK_NO   = #wib_bk_no#
+               AND PO_SYS_NO   = #po_sys_no#
+               AND ITEM_SYS_NO = #item_sys_no#
+               AND LOT_ID      = #lot_id#
+               AND WH_LOC_CD   = #wh_loc_cd#
+               AND ITEM_SEQ    = #item_seq#
+	       )
+	       , #file_url#
+	     , #file_sys_nm#
+	     , #file_nm#
+	     , #file_capa#
+	     , #rgst_id#
+	     , GETDATE()
+	     , #rgst_id#
+	     , GETDATE()
+	     )
+    </insert>		
+	<!-- OB Complete Creation Header 조회 (by booking)-->
+	<!-- <resultMap type="com.clt.business.oms.whoutboundcomplete.dto.WHOCMgmtHeaderByBookingInOutDto" id="WHOCMgmtHeaderByBooking"></resultMap>
+		
+	
+	OB Complete Creation Item 조회 (by booking)
+	<resultMap type="com.clt.business.oms.whoutboundcomplete.dto.Grd02WHOCMgmtDto" id="Grd02WHOCMgmt"></resultMap>
+
+	OB Complete Creation Header 조회 (by loadplan)
+	<resultMap type="com.clt.business.oms.whoutboundcomplete.dto.WHOCMgmtHeaderByLoadPlanInOutDto" id="WHOCMgmtHeaderByLoadPlan"></resultMap>
+	
+	
+	OB Complete Creation Item 조회 (by loadplan)
+	<resultMap type="com.clt.business.oms.whoutboundcomplete.dto.Grd04WHOCMgmtDto" id="Grd04WHOCMgmt"></resultMap>
+		
+	OB BOOKING NO에 해당하는 Complete No Dup체크 
+	
+	OB BOOKING NO에 해당하는 complete list를 조회 조회
+	<resultMap type="com.clt.business.oms.whoutboundcomplete.dto.WHOCListPopupByBookingInOutDto" id="WHOCListPopupByBookingInOut"></resultMap>
+	<select id="searchWHOCListByBookingPopup" resultMap="WHOCListPopupByBookingInOut">
+	/*WHOC.searchWHOCListByBookingPopup*/
+	
+	SELECT A.WOB_OUT_NO                     /*INBOUND COMPLETE NO*/
+	     , B.WOB_BK_NO                     /*BOOKING NO*/
+	     , CONVERT(VARCHAR(10), CONVERT(VARCHAR(8), A.OUTBOUND_DT, 112), 20) AS OUTBOUND_DT
+
+	  FROM HJLLIS.dbo.TL_WH_ISSU A, HJLLIS.dbo.TL_WH_ALLC B
+	  WHERE A.WALC_NO = B.WALC_NO
+	  AND B.WOB_BK_NO = #{wob_bk_no} 
+	  ORDER BY A.WOB_OUT_NO ASC
+	
+	SELECT A.WOB_OUT_NO                     /*INBOUND COMPLETE NO*/
+	     , B.WOB_BK_NO                     /*BOOKING NO*/
+	     , TO_CHAR(TO_DATE(A.OUTBOUND_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS OUTBOUND_DT
+	  FROM TL_WH_ISSU A, TL_WH_ALLC B
+	 WHERE A.WALC_NO = B.WALC_NO
+	   AND B.WOB_BK_NO = #{wob_bk_no} 
+	 ORDER BY A.WOB_OUT_NO ASC
+	</select>	
+	
+	
+		
+		
+
+	
+
+	WH_LOAD_PLAN 수정(Master)
+
+	WH_LOAD_PLAN 수정(Master)
+		
+	
+	WH_LOAD_PLAN_ITEM 수정(Detail)
+
+
+	WH_LOAD_PLAN_ITEM 수정(Detail)
+			
+	Outbound Complete Update화면에서 complete no 또는 booking no에 해당하는 정보를 조회한다.(header) (by booking) 
+	<resultMap type="com.clt.business.oms.whoutboundcomplete.dto.WHOCUpdateHeaderByBookingInOutDto" id="WHOCUpdateHeaderByBookingInOut"></resultMap>
+	
+	
+	Outbound Complete Update화면에서 complete no 또는 booking no에 해당하는 정보를 조회한다.(detail) (by booking) 
+	<resultMap type="com.clt.business.oms.whoutboundcomplete.dto.Grd01WHOCUpdateDto" id="Grd01WHOCUpdate"></resultMap>
+	
+	
+	Outbound Complete Update화면에서 load plan no에 해당하는 정보를 조회한다.(header) (by loadplan) 
+	<resultMap type="com.clt.business.oms.whoutboundcomplete.dto.WHOCUpdateHeaderByLoadPlanInOutDto" id="WHOCUpdateHeaderByLoadPlanInOut"></resultMap>
+		
+	Outbound Complete Update화면에서 load plan no에 해당하는 정보를 조회한다.(detail) (by loadplan) 
+	<resultMap type="com.clt.business.oms.whoutboundcomplete.dto.Grd02WHOCUpdateDto" id="Grd02WHOCUpdate"></resultMap>
+	
+	
+	WH_ISSU 수정(Master)
+		
+	WH_ISSU_ITEM 수정(Detail)
+	
+	
+	Outbound Complete Update화면에서 아이템별로 파일첨부를 한다. (by booking)	
+    	
+	Outbound Complete Update화면에서 아이템별로 첨부된 파일을 삭제한다. (by booking)	
+    	
+
+
+	Outbound Complete Update화면에서 아이템별로 파일첨부를 한다. (by loadplan)	
+    <insert id="addFileWHOCFileUploadByLoadPlan">
+	/* WHOC.addFileWHOCFileUploadByLoadPlan */    
+	INSERT INTO TL_WH_LOAD_PLAN_ITEM_FILE_REP
+	     ( LP_NO
+         , WOB_BK_NO
+         , SAO_SYS_NO
+         , WIB_BK_NO
+         , PO_SYS_NO
+         , ITEM_SYS_NO
+         , LOT_ID
+         , WH_LOC_CD
+         , ITEM_SEQ
+	     , FILE_SEQ       /*Key Sequence*/
+	     , FILE_PATH      /*File Path  파일 저장 디렉토리*/
+	     , FILE_SYS_NM    /*File System Name*/
+	     , FILE_ORG_NM    /*File Original Name*/
+	     , FILE_SIZE      /*File Size*/
+	     , RGST_ID        /*등록 ID*/
+	     , RGST_SYS_DT    /*등록 일자*/
+	     , MODI_ID        /*수정 ID*/
+	     , MODI_SYS_DT    /*수정일자*/
+	     )
+	SELECT #{lp_no}
+         , #{wob_bk_no}
+         , #{sao_sys_no}
+         , #{wib_bk_no}
+         , #{po_sys_no}
+         , #{item_sys_no}
+         , #{lot_id}
+         , #{wh_loc_cd}
+         , #{item_seq}
+	     , (SELECT NVL(MAX(FILE_SEQ),0) + 1
+	          FROM TL_WH_ISSU_ITEM_FILE_REP
+	         WHERE WOB_OUT_NO  = #{wob_out_no}
+               AND WALC_NO     = #{walc_no}
+               AND WOB_BK_NO   = #{wob_bk_no}
+               AND SAO_SYS_NO  = #{sao_sys_no}
+               AND WIB_BK_NO   = #{wib_bk_no}
+               AND PO_SYS_NO   = #{po_sys_no}
+               AND ITEM_SYS_NO = #{item_sys_no}
+               AND LOT_ID      = #{lot_id}
+               AND WH_LOC_CD   = #{wh_loc_cd}
+               AND ITEM_SEQ    = #{item_seq}
+	       )
+	     , FILE_URL
+	     , FILE_ID
+	     , FILE_NM
+	     , FILE_CAPA
+	     , #{rgst_id}
+	     , SYSDATE
+	     , #{rgst_id}
+	     , SYSDATE
+	  FROM COM_UPLD_FILE
+	 WHERE FILE_ID = #{fileKey}
+    </insert>		
+	Outbound Complete Update화면에서 아이템별로 첨부된 파일을 삭제한다. (by loadplan)	
+
+	Outbound Complete Search	
+	<resultMap type="com.clt.business.oms.whoutboundcomplete.dto.WHOCListDto" id="WHOCListDto"></resultMap>	
+	<select id="searchWHOCList" resultMap="WHOCListDto">
+		/* WHOC.searchWHOCList */
+		  SELECT ROWNUM AS RN,
+		         DENSE_RANK () OVER (ORDER BY WOUT.WOB_OUT_NO ASC, WOUT.WOB_BK_NO ASC, WOUT.ITEM_CD ASC) AS SEQ,
+		         WOUT.WOB_OUT_NO,
+		         NVL (TO_CHAR (TO_DATE (WOUT.OUTBOUND_DT, 'YYYYMMDD'), 'YYYY-MM-DD'), ' ')  AS OUTBOUND_DT,
+		         WOUT.LP_STS_CD,
+		         TL_GET_COMM_NM ('WLS', WOUT.LP_STS_CD) AS LP_STS_NM,
+		         B.BK_DATE,
+		         B.WOB_BK_NO,
+		         B.ORD_TP_CD,
+		         TL_GET_COMM_NM ('WB3', B.ORD_TP_CD) AS ORD_TP_NM,
+		         BI.ITEM_SYS_NO,
+		         BI.ITEM_SEQ,
+		         BI.ITEM_CD,
+		         BI.ITEM_NM,
+		         BI.ITEM_PKGUNIT,
+		         BI.ITEM_PKGQTY,
+		         BI.ITEM_EA_QTY,
+		         ALI.PICK_ITEM_EA_QTY AS ALLOC_EA_QTY,
+                 WOUT.LP_ITEM_EA_QTY,		         
+		         WOUT.OUT_ITEM_EA_QTY,
+		         LOT.LOT_ATTRIB_01 AS INBOUND_DT,
+		         LOT.LOT_ATTRIB_02 AS LOT_NO,
+		         ALI.WH_LOC_CD,
+		         TL_GET_WH_LOC_NM (B.WH_CD, ALI.WH_LOC_CD) AS WH_LOC_NM,
+		         WOUT.OUT_ITEM_CBM,
+		         WOUT.OUT_ITEM_CBF,
+		         WOUT.OUT_ITEM_GRS_KGS,
+		         WOUT.OUT_ITEM_GRS_LBS,
+		         WOUT.OUT_ITEM_NET_KGS,
+		         WOUT.OUT_ITEM_NET_LBS,
+		         B.CTRT_NO,
+		         TL_GET_CTRT_NM (B.CTRT_NO) AS CTRT_NM,
+		         B.BUYER_CD,
+		         TL_GET_CUST_NM (B.BUYER_CD) AS BUYER_NM,         
+		         WOUT.EQ_TPSZ_CD,
+		         WOUT.EQ_NO,
+		         WOUT.SEAL_NO,
+		         WOUT.GATE_IN_HM,
+		         WOUT.GATE_OUT_HM,
+		         WOUT.RMK,
+		         WOUT.FILE_SEQ,
+		         WOUT.FILE_PATH,
+		         WOUT.FILE_SYS_NM,
+		         WOUT.FILE_ORG_NM,
+		         WOUT.FILE_SIZE,
+		         LOT.LOT_ATTRIB_03 AS EXP_DT,
+		         LOT.LOT_ATTRIB_04 AS LOT_04,
+		         LOT.LOT_ATTRIB_05 AS LOT_05,
+		         LOT.LOT_ID,
+		         WAVE_OB.WAVE_NO,
+		         B.SO_NO,         
+		         I.WIB_BK_NO,
+		         I.PO_NO,
+		         B.WH_CD,
+		         TL_GET_LOC_NM (B.WH_CD) AS WH_NM,
+		         WOUT.WHOC_FLAG,
+		         B.CUST_ORD_NO         
+		    FROM TL_WH_OB B,
+		         TL_WH_OB_ITEM BI,
+		         TL_WH_ALLC AL,
+		         TL_WH_ALLC_ITEM ALI,
+		         (SELECT WI.WOB_OUT_NO AS WOB_OUT_NO,
+		                 WI.OUTBOUND_DT,
+		                 'L' AS LP_STS_CD,
+		                 WII.WOB_BK_NO,
+		                 WII.SAO_SYS_NO,
+		                 WII.PO_SYS_NO,
+		                 WII.ITEM_SYS_NO,
+		                 WII.LOT_ID,
+		                 WII.WH_LOC_CD,
+		                 WII.WIB_BK_NO,
+		                 WII.ITEM_SEQ,
+		                 WII.ITEM_CD,
+                         0 AS LP_ITEM_EA_QTY,		                 
+		                 WII.ISSU_ITEM_EA_QTY AS OUT_ITEM_EA_QTY,
+		                 WII.ISSU_ITEM_CBM AS OUT_ITEM_CBM,
+		                 WII.ISSU_ITEM_CBF AS OUT_ITEM_CBF,
+		                 WII.ISSU_ITEM_GRS_KGS AS OUT_ITEM_GRS_KGS,
+		                 WII.ISSU_ITEM_GRS_LBS AS OUT_ITEM_GRS_LBS,
+		                 WII.ISSU_ITEM_NET_KGS AS OUT_ITEM_NET_KGS,
+		                 WII.ISSU_ITEM_NET_LBS AS OUT_ITEM_NET_LBS,
+		                 WII.EQ_TPSZ_CD,
+		                 WII.EQ_NO,
+		                 WII.SEAL_NO,
+		                 WII.GATE_IN_HM,
+		                 WII.GATE_OUT_HM,
+		                 WII.RMK,
+		                 WIIF.FILE_SEQ,
+		                 WIIF.FILE_PATH,
+		                 WIIF.FILE_SYS_NM,
+		                 WIIF.FILE_ORG_NM,
+		                 WIIF.FILE_SIZE,
+		                 'BK' AS WHOC_FLAG
+		            FROM TL_WH_ISSU WI,
+		                 TL_WH_ISSU_ITEM WII,
+		                 TL_WH_ISSU_ITEM_FILE_REP WIIF
+		           WHERE WI.WOB_OUT_NO = WII.WOB_OUT_NO
+	             <if test="lp_sts_cd != 'ALL' ">		   
+			         AND 'L' = #{lp_sts_cd} 
+		         </if>		           
+		             AND WII.WOB_OUT_NO = WIIF.WOB_OUT_NO(+)
+		             AND WII.WALC_NO = WIIF.WALC_NO(+)
+		             AND WII.WOB_BK_NO = WIIF.WOB_BK_NO(+)
+		             AND WII.SAO_SYS_NO = WIIF.SAO_SYS_NO(+)
+		             AND WII.WIB_BK_NO = WIIF.WIB_BK_NO(+)
+		             AND WII.PO_SYS_NO = WIIF.PO_SYS_NO(+)
+		             AND WII.ITEM_SYS_NO = WIIF.ITEM_SYS_NO(+)
+		             AND WII.LOT_ID = WIIF.LOT_ID(+)
+		             AND WII.WH_LOC_CD = WIIF.WH_LOC_CD(+)
+		             AND WII.ITEM_SEQ = WIIF.ITEM_SEQ(+)
+		             AND WIIF.FILE_SEQ(+) = 1
+                 <if test="wob_bk_no != '' ">		                     
+                     AND WII.WOB_BK_NO = #{wob_bk_no}   
+                 </if>                                                               		             
+                 <if test="item_cd != '' ">		                     
+                     AND WII.ITEM_CD = #{item_cd}  
+                 </if>			                		             
+                 <if test="wob_out_no != '' ">		                     
+			         AND WI.WOB_OUT_NO IN (                                    
+					     				      <foreach collection="wob_out_no_in" item="in_no" separator=",">#{in_no}</foreach>
+					                      )							                     															                       
+                 </if>
+                 <if test="outbound_dt_fm != '' ">		                     
+           <![CDATA[ AND WI.OUTBOUND_DT >= ]]> REPLACE (#{outbound_dt_fm}, '-', '')
+                 </if>		                     
+                 <if test="outbound_dt_to != '' ">		                     
+           <![CDATA[ AND WI.OUTBOUND_DT <= ]]> REPLACE (#{outbound_dt_to}, '-', '')
+                 </if>
+		          UNION ALL
+		          SELECT LP.LP_NO AS WOB_OUT_NO,
+		                 LP.OUTBOUND_DT,
+                         LP.LP_STS_CD,
+		                 LPI.WOB_BK_NO,
+		                 LPI.SAO_SYS_NO,
+		                 LPI.PO_SYS_NO,
+		                 LPI.ITEM_SYS_NO,
+		                 LPI.LOT_ID,
+		                 LPI.WH_LOC_CD,
+		                 LPI.WIB_BK_NO,
+		                 LPI.ITEM_SEQ,
+		                 LPI.ITEM_CD,
+                         LPI.LP_ITEM_EA_QTY,		                 
+		                 LPI.LOAD_ITEM_EA_QTY AS OUT_ITEM_EA_QTY,
+		                 LPI.LOAD_ITEM_CBM AS OUT_ITEM_CBM,
+		                 LPI.LOAD_ITEM_CBF AS OUT_ITEM_CBF,
+		                 LPI.LOAD_ITEM_GRS_KGS AS OUT_ITEM_GRS_KGS,
+		                 LPI.LOAD_ITEM_GRS_LBS AS OUT_ITEM_GRS_LBS,
+		                 LPI.LOAD_ITEM_NET_KGS AS OUT_ITEM_NET_KGS,
+		                 LPI.LOAD_ITEM_NET_LBS AS OUT_ITEM_NET_LBS,
+		                 LP.EQ_TPSZ_CD,
+		                 LP.EQ_NO,
+		                 LP.SEAL_NO,
+		                 LP.GATE_IN_HM,
+		                 LP.GATE_OUT_HM,
+		                 LPI.RMK,
+		                 LPIF.FILE_SEQ,                 
+		                 LPIF.FILE_PATH,
+		                 LPIF.FILE_SYS_NM,
+		                 LPIF.FILE_ORG_NM,
+		                 LPIF.FILE_SIZE,
+		                 'LP' AS WHOC_FLAG
+		            FROM TL_WH_LOAD_PLAN LP,
+		                 TL_WH_LOAD_PLAN_ITEM LPI,
+		                 TL_WH_LOAD_PLAN_ITEM_FILE_REP LPIF
+		           WHERE LP.LP_NO = LPI.LP_NO
+	             <if test="lp_sts_cd != 'ALL' ">		   
+			         AND LP.LP_STS_CD = #{lp_sts_cd} 
+		         </if>		     		             		           
+		             AND LPI.LP_NO = LPIF.LP_NO(+)
+		             AND LPI.WOB_BK_NO = LPIF.WOB_BK_NO(+)
+		             AND LPI.SAO_SYS_NO = LPIF.SAO_SYS_NO(+)
+		             AND LPI.WIB_BK_NO = LPIF.WIB_BK_NO(+)
+		             AND LPI.PO_SYS_NO = LPIF.PO_SYS_NO(+)
+		             AND LPI.ITEM_SYS_NO = LPIF.ITEM_SYS_NO(+)
+		             AND LPI.LOT_ID = LPIF.LOT_ID(+)
+		             AND LPI.WH_LOC_CD = LPIF.WH_LOC_CD(+)
+		             AND LPI.ITEM_SEQ = LPIF.ITEM_SEQ(+)
+		             AND LPIF.FILE_SEQ(+) = 1
+                 <if test="wob_bk_no != '' ">		                     
+                     AND LPI.WOB_BK_NO = #{wob_bk_no}
+                 </if>                                                               
+                 <if test="item_cd != '' ">		                     
+                     AND LPI.ITEM_CD = #{item_cd}  
+                 </if>															                   
+                 <if test="wob_out_no != '' ">		                     
+				     AND LP.LP_NO IN (
+					     		         <foreach collection="wob_out_no_in" item="in_no" separator=",">#{in_no}</foreach>
+					                 )
+                 </if>                 
+                 <if test="outbound_dt_fm != '' ">		                     
+           <![CDATA[ AND LP.OUTBOUND_DT >= ]]> REPLACE (#{outbound_dt_fm}, '-', '')
+                 </if>		                     
+                 <if test="outbound_dt_to != '' ">		                     
+           <![CDATA[ AND LP.OUTBOUND_DT <= ]]> REPLACE (#{outbound_dt_to}, '-', '')
+                 </if>
+		         ) WOUT,
+		         TL_WH_INV_LOC I,
+		         TL_CTRT_CUST_ITEM_LOT LOT,
+		         TL_WH_WAVE_OB WAVE_OB
+		   WHERE B.WOB_BK_NO = BI.WOB_BK_NO
+		     AND B.WOB_BK_NO = AL.WOB_BK_NO
+		     AND AL.WALC_NO = ALI.WALC_NO
+		     AND BI.WOB_BK_NO = ALI.WOB_BK_NO
+		     AND BI.SAO_SYS_NO = ALI.SAO_SYS_NO
+		     AND BI.ITEM_SYS_NO = ALI.ITEM_SYS_NO
+		     AND BI.ITEM_SEQ = ALI.ITEM_SEQ
+		     AND ALI.WOB_BK_NO = WOUT.WOB_BK_NO
+		     AND ALI.SAO_SYS_NO = WOUT.SAO_SYS_NO
+		     AND ALI.WIB_BK_NO = WOUT.WIB_BK_NO
+		     AND ALI.PO_SYS_NO = WOUT.PO_SYS_NO
+		     AND ALI.ITEM_SYS_NO = WOUT.ITEM_SYS_NO
+		     AND ALI.LOT_ID = WOUT.LOT_ID
+		     AND ALI.WH_LOC_CD = WOUT.WH_LOC_CD
+		     AND ALI.ITEM_SEQ = WOUT.ITEM_SEQ
+		     AND ALI.WIB_BK_NO = I.WIB_BK_NO
+		     AND ALI.PO_SYS_NO = I.PO_SYS_NO
+		     AND ALI.ITEM_SYS_NO = I.ITEM_SYS_NO
+		     AND ALI.LOT_ID = I.LOT_ID
+		     AND ALI.WH_LOC_CD = I.WH_LOC_CD
+		     AND B.CTRT_NO = LOT.CTRT_NO
+		     AND B.WH_CD = LOT.WH_CD
+		     AND WOUT.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+		     AND WOUT.LOT_ID = LOT.LOT_ID
+		     AND B.WOB_BK_NO = WAVE_OB.WOB_BK_NO(+)
+         <if test="wh_cd != '' "> 
+             AND B.WH_CD = #{wh_cd}
+         </if>		     
+         <if test="ctrt_no != '' ">		                     
+             AND B.CTRT_NO = #{ctrt_no}
+         </if>		                     			                                               		     
+         <if test="buyer_cd != '' ">		                     
+             AND B.BUYER_CD = #{buyer_cd}
+         </if>		      			                                     		     
+         <if test="wob_bk_no != '' ">		                     
+             AND B.WOB_BK_NO = #{wob_bk_no}
+         </if>		        		                              		     
+         <if test="bk_date_fm != '' ">		                     
+   <![CDATA[ AND B.BK_DATE >= ]]> REPLACE (#{bk_date_fm}, '-', '')
+         </if>		                     
+         <if test="bk_date_to != '' ">		                     
+   <![CDATA[ AND B.BK_DATE <= ]]> REPLACE (#{bk_date_to}, '-', '')
+   		 </if>
+         <if test="lot_no != '' ">		     
+	         AND LOT.LOT_ATTRIB_02 = #{lot_no}
+         </if>	
+		ORDER BY WOUT.WOB_OUT_NO,
+	             WOUT.WOB_BK_NO,
+	             WOUT.ITEM_CD,
+	             WOUT.ITEM_SEQ,
+	             LOT.LOT_ATTRIB_01,
+	             LOT.LOT_ATTRIB_02,
+	             WOUT.WH_LOC_CD,
+	             I.WIB_BK_NO,
+	             I.PO_NO ASC
+	</select>
+		
+	Outbound complete Creation화면으로 분기에 관련된 파라미터값을 생성한다. 
+	<resultMap type="com.clt.business.oms.whoutboundcomplete.dto.WHOCPageMoveCompleteDto" id="WHOCPageMoveComplete"></resultMap>
+	<select id="searchWHOCPageMoveComplete" resultMap="WHOCPageMoveComplete">
+	/*WHOC.searchWHOCPageMoveComplete*/
+	SELECT A.WOB_BK_NO, B.WALC_NO
+	     , CASE WHEN B.WALC_NO IS NULL THEN 0 ELSE 1 END AS WALC_NO_CNT
+	     , CASE WHEN B.WALC_NO IS NULL THEN 0 ELSE (SELECT COUNT(1)
+                                                      FROM TL_WH_ISSU_ITEM ISSU
+                                                     WHERE ISSU.WALC_NO = B.WALC_NO                                                       
+                                                    ) END AS ISSU_CNT
+         , CASE WHEN B.WALC_NO IS NULL THEN 0 ELSE (SELECT COUNT(1)
+                                                      FROM TL_WH_PSUDO_LP_SHIP SHIP
+                                                     WHERE SHIP.WOB_BK_NO = A.WOB_BK_NO
+                                                   ) END AS SHIP_CNT
+         , CASE WHEN B.WALC_NO IS NULL THEN 0 ELSE (SELECT COUNT(1)
+                                                      FROM TL_WH_LOAD_PLAN_ITEM LOAD
+                                                     WHERE LOAD.WOB_BK_NO = A.WOB_BK_NO
+                                                   ) END AS LP_CNT
+	  FROM TL_WH_OB A
+	     , TL_WH_ALLC B
+	 WHERE A.WOB_BK_NO = B.WOB_BK_NO(+)
+	   AND A.WOB_BK_NO = #{wob_bk_no}
+
+	</select> -->	
+		
+</sqlMap>

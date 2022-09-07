@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="mobin.sql">
+	<select id="selectInCompleteList" parameterClass="com.clt.apps.fis.mob.ib.dto.IbInParamVO" resultClass="com.clt.apps.fis.mob.ib.dto.IbCmplVO">
+		SELECT /* MobIbSQL.xml : selectInCompleteList*/
+			EST_IN_DT estInDt,
+			EST_IN_DT BK_DATE,
+	        WIB_BK_NO wibBkNo,
+	        CUST_ORD_NO ordNo,
+	        CTRT_NO ctrtNo,
+	        CTRT_NM ctrtNm,
+	        REF_NO refNo,
+			WIB_BK_NO,
+			CUST_ORD_NO,
+			CTRT_NO,
+			CTRT_NM,
+			REF_NO,
+			CARRIER_CD,
+			CARRIER_NM,
+			DEL,
+			DLV_ORD_NO,
+			EQ_NO,
+			EQ_TP_CD,
+			EST_IN_DT,
+			EST_IN_HM,
+			ETA,
+			ETD,
+			FWD_TP_CD,
+			HBL_NO,
+			INBOUND_BX_QTY,
+			INBOUND_CBM,
+			INBOUND_HM,
+			INBOUND_SQFT,
+			LOAD_TP_CD,
+			MBL_NO,
+			ORD_TP_CD,
+			OWNER_CD,
+			OWNER_ADDR1,
+			OWNER_ADDR2,
+			OWNER_ADDR3,
+			OWNER_ADDR4,
+			OWNER_ADDR5,
+			OWNER_NM,
+			POD,
+			POD_NM,
+			POL,
+			POL_NM,
+			RCV_CNT,
+			RMK,
+			RTP_NO,
+			SUPP_ADDR1,
+			SUPP_ADDR2,
+			SUPP_ADDR3,
+			SUPP_ADDR4,
+			SUPP_ADDR5,
+			SUPP_CD,
+			SUPP_NM,
+			TRUCKER_CD,
+			TRUCKER_NM,
+			VOY,
+			VSL_CD,
+			BK_STS_CD
+		FROM (
+			SELECT
+				C.WIB_BK_NO,
+            CUST_ORD_NO,
+            C.CTRT_NO,
+            DBO.TL_GET_CTRT_NM(C.CTRT_NO) CTRT_NM,
+            C.REF_NO,
+            CARRIER_CD,
+            DBO.TL_GET_CUST_NM (C.CARRIER_CD) CARRIER_NM,
+            DEL,
+            DLV_ORD_NO,
+            EQ_NO,
+            EQ_TP_CD,
+            CASE WHEN C.EST_IN_DT IS NOT NULL THEN CONVERT (VARCHAR(10),C.EST_IN_DT,120) ELSE C.EST_IN_DT END AS EST_IN_DT,
+            CASE C.EST_IN_HM WHEN '' THEN '' ELSE SUBSTRING (C.EST_IN_HM, 1, 2) + ':' + SUBSTRING (C.EST_IN_HM, 3, 2) END AS EST_IN_HM,
+            ETA,
+            ETD,
+            FWD_TP_CD,
+            HBL_NO,
+            LTRIM(RTRIM  (CONVERT(NUMERIC(10,0),ISNULL(C.INBOUND_BX_QTY,0)))) INBOUND_BX_QTY,
+            LTRIM(RTRIM  (CONVERT(DECIMAL(15,3),ISNULL(C.INBOUND_CBM,0)))) AS INBOUND_CBM,
+            INBOUND_HM,
+            INBOUND_SQFT,
+            LOAD_TP_CD,
+            MBL_NO,
+            ORD_TP_CD,
+            OWNER_CD,
+            OWNER_ADDR1,
+			OWNER_ADDR2,
+			OWNER_ADDR3,
+			OWNER_ADDR4,
+			OWNER_ADDR5,
+            dbo.TL_GET_CUST_NM (C.OWNER_CD) OWNER_NM,
+            POD,
+            DBO.TL_GET_LOC_NM (C.POD) AS POD_NM,
+            POL,
+            dbo.TL_GET_LOC_NM (C.POL) AS POL_NM,
+            (SELECT COUNT(1) FROM TL_WH_RCV RCV WHERE RCV.WIB_BK_NO = C.WIB_BK_NO) AS RCV_CNT,
+            RMK,
+            RTP_NO,
+            SUPP_ADDR1,
+            SUPP_ADDR2,
+            SUPP_ADDR3,
+            SUPP_ADDR4,
+            SUPP_ADDR5,
+            SUPP_CD,
+            dbo.TL_GET_CUST_NM (C.SUPP_CD) AS SUPP_NM,
+            TRUCKER_CD,
+            dbo.TL_GET_CUST_NM (C.TRUCKER_CD) TRUCKER_NM,
+            VOY,
+            VSL_CD,
+            CASE      
+                WHEN C.BK_STS_CD = 'I' 
+                AND LTRIM(C.IN_STS_CD) IS NULL THEN 'I'      
+                WHEN C.BK_STS_CD = 'I' 
+                AND LTRIM(C.IN_STS_CD) IS NOT NULL THEN 'X'      
+                ELSE 'C'     
+            END BK_STS_CD 
+			FROM
+				TL_WH_IB C
+			<!-- #2332 [WMS4.0] MOBILE SEARCH CONDITION -->
+			JOIN (
+			      SELECT DISTINCT
+			             WIB_BK_NO
+			        FROM TL_WH_IB_ITEM
+			       WHERE 1 = 1
+                   <isNotEmpty property="wibBkNo">
+		             AND WIB_BK_NO = #wibBkNo#
+		           </isNotEmpty>
+                   <isNotEmpty property="itemCd">
+		             AND ITEM_CD = #itemCd#
+		           </isNotEmpty>
+			     ) D ON C.WIB_BK_NO = D.WIB_BK_NO
+			WHERE 
+				C.WH_CD =  #userInfo.def_wh_cd#
+			<isNotEmpty property="ctrtNo">
+			AND
+				C.CTRT_NO =  #ctrtNo#
+			</isNotEmpty>
+			<isNotEmpty property="orderNo">
+			AND
+				C.CUST_ORD_NO =  #orderNo#
+			</isNotEmpty>
+			<isNotEmpty property="fmDate">
+			AND 
+				C.EST_IN_DT >= #fmDate#
+			</isNotEmpty>
+			<isNotEmpty property="toDate">
+			AND 
+				C.EST_IN_DT <![CDATA[<= ]]> #toDate#
+			</isNotEmpty>
+		) A
+		WHERE 
+			1=1
+		<isNotEmpty property="bkStsCd">
+		AND
+			BK_STS_CD = #bkStsCd#
+		</isNotEmpty>
+		<isNotEmpty property="wibBkNo">
+		AND
+			WIB_BK_NO = #wibBkNo#
+		</isNotEmpty>
+
+	</select>
+	<select id="selectInCompleteItemList" parameterClass="com.clt.apps.fis.mob.ib.dto.IbInParamVO" resultClass="com.clt.apps.fis.mob.ib.dto.IbCmplItemVO">
+		SELECT /*MobIbSQL.xml : selectInCompleteItemList*/
+			I_ITEM.ITEM_SEQ,
+	        I_ITEM.ITEM_CD itemCd,
+	        I_ITEM.ITEM_CD,
+	        I_ITEM.ITEM_NM itemNm,
+	        I_ITEM.ITEM_NM,
+	        I_ITEM.ITEM_PKGUNIT itemPkgunit,
+	        I_ITEM.ITEM_PKGUNIT,
+	        I_ITEM.LOT_NO lotNo,
+	        I_ITEM.LOT_04 lot04,
+	        I_ITEM.LOT_05 lot05,
+	        I_ITEM.ITEM_PKGQTY itemPkgqty,
+	        I_ITEM.ITEM_PKGQTY,
+	        I_ITEM.ITEM_EA_QTY itemEaQty,
+	        I_ITEM.ITEM_EA_QTY,
+	        CONVERT(int,ISNULL(R_ITEM.SND_PKGQTY,(isnull(I_ITEM.ITEM_RCV_PKGQTY, 0)))) rcvPkgqty,
+	        CAST(ISNULL(R_ITEM.IN_ITEM_CBF,I_ITEM.ITEM_CBF) AS FLOAT) AS ITEM_CBF,
+	        CAST(ISNULL(R_ITEM.IN_ITEM_CBM,I_ITEM.ITEM_CBM) AS FLOAT) AS ITEM_CBM,
+	        CAST(ISNULL(R_ITEM.IN_ITEM_GRS_KGS,I_ITEM.ITEM_GRS_KGS) AS FLOAT) AS ITEM_GRS_KGS,
+	        CAST(ISNULL(R_ITEM.IN_ITEM_GRS_LBS,I_ITEM.ITEM_GRS_LBS) AS FLOAT) AS ITEM_GRS_LBS,
+	        CAST(ISNULL(R_ITEM.IN_ITEM_NET_KGS,I_ITEM.ITEM_NET_KGS) AS FLOAT) AS ITEM_NET_KGS,
+	        CAST(ISNULL(R_ITEM.IN_ITEM_NET_LBS,I_ITEM.ITEM_NET_LBS) AS FLOAT) AS ITEM_NET_LBS,
+	        I_ITEM.ITEM_SYS_NO,
+	        I_ITEM.MBL_NO,
+	        I_ITEM.UNLOAD_INBOUND_LOC_CD,
+	        I_ITEM.EXP_DT EXP_DT,
+	        R_ITEM.RCV_STS_CD,
+	        <!-- #2129 [BINEX WMS4.0] INBOUND COMPLETE CANCEL DELETES SAVED SERIAL #(#1882) -->
+	        I_ITEM.LIC_PLAT_NO,
+	        I_ITEM.ITEM_SER_NO
+	        <!-- #2327 [WMS4.0] MOBILE RECEIVING VALIDATION FOR PUTAWAY (S) -->
+	        , ISNULL(C_ITEM.SERIAL_REQ_FLAG, 'N') AS SERIAL_REQ_FLAG
+	        , ISNULL(C_ITEM.SERIAL_UNIQ_FLAG, 'N') AS SERIAL_UNIQ_FLAG
+	        <!-- #2327 [WMS4.0] MOBILE RECEIVING VALIDATION FOR PUTAWAY (E) -->
+		FROM 
+			TL_WH_IB_ITEM I_ITEM
+		LEFT JOIN 
+			TL_WH_RCV_ITEM R_ITEM
+		ON 
+			I_ITEM.WIB_BK_NO = R_ITEM.WIB_BK_NO 
+		AND 
+			I_ITEM.PO_SYS_NO = R_ITEM.PO_SYS_NO                                                 
+		AND 
+			I_ITEM.ITEM_SYS_NO = R_ITEM.ITEM_SYS_NO                                                
+		AND 
+			I_ITEM.ITEM_SEQ = R_ITEM.ITEM_SEQ
+		<!-- #2327 [WMS4.0] MOBILE RECEIVING VALIDATION FOR PUTAWAY (S) -->
+		LEFT OUTER JOIN (SELECT DISTINCT
+		                        A.ITEM_CD
+		                      , A.SERIAL_REQ_FLAG
+		                      , A.SERIAL_UNIQ_FLAG
+				           FROM TL_CTRT_CUST_ITEM A
+				           JOIN TL_WH_IB B ON A.CTRT_NO = B.CTRT_NO
+				            AND B.WIB_BK_NO = #wibBkNo#
+				        ) C_ITEM ON I_ITEM.ITEM_CD = C_ITEM.ITEM_CD
+        <!-- #2327 [WMS4.0] MOBILE RECEIVING VALIDATION FOR PUTAWAY (E) -->
+		WHERE 
+			I_ITEM.WIB_BK_NO = #wibBkNo#
+        <isNotEmpty property="itemCd">
+          AND ITEM_CD = #itemCd#
+        </isNotEmpty>
+	</select>
+	<update id="modifyWHIbItemInfo">
+	
+		UPDATE /*MobIbSQL.xml : modifyWHIbItemInfo*/
+			TL_WH_IB_ITEM
+		SET 
+			LOT_NO = #lotNo#,
+			LOT_04 = #lot04#,
+			LOT_05 = #lot05#,
+			EXP_DT = #exp_dt#,
+			INBOUND_DT = #inbound_dt#
+		WHERE 
+			ITEM_SYS_NO = #item_sys_no#
+		AND 
+			ITEM_SEQ = #item_seq#
+		AND 
+			WIB_BK_NO = #wib_bk_no#
+	 </update>
+	 
+	<select id="selectIbPtawyList" parameterClass="com.clt.apps.fis.mob.ib.dto.IbInParamVO" resultClass="com.clt.apps.fis.wms.common.dto.Grd01WHPutawayPopupItemVO">
+		SELECT /*MobIbSQL.xml : selectIbPtawyList*/
+			* 
+		from (
+			SELECT ROW_NUMBER () OVER (ORDER BY T.WIB_IN_NO DESC) AS RN,
+				T.*,
+				(SELECT COUNT (1) FROM TL_WH_PUTAWAY_ITEM A WHERE A.WIB_IN_NO = T.WIB_IN_NO ) AS PUTAWAY_ITEM_CNT,
+				(SELECT COUNT (1) FROM TL_WH_PUTAWAY A WHERE A.WIB_IN_NO = T.WIB_IN_NO ) AS PUTAWAY_CNT,
+				CIW.FIX_LOC_CD,
+				dbo.TL_GET_WH_LOC_NM
+				(T.WH_CD, CIW.FIX_LOC_CD) AS FIX_LOC_NM,
+				CASE WHEN CI.PKG_LV1_UNIT_CD = T.PKGUNIT THEN CI.PKG_LV1_PUT_TP_CD
+					WHEN CI.ITEM_PKGUNIT = T.PKGUNIT THEN CI.PKG_LV2_PUT_TP_CD
+					WHEN CI.PKG_LV3_UNIT_CD = T.PKGUNIT THEN CI.PKG_LV3_PUT_TP_CD
+					WHEN CI.PKG_LV4_UNIT_CD = T.PKGUNIT THEN CI.PKG_LV4_PUT_TP_CD
+				END PUT_TP_CD,
+				CIL.LOT_ATTRIB_01 AS INBOUND_DT,
+				ISNULL(CIL.LOT_ATTRIB_02, ' ') AS LOT_NO,
+				ISNULL(CIL.LOT_ATTRIB_04, ' ') AS LOT_04,
+            	ISNULL(CIL.LOT_ATTRIB_05, ' ') AS LOT_05,
+				ISNULL (CI.PKG_LV1_QTY, 0) AS PKG_LV1_QTY,
+				CI.PKG_LV1_UNIT_CD AS PKG_LV1_UNIT_CD,
+				ISNULL (CI.ITEM_PKGBASEQTY, 0) AS PKG_LV2_QTY,
+				CI.ITEM_PKGUNIT AS PKG_LV2_UNIT_CD,
+				ISNULL (CI.PKG_LV3_QTY, 0) AS PKG_LV3_QTY,
+				CI.PKG_LV3_UNIT_CD AS PKG_LV3_UNIT_CD,
+				ISNULL (CI.PKG_LV4_QTY, 0) AS PKG_LV4_QTY,
+				CI.PKG_LV4_UNIT_CD AS PKG_LV4_UNIT_CD,
+				ISNULL (CI.LV1_CBM, 0) AS LV1_CBM,
+				ISNULL (CI.LV1_CBF, 0) AS LV1_CBF,
+				ISNULL (CI.LV1_GRS_KGS, 0) AS LV1_GRS_KGS,
+				ISNULL (CI.LV1_GRS_LBS, 0) AS LV1_GRS_LBS,
+				ISNULL (CI.LV1_NET_KGS, 0) AS LV1_NET_KGS,
+				ISNULL (CI.LV1_NET_LBS, 0) AS LV1_NET_LBS,
+				 CASE WHEN CIW.FIX_LOC_CD = T.INBOUND_LOC_CD THEN '' ELSE '+' END AS ROW_ADD,
+				'' AS ROW_DEL,
+				1 AS ROW_ADD_QTY
+				FROM
+				(
+					SELECT
+						RI.WIB_IN_NO,
+						RI.WIB_BK_NO,
+						RI.PO_SYS_NO,
+						RI.ITEM_SYS_NO,
+						RI.ITEM_SEQ,
+						PI.PUTAWAY_SEQ,
+						RI.ITEM_CD,
+						RI.ITEM_NM,
+						RI.LOT_ID,
+						RI.RECEIVED_TYPE_CD,
+						R.WH_CD,
+						dbo.TL_GET_LOC_NM (R.WH_CD) AS WH_NM,
+						W.CTRT_NO,
+						dbo.TL_GET_CTRT_NM (W.CTRT_NO) AS CTRT_NM,
+						ISNULL(W.CUST_ORD_NO, ' ') AS CUST_ORD_NO,
+						RI.INBOUND_LOC_CD,
+						dbo.TL_GET_WH_LOC_NM (W.WH_CD, RI.INBOUND_LOC_CD) AS INBOUND_LOC_NM,
+						dbo.TL_GET_WH_LOC_PROP_NM (W.WH_CD, RI.INBOUND_LOC_CD) AS 
+						INBOUND_LOC_PROP_NM,
+						ISNULL( PI.RCV_SND_DMG_CD, RI.RECEIVED_TYPE_CD ) AS RCV_SND_DMG_CD,
+						ISNULL( CASE PI.RCV_SND_DMG_CD WHEN 'S' THEN 'Sound' WHEN 'D' THEN 'Damage' END, RI.RECEIVED_TYPE ) AS RCV_SND_DMG_NM,
+						RI.PKGUNIT,
+						ISNULL(RI.PKGQTY, 0) AS PKGQTY,
+						ISNULL(RI.EA_QTY, 0) AS EA_QTY,
+						ISNULL(RI.IN_ITEM_CBM, 0) AS RCV_CBM,
+						ISNULL(RI.IN_ITEM_CBF, 0) AS RCV_CBF,
+						ISNULL(RI.IN_ITEM_GRS_KGS, 0) AS RCV_GRS_KGS,
+						ISNULL(RI.IN_ITEM_GRS_LBS, 0) AS RCV_GRS_LBS,
+						ISNULL(RI.IN_ITEM_NET_KGS, 0) AS RCV_NET_KGS,
+						ISNULL(RI.IN_ITEM_NET_LBS, 0) AS RCV_NET_LBS,
+						PI.PUTAWAY_WH_LOC_CD,
+						dbo.TL_GET_WH_LOC_NM ( W.WH_CD, PI.PUTAWAY_WH_LOC_CD ) AS PUTAWAY_WH_LOC_NM,
+						dbo.TL_GET_WH_LOC_PROP_NM (W.WH_CD, PI.PUTAWAY_WH_LOC_CD) AS PUTAWAY_WH_LOC_PROP_NM,
+						PI.PUTAWAY_PKGUNIT,
+						ISNULL(PI.PUTAWAY_PKGQTY, 0) AS PUTAWAY_PKGQTY,
+						ISNULL(PI.PUTAWAY_EA_QTY, 0) AS PUTAWAY_EA_QTY,
+						ISNULL(PI.PUTAWAY_CBM, 0) AS PUTAWAY_CBM,
+						ISNULL(PI.PUTAWAY_CBF, 0) AS PUTAWAY_CBF,
+						ISNULL(PI.PUTAWAY_GRS_KGS, 0) AS PUTAWAY_GRS_KGS,
+						ISNULL(PI.PUTAWAY_GRS_LBS, 0) AS PUTAWAY_GRS_LBS,
+						ISNULL(PI.PUTAWAY_NET_KGS, 0) AS PUTAWAY_NET_KGS,
+						ISNULL(PI.PUTAWAY_NET_LBS, 0) AS PUTAWAY_NET_LBS,
+						ISNULL(RI.EA_QTY, 0) - SUM (ISNULL(PI.PUTAWAY_EA_QTY, 0)) OVER (PARTITION BY RI.WIB_IN_NO, RI.WIB_BK_NO, RI.PO_SYS_NO, RI.ITEM_SYS_NO, RI.ITEM_SEQ, ISNULL( PI.RCV_SND_DMG_CD, RI.RECEIVED_TYPE_CD )) AS NON_PUTAWAY_EA_QTY,
+						ISNULL(RI.IN_ITEM_CBM, 0) - SUM (ISNULL(PI.PUTAWAY_CBM, 0)) OVER (PARTITION BY RI.WIB_IN_NO, RI.WIB_BK_NO, RI.PO_SYS_NO, RI.ITEM_SYS_NO, RI.ITEM_SEQ, ISNULL(PI.RCV_SND_DMG_CD,RI.RECEIVED_TYPE_CD)) AS NON_PUTAWAY_CBM,
+						ISNULL(RI.IN_ITEM_CBF, 0) - SUM (ISNULL(PI.PUTAWAY_CBF, 0)) OVER (PARTITION BY RI.WIB_IN_NO, RI.WIB_BK_NO, RI.PO_SYS_NO, RI.ITEM_SYS_NO, RI.ITEM_SEQ, ISNULL(PI.RCV_SND_DMG_CD,RI.RECEIVED_TYPE_CD)) AS NON_PUTAWAY_CBF,
+						ISNULL(RI.IN_ITEM_GRS_KGS, 0) - SUM (ISNULL(PI.PUTAWAY_GRS_KGS, 0)) OVER (PARTITION BY RI.WIB_IN_NO,RI.WIB_BK_NO,RI.PO_SYS_NO,RI.ITEM_SYS_NO, RI.ITEM_SEQ, ISNULL(PI.RCV_SND_DMG_CD,RI.RECEIVED_TYPE_CD)) AS NON_PUTAWAY_GRS_KGS,
+						ISNULL(RI.IN_ITEM_GRS_LBS, 0) - SUM (ISNULL(PI.PUTAWAY_GRS_LBS, 0)) OVER (PARTITION BY RI.WIB_IN_NO, RI.WIB_BK_NO, RI.PO_SYS_NO, RI.ITEM_SYS_NO, RI.ITEM_SEQ, ISNULL(PI.RCV_SND_DMG_CD,RI.RECEIVED_TYPE_CD)) AS NON_PUTAWAY_GRS_LBS,
+						ISNULL(RI.IN_ITEM_NET_KGS, 0) - SUM (ISNULL(PI.PUTAWAY_NET_KGS, 0)) OVER (PARTITION BY RI.WIB_IN_NO, RI.WIB_BK_NO, RI.PO_SYS_NO, RI.ITEM_SYS_NO, RI.ITEM_SEQ, ISNULL(PI.RCV_SND_DMG_CD,RI.RECEIVED_TYPE_CD)) AS NON_PUTAWAY_NET_KGS,
+						ISNULL(RI.IN_ITEM_NET_LBS, 0) - SUM (ISNULL(PI.PUTAWAY_NET_LBS, 0)) OVER (PARTITION BY RI.WIB_IN_NO,RI.WIB_BK_NO,RI.PO_SYS_NO,RI.ITEM_SYS_NO,RI.ITEM_SEQ,ISNULL(PI.RCV_SND_DMG_CD,RI.RECEIVED_TYPE_CD)) AS NON_PUTAWAY_NET_LBS,
+						PI.INV_CHG_FLG,
+						PI.PUTAWAY_WH_LOC_CD AS OLD_PUTAWAY_WH_LOC_CD,
+						ISNULL(PI.PUTAWAY_EA_QTY, 0) AS OLD_PUTAWAY_EA_QTY,
+						(CASE (ISNULL(PI.WIB_IN_NO, '')) WHEN '' THEN 'NEW' ELSE 'UPDATE' END) AS EDIT_FLAG,
+						(
+							SELECT COUNT (*) FROM TL_WH_INV_LOT II
+							WHERE RI.WIB_BK_NO = II.WIB_BK_NO
+							AND RI.PO_SYS_NO = II.PO_SYS_NO
+							AND RI.ITEM_SYS_NO = II.ITEM_SYS_NO
+							AND RI.LOT_ID = II.LOT_ID
+							AND II.ALLC_QTY > 0
+						) AS OB_CNT,
+						RI.RGST_TIMESTAMP,
+						(CASE WHEN P.WIB_IN_NO IS NULL THEN 'N' ELSE 'Y' END ) AS PUT_YN,
+						P.SUPV_NM
+						,(CASE WHEN P.PUTAWAY_DT IS NULL THEN (SELECT (CONVERT(VARCHAR,(CONVERT(DATETIME,P.PUTAWAY_DT)), 112))) ELSE P.PUTAWAY_DT END ) AS PUTAWAY_DT
+						, CASE ISNULL(P.PUTAWAY_HM_FR, 'NULL')
+							WHEN 'NULL' THEN P.PUTAWAY_HM_FR 
+							ELSE CASE P.PUTAWAY_HM_FR WHEN '' THEN '' ELSE SUBSTRING(P.PUTAWAY_HM_FR, 0, 3) + ':' + SUBSTRING(P.PUTAWAY_HM_FR, 3, LEN(P.PUTAWAY_HM_FR)) END
+							END AS PUTAWAY_HM_FR               
+						,CASE ISNULL(P.PUTAWAY_HM_TO, 'NULL') 
+							WHEN 'NULL' THEN P.PUTAWAY_HM_TO 
+							ELSE  CASE P.PUTAWAY_HM_TO WHEN '' THEN '' ELSE SUBSTRING(P.PUTAWAY_HM_TO, 0, 3) + ':' + SUBSTRING(P.PUTAWAY_HM_TO, 3, LEN(P.PUTAWAY_HM_TO)) END
+						END AS PUTAWAY_HM_TO,
+						P.WORK_NM,
+						P.MSG_TO_WK,
+						RI.LIC_PLAT_NO AS inbound_lcs_plt,
+						PI.PUTAWAY_LIC_PLAT_NO AS putaway_lcs_plt
+					FROM TL_WH_RCV R
+						JOIN (
+							SELECT
+								WIB_IN_NO, WIB_BK_NO, PO_SYS_NO,
+								ITEM_SYS_NO, ITEM_SEQ, ITEM_CD,
+								ITEM_NM, LOT_ID, IN_ITEM_CBM,
+								IN_ITEM_CBF, IN_ITEM_GRS_KGS, IN_ITEM_GRS_LBS,
+								IN_ITEM_NET_KGS, IN_ITEM_NET_LBS
+								,(CASE l WHEN 1 THEN INBOUND_LOC_CD ELSE CASE l WHEN 2 THEN DMG_LOC_CD END END ) AS INBOUND_LOC_CD 
+								,(CASE l WHEN 1 THEN 'S' WHEN 2 THEN 'D' END ) AS RECEIVED_TYPE_CD,
+								(CASE l WHEN 1 THEN 'Sound' WHEN 2 THEN 'Damage' END ) AS RECEIVED_TYPE,
+								(CASE l WHEN 1 THEN SND_PKGUNIT WHEN 2 THEN DMG_PKGUNIT END ) AS PKGUNIT,
+								(CASE l WHEN 1 THEN SND_PKGQTY WHEN 2 THEN DMG_PKGQTY END ) AS PKGQTY,
+								(CASE l WHEN 1 THEN SND_EA_QTY WHEN 2 THEN DMG_EA_QTY END ) AS EA_QTY,
+								RGST_TIMESTAMP, LIC_PLAT_NO
+							FROM
+								( SELECT RI.* 
+									FROM 
+										TL_WH_RCV_ITEM  RI
+		                            INNER JOIN TL_WH_IB WI
+		                            ON  RI.WIB_BK_NO = WI.WIB_BK_NO
+									WHERE 1=1
+										<isNotEmpty property="ctrtNo">  <!-- #2059 [WMS4.0] 모바일 Putawy 조회 화면 Contract 번호 미 입력 후 조회 시 검색 안됨 -->
+										AND WI.CTRT_NO = #ctrtNo#
+										</isNotEmpty>
+										AND WI.WH_CD =  #userInfo.def_wh_cd#  <!-- #1965 [CLA] WMS4.0 DEFAULT WAREHOUSE FOR MOBILE -->
+										<isNotEmpty property="itemCd">  <!-- #2332 [WMS4.0] MOBILE SEARCH CONDITION -->
+										AND RI.ITEM_CD = #itemCd#
+										</isNotEmpty>
+								) AS T,
+								(SELECT 1 AS l UNION SELECT 2) AS l
+							) AS RI ON R.WIB_IN_NO = RI.WIB_IN_NO
+							JOIN TL_WH_IB W ON R.WIB_BK_NO = W.WIB_BK_NO
+							JOIN TL_WH_IB_ITEM WI ON W.WIB_BK_NO = WI.WIB_BK_NO
+								AND RI.WIB_BK_NO = WI.WIB_BK_NO
+								AND RI.PO_SYS_NO = WI.PO_SYS_NO
+								AND RI.ITEM_SYS_NO = WI.ITEM_SYS_NO
+								AND RI.ITEM_SEQ = WI.ITEM_SEQ
+							LEFT JOIN TL_WH_PUTAWAY P ON R.WIB_IN_NO = P.WIB_IN_NO
+							LEFT JOIN TL_WH_PUTAWAY_ITEM PI ON RI.WIB_IN_NO = PI.WIB_IN_NO
+								AND RI.WIB_BK_NO = PI.WIB_BK_NO
+								AND RI.PO_SYS_NO = PI.PO_SYS_NO
+								AND RI.ITEM_SYS_NO = PI.ITEM_SYS_NO
+								AND RI.ITEM_SEQ = PI.ITEM_SEQ
+								AND RI.RECEIVED_TYPE_CD = PI.RCV_SND_DMG_CD
+					WHERE
+						1=1
+						<isNotEmpty property="ctrtNo">  <!-- #2059 [WMS4.0] 모바일 Putawy 조회 화면 Contract 번호 미 입력 후 조회 시 검색 안됨 -->
+						AND W.CTRT_NO = #ctrtNo#
+						</isNotEmpty>
+						<isNotEmpty property="orderNo">
+						AND W.CUST_ORD_NO = #orderNo#
+						</isNotEmpty>
+						<isNotEmpty property="frLocCd">   <!-- #2205 [WMS4.0]MOBILE PUTAWAY 화면 From Location Default QC 세팅 -->
+						AND RI.INBOUND_LOC_CD = #frLocCd#
+						</isNotEmpty>
+						AND RI.EA_QTY > 0
+							
+				) AS T
+				LEFT JOIN TL_CTRT_CUST_ITEM_WH CIW ON T.CTRT_NO = CIW.CTRT_NO
+					AND T.ITEM_SYS_NO = CIW.ITEM_SYS_NO
+					AND T.ITEM_SYS_NO = CIW.ITEM_SYS_NO
+					AND T.WH_CD = CIW.WH_CD
+				LEFT JOIN TL_CTRT_CUST_ITEM CI ON T.CTRT_NO = CI.CTRT_NO
+					AND T.ITEM_SYS_NO = CI.ITEM_SYS_NO
+				LEFT JOIN TL_CTRT_CUST_ITEM_LOT CIL ON T.CTRT_NO = CIL.CTRT_NO
+					AND T.ITEM_SYS_NO = CIL.ITEM_SYS_NO
+					AND T.LOT_ID = CIL.LOT_ID
+			
+			) as TTT
+		WHERE
+			1 = 1
+    	AND
+			WIB_IN_NO + WIB_BK_NO + CONVERT(VARCHAR,ITEM_SYS_NO) + CONVERT(VARCHAR,ITEM_SEQ) NOT IN (select WIB_IN_NO + WIB_BK_NO + CONVERT(VARCHAR,ITEM_SYS_NO) + CONVERT(VARCHAR,ITEM_SEQ)from TL_WH_PUTAWAY_ITEM where WIB_IN_NO =  TTT.WIB_IN_NO)
+		<isNotEmpty property="wibInNo">
+		AND
+			WIB_IN_NO = #wibInNo#
+		</isNotEmpty>
+		<isNotEmpty property="lotId">
+		AND 
+			LOT_ID = #lotId#
+		</isNotEmpty>
+		<isNotEmpty property="itemSeq">
+		AND 
+			ITEM_SEQ = #itemSeq#
+		</isNotEmpty>
+		ORDER BY	TTT.CUST_ORD_NO ASC, TTT.WIB_BK_NO ASC, TTT.WIB_IN_NO ASC, TTT.RGST_TIMESTAMP ASC, TTT.ITEM_CD ASC, TTT.ITEM_SEQ ASC, TTT.RECEIVED_TYPE_CD DESC, TTT.PUTAWAY_SEQ ASC
+	</select>
+</sqlMap>

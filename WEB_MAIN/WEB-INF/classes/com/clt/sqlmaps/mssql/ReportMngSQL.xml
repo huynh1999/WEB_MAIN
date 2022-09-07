@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="report.mng"> 
+    <typeAlias alias="ReportVO" type="com.clt.apps.opusbase.system.report.dto.ReportVO"/>
+    
+    
+	<select id="selectReport" resultClass="ReportVO" parameterClass="java.util.HashMap">
+		SELECT /* ReportMngSQL.xml > selectReport */ 
+			MRD_KEY
+			,MRD
+			,PGM_ID
+			,RPT_DESC
+			,[PATH]
+			,LTR_DFLT
+			,A4_EN_DFLT
+			,A4_ZH_DFLT
+			,A4_JA_DFLT
+		FROM
+			TB_RPT
+		WHERE
+			1 = 1
+			<!-- like 기능 강화 -->
+		<isNotNull property="mrd_key">
+			<isEqual property="mrd_likeFlag" compareValue="N">
+				AND upper(mrd_key) = upper(#mrd_key#)
+			</isEqual>
+			<isEqual property="mrd_likeFlag" compareValue="Y">
+				AND upper(mrd_key) like upper(#mrd_key#)
+			</isEqual>
+		</isNotNull>
+		<isNotNull property="pgm_id">
+			<isEqual property="pgm_likeFlag" compareValue="N">
+				AND upper(pgm_id) = upper(#pgm_id#)
+			</isEqual>
+			<isEqual property="pgm_likeFlag" compareValue="Y">
+				AND upper(pgm_id) like upper(#pgm_id#)
+			</isEqual>
+		</isNotNull>
+	</select>
+    <insert id="insertReport" parameterClass="ReportVO">
+		INSERT /* ReportMngSQL.xml > insertReport */ 
+		INTO TB_RPT
+			(MRD_KEY
+			,MRD
+			,[PATH]
+			,PGM_ID
+			,RPT_DESC
+			,LTR_DFLT
+			,A4_EN_DFLT
+			,A4_ZH_DFLT
+			,A4_JA_DFLT
+			,RGST_USRID
+			,RGST_TMS
+			,MODI_USRID
+			,MODI_TMS)
+		VALUES
+			(#mrd_key#
+			,#mrd#
+			,#path#
+			,#pgm_id#
+			,#rpt_desc#
+			,#ltr_dflt#
+			,#a4_en_dflt#
+			,#a4_zh_dflt#
+			,#a4_ja_dflt#
+			,#proc_usrid#
+			,GETDATE()
+			,#proc_usrid#
+			,GETDATE())
+    </insert>
+    <update id="updateReport" parameterClass="ReportVO">
+		UPDATE /* ReportMngSQL.xml > updateReport */ 
+			TB_RPT
+		SET 
+			MRD = #mrd#
+			,PGM_ID = #pgm_id#
+			,RPT_DESC = #rpt_desc#
+			,LTR_DFLT = #ltr_dflt#
+			,A4_EN_DFLT = #a4_en_dflt#
+			,A4_ZH_DFLT = #a4_zh_dflt#
+			,A4_JA_DFLT = #a4_ja_dflt#
+			,MODI_USRID = #proc_usrid#
+			,MODI_TMS = GETDATE()
+		 WHERE 
+		 	MRD_KEY = #mrd_key#
+		 AND
+		 	[PATH] = #path#
+    </update>
+    <delete id="deleteReport" parameterClass="ReportVO">
+		DELETE /* ReportMngSQL.xml > deleteReport */ 
+		FROM 
+			TB_RPT
+		WHERE
+		 	MRD_KEY = #mrd_key#
+		 AND
+		 	[PATH] = #path#
+    </delete>
+    <select id="selectReportFile" resultClass="ReportVO" parameterClass="java.util.HashMap">
+	    SELECT /* ReportMngSQL.xml > selectReportFile */ 
+			TOP 1 MRD, [PATH], ordr 
+		FROM (
+			SELECT  
+				[OR].MRD, [PATH], 0 ordr
+			FROM
+				TB_OFC_RPT [OR]
+			INNER JOIN
+				TB_RPT R
+			ON
+				[OR].MRD_KEY = R.MRD_KEY
+			WHERE 
+				OFC_CD = #userInfo.ofc_cd#
+			AND
+				[OR].MRD_KEY = #mrdKey#
+			AND
+				$userInfo.rpt_tp_cd$ = 1 
+			UNION
+			
+			SELECT
+				MRD, [PATH], 1 ordr
+			FROM
+				TB_RPT
+			WHERE
+				MRD_KEY = #mrdKey#
+			AND
+				$userInfo.rpt_tp_cd$ = 1 
+		) T1
+		order by ordr
+    </select>
+    
+    <select id="selectOfcReport" resultClass="ReportVO" parameterClass="java.util.HashMap">
+		SELECT /* ReportMngSQL.xml > selectOfcReport */
+			B.MRD_KEY,
+			B.MRD,
+			PGM_ID,
+			RPT_DESC,
+			[PATH]
+		FROM
+			TB_RPT A
+		INNER JOIN 
+			TB_OFC_RPT B
+		ON
+			A.MRD_KEY = B.MRD_KEY
+		WHERE
+			OFC_CD = #s_ofc_cd#
+    </select>
+    <insert id="insertOfcReport" parameterClass="ReportVO">
+		INSERT /* ReportMngSQL.xml > insertOfcReport */ 
+		INTO TB_OFC_RPT
+			(OFC_CD
+			,MRD_KEY
+			,MRD
+			,RGST_USRID
+			,RGST_TMS
+			,MODI_USRID
+			,MODI_TMS)
+		VALUES
+			(#s_ofc_cd#
+			,#mrd_key#
+			,#mrd#
+			,#proc_usrid#
+			,GETDATE()
+			,#proc_usrid#
+			,GETDATE())
+    </insert>
+    <update id="updateOfcReport" parameterClass="ReportVO">
+		UPDATE /* ReportMngSQL.xml > updateOfcReport */ 
+			TB_OFC_RPT
+		SET 
+			MRD = #mrd#
+			,MODI_USRID = #proc_usrid#
+			,MODI_TMS = GETDATE()
+		 WHERE 
+		 	OFC_CD = #s_ofc_cd#
+		 AND
+		 	MRD_KEY = #mrd_key#
+    </update>
+    <delete id="deleteOfcReport" parameterClass="ReportVO">
+		DELETE /* ReportMngSQL.xml > deleteOfcReport */ 
+			TB_OFC_RPT
+		WHERE 
+			OFC_CD = #s_ofc_cd#
+		AND
+			MRD_KEY = #mrd_key#
+    </delete>
+    
+    <typeAlias alias="ReportSetVO" type="com.clt.apps.opusbase.system.report.dto.ReportSetVO"/>
+    
+	<select id="selectReportSet" resultClass="ReportSetVO" parameterClass="java.util.HashMap">
+		SELECT /* ReportMngSQL.xml > selectReportSet */ 
+			RS.SET_ID
+			,RS.CALL_ID
+			,RS.RPT_ID
+			,RS.RPT_ID as rpt_id_org
+			,RN.RPT_NM
+			,RN.MRD_NM
+			,RN.RMK
+			,DTL.CD_NM
+			,DTL1.CD_NM as MRD_PATH_CD
+			,DTL2.CD_NM as PPR_CD
+		FROM TB_RPT_SET RS
+			INNER JOIN TB_RPT_NW RN ON RS.RPT_ID = RN.RPT_ID 
+				AND RN.DELT_FLG = 'N'
+			LEFT JOIN TB_COM_CD_DTL DTL ON RS.SET_ID = DTL.CD_VAL 
+				AND DTL.COM_CD = 'C300'
+			LEFT JOIN TB_COM_CD_DTL DTL1 ON RN.MRD_PATH_CD = DTL1.CD_VAL 
+				AND DTL1.COM_CD = 'C302'
+			LEFT JOIN TB_COM_CD_DTL DTL2 ON RN.PPR_CD = DTL2.CD_VAL
+			    AND DTL2.COM_CD = 'C307'
+		WHERE 1 = 1
+		<dynamic>
+			<isNotNull property="txt_call_id">
+				AND RN.CALL_ID = #txt_call_id#
+			</isNotNull>
+			<isNotNull property="txt_rpt_id">
+				AND RN.RPT_ID = #txt_rpt_id#
+			</isNotNull>
+			<isNotNull property="txt_set_id">
+				AND RS.SET_ID = #txt_set_id#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<select id="selectReportSetPop" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO" parameterClass="java.util.HashMap">
+	/* ReportMngSQL.xml > selectReportSetPop */
+	SELECT 
+		DTL.CD_VAL
+		, DTL.CD_NM
+	FROM 
+		TB_COM_CD_DTL DTL
+  		LEFT JOIN TB_RPT_SET RS ON DTL.CD_VAL = RS.SET_ID
+	WHERE
+		DTL.COM_CD = 'C300'
+		AND RS.SET_ID IS NULL
+		  	
+	</select>
+	
+	<select id="selectCallIDList" resultClass="String">
+	 /* ReportMngSQL.xml > selectCall_ID_LIST */ 
+		SELECT CALL_ID FROM TB_RPT_NW 
+		WHERE DELT_FLG = 'N' 
+			AND PRIV_FLG = 'N' 
+			AND CHK_FLG = 'N' 
+		GROUP BY CALL_ID 
+
+	</select>
+	
+	<select id="selectRptNewInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	 /* ReportMngSQL.xml > selectRptNewInfo */ 
+		SELECT
+			RN.rpt_id
+			,RN.rpt_nm
+			,RN.mrd_nm
+			,DTL1.CD_NM as mrd_path_cd
+			,DTL2.CD_NM as ppr_cd
+			,RN.rmk
+		FROM TB_RPT_NW RN
+			LEFT JOIN TB_COM_CD_DTL DTL1 ON RN.MRD_PATH_CD = DTL1.CD_VAL
+			    AND DTL1.COM_CD = 'C302'
+			LEFT JOIN TB_COM_CD_DTL DTL2 ON RN.PPR_CD = DTL2.CD_VAL
+			    AND DTL2.COM_CD = 'C307'
+		WHERE RN.DELT_FLG = 'N'
+			AND RPT_ID = #rpt_id#
+	</select>
+	
+	<select id="selectRPT_KEY_CODE" parameterClass="java.util.HashMap" resultClass="String">
+	 /* ReportMngSQL.xml > selectRPT_KEY_CODE */ 
+		SELECT RPT_ID
+        FROM TB_RPT_SET
+		WHERE RPT_ID = #rpt_id#
+			AND CALL_ID = #call_id#
+			AND SET_ID = #set_id#
+	</select>
+	
+	<insert id="insertReportSet" parameterClass="ReportSetVO">
+		INSERT /* ReportMngSQL.xml > insertReportSet */ 
+		INTO TB_RPT_SET
+			(SET_ID
+			,CALL_ID
+	        ,RPT_ID
+			,RGST_TMS
+			,MODI_TMS
+			,RGST_USRID
+			,MODI_USRID)
+		VALUES
+			(#set_id#
+			,#call_id#
+			,#rpt_id#
+			,GETDATE()
+			,GETDATE()
+			,#rgst_usrid#
+			,#modi_usrid#)
+    </insert>
+    
+    <update id="updateReportSet" parameterClass="ReportSetVO">
+		UPDATE /* ReportMngSQL.xml > updateReportSet */ 
+			TB_RPT_SET
+		SET 
+			RPT_ID = #rpt_id#
+		   ,MODI_TMS = GETDATE()
+		   ,MODI_USRID = #modi_usrid#
+		 WHERE 
+		 	SET_ID = #set_id#
+		 	AND CALL_ID = #call_id#
+		 	AND RPT_ID = #rpt_id_org#
+    </update>
+    
+</sqlMap>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+	
+    <!--  Liner schedule    -->
+    <screen name="SEC_BMD_0010">
+        <parameter key="body"    value="/apps/fis/sec/bmd/linerinfo/jsp/SEC_BMD_0010.jsp" />
+    </screen>
+    
+    <!--  Liner schedule    -->
+    <screen name="SEC_BMD_0010GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/sec/bmd/linerinfo/jsp/SEC_BMD_0010GS.jsp" />
+    </screen>
+    
+    <!--  MBL Vessel schedule    -->
+    <screen name="SEC_BMD_0011">
+        <parameter key="body"    value="/apps/fis/sec/bmd/linerinfo/jsp/SEC_BMD_0011.jsp" />
+    </screen>
+    
+    <!--  MBL Vessel schedule    -->
+    <screen name="SEC_BMD_0011GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/sec/bmd/linerinfo/jsp/SEC_BMD_0011GS.jsp" />
+    </screen>
+    
+    <!--  Container Movement Event Status Update    -->
+    <screen name="SEC_BMD_0020">
+        <parameter key="body"    value="/apps/fis/sec/bmd/linerinfo/jsp/SEC_BMD_0020.jsp" />
+    </screen>
+    
+    <!--  Container Movement Event Status Update    -->
+    <screen name="SEC_BMD_0020GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/sec/bmd/linerinfo/jsp/SEC_BMD_0020GS.jsp" />
+    </screen>    
+	
+    <screen name="SEC_BMD_0020_MBL_GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/sec/bmd/linerinfo/jsp/SEC_BMD_0020_MBL_GS.jsp" />
+    </screen>    
+
+    <screen name="SEC_BMD_0020_HIS_GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/sec/bmd/linerinfo/jsp/SEC_BMD_0020_HIS_GS.jsp" />
+    </screen>    
+
+	<!-- Correction Advice 2009.01.22	  -->
+	<screen name="SEC_FRT_0030">
+        <parameter key="body"    value="/apps/fis/sec/frt/cainfo/jsp/SEC_FRT_0030.jsp" />
+    </screen>
+    <screen name="SEC_FRT_0030GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/sec/frt/cainfo/jsp/SEC_FRT_0030GS.jsp" />
+    </screen>
+      <screen name="SEC_FRT_0030AJ" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/sec/frt/cainfo/jsp/SEC_FRT_0030AJ.jsp" />
+    </screen>
+    
+    <!-- Correction Advice 2009.01.22	  -->
+	<screen name="SEC_FRT_0040">
+        <parameter key="body"    value="/apps/fis/sec/frt/cainfo/jsp/SEC_FRT_0040.jsp" />
+    </screen>
+    <screen name="SEC_FRT_0040GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/sec/frt/cainfo/jsp/SEC_FRT_0040GS.jsp" />
+    </screen>
+    
+    <!-- Kim,Jin Hyunk Correction Advice inbound    -->
+    
+    <screen name="SEC_FRT_0050">
+        <parameter key="body"    value="/apps/fis/sec/frt/cainfo/jsp/SEC_FRT_0050.jsp" />
+    </screen>
+    <screen name="SEC_FRT_0050GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/sec/frt/cainfo/jsp/SEC_FRT_0030GS.jsp" />
+    </screen>
+
+	<screen name="SEC_FRT_0060">
+        <parameter key="body"    value="/apps/fis/sec/frt/cainfo/jsp/SEC_FRT_0060.jsp" />
+    </screen>
+    <screen name="SEC_FRT_0060GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/sec/frt/cainfo/jsp/SEC_FRT_0040GS.jsp" />
+    </screen>
+	
+</screen-definitions>

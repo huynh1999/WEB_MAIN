@@ -1,0 +1,824 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="WHLoc">
+
+<typeAlias alias="WHLocListVO" 	type="com.clt.apps.fis.wms.location.dto.WHLocListVO"/>
+<typeAlias alias="WHLocMgmtVO" 	type="com.clt.apps.fis.wms.whloc.dto.WHLocMgmtVO"/>
+
+<select id="searchWHLocList" resultClass="WHLocListVO">
+	/* WHLoc.searchWHLocList */
+	SELECT ROW_NUMBER() OVER(ORDER BY LOC_CD) AS SEQ
+	      ,LOC_CD 
+	      ,LOC_NM
+	      ,WH_LOC_CD 
+	      ,WH_LOC_NM
+	      ,ZONE_CD
+	      ,BLOCK_CD
+	      ,LOC_LINE
+	      ,LOC_ROW
+	      ,LOC_FLOOR
+	      ,SPACE_TP_NM
+	      ,PUT_TP_NM
+	      ,PROP_NM
+	      ,LOC_SEQ
+	      ,ABC_CD
+	      ,MAX_CBM
+	      ,MAX_KGS
+	      ,WIDTH
+	      ,LENGTH
+	      ,HEIGHT
+	      ,USE_FLG
+	      ,RMK 
+	      ,COUNT(*) OVER() AS TOTAL
+	FROM (	
+			SELECT WL.LOC_CD
+			      ,L.WH_NM LOC_NM 
+			      ,WL.WH_LOC_CD 
+			      ,WL.WH_LOC_NM
+			      ,WL.ZONE_CD
+			      ,WL.BLOCK_CD
+			      ,WL.LOC_LINE
+			      ,WL.LOC_ROW
+			      ,WL.LOC_FLOOR
+			      ,dbo.TL_GET_COMM_NM('WS0',WL.SPACE_TP_CD) AS SPACE_TP_NM
+			      ,dbo.TL_GET_COMM_NM('PP0',WL.PUT_TP_CD) AS PUT_TP_NM
+			      ,dbo.TL_GET_COMM_NM('WL0',WL.PROP_CD) AS PROP_NM
+			      ,WL.LOC_SEQ
+			      ,WL.ABC_CD
+			      ,WL.MAX_CBM
+			      ,WL.MAX_KGS
+			      ,WL.WIDTH
+			      ,WL.LENGTH
+			      ,WL.HEIGHT
+			      ,WL.USE_FLG
+			      ,WL.RMK 
+			  FROM TL_WH L
+			      ,TL_WH_LOC WL
+			 WHERE L.WH_CD = WL.LOC_CD
+			 <isNotEmpty property="loc_cd">	 
+			   AND WL.LOC_CD = #loc_cd#
+			 </isNotEmpty>  
+		     <isNotEqual property="use_flg" compareValue="ALL">	   
+			   AND WL.USE_FLG = #use_flg#
+			 </isNotEqual>  
+		     <isNotEmpty property="zone_cd">	   	   
+			   AND WL.ZONE_CD = #zone_cd#
+			 </isNotEmpty>
+		     <isNotEmpty property="wh_loc_cd">	   	   
+			   AND WL.WH_LOC_CD = #wh_loc_cd#
+			 </isNotEmpty>
+		     <isNotEmpty property="wh_loc_nm">	   	   
+			   AND WL.WH_LOC_NM LIKE #wh_loc_nm# + '%'
+			 </isNotEmpty>  			   
+		     <isNotEmpty property="block_cd">	   	   
+			   AND WL.BLOCK_CD = #block_cd#
+			 </isNotEmpty>  
+		     <isNotEmpty property="space_tp_cd">	
+		     	<isNotEqual property="space_tp_cd" compareValue="ALL">	   
+			   		AND WL.SPACE_TP_CD = #space_tp_cd#
+			   	</isNotEqual>  
+			 </isNotEmpty>  
+			 
+			 <isNotEmpty property="put_tp_cd">	
+		     	<isNotEqual property="put_tp_cd" compareValue="ALL">	   
+			   		 AND WL.PUT_TP_CD = #put_tp_cd#
+			   	</isNotEqual>  
+			 </isNotEmpty>
+			 
+			 <isNotEmpty property="prop_cd">	
+		     	<isNotEqual property="prop_cd" compareValue="ALL">	   
+			   		AND WL.PROP_CD = #prop_cd#
+			   	</isNotEqual>  
+			 </isNotEmpty>
+		   )  as Tom       
+	</select>	
+	<select id="searchZoneComboList" resultClass="WHLocMgmtVO">	
+	    /*searchZoneComboList*/
+	    SELECT dbo.TL_GET_ROWTOCOLL_WHLocMgmt(#loc_cd#, '|') AS CODE
+              ,dbo.TL_GET_ROWTOCOLL_WHLocMgmt(#loc_cd#, '|') AS NAME 
+	</select>
+	<select id="searchWHLocInfo" resultClass="WHLocMgmtVO">
+	    /*searchhWHLocInfo*/
+		SELECT T.WH_CD LOC_CD 
+		      ,T.WH_NM LOC_NM
+		      ,T.USE_FLG USE_YN 
+		      ,T.WH_ALS_NM LOC_LOC_NM
+		  FROM TL_WH T
+		 WHERE 1=1
+		   AND T.WH_CD = #in_loc_cd#
+	</select>
+	<select id="searchWHLocZoneList" resultClass="WHLocMgmtVO">
+	    /*searchhWHLocZoneList*/
+		SELECT T.LOC_CD
+		      ,T.ZONE_CD
+		      ,T.SPACE_TP_CD
+		      ,T.PUT_TP_CD
+		      ,T.ZONE_SEQ
+		      ,T.ABC_CD
+		      ,T.USE_FLG
+		      ,T.RMK
+		  FROM TL_WH_ZONE T
+		      ,TL_WH L
+         WHERE T.LOC_CD = L.WH_CD
+           AND T.LOC_CD = #in_loc_cd#
+	</select>
+	<select id="searchWHLocBlockList" resultClass="WHLocMgmtVO">
+	    /*searchhWHLocBlockList*/
+		SELECT T.LOC_CD
+              ,T.ZONE_CD
+              ,T.BLOCK_CD
+              ,T.BLOCK_DESC
+              ,(SELECT COUNT(*)
+                  FROM TL_WH_LOC WL
+                 WHERE WL.LOC_CD = T.LOC_CD
+                   AND WL.ZONE_CD = T.ZONE_CD
+                   AND WL.BLOCK_CD = T.BLOCK_CD
+                   AND WL.USE_FLG = 'Y') AS LOC_CNT
+              ,T.USE_FLG
+          FROM TL_WH_BLOCK T
+		      ,TL_WH L
+         WHERE T.LOC_CD = L.WH_CD
+           AND T.LOC_CD = #in_loc_cd#
+	</select>
+	<select id="searchWHLocPropList" resultClass="WHLocMgmtVO">
+	    /* WHLocSql.xml > searchWHLocPropList*/
+             SELECT T.LOC_CD
+              ,T.PROP_CD
+			  ,CASE T.PUTAWAY_FLG WHEN 'Y' THEN '1' ELSE '0' END AS PUTAWAY_FLG
+			  ,CASE T.ALLOC_FLG WHEN 'Y' THEN '1' ELSE '0' END AS ALLOC_FLG
+			  ,CASE T.MOVE_FLG WHEN 'Y' THEN '1' ELSE '0' END AS MOVE_FLG
+			  ,CASE T.REPLENISH_FLG WHEN 'Y' THEN '1' ELSE '0' END AS REPLENISH_FLG
+			  ,CASE T.ADJUST_FLG WHEN 'Y' THEN '1' ELSE '0' END AS ADJUST_FLG
+              ,T.USE_FLG
+              ,T.RMK
+          FROM TL_WH_PROP T
+		      ,TL_WH L
+              <!-- ,TL_CODE_DTL C -->
+              ,TB_COM_CD_DTL C
+         WHERE T.LOC_CD = L.WH_CD
+           AND C.COM_CD  = 'WL0'
+           AND T.PROP_CD = C.CD_VAL  
+           AND T.LOC_CD = #in_loc_cd#
+         ORDER BY C.SRT_SEQ  
+	</select>
+	<select id="searchWHLocLocList" resultClass="WHLocMgmtVO">
+	    /*searchWHLocLocList*/
+        SELECT T.LOC_CD
+              ,T.WH_LOC_CD
+              ,T.WH_LOC_NM
+              ,T.ZONE_CD
+              ,T.BLOCK_CD
+              ,T.LOC_LINE
+              ,T.LOC_ROW
+              ,T.LOC_FLOOR
+              ,T.SPACE_TP_CD
+              ,T.PUT_TP_CD
+              ,T.PROP_CD
+              ,T.LOC_SEQ
+              ,T.ABC_CD
+              ,T.MAX_CBM
+              ,T.MAX_KGS
+              ,T.WIDTH
+              ,T.LENGTH
+              ,T.HEIGHT
+              ,T.USE_FLG
+              ,T.RMK
+          FROM TL_WH_LOC T
+		      ,TL_WH L
+         WHERE T.LOC_CD = L.WH_CD
+           AND T.LOC_CD = #in_loc_cd#		
+	</select>
+	<select id="searchWHLocBlockSubLocList" resultClass="WHLocMgmtVO">
+	    /*searchhWHLocBlockSubLocList*/
+		SELECT WL.WH_LOC_CD
+              ,WL.WH_LOC_NM
+              ,T.ZONE_CD
+              ,T.BLOCK_CD
+              ,T.BLOCK_DESC
+          FROM TL_WH_BLOCK T
+              ,TL_WH_LOC WL
+		      ,TL_WH L
+         WHERE T.LOC_CD = L.WH_CD
+           AND T.LOC_CD = WL.LOC_CD
+           AND T.ZONE_CD = WL.ZONE_CD
+           AND T.BLOCK_CD = WL.BLOCK_CD
+           AND T.LOC_CD = #loc_cd#
+           AND T.ZONE_CD = #zone_cd#
+           AND T.block_cd = #block_cd#
+	</select>
+	<select id="searchPropComboList" resultClass="WHLocMgmtVO">
+	    /*searchPropComboList*/
+	    SELECT dbo.TL_GET_ROWTOCOLL_WHLocMgmt_1(#loc_cd#, '|') AS CODE
+              ,dbo.TL_GET_ROWTOCOLL_WHLocMgmt_2(#loc_cd#, '|') AS NAME 
+	</select>
+	<select id="searchWHLocZone" resultClass="WHLocMgmtVO">
+	    /*searchhWHLocZone*/
+		SELECT T.LOC_CD
+		      ,T.ZONE_CD
+		      ,T.SPACE_TP_CD
+		      ,T.PUT_TP_CD
+		      ,T.ZONE_SEQ
+		      ,T.ABC_CD
+		      ,T.USE_FLG
+		      ,T.RMK
+		  FROM TL_WH_ZONE T
+		      ,TL_WH L
+         WHERE T.LOC_CD = L.WH_CD
+           AND T.LOC_CD = #loc_cd#
+           AND T.ZONE_CD = #zone_cd#
+	</select>
+	<select id="searchLocationBlockInfo" resultClass="WHLocMgmtVO">
+	SELECT BLOCK_CD 
+	  FROM TL_WH_BLOCK
+	 WHERE LOC_CD   = #loc_cd#
+	   AND ZONE_CD  = #zone_cd#
+	   AND BLOCK_CD = #block_cd#
+	</select>
+	<update id="modifyWHLocZone">
+		UPDATE TL_WH_ZONE
+		   SET SPACE_TP_CD = #space_tp_cd#
+		      ,PUT_TP_CD   = #put_tp_cd#
+		      ,ZONE_SEQ    = #zone_seq#
+		      ,ABC_CD      = #abc_cd#
+		      ,USE_FLG     = #use_flg#
+		      ,RMK         = #rmk#
+		      ,MODI_ID     = #user_id#
+		      ,MODO_SYS_DT = GETDATE()
+		 WHERE LOC_CD = #loc_cd#
+		   AND ZONE_CD = #zone_cd#
+	</update>
+	<insert id="addWHLocZone">
+        INSERT INTO TL_WH_ZONE
+          (LOC_CD
+          ,ZONE_CD
+          ,SPACE_TP_CD
+          ,PUT_TP_CD
+          ,ZONE_SEQ
+          ,ABC_CD
+          ,USE_FLG
+          ,RMK
+          ,RGST_ID
+          ,RGST_SYS_DT
+          ,MODI_ID
+          ,MODO_SYS_DT)
+        VALUES
+          (#loc_cd#
+          ,#zone_cd#
+          ,#space_tp_cd#
+          ,#put_tp_cd#
+          ,#zone_seq#
+          ,#abc_cd#
+          ,#use_flg#
+          ,#rmk#
+          ,#user_id#
+          ,GETDATE()
+          ,#user_id#
+          ,GETDATE()
+          )
+	</insert>
+	<update id="modifyWHLocBlock">
+        UPDATE TL_WH_BLOCK
+           SET USE_FLG     = #use_flg#
+              ,BLOCK_DESC  = #block_desc#
+              ,MODI_ID     = #user_id#
+              ,MODI_SYS_DT = GETDATE()
+         WHERE LOC_CD = #loc_cd#
+           AND ZONE_CD = #zone_cd#
+           AND BLOCK_CD = #block_cd#
+	</update>
+	<insert id="addWHLocBlock">
+	    INSERT INTO TL_WH_BLOCK
+          (LOC_CD
+          ,ZONE_CD
+          ,BLOCK_CD
+          ,USE_FLG
+          ,BLOCK_DESC
+          ,RGST_ID
+          ,RGST_SYS_DT
+          ,MODI_ID
+          ,MODI_SYS_DT)
+        VALUES
+          (#loc_cd#
+          ,#zone_cd#
+          ,#block_cd#
+          ,#use_flg#
+          ,#block_desc#
+          ,#user_id#
+          ,GETDATE()
+          ,#user_id#
+          ,GETDATE()
+          )
+	</insert>
+	<update id="modifyWHLocProp">
+		UPDATE TL_WH_PROP
+           SET PUTAWAY_FLG   = CASE #putaway_flg# WHEN '1' THEN 'Y' ELSE 'N' END
+              ,ALLOC_FLG     = CASE #alloc_flg# WHEN '1' THEN 'Y' ELSE 'N' END
+              ,MOVE_FLG      = CASE #move_flg# WHEN '1' THEN 'Y' ELSE 'N' END
+              ,REPLENISH_FLG = CASE #replenish_flg# WHEN '1' THEN 'Y' ELSE 'N' END
+              ,ADJUST_FLG    = CASE #adjust_flg# WHEN '1' THEN 'Y' ELSE 'N' END
+              ,USE_FLG       = #use_flg#
+              ,RMK           = #rmk#
+              ,MODI_ID       = #user_id#
+              ,MODI_SYS_DT   = GETDATE()
+         WHERE LOC_CD = #loc_cd#
+           AND PROP_CD = #prop_cd#
+	</update>
+	<insert id="addWHLocProp">
+        INSERT INTO TL_WH_PROP
+          (LOC_CD
+          ,PROP_CD
+          ,PUTAWAY_FLG
+          ,ALLOC_FLG
+          ,MOVE_FLG
+          ,REPLENISH_FLG
+          ,ADJUST_FLG
+          ,USE_FLG
+          ,RMK
+          ,RGST_ID
+          ,RGST_SYS_DT
+          ,MODI_ID
+          ,MODI_SYS_DT)
+        VALUES
+          (#loc_cd#
+          ,#prop_cd#
+          ,CASE #putaway_flg# WHEN '1' THEN 'Y' ELSE 'N' END
+          ,CASE #alloc_flg# WHEN '1' THEN 'Y' ELSE 'N' END
+          ,CASE #move_flg# WHEN '1' THEN 'Y' ELSE 'N' END
+          ,CASE #replenish_flg# WHEN '1' THEN 'Y' ELSE 'N' END
+          ,CASE #adjust_flg# WHEN '1' THEN 'Y' ELSE 'N' END
+          ,#use_flg#
+          ,#rmk#
+          ,#user_id#
+          ,GETDATE()
+          ,#user_id#
+          ,GETDATE()
+          )	
+	</insert>
+	<update id="modifyWHLocLoc">
+        UPDATE TL_WH_LOC
+           SET WH_LOC_NM   = #wh_loc_nm#  
+              ,ZONE_CD     = #zone_cd#    
+              ,BLOCK_CD    = #block_cd#   
+              ,LOC_LINE    = #loc_line#   
+              ,LOC_ROW     = #loc_row#    
+              ,LOC_FLOOR   = #loc_floor#  
+              ,SPACE_TP_CD = #space_tp_cd#
+              ,PUT_TP_CD   = #put_tp_cd#  
+              ,PROP_CD     = #prop_cd#    
+              ,LOC_SEQ     = #loc_seq#    
+              ,ABC_CD      = #abc_cd#     
+              ,MAX_CBM     = (SELECT(CONVERT(NUMERIC(18,5),#max_cbm#)))    
+              ,MAX_KGS     = (SELECT(CONVERT(NUMERIC(18,3),#max_kgs#)))  
+              ,WIDTH       = (SELECT(CONVERT(NUMERIC(7,2),#width#)))  
+              ,LENGTH      = (SELECT(CONVERT(NUMERIC(7,2),#length#))) 
+              ,HEIGHT      = (SELECT(CONVERT(NUMERIC(7,2),#height#))) 
+              ,USE_FLG     = #use_flg#    
+              ,RMK         = #rmk#        
+              ,MODI_ID     = #user_id#    
+              ,MODI_SYS_DT = GETDATE()       
+         WHERE LOC_CD = #loc_cd#  
+           AND WH_LOC_CD = #wh_loc_cd#
+	</update>
+	<insert id="addWHLocLoc">	
+		INSERT INTO TL_WH_LOC
+          (LOC_CD
+          ,WH_LOC_CD
+          ,WH_LOC_NM
+          ,ZONE_CD
+          ,BLOCK_CD
+          ,LOC_LINE
+          ,LOC_ROW
+          ,LOC_FLOOR
+          ,SPACE_TP_CD
+          ,PUT_TP_CD
+          ,PROP_CD
+          ,LOC_SEQ
+          ,ABC_CD
+          ,MAX_CBM
+          ,MAX_KGS
+          ,WIDTH
+          ,LENGTH
+          ,HEIGHT
+          ,USE_FLG
+          ,RMK
+          ,RGST_ID
+          ,RGST_SYS_DT
+          ,MODI_ID
+          ,MODI_SYS_DT)
+        VALUES
+          (#loc_cd#
+          ,#wh_loc_cd#
+          ,#wh_loc_nm#
+          ,#zone_cd#
+          ,#block_cd#
+          ,#loc_line#
+          ,#loc_row#
+          ,#loc_floor#
+          ,#space_tp_cd#
+          ,#put_tp_cd#
+          ,#prop_cd#
+          ,#loc_seq#
+          ,#abc_cd#
+          ,CAST(#max_cbm# AS FLOAT)
+          ,CAST(#max_kgs# AS FLOAT)
+          ,CAST(#width# AS FLOAT)
+          ,CAST(#length# AS FLOAT)
+          ,CAST(#height# AS FLOAT)
+          ,#use_flg#
+          ,#rmk#
+          ,#user_id#
+          ,GETDATE()
+          ,#user_id#
+          ,GETDATE()
+          )
+	</insert> 
+<!-- <?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="WHLoc">
+	
+	
+	Contract Info 조회
+	<resultMap type="com.clt.business.oms.whloc.dto.Grd00WHLocDto" id="Grd00WHLocDto"></resultMap>
+	<resultMap type="com.clt.business.oms.whloc.dto.Grd01WHLocZoneDto" id="Grd01WHLocZoneDto"></resultMap>
+	<resultMap type="com.clt.business.oms.whloc.dto.Grd02WHLocBlockDto" id="Grd02WHLocBlockDto"></resultMap>
+	<resultMap type="com.clt.business.oms.whloc.dto.Grd04WHLocPropDto" id="Grd04WHLocPropDto"></resultMap>
+	<resultMap type="com.clt.business.oms.whloc.dto.Grd05WHLocLocDto" id="Grd05WHLocLocDto"></resultMap>
+	
+	<resultMap type="com.clt.business.oms.whloc.dto.WHLocListDto" id="WHLocListDto"></resultMap>	
+	
+	
+	<select id="searchWHLocInfo" resultMap="Grd00WHLocDto">
+	    /*searchhWHLocInfo*/
+		SELECT T.WH_CD LOC_CD 
+		      ,T.WH_NM LOC_NM
+		      ,T.USE_FLG USE_YN 
+		      ,T.WH_ALS_NM LOC_LOC_NM
+		  FROM TL_WH T
+		 WHERE 1=1
+		   AND T.WH_CD = #{in_loc_cd}
+	</select>
+	
+	<select id="searchWHLocZoneList" resultMap="Grd01WHLocZoneDto">
+	    /*searchhWHLocZoneList*/
+		SELECT T.LOC_CD
+		      ,T.ZONE_CD
+		      ,T.SPACE_TP_CD
+		      ,T.PUT_TP_CD
+		      ,T.ZONE_SEQ
+		      ,T.ABC_CD
+		      ,T.USE_FLG
+		      ,T.RMK
+		  FROM TL_WH_ZONE T
+		      ,TL_WH L
+         WHERE T.LOC_CD = L.WH_CD
+           AND T.LOC_CD = #{in_loc_cd}
+	</select>
+	
+	<insert id="addWHLocZone">
+        INSERT INTO TL_WH_ZONE
+          (LOC_CD
+          ,ZONE_CD
+          ,SPACE_TP_CD
+          ,PUT_TP_CD
+          ,ZONE_SEQ
+          ,ABC_CD
+          ,USE_FLG
+          ,RMK
+          ,RGST_ID
+          ,RGST_SYS_DT
+          ,MODI_ID
+          ,MODO_SYS_DT)
+        VALUES
+          (#{loc_cd}
+          ,#{zone_cd}
+          ,#{space_tp_cd}
+          ,#{put_tp_cd}
+          ,#{zone_seq}
+          ,#{abc_cd}
+          ,#{use_flg}
+          ,#{rmk}
+          ,#{user_id}
+          ,SYSDATE
+          ,#{user_id}
+          ,SYSDATE
+          )
+	</insert>
+	
+	<update id="modifyWHLocZone">
+		UPDATE TL_WH_ZONE
+		   SET SPACE_TP_CD = #{space_tp_cd}
+		      ,PUT_TP_CD   = #{put_tp_cd}
+		      ,ZONE_SEQ    = #{zone_seq}
+		      ,ABC_CD      = #{abc_cd}
+		      ,USE_FLG     = #{use_flg}
+		      ,RMK         = #{rmk}
+		      ,MODI_ID     = #{user_id}
+		      ,MODO_SYS_DT = SYSDATE
+		 WHERE LOC_CD = #{loc_cd}
+		   AND ZONE_CD = #{zone_cd}
+	</update>
+	
+	<select id="searchWHLocBlockList" resultMap="Grd02WHLocBlockDto">
+	    /*searchhWHLocBlockList*/
+		SELECT T.LOC_CD
+              ,T.ZONE_CD
+              ,T.BLOCK_CD
+              ,T.BLOCK_DESC
+              ,(SELECT COUNT(*)
+                  FROM TL_WH_LOC WL
+                 WHERE WL.LOC_CD = T.LOC_CD
+                   AND WL.ZONE_CD = T.ZONE_CD
+                   AND WL.BLOCK_CD = T.BLOCK_CD
+                   AND WL.USE_FLG = 'Y') AS LOC_CNT
+              ,T.USE_FLG
+          FROM TL_WH_BLOCK T
+		      ,TL_WH L
+         WHERE T.LOC_CD = L.WH_CD
+           AND T.LOC_CD = #{in_loc_cd}
+	</select>
+	
+	<select id="searchWHLocBlockSubLocList" resultMap="Grd02WHLocBlockDto">
+	    /*searchhWHLocBlockSubLocList*/
+		SELECT WL.WH_LOC_CD
+              ,WL.WH_LOC_NM
+              ,T.ZONE_CD
+              ,T.BLOCK_CD
+              ,T.BLOCK_DESC
+          FROM TL_WH_BLOCK T
+              ,TL_WH_LOC WL
+		      ,TL_WH L
+         WHERE T.LOC_CD = L.WH_CD
+           AND T.LOC_CD = WL.LOC_CD
+           AND T.ZONE_CD = WL.ZONE_CD
+           AND T.BLOCK_CD = WL.BLOCK_CD
+           AND T.LOC_CD = #{loc_cd}
+           AND T.ZONE_CD = #{zone_cd}
+           AND T.block_cd = #{block_cd}
+	</select>
+	
+	<insert id="addWHLocBlock">
+	    INSERT INTO TL_WH_BLOCK
+          (LOC_CD
+          ,ZONE_CD
+          ,BLOCK_CD
+          ,USE_FLG
+          ,BLOCK_DESC
+          ,RGST_ID
+          ,RGST_SYS_DT
+          ,MODI_ID
+          ,MODI_SYS_DT)
+        VALUES
+          (#{loc_cd}
+          ,#{zone_cd}
+          ,#{block_cd}
+          ,#{use_flg}
+          ,#{block_desc}
+          ,#{user_id}
+          ,SYSDATE
+          ,#{user_id}
+          ,SYSDATE
+          )
+	</insert>
+	
+	<update id="modifyWHLocBlock">
+        UPDATE TL_WH_BLOCK
+           SET USE_FLG     = #{use_flg}
+              ,BLOCK_DESC  = #{block_desc}
+              ,MODI_ID     = #{user_id}
+              ,MODI_SYS_DT = SYSDATE
+         WHERE LOC_CD = #{loc_cd}
+           AND ZONE_CD = #{zone_cd}
+           AND BLOCK_CD = #{block_cd}
+	</update>
+	
+	<select id="searchZoneComboList" resultMap="Grd02WHLocBlockDto">	
+	    /*searchZoneComboList*/
+	    SELECT TL_GET_ROWTOCOLL('SELECT ZONE_CD FROM TL_WH_ZONE WHERE LOC_CD = '''||#{loc_cd}||''' ', '|') AS CODE
+              ,TL_GET_ROWTOCOLL('SELECT ZONE_CD FROM TL_WH_ZONE WHERE LOC_CD = '''||#{loc_cd}||''' ', '|') AS NAME 
+      	FROM DUAL	
+	</select>
+	
+	<select id="searchWHLocPropList" resultMap="Grd04WHLocPropDto">
+	    /*searchhWHPropList*/
+        SELECT T.LOC_CD
+              ,T.PROP_CD
+              ,DECODE(T.PUTAWAY_FLG,'Y','1','0') AS PUTAWAY_FLG
+              ,DECODE(T.ALLOC_FLG,'Y','1','0') AS ALLOC_FLG
+              ,DECODE(T.MOVE_FLG,'Y','1','0') AS MOVE_FLG
+              ,DECODE(T.REPLENISH_FLG,'Y','1','0') AS REPLENISH_FLG
+              ,DECODE(T.ADJUST_FLG,'Y','1','0') AS ADJUST_FLG
+              ,T.USE_FLG
+              ,T.RMK
+          FROM TL_WH_PROP T
+		      ,TL_WH L
+              ,TL_CODE_DTL C
+         WHERE T.LOC_CD = L.WH_CD
+           AND C.GRP_CD = 'WL0'
+           AND T.PROP_CD = C.CODE_CD
+           AND T.LOC_CD = #{in_loc_cd}
+         ORDER BY C.DISP_SEQ  
+	</select>
+	
+	<insert id="addWHLocProp">
+        INSERT INTO TL_WH_PROP
+          (LOC_CD
+          ,PROP_CD
+          ,PUTAWAY_FLG
+          ,ALLOC_FLG
+          ,MOVE_FLG
+          ,REPLENISH_FLG
+          ,ADJUST_FLG
+          ,USE_FLG
+          ,RMK
+          ,RGST_ID
+          ,RGST_SYS_DT
+          ,MODI_ID
+          ,MODI_SYS_DT)
+        VALUES
+          (#{loc_cd}
+          ,#{prop_cd}
+          ,DECODE(#{putaway_flg},'1','Y','N')
+          ,DECODE(#{alloc_flg},'1','Y','N')
+          ,DECODE(#{move_flg},'1','Y','N')
+          ,DECODE(#{replenish_flg},'1','Y','N')
+          ,DECODE(#{adjust_flg},'1','Y','N')
+          ,#{use_flg}
+          ,#{rmk}
+          ,#{user_id}
+          ,SYSDATE
+          ,#{user_id}
+          ,SYSDATE
+          )	
+	</insert>
+	
+	<update id="modifyWHLocProp">
+		UPDATE TL_WH_PROP
+           SET PUTAWAY_FLG   = DECODE(#{putaway_flg},'1','Y','N')
+              ,ALLOC_FLG     = DECODE(#{alloc_flg},'1','Y','N')
+              ,MOVE_FLG      = DECODE(#{move_flg},'1','Y','N')
+              ,REPLENISH_FLG = DECODE(#{replenish_flg},'1','Y','N')
+              ,ADJUST_FLG    = DECODE(#{adjust_flg},'1','Y','N')
+              ,USE_FLG       = #{use_flg}
+              ,RMK           = #{rmk}
+              ,MODI_ID       = #{user_id}
+              ,MODI_SYS_DT   = SYSDATE
+         WHERE LOC_CD = #{loc_cd}
+           AND PROP_CD = #{prop_cd}
+	</update>	
+	
+	<select id="searchWHLocZone" resultMap="Grd01WHLocZoneDto">
+	    /*searchhWHLocZone*/
+		SELECT T.LOC_CD
+		      ,T.ZONE_CD
+		      ,T.SPACE_TP_CD
+		      ,T.PUT_TP_CD
+		      ,T.ZONE_SEQ
+		      ,T.ABC_CD
+		      ,T.USE_FLG
+		      ,T.RMK
+		  FROM TL_WH_ZONE T
+		      ,TL_WH L
+         WHERE T.LOC_CD = L.WH_CD
+           AND T.LOC_CD = #{loc_cd}
+           AND T.ZONE_CD = #{zone_cd}
+	</select>	
+	
+	<select id="searchBlockComboList" resultMap="Grd02WHLocBlockDto">
+	    /*searchBlockComboList*/
+	    SELECT 
+	          <if test="zone_cd == ''.toString() ">	
+	           TL_GET_ROWTOCOLL('SELECT BLOCK_CD FROM TL_WH_BLOCK WHERE LOC_CD = '''||#{loc_cd}||''' ', '|') AS CODE
+              ,TL_GET_ROWTOCOLL('SELECT BLOCK_CD FROM TL_WH_BLOCK WHERE LOC_CD = '''||#{loc_cd}||''' ', '|') AS NAME
+	          </if>
+	          <if test="zone_cd != ''.toString() ">	
+	           TL_GET_ROWTOCOLL('SELECT BLOCK_CD FROM TL_WH_BLOCK WHERE LOC_CD = '''||#{loc_cd}||''' AND ZONE_CD = '''||#{zone_cd}||''' ', '|') AS CODE
+              ,TL_GET_ROWTOCOLL('SELECT BLOCK_CD FROM TL_WH_BLOCK WHERE LOC_CD = '''||#{loc_cd}||''' AND ZONE_CD = '''||#{zone_cd}||''' ', '|') AS NAME
+	          </if> 
+      	FROM DUAL	
+	</select>	
+		
+	<select id="searchWHLocLocList" resultMap="Grd05WHLocLocDto">
+	    /*searchWHLocLocList*/
+        SELECT T.LOC_CD
+              ,T.WH_LOC_CD
+              ,T.WH_LOC_NM
+              ,T.ZONE_CD
+              ,T.BLOCK_CD
+              ,T.LOC_LINE
+              ,T.LOC_ROW
+              ,T.LOC_FLOOR
+              ,T.SPACE_TP_CD
+              ,T.PUT_TP_CD
+              ,T.PROP_CD
+              ,T.LOC_SEQ
+              ,T.ABC_CD
+              ,T.MAX_CBM
+              ,T.MAX_KGS
+              ,T.WIDTH
+              ,T.LENGTH
+              ,T.HEIGHT
+              ,T.USE_FLG
+              ,T.RMK
+          FROM TL_WH_LOC T
+		      ,TL_WH L
+         WHERE T.LOC_CD = L.WH_CD
+           AND T.LOC_CD = #{in_loc_cd}		
+	</select>   
+	
+	<insert id="addWHLocLoc">	
+		INSERT INTO TL_WH_LOC
+          (LOC_CD
+          ,WH_LOC_CD
+          ,WH_LOC_NM
+          ,ZONE_CD
+          ,BLOCK_CD
+          ,LOC_LINE
+          ,LOC_ROW
+          ,LOC_FLOOR
+          ,SPACE_TP_CD
+          ,PUT_TP_CD
+          ,PROP_CD
+          ,LOC_SEQ
+          ,ABC_CD
+          ,MAX_CBM
+          ,MAX_KGS
+          ,WIDTH
+          ,LENGTH
+          ,HEIGHT
+          ,USE_FLG
+          ,RMK
+          ,RGST_ID
+          ,RGST_SYS_DT
+          ,MODI_ID
+          ,MODI_SYS_DT)
+        VALUES
+          (#{loc_cd}
+          ,#{wh_loc_cd}
+          ,#{wh_loc_nm}
+          ,#{zone_cd}
+          ,#{block_cd}
+          ,#{loc_line}
+          ,#{loc_row}
+          ,#{loc_floor}
+          ,#{space_tp_cd}
+          ,#{put_tp_cd}
+          ,#{prop_cd}
+          ,#{loc_seq}
+          ,#{abc_cd}
+          ,#{max_cbm}
+          ,#{max_kgs}
+          ,#{width}
+          ,#{length}
+          ,#{height}
+          ,#{use_flg}
+          ,#{rmk}
+          ,#{user_id}
+          ,SYSDATE
+          ,#{user_id}
+          ,SYSDATE
+          )
+	</insert>    
+	
+	<update id="modifyWHLocLoc">
+        UPDATE TL_WH_LOC
+           SET WH_LOC_NM   = #{wh_loc_nm}  
+              ,ZONE_CD     = #{zone_cd}    
+              ,BLOCK_CD    = #{block_cd}   
+              ,LOC_LINE    = #{loc_line}   
+              ,LOC_ROW     = #{loc_row}    
+              ,LOC_FLOOR   = #{loc_floor}  
+              ,SPACE_TP_CD = #{space_tp_cd}
+              ,PUT_TP_CD   = #{put_tp_cd}  
+              ,PROP_CD     = #{prop_cd}    
+              ,LOC_SEQ     = #{loc_seq}    
+              ,ABC_CD      = #{abc_cd}     
+              ,MAX_CBM     = #{max_cbm}    
+              ,MAX_KGS     = #{max_kgs}    
+              ,WIDTH       = #{width}      
+              ,LENGTH      = #{length}     
+              ,HEIGHT      = #{height}     
+              ,USE_FLG     = #{use_flg}    
+              ,RMK         = #{rmk}        
+              ,MODI_ID     = #{user_id}    
+              ,MODI_SYS_DT = SYSDATE       
+         WHERE LOC_CD = #{loc_cd}  
+           AND WH_LOC_CD = #{wh_loc_cd}
+	</update>	         	    
+	
+	<select id="searchPropComboList" resultMap="Grd02WHLocBlockDto">
+	    /*searchPropComboList*/
+	    SELECT TL_GET_ROWTOCOLL('SELECT WP.PROP_CD FROM TL_WH_PROP WP, TL_CODE_DTL C WHERE C.GRP_CD = ''WL0'' AND WP.PROP_CD = C.CODE_CD AND WP.LOC_CD = '''||#{loc_cd}||''' ORDER BY C.DISP_SEQ ', '|') AS CODE
+              ,TL_GET_ROWTOCOLL('SELECT C.CODE_NM FROM TL_WH_PROP WP, TL_CODE_DTL C WHERE C.GRP_CD = ''WL0'' AND WP.PROP_CD = C.CODE_CD AND WP.LOC_CD = '''||#{loc_cd}||''' ORDER BY C.DISP_SEQ ', '|') AS NAME 
+      	FROM DUAL	
+	</select>		    
+		
+		
+		
+		
+</mapper> -->
+
+</sqlMap>

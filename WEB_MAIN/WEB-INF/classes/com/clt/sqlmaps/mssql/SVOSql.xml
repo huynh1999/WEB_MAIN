@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="SVO">
+	<select id="checkCtrtRtp"  parameterClass="java.util.HashMap" resultClass="java.lang.String">
+       SELECT COUNT(*) AS INVALID_CNT
+        FROM TL_CTRT C
+                ,TL_RTP R
+                ,TL_CTRT_ORD_TP O
+       WHERE C.CTRT_NO = R.CTRT_NO
+          AND R.CTRT_NO = O.CTRT_NO
+          AND R.ORD_TP_CD = O.ORD_TP_CD
+          AND C.CTRT_USE_FLG = 'Y'
+          AND R.RTP_USE_FLG = 'Y'
+          AND O.ORD_TP_USE_FLG = 'Y'
+          AND R.CTRT_NO = #ctrt_no#
+          AND R.RTP_NO  = #rtp_no#
+	</select>
+	
+	<select id="searchSVONo" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+       SELECT  'SV' + SUBSTRING(#org_cd# ,3 ,3) + CONVERT(VARCHAR(6), GETDATE(), 12) + dbo.LPAD((SEQ+1),4,'0') AS SO_NO FROM TB_MJR_NO_SEQ WHERE NO_TP_CD ='SVO' 
+	</select>
+	
+	<update id="updateSVONo">
+	   UPDATE TB_MJR_NO_SEQ SET SEQ =SEQ +1 WHERE NO_TP_CD ='SVO' 
+	</update>
+	
+	<insert id="insertSVONo">
+	   INSERT INTO TB_MJR_NO_SEQ(NO_TP_CD, SEQ, MAX_SEQ, DESCR) values ('SVO', 0, 9999999, 'SVO SEQ')
+	</insert>
+	
+	<insert id="addSVO" >
+      INSERT INTO TL_SO
+      (
+        SO_NO,
+        CTRT_NO,
+        RTP_NO,
+        CTRT_CUST_CD,
+        SALES_OFC_CD,
+        SALES_PIC_ID,
+        SO_STS_CD,
+        RGST_ID,
+        RGST_SYS_DT,
+        MODI_ID,
+        MODI_SYS_DT,
+        PNL_SVC_TP_CD,
+        EST_CMPL_DT,
+        COSALES_OFC_CD,
+        COSALES_PIC_ID,
+        COSALES_PIC_NM
+      )
+      SELECT 
+        <!-- #so_no, javaType=String, jdbcType=VARCHAR#,
+        #ctrt_no, javaType=String, jdbcType=VARCHAR#,
+        #rtp_no, javaType=String, jdbcType=VARCHAR#, -->
+        #so_no#,
+        #ctrt_no#,
+        #rtp_no#,
+        C.CTRT_CUST_CD,
+        C.SALES_OFC_CD,
+        C.SALES_PIC_ID,
+        'P',
+        <!-- #user_id, javaType=String, jdbcType=VARCHAR#, -->
+        #user_id#,
+        GETDATE(),
+        <!-- #user_id, javaType=String, jdbcType=VARCHAR#, -->
+        #user_id#,
+        GETDATE(),
+        T.PNL_SVC_TP_CD,
+        CASE T.ORD_TP_LVL1_CD WHEN 'P' THEN replace(#est_cmpl_dt#,'-','') END,
+        CASE T.ORD_TP_LVL1_CD WHEN 'P' THEN #cosales_ofc_cd# END,
+        CASE T.ORD_TP_LVL1_CD WHEN 'P' THEN #cosales_pic_id# END,
+        CASE T.ORD_TP_LVL1_CD WHEN 'P' THEN #cosales_pic_nm# END
+      FROM TL_CTRT C, TL_RTP R, TL_CTRT_ORD_TP T
+     WHERE C.CTRT_NO = R.CTRT_NO
+       AND R.CTRT_NO = T.CTRT_NO
+       AND R.ORD_TP_CD = T.ORD_TP_CD
+       <!-- AND R.CTRT_NO = #ctrt_no, javaType=String, jdbcType=VARCHAR#
+       AND R.RTP_NO = #rtp_no, javaType=String, jdbcType=VARCHAR# -->
+       AND R.CTRT_NO = #ctrt_no#
+       AND R.RTP_NO = #rtp_no#
+	</insert>
+	
+	<insert id="addSVORoute">
+      INSERT INTO TL_SO_ROUTE 
+      (
+        SO_NO,
+        SO_RT_NO,
+        SO_RT_SEQ,
+        SYS_CD,
+        SYS_STEP_CD,
+        RESP_OFC_CD,
+        STEP_STS_CD,
+        FR_LOC_CD,
+        TO_LOC_CD,
+        RGST_ID,
+        RGST_SYS_DT,
+        MODI_ID,
+        MODI_SYS_DT
+      )
+      SELECT 
+        <!-- #so_no, javaType=String, jdbcType=VARCHAR#, -->
+        #so_no#,
+        RTP_NO,
+        RTP_SEQ,
+        SYS_CD,
+        SYS_STEP_CD,
+        RESP_OFC_CD,
+        '',
+        FR_LOC_CD,
+        TO_LOC_CD,
+        <!-- #user_id, javaType=String, jdbcType=VARCHAR#, -->
+        #user_id#,
+        GETDATE(),
+        <!-- #user_id, javaType=String, jdbcType=VARCHAR#, -->
+        #user_id#,
+        GETDATE()
+      FROM TL_RTP_ROUTE
+     <!-- WHERE RTP_NO = #rtp_no, javaType=String, jdbcType=VARCHAR# -->
+     WHERE RTP_NO = #rtp_no#
+	</insert>
+	
+	<insert id="addSVOEvent">
+      INSERT INTO TL_SO_EVENT 
+      (
+        SO_NO,
+        SO_EVENT_SEQ,
+        EVENT_CD,
+        EVENT_LOC_CD,
+        TRANSIT_DD,
+        TRANSIT_HH,
+        TOLERANCE_HH,
+        RGST_ID,
+        RGST_SYS_DT,
+        MODI_ID,
+        MODI_SYS_DT
+      )
+      SELECT 
+         <!-- #so_no, javaType=String, jdbcType=VARCHAR# -->
+         #so_no#
+        ,T.EVENT_SEQ
+        ,T.EVENT_CD
+        ,T.EVENT_LOC_CD
+        ,T.TRANSIT_DD
+        ,T.TRANSIT_HH
+        ,T.TOLERANCE_HH
+        <!-- ,#user_id, javaType=String, jdbcType=VARCHAR# -->
+        ,#user_id#
+        ,GETDATE()
+        <!-- ,#user_id, javaType=String, jdbcType=VARCHAR# -->
+        ,#user_id#
+        ,GETDATE()
+      FROM TL_RTP_EVENT T
+     <!-- WHERE T.RTP_NO = #rtp_no, javaType=String, jdbcType=VARCHAR# -->
+     WHERE T.RTP_NO = #rtp_no#
+	</insert>
+</sqlMap>

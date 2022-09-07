@@ -1,0 +1,2407 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sec.workorder">
+
+	<typeAlias alias="WoVO"         type="com.clt.apps.fis.see.bmd.workorder.dto.WoOrdVO"/><!-- Work Order Value Object   -->
+	<typeAlias alias="WoCntrLstVO"  type="com.clt.apps.fis.see.bmd.workorder.dto.WoCntrListVO"/><!-- Work Order Container목록   -->
+
+	<!-- Work Order 번호 생성   -->
+	<select id="selectWoNoMaxSeq" resultClass="HashMap" parameterClass="HashMap">
+	 /*  SecWorkOrderSQL > selectWoNoMaxSeq */
+		SELECT  right(ISNULL(max(wo.wo_no), 0), 4)+1 AS woSeq,
+				convert(varchar(4), getdate(), 12)  AS woDt
+		  FROM  tb_pd_ord wo
+		 WHERE  convert(varchar(6), wo.rgst_tms, 112) = CONVERT(VARCHAR(6), getdate(), 112)
+		   AND  wo.rgst_ofc_cd = #ofc_cd#
+		   AND  wo.wo_no LIKE  '%' + #wo_prefix# + '%'
+	</select>
+
+
+	<!-- Work Order조회   -->
+	<select id="selectWorkOrder" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickUpOrdDeliVO">
+	/*SecWorkOrderSQL > selectWorkOrder */
+	SELECT wo.wo_no
+		  ,CASE 
+		  	WHEN isnull(wo.bkg_seq,'') != '' THEN ''     
+		  	WHEN isnull(bl.INTG_BL_SEQ,'') != '' THEN wo.INTG_BL_SEQ     
+           ELSE oth.oth_seq
+		   END AS intg_bl_seq        
+		  ,wo.BND_CLSS_CD
+		  ,wo.WO_STS_CD
+        ,CASE
+			WHEN ISNULL(bl.bkg_no,'') != '' THEN BL.BKG_NO
+			ELSE         
+			(select TB_BKG.bkg_no 
+			   from TB_BKG 
+			   where 1=1
+               AND tb_bkg.bkg_seq =(select BKG_SEQ from tb_pd_ord where tb_pd_ord.WO_NO= #wo_no#))
+        END AS bkg_no     
+		  ,CASE 
+     		  WHEN isnull(wo.bkg_seq,'') != '' THEN ''
+			  WHEN isnull(bl.INTG_BL_SEQ, '') != '' THEN bl.bl_no
+	       ELSE oth.ref_no
+		   END AS bl_no
+		  ,wo.wo_tp_cd
+		  ,wo.pickup_trdp_cd	/*Pick-up*/
+		  ,wo.pickup_trdp_nm
+		  ,wo.pickup_trdp_addr
+		  ,wo.pickup_pic
+		  ,wo.pickup_phn
+		  ,wo.pickup_fax
+		  <!-- #34862 - [BINEX]Work Order - Trucker 정보 Link -->
+		  <!-- (Import),wo.pickup_ref_no : HB/L 의 Customer Refrence No., 를 W/O 의 Delivery 의 Reference No로 셋팅 -->
+	  	  ,CASE WHEN isnull(wo.pickup_ref_no, '') != '' THEN wo.pickup_ref_no
+			ELSE #pickup_ref_no#
+		   END AS pickup_ref_no
+		  ,wo.pickup_dt_tm
+		  ,case when len(wo.pickup_dt_tm) = 4 then '' 
+		   else substring(wo.pickup_dt_tm,5,4)+substring(wo.pickup_dt_tm,1,4) end as pickup_dt
+		  ,case when len(wo.pickup_dt_tm) = 4 then wo.pickup_dt_tm
+		   else substring(wo.pickup_dt_tm,9,4) end as pickup_tm	
+		  ,wo.pickup_to_tm
+		  ,wo.delivery_trdp_cd	/*Delivery*/
+		  ,wo.delivery_trdp_nm
+		  ,wo.delivery_trdp_addr
+		  ,wo.delivery_pic
+		  ,wo.delivery_phn
+		  ,wo.delivery_fax
+		  <!-- #34862 - [BINEX]Work Order - Trucker 정보 Link -->
+		  <!-- (Expert),wo.delivery_ref_no : HB/L 의 Customer Refrence No., 를 W/O 의 Delivery 의 Reference No로 셋팅 -->
+	  	  ,CASE WHEN isnull(wo.delivery_ref_no, '') != '' THEN wo.delivery_ref_no
+			ELSE #delivery_ref_no#
+		   END AS delivery_ref_no
+		  ,wo.delivery_dt_tm
+		  
+		  ,case when len(wo.delivery_dt_tm) = 4 then '' 
+		   else substring(wo.delivery_dt_tm,5,4)+substring(wo.delivery_dt_tm,1,4) end as delivery_dt
+		  ,case when len(wo.delivery_dt_tm) = 4 then wo.delivery_dt_tm
+		   else substring(wo.delivery_dt_tm,9,4) end as delivery_tm	
+		  
+		  ,wo.delivery_to_tm
+		  ,wo.return_trdp_cd  	/*return info*/
+		  ,wo.return_trdp_nm
+		  ,wo.return_trdp_addr
+		  ,wo.return_pic
+		  ,wo.return_phn
+		  ,wo.return_fax
+		  ,wo.return_ref_no
+		  ,wo.return_dt_tm
+		  
+		  ,case when len(wo.return_dt_tm) = 4 then '' 
+		   else substring(wo.return_dt_tm,5,4)+substring(wo.return_dt_tm,1,4) end as return_dt
+		  ,case when len(wo.return_dt_tm) = 4 then wo.return_dt_tm
+		   else substring(wo.return_dt_tm,9,4) end as return_tm	
+		  
+		  ,wo.return_to_tm
+		  ,wo.bill_to_trdp_cd /*Bill To Information*/
+		  ,wo.bill_to_trdp_nm
+		  ,wo.bill_to_trdp_addr
+		  ,wo.bill_to_pic
+		  ,wo.bill_to_phn
+		  ,wo.bill_to_fax
+		  ,wo.bill_to_ref_no
+		  ,wo.trucker_trdp_cd  	/*trucker info*/
+		  ,wo.trucker_trdp_nm
+		  ,wo.trucker_trdp_addr
+		  ,wo.trucker_pic
+		  ,wo.trucker_phn
+		  ,wo.trucker_fax
+		  ,CASE 
+		    WHEN isnull(wo.bkg_seq, '') != '' THEN bkg.pol_cd 
+		    WHEN isnull(bl.INTG_BL_SEQ, '') != '' THEN bl.pol_cd
+		  ELSE oth.pol_cd 
+		  END AS pol_cd
+		  	
+		  ,CASE 
+		  	WHEN isnull(wo.bkg_seq, '') != '' THEN bkg.pol_nm 
+		  	WHEN isnull(bl.INTG_BL_SEQ, '') != '' THEN bl.pol_nm
+		  ELSE oth.pol_nm 
+		  END AS pol_nm
+		  
+		  ,CASE 
+		  	WHEN isnull(wo.bkg_seq, '') != '' THEN bkg.pod_cd 
+		  	WHEN isnull(bl.INTG_BL_SEQ, '') != '' THEN bl.pod_cd
+		  ELSE oth.pod_cd 
+		  END AS pod_cd
+		  ,CASE 
+		  	WHEN isnull(wo.bkg_seq, '') != '' THEN bkg.pod_nm 
+		  	WHEN isnull(bl.INTG_BL_SEQ, '') != '' THEN bl.pod_nm
+		  ELSE oth.pod_nm END AS pod_nm		  
+		  ,CASE 
+		  	WHEN isnull(wo.bkg_seq, '') != '' THEN bkg.rep_cmdt_cd 
+		  	WHEN isnull(bl.INTG_BL_SEQ, '') != '' THEN bl.rep_cmdt_cd
+		  ELSE oth.cmdt_cd 
+		  END AS cgo_itm_cmdt_cd
+		  ,CASE 
+		  	WHEN isnull(wo.bkg_seq, '') != '' THEN bkg.rep_cmdt_nm 
+		  	WHEN isnull(bl.INTG_BL_SEQ, '') != '' THEN bl.rep_cmdt_nm 
+		  ELSE oth.cmdt_nm 
+		  END AS cgo_itm_cmdt_nm
+		  ,isnull(wo.cgo_pck_qty,0) cgo_pck_qty
+		  ,wo.cgo_pck_ut_cd
+		  ,isnull(wo.act_wgt_k,0) act_wgt_k
+		  ,isnull(wo.act_wgt_l,0) act_wgt_l
+		  ,isnull(wo.cgo_meas_m,0) cgo_meas_m
+		  ,isnull(wo.cgo_meas_f,0) cgo_meas_f
+		  ,wo.LNR_TRDP_CD as wo_line_cd
+		  , (SELECT locl_nm
+			   FROM tb_trdp
+			  WHERE trdp_cd = wo.LNR_TRDP_CD) wo_line_nm
+		  ,wo.lnr_bkg_no
+		  ,wo.rmk
+		  ,wo.wh_instr_txt
+		  ,wo.cstms_instr_txt
+		  ,wo.oth_seq
+		  ,bl.ref_no
+		  ,wo.lnr_trdp_cd
+		  ,wo.lnr_trdp_nm
+		  ,wo.lnr_bkg_no
+		  ,wo.bkg_seq
+		  ,wo.cstms_cust_cd
+ 		  ,wo.cstms_cust_nm
+		  ,wo.cstms_cust_pic
+		  ,wo.cstms_cust_phn
+		  ,wo.cstms_cust_fax
+		  ,wo.cut_off_dt_tm
+		  ,wo.cstms_cust_cd
+			,wo.cstms_cust_nm
+			,wo.cstms_cust_pic
+			,wo.cstms_cust_phn
+			,wo.cstms_cust_fax
+			,wo.cut_off_dt_tm
+			,wo.exp_ref_no
+			,wo.cust_cd
+			,wo.cust_nm
+			,wo.cust_pic
+			,wo.cust_phn
+			,wo.cust_fax
+			,wo.cust_addr
+			,wo.wh_cd
+			,wo.wh_nm
+			,wo.wh_pic
+			,wo.wh_phn
+			,wo.wh_fax
+			,wo.wh_ref_no
+			,wo.wh_dt_tm
+			,wo.trnk_vsl_cd
+			,<!-- OFVFOUR-6168 [FFN] Inquiry after creating Pickup Delivery Order on B/L Entry screen -->
+			/* wo.trnk_vsl_nm 
+			CASE
+				WHEN ISNULL(wo.TRNK_VSL_NM,'') ! = '' THEN wo.TRNK_VSL_NM
+				ELSE oth.VSL_FLT
+			END AS trnk_vsl_nm */
+			oth.VSL_FLT as trnk_vsl_nm
+			,wo.cstms_tp_cd
+			,wh_to_tm
+			,cut_off_to_tm
+			
+			,case when len(wo.wh_dt_tm) = 4 then '' 
+		     else substring(wo.wh_dt_tm,5,4)+substring(wo.wh_dt_tm,1,4) end as wh_dt
+		    ,case when len(wo.wh_dt_tm) = 4 then wo.wh_dt_tm
+		     else substring(wo.wh_dt_tm,9,4) end as wh_tm
+			
+			,case when len(wo.cut_off_dt_tm) = 4 then '' 
+		     else substring(wo.cut_off_dt_tm,5,4)+substring(wo.cut_off_dt_tm,1,4) end as cut_off_dt
+		    ,case when len(wo.cut_off_dt_tm) = 4 then wo.cut_off_dt_tm
+		     else substring(wo.cut_off_dt_tm,9,4) end as cut_off_tm
+		    ,wo.trnk_voy
+		    
+		    <!--#2045 hsk  -->
+			,wo.drv_nm
+			,wo.drv_phn
+			,wo.trk_plat_no
+			,wo.wh_lodg_instr_txt
+			<!-- Pickup Delivery new UI hsk -->
+			,wo.cstms_cust_addr
+			,wo.wh_addr
+			,wo.cargo_tp_cd
+			<!-- OFVFOUR-7857[SENKO USA] Container Summary on Pickup & Delivery Order form -->
+			,CASE
+				WHEN ISNULL((SELECT OPT_VAL FROM TB_SYS_OPT WHERE OPT_KEY = 'WO_DEFAULT_CNTR_INFO'),'') = 'Y' THEN (CASE WHEN ISNULL(wo.cntr_info, '') = '' THEN bl.cntr_info ELSE wo.cntr_info END)
+				ELSE wo.cntr_info
+			END cntr_info
+			,<!-- OFVFOUR-6168 [FFN] Inquiry after creating Pickup Delivery Order on B/L Entry screen -->
+			/* substring(wo.etd_dt_tm,5,4)+substring(wo.etd_dt_tm,1,4) as etd_dt_tm */
+			CASE
+				WHEN ISNULL(wo.eta_dt_tm,'') != '' THEN SUBSTRING(oth.etd_dt_tm, 5, 4) + SUBSTRING(oth.etd_dt_tm, 1, 4)
+				ELSE SUBSTRING(oth.etd_dt_tm, 5, 4) + SUBSTRING(oth.etd_dt_tm, 1, 4)
+			END AS etd_dt_tm
+			,/* substring(wo.eta_dt_tm,5,4)+substring(wo.eta_dt_tm,1,4) as eta_dt_tm */
+			CASE
+				WHEN ISNULL(wo.eta_dt_tm,'') != '' THEN SUBSTRING(oth.eta_dt_tm, 5, 4) + SUBSTRING(oth.eta_dt_tm, 1, 4)
+				ELSE  SUBSTRING(oth.eta_dt_tm, 5, 4) + SUBSTRING(oth.eta_dt_tm, 1, 4)
+			END AS eta_dt_tm
+     	    ,wo.RGST_USRID
+       		,wo.MODI_USRID
+			,CONVERT(VARCHAR(10),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),wo.RGST_TMS ),112) + REPLACE(CONVERT(VARCHAR(8),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),wo.RGST_TMS ),108),':','')  AS RGST_TMS
+ 			,CONVERT(VARCHAR(10),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),wo.MODI_TMS ),112) + REPLACE(CONVERT(VARCHAR(8),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),wo.MODI_TMS ),108),':','')  AS MODI_TMS
+ 			<!--#2114 -->
+ 			,wo.biz_unit_trdp_cd
+			,wo.biz_unit_trdp_nm
+ 			,wo.prt_md_yn
+ 			<!-- #2668 [PATENT] Bugs were reported when doing internal testing (Work Order) -->
+		  ,CASE 
+		  	WHEN isnull(bl.ref_no,'') != '' THEN bl.ref_no
+           ELSE oth.ref_no
+		   END AS ref_no
+			<!-- OFVFOUR-7798: [Southeast] Update the Title/Subject of Pickup# Notice -->
+			, case when  bl.biz_clss_cd='M' then bl.bl_no
+					when  bl.biz_clss_cd='H' then (select bl_no
+													from tb_intg_bl
+													where intg_bl_seq = ( select RLT_INTG_BL_SEQ
+																			from tb_intg_bl_rlt a
+																			where INTG_BL_SEQ = bl.intg_bl_seq))
+				else oth.mbl_no
+				end as mbl_no_ref
+ 			
+      FROM tb_pd_ord wo
+	  LEFT OUTER JOIN tb_intg_bl bl
+		ON wo.intg_bl_seq = bl.intg_bl_seq
+		   LEFT OUTER JOIN tb_pck_ut_cd pcd ON wo.cgo_pck_ut_cd = pcd.pck_ut_cd
+										  AND pcd.delt_flg = 'N'
+		   LEFT OUTER JOIN tb_oth_sales oth ON wo.oth_seq = oth.oth_seq
+										AND oth.delt_flg = 'N'
+		   LEFT OUTER JOIN tb_bkg bkg ON wo.bkg_seq = bkg.bkg_seq
+		   LEFT OUTER JOIN TB_OFC TOF ON wo.RGST_OFC_CD = TOF.OFC_CD      
+		   LEFT OUTER JOIN TB_COM_CD_DTL CCD ON CCD.COM_CD = 'TIMEZN' AND TOF.TIME_ZONE = CCD.CD_VAL                     		   										
+	 WHERE 1 = 1
+	   AND wo.delt_flg = 'N'
+	   AND wo.wo_no = #wo_no#
+	</select>
+
+	<!--Work Order를 업데이트함   -->
+	<update id="updateWorkOrder" parameterClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickUpOrdDeliVO">
+		/*SecWorkOrderSQL > updateWorkOrder */
+		UPDATE tb_pd_ord
+		SET wo_tp_cd = #wo_tp_cd#
+		,pickup_trdp_cd = #pickup_trdp_cd#	/*Pick-up*/
+		,pickup_trdp_nm = #pickup_trdp_nm#
+		,pickup_trdp_addr = #pickup_trdp_addr#
+		,pickup_pic = #pickup_pic#
+		,pickup_phn = #pickup_phn#
+		,pickup_fax = #pickup_fax#
+		,pickup_ref_no = #pickup_ref_no#
+		,pickup_dt_tm = #pickup_dt_tm#
+		,pickup_to_tm = #pickup_to_tm#
+		,delivery_trdp_cd = #delivery_trdp_cd#	/*Delivery*/
+		,delivery_trdp_nm = #delivery_trdp_nm#
+		,delivery_trdp_addr = #delivery_trdp_addr#
+		,delivery_pic = #delivery_pic#
+		,delivery_phn = #delivery_phn#
+		,delivery_fax = #delivery_fax#
+		,delivery_ref_no = #delivery_ref_no#
+		,delivery_dt_tm = #delivery_dt_tm#
+		,delivery_to_tm = #delivery_to_tm#
+		,return_trdp_cd = #return_trdp_cd#	/*Transporter*/
+		,return_trdp_nm = #return_trdp_nm#
+		,return_trdp_addr = #return_trdp_addr#
+		,return_pic = #return_pic#
+		,return_phn = #return_phn#
+		,return_fax = #return_fax#
+		,return_ref_no = #return_ref_no#
+		,return_dt_tm = #return_dt_tm#
+		,return_to_tm = #return_to_tm#
+		,bill_to_trdp_cd = #bill_to_trdp_cd#	/*Bill To Information*/
+		,bill_to_trdp_nm = #bill_to_trdp_nm#
+		,bill_to_trdp_addr = #bill_to_trdp_addr#
+		,bill_to_pic = #bill_to_pic#
+		,bill_to_phn = #bill_to_phn#
+		,bill_to_fax = #bill_to_fax#
+		,bill_to_ref_no = #bill_to_ref_no#
+		,trucker_trdp_cd = #trucker_trdp_cd#	/*Trucker*/
+		,trucker_trdp_nm = #trucker_trdp_nm#
+		,trucker_trdp_addr = #trucker_trdp_addr#
+		,trucker_pic = #trucker_pic#
+		,trucker_phn = #trucker_phn#
+		,trucker_fax = #trucker_fax#
+		,pol_cd = #pol_cd#	/*Cargo Infromation*/
+		,pod_cd = #pod_cd#
+		,cgo_itm_cmdt_cd = #cgo_itm_cmdt_cd#
+		,cgo_itm_cmdt_nm = #cgo_itm_cmdt_nm#
+		,cgo_pck_qty = #cgo_pck_qty#
+		,cgo_pck_ut_cd = #cgo_pck_ut_cd#
+		,act_wgt_k = #act_wgt_k#
+		,act_wgt_l = #act_wgt_l#
+		,cgo_meas_m = #cgo_meas_m#
+		,cgo_meas_f = #cgo_meas_f#
+		,lnr_trdp_cd = #lnr_trdp_cd#
+		,lnr_trdp_nm = #lnr_trdp_nm#
+		,lnr_bkg_no = #lnr_bkg_no#
+		,rmk = #rmk#
+		,wh_instr_txt = #wh_instr_txt#
+		,cstms_instr_txt = #cstms_instr_txt#
+		,modi_usrid = #proc_usrid#
+		,modi_ofc_cd = #proc_ofccd#
+		,modi_tms = getdate ()
+		,cstms_cust_cd = #cstms_cust_cd#
+		,cstms_cust_nm = #cstms_cust_nm#
+		,cstms_cust_pic = #cstms_cust_pic#
+		,cstms_cust_phn = #cstms_cust_phn#
+		,cstms_cust_fax = #cstms_cust_fax#
+		,cut_off_dt_tm = #cut_off_dt_tm#
+		,exp_ref_no = #exp_ref_no#
+		,cust_cd = #cust_cd#
+		,cust_nm = #cust_nm#
+		,cust_pic = #cust_pic#
+		,cust_phn = #cust_phn#
+		,cust_fax = #cust_fax#
+		,cust_addr = #cust_addr#
+		,wh_cd = #wh_cd#
+		,wh_nm = #wh_nm#
+		,wh_pic = #wh_pic#
+		,wh_phn = #wh_phn#
+		,wh_fax = #wh_fax#
+		,wh_ref_no = #wh_ref_no#
+		,wh_dt_tm = #wh_dt_tm#
+		,trnk_vsl_cd = #trnk_vsl_cd#
+		,trnk_vsl_nm = #trnk_vsl_nm#
+		,cstms_tp_cd = #cstms_tp_cd#
+		,wh_to_tm = #wh_to_tm#
+		,cut_off_to_tm = #cut_off_to_tm#
+		,trnk_voy = #trnk_voy#
+		<!--#2045 hsk  -->
+		,drv_nm = #drv_nm#
+		,drv_phn = #drv_phn#
+		,trk_plat_no = #trk_plat_no#
+		,wh_lodg_instr_txt = #wh_lodg_instr_txt#
+
+		,cstms_cust_addr = #cstms_cust_addr#
+		,wh_addr = #wh_addr#
+		,cargo_tp_cd =#cargo_tp_cd#
+		<!-- OFVFOUR-7857[SENKO USA] Container Summary on Pickup & Delivery Order form -->
+		,cntr_info = CASE
+						WHEN ISNULL((SELECT OPT_VAL FROM TB_SYS_OPT WHERE OPT_KEY = 'WO_DEFAULT_CNTR_INFO'),'') = 'Y'
+							THEN (CASE
+									WHEN #cntr_info# = '' THEN (SELECT CNTR_INFO FROM TB_INTG_BL WHERE INTG_BL_SEQ = #intg_bl_seq#)
+									ELSE #cntr_info#
+									END)
+						ELSE #cntr_info#
+					END
+		,etd_dt_tm =#etd_dt_tm#
+		,eta_dt_tm =#eta_dt_tm#
+
+		<!--#2114-->
+		,biz_unit_trdp_cd = #biz_unit_trdp_cd#
+		,biz_unit_trdp_nm = #biz_unit_trdp_nm#
+		,prt_md_yn = #prt_md_yn#
+
+		WHERE wo_no = #wo_no#
+	</update>
+
+	<!-- Work Order 등록   -->
+	<insert id="insertWorkOrder" parameterClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickUpOrdDeliVO">
+	/*SecWorkOrderSQL > insertWorkOrder */
+	INSERT INTO tb_pd_ord(
+				 wo_no
+				,intg_bl_seq
+				,bnd_clss_cd
+				,wo_sts_cd
+				,wo_tp_cd
+				,pickup_trdp_cd	/*Pick-up*/
+				,pickup_trdp_nm
+				,pickup_trdp_addr
+				,pickup_pic
+				,pickup_phn
+				,pickup_fax
+				,pickup_ref_no
+				,pickup_dt_tm
+				,pickup_to_tm
+				,delivery_trdp_cd
+				,delivery_trdp_nm
+				,delivery_trdp_addr
+				,delivery_pic
+				,delivery_phn
+				,delivery_fax
+				,delivery_ref_no
+				,delivery_dt_tm
+				,delivery_to_tm
+				,return_trdp_cd
+				,return_trdp_nm
+				,return_trdp_addr
+				,return_pic
+				,return_phn
+				,return_fax
+				,return_ref_no
+				,return_dt_tm
+				,return_to_tm
+				,bill_to_trdp_cd
+				,bill_to_trdp_nm
+				,bill_to_trdp_addr
+				,bill_to_pic
+				,bill_to_phn
+				,bill_to_fax
+				,bill_to_ref_no
+				,trucker_trdp_cd
+				,trucker_trdp_nm
+				,trucker_trdp_addr
+				,trucker_pic
+				,trucker_phn
+				,trucker_fax
+				,pol_cd
+				,pod_cd
+				,cgo_itm_cmdt_cd
+				,cgo_itm_cmdt_nm
+				,cgo_pck_qty
+				,cgo_pck_ut_cd
+				,act_wgt_k
+				,act_wgt_l
+				,cgo_meas_m
+				,cgo_meas_f
+				,lnr_trdp_cd
+				,lnr_trdp_nm
+				,lnr_bkg_no
+				,rmk
+				,oth_seq
+				,rgst_usrid
+				,rgst_ofc_cd
+				,rgst_tms
+				,modi_usrid
+				,modi_ofc_cd
+				,modi_tms
+				,delt_flg
+				,bkg_seq
+				,wh_instr_txt
+				,cstms_instr_txt
+				,cstms_cust_cd
+				,cstms_cust_nm
+				,cstms_cust_pic
+				,cstms_cust_phn
+				,cstms_cust_fax
+				,cut_off_dt_tm
+				,exp_ref_no
+				,cust_cd
+				,cust_nm
+				,cust_pic
+				,cust_phn
+				,cust_fax
+				,cust_addr
+				,wh_cd
+				,wh_nm
+				,wh_pic
+				,wh_phn
+				,wh_fax
+				,wh_ref_no
+				,wh_dt_tm
+				,trnk_vsl_cd
+				,trnk_vsl_nm
+				,cstms_tp_cd
+				,wo.wh_to_tm
+				,wo.cut_off_to_tm
+				,wo.trnk_voy
+			    <!--#2045 hsk  -->
+				,drv_nm
+				,drv_phn
+				,trk_plat_no
+				,wh_lodg_instr_txt
+				,cstms_cust_addr
+				,wh_addr
+				,cargo_tp_cd
+				,cntr_info
+				,etd_dt_tm
+				,eta_dt_tm
+				<!-- #2114 -->
+				,biz_unit_trdp_cd
+				,biz_unit_trdp_nm
+				,prt_md_yn
+				
+				
+								
+				)
+		 VALUES (
+				 #wo_no#   				/*wo_no             */
+				,CASE WHEN(#intg_bl_seq#='') THEN NULL
+					  ELSE #intg_bl_seq#
+				 END   					/*intg_bl_seq       */
+				,#bnd_clss_cd#   		/*bnd_clss_cd       */
+				,#wo_sts_cd#   			/*wo_sts_cd         */
+				,#wo_tp_cd#   			/*wo_tp_cd         	*/
+				,#pickup_trdp_cd#   	/*pickup_trdp_cd  	*/
+				,#pickup_trdp_nm#   	/*pickup_trdp_nm  	*/
+				,#pickup_trdp_addr#   	/*pickup_trdp_addr  */
+				,#pickup_pic#   		/*pickup_pic      	*/
+				,#pickup_phn#   		/*pickup_phn  		*/
+				,#pickup_fax#   		/*pickup_fax  		*/
+				,#pickup_ref_no#   		/*pickup_ref_no     */
+				,#pickup_dt_tm#   		/*pickup_dt_tm    	*/
+				,#pickup_to_tm#   		/*pickup_to_tm    	*/
+				,#delivery_trdp_cd#   	/*delivery_trdp_cd 	*/
+				,#delivery_trdp_nm#   	/*delivery_trdp_nm 	*/
+				,#delivery_trdp_addr#	/*delivery_trdp_addr */
+				,#delivery_pic#   		/*dest_rout_pic     */
+				,#delivery_phn#   		/*delivery_phn 		*/
+				,#delivery_fax#   		/*delivery_fax 		*/
+				,#delivery_ref_no#   	/*delivery_ref_no   */
+				,#delivery_dt_tm#   	/*delivery_dt_tm    */
+				,#delivery_to_tm#   	/*delivery_to_tm    */
+				,#return_trdp_cd#   	/*return_trdp_cd    */
+				,#return_trdp_nm#   	/*return_trdp_nm    */
+				,#return_trdp_addr#   	/*return_trdp_addr  */
+				,#return_pic#   		/*return_pic     	*/
+				,#return_phn#   		/*return_phn     	*/
+				,#return_fax#   		/*return_fax     	*/
+				,#return_ref_no#		/*return_ref_no     */
+				,#return_dt_tm#			/*return_dt_tm      */
+				,#return_to_tm#			/*return_to_tm      */
+				,#bill_to_trdp_cd#   	/*bill_to_trdp_cd   */
+				,#bill_to_trdp_nm#   	/*bill_to_trdp_nm   */
+				,#bill_to_trdp_addr#   	/*bill_to_trdp_addr */
+				,#bill_to_pic#   		/*dest_rout_pic     */
+				,#bill_to_phn#   		/*delivery_phn 		*/
+				,#bill_to_fax#   		/*delivery_fax 		*/
+				,#bill_to_ref_no#   	/*delivery_ref_no   */
+				,#trucker_trdp_cd#   	/*trucker_trdp_cd  	*/
+				,#trucker_trdp_nm#   	/*trucker_trdp_nm  	*/
+				,#trucker_trdp_addr#   	/*trucker_trdp_addr  */
+				,#trucker_pic#   		/*trucker_pic      	*/
+				,#trucker_phn#   		/*trucker_fax  		*/
+				,#trucker_fax#   		/*trucker_fax  		*/
+				,#pol_cd#   			/*pol_cd            */
+				,#pod_cd#   			/*pod_cd            */
+				,#cgo_itm_cmdt_cd#   	/*cgo_itm_cmdt_cd   */
+				,#cgo_itm_cmdt_nm#   	/*cgo_itm_cmdt_nm   */
+				,#cgo_pck_qty#   		/*cgo_pck_qty       */
+				,#cgo_pck_ut_cd#   		/*cgo_pck_ut_cd     */
+				,#act_wgt_k#   			/*act_wgt_k         */
+				,#act_wgt_l#   			/*act_wgt_l         */
+				,#cgo_meas_m#   		/*cgo_meas_m        */
+				,#cgo_meas_f#   		/*cgo_meas_f        */
+				,#lnr_trdp_cd#   		/*lnr_trdp_cd       */
+				,#lnr_trdp_nm#   		/*lnr_trdp_nm       */
+				,#lnr_bkg_no#   		/*lnr_bkg_no        */
+				,#rmk#   				/*rmk               */
+				,#oth_seq#
+				,#proc_usrid#
+				,#proc_ofccd#
+				,getdate ()
+				,#proc_usrid#
+				,#proc_ofccd#
+				,getdate ()
+				,'N'
+				,#bkg_seq#
+				,#wh_instr_txt#
+				,#cstms_instr_txt#
+				,#cstms_cust_cd#
+				,#cstms_cust_nm#
+				,#cstms_cust_pic#
+				,#cstms_cust_phn#
+				,#cstms_cust_fax#
+				,#cut_off_dt_tm#
+				,#exp_ref_no#
+				,#cust_cd#
+				,#cust_nm#
+				,#cust_pic#
+				,#cust_phn#
+				,#cust_fax#
+				,#cust_addr#
+				,#wh_cd#
+				,#wh_nm#
+				,#wh_pic#
+				,#wh_phn#
+				,#wh_fax#
+				,#wh_ref_no#
+				,#wh_dt_tm#
+				,#trnk_vsl_cd#
+				,#trnk_vsl_nm#
+				,#cstms_tp_cd#
+				,#wh_to_tm#
+				,#cut_off_to_tm#
+				,#trnk_voy#
+				 <!--#2045 hsk  -->
+				,#drv_nm#
+				,#drv_phn#
+				,#trk_plat_no#
+				,#wh_lodg_instr_txt#
+				,#cstms_cust_addr#
+				,#wh_addr#
+				,#cargo_tp_cd#
+				,#cntr_info#
+				,#etd_dt_tm#
+				,#eta_dt_tm#			
+				<!-- #2114 -->
+				,#biz_unit_trdp_cd#
+				,#biz_unit_trdp_nm#
+				,#prt_md_yn#
+				
+								
+				)
+	</insert>
+
+	<!-- Work Order 삭제   -->
+	<update id="deleteWorkOrder" parameterClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickUpOrdDeliVO">
+	/** SecWorkOrderSQL > deleteWorkOrder */
+	UPDATE tb_pd_ord
+	   SET delt_flg = 'Y'
+		  ,modi_usrid = #proc_usrid#
+		  ,modi_ofc_cd = #proc_ofccd#
+		  ,modi_tms = GETUTCDATE()
+	 WHERE wo_no = #wo_no#
+	</update>
+
+	<!-- Work Order Container List 삭제   -->
+	<update id="deleteWO_CNTR_LIST_ALL" parameterClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickUpOrdDeliVO">
+	/*SecWorkOrderSQL > deleteWO_CNTR_LIST_ALL */
+	UPDATE tb_wo_cntr_list
+	   SET delt_flg = 'Y'
+		  ,modi_usrid = #proc_usrid#
+		  ,modi_ofc_cd = #proc_ofccd#
+		  ,modi_tms = GETUTCDATE()
+	 WHERE wo_no = #wo_no#
+	</update>
+
+	<!-- List Sequence생성   -->
+	<select id="selectWO_CNTR_LIST_SEQ" resultClass="Integer">
+	 /*  SecWorkOrderSQL > selectWO_CNTR_LIST_SEQ */
+		SELECT  ISNULL(max(seq), 0)+1
+		  FROM  tb_wo_cntr_list
+		 WHERE  wo_no = #value#
+	</select>
+
+	<!-- Work Order Container List를 등록함   -->
+	<insert id="insertWO_CNTR_LIST" parameterClass="WoCntrLstVO">
+	/*SecWorkOrderSQL > insertWO_CNTR_LIST */
+		INSERT INTO tb_wo_cntr_list(
+			wo_no,          seq,
+			cntr_no,     	intg_bl_seq,
+			rgst_usrid,     rgst_ofc_cd,     rgst_tms,
+			modi_usrid,     modi_ofc_cd,     modi_tms,         delt_flg, 
+			bkg_seq
+		) SELECT
+			#wo_no#,        
+			(SELECT  isnull(max(seq)+1, 1) FROM  tb_wo_cntr_list WHERE wo_no = #wo_no#),
+			#cntr_no#,   	#intg_bl_seq#,
+			#proc_usrid#,   #proc_ofccd#,    getdate(),
+			#proc_usrid#,   #proc_ofccd#,    GETUTCDATE(),        'N', 
+			#bkg_seq#
+	</insert>
+
+    <!-- Customer/Carrier Booking 용 Work Order Container List를 등록함   -->
+<!-- 	<insert id="insert_Bkg_WO_CNTR_LIST" parameterClass="WoCntrLstVO">
+	/*SecWorkOrderSQL > insert_Bkg_WO_CNTR_LIST */
+		INSERT INTO tb_wo_cntr_list(
+			wo_no,          seq,
+			cntr_no,     	intg_bl_seq,
+			rgst_usrid,     rgst_ofc_cd,     rgst_tms,
+			modi_usrid,     modi_ofc_cd,     modi_tms,         delt_flg
+		) SELECT
+			#wo_no#,        
+			(SELECT  isnull(max(seq)+1, 1) FROM  tb_wo_cntr_list WHERE wo_no = #wo_no#),
+			#cntr_no#,   	#bkg_seq#,
+			#proc_usrid#,   #proc_ofccd#,    getdate(),
+			#proc_usrid#,   #proc_ofccd#,    GETUTCDATE(),        'N'
+
+	</insert>
+ -->
+
+	<!-- Work Order Container List 수정   -->
+	<update id="updateWO_CNTR_LIST" parameterClass="WoCntrLstVO">
+	 /*  SecWorkOrderSQL > updateWO_CNTR_LIST */
+		UPDATE  tb_wo_cntr_list
+		   SET  cntr_no = #cntr_no#,   
+				modi_usrid = #proc_usrid#,     modi_ofc_cd  = #proc_ofccd#,      modi_tms = GETUTCDATE()
+		 WHERE  wo_no = #wo_no# 
+		 	AND seq = #seq#
+	</update>
+
+	<!-- Work Order Container List 삭제   -->
+	<delete id="deleteWO_CNTR_LIST" parameterClass="String">
+	 /*  SecWorkOrderSQL > deleteWO_CNTR_LIST */
+		DELETE  tb_wo_cntr_list
+		 WHERE  wo_no = #value#
+	</delete>
+
+	<!-- Work Order Container List를 수정함   -->
+	<select id="selectWO_CNTR_LIST" parameterClass="HashMap" resultClass="WoCntrLstVO">
+	 /*  SecWorkOrderSQL > selectWO_CNTR_LIST */
+		SELECT wo_no,          seq,
+			   cntr_no,     cntr_tpsz_cd,    cntr_qty,     cntr_list_seq
+		 FROM  tb_wo_cntr_list
+		WHERE  wo_no = #wo_no# AND delt_flg = 'N'
+		ORDER BY seq ASC
+	</select>
+	
+	<!-- Work Order Container List를 조회함   -->
+	<select id="selectBlCntrList" parameterClass="HashMap" resultClass="WoCntrLstVO">
+	 /*  SecWorkOrderSQL > selectBlCntrList */
+		SELECT 
+			MAX(BL.BIZ_CLSS_CD) BIZ_CLSS_CD,
+			MAX(BL.AIR_SEA_CLSS_CD) AIR_SEA_CLSS_CD,
+			BL_CNTR.CNTR_NO AS CNTR_NO,
+			WO_CNTR.CNTR_NO AS WO_CNTR_NO,
+			BL_CNTR.CNTR_TPSZ_CD AS CNTR_TPSZ_CD,
+			BL_CNTR.CGO_PCK_QTY AS CGO_PCK_QTY,
+			(SELECT pk.pck_nm FROM  tb_pck_ut_cd pk WHERE  pk.use_flg = 'Y' and pk.pck_ut_cd = BL_CNTR.CGO_PCK_UT ) AS CGO_PCK_UT,
+			BL_CNTR.CGO_WGT AS CGO_WGT,
+			BL_CNTR.CGO_MEAS AS CGO_MEAS,
+			BL_CNTR.VOL_MEAS AS VOL_MEAS,
+			BL_CNTR.SEAL_NO1 AS SEAL_NO1,
+			BL_CNTR.PICKUP_NUMBER AS PICKUP_NUMBER,
+			CASE WHEN WO_CNTR.CNTR_NO IS NULL THEN '0' ELSE  CASE WHEN BL_CNTR.CNTR_NO = WO_CNTR.cntr_no THEN '1' ELSE '0' END END AS CHK	 
+		 FROM tb_cntr_list BL_CNTR
+		left join tb_wo_cntr_list WO_CNTR ON BL_CNTR.INTG_BL_SEQ = WO_CNTR.INTG_BL_SEQ 
+			AND BL_CNTR.CNTR_NO = WO_CNTR.CNTR_NO 
+			AND WO_CNTR.DELT_FLG = 'N'
+			AND WO_CNTR.WO_NO = #wo_no#
+		join TB_INTG_BL BL ON BL_CNTR.INTG_BL_SEQ = BL.INTG_BL_SEQ
+		WHERE BL_CNTR.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		      AND BL_CNTR.DELT_FLG = 'N'
+		GROUP BY 	
+			BL_CNTR.CNTR_NO,
+			WO_CNTR.CNTR_NO,
+			BL_CNTR.CNTR_TPSZ_CD,
+			BL_CNTR.CGO_PCK_QTY,
+			BL_CNTR.CGO_PCK_UT,
+			BL_CNTR.CGO_WGT,
+			BL_CNTR.CGO_MEAS,
+			BL_CNTR.VOL_MEAS,
+			BL_CNTR.SEAL_NO1,
+			BL_CNTR.PICKUP_NUMBER
+	</select>
+	
+	
+	<!-- Customer Booking Entry의 Container List 조회  -->
+	<select id="selectCustBkgCntrList" parameterClass="HashMap" resultClass="WoCntrLstVO">
+        SELECT 
+		BKG_LIST.cntr_no	
+		,BKG_LIST.cntr_tpsz_cd		
+		,BKG_LIST.seal_no AS SEAL_NO1
+		,cgo_pgk_qty AS cgo_pck_qty
+		,(SELECT pk.pck_nm FROM  tb_pck_ut_cd pk WHERE  pk.use_flg = 'Y' and pk.pck_ut_cd = BKG_LIST.cgo_pck_ut_cd ) AS CGO_PCK_UT
+		,cgo_kgs_wgt AS cgo_wgt
+		,cgo_cbm_qty AS cgo_meas
+		,NULL AS pickup_number	
+		,BKG_LIST.BKG_SEQ	
+		<isNotEmpty property="wo_no">
+		,CASE 
+			WHEN ISNULL(WO_CNTR.CNTR_NO,'') = '' THEN '0'
+			WHEN BKG_LIST.CNTR_NO = WO_CNTR.CNTR_NO THEN '1'
+			ELSE '0'
+		END AS CHK
+		</isNotEmpty>
+		<isEmpty property="wo_no">
+		, '0' as CHK
+		</isEmpty>
+		
+		FROM TB_BKG_CNTR_LIST BKG_LIST 
+		<isNotEmpty property="wo_no">
+			LEFT JOIN TB_WO_CNTR_LIST WO_CNTR
+				ON BKG_LIST.BKG_SEQ = WO_CNTR.BKG_SEQ	
+				AND BKG_LIST.CNTR_NO = WO_CNTR.CNTR_NO
+		
+				AND WO_CNTR.WO_NO = #wo_no#
+		</isNotEmpty>
+		WHERE 1=1
+  		and BKG_LIST.bkg_seq =#bkg_seq#
+		and BKG_LIST.DELT_FLG='N'
+        
+    </select>
+    
+	
+	
+	<!-- Work Order Other Container List를 조회함   -->
+	<select id="selectOthCntrList" parameterClass="HashMap" resultClass="WoCntrLstVO">
+	 /*  SecWorkOrderSQL > selectOthCntrList */
+		SELECT 
+			BL_CNTR.CNTR_NO AS CNTR_NO,
+			WO_CNTR.CNTR_NO AS WO_CNTR_NO,
+			BL_CNTR.CNTR_TPSZ_CD AS CNTR_TPSZ_CD,
+			BL_CNTR.CGO_PCK_QTY AS CGO_PCK_QTY,
+			'' AS CGO_PCK_UT,
+			BL_CNTR.CGO_WGT AS CGO_WGT,
+			BL_CNTR.CGO_MEAS AS CGO_MEAS,
+			'' AS VOL_MEAS,
+			BL_CNTR.SEAL_NO1 AS SEAL_NO1,
+			'' AS PICKUP_NUMBER,
+			CASE WHEN WO_CNTR.CNTR_NO IS NULL THEN '0' ELSE  CASE WHEN BL_CNTR.CNTR_NO = WO_CNTR.cntr_no THEN '1' ELSE '0' END END AS CHK	 
+		 FROM TB_OTH_SALES_CNTR BL_CNTR
+		left join tb_wo_cntr_list WO_CNTR ON BL_CNTR.OTH_SEQ = WO_CNTR.INTG_BL_SEQ 
+			AND BL_CNTR.CNTR_NO = WO_CNTR.CNTR_NO 
+			AND WO_CNTR.DELT_FLG = 'N'
+			AND WO_CNTR.WO_NO = #wo_no#
+		WHERE BL_CNTR.OTH_SEQ = #oth_seq#
+		GROUP BY 	
+			BL_CNTR.CNTR_NO,
+			WO_CNTR.CNTR_NO,
+			BL_CNTR.CNTR_TPSZ_CD,
+			BL_CNTR.CGO_PCK_QTY,
+			BL_CNTR.SEAL_NO1,
+			BL_CNTR.CGO_WGT,
+			BL_CNTR.CGO_MEAS
+	</select>
+	
+	<!-- Work Order의 Container List를 조회함   -->
+	<select id="selectWoCntrList" parameterClass="HashMap" resultClass="WoCntrLstVO">
+	 /*  SecWorkOrderSQL > selectWoCntrList */
+		SELECT CNTR_NO FROM 
+		tb_wo_cntr_list
+		WHERE 1=1 
+            <isNotNull property="intg_bl_seq">
+				AND INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+            </isNotNull> 
+            
+            <isNotNull property="bkg_seq">
+				AND BKG_SEQ = #bkg_seq#		
+            </isNotNull> 
+		AND DELT_FLG = 'N'
+		GROUP BY CNTR_NO		
+	</select>
+
+	<!-- NODE의 담당자 정보를 조회함  -->
+	<select id="selectNOD_PIC_INFO" parameterClass="HashMap" resultClass="com.clt.apps.fis.mdm.mcm.office.dto.NodVO">
+	 /*  SecWorkOrderSQL > selectNOD_PIC_INFO */
+		SELECT  pic_nm,   pic_phn,  pic_fax,  nod_addr
+		  FROM  tb_nod
+		 WHERE  nod_cd = #node_cd# AND delt_flg = 'N'
+	</select>
+
+
+	<!-- Pickup Delivery Instruction 화면 : Other 쪽에서 넘어왔을때 Other Data 초기화면에 표시하기 위해   -->
+	<select id="selectOtherInfo" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickUpOrdDeliVO">
+		/* SecWorkOrderSQL > selectOtherInfo */
+		SELECT a1.oth_seq
+			  ,a1.ref_no bl_no
+			  ,a1.hbl_no
+			  ,a1.cust_cd bill_to_trdp_cd
+			  ,a1.cust_nm bill_to_trdp_nm
+			  ,(select lgl_addr from tb_trdp where trdp_cd = a1.cust_cd ) as bill_to_trdp_addr
+			  ,'G' bnd_clss_cd /*BL:B, Oth:G*/
+			  ,'NA' wo_sts_cd
+			  ,'0' intg_bl_seq
+			  ,a1.ofc_cd      
+		  FROM tb_oth_sales a1
+		 WHERE oth_seq = #s_seq#
+	</select>
+
+	<select id="selectOtherInfo2" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickUpOrdDeliVO">
+		/* SecWorkOrderSQL > selectOtherInfo2 */
+		SELECT a1.oth_seq
+			  ,a1.hbl_no bl_no
+			  ,a1.cust_cd bill_to_trdp_cd
+			  ,a1.cust_nm bill_to_trdp_nm
+			  ,(SELECT ISNULL(BILL_TO.LGL_ADDR,'') + 
+		                	(CASE WHEN ISNULL(BILL_TO.CITY_NM,'') != '' AND ISNULL(BILL_TO.STATE_CD,'') != '' AND ISNULL(BILL_TO.REP_ZIP,'') != '' THEN CHAR(13) + BILL_TO.CITY_NM + ', ' + BILL_TO.STATE_CD + ' ' + BILL_TO.REP_ZIP
+				  	      WHEN ISNULL(BILL_TO.CITY_NM,'') != '' AND ISNULL(BILL_TO.STATE_CD,'') != '' AND ISNULL(BILL_TO.REP_ZIP,'') = '' THEN CHAR(13) + BILL_TO.CITY_NM + ' ' + BILL_TO.STATE_CD
+					      WHEN ISNULL(BILL_TO.CITY_NM,'') != '' AND ISNULL(BILL_TO.STATE_CD,'') = '' AND ISNULL(BILL_TO.REP_ZIP,'') = '' THEN CHAR(13) + BILL_TO.CITY_NM
+					      WHEN ISNULL(BILL_TO.CITY_NM,'') != '' AND ISNULL(BILL_TO.STATE_CD,'') = '' AND ISNULL(BILL_TO.REP_ZIP,'') != '' THEN CHAR(13) + BILL_TO.CITY_NM + ', ' + BILL_TO.REP_ZIP
+					      ELSE '' END)
+			           FROM TB_TRDP BILL_TO
+			          WHERE a1.cust_cd = BILL_TO.TRDP_CD) AS bill_to_trdp_addr
+			  ,'G' bnd_clss_cd /*BL:B, Oth:G*/
+			  ,'NA' wo_sts_cd
+			  ,'0' intg_bl_seq
+			  , a1.ref_no									/* 20130410 OJG*/
+			  , a1.pck_qty		AS cgo_pck_qty		/* 20130410 OJG*/
+			  , a1.pck_ut_cd 	AS cgo_pck_ut_cd		/* 20130410 OJG*/
+			  , a1.grs_wgt_k	AS act_wgt_k			/* 20130410 OJG*/
+			  , a1.grs_wgt_l		AS act_wgt_l			/* 20130410 OJG*/
+			  , CONVERT(NUMERIC(16,6), ROUND(a1.meas_m, 3)) AS cgo_meas_m		/* 20130410 OJG*/
+			  , CONVERT(NUMERIC(16,6), ROUND(a1.meas_f, 3)) AS cgo_meas_f			/* 20130410 OJG*/
+			  , a1.pol_cd									/* 20130410 OJG*/
+			  , a1.pol_nm									/* 20130410 OJG*/
+			  , a1.pod_cd									/* 20130410 OJG*/
+			  , a1.pod_nm									/* 20130410 OJG*/
+			  , a1.cmdt_cd 		AS cgo_itm_cmdt_cd	/* 20130410 OJG*/
+			  , a1.cmdt_nm 	AS cgo_itm_cmdt_nm	/* 20130410 OJG*/
+			  , (SELECT  B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  a1.cust_cd AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PIC		/* 20130410 OJG*/
+			  , (SELECT  B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= a1.cust_cd AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PHN	/* 20130410 OJG*/
+			  , (SELECT  B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  a1.cust_cd AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_FAX 	/* 20130410 OJG*/
+			  
+			  <!-- #335 [IMPEX] OEM WORK ORDER LOGIC -->
+			  , a1.pu_loc_cd PICKUP_TRDP_CD
+			  , (SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  a1.pu_loc_cd AND DELT_FLG ='N') PICKUP_TRDP_NM
+			  , (SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = a1.pu_loc_cd ) PICKUP_TRDP_ADDR
+			  , (SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = a1.pu_loc_cd AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PIC
+			  , (SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = a1.pu_loc_cd AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PHN
+			  , (SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = a1.pu_loc_cd AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_FAX
+			  
+			  , a1.door_loc_cd DELIVERY_TRDP_CD
+			  , (SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  a1.door_loc_cd AND DELT_FLG ='N') DELIVERY_TRDP_NM
+			  , (SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = a1.door_loc_cd ) DELIVERY_TRDP_ADDR
+			  , (SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = a1.door_loc_cd AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') DELIVERY_PIC
+			  , (SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = a1.door_loc_cd AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') DELIVERY_PHN
+			  , (SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = a1.door_loc_cd AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') DELIVERY_FAX
+			   <!--#1777  --> 
+			    ,a1.CUST_CD
+		        ,a1.CUST_NM
+		        ,(SELECT LGL_ADDR FROM TB_TRDP WHERE TRDP_CD = a1.CUST_CD) AS CUST_ADDR
+		        ,(SELECT PIC_NM FROM TB_TRDP_CNTC_PSON WHERE TRDP_CD = a1.CUST_CD and REP_FLG='Y') AS CUST_PIC
+		        ,(SELECT PIC_PHN FROM TB_TRDP_CNTC_PSON WHERE TRDP_CD = a1.CUST_CD and REP_FLG='Y') AS CUST_PHN
+		        ,(SELECT PIC_FAX FROM TB_TRDP_CNTC_PSON WHERE TRDP_CD = a1.CUST_CD and REP_FLG='Y') AS CUST_FAX
+		        ,a1.ofc_cd      
+		        
+		        ,'' WH_TRDP_OFC_FM_HR
+			    ,'' WH_TRDP_OFC_TO_HR
+			    ,(SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  a1.pu_loc_cd AND DELT_FLG ='N') PICKUP_TRDP_OFC_FM_HR
+			    ,(SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  a1.pu_loc_cd AND DELT_FLG ='N') PICKUP_TRDP_OFC_TO_HR
+			    ,(SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  a1.door_loc_cd AND DELT_FLG ='N') DELIVERY_TRDP_OFC_FM_HR
+			    ,(SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  a1.door_loc_cd AND DELT_FLG ='N') DELIVERY_TRDP_OFC_TO_HR
+			    ,'' RETURN_TRDP_OFC_FM_HR
+			    ,'' RETURN_TRDP_OFC_TO_HR
+			    
+			    <!-- OFVFOUR-6168 [FFN] B/L Entry 화면에서 Pickup Delivery Order 생성 후 문의 -->
+		        ,a1.vsl_flt as trnk_vsl_nm
+				,a1.etd_dt_tm as etd_dt_tm
+				,a1.eta_dt_tm as eta_dt_tm
+		  FROM tb_oth_sales a1
+		 WHERE 1=1
+		 AND a1.delt_flg = 'N'
+		 AND ref_no = #oth_ref_no#
+	</select>
+
+	<!-- Work Order BL 요약 정보를 리턴함   -->
+	<select id="selectWO_BL_INFO2" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoOrdVO">
+		/*  SecWorkOrderSQL.xml > selectWO_BL_INFO2 */
+		SELECT  TOP 1
+				BL.INTG_BL_SEQ,
+				BL.BKG_NO,
+				BL.BL_NO,
+				BL.REF_NO  BILL_TO_REF_NO,
+				BL.REP_CMDT_CD CGO_ITM_CMDT_CD,
+				BL.REP_CMDT_NM CGO_ITM_CMDT_NM,
+				BL.PCK_QTY,
+				BL.PCK_UT_CD,
+				PCD.PCK_NM AS PCK_UT_NM,
+				BL.GRS_WGT AS ACT_WGT_K,
+				BL.GRS_WGT1 ACT_WGT_L,
+				BL.GRS_WGT_UT_CD,
+				BL.CHG_WGT,
+				BL.CHG_WGT_UT_CD,
+				BL.ACT_WGT,
+				BL.ACT_WGT_UT_CD,
+				BL.MEAS CGO_MEAS_M,
+				BL.MEAS1 CGO_MEAS_F,
+				BL.MEAS_UT_CD,
+				BL.POR_CD,
+				'' AS POR_NOD_CD,
+				BL.POR_NM,
+				BL.POL_CD,
+				BL.POL_NOD_CD,
+				BL.POL_NM,
+				BL.POD_CD,
+				BL.POD_NOD_CD,
+				BL.POD_NM,
+				BL.DEL_CD,
+				'' AS DEL_NOD_CD,
+				BL.DEL_NM,
+				BL.ISS_LOC_CD,
+				BL.ISS_LOC_NM,
+				BL.PAY_LOC_CD,
+				BL.PAY_LOC_NM,
+				BL.FNL_DEST_LOC_CD,
+				'' AS FNL_DEST_NOD_CD,
+				BL.FNL_DEST_LOC_NM,
+				BL.CGO_RCV_DT_TM,
+				BL.CFS_LOC_CD,
+				BL.CFS_NOD_CD,
+				BL.DE_DUE_DT,
+				BL.PRE_VSL_CD,
+				BL.PRE_VSL_NM,
+				BL.PRE_VOY,
+				BL.TRNK_VSL_CD,
+				BL.TRNK_VSL_NM,
+				BL.TRNK_VOY,
+				BL.CGO_CLZ_DT_TM,
+				BL.OBRD_DT_TM,
+				BL.ETD_DT_TM,
+				BL.ETA_DT_TM,
+				BL.LNR_BKG_NO,
+				LNR.TRDP_CD AS LNR_TRDP_CD,
+				LNR.TRDP_NM AS LNR_TRDP_NM,
+				BL.RMK,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N')AS BILL_TO_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N') AS BILL_TO_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.REF_OFC_CD+'MAINCMP'  ) AS BILL_TO_TRDP_ADDR,
+			   (SELECT  B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PIC,
+			   (SELECT  B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PHN,
+			   (SELECT  B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_FAX,
+			   (SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_CD,
+			   (SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_NM,
+			   (SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				  FROM TB_TRDP A 
+				 WHERE A.TRDP_CD = TRK.TRDP_CD ) AS TRUCKER_TRDP_ADDR,
+			   (SELECT B.PIC_NM  FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PIC,
+			   (SELECT B.PIC_PHN FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PHN,
+			   (SELECT B.PIC_FAX FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_FAX,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN MBL.PU_TRDP_CD ELSE '' END AS PICKUP_TRDP_CD,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = MBL.PU_TRDP_CD AND DELT_FLG ='N') ELSE '' END AS PICKUP_TRDP_NM,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN 
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+			       FROM TB_TRDP A
+ 			      WHERE A.TRDP_CD = MBL.PU_TRDP_CD) ELSE '' END AS PICKUP_TRDP_ADDR,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = MBL.PU_TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') ELSE '' END AS PICKUP_PIC,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = MBL.PU_TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') ELSE '' END AS PICKUP_PHN,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = MBL.PU_TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') ELSE '' END AS PICKUP_FAX,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN DEL.TRDP_CD ELSE '' END AS DELIVERY_TRDP_CD,
+                CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN DEL.TRDP_NM ELSE '' END AS DELIVERY_TRDP_NM,
+                CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = DEL.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') ELSE '' END AS DELIVERY_PIC,
+  				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT B.PIC_PHN  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = DEL.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') ELSE '' END AS DELIVERY_PHN,
+  				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT B.PIC_FAX  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = DEL.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') ELSE '' END AS DELIVERY_FAX,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN 
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+			       FROM TB_TRDP A 
+ 			      WHERE A.TRDP_CD = DEL.TRDP_CD) ELSE '' END AS DELIVERY_TRDP_ADDR,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN MBL.RCV_WH_CD ELSE '' END AS RETURN_TRDP_CD,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = MBL.RCV_WH_CD AND DELT_FLG ='N') ELSE '' END AS RETURN_TRDP_NM,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN 
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+			       FROM TB_TRDP A 
+ 			      WHERE A.TRDP_CD = MBL.RCV_WH_CD) ELSE '' END AS RETURN_TRDP_ADDR,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = MBL.RCV_WH_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') ELSE '' END AS RETURN_PIC,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = MBL.RCV_WH_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') ELSE '' END AS RETURN_PHN,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = MBL.RCV_WH_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') ELSE '' END AS RETURN_FAX,
+				'' WH_TRDP_OFC_FM_HR,
+				'' WH_TRDP_OFC_TO_HR,
+		        CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD = MBL.PU_TRDP_CD AND DELT_FLG ='N') ELSE '' END AS PICKUP_TRDP_OFC_FM_HR,
+		        CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD = MBL.PU_TRDP_CD AND DELT_FLG ='N') ELSE '' END AS PICKUP_TRDP_OFC_TO_HR,
+		        CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD = DEL.TRDP_CD AND DELT_FLG ='N') ELSE '' END AS DELIVERY_TRDP_OFC_FM_HR,
+		        CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD = DEL.TRDP_CD AND DELT_FLG ='N') ELSE '' END AS DELIVERY_TRDP_OFC_TO_HR,
+				CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD = MBL.RCV_WH_CD AND DELT_FLG ='N') ELSE '' END AS RETURN_TRDP_OFC_FM_HR,
+		        CASE WHEN BL.AIR_SEA_CLSS_CD = 'S' AND BND.BND_CLSS_CD = 'O' AND BL.BIZ_CLSS_CD = 'H' THEN (SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD = MBL.RCV_WH_CD AND DELT_FLG ='N') ELSE '' END AS RETURN_TRDP_OFC_TO_HR
+		   FROM TB_INTG_BL BL
+		   JOIN TB_ADD_INFO_BND BND
+			 ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ
+		   LEFT OUTER JOIN TB_PCK_UT_CD PCD
+			 ON BL.PCK_UT_CD   = PCD.PCK_UT_CD
+			AND PCD.DELT_FLG = 'N'
+		   LEFT OUTER JOIN TB_BL_PRNR LNR
+			 ON BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ
+			AND LNR.BL_TRDP_TP_CD = 'L01' AND LNR.DELT_FLG = 'N'
+		   LEFT OUTER JOIN TB_BL_PRNR ACT
+			 ON BL.INTG_BL_SEQ = ACT.INTG_BL_SEQ
+			AND ACT.BL_TRDP_TP_CD = 'S02'
+			AND ACT.DELT_FLG = 'N'
+		   LEFT OUTER JOIN TB_BL_PRNR TRK
+			 ON BL.INTG_BL_SEQ = TRK.INTG_BL_SEQ
+			AND TRK.BL_TRDP_TP_CD = 'T02'
+			AND TRK.DELT_FLG = 'N'
+		   LEFT OUTER JOIN TB_BL_PRNR DEL            
+			 ON BL.INTG_BL_SEQ = DEL.INTG_BL_SEQ  
+			AND DEL.BL_TRDP_TP_CD = 'S03' 
+			AND DEL.DELT_FLG = 'N'     
+		   LEFT OUTER JOIN TB_INTG_BL_RLT RLT
+            ON  BL.INTG_BL_SEQ = RLT.INTG_BL_SEQ AND RLT.DELT_FLG = 'N'        
+		   LEFT OUTER JOIN TB_INTG_BL MBL
+            ON  RLT.RLT_INTG_BL_SEQ = MBL.INTG_BL_SEQ AND MBL.BIZ_CLSS_CD = 'M' AND MBL.DELT_FLG = 'N'
+		  WHERE 1=1
+			AND BL.DELT_FLG = 'N'
+		<isNotEmpty property="biz_clss_cd">
+			 AND BL.BIZ_CLSS_CD = #biz_clss_cd#
+		</isNotEmpty>
+		<isNotEmpty property="intg_bl_seq">
+			AND BL.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		</isNotEmpty>
+		<isEmpty property="intg_bl_seq">
+			<isNotEmpty property="bl_no">
+			 AND BL.BL_NO = #bl_no#
+			</isNotEmpty>
+			<isNotEmpty property="mbl_no">
+			 AND BL.BL_NO = #mbl_no#
+			</isNotEmpty>
+			<isNotEmpty property="ref_no">
+			 AND BL.REF_NO = #ref_no#
+			</isNotEmpty>
+		</isEmpty>
+	</select>
+
+	<!-- Work Order BL 요약 정보를 리턴함   -->
+	<select id="selectWo_Bl_Info_Oem" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoOrdVO">
+		/*  SecWorkOrderSQL.xml > selectWo_Bl_Info_Oem */
+		SELECT  TOP 1
+				BL.INTG_BL_SEQ,
+				BL.BKG_NO,
+				BL.BL_NO,
+				BL.REF_NO  BILL_TO_REF_NO,
+				BL.REP_CMDT_CD CGO_ITM_CMDT_CD,
+				BL.REP_CMDT_NM CGO_ITM_CMDT_NM,
+				BL.PCK_QTY,
+				BL.PCK_UT_CD,
+				PCD.PCK_NM AS PCK_UT_NM,
+				BL.GRS_WGT AS ACT_WGT_K,
+				BL.GRS_WGT1 ACT_WGT_L,
+				BL.GRS_WGT_UT_CD,
+				BL.CHG_WGT,
+				BL.CHG_WGT_UT_CD,
+				BL.ACT_WGT,
+				BL.ACT_WGT_UT_CD,
+				BL.MEAS CGO_MEAS_M,
+				BL.MEAS1 CGO_MEAS_F,
+				BL.MEAS_UT_CD,
+				BL.POR_CD,
+				'' AS POR_NOD_CD,
+				BL.POR_NM,
+				BL.POL_CD,
+				BL.POL_NOD_CD,
+				BL.POL_NM,
+				BL.POD_CD,
+				BL.POD_NOD_CD,
+				BL.POD_NM,
+				BL.DEL_CD,
+				'' AS DEL_NOD_CD,
+				BL.DEL_NM,
+				BL.ISS_LOC_CD,
+				BL.ISS_LOC_NM,
+				BL.PAY_LOC_CD,
+				BL.PAY_LOC_NM,
+				BL.FNL_DEST_LOC_CD,
+				'' AS FNL_DEST_NOD_CD,
+				BL.FNL_DEST_LOC_NM,
+				BL.CGO_RCV_DT_TM,
+				BL.CFS_LOC_CD,
+				BL.CFS_NOD_CD,
+				BL.DE_DUE_DT,
+				BL.PRE_VSL_CD,
+				BL.PRE_VSL_NM,
+				BL.PRE_VOY,
+				BL.TRNK_VSL_CD,
+				BL.TRNK_VSL_NM,
+				BL.TRNK_VOY,
+				BL.CGO_CLZ_DT_TM,
+				BL.OBRD_DT_TM,
+				BL.ETD_DT_TM,
+				BL.ETA_DT_TM,
+				BL.LNR_BKG_NO,
+				LNR.TRDP_CD AS LNR_TRDP_CD,
+				LNR.TRDP_NM AS LNR_TRDP_NM,
+				BL.RMK,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N')AS BILL_TO_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N') AS BILL_TO_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.REF_OFC_CD+'MAINCMP'  ) AS BILL_TO_TRDP_ADDR,
+				(SELECT  B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PIC,
+				(SELECT  B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PHN,
+				(SELECT  B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_FAX,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A 
+				  WHERE A.TRDP_CD = TRK.TRDP_CD ) AS TRUCKER_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PIC,
+				(SELECT B.PIC_PHN FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PHN,
+				(SELECT B.PIC_FAX FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_FAX,
+				 BL.PU_TRDP_CD PICKUP_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  BL.PU_TRDP_CD AND DELT_FLG ='N')PICKUP_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.PU_TRDP_CD ) PICKUP_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.PU_TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.PU_TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.PU_TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_FAX,
+				 '' DELIVERY_TRDP_CD,
+				 '' DELIVERY_TRDP_NM,
+				 '' DELIVERY_TRDP_ADDR,
+				 '' DELIVERY_PIC,
+				 '' DELIVERY_PHN,
+				 '' DELIVERY_FAX,
+				 BL.RCV_WH_CD RETURN_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  BL.RCV_WH_CD AND DELT_FLG ='N') RETURN_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.RCV_WH_CD ) RETURN_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.RCV_WH_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') RETURN_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.RCV_WH_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') RETURN_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.RCV_WH_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') RETURN_FAX,
+				'' WH_TRDP_OFC_FM_HR,
+				'' WH_TRDP_OFC_TO_HR,
+				(SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  BL.PU_TRDP_CD AND DELT_FLG ='N') PICKUP_TRDP_OFC_FM_HR,
+				(SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  BL.PU_TRDP_CD AND DELT_FLG ='N') PICKUP_TRDP_OFC_TO_HR,	 
+				'' DELIVERY_TRDP_OFC_FM_HR,
+				'' DELIVERY_TRDP_OFC_TO_HR,   
+				(SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  BL.RCV_WH_CD  AND DELT_FLG ='N') RETURN_TRDP_OFC_FM_HR,
+				(SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  BL.RCV_WH_CD  AND DELT_FLG ='N') RETURN_TRDP_OFC_TO_HR	 
+			FROM TB_INTG_BL BL
+			JOIN TB_ADD_INFO_BND BND
+			  ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ
+			LEFT OUTER JOIN TB_PCK_UT_CD PCD
+			  ON BL.PCK_UT_CD   = PCD.PCK_UT_CD
+			 AND PCD.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR LNR
+			  ON BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ
+			 AND LNR.BL_TRDP_TP_CD = 'L01' AND LNR.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR ACT
+			  ON BL.INTG_BL_SEQ = ACT.INTG_BL_SEQ
+			 AND ACT.BL_TRDP_TP_CD = 'S02'
+			 AND ACT.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR TRK
+			  ON BL.INTG_BL_SEQ = TRK.INTG_BL_SEQ
+			 AND TRK.BL_TRDP_TP_CD = 'T02'
+			 AND TRK.DELT_FLG = 'N'
+		   WHERE 1=1
+			 AND BL.DELT_FLG = 'N'
+		<isNotEmpty property="biz_clss_cd">
+			 AND BL.BIZ_CLSS_CD = #biz_clss_cd#
+		</isNotEmpty>
+		<isNotEmpty property="intg_bl_seq">
+			 AND BL.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		</isNotEmpty>
+		<isEmpty property="intg_bl_seq">
+			<isNotEmpty property="bl_no">
+			 AND BL.BL_NO = #bl_no#
+			</isNotEmpty>
+			<isNotEmpty property="mbl_no">
+			 AND BL.BL_NO = #mbl_no#
+			</isNotEmpty>
+			<isNotEmpty property="ref_no">
+			 AND BL.REF_NO = #ref_no#
+			</isNotEmpty>
+		</isEmpty>
+	</select>
+
+	<!-- Work Order BL 요약 정보를 리턴함   -->
+	<select id="selectWo_Bl_Info_Oim" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoOrdVO">
+		/*  SecWorkOrderSQL.xml > selectWo_Bl_Info_Oim */
+		SELECT  TOP 1
+				BL.INTG_BL_SEQ,
+				BL.BKG_NO,
+				BL.BL_NO,
+				BL.REF_NO  BILL_TO_REF_NO,
+				BL.REP_CMDT_CD CGO_ITM_CMDT_CD,
+				BL.REP_CMDT_NM CGO_ITM_CMDT_NM,
+				BL.PCK_QTY,
+				BL.PCK_UT_CD,
+				PCD.PCK_NM AS PCK_UT_NM,
+				BL.GRS_WGT AS ACT_WGT_K,
+				BL.GRS_WGT1 ACT_WGT_L,
+				BL.GRS_WGT_UT_CD,
+				BL.CHG_WGT,
+				BL.CHG_WGT_UT_CD,
+				BL.ACT_WGT,
+				BL.ACT_WGT_UT_CD,
+				BL.MEAS CGO_MEAS_M,
+				BL.MEAS1 CGO_MEAS_F,
+				BL.MEAS_UT_CD,
+				BL.POR_CD,
+				'' AS POR_NOD_CD,
+				BL.POR_NM,
+				BL.POL_CD,
+				BL.POL_NOD_CD,
+				BL.POL_NM,
+				BL.POD_CD,
+				BL.POD_NOD_CD,
+				BL.POD_NM,
+				BL.DEL_CD,
+				'' AS DEL_NOD_CD,
+				BL.DEL_NM,
+				BL.ISS_LOC_CD,
+				BL.ISS_LOC_NM,
+				BL.PAY_LOC_CD,
+				BL.PAY_LOC_NM,
+				BL.FNL_DEST_LOC_CD,
+				'' AS FNL_DEST_NOD_CD,
+				BL.FNL_DEST_LOC_NM,
+				BL.CGO_RCV_DT_TM,
+				BL.CFS_LOC_CD,
+				BL.CFS_NOD_CD,
+				BL.DE_DUE_DT,
+				BL.PRE_VSL_CD,
+				BL.PRE_VSL_NM,
+				BL.PRE_VOY,
+				BL.TRNK_VSL_CD,
+				BL.TRNK_VSL_NM,
+				BL.TRNK_VOY,
+				BL.CGO_CLZ_DT_TM,
+				BL.OBRD_DT_TM,
+				BL.ETD_DT_TM,
+				BL.ETA_DT_TM,
+				BL.LNR_BKG_NO,
+				LNR.TRDP_CD AS LNR_TRDP_CD,
+				LNR.TRDP_NM AS LNR_TRDP_NM,
+				BL.RMK,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N')AS BILL_TO_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N') AS BILL_TO_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.REF_OFC_CD+'MAINCMP'  ) AS BILL_TO_TRDP_ADDR,
+				(SELECT  B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PIC,
+				(SELECT  B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PHN,
+				(SELECT  B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_FAX,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = TRK.TRDP_CD ) AS TRUCKER_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PIC,
+				(SELECT B.PIC_PHN FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PHN,
+				(SELECT B.PIC_FAX FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_FAX,
+				CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AS PICKUP_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND DELT_FLG ='N')PICKUP_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END ) PICKUP_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_FAX,
+				 '' DELIVERY_TRDP_CD,
+				 '' DELIVERY_TRDP_NM,
+				 '' DELIVERY_TRDP_ADDR,
+				 '' DELIVERY_PIC,
+				 '' DELIVERY_PHN,
+				 '' DELIVERY_FAX,
+				 BL.RT_TRDP_CD RETURN_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = BL.RT_TRDP_CD AND DELT_FLG ='N') RETURN_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.RT_TRDP_CD ) RETURN_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.RT_TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') RETURN_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.RT_TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') RETURN_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.RT_TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') RETURN_FAX,
+				'' WH_TRDP_OFC_FM_HR,
+			    '' WH_TRDP_OFC_TO_HR,
+				(SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND DELT_FLG ='N') PICKUP_TRDP_OFC_FM_HR,
+				(SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND DELT_FLG ='N') PICKUP_TRDP_OFC_TO_HR,
+				'' DELIVERY_TRDP_OFC_FM_HR,
+			    '' DELIVERY_TRDP_OFC_TO_HR,
+				(SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  BL.RT_TRDP_CD AND DELT_FLG ='N') RETURN_TRDP_OFC_FM_HR,
+			    (SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  BL.RT_TRDP_CD AND DELT_FLG ='N') RETURN_TRDP_OFC_TO_HR
+				
+			FROM TB_INTG_BL BL
+			JOIN TB_ADD_INFO_BND BND
+			  ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ
+			LEFT OUTER JOIN TB_PCK_UT_CD PCD
+			  ON BL.PCK_UT_CD   = PCD.PCK_UT_CD
+			 AND PCD.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR LNR
+			  ON BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ
+			 AND LNR.BL_TRDP_TP_CD = 'L01' AND LNR.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR ACT
+			  ON BL.INTG_BL_SEQ = ACT.INTG_BL_SEQ
+			 AND ACT.BL_TRDP_TP_CD = 'S02'
+			 AND ACT.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR TRK
+			  ON BL.INTG_BL_SEQ = TRK.INTG_BL_SEQ
+			 AND TRK.BL_TRDP_TP_CD = 'T02'
+			 AND TRK.DELT_FLG = 'N'
+		   WHERE 1=1
+			 AND BL.DELT_FLG = 'N'
+		<isNotEmpty property="biz_clss_cd">
+			 AND BL.BIZ_CLSS_CD = #biz_clss_cd#
+		</isNotEmpty>
+		<isNotEmpty property="intg_bl_seq">
+			 AND BL.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		</isNotEmpty>
+		<isEmpty property="intg_bl_seq">
+			<isNotEmpty property="bl_no">
+			 AND BL.BL_NO = #bl_no#
+			</isNotEmpty>
+			<isNotEmpty property="mbl_no">
+			 AND BL.BL_NO = #mbl_no#
+			</isNotEmpty>
+			<isNotEmpty property="ref_no">
+			 AND BL.REF_NO = #ref_no#
+			</isNotEmpty>
+		</isEmpty>
+	</select>
+
+	<!-- Work Order BL 요약 정보를 리턴함   -->
+	<select id="selectWo_Bl_Info_Oih" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoOrdVO">
+		/*  SecWorkOrderSQL.xml > selectWo_Bl_Info_Oih */
+		SELECT  TOP 1
+				BL.INTG_BL_SEQ,
+				BL.BKG_NO,
+				BL.BL_NO,
+				BL.REF_NO  BILL_TO_REF_NO,
+				BL.REP_CMDT_CD CGO_ITM_CMDT_CD,
+				BL.REP_CMDT_NM CGO_ITM_CMDT_NM,
+				BL.PCK_QTY,
+				BL.PCK_UT_CD,
+				PCD.PCK_NM AS PCK_UT_NM,
+				BL.GRS_WGT AS ACT_WGT_K,
+				BL.GRS_WGT1 ACT_WGT_L,
+				BL.GRS_WGT_UT_CD,
+				BL.CHG_WGT,
+				BL.CHG_WGT_UT_CD,
+				BL.ACT_WGT,
+				BL.ACT_WGT_UT_CD,
+				BL.MEAS CGO_MEAS_M,
+				BL.MEAS1 CGO_MEAS_F,
+				BL.MEAS_UT_CD,
+				BL.POR_CD,
+				'' AS POR_NOD_CD,
+				BL.POR_NM,
+				BL.POL_CD,
+				BL.POL_NOD_CD,
+				BL.POL_NM,
+				BL.POD_CD,
+				BL.POD_NOD_CD,
+				BL.POD_NM,
+				BL.DEL_CD,
+				'' AS DEL_NOD_CD,
+				BL.DEL_NM,
+				BL.ISS_LOC_CD,
+				BL.ISS_LOC_NM,
+				BL.PAY_LOC_CD,
+				BL.PAY_LOC_NM,
+				BL.FNL_DEST_LOC_CD,
+				'' AS FNL_DEST_NOD_CD,
+				BL.FNL_DEST_LOC_NM,
+				BL.CGO_RCV_DT_TM,
+				BL.CFS_LOC_CD,
+				BL.CFS_NOD_CD,
+				BL.DE_DUE_DT,
+				BL.PRE_VSL_CD,
+				BL.PRE_VSL_NM,
+				BL.PRE_VOY,
+				BL.TRNK_VSL_CD,
+				BL.TRNK_VSL_NM,
+				BL.TRNK_VOY,
+				BL.CGO_CLZ_DT_TM,
+				BL.OBRD_DT_TM,
+				BL.ETD_DT_TM,
+				BL.ETA_DT_TM,
+				BL.LNR_BKG_NO,
+				LNR.TRDP_CD AS LNR_TRDP_CD,
+				LNR.TRDP_NM AS LNR_TRDP_NM,
+				BL.RMK,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N')AS BILL_TO_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N') AS BILL_TO_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.REF_OFC_CD+'MAINCMP'  ) AS BILL_TO_TRDP_ADDR,
+				(SELECT  B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PIC,
+				(SELECT  B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PHN,
+				(SELECT  B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_FAX,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = TRK.TRDP_CD ) AS TRUCKER_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PIC,
+				(SELECT B.PIC_PHN FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PHN,
+				(SELECT B.PIC_FAX FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_FAX,
+				 CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AS PICKUP_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND DELT_FLG ='N')PICKUP_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END ) PICKUP_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_FAX,
+				 BL.DOOR_LOC_CD DELIVERY_TRDP_CD,
+				(
+					CASE 
+						WHEN ISNULL(BL.DOOR_LOC_NM,'') != '' THEN BL.DOOR_LOC_NM
+						ELSE (SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = BL.DOOR_LOC_CD AND DELT_FLG ='N')
+					END
+				) AS DELIVERY_TRDP_NM,
+				(CASE WHEN ISNULL(TTA.TRDP_ADD_ADDR,'') != '' THEN TTA.TRDP_ADD_ADDR
+				ELSE (SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.DOOR_LOC_CD )
+				  END) DELIVERY_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.DOOR_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') DELIVERY_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.DOOR_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') DELIVERY_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.DOOR_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') DELIVERY_FAX,
+				
+				<!-- #335 [IMPEX] OEM WORK ORDER LOGIC -->
+				 BL.DOOR_LOC_CD RETURN_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = BL.DOOR_LOC_CD AND DELT_FLG ='N') RETURN_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.DOOR_LOC_CD ) RETURN_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.DOOR_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') RETURN_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.DOOR_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') RETURN_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.DOOR_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') RETURN_FAX,
+				
+				'' WH_TRDP_OFC_FM_HR,
+			    '' WH_TRDP_OFC_TO_HR,
+			    (SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND DELT_FLG ='N') PICKUP_TRDP_OFC_FM_HR,
+				(SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND DELT_FLG ='N') PICKUP_TRDP_OFC_TO_HR,
+				(SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  BL.DOOR_LOC_CD AND DELT_FLG ='N') DELIVERY_TRDP_OFC_FM_HR,
+			    (SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  BL.DOOR_LOC_CD AND DELT_FLG ='N') DELIVERY_TRDP_OFC_TO_HR,
+				(SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  BL.DOOR_LOC_CD AND DELT_FLG ='N') RETURN_TRDP_OFC_FM_HR,
+			    (SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  BL.DOOR_LOC_CD AND DELT_FLG ='N') RETURN_TRDP_OFC_TO_HR
+				
+			FROM TB_INTG_BL BL
+			JOIN TB_ADD_INFO_BND BND
+			  ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ
+			LEFT OUTER JOIN TB_PCK_UT_CD PCD
+			  ON BL.PCK_UT_CD   = PCD.PCK_UT_CD
+			 AND PCD.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR LNR
+			  ON BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ
+			 AND LNR.BL_TRDP_TP_CD = 'L01' AND LNR.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR ACT
+			  ON BL.INTG_BL_SEQ = ACT.INTG_BL_SEQ
+			 AND ACT.BL_TRDP_TP_CD = 'S02'
+			 AND ACT.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR TRK
+			  ON BL.INTG_BL_SEQ = TRK.INTG_BL_SEQ
+			 AND TRK.BL_TRDP_TP_CD = 'T02'
+			 AND TRK.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_TRDP_ADDR TTA ON TTA.TRDP_CD = BL.DOOR_LOC_CD 
+			 AND TTA.TRDP_NM = BL.DOOR_LOC_NM
+		   WHERE 1=1
+			 AND BL.DELT_FLG = 'N'
+		<isNotEmpty property="biz_clss_cd">
+			 AND BL.BIZ_CLSS_CD = #biz_clss_cd#
+		</isNotEmpty>
+		<isNotEmpty property="intg_bl_seq">
+			 AND BL.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		</isNotEmpty>
+		<isEmpty property="intg_bl_seq">
+			<isNotEmpty property="bl_no">
+			 AND BL.BL_NO = #bl_no#
+			</isNotEmpty>
+			<isNotEmpty property="mbl_no">
+			 AND BL.BL_NO = #mbl_no#
+			</isNotEmpty>
+			<isNotEmpty property="ref_no">
+			 AND BL.REF_NO = #ref_no#
+			</isNotEmpty>
+		</isEmpty>
+	</select>
+
+	<!-- Work Order BL 요약 정보를 리턴함   -->
+	<select id="selectWo_Bl_Info_Aih" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoOrdVO">
+		/*  SecWorkOrderSQL.xml > selectWo_Bl_Info_Aih */
+		SELECT  TOP 1
+				BL.INTG_BL_SEQ,
+				BL.BKG_NO,
+				BL.BL_NO,
+				BL.REF_NO  BILL_TO_REF_NO,
+				BL.REP_CMDT_CD CGO_ITM_CMDT_CD,
+				BL.REP_CMDT_NM CGO_ITM_CMDT_NM,
+				BL.PCK_QTY,
+				BL.PCK_UT_CD,
+				PCD.PCK_NM AS PCK_UT_NM,
+				BL.GRS_WGT AS ACT_WGT_K,
+				BL.GRS_WGT1 ACT_WGT_L,
+				BL.GRS_WGT_UT_CD,
+				BL.CHG_WGT,
+				BL.CHG_WGT_UT_CD,
+				BL.ACT_WGT,
+				BL.ACT_WGT_UT_CD,
+				BL.MEAS CGO_MEAS_M,
+				BL.MEAS1 CGO_MEAS_F,
+				BL.MEAS_UT_CD,
+				BL.POR_CD,
+				'' AS POR_NOD_CD,
+				BL.POR_NM,
+				BL.POL_CD,
+				BL.POL_NOD_CD,
+				BL.POL_NM,
+				BL.POD_CD,
+				BL.POD_NOD_CD,
+				BL.POD_NM,
+				BL.DEL_CD,
+				'' AS DEL_NOD_CD,
+				BL.DEL_NM,
+				BL.ISS_LOC_CD,
+				BL.ISS_LOC_NM,
+				BL.PAY_LOC_CD,
+				BL.PAY_LOC_NM,
+				BL.FNL_DEST_LOC_CD,
+				'' AS FNL_DEST_NOD_CD,
+				BL.FNL_DEST_LOC_NM,
+				BL.CGO_RCV_DT_TM,
+				BL.CFS_LOC_CD,
+				BL.CFS_NOD_CD,
+				BL.DE_DUE_DT,
+				BL.PRE_VSL_CD,
+				BL.PRE_VSL_NM,
+				BL.PRE_VOY,
+				BL.TRNK_VSL_CD,
+				BL.TRNK_VSL_NM,
+				BL.TRNK_VOY,
+				BL.CGO_CLZ_DT_TM,
+				BL.OBRD_DT_TM,
+				BL.ETD_DT_TM,
+				BL.ETA_DT_TM,
+				BL.LNR_BKG_NO,
+				LNR.TRDP_CD AS LNR_TRDP_CD,
+				LNR.TRDP_NM AS LNR_TRDP_NM,
+				BL.RMK,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N')AS BILL_TO_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N') AS BILL_TO_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.REF_OFC_CD+'MAINCMP'  ) AS BILL_TO_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD=  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_FAX,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = TRK.TRDP_CD ) AS TRUCKER_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PIC,
+				(SELECT B.PIC_PHN FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PHN,
+				(SELECT B.PIC_FAX FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_FAX,
+				CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END PICKUP_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND DELT_FLG ='N')PICKUP_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END ) PICKUP_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_FAX,
+				 BL.DOOR_LOC_CD DELIVERY_TRDP_CD,
+				(
+					CASE 
+						WHEN ISNULL(BL.DOOR_LOC_NM,'') != '' THEN BL.DOOR_LOC_NM
+						ELSE (SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = BL.DOOR_LOC_CD AND DELT_FLG ='N')
+					END
+				) AS DELIVERY_TRDP_NM,
+				(CASE WHEN ISNULL(TTA.TRDP_ADD_ADDR,'') != '' THEN TTA.TRDP_ADD_ADDR
+				ELSE (SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.DOOR_LOC_CD )
+				  END) DELIVERY_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.DOOR_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') DELIVERY_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.DOOR_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') DELIVERY_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.DOOR_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') DELIVERY_FAX,
+				'' RETURN_TRDP_CD,
+				'' RETURN_TRDP_NM,
+				'' RETURN_TRDP_ADDR,
+				'' RETURN_PIC,
+				'' RETURN_PHN,
+				'' RETURN_FAX,
+				
+				'' WH_TRDP_OFC_FM_HR,
+			    '' WH_TRDP_OFC_TO_HR,
+			    (SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND DELT_FLG ='N') PICKUP_TRDP_OFC_FM_HR,
+			    (SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  CASE WHEN LEN(BL.CY_TRDP_CD) > 0 THEN BL.CY_TRDP_CD ELSE BL.CFS_TRDP_CD END AND DELT_FLG ='N') PICKUP_TRDP_OFC_TO_HR,
+				(SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  BL.DOOR_LOC_CD AND DELT_FLG ='N') DELIVERY_TRDP_OFC_FM_HR,
+				(SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  BL.DOOR_LOC_CD AND DELT_FLG ='N') DELIVERY_TRDP_OFC_TO_HR,
+				'' RETURN_TRDP_OFC_FM_HR,
+			    '' RETURN_TRDP_OFC_TO_HR
+			FROM TB_INTG_BL BL
+			JOIN TB_ADD_INFO_BND BND
+			  ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ
+			LEFT OUTER JOIN TB_PCK_UT_CD PCD
+			  ON BL.PCK_UT_CD   = PCD.PCK_UT_CD
+			 AND PCD.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR LNR
+			  ON BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ
+			 AND LNR.BL_TRDP_TP_CD = 'L01' AND LNR.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR ACT
+			  ON BL.INTG_BL_SEQ = ACT.INTG_BL_SEQ
+			 AND ACT.BL_TRDP_TP_CD = 'S02'
+			 AND ACT.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR TRK
+			  ON BL.INTG_BL_SEQ = TRK.INTG_BL_SEQ
+			 AND TRK.BL_TRDP_TP_CD = 'T02'
+			 AND TRK.DELT_FLG = 'N'
+			 LEFT OUTER JOIN TB_TRDP_ADDR TTA ON TTA.TRDP_CD = BL.DOOR_LOC_CD 
+			AND TTA.TRDP_NM = BL.DOOR_LOC_NM
+		   WHERE 1=1
+			 AND BL.DELT_FLG = 'N'
+		<isNotEmpty property="biz_clss_cd">
+			 AND BL.BIZ_CLSS_CD = #biz_clss_cd#
+		</isNotEmpty>
+		<isNotEmpty property="intg_bl_seq">
+			 AND BL.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		</isNotEmpty>
+		<isEmpty property="intg_bl_seq">
+			<isNotEmpty property="bl_no">
+			 AND BL.BL_NO = #bl_no#
+			</isNotEmpty>
+			<isNotEmpty property="mbl_no">
+			 AND BL.BL_NO = #mbl_no#
+			</isNotEmpty>
+			<isNotEmpty property="ref_no">
+			 AND BL.REF_NO = #ref_no#
+			</isNotEmpty>
+		</isEmpty>
+	</select>
+
+	<!-- Work Order BL 요약 정보를 리턴함   -->
+	<select id="selectWo_Bl_Info_Aim" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoOrdVO">
+		/*  SecWorkOrderSQL.xml > selectWo_Bl_Info_Aim */
+		SELECT  TOP 1
+				BL.INTG_BL_SEQ,
+				BL.BKG_NO,
+				BL.BL_NO,
+				BL.REF_NO  BILL_TO_REF_NO,
+				BL.REP_CMDT_CD CGO_ITM_CMDT_CD,
+				BL.REP_CMDT_NM CGO_ITM_CMDT_NM,
+				BL.PCK_QTY,
+				BL.PCK_UT_CD,
+				PCD.PCK_NM AS PCK_UT_NM,
+				BL.GRS_WGT AS ACT_WGT_K,
+				BL.GRS_WGT1 ACT_WGT_L,
+				BL.GRS_WGT_UT_CD,
+				BL.CHG_WGT,
+				BL.CHG_WGT_UT_CD,
+				BL.ACT_WGT,
+				BL.ACT_WGT_UT_CD,
+				BL.MEAS CGO_MEAS_M,
+				BL.MEAS1 CGO_MEAS_F,
+				BL.MEAS_UT_CD,
+				BL.POR_CD,
+				'' AS POR_NOD_CD,
+				BL.POR_NM,
+				BL.POL_CD,
+				BL.POL_NOD_CD,
+				BL.POL_NM,
+				BL.POD_CD,
+				BL.POD_NOD_CD,
+				BL.POD_NM,
+				BL.DEL_CD,
+				'' AS DEL_NOD_CD,
+				BL.DEL_NM,
+				BL.ISS_LOC_CD,
+				BL.ISS_LOC_NM,
+				BL.PAY_LOC_CD,
+				BL.PAY_LOC_NM,
+				BL.FNL_DEST_LOC_CD,
+				'' AS FNL_DEST_NOD_CD,
+				BL.FNL_DEST_LOC_NM,
+				BL.CGO_RCV_DT_TM,
+				BL.CFS_LOC_CD,
+				BL.CFS_NOD_CD,
+				BL.DE_DUE_DT,
+				BL.PRE_VSL_CD,
+				BL.PRE_VSL_NM,
+				BL.PRE_VOY,
+				BL.TRNK_VSL_CD,
+				BL.TRNK_VSL_NM,
+				BL.TRNK_VOY,
+				BL.CGO_CLZ_DT_TM,
+				BL.OBRD_DT_TM,
+				BL.ETD_DT_TM,
+				BL.ETA_DT_TM,
+				BL.LNR_BKG_NO,
+				LNR.TRDP_CD AS LNR_TRDP_CD,
+				LNR.TRDP_NM AS LNR_TRDP_NM,
+				BL.RMK,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N')AS BILL_TO_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND DELT_FLG ='N') AS BILL_TO_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.REF_OFC_CD+'MAINCMP'  ) AS BILL_TO_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD =  BL.REF_OFC_CD+'MAINCMP'  AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) BILL_TO_FAX,
+				(SELECT TRDP_CD FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = TRK.TRDP_CD AND DELT_FLG ='N') AS TRUCKER_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A 
+				  WHERE A.TRDP_CD = TRK.TRDP_CD ) AS TRUCKER_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PIC,
+				(SELECT B.PIC_PHN FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_PHN,
+				(SELECT B.PIC_FAX FROM  TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD= TRK.TRDP_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N' ) TRUCKER_FAX,
+				 BL.FRT_LOC_CD PICKUP_TRDP_CD,
+				(SELECT LOCL_NM FROM TB_TRDP WHERE TRDP_CD = BL.FRT_LOC_CD AND DELT_FLG ='N')PICKUP_TRDP_NM,
+				(SELECT ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END)
+				   FROM TB_TRDP A
+				  WHERE A.TRDP_CD = BL.FRT_LOC_CD ) PICKUP_TRDP_ADDR,
+				(SELECT B.PIC_NM  FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.FRT_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PIC,
+				(SELECT B.PIC_PHN FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.FRT_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_PHN,
+				(SELECT B.PIC_FAX FROM TB_TRDP_CNTC_PSON B WHERE B.TRDP_CD = BL.FRT_LOC_CD AND B.REP_FLG = 'Y' AND B.DELT_FLG = 'N') PICKUP_FAX,
+				'' DELIVERY_TRDP_CD,
+				'' DELIVERY_TRDP_NM,
+				'' DELIVERY_TRDP_ADDR,
+				'' DELIVERY_PIC,
+				'' DELIVERY_PHN,
+				'' DELIVERY_FAX,
+				'' RETURN_TRDP_CD,
+				'' RETURN_TRDP_NM,
+				'' RETURN_TRDP_ADDR,
+				'' RETURN_PIC,
+				'' RETURN_PHN,
+				'' RETURN_FAX,
+				
+				'' WH_TRDP_OFC_FM_HR,
+			    '' WH_TRDP_OFC_TO_HR,
+			    (SELECT OFC_FM_HR FROM TB_TRDP WHERE TRDP_CD =  BL.FRT_LOC_CD AND DELT_FLG ='N') PICKUP_TRDP_OFC_FM_HR,
+				(SELECT OFC_TO_HR FROM TB_TRDP WHERE TRDP_CD =  BL.FRT_LOC_CD AND DELT_FLG ='N') PICKUP_TRDP_OFC_TO_HR,
+				'' DELIVERY_TRDP_OFC_FM_HR,
+			    '' DELIVERY_TRDP_OFC_TO_HR,
+				'' RETURN_TRDP_OFC_FM_HR,
+			    '' RETURN_TRDP_OFC_TO_HR
+				
+			FROM TB_INTG_BL BL
+			JOIN TB_ADD_INFO_BND BND
+			  ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ
+			LEFT OUTER JOIN TB_PCK_UT_CD PCD
+			  ON BL.PCK_UT_CD   = PCD.PCK_UT_CD
+			 AND PCD.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR LNR
+			  ON BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ
+			 AND LNR.BL_TRDP_TP_CD = 'L01' AND LNR.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR ACT
+			  ON BL.INTG_BL_SEQ = ACT.INTG_BL_SEQ
+			 AND ACT.BL_TRDP_TP_CD = 'S02'
+			 AND ACT.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_BL_PRNR TRK
+			  ON BL.INTG_BL_SEQ = TRK.INTG_BL_SEQ
+			 AND TRK.BL_TRDP_TP_CD = 'T02'
+			 AND TRK.DELT_FLG = 'N'
+		   WHERE 1=1
+			 AND BL.DELT_FLG = 'N'
+		<isNotEmpty property="biz_clss_cd">
+			 AND BL.BIZ_CLSS_CD = #biz_clss_cd#
+		</isNotEmpty>
+		<isNotEmpty property="intg_bl_seq">
+			 AND BL.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		</isNotEmpty>
+		<isEmpty property="intg_bl_seq">
+			<isNotEmpty property="bl_no">
+			 AND BL.BL_NO = #bl_no#
+			</isNotEmpty>
+			<isNotEmpty property="mbl_no">
+			 AND BL.BL_NO = #mbl_no#
+			</isNotEmpty>
+			<isNotEmpty property="ref_no">
+			 AND BL.REF_NO = #ref_no#
+			</isNotEmpty>
+		</isEmpty>
+	</select>
+
+	<!-- Work Order BL 요약 정보를 리턴함   -->
+	<select id="selectWO_BL_INFO3" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoOrdVO">
+	  /* SecWorkOrderSQL.xml > selectWO_BL_INFO3 */
+		SELECT a1.oth_seq
+			  ,a1.ref_no bl_no
+			  ,a1.ref_no bill_to_ref_no
+			  ,a1.hbl_no
+			  ,a1.cust_cd bill_to_trdp_cd
+			  ,a1.cust_nm bill_to_trdp_nm
+			  ,(select ISNULL(A.LGL_ADDR,'') + 
+	                	(CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+					  	      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM + ' ' + A.STATE_CD
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13) + A.CITY_NM
+						      WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13) + A.CITY_NM + ', ' + A.REP_ZIP
+						      ELSE '' END) from tb_trdp A where A.trdp_cd = a1.cust_cd ) as bill_to_trdp_addr
+			  ,'G' bnd_clss_cd /*BL:B, Oth:G*/
+			  ,'NA' wo_sts_cd
+			  ,'0' intg_bl_seq
+			  ,'' bill_to_pic
+			  ,'' bill_to_phn
+			  ,'' bill_to_fax
+		  FROM tb_oth_sales a1
+		  WHERE 1=1
+			AND a1.delt_flg = 'N'
+		<isNotEmpty property="oth_ref_no">
+			AND a1.ref_no = #oth_ref_no#
+		</isNotEmpty>
+	 </select>
+	 
+	<select id="selectTB_OTH_SALES" parameterClass="String" resultClass="java.util.HashMap">
+		/*  SecWorkOrderSQL.xml > selectTB_OTH_SALES */
+    	SELECT REF_NO
+    	       ,VSL_FLT
+        	   ,ETA_DT_TM
+               ,FETA_DT_TM   	       
+		  FROM TB_OTH_SALES
+		 WHERE REF_NO = #ref_no#
+		   AND DELT_FLG = 'N'
+		   
+    </select>	 
+    
+    <select id="selectTB_PCK_UT_CD" parameterClass="String" resultClass="java.util.HashMap">
+    /* AccInvInvoiceSQL.xml > selectTB_PCK_UT_CD */
+    SELECT
+        pck_ut_cd,
+        ams_pck_cd_val,
+        cstms_pck_cd_val,
+        pck_nm,
+        descr
+   
+    FROM
+        tb_pck_ut_cd    
+   where pck_ut_cd = #s_pck_ut_cd#  
+
+	</select>
+	
+	<select id="serachWorkOrderEdiList" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoOrdEDIListVO">
+		
+		with woInfo as (
+		
+			select hd.intg_bl_seq as wo_no
+			       ,max(hi.SND_TMS) as SND_TMS
+			  from tb_edi_hdr hd 
+			  join tb_edi_snd_his hi on hd.EDI_CRE_SEQ = hi.EDI_CRE_SEQ
+			  
+			where hd.EDI_MSG_TP = '214'  
+			  and hd.intg_bl_seq is not null
+			  and hi.SND_TMS is not null
+			group by hd.intg_bl_seq  
+		)
+		,detailInfo as  (
+		
+			select 		
+                   a.snd_tms
+				   ,ord.wo_no
+				   ,ord.delt_flg
+				   ,case when isnull(blck.sts_cd1,oth.sts_cd) = 'B' then 'Y' else '' end as block_flag
+			       ,case 
+		            when bl.intg_bl_seq is not null then bl.ref_no                
+		            else oth.ref_no           
+		            end as ref_no
+					
+					,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,	'') != ''  AND bl.biz_clss_cd = 'M'  THEN bl.bl_no     
+						ELSE oth.mbl_no      
+						END AS master_bl_no    			
+					
+					,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,	'') != ''  AND bl.biz_clss_cd = 'H'  THEN bl.bl_no     
+						ELSE oth.hbl_no      
+						END AS house_bl_no     
+								
+			       ,case 
+		            when bl.intg_bl_seq is not null then bl.etd_dt_tm                
+		            else oth.etd_dt_tm           
+		            end as etd_dt_tm
+
+			       ,case 
+		            when bl.intg_bl_seq is not null then bl.eta_dt_tm                
+		            else oth.eta_dt_tm           
+		            end as eta_dt_tm	
+		            
+					,(SELECT
+							cd_nm        
+						FROM
+							tb_com_cd_dtl 
+						WHERE
+							use_flg= 'Y'    
+							AND  delt_flg   = 'N' 
+							AND  COM_CD     = 'C036' 
+							AND cd_val = ord.wo_tp_cd) AS wo_tp_nm
+					,ord.wo_tp_cd		
+					,ord.trucker_trdp_cd   /*trucker info*/     
+					,ord.trucker_trdp_nm     		
+		            ,ord.pickup_trdp_cd /*Pick-up*/    
+		            ,ord.pickup_trdp_nm   			
+					,ord.return_trdp_cd   /*return info*/     
+		            ,ord.return_trdp_nm     
+		            ,ord.delivery_trdp_cd /*Delivery*/     
+		            ,ord.delivery_trdp_nm                      
+		            ,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,
+						'') != '' THEN bl.pol_cd 
+						ELSE oth.pol_cd 
+					END AS pol_cd     
+					,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,
+						'') != '' THEN bl.pol_nm 
+						ELSE oth.pol_nm 
+					END AS pol_nm     
+					,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,
+						'') != '' THEN bl.pod_cd 
+						ELSE oth.pod_cd 
+					END AS pod_cd    
+					,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,
+						'') != '' THEN bl.pod_nm 
+						ELSE oth.pod_nm 
+					END AS pod_nm      
+					,isnull(ord.cgo_pck_qty, 0) cgo_pck_qty     
+		            ,ord.cgo_pck_ut_cd     
+					,isnull(ord.act_wgt_k, 0) act_wgt_k     
+					,isnull(ord.act_wgt_l, 0) act_wgt_l  
+					,ord.lnr_trdp_cd     
+					,ord.lnr_trdp_nm     			
+			        ,case                
+			            when bl.intg_bl_seq is not null then bl.modi_ofc_cd                               
+			            else oth.ofc_cd                          
+			         end as ofc_cd
+			        ,case                
+			            when bl.intg_bl_seq is not null then bl.MODI_USRID                               
+			            else oth.issued_by                          
+			         end as opr_usrid  
+					,case when ISNULL(a.wo_no,'') ='' then '' else 'SEND' end            AS edi_status
+					,bl.intg_bl_seq
+					,bl.biz_clss_cd
+					,bl.air_sea_clss_cd
+					,ord.MODI_TMS
+			  from tb_pd_ord ord 
+			  LEFT join woInfo a on (a.wo_no = ord.WO_NO) 
+			  LEFT OUTER JOIN 
+				tb_intg_bl bl            
+					ON bl.intg_bl_seq = ord.intg_bl_seq              
+					AND bl.DELT_FLG = 'N'       
+				
+		      LEFT OUTER JOIN
+		        tb_oth_sales oth            
+		            ON  ord.oth_seq = oth.oth_seq                                
+		            AND oth.DELT_FLG = 'N'    
+			  LEFT OUTER JOIN
+			  (
+					select
+						oth_seq as oth_seq1,
+						sts_cd as sts_cd1 
+					from
+						tb_oth_sales_blck
+			  ) blck 
+					ON oth.oth_seq = blck.oth_seq1    		            
+		) 
+		,listInfo as (
+		select
+		       COUNT(*) OVER() tot_cnt
+			   ,ROW_NUMBER() OVER (ORDER BY a.MODI_TMS DESC) AS rnum
+		       ,a.* 
+		  from detailInfo a
+			where 1=1
+			  and a.delt_flg = 'N'
+			  <isNotEmpty property="ref_no">
+			  	and a.ref_no       = #ref_no#
+			  </isNotEmpty>
+			  <isNotEmpty property="mbl_no">
+			  	and a.master_bl_no = #mbl_no#
+			  </isNotEmpty>
+			  <isNotEmpty property="hbl_no">
+			  	and a.house_bl_no  = #hbl_no#
+			  </isNotEmpty>
+			  <isNotEmpty property="trucker_trdp_cd">
+			  	and a.trucker_trdp_cd =#trucker_trdp_cd#
+			  </isNotEmpty>
+			  <isNotEmpty property="ofc_cd">
+			  	and a.ofc_cd          =#ofc_cd#
+			  </isNotEmpty>
+			  <isNotEmpty property="wo_no">
+			  	and a.wo_no           = #wo_no#
+			  </isNotEmpty>
+			  <isNotEmpty property="delivery_trdp_cd">
+			  	and a.delivery_trdp_cd =#delivery_trdp_cd#
+			  </isNotEmpty>
+			  <isNotEmpty property="type">
+			  	and wo_tp_cd =#type#
+			  </isNotEmpty>			  
+			  <isNotEmpty property="opr_usrid">
+			  	and a.opr_usrid=#opr_usrid#
+			  </isNotEmpty>
+			  <isNotEmpty property="etd_strdt">
+			  	and a.etd_dt_tm BETWEEN #etd_strdt# AND #etd_enddt#
+			  </isNotEmpty>
+			  <isNotEmpty property="eta_strdt">
+			  	and a.eta_dt_tm BETWEEN #eta_strdt# AND #eta_enddt#
+			  </isNotEmpty>
+			  <isNotEmpty property="edi_status">
+			  	and edi_status = #edi_status#
+			  </isNotEmpty>
+			  			  
+		) select * from listInfo a  where <![CDATA[  a.RNUM > #beginIdx# AND a.RNUM <= #topCnt#	]]> 
+	
+	</select>
+	
+	<select id="serachWorkOrderEdiList_EXCEL" parameterClass="HashMap" resultClass="java.util.HashMap">
+		
+		with woInfo as (
+		
+			select hd.intg_bl_seq as wo_no
+			       ,max(hi.SND_TMS) as SND_TMS
+			  from tb_edi_hdr hd 
+			  join tb_edi_snd_his hi on hd.EDI_CRE_SEQ = hi.EDI_CRE_SEQ
+			  
+			where hd.EDI_MSG_TP = '214'  
+			  and hd.intg_bl_seq is not null
+			  and hi.SND_TMS is not null
+			group by hd.intg_bl_seq  
+		)
+		,detailInfo as  (
+		
+			select 		
+                   a.SND_TMS
+				   ,ord.wo_no
+				   ,ord.delt_flg
+				   ,case when isnull(blck.sts_cd1,oth.sts_cd) = 'B' then 'Y' else '' end as block_flag
+			       ,case 
+		            when bl.intg_bl_seq is not null then bl.ref_no                
+		            else oth.ref_no           
+		            end as ref_no
+					
+					,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,	'') != ''  AND bl.biz_clss_cd = 'M'  THEN bl.bl_no     
+						ELSE oth.mbl_no      
+						END AS master_bl_no    			
+					
+					,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,	'') != ''  AND bl.biz_clss_cd = 'H'  THEN bl.bl_no     
+						ELSE oth.hbl_no      
+						END AS house_bl_no     
+								
+			       ,case 
+		            when bl.intg_bl_seq is not null then (case when bl.etd_dt_tm = '' then '' else substring(bl.etd_dt_tm,5,2)  + '-' + substring(bl.etd_dt_tm,7,2) + '-' +substring(bl.etd_dt_tm,1,4) end)                 
+		            else (case when oth.etd_dt_tm = '' then '' else substring(oth.etd_dt_tm,5,2)  + '-' + substring(oth.etd_dt_tm,7,2) + '-' +substring(oth.etd_dt_tm,1,4) end)            
+		            end as etd_dt_tm
+
+			       ,case 
+		            when bl.intg_bl_seq is not null then (case when bl.eta_dt_tm = '' then '' else substring(bl.eta_dt_tm,5,2)  + '-' + substring(bl.eta_dt_tm,7,2) + '-' +substring(bl.eta_dt_tm,1,4) end)                
+		            else (case when oth.eta_dt_tm = '' then '' else substring(oth.eta_dt_tm,5,2)  + '-' + substring(oth.eta_dt_tm,7,2) + '-' +substring(oth.eta_dt_tm,1,4) end)            
+		            end as eta_dt_tm	
+					
+					<!-- [#1361][Pickup/Delivery Order List] Don't display row data in excel file same with in system (S)  -->
+					,case 
+		            when bl.intg_bl_seq is not null then (case when bl.etd_dt_tm = '' then '' else bl.etd_dt_tm end)                 
+		            else (case when oth.etd_dt_tm = '' then '' else oth.etd_dt_tm end)            
+		            end as etd_dt_tm_db
+
+			       ,case 
+		            when bl.intg_bl_seq is not null then (case when bl.eta_dt_tm = '' then '' else bl.eta_dt_tm end)                
+		            else (case when oth.eta_dt_tm = '' then '' else oth.eta_dt_tm end)            
+		            end as eta_dt_tm_db						
+		            <!-- [#1361][Pickup/Delivery Order List] Don't display row data in excel file same with in system (E)  -->
+		            
+					,(SELECT
+							cd_nm        
+						FROM
+							tb_com_cd_dtl 
+						WHERE
+							use_flg= 'Y'    
+							AND  delt_flg   = 'N' 
+							AND  COM_CD     = 'C036' 
+							AND cd_val = ord.wo_tp_cd) AS wo_tp_nm
+					,ord.wo_tp_cd		
+					,ord.trucker_trdp_cd   /*trucker info*/     
+					,ord.trucker_trdp_nm     		
+		            ,ord.pickup_trdp_cd /*Pick-up*/    
+		            ,ord.pickup_trdp_nm   			
+					,ord.return_trdp_cd   /*return info*/     
+		            ,ord.return_trdp_nm     
+		            ,ord.delivery_trdp_cd /*Delivery*/     
+		            ,ord.delivery_trdp_nm                      
+		            ,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,
+						'') != '' THEN bl.pol_cd 
+						ELSE oth.pol_cd 
+					END AS pol_cd     
+					,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,
+						'') != '' THEN bl.pol_nm 
+						ELSE oth.pol_nm 
+					END AS pol_nm     
+					,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,
+						'') != '' THEN bl.pod_cd 
+						ELSE oth.pod_cd 
+					END AS pod_cd    
+					,CASE 
+						WHEN isnull(bl.INTG_BL_SEQ,
+						'') != '' THEN bl.pod_nm 
+						ELSE oth.pod_nm 
+					END AS pod_nm      
+					,isnull(ord.cgo_pck_qty, 0) cgo_pck_qty     
+		            ,ord.cgo_pck_ut_cd     
+					,isnull(ord.act_wgt_k, 0) act_wgt_k     
+					,isnull(ord.act_wgt_l, 0) act_wgt_l  
+					,ord.lnr_trdp_cd     
+					,ord.lnr_trdp_nm     			
+			        ,case                
+			            when bl.intg_bl_seq is not null then bl.modi_ofc_cd                               
+			            else oth.ofc_cd                          
+			         end as ofc_cd
+			        ,case                
+			            when bl.intg_bl_seq is not null then bl.MODI_USRID                               
+			            else oth.issued_by                          
+			         end as opr_usrid     
+					,case when ISNULL(a.wo_no,'') ='' then '' else 'SEND' end            AS edi_status
+					,bl.intg_bl_seq
+					,bl.biz_clss_cd
+					,bl.air_sea_clss_cd
+			  from tb_pd_ord ord 
+			  LEFT join woInfo a on (a.wo_no = ord.WO_NO) 
+			  LEFT OUTER JOIN 
+				tb_intg_bl bl            
+					ON bl.intg_bl_seq = ord.intg_bl_seq              
+					AND bl.DELT_FLG = 'N'       
+				
+		      LEFT OUTER JOIN
+		        tb_oth_sales oth            
+		            ON  ord.oth_seq = oth.oth_seq                                
+		            AND oth.DELT_FLG = 'N'    
+			  LEFT OUTER JOIN
+			  (
+					select
+						oth_seq as oth_seq1,
+						sts_cd as sts_cd1 
+					from
+						tb_oth_sales_blck
+			  ) blck 
+					ON oth.oth_seq = blck.oth_seq1    		  		            
+		            
+		) 
+		,listInfo as (
+		select
+		       COUNT(*) OVER() tot_cnt
+			   ,ROW_NUMBER() OVER (ORDER BY SND_TMS DESC) AS rnum
+		       ,a.* 
+		  from detailInfo a
+			where 1=1
+			    and a.delt_flg = 'N'
+			  <isNotEmpty property="ref_no">
+			  	and a.ref_no       = #ref_no#
+			  </isNotEmpty>
+			  <isNotEmpty property="mbl_no">
+			  	and a.master_bl_no = #mbl_no#
+			  </isNotEmpty>
+			  <isNotEmpty property="hbl_no">
+			  	and a.house_bl_no  = #hbl_no#
+			  </isNotEmpty>
+			  <isNotEmpty property="trucker_trdp_cd">
+			  	and a.trucker_trdp_cd =#trucker_trdp_cd#
+			  </isNotEmpty>
+			  <isNotEmpty property="ofc_cd">
+			  	and a.ofc_cd          =#ofc_cd#
+			  </isNotEmpty>
+			  <isNotEmpty property="wo_no">
+			  	and a.wo_no           = #wo_no#
+			  </isNotEmpty>
+			  <isNotEmpty property="delivery_trdp_cd">
+			  	and a.delivery_trdp_cd =#delivery_trdp_cd#
+			  </isNotEmpty>
+			  <isNotEmpty property="type">
+			  	and wo_tp_cd =#type#
+			  </isNotEmpty>
+			  <isNotEmpty property="opr_usrid">
+			  	and a.opr_usrid=#opr_usrid#
+			  </isNotEmpty>
+			  <isNotEmpty property="etd_strdt">
+			  	and a.etd_dt_tm_db BETWEEN #etd_strdt# AND #etd_enddt#
+			  </isNotEmpty>
+			  <isNotEmpty property="eta_strdt">
+			  	and a.eta_dt_tm_db BETWEEN #eta_strdt# AND #eta_enddt#
+			  </isNotEmpty>
+			  <isNotEmpty property="edi_status">
+			  	and edi_status = #edi_status#
+			  </isNotEmpty>
+			  
+		) select * from listInfo a  
+	
+	</select>
+
+	
+</sqlMap>

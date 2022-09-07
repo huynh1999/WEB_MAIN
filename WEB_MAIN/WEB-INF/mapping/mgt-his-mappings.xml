@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+    
+    <!--  HISTORY Management   -->
+    <url-mapping url="MGT_HIS_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.his.hismgt.event.MGT_HIS_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_HIS_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="MGT_HIS_0020GS.clt" screen="MGT_HIS_0020GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.his.hismgt.event.MGT_HIS_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <url-mapping url="MGT_HIS_0020_1GS.clt" screen="MGT_HIS_0020_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.his.hismgt.event.MGT_HIS_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--  HISTORY Management (Email, Print) Start -->
+    <url-mapping url="MGT_HIS_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.his.hismgt.event.MGT_HIS_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_HIS_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="MGT_HIS_0041.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.his.hismgt.event.MGT_HIS_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_HIS_0041.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="MGT_HIS_0040GS.clt" screen="MGT_HIS_0040GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.his.hismgt.event.MGT_HIS_0040HTMLAction</web-action-class>
+    </url-mapping> 
+    <!--  HISTORY Management (Email, Print) End -->   
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mgt.his.hismgt.event.MgtHisMgtEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mgt.his.hismgt.MgtHisMgtSC</service-action-class>
+    </event-mapping>
+</mappings>

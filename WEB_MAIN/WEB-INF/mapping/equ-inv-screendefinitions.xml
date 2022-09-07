@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+    <!--#### Equipment Start ####  -->
+    <!-- Invoice 등록 및 조회. Daesoo, Kang(2009.10.05)  -->
+    <screen name="EQU_INV_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0010.jsp" />
+    </screen>
+    
+    <screen name="EQU_INV_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0010GS.jsp"/>
+    </screen>
+    
+    <screen name="EQU_INV_0010_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0010_1GS.jsp"/>
+    </screen>
+    
+    <!-- invoice supply 조회 및 메일발송 Daesoo, Kang(2009.11.05)  -->
+    <screen name="EQU_INV_0012">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0012.jsp" />
+    </screen>
+    
+    <screen name="EQU_INV_0012GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0012GS.jsp"/>
+    </screen>
+    
+    <!-- Invoice popup 조회. Daesoo, Kang(2009.10.05)  -->
+    <screen name="EQU_POP_0110">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_POP_0110.jsp" />
+    </screen>
+    
+    <screen name="EQU_POP_0110GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_POP_0110GS.jsp"/>
+    </screen>
+    
+    <!-- TypeSize Amount popup 조회. Daesoo, Kang(2010.02.11)  -->
+    <screen name="EQU_POP_0120">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_POP_0120.jsp" />
+    </screen>
+    
+    <screen name="EQU_POP_0120GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_POP_0120GS.jsp"/>
+    </screen>
+    
+    <!-- container popup 조회. Daesoo, Kang(2010.05.18)  -->
+    <screen name="EQU_POP_0130">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_POP_0130.jsp" />
+    </screen>
+    
+    <screen name="EQU_POP_0130GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_POP_0130GS.jsp"/>
+    </screen>
+
+    <!-- Invoice Master 등록 및 조회. Daesoo, Kang(2009.10.05)  -->
+    <screen name="EQU_INV_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0020.jsp" />
+    </screen>
+    
+    <screen name="EQU_INV_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0020GS.jsp"/>
+    </screen>
+    
+    <screen name="EQU_INV_0020_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0020_1GS.jsp"/>
+    </screen>
+    
+    <!-- Invoice Mapping 등록 및 조회. Daesoo, Kang(2009.10.05)  -->
+    <screen name="EQU_INV_0021">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0021.jsp" />
+    </screen>
+    
+    <screen name="EQU_INV_0021GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0021GS.jsp"/>
+    </screen>
+    
+    <!-- Invoice List 등록 및 조회. Daesoo, Kang(2010.05.11)  -->
+    <screen name="EQU_INV_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0030.jsp" />
+    </screen>
+    
+    <screen name="EQU_INV_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/equ/inv/invoice/jsp/EQU_INV_0030GS.jsp"/>
+    </screen>
+</screen-definitions>

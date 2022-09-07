@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="wms.ctrt.mgmt">
+	
+	<typeAlias alias="CtrtMgmtVO" 	type="com.clt.apps.fis.wms.ctrtmgmt.dto.CtrtMgmtVO"/>
+	<typeAlias alias="WhInfoVO" 	type="com.clt.apps.fis.wms.ctrtmgmt.dto.WhInfoVO"/>
+	<typeAlias alias="String" 	type="java.lang.String"/>
+	<typeAlias alias="HashMap" 	type="java.util.HashMap"/>
+
+	<select id="searchCtrtMgmtRSQL" parameterClass="HashMap" resultClass="CtrtMgmtVO">
+	/*WmsCtrtMgmtSQL.xml > searchCtrtMgmtRSQL*/
+	SELECT a1.*
+	  FROM (
+		SELECT ROW_NUMBER() OVER (ORDER BY C.CTRT_NO ASC) as ROWNUM,
+			C.CTRT_NO
+			,C.CTRT_NM 
+			,C.CTRT_CUST_CD
+			,dbo.TL_GET_CUST_NM(C.CTRT_CUST_CD) AS CTRT_CUST_NM
+			, C.SALES_PIC_ID
+			,dbo.TL_GET_PIC_NM(C.SALES_PIC_ID) 	AS SALES_PIC_NM
+			,C.SALES_OFC_CD
+			,dbo.TL_GET_ORG_NM(C.SALES_OFC_CD) 	AS SALES_OFC_NM
+			,CONVERT(VARCHAR(10),CONVERT(DATE,C.EFF_FR_DT, 112), 110) AS eff_fr_dt
+			,CONVERT(VARCHAR(10),CONVERT(DATE,C.EFF_TO_DT, 112), 110) AS eff_to_dt
+			,CASE WHEN C.CTRT_USE_FLG = 'Y' THEN 'N' ELSE 'Y' END AS CTRT_DEL_FLG
+			,C.UNIT
+			,C.CAL_METHOD_CD
+			,C.INCL_IB_DT_FLG
+			,C.INCL_OB_DT_FLG
+			,C.CURR_CD
+			,C.UNIT_PRICE
+			,C.CYC_CD
+			,C.VOL_UNIT
+			,C.LOT4_ALIAS
+			,C.LOT5_ALIAS
+			<!-- #6027 [LATONA] WMS 개선 문의사항 - Auto Allocation 이후, LP 수량 수정 가능하도록 -->
+			,ISNULL(OVR_ALOC_YN,'N') AS OVR_ALOC_YN  
+		FROM TL_CTRT C
+		where 1=1
+		<isNotEmpty property="ctrt_cd">
+			AND CTRT_NO = #ctrt_cd#
+		</isNotEmpty>
+		<isNotEmpty property="cus_cd">
+			AND CTRT_CUST_CD = #cus_cd#
+		</isNotEmpty>
+		<isEmpty property="ctrt_cd">
+			<isNotEmpty property="ctrt_nm">
+				AND CTRT_NM like '%' + #ctrt_nm# + '%'
+			</isNotEmpty>
+		</isEmpty>
+		<isNotEmpty property="use_yn">
+			AND ctrt_use_flg = #use_yn#
+		</isNotEmpty>
+		
+		<isEqual property="valid_yn" compareValue="Y">
+			AND #curTime# BETWEEN EFF_FR_DT AND EFF_TO_DT 
+		</isEqual>
+		<isEqual property="valid_yn" compareValue="N">
+			AND CTRT_NO NOT IN (SELECT CTRT_NO FROM TL_CTRT WHERE  #curTime# BETWEEN EFF_FR_DT AND EFF_TO_DT)
+		</isEqual>		
+		
+		
+	 ) a1
+		 <![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]> 
+	</select>
+	
+	<select id="searchCtrtMgmtRSQL_CNT" parameterClass="HashMap" resultClass="Integer">
+	/*WmsCtrtMgmtSQL.xml > searchCtrtMgmtRSQL*/
+	
+		select COUNT (*) From 
+			(select 
+				C.CTRT_NO
+				,C.CTRT_NM 
+				,C.CTRT_CUST_CD
+				,dbo.TL_GET_CUST_NM(C.CTRT_CUST_CD) AS CTRT_CUST_NM
+				, C.SALES_PIC_ID
+				,dbo.TL_GET_PIC_NM(C.SALES_PIC_ID) 	AS SALES_PIC_NM
+				,C.SALES_OFC_CD
+				,dbo.TL_GET_ORG_NM(C.SALES_OFC_CD) 	AS SALES_OFC_NM
+				,CONVERT(VARCHAR(10),CONVERT(DATE,C.EFF_FR_DT, 112), 110) AS eff_fr_dt
+				,CONVERT(VARCHAR(10),CONVERT(DATE,C.EFF_TO_DT, 112), 110) AS eff_to_dt
+				,CASE WHEN C.CTRT_USE_FLG = 'Y' THEN 'N' ELSE 'Y' END AS CTRT_DEL_FLG
+			FROM TL_CTRT C
+			where 1=1
+			<isNotEmpty property="ctrt_cd">
+				AND CTRT_NO = #ctrt_cd#
+			</isNotEmpty>
+			<isEmpty property="ctrt_cd">
+				<isNotEmpty property="ctrt_nm">
+					AND CTRT_NM like '%' + #ctrt_nm# + '%'
+				</isNotEmpty>
+			</isEmpty>
+			<isNotEmpty property="use_yn">
+				AND ctrt_use_flg = #use_yn#
+			</isNotEmpty>
+			
+		<isEqual property="valid_yn" compareValue="Y">
+			AND #curTime# BETWEEN EFF_FR_DT AND EFF_TO_DT 
+		</isEqual>
+		<isEqual property="valid_yn" compareValue="N">
+			AND CTRT_NO NOT IN (SELECT CTRT_NO FROM TL_CTRT WHERE  #curTime# BETWEEN EFF_FR_DT AND EFF_TO_DT)
+		</isEqual>		
+		<isNotEmpty property="cus_cd">
+			AND CTRT_CUST_CD = #cus_cd#
+		</isNotEmpty>
+			
+		) as T
+	
+	</select>
+
+ <!-- ZOOT::TODO-저장시 저장 data 제일 상단위치 시켜 수정 정보 Refresh 	
+	<select id="searchCtrtMgmtRSQL" parameterClass="HashMap" resultClass="CtrtMgmtVO">
+	/*WmsCtrtMgmtSQL.xml > searchCtrtMgmtRSQL*/
+	WITH T_CTRT AS ( 
+		SELECT 'A' AS SORT, A.* FROM TL_CTRT A 
+			WHERE 1=1  
+				AND CTRT_NO = #saveCtrt_cd#
+		UNION ALL
+		SELECT 'B' AS SORT, B.* FROM TL_CTRT B 
+			WHERE NOT EXISTS ( SELECT 'X' FROM TL_CTRT A 
+								WHERE B.CTRT_NO = A.CTRT_NO 
+								  AND CTRT_NO = #saveCtrt_cd# )
+			<isNotEmpty property="ctrt_cd">
+				AND CTRT_NO = #ctrt_cd#
+			</isNotEmpty>
+			<isEmpty property="ctrt_cd">
+				<isNotEmpty property="ctrt_nm">
+					AND CTRT_NM like '%' + #ctrt_nm# + '%'
+				</isNotEmpty>
+			</isEmpty>
+			<isNotEmpty property="use_yn">
+				AND ctrt_use_flg = #use_yn#
+			</isNotEmpty>
+	)
+	SELECT a1.*
+				  FROM (
+		SELECT ROW_NUMBER() OVER (ORDER BY C.SORT ASC, C.CTRT_NO ASC) as ROWNUM,
+			C.CTRT_NO
+			,C.CTRT_NM 
+			,C.CTRT_CUST_CD
+			,dbo.TL_GET_CUST_NM(C.CTRT_CUST_CD) AS CTRT_CUST_NM
+			, C.SALES_PIC_ID
+			,dbo.TL_GET_PIC_NM(C.SALES_PIC_ID) 	AS SALES_PIC_NM
+			,C.SALES_OFC_CD
+			,dbo.TL_GET_ORG_NM(C.SALES_OFC_CD) 	AS SALES_OFC_NM
+			,CONVERT(VARCHAR(10),CONVERT(DATE,C.EFF_FR_DT, 112), 110) AS eff_fr_dt
+			,CONVERT(VARCHAR(10),CONVERT(DATE,C.EFF_TO_DT, 112), 110) AS eff_to_dt
+			,CASE WHEN C.CTRT_USE_FLG = 'Y' THEN 'N' ELSE 'Y' END AS CTRT_DEL_FLG
+		FROM T_CTRT C
+	 ) a1
+		 <![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]> 
+	</select>
+	
+	<select id="searchCtrtMgmtRSQL_CNT" parameterClass="HashMap" resultClass="Integer">
+	/*WmsCtrtMgmtSQL.xml > searchCtrtMgmtRSQL_CNT*/
+		WITH T_CTRT AS ( 
+			SELECT 'A' AS SORT, A.* FROM TL_CTRT A 
+				WHERE 1=1  
+					AND CTRT_NO = #saveCtrt_cd#
+			UNION ALL
+			SELECT 'B' AS SORT, B.* FROM TL_CTRT B 
+				WHERE NOT EXISTS ( SELECT 'X' FROM TL_CTRT A 
+									WHERE B.CTRT_NO = A.CTRT_NO 
+									  AND CTRT_NO = #saveCtrt_cd# )
+				<isNotEmpty property="ctrt_cd">
+					AND CTRT_NO = #ctrt_cd#
+				</isNotEmpty>
+				<isEmpty property="ctrt_cd">
+					<isNotEmpty property="ctrt_nm">
+						AND CTRT_NM like '%' + #ctrt_nm# + '%'
+					</isNotEmpty>
+				</isEmpty>
+				<isNotEmpty property="use_yn">
+					AND ctrt_use_flg = #use_yn#
+				</isNotEmpty>
+		)
+		select COUNT (*) FROM T_CTRT C					
+	
+	</select>
+-->		
+	<select id="searchWhInfotRSQL" parameterClass="HashMap" resultClass="WhInfoVO">
+	/*WmsCtrtMgmtSQL.xml > searchWhInfotRSQL*/
+	
+		SELECT
+			C.LOC_SEQ,
+			C.LOC_CD,
+			dbo.TL_GET_LOC_NM(C.LOC_CD) AS LOC_NM,
+			C.LOC_ADDR,
+			C.LOC_FREEDAYS,
+			C.OFC_CD,
+			C.PRIV_FLG,
+			C.CUST_CD,
+			dbo.TL_GET_CUST_NM (C.CUST_CD) AS CUST_NM,
+			C.USE_FLG,
+			C.CTRT_NO,
+			ISNULL(C.WH_DAILY_CLS_FLG, 'N') AS WH_DAILY_CLS_FLG,
+			C.WH_DAILY_CLS_HM
+		
+		<!-- <isEqual property="last_ver" compareValue = "LAST"> -->
+			FROM
+				TL_CTRT_WH_LOC C
+			WHERE
+				C.CTRT_NO = #ctrt_no#
+		<!-- </isEqual> -->
+		
+		<!-- TinLuong Comment : Not use table TL_CTRT_WH_LOC_VER 20151117
+		<isNotEqual property="last_ver" compareValue = "LAST">
+			FROM
+				TL_CTRT_WH_LOC_VER C
+			WHERE
+				C.CTRT_NO = #ctrt_no#
+			AND C.SOP_VER = #sop_ver#
+		</isNotEqual> -->
+		
+		ORDER BY
+			C.LOC_SEQ
+	
+	</select>
+	
+	<insert id="insertCtrtCSQL"  parameterClass="CtrtMgmtVO">
+	/*WmsCtrtMgmtSQL.xml > insertCtrtCSQL*/
+		INSERT INTO TL_CTRT(
+		        CTRT_NM,
+				CTRT_NO,
+		        EFF_FR_DT,
+		        EFF_TO_DT,
+		        SALES_OFC_CD,
+		        SALES_PIC_ID,
+		        CTRT_CUST_CD,
+		        CTRT_USE_FLG,
+		        UNIT,
+		        CAL_METHOD_CD,
+		        INCL_IB_DT_FLG,
+		        INCL_OB_DT_FLG,
+		        CURR_CD,
+		        UNIT_PRICE,
+		        CYC_CD,
+		        VOL_UNIT,   <!-- #2511 [WMS4.0]Storage closing without each item's rate data -->
+		        LOT4_ALIAS, <!-- #2807 [BINEX WMS4.0] LOT04, LOT05 NICKNAME CUSTOMIZATION -->
+		        LOT5_ALIAS, <!-- #2807 [BINEX WMS4.0] LOT04, LOT05 NICKNAME CUSTOMIZATION -->
+		        RGST_ID,
+		        RGST_SYS_DT,
+				MODI_ID,
+		        MODI_SYS_DT,
+		        OVR_ALOC_YN 
+	    ) VALUES (
+		  		#ctrt_nm#,
+				#ctrt_no#,
+				#eff_fr_dt#,
+				#eff_to_dt#,
+				#sales_ofc_cd#,
+				#sales_pic_id#,
+				#ctrt_cust_cd#,
+				#ctrt_use_flg#,
+				#unit#,
+				#cal_method_cd#,
+				#incl_ib_dt_flg#,
+				#incl_ob_dt_flg#,
+		        #curr_cd#,
+		        (SELECT CONVERT(NUMERIC(20, 8), CAST(REPLACE(#unit_price#,',','') AS FLOAT))),
+		        #cyc_cd#,
+		        #vol_unit#, <!-- #2511 [WMS4.0]Storage closing without each item's rate data -->
+		        #lot4_alias#, <!-- #2807 [BINEX WMS4.0] LOT04, LOT05 NICKNAME CUSTOMIZATION -->
+		        #lot5_alias#, <!-- #2807 [BINEX WMS4.0] LOT04, LOT05 NICKNAME CUSTOMIZATION -->
+				#rgst_id#,
+				GETDATE(),
+				#modi_id#,
+				GETDATE(),
+				#ovr_aloc_yn#  <!-- #6027 [LATONA] WMS 개선 문의사항 - Auto Allocation 이후, LP 수량 수정 가능하도록 -->
+		)
+	</insert>
+	
+	<update id="updateCtrtUSQL" parameterClass="CtrtMgmtVO">
+	/*WmsCtrtMgmtSQL.xml > updateCtrtUSQL*/
+	UPDATE TL_CTRT
+	SET 
+        CTRT_NM 		= #ctrt_nm#,
+        EFF_FR_DT 		= #eff_fr_dt#,
+        EFF_TO_DT 		= #eff_to_dt#,
+        SALES_OFC_CD 	= #sales_ofc_cd#,
+        SALES_PIC_ID 	= #sales_pic_id#,
+        CTRT_CUST_CD 	= #ctrt_cust_cd#,
+        CTRT_USE_FLG 	= #ctrt_use_flg#, 
+        UNIT			= #unit#,
+        CAL_METHOD_CD	= #cal_method_cd#,
+        INCL_IB_DT_FLG	= #incl_ib_dt_flg#,
+        INCL_OB_DT_FLG	= #incl_ob_dt_flg#,
+        CURR_CD			= #curr_cd#,
+        UNIT_PRICE		= (SELECT CONVERT(NUMERIC(20, 8), CAST(REPLACE(#unit_price#,',','') AS FLOAT))),
+        CYC_CD			= #cyc_cd#,
+        VOL_UNIT        = #vol_unit#, <!-- #2511 [WMS4.0]Storage closing without each item's rate data -->
+        LOT4_ALIAS      = #lot4_alias#, <!-- #2807 [BINEX WMS4.0] LOT04, LOT05 NICKNAME CUSTOMIZATION -->
+		LOT5_ALIAS      = #lot5_alias#, <!-- #2807 [BINEX WMS4.0] LOT04, LOT05 NICKNAME CUSTOMIZATION -->
+		MODI_ID  		= #modi_id#,
+        MODI_SYS_DT 	= GETDATE(),
+        OVR_ALOC_YN = #ovr_aloc_yn# <!-- #6027 [LATONA] WMS 개선 문의사항 - Auto Allocation 이후, LP 수량 수정 가능하도록 -->
+     WHERE CTRT_NO = #ctrt_no#
+	</update>
+
+	<insert id="insertWhInfoCSQL" parameterClass="WhInfoVO">
+	INSERT INTO TL_CTRT_WH_LOC(
+	 			   CTRT_NO
+				  ,LOC_SEQ
+				  ,OFC_CD
+				  ,LOC_CD
+				  ,LOC_ADDR
+				  ,LOC_FREEDAYS
+				  ,PRIV_FLG
+				  ,CUST_CD
+				  ,USE_FLG
+				  ,WH_DAILY_CLS_FLG
+          		  ,WH_DAILY_CLS_HM
+				  ,RGST_ID
+				  ,RGST_SYS_DT
+				  ,MODI_ID
+				  ,MODI_SYS_DT
+		)VALUES(
+				#ctrt_no#
+			  ,(SELECT ISNULL(MAX(C.LOC_SEQ),0)+1
+			      FROM TL_CTRT_WH_LOC C
+			     WHERE C.CTRT_NO = #ctrt_no# )
+			  ,#ofc_cd#
+			  ,#loc_cd#
+			  ,#loc_addr#
+			  ,#loc_freedays#
+			  ,#priv_flg#
+			  ,#cust_cd#
+			  ,#use_flg#
+			  ,#wh_daily_cls_flg#
+              ,REPLACE(#wh_daily_cls_hm#, ':', '')
+			  ,#rgst_id#
+			  ,GETDATE()
+			  ,#modi_id#
+			  ,GETDATE()
+		)
+	</insert>
+	
+	<update id="updateWhInfoUSQL" parameterClass="WhInfoVO">
+		UPDATE TL_CTRT_WH_LOC
+		   SET OFC_CD       = #ofc_cd#
+		      ,LOC_CD       = #loc_cd#
+		      ,LOC_ADDR     = #loc_addr#
+		      ,LOC_FREEDAYS = #loc_freedays#
+		      ,PRIV_FLG     = #priv_flg#
+		      ,CUST_CD      = #cust_cd#
+		      ,USE_FLG      = #use_flg#
+		      ,WH_DAILY_CLS_FLG = #wh_daily_cls_flg#
+              ,WH_DAILY_CLS_HM = REPLACE(#wh_daily_cls_hm#, ':', '')
+		      ,MODI_ID      = #modi_id#
+		      ,MODI_SYS_DT  = GETDATE()
+		 WHERE CTRT_NO = #ctrt_no#
+		   AND LOC_SEQ = #loc_seq#
+	</update>
+	
+	<delete id="deleteWHInfoDSQL" parameterClass="WhInfoVO">
+ 		DELETE FROM TL_CTRT_WH_LOC
+ 		 WHERE CTRT_NO = #ctrt_no#
+		   AND LOC_SEQ = #loc_seq#
+ 	</delete>
+	
+	
+	
+	
+	
+	
+	
+</sqlMap>
+
+
+
+
+
+
+
+
+

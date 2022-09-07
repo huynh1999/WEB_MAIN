@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <screen name="EDI_VGM_0010" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/vgm/jsp/EDI_VGM_0010.jsp"/>
+    </screen>
+
+    <screen name="EDI_VGM_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/vgm/jsp/EDI_VGM_0010GS.jsp"/>
+    </screen>
+    
+</screen-definitions>

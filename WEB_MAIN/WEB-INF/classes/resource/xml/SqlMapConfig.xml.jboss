@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" 
+ "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+<sqlMapConfig>
+	<settings 
+	   cacheModelsEnabled="true" 
+	   enhancementEnabled="true" 
+	   lazyLoadingEnabled="true" 
+	   maxRequests="128"  
+	   maxSessions="20" 
+	   maxTransactions="10" 
+       useStatementNamespaces="true" 
+       statementCachingEnabled="true"
+       classInfoCacheEnabled="true"
+	   />
+	<transactionManager type="JDBC">
+		<!--<property name="UserTransaction" value="java:comp/env/UserTransaction"/>-->
+		<dataSource type="JNDI">
+			<!-- <property name="DataSource" value="java:comp/env/jdbc/FMS"/> --><!--TOMCAT-->
+			<property name="DataSource" value="java:/jdbc/FMS"/><!--JBOSS-->
+		</dataSource>
+	</transactionManager>
+	
+    <sqlMap resource="com/clt/sqlmaps/mssql/OpusBaseSQL.xml"/>        <!--기본 System -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmMcmLocationSQL.xml"/>  <!-- Location Code관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmMcmOfficeSQL.xml"/>    <!-- Office Code관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeContainerSQL.xml"/><!-- Container Code관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeCommoditySQL.xml"/><!-- Commodity Code관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodePackagesSQL.xml"/> <!-- Package Code관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeVesselSQL.xml"/>   <!-- Vessel Code관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeFreightSQL.xml"/>  <!-- Freight Code관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeVatSQL.xml"/>      <!-- VAT RATE 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmMcmPartnerSQL.xml"/>   <!-- Trade Partner 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeCurrencySQL.xml"/> <!-- Currency Code 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/CmmAjaxSQL.xml"/>         <!-- 자동 코드 조회 사용시 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtCurExchangeRateSQL.xml"/><!-- 환률관리 공통 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtJobMgmtSQL.xml"/>       <!-- Job Template 관리-->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MgtHisMgtSQL.xml"/>        <!-- History Management 관리-->
+    
+    <sqlMap resource="com/clt/sqlmaps/mssql/CmmPopUpSQL.xml"/>     <!-- 팝업 관리-->
+    <sqlMap resource="com/clt/sqlmaps/mssql/BlCmmSQL.xml"/>        <!-- BL 관리-->
+    <sqlMap resource="com/clt/sqlmaps/mssql/AirBlSQL.xml"/>        <!-- Air BL 관리-->
+    
+    <sqlMap resource="com/clt/sqlmaps/mssql/SeeBmdShippingRequestSQL.xml"/>        <!-- Shipping Requet 관리-->
+    
+    <sqlMap resource="com/clt/sqlmaps/mssql/SalTpmTradePartnerSQL.xml"/>     <!-- History Management 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/EquManagementSQL.xml"/>          <!-- Equpment Management 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/SeeFrtFreightSQL.xml"/>          <!-- Freight Management 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/SeeBmdShippingDocumentSQL.xml"/> <!-- Shipping Document 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/EquInvoiceSQL.xml"/>        <!-- Equpment Invoice 관리-->
+    <sqlMap resource="com/clt/sqlmaps/mssql/SalTfmTariffMgmtSQL.xml"/>        <!-- SALES Tarrif 관리-->
+    
+    <sqlMap resource="com/clt/sqlmaps/mssql/AccInvReportSQL.xml"/>     <!-- Invoice Report 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/AccInvInvoiceListSQL.xml"/>     <!-- Invoice List 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/AccInvInvoiceSQL.xml"/>     <!-- Invoice Management 관리 -->
+    
+    <sqlMap resource="com/clt/sqlmaps/mssql/AicCmmSQL.xml"/>     <!-- Air 공통 관리 -->
+    
+    <sqlMap resource="com/clt/sqlmaps/mssql/SecWorkOrderSQL.xml"/>      <!-- Work Order 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/RptPrintSQL.xml"/>      <!-- Report Print 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/SeiDocArrivalSQL.xml"/>      <!-- 해운수입 Arrival Notice 관리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/SecFrtCorrectionAdviceSQL.xml"/><!-- C/A 처리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/EdiCstmSQL.xml"/><!-- EDI 처리 -->
+    <sqlMap resource="com/clt/sqlmaps/mssql/MdmCodeWarehouseSQL.xml"/><!-- Warehouse 관리 -->
+</sqlMapConfig>

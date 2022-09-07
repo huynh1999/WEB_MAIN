@@ -1,0 +1,2052 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="edi.cstm">
+	
+	<!--OnBoard Date, 편명기준으로 EDI전송(헤더) 정보를 조회함   -->
+    <select id="selectAirBlIfList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiKrcstmVO">
+    	/** EdiCstmSQL.xml -> selectAirBlIfList **/
+		SELECT  bltp.flt_no,         					bltp.obrd_dt_tm AS workday,    
+		        ISNULL(edi.edi_sts,'X') AS edi_sts,     bltp.intg_bl_seq,                bltp.BL_NO mbl_no,         
+		        CONVERT(VARCHAR, edi.smt_dt, 23)+' '+CONVERT(VARCHAR, edi.smt_dt, 24) AS smt_dt,    
+		        edi.edi_cre_seq,     (SELECT SCAC FROM TB_EDI_CNFG WHERE TP = 'KTN') AS decnsl_cmp_cd,
+		        kradd.cstm_cd,       cst.cd_lbl AS cstm_nm,
+		        kradd.cstm_dept_cd,  dpt.cd_lbl AS cstm_dept_nm
+	      FROM(
+			    SELECT  bl.intg_bl_seq, bl.BL_NO, bl.obrd_dt_tm,      bl.flt_no,     bnd.bnd_clss_cd
+			      FROM  tb_intg_bl bl JOIN tb_add_info_bnd bnd
+				    ON  bl.intg_bl_seq  = bnd.intg_bl_seq
+			     WHERE  bl.BIZ_CLSS_CD  = 'M' 
+		           AND  bl.AIR_SEA_CLSS_CD= #f_air_sea_clss_cd#  
+		           AND  bnd.bnd_clss_cd   = #f_bnd_clss_cd#
+		           AND  bl.flt_no IS NOT NULL  
+			       AND  bl.delt_flg = 'N' AND  bnd.delt_flg = 'N'
+        <dynamic>
+            <isNotNull property="f_obdt_bgn_dt">
+          <![CDATA[AND  (bl.obrd_dt_tm >=#f_obdt_bgn_dt# AND bl.obrd_dt_tm <=#f_obdt_end_dt#) ]]> 
+            </isNotNull>
+			<isNotNull property="f_flt_no">
+				   AND  bl.flt_no LIKE '$f_flt_no$%'
+			</isNotNull>
+        </dynamic>
+			     GROUP BY bl.intg_bl_seq, bl.BL_NO,bl.obrd_dt_tm, bl.flt_no,  bnd.bnd_clss_cd
+		      )bltp
+LEFT OUTER JOIN  tb_edi_hdr edi
+			 ON  bltp.obrd_dt_tm = edi.workday AND edi.cstm_edi_cd = 'KR' AND  edi.flt_no = bltp.flt_no 
+		    AND  edi.delt_flg = 'N' AND edi.edi_sts !='R'
+		    AND  bltp.bnd_clss_cd = edi.bnd_clss_cd        
+		    AND  edi.edi_msg_tp = #edi_msg_tp# 
+		 
+LEFT OUTER JOIN tb_kr_cstm_add_info kradd
+             ON  kradd.edi_cre_seq = edi.edi_cre_seq
+
+LEFT OUTER JOIN tb_edi_cd cst
+             ON cst.cd_val = kradd.cstm_cd AND cst.prnr_cd_seq IS NULL
+         
+LEFT OUTER JOIN tb_edi_cd dpt
+             ON dpt.cd_val = kradd.cstm_dept_cd 
+             /* AND dpt.prnr_cd_seq = '999' */
+			
+			 /* 2016.04.12 C.W.Park Modified */
+             AND dpt.prnr_cd_seq = (select CD_SEQ from tb_edi_cd where 1 = 1 and CD_VAL = kradd.CSTM_CD and prnr_cd_seq is null)
+			
+	   ORDER BY  bltp.obrd_dt_tm DESC, flt_no ASC
+    </select>
+	
+	<!-- ETA, 편명기준으로 EDI전송(헤더) 정보를 조회함   -->
+    <select id="selectAirImpBlIfList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiKrcstmVO">
+    	/** EdiCstmSQL.xml -> selectAirImpBlIfList **/
+        SELECT  bltp.flt_no,         					bltp.obrd_dt_tm AS workday,    
+                ISNULL(edi.edi_sts,'X') AS edi_sts,     bltp.intg_bl_seq,              bltp.BL_NO mbl_no,
+                CONVERT(VARCHAR, edi.smt_dt, 23)+' '+CONVERT(VARCHAR, edi.smt_dt, 24) AS smt_dt,
+                edi.edi_cre_seq,     (SELECT SCAC FROM TB_EDI_CNFG WHERE TP = 'KTN') AS decnsl_cmp_cd,
+                kradd.cstm_cd,       cst.cd_lbl AS cstm_nm,
+                kradd.cstm_dept_cd,  dpt.cd_lbl AS cstm_dept_nm
+          FROM(
+                SELECT  bl.intg_bl_seq, bl.BL_NO,SUBSTRING(bl.eta_dt_tm, 1, 8) AS obrd_dt_tm,      
+                        bl.flt_no,     bnd.bnd_clss_cd
+                  FROM  tb_intg_bl bl 
+                  JOIN tb_add_info_bnd bnd
+                    ON  bl.intg_bl_seq  = bnd.intg_bl_seq
+                 WHERE  bl.BIZ_CLSS_CD  = 'M' 
+                   AND  bl.AIR_SEA_CLSS_CD= #f_air_sea_clss_cd#  
+                   AND  bnd.bnd_clss_cd   = #f_bnd_clss_cd#
+                   AND  bl.flt_no IS NOT NULL
+                   AND  bl.delt_flg = 'N' AND  bnd.delt_flg = 'N'
+        <dynamic>
+            <isNotNull property="f_obdt_bgn_dt">
+          <![CDATA[AND  (bl.eta_dt_tm >=#f_obdt_bgn_dt# AND bl.eta_dt_tm <=#f_obdt_end_dt#) ]]> 
+            </isNotNull>
+            <isNotNull property="f_flt_no">
+                   AND  bl.flt_no LIKE '$f_flt_no$%'
+            </isNotNull>
+        </dynamic>
+                 GROUP BY bl.intg_bl_seq, bl.BL_NO,bl.eta_dt_tm, bl.flt_no,     bnd.bnd_clss_cd
+              )bltp
+LEFT OUTER JOIN  tb_edi_hdr edi
+             ON  bltp.obrd_dt_tm = edi.workday AND edi.cstm_edi_cd = 'KR' AND  edi.flt_no = bltp.flt_no 
+            AND  edi.delt_flg = 'N' AND edi.edi_sts !='R'
+            AND  bltp.bnd_clss_cd = edi.bnd_clss_cd
+            AND  edi.edi_msg_tp = #edi_msg_tp#        
+		
+LEFT OUTER JOIN tb_kr_cstm_add_info kradd
+             ON  kradd.edi_cre_seq = edi.edi_cre_seq
+
+LEFT OUTER JOIN tb_edi_cd cst
+             ON cst.cd_val = kradd.cstm_cd AND cst.prnr_cd_seq IS NULL
+         
+LEFT OUTER JOIN tb_edi_cd dpt
+             ON dpt.cd_val = kradd.cstm_dept_cd 
+             /* AND dpt.prnr_cd_seq = '999' */
+            
+             /* 2016.04.12 C.W.Park Modified */
+             AND dpt.prnr_cd_seq = (select CD_SEQ from tb_edi_cd where 1 = 1 and CD_VAL = kradd.CSTM_CD and prnr_cd_seq is null)
+            
+       ORDER BY  bltp.obrd_dt_tm DESC, flt_no ASC
+    </select>
+	
+	
+	<!--OnBoard Date, 편명으로 BL 정보를 조회함   -->
+    <select id="selectPerBLList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> selectPerBLList **/
+        SELECT hbl.mbl_flt_no,  hbl.mbl_obrd_dt,
+               hbl.mbl_no,      hbl.mbl_bl_seq, 
+                       
+               hbl.hbl_flt_no,  hbl.hbl_obrd_dt,
+               hbl.hbl_no,      hbl.hbl_bl_seq,     hbl.edi_sts,
+               CASE WHEN count(eif.edi_xpt_seq) =0  THEN 'N' ELSE 'Y' END AS exp_extd_code,
+               shpr_cty_cd, 	cnee_cty_cd, 		noti_cty_cd, 
+               fwrd_fcty_plc_cd, 			ucr_no,
+               hbl.pck_qty,
+			   hbl.grs_wgt,
+			   hbl.shp_nm,
+			   hbl.shp_addr,
+			   hbl.cnee_nm,
+			   hbl.cnee_addr,
+			   hbl.rep_cmdt_nm,
+			   (select count(x.edi_xpt_seq) from tb_edi_info x where x.intg_bl_seq = hbl.hbl_bl_seq and x.delt_flg = 'N' and isnull(x.xpt_no,'') = '') as no_xpt_no_cnt,
+			   (select count(x.edi_xpt_seq) from tb_edi_info x where x.intg_bl_seq = hbl.hbl_bl_seq and x.delt_flg = 'N' and isnull(x.pck_qty,0) = 0) as no_pck_qty_cnt,
+			   (select count(x.edi_xpt_seq) from tb_edi_info x where x.intg_bl_seq = hbl.hbl_bl_seq and x.delt_flg = 'N' and isnull(x.edi_grs_wt,0) = 0) as no_grs_wgt_cnt,
+			   '' AS noti_nm
+        FROM(
+                SELECT mbl.bl_no  AS mbl_no,        mbl.intg_bl_seq AS mbl_bl_seq, 
+ 					   mbl.flt_no AS mbl_flt_no,    SUBSTRING(mbl.etd_dt_tm, 1, 8) AS mbl_obrd_dt,
+					   hbl.bl_no  AS hbl_no,        hbl.intg_bl_seq AS hbl_bl_seq, 
+					   hbl.flt_no AS hbl_flt_no,    SUBSTRING(hbl.obrd_dt_tm, 1, 8) AS hbl_obrd_dt,
+					   hbl.pck_qty,
+					   hbl.grs_wgt,
+					   shpr.trdp_nm AS shp_nm,    
+					   shpr.trdp_addr AS shp_addr,
+					   cnee.trdp_nm AS cnee_nm,   
+					   cnee.trdp_addr AS cnee_addr,
+					   hbl.rep_cmdt_nm
+                <isNotNull property="edi_cre_seq">
+                           , ebl.biz_clss_cd AS edi_sts
+                           , ebl.shpr_cty_cd AS shpr_cty_cd
+                           , ebl.cnee_cty_cd AS cnee_cty_cd
+                           , ebl.noti_cty_cd AS noti_cty_cd
+                           , ebl.fwrd_fcty_plc_cd AS fwrd_fcty_plc_cd
+                           , ebl.ucr_no AS ucr_no
+                    </isNotNull>
+                    <isNull property="edi_cre_seq">
+                           , ' ' AS edi_sts
+                           , shpr_city.un_loc_cd AS shpr_cty_cd
+                           , cnee_city.un_loc_cd AS cnee_cty_cd
+                           , noti_city.un_loc_cd AS noti_cty_cd
+                           <![CDATA[
+			               , CASE WHEN len(wh.wh_cd) < 9 THEN wh.wh_cd
+			                 	ELSE Reverse(SUBSTRING(Reverse(wh.wh_cd), 1, 8))
+			                 END AS fwrd_fcty_plc_cd
+						   ]]>
+                           , hbl_bnd.ucr_no AS ucr_no
+                    </isNull>
+                      FROM tb_intg_bl mbl
+                      JOIN tb_add_info_bnd bnd
+                        ON mbl.intg_bl_seq = bnd.intg_bl_seq     AND bnd.delt_flg = 'N'
+                    
+                      JOIN tb_intg_bl_rlt rlt
+                        ON rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND rlt.delt_flg = 'N'
+                    
+                      JOIN tb_intg_bl hbl
+                        ON hbl.intg_bl_seq = rlt.intg_bl_seq     AND hbl.delt_flg = 'N'
+                        
+                      JOIN tb_add_info_bnd hbl_bnd
+                        ON hbl.intg_bl_seq = hbl_bnd.intg_bl_seq     AND hbl_bnd.delt_flg = 'N'
+                        
+                      LEFT OUTER JOIN TB_BL_PRNR shpr               
+						ON hbl.intg_bl_seq = shpr.intg_bl_seq  
+						AND shpr.bl_trdp_tp_cd = 'S01' 
+						AND shpr.delt_flg = 'N'  
+						
+					  LEFT OUTER JOIN TB_TRDP shpr_trdp
+           				ON shpr.trdp_cd = shpr_trdp.trdp_cd  AND shpr_trdp.delt_flg = 'N' 
+           				
+           			  LEFT OUTER JOIN TB_LOC shpr_city
+           				ON shpr_trdp.city_cd = shpr_city.loc_cd  AND shpr_city.delt_flg = 'N' 
+				                      
+					  LEFT OUTER JOIN TB_BL_PRNR cnee               
+						ON hbl.intg_bl_seq = cnee.intg_bl_seq  
+						AND cnee.bl_trdp_tp_cd = 'C01' 
+						AND cnee.delt_flg = 'N'     
+						
+					  LEFT OUTER JOIN TB_TRDP cnee_trdp
+			            ON cnee.trdp_cd = cnee_trdp.trdp_cd  AND cnee_trdp.delt_flg = 'N' 
+			            
+			          LEFT OUTER JOIN TB_LOC cnee_city
+           				ON cnee_trdp.city_cd = cnee_city.loc_cd  AND cnee_city.delt_flg = 'N' 
+			             
+					  LEFT OUTER JOIN TB_BL_PRNR noti                      
+			            ON hbl.intg_bl_seq = noti.intg_bl_seq         
+			            AND noti.bl_trdp_tp_cd = 'N01'        
+			            AND noti.delt_flg = 'N'    
+			             
+					  LEFT OUTER JOIN TB_TRDP noti_trdp
+			            ON noti.trdp_cd = noti_trdp.trdp_cd  AND noti_trdp.delt_flg = 'N'   
+			             
+			          LEFT OUTER JOIN TB_LOC noti_city
+           				ON noti_trdp.city_cd = noti_city.loc_cd  AND noti_city.delt_flg = 'N' 
+           				
+           			  LEFT OUTER JOIN TB_KR_CSTM_WH_CD wh
+           				ON hbl.cfs_nod_cd = wh.wh_seq 
+           				   
+                    <isNotNull property="edi_cre_seq">
+            LEFT OUTER JOIN  tb_kr_cstm_edi_bl_info ebl
+                         ON  hbl.intg_bl_seq = ebl.intg_bl_seq   AND ebl.biz_clss_cd = 'H' 
+                        AND  ebl.edi_cre_seq = #edi_cre_seq#
+                        <!-- AND  ebl.intg_bl_seq = #intg_bl_seq# -->    
+                    </isNotNull>
+                     WHERE mbl.biz_clss_cd = 'M'                 AND mbl.air_sea_clss_cd = #f_air_sea_clss_cd# 
+                       AND bnd.bnd_clss_cd = #f_bnd_clss_cd#
+                       AND mbl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+                       AND mbl.etd_dt_tm LIKE '$f_obrd_dt$%' AND mbl.flt_no = #f_flt_no#
+        )hbl
+LEFT OUTER JOIN TB_EDI_INFO eif
+             ON hbl.hbl_bl_seq = eif.intg_bl_seq
+    GROUP BY hbl.mbl_flt_no,  hbl.mbl_obrd_dt,
+             hbl.mbl_no,      hbl.mbl_bl_seq, 
+                   
+             hbl.hbl_flt_no,  hbl.hbl_obrd_dt,
+             hbl.hbl_no,      hbl.hbl_bl_seq,    hbl.edi_sts,
+             hbl.shpr_cty_cd, 	hbl.cnee_cty_cd, 		hbl.noti_cty_cd, 
+             hbl.fwrd_fcty_plc_cd, 			hbl.ucr_no,
+             hbl.pck_qty,
+			 hbl.grs_wgt,
+			 hbl.shp_nm,
+			 hbl.shp_addr,
+			 hbl.cnee_nm,
+			 hbl.cnee_addr,
+			 hbl.rep_cmdt_nm  
+    </select>
+	
+    <!--항공 수입. OnBoard Date, 편명으로 BL 정보를 조회함   -->
+    <select id="selectImpPerBLList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> selectImpPerBLList **/
+        SELECT mbl.bl_no  AS mbl_no,        mbl.intg_bl_seq AS mbl_bl_seq, 
+               mbl.flt_no AS mbl_flt_no,    SUBSTRING(mbl.eta_dt_tm, 1, 8) AS mbl_obrd_dt,
+               hbl.bl_no  AS hbl_no,        hbl.intg_bl_seq AS hbl_bl_seq, 
+               hbl.flt_no AS hbl_flt_no,    SUBSTRING(hbl.eta_dt_tm, 1, 8) AS hbl_obrd_dt,
+               hbl.pck_qty,
+		       hbl.grs_wgt,      
+			   shpr.trdp_nm AS shp_nm,
+		       shpr.trdp_addr AS shp_addr,
+		       cnee.trdp_nm AS cnee_nm,
+			   cnee.trdp_addr AS cnee_addr,   
+			   noti.trdp_nm AS noti_nm,
+			   hbl.rep_cmdt_nm,
+			   0 AS no_xpt_no_cnt,
+			   0 AS no_pck_qty_cnt,
+			   0 AS no_grs_wgt_cnt 
+        <isNotNull property="edi_cre_seq">
+               , ebl.biz_clss_cd AS edi_sts
+               , ebl.shpr_cty_cd AS shpr_cty_cd
+               , ebl.cnee_cty_cd AS cnee_cty_cd
+               , ebl.noti_cty_cd AS noti_cty_cd
+               , ebl.fwrd_fcty_plc_cd AS fwrd_fcty_plc_cd
+               , ebl.ucr_no AS ucr_no
+               , ebl.rfs_flg AS rfs_flg
+               , ebl.n1st_spcl_cgo_cd AS n1st_spcl_cgo_cd
+			   , ebl.n2nd_spcl_cgo_cd AS n2nd_spcl_cgo_cd
+			   , ebl.awb_tp_cd AS awb_tp_cd
+			   , ebl.trkr_trdp_cd AS trkr_trdp_cd
+			   , ebl.gds_clss_cd AS gds_clss_cd
+        </isNotNull>
+        <isNull property="edi_cre_seq">
+               , ' ' AS edi_sts
+               , shpr_city.un_loc_cd AS shpr_cty_cd
+               , cnee_city.un_loc_cd AS cnee_cty_cd
+               , noti_city.un_loc_cd AS noti_cty_cd
+               <![CDATA[
+               , CASE WHEN len(wh.wh_cd) < 9 THEN wh.wh_cd
+                 	ELSE Reverse(SUBSTRING(Reverse(wh.wh_cd), 1, 8))
+                 END AS fwrd_fcty_plc_cd
+			   ]]>
+               , hbl_bnd.ucr_no AS ucr_no
+               , ' ' AS rfs_flg
+               , ' ' AS n1st_spcl_cgo_cd
+			   , ' ' AS n2nd_spcl_cgo_cd
+			   , ' ' AS awb_tp_cd
+			   , ' ' AS trkr_trdp_cd
+			   , ' ' AS gds_clss_cd
+        </isNull>
+          FROM tb_intg_bl mbl
+          JOIN tb_add_info_bnd bnd
+            ON mbl.intg_bl_seq = bnd.intg_bl_seq     AND bnd.delt_flg = 'N'
+        
+          JOIN tb_intg_bl_rlt rlt
+            ON rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND rlt.delt_flg = 'N'
+        
+          JOIN tb_intg_bl hbl
+            ON hbl.intg_bl_seq = rlt.intg_bl_seq     AND hbl.delt_flg = 'N'
+            
+          JOIN tb_add_info_bnd hbl_bnd
+            ON hbl.intg_bl_seq = hbl_bnd.intg_bl_seq     AND hbl_bnd.delt_flg = 'N'
+            
+          LEFT OUTER JOIN TB_BL_PRNR shpr               
+			ON hbl.intg_bl_seq = shpr.intg_bl_seq  
+			AND shpr.bl_trdp_tp_cd = 'S01' 
+			AND shpr.delt_flg = 'N'   
+			
+		  LEFT OUTER JOIN TB_TRDP shpr_trdp
+           	ON shpr.trdp_cd = shpr_trdp.trdp_cd  AND shpr_trdp.delt_flg = 'N' 
+           	
+          LEFT OUTER JOIN TB_LOC shpr_city
+           	ON shpr_trdp.city_cd = shpr_city.loc_cd  AND shpr_city.delt_flg = 'N' 
+			                     
+		  LEFT OUTER JOIN TB_BL_PRNR cnee               
+			ON hbl.intg_bl_seq = cnee.intg_bl_seq  
+			AND cnee.bl_trdp_tp_cd = 'C01' 
+			AND cnee.delt_flg = 'N' 
+			
+		  LEFT OUTER JOIN TB_TRDP cnee_trdp
+			ON cnee.trdp_cd = cnee_trdp.trdp_cd  AND cnee_trdp.delt_flg = 'N' 
+			
+	      LEFT OUTER JOIN TB_LOC cnee_city
+           	ON cnee_trdp.city_cd = cnee_city.loc_cd  AND cnee_city.delt_flg = 'N' 
+					      
+	      LEFT OUTER JOIN TB_BL_PRNR noti
+	        ON hbl.intg_bl_seq = noti.intg_bl_seq  
+			AND noti.bl_trdp_tp_cd = 'N01' 
+			AND noti.delt_flg = 'N'
+			
+	      LEFT OUTER JOIN TB_TRDP noti_trdp
+			ON noti.trdp_cd = noti_trdp.trdp_cd  AND noti_trdp.delt_flg = 'N'   
+			
+		  LEFT OUTER JOIN TB_LOC noti_city
+           	ON noti_trdp.city_cd = noti_city.loc_cd  AND noti_city.delt_flg = 'N' 
+           	
+          LEFT OUTER JOIN TB_KR_CSTM_WH_CD wh
+           	ON hbl.cfs_nod_cd = wh.wh_seq 
+			
+        <isNotNull property="edi_cre_seq">
+LEFT OUTER JOIN  tb_kr_cstm_edi_bl_info ebl
+             ON  hbl.intg_bl_seq = ebl.intg_bl_seq   AND ebl.biz_clss_cd = 'H' 
+            AND  ebl.edi_cre_seq = #edi_cre_seq#
+            <!-- AND  ebl.intg_bl_seq = #intg_bl_seq# -->
+        </isNotNull>
+         WHERE mbl.biz_clss_cd = 'M'                 AND mbl.air_sea_clss_cd = #f_air_sea_clss_cd# 
+           AND bnd.bnd_clss_cd = #f_bnd_clss_cd#
+           AND mbl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+           AND mbl.eta_dt_tm LIKE '$f_obrd_dt$%' AND mbl.flt_no = #f_flt_no#
+    </select>
+	
+    <!--해운. OnBoard Date, 편명기준으로 EDI전송(헤더) 정보를 조회함 -->
+    <select id="selectSeaBlIfList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiKrcstmVO">
+    	/** EdiCstmSQL.xml -> selectSeaBlIfList **/
+        SELECT  bltp.etd_dt_tm AS workday,            bltp.bl_no mbl_no,        bltp.intg_bl_seq,
+                bltp.trnk_vsl_nm AS vsl_nm,           bltp.trnk_voy AS flt_no,                  
+                bltp.crr_trdp_cd AS lnr_trdp_cd,      trd.eng_nm    AS lnr_nm,                
+                ISNULL(edi.edi_sts,'X') AS edi_sts,          
+                CONVERT(VARCHAR, edi.smt_dt, 23)+' '+CONVERT(VARCHAR, edi.smt_dt, 24) AS smt_dt,
+                edi.edi_cre_seq,      bltp.mrn,
+                kradd.cstm_cd,        cst.cd_lbl AS cstm_nm,
+                kradd.cstm_dept_cd,   dpt.cd_lbl AS cstm_dept_nm,
+                ISNULL(kradd.lnr_cstm_cd, bltp.lnr_cstm_cd) lnr_cstm_cd
+          FROM(
+                SELECT  bl.intg_bl_seq, bl.bl_no, bl.etd_dt_tm,       bl.TRNK_VSL_NM,  prnr.TRDP_CD CRR_TRDP_CD,
+                        bl.trnk_voy,      bnd.bnd_clss_cd, bnd.mrn_no AS mrn, trdp.CMP_CD lnr_cstm_cd
+                  FROM  tb_intg_bl bl 
+                  JOIN  tb_add_info_bnd bnd
+                    ON  bl.intg_bl_seq  = bnd.intg_bl_seq
+                  JOIN	TB_BL_PRNR prnr
+					ON	bl.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'L01' AND prnr.delt_flg = 'N'
+       LEFT OUTER JOIN  TB_TRDP_CD_LIST trdp ON trdp.trdp_cd = prnr.trdp_cd AND CD_TP = 'KRC'
+                 WHERE  bl.biz_clss_cd  = 'M' 
+                   AND  bl.AIR_SEA_CLSS_CD= #f_air_sea_clss_cd#  
+                   AND  bnd.bnd_clss_cd   = #f_bnd_clss_cd#
+                   AND  ISNULL(bl.trnk_vsl_nm, '') != ''
+                   AND  ISNULL(bl.trnk_voy, '') != ''
+                   AND  ISNULL(bnd.mrn_no, '') != ''
+                   AND  ISNULL(bl.bl_NO, '') != ''
+                   AND  bl.delt_flg = 'N' AND  bnd.delt_flg = 'N'
+        <dynamic>
+            <isNotNull property="f_obdt_bgn_dt">
+          <![CDATA[AND  (bl.etd_dt_tm >=#f_obdt_bgn_dt# AND bl.etd_dt_tm <=#f_obdt_end_dt#) ]]> 
+            </isNotNull>
+            <isNotNull property="f_vsl_cd">
+                   AND  bl.trnk_vsl_cd LIKE '$f_vsl_cd$%'
+            </isNotNull>
+            <isNotNull property="f_flt_no">
+                   AND  bl.trnk_voy    LIKE '$f_flt_no$%'
+            </isNotNull>
+        </dynamic>
+                 GROUP BY bl.intg_bl_seq, bl.bl_no, bl.etd_dt_tm, bl.trnk_voy, bnd.bnd_clss_cd, bl.TRNK_VSL_NM,  prnr.TRDP_CD, bnd.mrn_no, trdp.CMP_CD
+              )bltp
+        
+           JOIN  tb_trdp trd
+             ON  bltp.crr_trdp_cd = trd.trdp_cd  AND trd.delt_flg = 'N'
+        
+LEFT OUTER JOIN  tb_edi_hdr edi
+             ON  bltp.etd_dt_tm = edi.workday AND  edi.cstm_edi_cd = 'KR' 
+            AND  edi.flt_no = bltp.trnk_voy 
+            AND  bltp.bnd_clss_cd = edi.bnd_clss_cd
+            AND  edi.delt_flg = 'N'
+            AND  edi.edi_sts !='R'
+            AND  edi.edi_msg_tp = #edi_msg_tp# 
+            AND  edi.intg_bl_seq = bltp.intg_bl_seq
+        
+LEFT OUTER JOIN tb_kr_cstm_add_info kradd
+             ON  kradd.edi_cre_seq = edi.edi_cre_seq
+
+LEFT OUTER JOIN tb_edi_cd cst
+             ON cst.cd_val = kradd.cstm_cd AND cst.prnr_cd_seq IS NULL
+         
+LEFT OUTER JOIN tb_edi_cd dpt
+             ON dpt.cd_val = kradd.cstm_dept_cd
+             /* AND dpt.prnr_cd_seq = '999' */  
+            
+             /* 2016.04.12 C.W.Park Modified */
+             AND dpt.prnr_cd_seq = (select CD_SEQ from tb_edi_cd where 1 = 1 and CD_VAL = kradd.CSTM_CD and prnr_cd_seq is null)
+            
+       ORDER BY  bltp.etd_dt_tm DESC, flt_no ASC
+    </select>
+	
+	
+    <!--해운 수입. ETA, 편명기준으로 EDI전송(헤더) 정보를 조회함   -->
+    <select id="selectSeaImpBlIfList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiKrcstmVO">
+    	/** EdiCstmSQL.xml -> selectSeaImpBlIfList **/
+        SELECT  bltp.obrd_dt_tm AS workday,           bltp.bl_no mbl_no,        bltp.intg_bl_seq, 
+                bltp.trnk_vsl_nm AS vsl_nm,           bltp.trnk_voy AS flt_no,                  
+                bltp.crr_trdp_cd AS lnr_trdp_cd,      trd.eng_nm    AS lnr_nm,                
+                ISNULL(edi.edi_sts,'X') AS edi_sts,   bltp.bl_ser_no,
+                CONVERT(VARCHAR, edi.smt_dt, 23)+' '+CONVERT(VARCHAR, edi.smt_dt, 24) AS smt_dt,
+                edi.edi_cre_seq,      bltp.csts_clr_tp,
+                kradd.cstm_cd,        cst.cd_lbl AS cstm_nm,
+                kradd.cstm_dept_cd,   dpt.cd_lbl AS cstm_dept_nm,
+                kradd.lnr_cstm_cd,    bltp.mrn AS mrn,       noti_nm,
+<![CDATA[
+               CASE WHEN len(wh.wh_cd) <9 THEN wh.wh_cd
+                    ELSE Reverse(SUBSTRING(Reverse(wh.wh_cd), 1,8))
+               END rep_cmdt_cd,
+]]>
+                bltp.cfs_nod_cd,    bltp.rep_cmdt_cd, cmdt.CMDT_NM AS rep_cmdt_nm
+        
+          FROM(
+                SELECT  bl.intg_bl_seq, bl.bl_no, SUBSTRING(bl.eta_dt_tm, 1, 8) AS obrd_dt_tm,    bl.TRNK_VSL_NM,  prnr.TRDP_CD CRR_TRDP_CD,
+                        bl.trnk_voy,      bnd.bnd_clss_cd, bnd.mrn_no AS mrn, bl.cfs_nod_cd, bl.rep_cmdt_cd, bl.csts_clr_tp,
+                        max(noti.ENG_NM) as noti_nm, MAX(bl_ser_no) bl_ser_no
+                  FROM  tb_intg_bl bl 
+                  JOIN  tb_add_info_bnd bnd
+                    ON  bl.intg_bl_seq  = bnd.intg_bl_seq
+                  JOIN	TB_BL_PRNR prnr
+					ON	bl.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'L01' AND prnr.delt_flg = 'N'
+       LEFT OUTER JOIN TB_BL_PRNR ntfy
+					ON bl.intg_bl_seq = ntfy.intg_bl_seq  AND ntfy.bl_trdp_tp_cd = 'N01' AND ntfy.delt_flg = 'N'
+				LEFT OUTER JOIN tb_trdp noti
+				   ON  noti.trdp_cd = ntfy.trdp_cd   AND noti.delt_flg = 'N'
+                 WHERE  bl.BIZ_CLSS_CD  = 'M' 
+                   AND  bl.AIR_SEA_CLSS_CD= #f_air_sea_clss_cd#  
+                   AND  bnd.bnd_clss_cd   = #f_bnd_clss_cd#
+		           AND  bl.trnk_vsl_nm IS NOT NULL 
+		           AND  bl.trnk_voy    IS NOT NULL
+		           AND  bl.bl_NO IS NOT NULL
+                   AND  bl.delt_flg = 'N' AND  bnd.delt_flg = 'N'
+        <dynamic>
+            <isNotNull property="f_obdt_bgn_dt">
+          <![CDATA[AND  (bl.eta_dt_tm >=#f_obdt_bgn_dt# AND bl.eta_dt_tm <=#f_obdt_end_dt#) ]]> 
+            </isNotNull>
+            <isNotNull property="f_vsl_cd">
+                   AND  bl.trnk_vsl_cd LIKE '$f_vsl_cd$%'
+            </isNotNull>
+            <isNotNull property="f_flt_no">
+                   AND  bl.trnk_voy    LIKE '$f_flt_no$%'
+            </isNotNull>
+        </dynamic>
+                 GROUP BY bl.intg_bl_seq, bl.bl_no, bl.eta_dt_tm, bl.trnk_voy, bnd.bnd_clss_cd, bnd.mrn_no, bl.TRNK_VSL_NM, prnr.TRDP_CD, 
+                 bl.cfs_nod_cd, bl.rep_cmdt_cd, bl.csts_clr_tp
+              )bltp
+        
+           JOIN  tb_trdp trd
+             ON  bltp.crr_trdp_cd = trd.trdp_cd  AND trd.delt_flg = 'N'
+        
+LEFT OUTER JOIN  tb_edi_hdr edi
+             ON  bltp.obrd_dt_tm = edi.workday AND  edi.cstm_edi_cd = 'KR' 
+            AND  edi.flt_no = bltp.trnk_voy
+            AND  bltp.bnd_clss_cd = edi.bnd_clss_cd
+            AND  edi.delt_flg = 'N'
+            AND  edi.edi_sts !='R'
+            AND  edi.edi_msg_tp = #edi_msg_tp#
+            AND  edi.intg_bl_seq = bltp.intg_bl_seq 
+LEFT OUTER JOIN tb_kr_cstm_add_info kradd
+             ON  kradd.edi_cre_seq = edi.edi_cre_seq  
+LEFT OUTER JOIN tb_edi_cd cst
+             ON cst.cd_val = kradd.cstm_cd AND cst.prnr_cd_seq IS NULL
+LEFT OUTER JOIN tb_edi_cd dpt
+             ON dpt.cd_val = kradd.cstm_dept_cd 
+             /* AND dpt.prnr_cd_seq = '999' */  
+            
+             /* 2016.04.12 C.W.Park Modified */
+             AND dpt.prnr_cd_seq = (select CD_SEQ from tb_edi_cd where 1 = 1 and CD_VAL = kradd.CSTM_CD and prnr_cd_seq is null)
+LEFT OUTER JOIN tb_cmdt_cd cmdt
+             ON cmdt.CMDT_CD = bltp.rep_cmdt_cd
+LEFT OUTER JOIN TB_KR_CSTM_WH_CD wh
+             ON bltp.CFS_NOD_CD = wh.WH_SEQ
+       ORDER BY  bltp.obrd_dt_tm DESC, flt_no ASC
+    </select>
+	
+	<!--해운. OnBoard Date, 편명으로 BL 정보를 조회함   -->
+    <select id="selectSeaPerBLList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+		/** EdiCstmSQL.xml -> selectSeaPerBLList **/
+		SELECT hbl.mbl_flt_no,  hbl.mbl_obrd_dt,
+			   hbl.mbl_no,      hbl.mbl_bl_seq,      hbl.mbl_vsl_nm, 
+					   
+			   hbl.hbl_flt_no,  hbl.hbl_obrd_dt,
+			   hbl.hbl_no,      hbl.hbl_bl_seq,      hbl.hbl_vsl_nm,    hbl.edi_sts,
+			   CASE WHEN count(eif.edi_xpt_seq) =0  THEN 'N' ELSE 'Y' END AS exp_extd_code,
+			   hbl.pck_qty,		hbl.pck_ut_cd,		hbl.grs_wgt,		hbl.meas,
+			   hbl.rep_cmdt_nm,	hbl.shp_nm,    		hbl.shp_addr,		hbl.cnee_nm,
+			   (select count(x.edi_xpt_seq) from tb_edi_info x where x.intg_bl_seq = hbl.hbl_bl_seq and x.delt_flg = 'N' and isnull(x.xpt_no,'') = '') as no_xpt_no_cnt,
+			   (select count(x.edi_xpt_seq) from tb_edi_info x where x.intg_bl_seq = hbl.hbl_bl_seq and x.delt_flg = 'N' and isnull(x.pck_qty,0) = 0) as no_pck_qty_cnt,
+			   (select count(x.edi_xpt_seq) from tb_edi_info x where x.intg_bl_seq = hbl.hbl_bl_seq and x.delt_flg = 'N' and isnull(x.pck_ut_cd,'') = '') as no_pck_ut_cd_cnt,
+			   (select count(x.edi_xpt_seq) from tb_edi_info x where x.intg_bl_seq = hbl.hbl_bl_seq and x.delt_flg = 'N' and isnull(x.edi_grs_wt,0) = 0) as no_grs_wgt_cnt,
+			   '' AS msn_no, 0 AS no_cntr_no_cnt
+		FROM(
+				SELECT mbl.trnk_voy AS mbl_flt_no,  SUBSTRING(mbl.etd_dt_tm, 1, 8) AS mbl_obrd_dt,
+					   mbl.bl_no    AS mbl_no,      mbl.intg_bl_seq AS mbl_bl_seq,      mbl.trnk_vsl_nm AS mbl_vsl_nm, 
+					   
+					   hbl.trnk_voy AS hbl_flt_no,  SUBSTRING(hbl.obrd_dt_tm, 1, 8) AS hbl_obrd_dt,
+					   hbl.bl_no    AS hbl_no,      hbl.intg_bl_seq AS hbl_bl_seq,      hbl.trnk_vsl_nm AS hbl_vsl_nm,
+					   hbl.pck_qty,
+					   hbl.pck_ut_cd,
+					   hbl.grs_wgt,
+					   hbl.meas,
+					   hbl.rep_cmdt_nm,
+					   shpr.trdp_nm AS shp_nm,    
+					   shpr.trdp_addr AS shp_addr,
+					   cnee.trdp_nm AS cnee_nm,
+					   
+				<isNotNull property="edi_cre_seq">
+					   ebl.biz_clss_cd AS edi_sts
+				</isNotNull>
+				<isNull property="edi_cre_seq">
+					   ' ' AS  edi_sts
+				</isNull>
+				  FROM  tb_intg_bl mbl
+				  JOIN  tb_add_info_bnd bnd
+					ON  mbl.intg_bl_seq = bnd.intg_bl_seq     AND bnd.delt_flg = 'N'
+				
+				  JOIN  tb_intg_bl_rlt rlt
+					ON  rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND rlt.delt_flg = 'N'
+				
+				  JOIN  tb_intg_bl hbl
+					ON  hbl.intg_bl_seq = rlt.intg_bl_seq    AND  hbl.delt_flg = 'N'
+		
+				  JOIN  tb_add_info_bnd hblbnd
+					ON  hbl.intg_bl_seq = hblbnd.intg_bl_seq AND hblbnd.delt_flg = 'N'
+					
+				  LEFT OUTER JOIN TB_BL_PRNR shpr
+		            ON hbl.intg_bl_seq = shpr.intg_bl_seq  AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'
+		        
+		          LEFT OUTER JOIN TB_BL_PRNR cnee
+		            ON hbl.intg_bl_seq = cnee.intg_bl_seq  AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'       
+		
+				<isNotNull property="edi_cre_seq">
+		LEFT OUTER JOIN  tb_kr_cstm_edi_bl_info ebl
+					 ON  hbl.intg_bl_seq = ebl.intg_bl_seq   AND ebl.biz_clss_cd = 'H' 
+					AND  ebl.edi_cre_seq = #edi_cre_seq#     
+					AND  ebl.intg_bl_seq = cast(#intg_bl_seq# as varchar)     
+				</isNotNull>
+				 WHERE mbl.biz_clss_cd = 'M'                 AND mbl.air_sea_clss_cd = #f_air_sea_clss_cd# 
+				   AND bnd.bnd_clss_cd = #f_bnd_clss_cd#     
+				   AND hblbnd.bnd_clss_cd = #f_bnd_clss_cd#
+				   AND mbl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+				   
+				   AND mbl.etd_dt_tm LIKE '$f_obrd_dt$%' 
+				   <!--  
+				   AND mbl.trnk_voy = #f_flt_no#
+				   -->
+		)hbl
+LEFT OUTER JOIN TB_EDI_INFO eif
+             ON hbl.hbl_bl_seq = eif.intg_bl_seq
+	GROUP BY hbl.mbl_flt_no,    hbl.mbl_obrd_dt,
+		     hbl.mbl_no,        hbl.mbl_bl_seq,      hbl.mbl_vsl_nm, 
+		     hbl.hbl_flt_no,    hbl.hbl_obrd_dt,
+		     hbl.hbl_no,        hbl.hbl_bl_seq,      hbl.hbl_vsl_nm,    hbl.edi_sts,
+		     hbl.pck_qty,		hbl.pck_ut_cd,		 hbl.grs_wgt,		hbl.meas,
+			 hbl.rep_cmdt_nm,	hbl.shp_nm,    		 hbl.shp_addr,		hbl.cnee_nm
+    </select>
+	
+  <!--해운. OnBoard Date, 편명으로 BL 정보를 조회함   -->
+    <select id="selectSeaImpPerBLList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> selectSeaImpPerBLList **/
+        SELECT mbl.trnk_voy AS mbl_flt_no,  SUBSTRING(mbl.eta_dt_tm, 1, 8) AS mbl_obrd_dt, mbl.grs_wgt,
+               mbl.bl_no    AS mbl_no,      mbl.intg_bl_seq AS mbl_bl_seq,      mbl.trnk_vsl_nm AS mbl_vsl_nm, 
+               
+               hbl.trnk_voy AS hbl_flt_no,  SUBSTRING(hbl.eta_dt_tm, 1, 8) AS hbl_obrd_dt,
+               hbl.bl_no    AS hbl_no,      hbl.intg_bl_seq AS hbl_bl_seq,      hbl.trnk_vsl_nm AS hbl_vsl_nm,
+               mbl.bl_ser_no as msn_no,
+			   hbl.pck_qty,
+		       hbl.pck_ut_cd,
+		       hbl.grs_wgt,
+		       hbl.meas,
+			   hbl.rep_cmdt_nm,
+			   shpr.trdp_nm AS shp_nm,
+		       shpr.trdp_addr AS shp_addr,
+		       cnee.trdp_nm AS cnee_nm,
+			   (select count(x.cntr_no) from tb_cntr_list x where x.intg_bl_seq = hbl.intg_bl_seq and x.delt_flg = 'N' and isnull(x.cntr_no,'') = '') as no_cntr_no_cnt,
+			   0 AS no_xpt_no_cnt,
+			   0 AS no_pck_qty_cnt,
+			   0 AS no_pck_ut_cd_cnt,
+			   0 AS no_grs_wgt_cnt
+               
+        <isNotNull property="edi_cre_seq">
+               , ebl.biz_clss_cd AS edi_sts
+        </isNotNull>
+        <isNull property="edi_cre_seq">
+               , ' ' AS edi_sts
+        </isNull>
+          FROM  tb_intg_bl mbl
+          JOIN  tb_add_info_bnd bnd
+            ON  mbl.intg_bl_seq = bnd.intg_bl_seq     AND bnd.delt_flg = 'N'
+        
+          JOIN  tb_intg_bl_rlt rlt
+            ON  rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND rlt.delt_flg = 'N'
+        
+          JOIN  tb_intg_bl hbl
+            ON  hbl.intg_bl_seq = rlt.intg_bl_seq AND  hbl.delt_flg = 'N'
+
+          JOIN  tb_add_info_bnd hblbnd
+            ON  hbl.intg_bl_seq = hblbnd.intg_bl_seq AND hblbnd.delt_flg = 'N'
+            
+          LEFT OUTER JOIN TB_BL_PRNR shpr               
+            ON hbl.intg_bl_seq = shpr.intg_bl_seq AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'   
+                                 
+          LEFT OUTER JOIN TB_BL_PRNR cnee               
+            ON hbl.intg_bl_seq = cnee.intg_bl_seq AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'              
+        
+        <isNotNull property="edi_cre_seq">
+LEFT OUTER JOIN  tb_kr_cstm_edi_bl_info ebl
+             ON  hbl.intg_bl_seq = ebl.intg_bl_seq   AND ebl.biz_clss_cd = 'H' 
+            AND  ebl.edi_cre_seq = #edi_cre_seq#     
+            AND  ebl.intg_bl_seq = cast(#intg_bl_seq# as varchar)     
+        </isNotNull>
+         WHERE mbl.biz_clss_cd = 'M'                 AND mbl.air_sea_clss_cd = #f_air_sea_clss_cd# 
+           AND bnd.bnd_clss_cd = #f_bnd_clss_cd#     
+           AND hblbnd.bnd_clss_cd = #f_bnd_clss_cd#
+           AND mbl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+           AND mbl.eta_dt_tm LIKE '$f_obrd_dt$%' 
+           <!--  
+           AND mbl.trnk_voy = #f_flt_no# 
+            -->
+    </select>
+	
+	<!-- MBL이 등록정보를 조회함   -->
+	<select id="selectBlSaveCheck" parameterClass="HashMap" resultClass="Integer">
+		/** EdiCstmSQL.xml -> selectBlSaveCheck **/
+		SELECT  count(bif.edi_cre_seq) AS save_cnt
+		  FROM  tb_ams_edi_bl_info bif JOIN tb_edi_hdr hdr
+			ON  bif.edi_cre_seq = hdr.edi_cre_seq     
+		   AND  hdr.delt_flg = 'N'
+		 WHERE  bif.biz_clss_cd = 'M' AND bif.bl_no = #f_mbl_no# 
+	</select>
+	
+	<!-- BL정보를 조회함   -->
+    <select id="selectMblBasicInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsBlInfoVO">
+    	/** EdiCstmSQL.xml -> selectMblBasicInfo **/
+		SELECT  distinct 
+				mbl.pol_cd AS pol_cd,      mbl.pod_cd AS pod_cd,                   mbl.pck_qty,      mbl.grs_wgt,             
+		        mbl.flt_no,      prnr.trdp_cd AS lnr_cd,    mbl.trnk_vsl_nm AS vsl_nm,      tdp.eng_nm AS lnr_nm,            
+		        SUBSTRING(mbl.etd_dt_tm, 1, 8) AS workday 
+		        
+		  FROM  tb_intg_bl mbl 
+		  JOIN	TB_BL_PRNR prnr
+					ON	mbl.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'L01' AND prnr.delt_flg = 'N'
+		  JOIN  tb_add_info_bnd bnd
+			ON  mbl.intg_bl_seq = bnd.intg_bl_seq
+		
+		  JOIN  tb_trdp tdp
+		    ON  tdp.trdp_cd = prnr.trdp_cd
+		
+		 WHERE  bnd.bnd_clss_cd    = #bnd_clss_cd#      AND  mbl.biz_clss_cd = 'M'
+		   AND  mbl.air_sea_clss_cd= #air_sea_clss_cd#  
+		
+        <isNull property="f_mbl_seq">
+		   AND  mbl.bl_no = #f_mbl_no#
+        </isNull>
+		<isNotNull property="f_mbl_seq">
+			AND  mbl.intg_bl_seq = #f_mbl_seq#
+		</isNotNull>
+    </select>
+	
+	<!-- EDI 전문 PK를 생성함   -->
+	<select id="selectEdiCreationPK" resultClass="Integer">
+		/** EdiCstmSQL.xml -> selectEdiCreationPK **/
+        SELECT ISNULL(MAX(edi_cre_seq),0 )+1 AS edi_cre_seq
+          FROM tb_edi_hdr
+    </select>
+
+	<!-- EDI 전문재 작성시 차수를 증가시킴   -->
+    <select id="selectEdiReCreationPK" resultClass="Integer">
+    	/** EdiCstmSQL.xml -> selectEdiReCreationPK **/
+        <!-- SELECT MAX(edi_msg_seq)+1 AS edi_cre_seq   -->
+		SELECT ISNULL(MAX(edi_msg_seq),0 )+1 AS edi_cre_seq--
+          FROM tb_edi_hdr
+         WHERE edi_cre_seq = #value#
+    </select>
+
+		
+	<!-- EDI Hearder 테이블 정보입력   -->
+	<insert id="insertEDIHeader" parameterClass="HashMap">
+		/** EdiCstmSQL.xml -> insertEDIHeader **/
+		INSERT INTO tb_edi_hdr (  
+			edi_cre_seq,  cstm_edi_cd,          intg_bl_seq,
+		    edi_msg_tp,   air_sea_clss_cd,      bnd_clss_cd,    mrn,    
+			edi_sts,      workday,              vsl_cd,         flt_no,  
+			rgst_usrid,   rgst_ofc_cd,          rgst_tms,
+			modi_usrid,   modi_ofc_cd,          modi_tms, delt_flg        
+		)VALUES(
+            #edi_cre_seq#,  #cstm_edi_cd#,      #intg_bl_seq#,
+            #edi_msg_tp#,   #air_sea_clss_cd#,  #bnd_clss_cd#,  #mrn#,
+            #edi_sts#,      #workday#,          #vsl_cd#,       #flt_no#, 
+            #proc_usrid#,   #proc_ofccd#,       getDate(),         
+            #proc_usrid#,   #proc_ofccd#,       GETUTCDATE(), 'N'
+		)
+	</insert>
+	
+	<!-- EDI 국내세관 추가정보 입력   -->
+	<insert id="insertKRCustomAddInfo" parameterClass="HashMap">
+		/** EdiCstmSQL.xml -> insertKRCustomAddInfo **/
+		INSERT INTO tb_kr_cstm_add_info(
+			edi_cre_seq,   decnsl_cmp_cd,
+			cstm_cd,       cstm_dept_cd,
+		    lnr_cstm_cd,   fwd_cstm_cd
+		)VALUES(
+			#edi_cre_seq#, #decnsl_cmp_cd#,
+			#cstm_cd#,     #cstm_dept_cd#,
+		    #lnr_cstm_cd#, #fwd_cstm_cd#
+		)
+    </insert>	
+	
+	<!-- 현재 전문번호 이전의 전문 번호 찾기   -->
+    <select id="selectEdiHdrOrgKey" parameterClass="HashMap" resultClass="Integer">
+    	/** EdiCstmSQL.xml -> selectEdiHdrOrgKey **/
+		SELECT  max(edi_msg_seq) 
+		  FROM  tb_edi_hdr  
+		 WHERE  edi_cre_seq = #edi_cre_seq# AND edi_msg_seq !=#edi_msg_seq# AND delt_flg != 'Y' 
+    </select>
+		
+	<!-- EDI헤더 정보 수정시   -->
+	<update id="updateEdiHdrInfo" parameterClass="HashMap">
+		/** EdiCstmSQL.xml -> updateEdiHdrInfo **/
+		UPDATE  tb_edi_hdr
+		   SET  edi_sts = #edi_sts#,         mrn  = #mrn#,
+		        modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,   modi_tms   = GETUTCDATE()
+ 
+          WHERE  edi_cre_seq = #edi_cre_seq# 
+	</update>
+	
+    <!-- EDI 국내세관 추가정보 수정   -->
+    <update id="updateKRCustomAddInfo" parameterClass="HashMap">
+    	/** EdiCstmSQL.xml -> updateKRCustomAddInfo **/
+        UPDATE tb_kr_cstm_add_info
+		   SET cstm_cd    = #cstm_cd#,      cstm_dept_cd = #cstm_dept_cd#,
+		       lnr_cstm_cd= #lnr_cstm_cd#,  decnsl_cmp_cd= #decnsl_cmp_cd#
+		 WHERE edi_cre_seq = #edi_cre_seq# 
+    </update>   
+	
+	<!-- BL정보 입력   -->
+    <insert id="insertKRCustomBLInfo" parameterClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> insertKRCustomBLInfo **/
+        INSERT INTO tb_kr_cstm_edi_bl_info(
+			edi_cre_seq,   		intg_bl_seq,		biz_clss_cd,   		bl_no,         
+		    workday,       		flt_no,        		exp_extd_code, 		shpr_cty_cd,   
+		    cnee_cty_cd,   		noti_cty_cd,		fwrd_fcty_plc_cd,   ucr_no,   
+		    rfs_flg,			n1st_spcl_cgo_cd,	n2nd_spcl_cgo_cd,	awb_tp_cd,
+			trkr_trdp_cd,		gds_clss_cd
+        )VALUES(
+            #edi_cre_seq#,   	#hbl_bl_seq#,		#biz_clss_cd#,   	#hbl_no#,      
+		    #hbl_obrd_dt#,   	#hbl_flt_no#,    	#exp_extd_code#,	#shpr_cty_cd#,   
+		    #cnee_cty_cd#,  	#noti_cty_cd#,		#fwrd_fcty_plc_cd#, #ucr_no#,
+		    #rfs_flg#,			#n1st_spcl_cgo_cd#,	#n2nd_spcl_cgo_cd#,	#awb_tp_cd#,
+			#trkr_trdp_cd#,		#gds_clss_cd#
+        )
+    </insert>
+	
+	<!--EDI전문 생성시 필요한 정보를 조회한다.   -->
+    <select id="selectEDITextInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> selectEDITextInfo **/
+        SELECT embl.intg_bl_seq AS mbl_bl_seq,  embl.bl_no   AS mbl_no,   ehbl.flt_no,                 ehd.workday, 		hbl.eta_dt_tm,
+               ehbl.intg_bl_seq,                hbl.bl_no   AS hbl_no,    hbl.pck_qty,                 hbl.grs_wgt,
+               hbl.hbl_tp_cd,                   hbl.pol_cd,               hbl.pod_cd,                  hbl.meas,
+               hbl.CFS_NOD_CD AS ws_cd,         decnsl_cmp_cd,            hbl.csts_clr_tp,			   hbl.bl_ser_no AS hbl_ser_no,
+               CASE WHEN hbl.rep_cmdt_nm = '' THEN 'OTHER'  
+                    ELSE hbl.rep_cmdt_nm      END AS rep_cmdt_nm,         hbl.rep_cmdt_cd,
+			   <![CDATA[
+               CASE WHEN len(wh.wh_cd) < 9 THEN wh.wh_cd
+                    ELSE Reverse(SUBSTRING(Reverse(wh.wh_cd), 1, 8))
+               END AS wh_cd,
+			   ]]>
+               unit.CSTMS_PCK_CD_VAL pck_ut_cd,                            shp.CNT_CD  AS shp_cnt_cd, cneet.CNT_CD AS cnee_cnt_cd, notit.CNT_CD AS noti_cnt_cd,
+               shpr.trdp_nm  AS shp_nm,    shpr.trdp_addr  AS shp_addr,   shpr.trdp_phn  AS shp_tel,   shpr.trdp_cd  AS shp_cd,   
+               cnee.trdp_nm  AS cnee_nm,   cnee.trdp_addr  AS cnee_addr,  cnee.trdp_phn  AS cnee_tel,  cnee.trdp_cd cnee_cd,
+               noti.trdp_nm AS noti_nm,    noti.trdp_addr AS noti_addr,   noti.trdp_phn AS noti_tel,   noti.trdp_cd noti_cd,
+               shp.corp_no shp_corp_no, cneet.CORP_NO cnee_corp_no, notit.CORP_NO noti_corp_no,
+               (SELECT ENG_NM FROM TB_TRDP WHERE TRDP_CD = #proc_ofccd# + 'MAINCMP') AS fwrd_nm,
+               ehbl.shpr_cty_cd AS shpr_cty_cd, 	ehbl.cnee_cty_cd AS cnee_cty_cd, 	ehbl.noti_cty_cd AS noti_cty_cd, 			ehbl.fwrd_fcty_plc_cd AS fwrd_fcty_plc_cd, 			
+               ehbl.ucr_no AS ucr_no, 				ehbl.rfs_flg AS rfs_flg, 			ehbl.n1st_spcl_cgo_cd AS n1st_spcl_cgo_cd, 	ehbl.n2nd_spcl_cgo_cd AS n2nd_spcl_cgo_cd, 		
+               ehbl.awb_tp_cd AS awb_tp_cd, 		ehbl.trkr_trdp_cd AS trkr_trdp_cd,	ehbl.gds_clss_cd AS gds_clss_cd,
+               pol.iata_loc_cd AS pol_iata_cd,		pod.iata_loc_cd AS pod_iata_cd
+        
+         FROM  tb_edi_hdr ehd 
+         JOIN  tb_kr_cstm_add_info kif 
+           ON  ehd.edi_cre_seq = kif.edi_cre_seq    
+        
+         JOIN  tb_kr_cstm_edi_bl_info embl 
+           ON  ehd.edi_cre_seq = embl.edi_cre_seq   AND embl.biz_clss_cd = 'M'
+         JOIN  TB_INTG_BL mbl
+           ON  mbl.intg_bl_seq = embl.intg_bl_seq
+         JOIN  tb_intg_bl_rlt rlt
+           ON  rlt.rlt_intg_bl_seq = embl.intg_bl_seq
+         
+         JOIN  tb_kr_cstm_edi_bl_info ehbl
+           ON  rlt.intg_bl_seq = ehbl.intg_bl_seq   AND  ehbl.biz_clss_cd = 'H'
+        
+         JOIN  tb_intg_bl hbl 
+           ON  hbl.intg_bl_seq = ehbl.intg_bl_seq   AND  hbl.delt_flg = 'N'
+        JOIN TB_BL_PRNR shpr
+            ON hbl.intg_bl_seq = shpr.intg_bl_seq  AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'
+        JOIN  tb_trdp shp
+          ON  shp.trdp_cd = shpr.trdp_cd  AND shp.delt_flg = 'N'
+        JOIN TB_BL_PRNR cnee
+            ON hbl.intg_bl_seq = cnee.intg_bl_seq  AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+        LEFT OUTER JOIN TB_BL_PRNR noti
+            ON hbl.intg_bl_seq = noti.intg_bl_seq  AND noti.bl_trdp_tp_cd = 'N01' AND noti.delt_flg = 'N'
+        JOIN TB_TRDP cneet
+            ON cnee.TRDP_CD = cneet.TRDP_CD
+        LEFT OUTER JOIN TB_TRDP notit
+            ON noti.TRDP_CD = notit.TRDP_CD
+	    LEFT OUTER JOIN TB_KR_CSTM_WH_CD wh
+             ON mbl.CFS_NOD_CD = wh.WH_SEQ
+        LEFT OUTER JOIN TB_PCK_UT_CD unit
+             ON hbl.Pck_ut_cd = unit.Pck_ut_cd
+        LEFT OUTER JOIN TB_LOC pol
+             ON hbl.pol_cd = pol.loc_cd
+        LEFT OUTER JOIN TB_LOC pod
+             ON hbl.pod_cd = pod.loc_cd
+		WHERE  ehd.edi_cre_seq  = #edi_cre_seq#     AND ehd.delt_flg = 'N'
+          AND  embl.edi_cre_seq = #edi_cre_seq#      
+          AND  ehbl.edi_cre_seq = #edi_cre_seq#     
+    </select>
+	
+	
+    <!--해운 EDI전문 생성시 필요한 정보를 조회한다.   -->
+    <select id="selectSeaEDITextInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> "selectSeaEDITextInfo" **/
+        SELECT embl.intg_bl_seq AS mbl_bl_seq,  embl.bl_no   AS mbl_no,   ehbl.flt_no,                 ehd.workday, 
+               ehbl.intg_bl_seq,                hbl.bl_no   AS hbl_no,    hbl.pck_qty,                 hbl.grs_wgt,
+               hbl.hbl_tp_cd,                   
+               (SELECT UN_LOC_CD FROM TB_LOC WHERE LOC_CD = hbl.pol_cd) AS pol_cd,               
+               (SELECT UN_LOC_CD FROM TB_LOC WHERE LOC_CD = hbl.pod_cd) AS pod_cd,                  
+               hbl.meas,
+               mbl.bl_ser_no mbl_ser_no, hbl.bl_ser_no hbl_ser_no,
+               hbl.CFS_NOD_CD AS ws_cd,  hbl.csts_clr_tp, hbl.rep_cmdt_cd,
+<![CDATA[
+               CASE WHEN len(wh.wh_cd) <9 THEN wh.wh_cd
+                    ELSE Reverse(SUBSTRING(Reverse(wh.wh_cd), 1,8))
+               END cfs_nod_cd,
+]]>  
+               CASE WHEN hbl.rep_cmdt_nm = '' THEN 'OTHER'  
+                    ELSE hbl.rep_cmdt_nm      END AS rep_cmdt_nm,
+               unit.CSTMS_PCK_CD_VAL AS pck_ut_cd,                           shp.CNT_CD  AS shp_cnt_cd, cneet.CNT_CD AS cnee_cnt_cd, notit.CNT_CD AS noti_cnt_cd,
+               wh.EDI_CD AS wh_cd,
+               shpr.trdp_nm  AS shp_nm,    shpr.trdp_addr  AS shp_addr,   shpr.trdp_phn  AS shp_tel,   shpr.trdp_cd  AS shp_cd,   
+               cnee.trdp_nm  AS cnee_nm,   cnee.trdp_addr  AS cnee_addr,  cnee.trdp_phn  AS cnee_tel,  cnee.trdp_cd cnee_cd,
+               noti.trdp_nm AS noti_nm,    noti.trdp_addr AS noti_addr,   noti.trdp_phn AS noti_tel,   noti.trdp_cd noti_cd,
+               cneet.CORP_NO cnee_corp_no, notit.CORP_NO noti_corp_no
+        
+         FROM  tb_edi_hdr ehd 
+         JOIN  tb_kr_cstm_add_info kif 
+           ON  ehd.edi_cre_seq = kif.edi_cre_seq    
+        
+         JOIN  tb_kr_cstm_edi_bl_info embl 
+           ON  ehd.edi_cre_seq = embl.edi_cre_seq   AND embl.biz_clss_cd = 'M'
+         JOIN  TB_INTG_BL mbl
+           ON  mbl.intg_bl_seq = embl.intg_bl_seq
+         JOIN  tb_intg_bl_rlt rlt
+           ON  rlt.rlt_intg_bl_seq = embl.intg_bl_seq
+         
+         JOIN  tb_kr_cstm_edi_bl_info ehbl
+           ON  rlt.intg_bl_seq = ehbl.intg_bl_seq   AND  ehbl.biz_clss_cd = 'H'
+        
+         JOIN  tb_intg_bl hbl 
+           ON  hbl.intg_bl_seq = ehbl.intg_bl_seq   AND  hbl.delt_flg = 'N'
+        JOIN TB_BL_PRNR shpr
+            ON hbl.intg_bl_seq = shpr.intg_bl_seq  AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'
+        JOIN  tb_trdp shp
+          ON  shp.trdp_cd = shpr.trdp_cd  AND shp.delt_flg = 'N'
+        JOIN TB_BL_PRNR cnee
+            ON hbl.intg_bl_seq = cnee.intg_bl_seq  AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+        LEFT OUTER JOIN TB_BL_PRNR noti
+            ON hbl.intg_bl_seq = noti.intg_bl_seq  AND noti.bl_trdp_tp_cd = 'N01' AND noti.delt_flg = 'N'
+        LEFT OUTER JOIN TB_TRDP cneet
+            ON cnee.TRDP_CD = cneet.TRDP_CD
+        LEFT OUTER JOIN TB_TRDP notit
+            ON noti.TRDP_CD = notit.TRDP_CD
+        LEFT OUTER JOIN TB_KR_CSTM_WH_CD wh
+             ON hbl.CFS_NOD_CD = wh.WH_SEQ
+        LEFT OUTER JOIN TB_PCK_UT_CD unit
+             ON hbl.pck_ut_cd = unit.pck_ut_cd
+        WHERE  ehd.edi_cre_seq  = #edi_cre_seq#     AND ehd.delt_flg = 'N'
+          AND  embl.edi_cre_seq = #edi_cre_seq#      
+          AND  ehbl.edi_cre_seq = #edi_cre_seq#
+    </select>	
+	
+	<!--EDI전문 생성시 필요한 수출 추가정보를 조회한다.   -->
+	<select id="selectEDIExpTextInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.ExpAddInfoVO">
+		/** EdiCstmSQL.xml -> "selectEDIExpTextInfo" **/
+        SELECT xpt.intg_bl_seq,   xpt.xpt_no,        xpt.pck_qty,       xpt.edi_grs_wt AS pck_wgt,
+               xpt.sam_pck_ut_cd AS sam_pck_ut_cd,xpt.sam_pck_tp AS sam_pck_gbn,        xpt.sam_pck_qty AS sam_pck_qty,   
+		       xpt.sprt_flg AS sprt_yn,              xpt.sprt_seq,      unit.CSTMS_PCK_CD_VAL PCK_UT_CD
+		
+         FROM  tb_edi_hdr ehd 
+         JOIN  tb_kr_cstm_edi_bl_info ebl
+           ON  ehd.edi_cre_seq = ebl.edi_cre_seq  AND ebl.biz_clss_cd = 'H'
+        
+         JOIN  tb_edi_info xpt
+           ON  ebl.intg_bl_seq = xpt.intg_bl_seq
+		 LEFT OUTER JOIN TB_PCK_UT_CD unit
+             ON xpt.pck_ut_cd = unit.pck_ut_cd
+             
+		WHERE  ehd.edi_cre_seq = #edi_cre_seq#    AND ehd.delt_flg = 'N'
+	</select>
+	
+	<!-- EDI 전문 처리상태를 업데이트함   -->
+    <update id="updateEdiSts" parameterClass="HashMap">
+       UPDATE  tb_edi_hdr
+          SET  edi_sts = #edi_sts#
+	   <isNotNull property="edi_msg_txt"> 
+		       , smt_dt = getDate()
+	   </isNotNull>
+		       ,modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,
+		       modi_tms    = GETUTCDATE()
+        WHERE  edi_cre_seq = #edi_cre_seq# 
+    </update>
+	
+	<!-- 재작성시 EDI Hearder 테이블 정보입력   -->
+    <insert id="insertEDICopy" parameterClass="HashMap">
+    	/** EdiCstmSQL.xml -> insertEDICopy **/
+        INSERT INTO tb_edi_hdr (  
+                 edi_cre_seq,   intg_bl_seq,
+                 edi_msg_tp,    air_sea_clss_cd,   bnd_clss_cd,
+                 edi_sts,       workday,           flt_no, 
+                 rgst_usrid,    rgst_ofc_cd,       rgst_tms,
+                 modi_usrid,    modi_ofc_cd,       modi_tms, delt_flg         
+        )SELECT  edi_cre_seq,   intg_bl_seq,
+                 edi_msg_tp,    air_sea_clss_cd,   bnd_clss_cd,
+                 #edi_sts#,     workday,           flt_no, 
+		         #proc_usrid#,  #proc_ofccd#,      getDate(),         
+                 #proc_usrid#,  #proc_ofccd#,      GETUTCDATE(),  'N'
+		   FROM  tb_edi_hdr
+          WHERE  edi_cre_seq =  #edi_cre_seq# 
+        
+    </insert>
+    
+    <!-- 재작성시 EDI 국내세관 추가정보 입력   -->
+    <insert id="insertKRCustomAddInfoCopy" parameterClass="HashMap">
+    	/** EdiCstmSQL.xml -> insertKRCustomAddInfoCopy **/
+        INSERT INTO tb_kr_cstm_add_info(
+                    edi_cre_seq,    decnsl_cmp_cd,
+                    cstm_cd,        cstm_dept_cd
+        )    SELECT edi_cre_seq,    decnsl_cmp_cd,
+                    cstm_cd,        cstm_dept_cd
+		       FROM tb_kr_cstm_add_info
+              WHERE edi_cre_seq = #edi_cre_seq# 
+       
+    </insert>   
+	
+	<!--전송 전문 History 작성시   -->
+	<select id="selectMkEdiSndHistPK" parameterClass="HashMap" resultClass="HashMap">     
+		/** EdiCstmSQL.xml -> selectMkEdiSndHistPK **/                                         
+		SELECT  msg.msg_cnt AS msg_cnt, snd.edi_snd_seq AS edi_snd_seq,  CONVERT(VARCHAR, GETDATE(), 112)AS mkdt
+		  FROM  (
+		         SELECT  ISNULL(MAX(his.msg_cnt),0 )+1 AS msg_cnt
+		           FROM  tb_edi_snd_his his
+		           JOIN  tb_edi_hdr hdr
+		             ON  his.edi_cre_seq = hdr.edi_cre_seq 
+		          WHERE  CONVERT(VARCHAR, snd_tms, 112) = CONVERT(VARCHAR, GETDATE(), 112)
+		            AND  hdr.edi_msg_tp = #f_edi_msg_tp#
+		  )msg,
+		  ( 
+				 SELECT  ISNULL(MAX(edi_snd_seq), 0)+1 AS edi_snd_seq
+				   FROM  tb_edi_snd_his
+				  WHERE  edi_cre_seq = #edi_cre_seq#
+		   ) snd
+	</select>
+
+	<!-- 전송시 EDI전문전송키값 등록   -->
+    <insert id="insertEdiSndHist" parameterClass="HashMap">
+		INSERT INTO tb_edi_snd_his(
+	         edi_cre_seq,   edi_snd_seq,   edi_msg_no,    msg_cnt
+	    )VALUES(
+		     #edi_cre_seq#, #edi_snd_seq#, #edi_msg_no#,  #msg_cnt#
+		)
+    </insert>
+	
+	<!-- 전문 전송후 전송 내역을 업데이트함   -->
+	<update id="updateEdiSndHist" parameterClass="HashMap">
+        UPDATE tb_edi_snd_his
+		   SET edi_msg_txt = #edi_msg_txt#,  
+		       snd_usrid   = #proc_usrid#, snd_ofc_cd = #proc_ofccd#, snd_tms = getDate() 
+		 WHERE edi_cre_seq = #edi_cre_seq#  AND edi_snd_seq = #edi_snd_seq#
+    </update>                     
+	
+	<!-- EDI 발신전문 키값을 조회함   -->
+	<select id="selectEdiSendKeyList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiHdrVO">
+		SELECT  edi_msg_no
+		  FROM  tb_edi_snd_his 
+		 WHERE  edi_cre_seq = #edi_cre_seq# 
+	  ORDER BY  edi_snd_seq DESC
+	</select>
+	
+	
+
+    
+    <!-- ## AMS EDI 처리 ##   -->
+    <!-- AMS EDI 추가정보 입력   -->
+    <insert id="insertAMSAddInfo" parameterClass="HashMap">
+        INSERT INTO tb_ams_edi_add_info(
+            edi_cre_seq,    trsp_co_scac_cd,     fwrd_scac_cd,   edi_pol_cd,    edi_pod_cd,
+		    vsl_nm,         vsl_cnt_cd, ams_msg_snd_tp
+        )VALUES(
+            #edi_cre_seq#,  #trsp_co_scac_cd#,   #fwrd_scac_cd#, #edi_pol_cd#,  #edi_pod_cd#,
+		    #vsl_nm#,       #vsl_cnt_cd# , #ams_msg_snd_tp# 
+        )
+    </insert>
+    
+    <!-- AMS최초 생성시 필요한 BL정보를 조회함   -->
+    <select id="selectAMSBLList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> selectAMSBLList **/                   
+        SELECT mbl.bl_no   AS mbl_no,        mbl.intg_bl_seq AS mbl_bl_seq, 
+               mbl.flt_no  AS mbl_flt_no,    SUBSTRING(mbl.etd_dt_tm, 1, 8) AS mbl_obrd_dt,
+               mbl.pck_qty AS mbl_pck_qty,   mbl.grs_wgt AS mbl_grs_wgt,
+		
+               hbl.bl_no   AS hbl_no,        hbl.intg_bl_seq AS hbl_bl_seq, 
+               hbl.flt_no  AS hbl_flt_no,    SUBSTRING(hbl.obrd_dt_tm, 1, 8) AS hbl_obrd_dt, 
+               hbl.pck_qty AS hbl_pck_qty,   hbl.grs_wgt AS hbl_grs_wgt,
+		
+		       sprn.eng_nm AS shp_nm,        shpr.trdp_addr AS shp_addr,	 sprn.cnt_cd AS shp_cnt_cd,      sprn.rep_zip AS shp_zip_cd,     sprn_pson.pic_phn AS shp_tel,
+               cprn.eng_nm AS cnee_nm,       cnee.trdp_addr AS cnee_addr,	 cprn.cnt_cd AS cnee_cnt_cd,     cprn.rep_zip AS cnee_zip_cd,    cprn_pson.pic_phn AS cnee_tel,
+		
+			   hbl.POD_NOD_CD as pod, 		 hbl.POL_NOD_CD as pol, 
+			   hbl.rep_cmdt_cd,              hbl.rep_cmdt_nm,
+			   sprn.state_cd AS shp_ste,  	 cprn.state_cd AS cnee_ste
+          FROM tb_intg_bl mbl
+          JOIN tb_add_info_bnd bnd
+            ON mbl.intg_bl_seq = bnd.intg_bl_seq     AND bnd.delt_flg = 'N'
+        
+          JOIN tb_intg_bl_rlt rlt
+            ON rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND rlt.delt_flg = 'N'
+        
+          JOIN tb_intg_bl hbl
+            ON hbl.intg_bl_seq = rlt.intg_bl_seq     AND  hbl.bl_no IS NOT NULL
+	       AND hbl.flt_no IS NOT NULL                AND  hbl.delt_flg = 'N'  
+		
+LEFT OUTER JOIN TB_BL_PRNR shpr
+            ON hbl.intg_bl_seq = shpr.intg_bl_seq  AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'
+LEFT OUTER JOIN tb_trdp sprn 
+            ON shpr.trdp_cd = sprn.trdp_cd   AND sprn.delt_flg = 'N'
+LEFT OUTER JOIN TB_BL_PRNR cnee
+            ON hbl.intg_bl_seq = cnee.intg_bl_seq  AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+LEFT OUTER JOIN tb_trdp cprn 
+            ON cnee.trdp_cd = cprn.trdp_cd  AND sprn.delt_flg = 'N'
+LEFT OUTER JOIN tb_trdp_cntc_pson sprn_pson  
+            ON sprn.trdp_cd = sprn_pson.trdp_cd AND sprn_pson.rep_flg = 'Y' AND sprn_pson.delt_flg = 'N' 
+LEFT OUTER JOIN tb_trdp_cntc_pson cprn_pson  
+            ON cprn.trdp_cd = cprn_pson.trdp_cd AND cprn_pson.rep_flg = 'Y' AND cprn_pson.delt_flg = 'N'              
+		
+         WHERE mbl.biz_clss_cd = 'M'                 AND mbl.air_sea_clss_cd = #air_sea_clss_cd#
+           AND bnd.bnd_clss_cd = #bnd_clss_cd#       AND mbl.bl_no = #f_mbl_no#  
+		   AND mbl.flt_no IS NOT NULL  
+     </select>
+	
+    <!-- AMS최초 생성시 필요한 BL정보를 조회함   -->
+    <select id="selectAmsSeaBLList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> selectAmsSeaBLList **/
+        SELECT mbl.bl_no   AS mbl_no,        mbl.intg_bl_seq AS mbl_bl_seq, 
+               mbl.flt_no  AS mbl_flt_no,    SUBSTRING(mbl.etd_dt_tm, 1, 8) AS mbl_obrd_dt,
+               mbl.pck_qty AS mbl_pck_qty,   mbl.grs_wgt AS mbl_grs_wgt,
+        
+               hbl.bl_no   AS hbl_no,        hbl.intg_bl_seq AS hbl_bl_seq, 
+               hbl.flt_no  AS hbl_flt_no,    SUBSTRING(hbl.obrd_dt_tm, 1, 8) AS hbl_obrd_dt, 
+               hbl.pck_qty AS hbl_pck_qty,   hbl.grs_wgt AS hbl_grs_wgt,
+        
+               hbl.pol_cd,                   SUBSTRING(hbl.etd_dt_tm, 1, 8) AS etd, 
+               hbl.pod_cd,                   SUBSTRING(hbl.eta_dt_tm, 1, 8) AS eta,
+		
+               sprn.eng_nm AS shp_nm,        sprn.eng_addr AS shp_addr,
+               cprn.eng_nm AS cnee_nm,       cprn.eng_addr AS cnee_addr,
+               nprn.eng_nm AS noti_nm,       nprn.eng_addr AS noti_addr
+        
+          FROM tb_intg_bl mbl
+          JOIN tb_add_info_bnd bnd
+            ON mbl.intg_bl_seq = bnd.intg_bl_seq     AND bnd.delt_flg = 'N'
+        
+          JOIN tb_intg_bl_rlt rlt
+            ON rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND rlt.delt_flg = 'N'
+        
+          JOIN tb_intg_bl hbl
+            ON hbl.intg_bl_seq = rlt.intg_bl_seq     AND hbl.delt_flg = 'N'
+		  JOIN TB_BL_PRNR shpr
+			ON hbl.intg_bl_seq = shpr.intg_bl_seq  AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'
+          JOIN tb_trdp sprn 
+            ON shpr.trdp_cd = sprn.trdp_cd   AND sprn.delt_flg = 'N'
+		  JOIN TB_BL_PRNR cnee
+			ON hbl.intg_bl_seq = cnee.intg_bl_seq  AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+          JOIN tb_trdp cprn 
+            ON cnee.trdp_cd = cprn.trdp_cd  AND sprn.delt_flg = 'N'
+
+LEFT OUTER JOIN TB_BL_PRNR ntfy
+			ON hbl.intg_bl_seq = ntfy.intg_bl_seq  AND ntfy.bl_trdp_tp_cd = 'N01' AND ntfy.delt_flg = 'N'
+		
+LEFT OUTER JOIN tb_trdp nprn 
+            ON ntfy.trdp_cd = nprn.trdp_cd   AND nprn.delt_flg = 'N'
+
+         WHERE mbl.biz_clss_cd = 'M'                 AND mbl.air_sea_clss_cd = #air_sea_clss_cd#
+           AND bnd.bnd_clss_cd = #bnd_clss_cd#
+           AND mbl.intg_bl_seq IN (<iterate property="disp_bl_seq" conjunction=",">#disp_bl_seq[]#</iterate>)
+     </select>
+
+	<!-- 해운 AMS 수출시 양육항, 도착예정일 기준 조회    -->
+    <select id="selectAmsSeaPodInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+		SELECT  pod_cd, eta 
+		  FROM  tb_ams_edi_bl_info
+	     WHERE  edi_cre_seq = #edi_cre_seq#  
+		   AND  biz_clss_cd = 'H'
+	  GROUP BY  pod_cd, eta
+     </select>
+	
+    <!--AMS MBL 추가정보 입력   -->
+    <insert id="insertAMSMasterBlInfo" parameterClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> insertAMSMasterBlInfo **/
+        INSERT INTO tb_ams_edi_bl_info(
+                edi_cre_seq,  intg_bl_seq,
+                biz_clss_cd,  bl_no, 
+                pck_qty,      grs_wgt
+        
+        )VALUES(
+                #edi_cre_seq#,  #mbl_bl_seq#,
+                'M',            #mbl_no#, 
+                #mbl_pck_qty#,  #mbl_grs_wgt#
+        )
+    </insert>
+    
+    <!--AMS HBL 추가정보 입력   -->
+    <insert id="insertAMSHouseBlInfo" parameterClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> insertAMSHouseBlInfo **/
+        INSERT INTO tb_ams_edi_bl_info(
+                edi_cre_seq,  intg_bl_seq,
+                biz_clss_cd,  bl_no, 
+                pck_qty,      grs_wgt,
+                pol_cd,		  pod_cd,
+		        shp_co_nm,    shp_cnt_cd,   shp_plc,	shp_st,		shp_zip_cd,   	shp_phn_no,		
+		        cnee_co_nm,   cnee_cnt_cd,  cnee_ste,	cnee_plc,	cnee_st,		cnee_zip_cd,  	cnee_phn_no,
+		        itm_nm1,	  itm_nm2
+
+        )VALUES(
+                #edi_cre_seq#,  #hbl_bl_seq#,
+                'H',            #hbl_no#, 
+                #hbl_pck_qty#,  #hbl_grs_wgt#,
+                #pol#,			#pod#,		
+                #shp_nm#,       #shp_cnt_cd#,   #shp_plc#,		#shp_st#,		#shp_zip_cd#,   #shp_tel#,
+                #cnee_nm#,      #cnee_cnt_cd#,  #cnee_ste#,		#cnee_plc#,		#cnee_st#, 		#cnee_zip_cd#,  #cnee_tel#,
+                #itm_nm1#,		#itm_nm2#
+        )
+    </insert>
+	
+	<!--AMS SEA HBL 추가정보 입력   -->
+    <insert id="insertAmsSeaHouseBlInfo" parameterClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+    	/** EdiCstmSQL.xml -> insertAmsSeaHouseBlInfo **/
+        INSERT INTO tb_ams_edi_bl_info(
+                edi_cre_seq,  intg_bl_seq,
+                biz_clss_cd,  bl_no, 
+                pck_qty,      grs_wgt,
+        
+		        pol_cd,       eta,
+		        pod_cd,       etd,
+		
+                shp_co_nm,    shp_plc,
+                cnee_co_nm,   cnee_plc,
+                noti_co_nm,   noti_plc
+        )VALUES(
+                #edi_cre_seq#,  #hbl_bl_seq#,
+                'H',            #hbl_no#, 
+                #hbl_pck_qty#,  #hbl_grs_wgt#,
+
+                #pol_cd#,       #eta#,
+                #pod_cd#,       #etd#,
+		
+                #shp_nm#,       #shp_addr#,
+                #cnee_nm#,      #cnee_addr#,
+                #noti_nm#,      #noti_addr#
+        )
+    </insert>
+	
+	<!-- 해운 AMS EDI Commodity PK생성   -->
+	<select id="selectAmsCmdtMkPK" resultClass="Integer">
+	  SELECT  ISNULL(MAX(shp_cmdt_seq),0 )+1 AS cmdtseq
+	    FROM  tb_ams_edi_cmdt
+	   WHERE  edi_cre_seq   = #edi_cre_seq#   AND   intg_bl_seq = cast(#intg_bl_seq# as varchar) 
+		 AND  cntr_list_seq = #cntr_list_seq#
+	</select>
+	
+	<!-- 해운 AMS EDI Commodity 입력   -->
+    <insert id="insertAmsCmdtInfo" parameterClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsCmdtVO">
+		INSERT INTO tb_ams_edi_cmdt(
+				edi_cre_seq,     intg_bl_seq,     cntr_list_seq,    shp_cmdt_seq,
+				shp_cmdt_nm,     pck_qty,
+ 		        hts_cd,          dg_gds_cd_tp,    dg_gds_cd
+		)VALUES( 
+                #edi_cre_seq#,   #intg_bl_seq#,   #cntr_list_seq#,  #shp_cmdt_seq#,
+                #shp_cmdt_nm#,   #pck_qty#,
+		        #hts_cd#,        #dg_gds_cd_tp#,  #dg_gds_cd#
+		)
+    </insert>
+
+    <!-- 해운 AMS EDI Commodity 수정   -->	
+    <insert id="updateAmsCmdtInfo" parameterClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsCmdtVO">
+         UPDATE  tb_ams_edi_cmdt
+		    SET  shp_cmdt_nm = #shp_cmdt_nm#,    pck_qty      = #pck_qty#,
+		         hts_cd      = #hts_cd#,         dg_gds_cd_tp = #dg_gds_cd_tp#,    dg_gds_cd = #dg_gds_cd#
+		
+          WHERE  edi_cre_seq = #edi_cre_seq#     AND  intg_bl_seq = cast(#intg_bl_seq# as varchar)  
+            AND  cntr_list_seq = #cntr_list_seq# AND  shp_cmdt_seq = #shp_cmdt_seq# 
+    </insert>
+	
+	
+    <!-- AMS 상품정보 삭제   -->
+    <delete id="deleteAmsCmdtInfo" parameterClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsCmdtVO">
+        DELETE FROM tb_ams_edi_cmdt
+         WHERE edi_cre_seq = #edi_cre_seq#  AND cntr_list_seq = #cntr_list_seq# AND shp_cmdt_seq = #shp_cmdt_seq#
+    </delete>
+
+	
+    <!-- 해운 AMS EDI Commodity 입력   -->
+    <select id="selectAmsCmdtInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsCmdtVO">
+    	/** EdiCstmSQL.xml -> selectAmsCmdtInfo **/
+        SELECT cntr.cntr_no, cntr.CNTR_TPSZ_CD, cntr.SEAL_NO1, cntr.SEAL_NO2, 
+                cmdt.SHP_CMDT_CD hts_cd, cmdt.PCK_QTY, cmdt.SHP_CMDT_NM shp_cmdt_nm,
+                cmdt.SHP_CMDT_SEQ, 
+                CASE WHEN cmdt.CNTR_LIST_SEQ IS NULL THEN ecmdt.CNTR_LIST_SEQ 
+                    ELSE cmdt.CNTR_LIST_SEQ end CNTR_LIST_SEQ,
+                CASE WHEN cmdt.dg_cd IS NULL THEN ecmdt.dg_gds_cd 
+                    ELSE cmdt.dg_cd end dg_gds_cd,
+                CASE WHEN cmdt.dg_cd_tp IS NULL THEN ecmdt.dg_gds_cd_tp 
+                    ELSE cmdt.dg_cd_tp end dg_gds_cd_tp,
+                CASE WHEN ecmdt.intg_bl_seq IS NULL THEN 'N' ELSE 'Y' END pop_flg
+        FROM TB_INTG_BL bl
+        JOIN TB_CNTR_LIST cntr 
+          ON bl.intg_bl_seq = cntr.intg_bl_seq
+LEFT OUTER JOIN TB_SHP_CMDT cmdt
+          ON cmdt.intg_bl_seq = bl.intg_bl_seq AND cmdt.CNTR_LIST_SEQ = cntr.CNTR_LIST_SEQ
+LEFT OUTER JOIN tb_ams_edi_cmdt ecmdt ON ecmdt.intg_bl_seq = bl.intg_bl_seq and cmdt.CNTR_LIST_SEQ = ecmdt.CNTR_LIST_SEQ        
+LEFT OUTER JOIN TB_AMS_EDI_BL_INFO info 
+          ON info.intg_bl_seq = bl.intg_bl_seq
+        WHERE bl.intg_bl_seq = #disp_bl_seq#
+        ORDER BY ecmdt.cntr_list_seq
+    </select>
+	
+    <!-- 해운 AMS EDI 전문생성용 Commodity 조회   -->
+    <select id="selectAmsCmdtList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsCmdtVO">
+         SELECT  cmdt.intg_bl_seq,
+                 ctl.cntr_no,           ctl.cntr_tpsz_cd,         ctl.cntr_tpsz_cd,   cmdt.shp_cmdt_nm AS cmdt_nm,          
+                 cmdt.pck_qty,          cmdt.pck_ut_cd,           cmdt.shp_cmdt_seq,     
+                 cmdt.hts_cd,              cmdt.dg_gds_cd,        cmdt.dg_gds_cd_tp,
+                 ctl.seal_no1 AS seal1, ctl.seal_no2 AS seal2,    ctl.seal_no3
+           FROM  tb_cntr_list ctl
+LEFT OUTER JOIN  tb_ams_edi_cmdt cmdt
+             ON  ctl.intg_bl_seq = cmdt.intg_bl_seq
+            AND  ctl.cntr_list_seq = cmdt.cntr_list_seq
+		
+         WHERE  cmdt.edi_cre_seq = #edi_cre_seq# 
+         
+    </select>
+		
+	<!-- Container의 Commodity 갯수를 조회함   -->
+    <select id="selectCmdtCntList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsCmdtVO">
+         SELECT  ctl.cntr_list_seq,       ctl.cntr_no,       ctl.cntr_tpsz_cd, 
+		         count(cmdt.shp_cmdt_seq) AS shp_cmdt_seq
+           FROM  tb_cntr_list ctl
+LEFT OUTER JOIN  tb_ams_edi_cmdt cmdt
+             ON  ctl.intg_bl_seq = cmdt.intg_bl_seq
+            AND  ctl.cntr_list_seq = cmdt.cntr_list_seq
+          WHERE  ctl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+       GROUP BY  ctl.cntr_no, ctl.cntr_list_seq,   ctl.cntr_tpsz_cd
+	   ORDER BY  ctl.cntr_no ASC 
+    </select>
+	
+    <!--AMS HBL 추가정보 수정   -->
+	<update id="updateAMSHouseBlInfo" parameterClass="HashMap">
+        UPDATE tb_ams_edi_bl_info
+           SET pol_cd      = #pol_cd#,        etd        = #etd#,
+               pod_cd      = #pod_cd#,        eta        = #eta#,
+               pck_qty     = #pck_qty#,       grs_wgt    = #grs_wgt#,
+               itm_nm1     = #itm_nm1#,       itm_nm2    = #itm_nm2#,
+		
+               shp_co_nm   = #shp_co_nm#,     shp_cnt_cd = #shp_cnt_cd#,   shp_ste    = #shp_ste#,    
+		       shp_plc     = #shp_plc#,       shp_st     = #shp_st#,       shp_zip_cd = #shp_zip_cd#,
+		       shp_cmmc_tp = #shp_cmmc_tp#,   shp_phn_no = #shp_phn_no#,
+		
+               cnee_co_nm  = #cnee_co_nm#,    cnee_cnt_cd= #cnee_cnt_cd#,  cnee_ste   = #cnee_ste#,   
+		       cnee_plc    = #cnee_plc#,      cnee_st    = #cnee_st#,      cnee_zip_cd= #cnee_zip_cd#,
+		       cnee_cmmc_tp= #cnee_cmmc_tp#,  cnee_phn_no= #cnee_phn_no#,
+		
+		       noti_co_nm= #noti_co_nm#,      noti_plc = #noti_plc#,
+		
+               snp_cd    = #snp_cd#,          prnr_cd = #prnr_cd#,          dest_cd = #dest_cd#,       lst_pol_ams_cd = #lst_pol_ams_cd#,
+               it_tp_cd  = #it_tp_cd#,        it_no   = #it_no#,        
+               hub_loc_cd= #hub_loc_cd#,      por_full_nm = #por_full_nm#,  lst_usa_port_cd = #lst_usa_port_cd# 
+
+		 WHERE edi_cre_seq = #edi_cre_seq#   
+		   AND intg_bl_seq = #f_bl_seq#
+    </update>
+
+    <!--AMS HBL 추가정보 수정   -->
+    <update id="updateAmsSeaHouseBlInfo" parameterClass="HashMap">
+        UPDATE tb_ams_edi_bl_info
+           SET shp_co_nm   = #shp_co_nm#,     shp_plc     = #shp_plc#,
+               cnee_co_nm  = #cnee_co_nm#,    cnee_plc    = #cnee_plc#,
+               noti_co_nm= #noti_co_nm#,      noti_plc = #noti_plc#,
+        
+               snp_cd    = #snp_cd#,          prnr_cd = #prnr_cd#,          dest_cd = #dest_cd#,       lst_pol_ams_cd = #lst_pol_ams_cd#,
+               it_tp_cd  = #it_tp_cd#,        it_no   = #it_no#,        
+               hub_loc_cd= #hub_loc_cd#,      por_full_nm = #por_full_nm#,  lst_usa_port_cd = #lst_usa_port_cd# 
+
+         WHERE edi_cre_seq = #edi_cre_seq#   
+           AND intg_bl_seq = #disp_bl_seq#
+    </update>
+	
+    <!--AMS MBL 총수량 및 무게 수정   -->
+    <update id="updateAmsSeaMBlInfo" parameterClass="HashMap">
+        UPDATE tb_ams_edi_bl_info
+           SET pck_qty   = #pck_qty#,       grs_wgt     = #grs_wgt#
+         WHERE edi_cre_seq = #edi_cre_seq#   
+           AND bl_no = #bl_no#
+    </update>
+	
+	<!--항공 수출. OnBoard Date, 편명으로 BL 정보를 조회함   -->
+    <select id="selectAirAmsBlIfList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsBlInfoVO">
+    	/** EdiCstmSQL.xml -> selectAirAmsBlIfList **/
+        SELECT hbl.intg_bl_seq,  hbl.biz_clss_cd,  hbl.bl_no,
+               hbl.POL_NOD_CD AS pol_cd,       SUBSTRING(hbl.etd_dt_tm, 1, 8) AS etd, 	pol.NOD_ENG_NM AS pol_nm,
+               hbl.POD_NOD_CD AS pod_cd,       SUBSTRING(hbl.eta_dt_tm, 1, 8) AS eta, 	pod.NOD_ENG_NM pod_nm,
+               hbl.pck_qty,      hbl.grs_wgt,  hbl.rep_cmdt_nm,      
+		
+		       sprn.eng_nm AS shp_co_nm,  	shpr.trdp_addr AS shp_addr,  	sprn.cnt_cd AS shp_cnt_cd,		sprn.rep_zip AS shp_zip_cd,  
+		       sprn_pson.pic_phn AS shp_phn_no,  	sprn.state_cd AS shp_ste,
+               cprn.eng_nm AS cnee_co_nm, 	cnee.trdp_addr AS cnee_addr, 	cprn.cnt_cd AS cnee_cnt_cd, 	cprn.rep_zip AS cnee_zip_cd, 
+               cprn_pson.pic_phn AS cnee_phn_no, 	cprn.state_cd AS cnee_ste,
+               mbl.intg_bl_seq AS mbl_seq,  mbl.bl_no AS mbl_no,			mbl.pck_qty AS mbl_pck_qty,     mbl.grs_wgt AS mbl_grs_wgt,
+               
+        <isNotNull property="edi_cre_seq">
+               ebl.cre_dt AS cre_dt
+        </isNotNull>
+        <isNull property="edi_cre_seq">
+               '' AS cre_dt
+        </isNull>
+          FROM tb_intg_bl mbl
+          JOIN tb_add_info_bnd bnd
+            ON mbl.intg_bl_seq = bnd.intg_bl_seq     AND bnd.delt_flg = 'N'
+        
+          JOIN tb_intg_bl_rlt rlt
+            ON rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND rlt.delt_flg = 'N'
+        
+          JOIN tb_intg_bl hbl
+            ON hbl.intg_bl_seq = rlt.intg_bl_seq     AND hbl.delt_flg = 'N'
+            
+          LEFT OUTER JOIN  TB_NOD pol
+           ON  pol.NOD_CD = hbl.POL_CD
+           
+		  LEFT OUTER JOIN  TB_NOD pod
+           ON  pod.NOD_CD = hbl.POD_CD
+           
+          LEFT OUTER JOIN TB_BL_PRNR shpr
+           ON hbl.intg_bl_seq = shpr.intg_bl_seq  AND shpr.bl_trdp_tp_cd = 'S01' AND shpr.delt_flg = 'N'
+           
+		  LEFT OUTER JOIN tb_trdp sprn 
+           ON shpr.trdp_cd = sprn.trdp_cd   AND sprn.delt_flg = 'N'
+           
+		  LEFT OUTER JOIN TB_BL_PRNR cnee
+           ON hbl.intg_bl_seq = cnee.intg_bl_seq  AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+           
+		  LEFT OUTER JOIN tb_trdp cprn 
+           ON cnee.trdp_cd = cprn.trdp_cd  AND sprn.delt_flg = 'N'
+           
+          LEFT OUTER JOIN tb_trdp_cntc_pson sprn_pson  
+           ON sprn.trdp_cd = sprn_pson.trdp_cd AND sprn_pson.rep_flg = 'Y' AND sprn_pson.delt_flg = 'N' 
+
+		  LEFT OUTER JOIN tb_trdp_cntc_pson cprn_pson  
+           ON cprn.trdp_cd = cprn_pson.trdp_cd AND cprn_pson.rep_flg = 'Y' AND cprn_pson.delt_flg = 'N' 
+            
+        <isNotNull property="edi_cre_seq">
+		LEFT OUTER JOIN  tb_ams_edi_bl_info ebl
+             ON  hbl.intg_bl_seq = ebl.intg_bl_seq   AND ebl.biz_clss_cd = 'H' 
+            AND  ebl.edi_cre_seq = #edi_cre_seq#
+        </isNotNull>
+         WHERE mbl.biz_clss_cd = 'M'                 AND mbl.air_sea_clss_cd = #f_air_sea_clss_cd# 
+           AND bnd.bnd_clss_cd = #f_bnd_clss_cd#
+           AND mbl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+           AND mbl.eta_dt_tm LIKE '$f_obrd_dt$%' AND mbl.flt_no = #f_flt_no#
+    </select>
+    
+    <!--저장되어있는 AMS House BL정보를 조회함   -->
+    <select id="selectAMSHblList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsBlInfoVO">
+    	/** EdiCstmSQL.xml -> selectAMSHblList **/
+        SELECT intg_bl_seq,  biz_clss_cd,  bl_no,
+               pol_cd,       etd,          pol.NOD_ENG_NM pol_nm,
+               pod_cd,       eta,          pod.NOD_ENG_NM pod_nm,
+               pck_qty,      grs_wgt,
+               itm_nm1,      itm_nm2,      cre_dt, 
+		
+			   snp_cd,       prnr_cd,      dest_cd,    lst_pol_ams_cd,
+		       it_tp_cd,     it_no,        
+		       hub_loc_cd,   lst_usa_port_cd,         por_full_nm,
+		
+               shp_co_nm,    shp_cnt_cd,   shp_ste,    shp_plc,   shp_st,    shp_zip_cd,  shp_cmmc_tp,   shp_phn_no,
+               cnee_co_nm,   cnee_cnt_cd,  cnee_ste,   cnee_plc,  cnee_st,   cnee_zip_cd, cnee_cmmc_tp,  cnee_phn_no,
+               noti_co_nm,   noti_plc
+
+         FROM  tb_ams_edi_bl_info info
+LEFT OUTER JOIN  TB_NOD pol
+           ON  pol.NOD_CD = info.POL_CD
+LEFT OUTER JOIN  TB_NOD pod
+           ON  pod.NOD_CD = info.POD_CD
+        WHERE  edi_cre_seq = #edi_cre_seq# 
+          AND  biz_clss_cd = #f_biz_clss_cd#
+	<dynamic>
+		<isNotNull property="f_bl_seq">
+		  AND  intg_bl_seq = #f_bl_seq#
+		</isNotNull>
+	</dynamic>
+        ORDER BY intg_bl_seq
+     </select>
+    
+	<!-- AMS 해운 수출 전문 생성용 BL정보 조회   --> 
+	<select id="selectAmsSeaHblList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsBlInfoVO">
+		/** EdiCstmSQL.xml -> selectAmsSeaHblList **/
+        SELECT ehb.intg_bl_seq,      ehb.biz_clss_cd,  
+               mbl.bl_no AS mbl_no,  ehb.bl_no AS hbl_no,    hbl.bkg_no,
+               ehb.pol_cd,           ehb.etd,
+               ehb.pod_cd,           ehb.eta,
+               ehb.pck_qty,          ehb.grs_wgt,             hbl.meas,       unit.CSTMS_PCK_CD_VAL Pck_ut_cd,
+        
+               ehb.snp_cd,           ehb.prnr_cd,             ehb.dest_cd,    ehb.lst_pol_ams_cd,
+               ehb.it_tp_cd,         ehb.it_no,        
+               ehb.hub_loc_cd,       ehb.lst_usa_port_cd,     ehb.por_full_nm,
+        
+               ehb.cre_dt, 
+               ehb.shp_co_nm,        ehb.shp_plc,
+               ehb.cnee_co_nm,       ehb.cnee_plc,
+               ehb.noti_co_nm,       ehb.noti_plc
+         FROM  tb_ams_edi_bl_info ehb
+         JOIN  tb_intg_bl_rlt rlt
+           ON  ehb.intg_bl_seq = rlt.intg_bl_seq AND rlt.delt_flg = 'N'
+        
+         JOIN  tb_intg_bl mbl
+           ON  mbl.intg_bl_seq = rlt.rlt_intg_bl_seq   AND  mbl.delt_flg = 'N'
+        
+         JOIN  tb_intg_bl hbl
+           ON  hbl.intg_bl_seq = rlt.intg_bl_seq       AND  hbl.delt_flg = 'N'
+LEFT OUTER JOIN TB_PCK_UT_CD unit
+             ON hbl.Pck_ut_cd = unit.Pck_ut_cd
+         WHERE ehb.edi_cre_seq = #edi_cre_seq#
+          AND  ehb.biz_clss_cd = #f_biz_clss_cd#
+        ORDER BY ehb.intg_bl_seq
+     </select>
+     
+    <!--항공 OnBoard Date, 편명기준으로 EDI전송(헤더) 정보를 조회함   -->
+    <!-- select id="selectAMSMsgList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsAddInfoVO">
+    	/** EdiCstmSQL.xml -> selectAMSMsgList **/
+		SELECT  hdr.edi_cre_seq,           
+		        hdr.edi_sts,               hdr.workday,               hdr.flt_no,           hdr.smt_dt, 
+			    adf.edi_pol_cd AS pol_cd,  adf.edi_pod_cd AS pod_cd,  
+		        adf.trsp_co_scac_cd,       adf.fwrd_scac_cd,
+			    abl.bl_no,                 
+			    CONVERT(VARCHAR, hdr.rgst_tms, 112) AS cre_dt,
+		        abl.pck_qty,               abl.grs_wgt,               adf.ams_msg_snd_tp
+		  FROM  tb_edi_hdr hdr
+		  JOIN  tb_ams_edi_add_info adf
+		    ON  hdr.edi_cre_seq = adf.edi_cre_seq 
+		
+		  JOIN  tb_ams_edi_bl_info abl
+		    ON  hdr.edi_cre_seq = abl.edi_cre_seq AND abl.biz_clss_cd = 'M'
+		
+		 WHERE  hdr.cstm_edi_cd    = 'AM'    
+		   AND  hdr.edi_msg_tp     = #edi_msg_tp# 
+		   AND  hdr.air_sea_clss_cd= #f_air_sea_clss_cd# 
+		   AND  hdr.bnd_clss_cd    = #f_bnd_clss_cd#  AND hdr.delt_flg = 'N'
+        <dynamic>
+            <isNotNull property="f_obdt_bgn_dt">
+          <![CDATA[AND  (hdr.workday >=#f_obdt_bgn_dt# AND hdr.workday <=#f_obdt_end_dt#) ]]> 
+            </isNotNull>
+            <isNotNull property="f_flt_no">
+                   AND  hdr.flt_no LIKE '%$f_flt_no$%'
+            </isNotNull>
+            <isNotNull property="f_mbl_no">
+                   AND  abl.bl_no  LIKE '%$f_mbl_no$%'
+            </isNotNull>
+        </dynamic>
+	  ORDER BY  hdr.workday
+    </select-->
+    
+    <!--항공 OnBoard Date, 편명기준으로 EDI전송(헤더) 정보를 조회함   -->
+    <select id="selectAMSMsgList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsAddInfoVO">
+    	/** EdiCstmSQL.xml -> selectAMSMsgList **/
+		SELECT  bltp.flt_no, 			   				bltp.obrd_dt_tm AS workday,           
+		        ISNULL(hdr.edi_sts,'X') AS edi_sts, 	bltp.intg_bl_seq, 					bltp.BL_NO AS bl_no,
+		        CONVERT(VARCHAR, hdr.smt_dt, 102)+' '+CONVERT(VARCHAR, hdr.smt_dt, 108) AS smt_dt, hdr.edi_cre_seq, 
+		        CONVERT(VARCHAR, hdr.rgst_tms, 112) AS cre_dt,
+			    bltp.pol_cd AS pol_cd, bltp.pod_cd AS pod_cd,  
+		        adf.trsp_co_scac_cd,       adf.fwrd_scac_cd,
+		        bltp.pck_qty,              bltp.grs_wgt,               adf.ams_msg_snd_tp
+		  FROM (
+			    SELECT  bl.intg_bl_seq, bl.BL_NO, bl.obrd_dt_tm, bl.flt_no, bl.air_sea_clss_cd, bnd.bnd_clss_cd, bl.pol_cd, bl.pod_cd, bl.pck_qty, bl.grs_wgt
+			      FROM  tb_intg_bl bl JOIN tb_add_info_bnd bnd
+				    ON  bl.intg_bl_seq  = bnd.intg_bl_seq
+			     WHERE  bl.BIZ_CLSS_CD  = 'M' 
+		           AND  bl.AIR_SEA_CLSS_CD= #f_air_sea_clss_cd#  
+		           AND  bnd.bnd_clss_cd   = #f_bnd_clss_cd#
+		           AND  bl.flt_no IS NOT NULL  
+			       AND  bl.delt_flg = 'N' AND  bnd.delt_flg = 'N'
+        <dynamic>
+            <isNotNull property="f_obdt_bgn_dt">
+          <![CDATA[AND  (bl.obrd_dt_tm >=#f_obdt_bgn_dt# AND bl.obrd_dt_tm <=#f_obdt_end_dt#) ]]> 
+            </isNotNull>
+			<isNotNull property="f_flt_no">
+				   AND  bl.flt_no LIKE '$f_flt_no$%'
+			</isNotNull>
+			<isNotNull property="f_mawb_no">
+				   AND  bl.bl_no LIKE '$f_mawb_no$%'
+			</isNotNull>
+        </dynamic>
+			     GROUP BY bl.intg_bl_seq, bl.BL_NO, bl.obrd_dt_tm, bl.flt_no, bl.air_sea_clss_cd, bnd.bnd_clss_cd, bl.pol_cd, bl.pod_cd, bl.pck_qty, bl.grs_wgt
+		      )bltp
+		  LEFT OUTER JOIN tb_edi_hdr hdr
+			 ON  bltp.obrd_dt_tm = hdr.workday AND hdr.cstm_edi_cd = 'AM' AND  hdr.flt_no = bltp.flt_no 
+		    AND  hdr.delt_flg = 'N' AND hdr.edi_sts !='R'
+		    AND  bltp.air_sea_clss_cd = hdr.air_sea_clss_cd  AND  bltp.bnd_clss_cd = hdr.bnd_clss_cd
+		    AND  hdr.edi_msg_tp = #edi_msg_tp#
+		  LEFT OUTER JOIN tb_ams_edi_add_info adf
+		    ON  hdr.edi_cre_seq = adf.edi_cre_seq 
+	  ORDER BY  bltp.obrd_dt_tm DESC, bltp.flt_no ASC
+    </select>
+	
+	<!--해운 OnBoard Date, 편명기준으로 EDI전송(헤더) 정보를 조회함   -->
+    <select id="selectAmsSeaMsgList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsAddInfoVO">
+    	/** EdiCstmSQL.xml -> selectAmsSeaMsgList **/
+        SELECT  hdr.edi_cre_seq,           
+                hdr.edi_sts,               hdr.workday,               hdr.flt_no,                 hdr.smt_dt, 
+		        hdr.mrn,
+                adf.edi_pol_cd AS pol_cd,  adf.edi_pol_cd AS pol_cd,  loc.loc_nm AS pol_nm, 
+                adf.trsp_co_scac_cd,       adf.fwrd_scac_cd,
+                abl.bl_no,                 tdp.eng_nm AS vsl_cmp_nm,
+                CONVERT(VARCHAR, hdr.rgst_tms, 112) AS cre_dt,
+                abl.pck_qty,               abl.grs_wgt,               adf.ams_msg_snd_tp,
+                hdr.vsl_cd,                adf.vsl_nm,                adf.vsl_cnt_cd,  
+		        adf.edi_pod_eta
+          FROM  tb_edi_hdr hdr
+          JOIN  tb_ams_edi_add_info adf
+            ON  hdr.edi_cre_seq = adf.edi_cre_seq 
+        
+LEFT OUTER JOIN  tb_ams_edi_bl_info abl
+            ON  hdr.edi_cre_seq = abl.edi_cre_seq AND abl.biz_clss_cd = 'M'
+LEFT OUTER JOIN TB_BL_PRNR prnr
+            ON  abl.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'L01' AND prnr.delt_flg = 'N'
+LEFT OUTER JOIN  tb_trdp tdp
+            ON  tdp.trdp_cd = prnr.trdp_cd
+LEFT OUTER JOIN  tb_loc loc
+            ON  adf.edi_pol_cd = loc.loc_cd
+
+         WHERE  hdr.cstm_edi_cd    = 'AM'    
+           AND  hdr.edi_msg_tp     = #edi_msg_tp# 
+           AND  hdr.air_sea_clss_cd= #f_air_sea_clss_cd# 
+           AND  hdr.bnd_clss_cd    = #f_bnd_clss_cd#  AND hdr.delt_flg = 'N'
+        <dynamic>
+            <isNotNull property="f_obdt_bgn_dt">
+          <![CDATA[AND  (hdr.workday >=#f_obdt_bgn_dt# AND hdr.workday <=#f_obdt_end_dt#) ]]> 
+            </isNotNull>
+            <isNotNull property="f_flt_no">
+                   AND  hdr.flt_no LIKE '%$f_flt_no$%'
+            </isNotNull>
+            <isNotNull property="f_mbl_no">
+                   AND  abl.bl_no  LIKE '%$f_mbl_no$%'
+            </isNotNull>
+            <isNotNull property="f_vsl_cd">
+                   AND  hdr.vsl_cd = #f_vsl_cd#
+            </isNotNull>
+        </dynamic>
+      ORDER BY  hdr.workday
+    </select>
+	
+	<!-- AMS 항공 EDI전문 생성시 헤더 정보를 조회함   -->
+	<select id="selectAMSEdiTxtInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsAddInfoVO">
+	    SELECT  hdr.edi_cre_seq,           
+                hdr.edi_sts,               hdr.workday,               hdr.flt_no,        hdr.smt_dt, 
+		 
+                adf.edi_pol_cd AS pol_cd,  adf.edi_pod_cd AS pod_cd,  
+                adf.trsp_co_scac_cd,       adf.fwrd_scac_cd,
+                CONVERT(VARCHAR, hdr.rgst_tms, 112) AS cre_dt,
+                adf.ams_msg_snd_tp,        mbl.bl_no,                 mbl.pck_qty,       mbl.grs_wgt
+          FROM  tb_edi_hdr hdr
+          JOIN  tb_ams_edi_add_info adf
+            ON  hdr.edi_cre_seq = adf.edi_cre_seq 
+		
+          JOIN  tb_ams_edi_bl_info  mbl
+            ON  hdr.edi_cre_seq = mbl.edi_cre_seq AND mbl.biz_clss_cd = 'M'
+
+         WHERE  hdr.cstm_edi_cd = 'AM'    
+           AND  hdr.edi_cre_seq = #edi_cre_seq#   
+    </select>
+	
+    <!-- AMS 해운 EDI전문 생성시 헤더 정보를 조회함   -->
+    <select id="selectAmsSeaEdiTxtInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsAddInfoVO">
+        SELECT  hdr.edi_cre_seq,           
+                hdr.edi_sts,               hdr.workday,               hdr.flt_no,        hdr.smt_dt,    hdr.mrn,
+                adf.vsl_cnt_cd,            adf.vsl_nm,
+                adf.edi_pol_cd AS pol_cd,  adf.edi_pod_cd AS pod_cd,  
+                adf.trsp_co_scac_cd,       adf.fwrd_scac_cd,
+                CONVERT(VARCHAR, hdr.rgst_tms, 112) AS cre_dt,
+                adf.ams_msg_snd_tp,        mbl.bl_no,                 mbl.pck_qty,       mbl.grs_wgt
+          FROM  tb_edi_hdr hdr
+          JOIN  tb_ams_edi_add_info adf
+            ON  hdr.edi_cre_seq = adf.edi_cre_seq 
+        
+          JOIN  tb_ams_edi_bl_info  mbl
+            ON  hdr.edi_cre_seq = mbl.edi_cre_seq AND mbl.biz_clss_cd = 'M'
+
+         WHERE  hdr.cstm_edi_cd = 'AM'    
+           AND  hdr.edi_cre_seq = #edi_cre_seq#   
+    </select>
+	
+	
+	<!-- AMS EDI 저장시   -->
+    <update id="updateAmsAddInfo" parameterClass="HashMap">
+		UPDATE tb_ams_edi_add_info
+		   SET ams_msg_snd_tp = #ams_msg_snd_tp#, edi_pol_cd = #edi_pol_cd#, edi_pod_cd = #edi_pod_cd#
+		 WHERE edi_cre_seq = #edi_cre_seq# 
+	</update>
+
+	<!-- AMS 해운 EDI 저장시   -->
+    <update id="updateAmsSeaAddInfo" parameterClass="HashMap">
+        UPDATE tb_ams_edi_add_info
+           SET ams_msg_snd_tp = #ams_msg_snd_tp#,    trsp_co_scac_cd = #trsp_co_scac_cd#, 
+		       fwrd_scac_cd   = #fwrd_scac_cd#,      vsl_cnt_cd      = #cnt_cd#
+         WHERE edi_cre_seq    = #edi_cre_seq# 
+    </update>
+		
+	<!-- Custom Code 중복 여부를 확인함   -->
+	<select id="selectCstmCdCheck" parameterClass="HashMap" resultClass="Integer">
+	   SELECT  count(cd_seq) 
+         FROM  tb_edi_cd
+        WHERE  cd_val = #f_cd_val#
+        <isNotNull property="f_cstm_seq">
+        AND prnr_cd_seq = #f_cstm_seq#
+        </isNotNull>
+        <isNull property="f_cstm_cd">
+        AND prnr_cd_seq IS NULL
+        </isNull> 
+    </select>
+
+	<!-- Code Primary Key를 생성함   -->
+    <select id="selectMakeCstmCdKey" parameterClass="HashMap" resultClass="Integer">
+       <!-- SELECT  IFNULL(MAX(cd_seq), 0)+1 AS cd_seq   -->
+		
+       SELECT ISNULL(MAX(cd_seq),0 )+1 AS cd_seq 
+         FROM  tb_edi_cd
+    </select>
+		
+	<!-- 코드를 등록함   -->
+	 <insert id="insertEdiCode" parameterClass="HashMap">
+       INSERT INTO tb_edi_cd(
+			  cd_seq,    cd_val,      cd_lbl,      prnr_cd_seq
+	   )VALUES(
+		      #cd_seq#,  #f_cd_val#,  #f_cd_lbl#,  #f_cstm_seq#
+	   )
+    </insert>
+	
+	<!-- 코드를 수정함   -->
+    <insert id="updateEdiCode" parameterClass="HashMap">
+        UPDATE tb_edi_cd
+		   SET cd_lbl = #cd_lbl#
+		 WHERE cd_seq = #cd_seq#
+    </insert>   
+	
+	<!-- 세관 코드 조회   -->
+    <select id="selectEdiCstmCdList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiCdVO">
+          SELECT  cd.cd_seq,      cd.cd_val,      cd.cd_lbl,  
+		          CASE WHEN MAX(dft.cd_tp) IS NULL THEN 0 ELSE 1 END AS df_val,
+		          prnr_cd_seq
+            FROM  tb_edi_cd cd 
+ LEFT OUTER JOIN  tb_edi_dflt_cd dft
+              ON  cd.cd_seq = dft.cd_seq
+    <dynamic>
+        <isNotNull property="f_cstm_seq">
+		   WHERE  prnr_cd_seq = #f_cstm_seq#
+		</isNotNull>
+        <isNull property="f_cstm_seq">
+			WHERE  prnr_cd_seq IS NULL
+        </isNull>
+    </dynamic>		
+         GROUP BY  cd.cd_seq,      cd.cd_val,      cd.cd_lbl, prnr_cd_seq
+         ORDER BY  df_val DESC, cd.cd_val ASC
+	</select>
+	
+	<!--세관코드 키값 조회  -->
+	<select id="selectEdiCstmSeq" parameterClass="HashMap" resultClass="HashMap">
+         SELECT  ecd.cd_seq,   dfl.cd_tp
+           FROM  tb_edi_cd ecd 
+LEFT OUTER JOIN  tb_edi_dflt_cd dfl
+             ON  ecd.cd_seq = dfl.cd_seq   AND   dfl.cd_tp = 'CT' 
+		    AND  dfl.usr_id = #f_usr_id#
+          WHERE  cd_val = #f_cstm_cd# AND prnr_cd_seq IS NULL
+	</select>
+	
+	<!-- EDI기본코드 등록   -->
+    <insert id="insertEdiCstmDefaultCode" parameterClass="HashMap">
+		INSERT INTO tb_edi_dflt_cd(
+		       cd_seq,   usr_id,    cd_tp
+		)VALUES(
+		       #cd_seq#, #usr_id#,  #cd_tp# 
+		)
+    </insert>
+
+	<!-- Custom Code 중복 여부를 확인함   -->
+    <select id="selectCstmCdUsedCheck" parameterClass="HashMap" resultClass="Integer">
+			SELECT count(aif.edi_cre_seq) 
+			  FROM tb_kr_cstm_add_info aif    JOIN   tb_edi_hdr edr
+				ON aif.edi_cre_seq = edr.edi_cre_seq 
+			   AND edr.cstm_edi_cd = 'KR'            AND    edr.delt_flg = 'N'
+             WHERE aif.cstm_cd = #f_cstm_cd#
+			<isNotNull property="f_cstm_dept_cd">
+				 AND aif.cstm_dept_cd = #f_cstm_dept_cd#
+			</isNotNull>
+    </select>	
+	
+	<!-- 세관 기본 코드 조회   -->
+    <select id="selectKrcstmDfCd" parameterClass="String"  resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiCdVO">
+		SELECT  ecd.cd_val, ecd.cd_lbl, dfl.cd_tp
+          FROM  tb_edi_dflt_cd dfl JOIN tb_edi_cd ecd
+            ON  dfl.cd_seq = ecd.cd_seq
+         WHERE  dfl.usr_id = #value#  AND ( dfl.cd_tp = 'CD' OR dfl.cd_tp = 'CT')
+      ORDER BY  cd_tp ASC
+    </select>
+	
+	<!-- EDI추가 정보에있는 정보를 확인합니다.   -->
+	<select id="selectKrcstmAddInfo" parameterClass="HashMap"  resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiKrcstmVO">
+		SELECT ehd.mrn, adf.fwd_cstm_cd, adf.lnr_cstm_cd, ehd.workday
+		  FROM tb_kr_cstm_add_info adf 
+		  JOIN tb_edi_hdr ehd
+		    ON adf.edi_cre_seq = ehd.edi_cre_seq 
+		 WHERE adf.edi_cre_seq = #edi_cre_seq# 
+	</select>
+	
+	<!-- Container 목록을 조회함   -->
+	<select id="selectEdiCntrList" parameterClass="HashMap"  resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiCntrVO">
+        SELECT  bl.intg_bl_seq,                 ctr.cntr_no,                     tpsz.AMS_CNTR_CD cntr_tpsz_cd,
+                ctr.cgo_pck_qty AS cgo_pck_qty, unit.CSTMS_PCK_CD_VAL AS cgo_pck_ut, 
+                ctr.seal_no1 AS cntr_seal_no1,  ctr.seal_no2 AS cntr_seal_no2,   ctr.seal_no3 AS cntr_seal_no3
+        
+          FROM  tb_kr_cstm_edi_bl_info bl
+          JOIN  tb_intg_bl hbl 
+            ON  bl.intg_bl_seq = hbl.intg_bl_seq AND hbl.delt_flg = 'N'
+          JOIN  tb_cntr_list ctr
+            ON  bl.intg_bl_seq = ctr.intg_bl_seq AND ctr.delt_flg = 'N'
+          JOIN  tb_cntr_tpsz tpsz
+            ON  ctr.CNTR_TPSZ_CD = tpsz.CNTR_TPSZ_CD AND tpsz.delt_flg = 'N'
+LEFT OUTER JOIN TB_PCK_UT_CD unit
+             ON ctr.cgo_pck_ut = unit.pck_ut_cd
+         WHERE  bl.edi_cre_seq = #edi_cre_seq# 
+           AND  bl.biz_clss_cd = 'H'
+    </select>
+	
+	<!-- AMS 작성대상 MBL 목록을 조회함   -->
+    <select id="selectAmsBLMkSearchList" parameterClass="HashMap"  resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiBlInfoVO">
+         SELECT  mbl.bl_no AS mbl_no,                   mbl.intg_bl_seq AS mbl_bl_seq, 
+                 SUBSTRING(mbl.etd_dt_tm, 1, 8) AS workday,  ehr.edi_cre_seq AS edi_sts,
+                 hbl.BL_NO AS hbl_no,                   hbl.intg_bl_seq AS hbl_bl_seq, 
+                 mbl.trnk_vsl_cd AS vsl_cd,             mbl.trnk_vsl_nm AS vsl_nm,        mbl.trnk_voy  AS flt_no,    
+                 mbl.pol_cd,                            loc.loc_nm AS pol_nm
+           FROM  tb_intg_bl mbl 
+           JOIN  TB_INTG_BL_RLT rlt
+             ON  rlt.RLT_intg_bl_seq = mbl.intg_bl_seq
+           JOIN  TB_INTG_BL hbl
+             ON  hbl.intg_bl_seq = rlt.intg_bl_seq
+           JOIN  tb_add_info_bnd bnd
+             ON  mbl.intg_bl_seq  = bnd.intg_bl_seq
+             
+           JOIN  tb_loc loc
+             ON  mbl.pol_cd = loc.loc_cd
+
+LEFT OUTER JOIN tb_ams_edi_bl_info abl
+             ON abl.intg_bl_seq = mbl.intg_bl_seq
+        
+LEFT OUTER JOIN  tb_edi_hdr ehr
+             ON  ehr.edi_cre_seq = abl.edi_cre_seq     
+                 AND  ehr.bnd_clss_cd = bnd.bnd_clss_cd    AND   ehr.air_sea_clss_cd = mbl.air_sea_clss_cd   AND ehr.delt_flg = 'N'
+        
+          WHERE  mbl.BIZ_CLSS_CD    = 'M' 
+            AND  mbl.air_sea_clss_cd= #f_air_sea_clss_cd#
+            AND  bnd.bnd_clss_cd    = #f_bnd_clss_cd#
+            AND  mbl.delt_flg = 'N' AND  bnd.delt_flg = 'N'
+		    AND  mbl.bl_no IS NOT NULL
+       <dynamic>
+            <isNotNull property="f_obdt_bgn_dt">
+          <![CDATA[AND  (mbl.etd_dt_tm >=#f_obdt_bgn_dt# AND mbl.etd_dt_tm <=#f_obdt_end_dt#) ]]> 
+            </isNotNull>
+            <isNotNull property="f_vsl_nm">
+                   AND  hbl.trnk_vsl_nm LIKE '%$f_vsl_nm$%'
+            </isNotNull>
+        </dynamic> 
+       ORDER BY  workday DESC, mbl.bl_no
+    </select>
+	
+	<!-- 선박/선사 정보조회   -->
+	<select id="selectAmsVslCmpInfo" parameterClass="HashMap"  resultClass="com.clt.apps.fis.edi.cstm.ams.dto.EdiAmsAddInfoVO">	
+		SELECT  vsl.cnt_cd AS vsl_cnt_cd
+		  FROM  tb_vsl vsl 
+		 WHERE  vsl.vsl_cd = #vsl_cd#
+    </select>		
+	
+	<!-- EDI 전문 내용 조회   -->
+    <select id="selectEdiMsgInfo" parameterClass="HashMap" resultClass="HashMap">
+		SELECT  edi_msg_no,    edi_msg_txt 
+		  FROM  tb_edi_snd_his
+		 WHERE  edi_cre_seq = #edi_cre_seq#  
+		   AND  edi_msg_no  = #edi_msg_no#
+    </select>
+		
+    <!--도착일자, 편명, 전송구분 기준으로 EDI전송 정보를 조회함   -->
+    <select id="selectBLListByDo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.cstm.krcstm.dto.EdiHdr2VO">
+    	/** EdiCstmSQL.xml -> selectBLListByDo **/
+        SELECT SUBSTRING(hbl.eta_dt_tm, 1, 8) As arr_dt,       
+               hbl.flt_no As flight_no,
+               mbl.bl_no  AS mawb,
+               hbl.bl_no AS hawb,
+               cnee.TRDP_NM AS consignee,
+               <![CDATA[
+               wh.wh_cd AS wh_cd,
+               wh.wh_nm AS wh_nm,
+               CASE WHEN len(wh.wh_cd) <9 THEN 'BWH'+wh.wh_cd+':57'
+                    ELSE Reverse(SUBSTRING(Reverse(wh.wh_cd), 1,11))+':'+SUBSTRING(wh.wh_cd,1,2)
+               END warehouse, ]]><!--  bnd.wh_nod_cd As warehouse,    -->
+               ISNULL(doi.wh_cd, wh.EDI_CD) As edi_code, <!-- 최초전송시 입력받음   -->
+               edi.edi_sts As status,
+               doi.do_no As do_no,      <!-- 전송시 생성   -->
+               doi.do_ref_no As do_ref, <!-- 전송시 생성   -->
+               doi.do_date As do_dt,    <!-- 전송시 생성   -->
+               hbl.pck_qty As amount,
+               hbl.grs_wgt As weight,
+               edi.edi_sts As edi_view,
+               
+               hbl.intg_bl_seq As hawb_seq,
+               doi.edi_cre_seq As edi_cre_seq,
+               snd.edi_snd_seq As edi_snd_seq,
+               snd.edi_msg_no As edi_msg_no
+
+          FROM tb_intg_bl hbl
+          JOIN	TB_BL_PRNR cnee
+					ON	hbl.intg_bl_seq = cnee.intg_bl_seq  AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+          JOIN tb_add_info_bnd bnd
+            ON bnd.intg_bl_seq = hbl.intg_bl_seq     AND bnd.delt_flg = 'N'     AND bnd.bnd_clss_cd = #f_bnd_clss_cd#
+        
+          JOIN tb_intg_bl_rlt rlt
+            ON rlt.intg_bl_seq = hbl.intg_bl_seq AND rlt.delt_flg = 'N'
+        
+          JOIN tb_intg_bl mbl
+            ON mbl.intg_bl_seq = rlt.rlt_intg_bl_seq     AND hbl.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_kr_cstm_de_ord_info doi
+             ON doi.intg_bl_seq = hbl.intg_bl_seq
+LEFT OUTER JOIN TB_KR_CSTM_WH_CD wh
+             ON hbl.CFS_NOD_CD = wh.WH_SEQ
+            <dynamic>
+                <isNotNull property="f_trms_sts">
+           JOIN tb_edi_hdr edi
+             ON edi.edi_cre_seq = doi.edi_cre_seq   AND  edi.edi_sts = #f_trms_sts#
+           JOIN tb_edi_snd_his snd
+             ON snd.edi_cre_seq = edi.edi_cre_seq
+                </isNotNull>
+            </dynamic>
+
+            <dynamic>
+                <isNull property="f_trms_sts">
+LEFT OUTER JOIN tb_edi_hdr edi
+             ON edi.edi_cre_seq = doi.edi_cre_seq
+LEFT OUTER JOIN tb_edi_snd_his snd
+             ON snd.edi_cre_seq = edi.edi_cre_seq
+                </isNull>
+            </dynamic>
+
+         WHERE hbl.biz_clss_cd = 'H'
+           AND hbl.air_sea_clss_cd = #f_air_sea_clss_cd#
+           AND (snd.edi_snd_seq = (select ISNULL(MAX(edi_snd_seq),0) from tb_edi_snd_his where edi_cre_seq = edi.edi_cre_seq) or snd.edi_snd_seq is null)
+
+		<isNotEmpty property="f_do_sts">
+		    AND  edi.edi_sts = #f_do_sts#
+		</isNotEmpty>
+        <dynamic>
+            <isNotNull property="f_arr_bgn_dt">
+          <![CDATA[AND  (hbl.eta_dt_tm >=#f_arr_bgn_dt# AND hbl.eta_dt_tm <=#f_arr_end_dt#) ]]> 
+            </isNotNull>
+            <isNotNull property="f_flt_no">
+                   AND  hbl.flt_no LIKE '$f_flt_no$%'
+            </isNotNull>
+        </dynamic>
+ 
+    </select>
+
+	<!-- 신규 DO_NO 생성을 위해 Max(DO_DT_SEQ) + 1 의 값을 가져옴   -->
+	<select id="selectEdiDoDtSeq" resultClass="String">
+        SELECT SUBSTRING('10000000'+CONVERT(VARCHAR, ISNULL(MAX(do_dt_seq),0 )+1), 2, 8) AS do_dt_seq
+          FROM tb_kr_cstm_de_ord_info
+         WHERE do_date = CONVERT(VARCHAR, getDate(), 112)
+    </select>
+
+    <!-- EDI DO Info 테이블 정보입력   -->
+    <insert id="insertEDIDoInfo" parameterClass="HashMap">
+        INSERT INTO tb_kr_cstm_de_ord_info (  
+            edi_cre_seq,
+            intg_bl_seq,
+            do_date,
+			do_dt_seq,
+			do_no,
+			<!-- do_ref_no,   --> <!-- 추후 추가되어야 함.   -->
+			wh_cd
+        )VALUES(
+            #edi_cre_seq#,
+            #hawb_seq#,
+			CONVERT(VARCHAR, getDate(), 112),
+			#do_dt_seq#,
+			(SELECT SCAC FROM TB_EDI_CNFG WHERE TP = 'KTN')+CONVERT(VARCHAR, getDate(), 12)+#do_dt_seq#,
+			<!-- do_ref_no부분, 추후 추가되어야 함.   -->
+			#wh_cd#
+        )
+    </insert>
+    
+    <!-- DO_NO를 가져옴   -->
+	<select id="selectEdiDoNo" resultClass="String">
+        SELECT do_no
+          FROM tb_kr_cstm_de_ord_info
+         WHERE edi_cre_seq = #edi_cre_seq#
+    </select>
+
+	
+    <!-- BL정보 삭제   -->
+    <delete id="deleteKRCustomBLInfo" parameterClass="HashMap">
+        DELETE FROM  tb_kr_cstm_edi_bl_info
+              WHERE  edi_cre_seq = #edi_cre_seq# 
+    </delete>
+
+
+    <!-- EDI 전문 삭제 국내세관 추가정보 수정   -->
+    <delete id="deleteEdiHdr" parameterClass="HashMap">
+        DELETE  tb_edi_hdr
+         WHERE  edi_cre_seq = #edi_cre_seq# 
+    </delete>
+
+	<!-- AMS 추가정보 삭제  -->
+    <delete id="deleteAmsAddInfo" parameterClass="HashMap">
+        DELETE FROM tb_ams_edi_add_info
+         WHERE  edi_cre_seq = #edi_cre_seq# 
+    </delete>
+
+	<!-- AMS BL정보 삭제    -->
+	<delete id="deleteAmsBlInfo" parameterClass="HashMap">
+        DELETE FROM tb_ams_edi_bl_info
+         WHERE  edi_cre_seq = #edi_cre_seq# 
+    </delete>
+	
+    <!-- AMS 상품정보 삭제   -->
+    <delete id="deleteAmsCmdt" parameterClass="HashMap">
+		DELETE FROM tb_ams_edi_cmdt
+         WHERE edi_cre_seq = #edi_cre_seq#
+    </delete>
+
+	
+    <!-- 국내세관 추가정보 삭제   -->
+    <delete id="deleteKrAddInfo" parameterClass="HashMap">
+        DELETE FROM tb_kr_cstm_add_info
+         WHERE  edi_cre_seq = #edi_cre_seq# 
+    </delete>
+
+    <!-- 국내세관 BL정보 삭제   -->
+    <delete id="deleteKrBlInfo" parameterClass="HashMap">
+        DELETE FROM tb_kr_cstm_edi_bl_info
+         WHERE  edi_cre_seq = #edi_cre_seq# 
+    </delete>
+    
+    <!-- 국내세관 DO정보 삭제   -->
+    <delete id="deleteKrDo" parameterClass="HashMap">
+        DELETE FROM tb_kr_cstm_de_ord_info
+         WHERE  edi_cre_seq = #edi_cre_seq# 
+    </delete>
+
+	
+    <!-- EDI기본코드 삭제   -->
+    <delete id="deleteEdiCstmDefaultCode" parameterClass="HashMap">
+        DELETE FROM tb_edi_dflt_cd
+              WHERE usr_id = #usr_id# AND cd_tp = #f_del_cd_tp# 
+    </delete>
+
+    <!-- EDI기본코드 삭제   -->
+    <delete id="deleteCstmCd" parameterClass="HashMap">
+        DELETE FROM tb_edi_cd
+              WHERE cd_seq = #f_cd_seq#
+    </delete>
+
+	<!-- AMS수정  tb_ams_edi_bl_info 의 MASTER 수량과 중량을 수정한다 Chungrue 2010/03/08   -->
+    <update id="updateEdiMblInfo" parameterClass="HashMap">
+    	UPDATE tb_ams_edi_bl_info
+    	   SET  pck_qty = #mbl_pck_qty#
+    	       ,grs_wgt = #mbl_grs_wgt#
+    	 WHERE edi_cre_seq = #edi_cre_seq#
+    	   AND bl_no = #f_mbl_no#
+    	   AND biz_clss_cd = 'M'
+    </update>
+    
+    <!-- EDI헤더 정보 수정시   -->
+	<update id="updateEdiAmsHdrInfo" parameterClass="HashMap">
+		UPDATE  tb_edi_hdr
+		   SET  edi_sts = #edi_sts#,         mrn  = #mrn#,
+		        modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,   modi_tms   = GETUTCDATE()
+          WHERE  edi_cre_seq = #edi_cre_seq# 
+	</update>
+	
+	<select id="selectCstmOfcChk"     parameterClass="HashMap" resultClass="java.lang.String">
+	   SELECT  cd_lbl 
+	     FROM  tb_edi_cd 
+	    WHERE  cd_val = #f_disp_cstm_cd# AND prnr_cd_seq IS NULL
+	</select>
+	
+    <select id="selectCstmSubOfcChk"  parameterClass="HashMap" resultClass="java.lang.String">
+	   SELECT  sub.cd_lbl
+	     FROM  tb_edi_cd sub, tb_edi_cd prnt
+	    WHERE  sub.prnr_cd_seq = prnt.cd_seq
+	      AND  sub.cd_val  = #f_disp_cstm_dept_cd#
+	      AND  prnt.cd_val = #f_disp_cstm_cd#
+    </select>
+    
+    <!-- CFS EDI Msg No 채번    -->
+	<select id="selectEdiCfsEdiMsgNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+		SELECT #edi_msg_no_prefix# + ISNULL(dbo.LPAD(MAX(SUBSTRING(EDI_MSG_NO, 7, 14))+1, 8, '0'), '00000001')
+		  FROM  tb_edi_snd_his 
+		 WHERE EDI_MSG_NO LIKE #edi_msg_no_prefix# + '%'
+	</select>
+</sqlMap>

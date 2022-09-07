@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+    
+    <url-mapping url="MGT_EQS_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.eq.eqmgt.event.MGT_EQS_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_EQS_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="MGT_EQS_0011GS.clt" screen="MGT_EQS_0011GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.eq.eqmgt.event.MGT_EQS_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MGT_EQS_0012GS.clt" screen="MGT_EQS_0012GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.eq.eqmgt.event.MGT_EQS_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Support > Utility > Service Lane : #26540 추가 SYLEE-->
+    <url-mapping url="MGT_EQS_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.eq.eqmgt.event.MGT_EQS_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_EQS_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="MGT_EQS_0031GS.clt" screen="MGT_EQS_0031GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.eq.eqmgt.event.MGT_EQS_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Support > Utility > Service Lane List: #26540 추가 SYLEE-->
+    <url-mapping url="MGT_EQS_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.eq.eqmgt.event.MGT_EQS_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_EQS_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="MGT_EQS_0041GS.clt" screen="MGT_EQS_0041GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.eq.eqmgt.event.MGT_EQS_0040HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mgt.eq.eqmgt.event.MgtEqMgtEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mgt.eq.eqmgt.MgtEqMgtSC</service-action-class>
+    </event-mapping>
+</mappings>

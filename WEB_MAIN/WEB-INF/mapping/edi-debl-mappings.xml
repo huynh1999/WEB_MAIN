@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+	<!--  Air    -->
+    <!-- DE Customs EDI (Air)   -->
+    <url-mapping url="EDI_DBA_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.debl.air.event.EDI_DBA_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_DBA_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <!-- DE Customs EDI (Air) MRN 데이터 조회   -->
+    <url-mapping url="EDI_DBA_0010GS.clt" screen="EDI_DBA_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.air.event.EDI_DBA_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- DE Customs EDI (Air) MRN 데이터 조회   -->
+    <url-mapping url="EDI_DBA_0010_1GS.clt" screen="EDI_DBA_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.air.event.EDI_DBA_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- DE Customs EDI (Air) MRN 데이터 조회   -->
+    <url-mapping url="EDI_DBA_0010_2GS.clt" screen="EDI_DBA_0010_2GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.air.event.EDI_DBA_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- DE Customs EDI (Air) MRN 데이터 조회   -->
+    <url-mapping url="EDI_DBA_0010_3GS.clt" screen="EDI_DBA_0010_3GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.air.event.EDI_DBA_0010HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <!-- DE Customs EDI (Air) List   -->
+    <url-mapping url="EDI_DBA_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.debl.air.event.EDI_DBA_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_DBA_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <!-- DE Customs EDI (Air) MRN 데이터 List    -->
+    <url-mapping url="EDI_DBA_0020GS.clt" screen="EDI_DBA_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.air.event.EDI_DBA_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- DE Customs EDI (Air) List   -->
+    <url-mapping url="EDI_DBA_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.debl.air.event.EDI_DBA_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_DBA_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- DE Customs EDI (Air) Event와 SC Mapping함   -->
+    <event-mapping>
+        <event-class>com.clt.apps.fis.edi.debl.air.event.EdiDeblAirEvent</event-class>
+        <service-action-class>com.clt.apps.fis.edi.debl.air.EdiDeblAirSC</service-action-class>
+    </event-mapping>
+    
+	<!--  Ocean    -->
+	<!-- DE Customs EDI (Ocean)   -->
+    <url-mapping url="EDI_DBS_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.debl.see.event.EDI_DBS_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_DBS_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <!-- DE Customs EDI (Ocean) MRN 데이터 조회   -->
+    <url-mapping url="EDI_DBS_0010GS.clt" screen="EDI_DBS_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.see.event.EDI_DBS_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- DE Customs EDI (Ocean) MRN 데이터 조회   -->
+    <url-mapping url="EDI_DBS_0010_1GS.clt" screen="EDI_DBS_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.see.event.EDI_DBS_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- DE Customs EDI (Ocean) MRN 데이터 조회   -->
+    <url-mapping url="EDI_DBS_0010_2GS.clt" screen="EDI_DBS_0010_2GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.see.event.EDI_DBS_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- DE Customs EDI (Ocean) MRN 데이터 조회   -->
+    <url-mapping url="EDI_DBS_0010_3GS.clt" screen="EDI_DBS_0010_3GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.see.event.EDI_DBS_0010HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <!-- DE Customs EDI (Ocean) List   -->
+    <url-mapping url="EDI_DBS_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.debl.see.event.EDI_DBS_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_DBS_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <!-- DE Customs EDI (Ocean) MRN 데이터 List    -->
+    <url-mapping url="EDI_DBS_0020GS.clt" screen="EDI_DBS_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.see.event.EDI_DBS_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- DE Customs EDI (Ocean) ZBNUMBER Popup   -->
+    <url-mapping url="EDI_DBS_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.debl.see.event.EDI_DBS_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_DBS_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <!-- DE Customs EDI (Ocean) ZBNUMBER Popup   -->
+    <url-mapping url="EDI_DBS_0030GS.clt" screen="EDI_DBS_0030GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.debl.see.event.EDI_DBS_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- DE Customs EDI (Ocean) Event와 SC Mapping함   -->
+    <event-mapping>
+        <event-class>com.clt.apps.fis.edi.debl.see.event.EdiDeblSeeEvent</event-class>
+        <service-action-class>com.clt.apps.fis.edi.debl.see.EdiDeblSeeSC</service-action-class>
+    </event-mapping>
+    
+</mappings>

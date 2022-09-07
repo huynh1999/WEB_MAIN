@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### ACC Journal Create 관련 프로그램  Start ####  -->
+    
+    <!--  Deposit Journal   -->
+    <screen name="ACC_JOR_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0010.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0010GS.jsp" />
+    </screen>
+    
+    <!--  Deposit Journal List   -->
+    <screen name="ACC_JOR_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0020.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0020GS.jsp" />
+    </screen>
+    
+    
+    <!--  Check Journal   -->
+    <screen name="ACC_JOR_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0030.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0030GS.jsp" />
+    </screen>
+    
+    <!--  Check Journal List   -->
+    <screen name="ACC_JOR_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0040.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0040GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0040GS.jsp" />
+    </screen>
+    
+    
+    <!--  General Journal   -->
+    <screen name="ACC_JOR_0050">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0050.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0050GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0050GS.jsp" />
+    </screen>
+    
+    <!--  Check Journal List   -->
+    <screen name="ACC_JOR_0060">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0060.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0060GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0060GS.jsp" />
+    </screen>
+    
+    
+    
+    
+    
+    
+    <!-- 관리자 모드   -->
+    <!--  Deposit Journal   -->
+    <screen name="ACC_JOR_0011">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0011.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0011GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0011GS.jsp" />
+    </screen>
+    
+    <!--  Deposit Journal List   -->
+    <screen name="ACC_JOR_0021">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0021.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0021GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0021GS.jsp" />
+    </screen>
+    
+    
+    <!--  Check Journal   -->
+    <screen name="ACC_JOR_0031">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0031.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0031GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0031GS.jsp" />
+    </screen>
+    
+    <!--  Check Journal List   -->
+    <screen name="ACC_JOR_0041">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0041.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0041GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0041GS.jsp" />
+    </screen>
+    
+    <!--  Check Journal2   -->
+    <screen name="ACC_JOR_0032">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0032.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0032GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0032GS.jsp" />
+    </screen>
+    
+    <!--  Check Journal List2   -->
+    <screen name="ACC_JOR_0042">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0042.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0042GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0042GS.jsp" />
+    </screen>
+    
+    <!--  Check Journal List Pop   #1106 [UFF] PAYMENT CHECK BATCH PRINT -->
+    <screen name="ACC_JOR_0043" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0043.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0043GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0043GS.jsp" />
+    </screen>    
+    
+    <!--  Batch Accounting   -->
+    <screen name="ACC_JOR_0070">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0070.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0070GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0070GS.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0070_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0070_1GS.jsp" />
+    </screen>
+    
+    <!-- Bank Balance Clear by Excel   -->
+    <screen name="ACC_JOR_0080">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0080.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0080GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0080GS.jsp" />
+    </screen>
+    
+    <!-- Check Deposit Report   -->
+    <screen name="ACC_JOR_0090">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0090.jsp" />
+    </screen>
+    
+    <!-- Bank Outstanding Report   -->
+    <screen name="ACC_JOR_0100">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0100.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0100GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0100GS.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0101GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0101GS.jsp" />
+    </screen>
+    
+    <!-- Outstanding Report(Ocean Import HBL)   -->
+    <screen name="ACC_JOR_0110">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0110.jsp" />
+    </screen>
+    
+    
+    <!-- Bank Reconciliation   -->
+    <screen name="ACC_JOR_0120">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0120.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0120GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0120GS.jsp" />
+    </screen>
+     <screen name="ACC_JOR_0121GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0121GS.jsp" />
+    </screen>
+     <screen name="ACC_JOR_0122GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0122GS.jsp" />
+    </screen>
+    
+    <!-- Bank Book Balance Repost   -->
+    <screen name="ACC_JOR_0130">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0130.jsp" />
+    </screen>
+    
+    <!-- Aging Report   -->
+    <screen name="ACC_JOR_0140">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0140.jsp" />
+    </screen>
+    
+    <!--  Bad debit List   -->
+    <screen name="ACC_JOR_0150">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0150.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0150GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0150GS.jsp" />
+    </screen>
+    
+    <!--  Tax Bill Deposit Journal   -->
+    <screen name="ACC_JOR_0200">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0200.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0200GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0200GS.jsp" />
+    </screen>
+    
+    
+    <!--  Tax Bill Check Journal   -->
+    <screen name="ACC_JOR_0210">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0210.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0210GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0210GS.jsp" />
+    </screen>
+    
+    
+    <!--  Tax Bill Deposit Journal List  -->
+    <screen name="ACC_JOR_0300">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0300.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0300GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0300GS.jsp" />
+    </screen>
+    
+    
+    <!--  Tax Bill Check Journal List   -->
+    <screen name="ACC_JOR_0310">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0310.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0310GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0310GS.jsp" />
+    </screen>
+    
+    <!-- ACC JOURNAL INVOICE LIST POPUP    -->
+    <screen name="ACC_JOR_0500" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0500.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0500GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0500GS.jsp" />
+    </screen>
+    
+    <!--  Payment History   -->
+    <screen name="ACC_JOR_0600">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0600.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0600GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0600GS.jsp" />
+    </screen>
+    
+    <!--  Payment History  Level 2 -->
+    <screen name="ACC_JOR_0610">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0610.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0610GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0610GS.jsp" />
+    </screen>
+    
+        <!--  Service Contract with Carrier Management and Report-->
+    <screen name="ACC_JOR_0620">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0620.jsp" />
+    </screen>
+        
+    <!-- Invoice History PopUp   -->
+    <screen name="ACC_JOR_0700" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0700.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0700GS" template="templateIBSheet">
+        <parameter key="body" value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0700GS.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0710GS" template="templateIBSheet">
+        <parameter key="body" value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0710GS.jsp" />
+    </screen>
+
+    <!-- Late Billing Monitoring -->
+    <screen name="ACC_JOR_0630">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0630.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0630GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0630GS.jsp"/>
+    </screen>            
+    
+    <!--  Deposit/Payment for China (Entry)   -->
+    <screen name="ACC_JOR_0800">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0800.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0800_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0800_1GS.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0800_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0800_2GS.jsp" />
+    </screen>
+    
+    <!--  Deposit/Payment for China (List)   -->
+    <screen name="ACC_JOR_0810">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0810.jsp" />
+    </screen>
+    <screen name="ACC_JOR_0810GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/jor/journal/jsp/ACC_JOR_0810GS.jsp" />
+    </screen>
+            
+</screen-definitions>

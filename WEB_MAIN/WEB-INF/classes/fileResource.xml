@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<files>
+	<file id="ERROR-MESSAGE-PROPERTY" 		path="/resource/properties/errorMapping_En.properties" type="app" />
+	<file id="SITE-CONFIG-SET-PROPERTIES" 	path="/resource/properties/site-config.properties" type="app" />
+	<file id="DATASOURCE-MAPPINGS-FILE" 	path="/resource/xml/datasource-config.xml" type="app" />		
+
+	<file id="CONFIG-FILE-XSD" 			    path="/resource/xsd/config-file.xsd" type="app" />
+	<file id="URL-MAPPINGS-XSD" 		    path="/resource/xsd/mappings.xsd" type="app" />
+	<file id="SCREENDEFINITIONS-XSD" 	    path="/resource/xsd/screendefinitions.xsd" type="app" />
+	<file id="DATASOURCE-MAPPINGS-XSD" 	    path="/resource/xsd/datasource-config.xsd" type="app" />	
+
+
+	<file id="CONFIG-FILE" 				    path="/WEB-INF/mapping/config-file.xml" type="web" />
+	<file id="DEFAULT-MAPPING" 			    path="/WEB-INF/mapping/mappings.xml"    type="web" />
+</files>

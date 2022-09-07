@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+    <screen name="sample">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/sample/sample.jsp" />
+    </screen>
+    <screen name="sampleTag">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/sample/sampleTag.jsp" />
+    </screen>
+</screen-definitions>

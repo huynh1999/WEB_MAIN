@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--  Liner Schedule 2009.03.17   -->
+    <screen name="AIC_BMD_0010">
+        <parameter key="body"   value="/apps/fis/aic/bmd/linerinfo/jsp/AIC_BMD_0010.jsp"/>
+    </screen>
+    
+    <screen name="AIC_BMD_0010GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/aic/bmd/linerinfo/jsp/AIC_BMD_0010GS.jsp"/>
+    </screen>
+
+</screen-definitions>

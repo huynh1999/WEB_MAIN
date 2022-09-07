@@ -1,0 +1,838 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+<!-- Duy.Nguyen(S) -->
+    
+    <screen name="RateExcelUpLoadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/RateExcelUpLoadPopup.jsp" />
+   	</screen>
+   	
+    <screen name="WaveBookingSelectPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WaveBookingSelectPopup.jsp" />
+   	</screen>
+   	
+   	<screen name="WaveBookingSelectPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WaveBookingSelectPopupGS.jsp" />
+    </screen>
+   	
+	<screen name="WHICPrintOption" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHICPrintOption.jsp" />
+    </screen>
+    
+    <screen name="WHInLotSelectPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHInLotSelectPopup.jsp" />
+    </screen>
+    <screen name="searchWHInLotSelectListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWHInLotSelectListGS.jsp" />
+    </screen>
+    <screen name="searchWarehouseLocInfoForNameGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWarehouseLocInfoForNameGS.jsp" />
+    </screen>
+    
+    <screen name="FreightHstPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/FreightHstPopup.jsp" />
+    </screen>
+    <screen name="searchFreightHstSellListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightHstSellListGS.jsp" />
+    </screen>
+    <screen name="searchFreightHstBuyListGSGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightHstBuyListGS.jsp" />
+    </screen>
+    <screen name="searchFreightHistoryDeleteListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightHistoryDeleteListGS.jsp" />
+    </screen>
+    
+    <screen name="RateExcelTemplatePopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/RateExcelTemplatePopup.jsp" />
+    </screen>
+    
+    <screen name="FreightCopyFormPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/FreightCopyFormPopup.jsp" />
+    </screen>
+    <screen name="searchFreightCopyFormWOGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightCopyFormWOGS.jsp" />
+    </screen>
+    <screen name="searchFreightCopyFormSVOGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightCopyFormSVOGS.jsp" />
+    </screen>
+    <screen name="searchFreightCopyFormFCRGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightCopyFormFCRGS.jsp" />
+    </screen>
+    <screen name="searchFreightCopyFormDtlSellListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightCopyFormDtlSellListGS.jsp" />
+    </screen>
+    <screen name="searchFreightCopyFormDtlBuyListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightCopyFormDtlBuyListGS.jsp" />
+    </screen>
+    
+    <screen name="WHICListPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHICListPopup.jsp" />
+    </screen>
+    
+    <screen name="ContractRoutePopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/ContractRoutePopup.jsp" />
+    </screen>
+    <screen name="searchContractOrderTypeListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchContractOrderTypeListGS.jsp" />
+    </screen>
+    <screen name="searchContractRouteListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchContractRouteListGS.jsp" />
+    </screen>
+    <screen name="searchTlCustInfoGS">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchTlCustInfoGS.jsp" />
+    </screen>
+<!-- Duy.Nguyen(E) -->
+
+    <!-- Lap.Nguyen (S) -->
+    <!-- Print Size - WHICPrintOptionForUnloadSht -->
+    <screen name="WHICPrintOptionForUnloadSht" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHICPrintOptionForUnloadSht.jsp" />
+    </screen>
+    <!-- [COM_RD_COMMON_POPUP_MODAL] Supplier Booking Print -->
+    <screen name="CTRTCHKPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/CTRTCHKPopup.jsp" />
+    </screen>
+    <screen name="searchCTRTCHKListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchCTRTCHKListGS.jsp" />
+    </screen>
+    <!-- [Additional] TransloadingAddPopup -->
+    <screen name="TransloadingAddPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/TransloadingAddPopUp.jsp" />
+    </screen>
+    
+    <screen name="searchESOPHSTListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchESOPHSTListGS.jsp" />
+    </screen>
+    <!-- [InvMoveFileUploadPopup] Inventory Movement & Hold & Damage - File Upload -->
+    <screen name="InvMoveFileUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/InvMoveFileUploadPopup.jsp" />
+    </screen>
+    <!-- [MCLPChangePopup] CLP Move to another CLP Creation No -->
+    <screen name="MCLPChangePopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/MCLPChangePopup.jsp" />
+    </screen>
+    <screen name="MCLPChangePopupGS" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/MCLPChangePopupGS.jsp" />
+    </screen>
+    <!-- [LPShipSplit] Shipment Split -->
+    <screen name="LPShipSplit" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/LPShipSplit.jsp" />
+    </screen>
+    <screen name="addLPSplitShipGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/addLPSplitShipGS.jsp" />
+    </screen>
+    <!-- [FreightRouteRatePopup] Route/Rate Information - SEA -->
+    <screen name="FreightRouteRatePopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/FreightRouteRatePopup.jsp" />
+    </screen>
+	<screen name="searchFreightSellBuyRouteListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightSellBuyRouteListGS.jsp" />
+    </screen>
+   	<screen name="searchFreightSellBuyRouteList_3GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightSellBuyRouteList_3GS.jsp" />
+    </screen>
+    <screen name="searchFreightSellBuyRateListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightSellBuyRateList.jsp" />
+    </screen>
+    <screen name="searchTlCustInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchTlCustInfoGS.jsp" />
+    </screen>
+    <screen name="searchTlLocInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchTlLocInfoGS.jsp" />
+    </screen>
+    <!-- Lap.Nguyen (E) -->
+    <!-- Khang.Dong (S) -->
+    
+    <!-- Nam Tran (S) -->
+    <screen name="ServiceOrderPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/ServiceOrderPopup.jsp" />
+    </screen>
+    
+    <screen name="ServiceOrderPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/ServiceOrderPopupGS.jsp" />
+    </screen>
+    
+    <screen name="ESOPGPPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/ESOPGPPopup.jsp" />
+    </screen>
+    
+    <screen name="ESOPGPPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/ESOPGPPopupGS.jsp" />
+    </screen>
+    
+    <screen name="TransloadingShipPopUp" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/TransloadingShipPopUp.jsp" />
+    </screen>
+    
+    <screen name="WOExcelUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WOExcelUploadPopup.jsp" />
+    </screen>
+    
+    <screen name="TransloadingInboundItemPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/TransloadingInboundItemPopup.jsp" />
+    </screen>
+    
+    <screen name="TransloadingInboundItemPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/TransloadingInboundItemPopupGS.jsp" />
+    </screen>
+    
+    <screen name="TLODispatch" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/TransloadingDispatch.jsp" />
+    </screen>
+    
+    <screen name="TransloadingOutboundItemPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/TransloadingOutboundItemPopup.jsp" />
+    </screen>
+    
+    <screen name="hstPopUp" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/CTRTHSTPopup.jsp" />
+    </screen>
+    
+    <screen name="CTRTHSTPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/CTRTHSTPopupGS.jsp" />
+    </screen>
+    
+    <screen name="CTRTHSTPopup_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/CTRTHSTPopup_1GS.jsp" />
+    </screen>
+    
+    <screen name="CommonCodePopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/CommonCodePopup.jsp" />
+    </screen>
+    
+    <screen name="CommonCodePopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/CommonCodePopupGS.jsp" />
+    </screen>
+    
+    <screen name="WHICUpdateFileUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHICUpdateFileUploadPopup.jsp" />
+    </screen>
+    
+    <screen name="WHICUpdateFileUploadPopupAJ" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHICUpdateFileUploadPopupAJ.jsp" />
+    </screen>
+    
+    <screen name="searchWHOCPopup_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWHOCPopupGS.jsp" />
+    </screen>
+    <!-- Nam Tran (E) -->
+    
+    <screen name="WHUnloadSht" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHUnloadSht.jsp" />
+    </screen>
+    
+    <screen name="searchWHUnloadShtInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWHUnloadShtInfoGS.jsp" />
+    </screen>
+    
+    <screen name="saveWHUnloadShtInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/saveWHUnloadShtInfoGS.jsp" />
+    </screen>
+    
+    <screen name="ManualAllcPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/ManualAllcPopup.jsp" />
+    </screen>
+    
+    <screen name="searchManualAllcPopupListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchManualAllcPopupListGS.jsp" />
+    </screen>
+    
+    <screen name="ManualAllcCmplPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/ManualAllcCmplPopup.jsp" />
+    </screen>
+    <screen name="searchAllcCmplPopListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchAllcCmplPopListGS.jsp" />
+    </screen>
+    
+    <screen name="saveWHUnloadShtInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/saveWHUnloadShtInfoGS.jsp" />
+    </screen>
+    
+    <screen name="LoadPlanPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/LoadPlanPopup.jsp" />
+    </screen>
+    
+    <screen name="LoadPlanPopupListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/LoadPlanPopupListGS.jsp" />
+    </screen>
+    <screen name="LoadPlanPopupGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/LoadPlanPopupGS.jsp" />
+    </screen>
+    
+    <screen name="MCLPExpressPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/MCLPExpressPopup.jsp" />
+    </screen>
+    
+    <screen name="MCLPExpressPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/MCLPExpressPopupGS.jsp" />
+    </screen>
+    
+    <screen name="WOLoadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WOLoadPopup.jsp" />
+    </screen>
+    
+    <screen name="WOLoadPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WOLoadPopupGS.jsp" />
+    </screen>
+    <!-- Khang.Dong (E) -->
+    
+    <!-- Khanh.Nguyen (S) -->
+    <screen name="WarehouseLocPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WarehouseLocPopup.jsp" />
+    </screen>
+    
+    <screen name="WarehouseLocPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WarehouseLocPopupGS.jsp" />
+    </screen>
+    
+     <screen name="CtrtItemPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/CtrtItemPopup.jsp" />
+    </screen>
+    
+    <screen name="CtrtItemPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/CtrtItemPopupGS.jsp" />
+    </screen>
+    
+    <screen name="RateLocPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/RateLocPopup.jsp" />
+    </screen>
+    
+    <screen name="RateLocPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/RateLocPopupGS.jsp" />
+    </screen>
+    
+    <screen name="WHOCListByBookingPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOCListByBookingPopup.jsp" />
+    </screen>
+    
+    <screen name="WHOCListByBookingPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOCListByBookingPopupGS.jsp" />
+    </screen>
+    
+    <screen name="CheckpointPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/CheckpointPopup.jsp" />
+    </screen>
+    
+    <screen name="CheckpointPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/CheckpointPopupGS.jsp" />
+    </screen>
+    
+    <screen name="WHOutStockSelectPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOutStockSelectPopup.jsp" />
+    </screen>
+    
+    <screen name="WHOutStockSelectPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOutStockSelectPopupGS.jsp" />
+    </screen>
+    
+    <screen name="WHInPackDefPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHInPackDefPopup.jsp" />
+    </screen>
+    
+    <screen name="WHInPackDefPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHInPackDefPopupGS.jsp" />
+    </screen>
+    
+    <screen name="InvMoveFileUploadPopupAJ" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/InvMoveFileUploadPopupAJ.jsp" />
+    </screen>
+    
+    <screen name="WHCreateMultiItemPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHCreateMultiItemPopup.jsp" />
+    </screen>
+    
+     <screen name="WHCreateMultiItemPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHCreateMultiItemPopupGS.jsp" />
+    </screen>
+    <!-- Khanh.Nguyen (E) -->
+    
+    <screen name="verifyCreateMultiItemPopupGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/verifyCreateMultiItemPopupGS.jsp" />
+    </screen>
+    
+    <!-- Bao.Huynh Modification (S)-->
+    <screen name="WHOCPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOCPopup.jsp" />
+    </screen>
+    
+    <screen name="searchWHOCPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOCPopupGS.jsp" />
+    </screen>
+    
+    <screen name="WHOutExcelUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOutExcelUploadPopup.jsp" />
+    </screen>
+    
+    <screen name="WHOutExcelUploadPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOutExcelUploadPopupGS.jsp" />
+    </screen>
+    
+    <screen name="InvAdjustPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/InvAdjustPopup.jsp" />
+    </screen>
+    <screen name="searchInvAdjustInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchInvAdjustInfoGS.jsp" />
+    </screen>
+    <screen name="searchInvAdjustResultInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchInvAdjustResultInfoGS.jsp" />
+    </screen>
+    <screen name="saveInvAdjustInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/saveInvAdjustInfoGS.jsp" />
+    </screen>
+    
+    <screen name="FCRExcelUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/FCRExcelUploadPopup.jsp" />
+    </screen>
+    
+    <screen name="FreightCAIssuePopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/FreightCAIssuePopup.jsp" />
+    </screen>
+     <screen name="searchFreightCAIssuePopupListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightCAIssuePopupListGS.jsp" />
+    </screen>
+    
+    <screen name="WHOCEQUpdatePopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOCEQUpdatePopup.jsp" />
+    </screen>
+    
+    <screen name="FreightIndirectCostPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/FreightIndirectCostPopup.jsp" />
+    </screen>
+    <screen name="searchFreightIndirectCostPopupListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchFreightIndirectCostPopupListGS.jsp" />
+    </screen>
+    <!-- Bao.Huynh Modification (E)-->
+    
+    <!-- Tan.Pham (S) -->
+    <screen name="WHOutbkPrintOptionPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOutbkPrintOptionPopup.jsp" />
+    </screen>
+    
+    <screen name="WHPutawayPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHPutawayPopup.jsp" />
+    </screen>
+    <screen name="searchWHPutawayPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWHPutawayPopupGS.jsp" />
+    </screen>
+    <screen name="saveWHPutawayPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/saveWHPutawayPopupGS.jsp" />
+    </screen>
+    
+    <screen name="WHOutbkPrintOptionPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOutbkPrintOptionPopupGS.jsp" />
+    </screen>
+  
+    <screen name="WHBookingPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHBookingPopup.jsp" />
+    </screen>
+    
+    <screen name="WHBookingPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHBookingPopupGS.jsp" />
+    </screen>
+    
+    <screen name="WHICListPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHICListPopup.jsp" />
+    </screen>
+    
+    <screen name="WHICListPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHICListPopupGS.jsp" />
+    </screen>
+    
+     <screen name="FreightPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/FreightPopup.jsp" />
+    </screen>
+    
+    <screen name="FreightPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/FreightPopupGS.jsp" />
+    </screen>
+    <!-- Tan.Pham (E) -->
+    
+<!-- Hoai.Vo (S) -->
+	<!-- Inbound Complete Search (S) -->
+	<screen name="WHICItemListPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHICItemListPopup.jsp" />
+   	</screen>
+   	
+   	<screen name="searchWHICItemListPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWHICItemListPopupGS.jsp" />
+        
+    </screen>
+    <screen name="searchManualAllcPopupListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchManualAllcPopupListGS.jsp" />
+    </screen>
+	<!-- Inbound Complete Search (E) -->
+	
+	<!-- NRA Management (S) -->
+	<screen name="RateUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/RateUploadPopup.jsp" />   
+    </screen>
+    <screen name="RateUploadPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/RateUploadPopupGS.jsp" />
+    </screen>
+    
+    <screen name="LoadPlanPopupListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/LoadPlanPopupListGS.jsp" />
+    </screen>
+    
+    <screen name="MCLPExpressPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/MCLPExpressPopup.jsp" />
+    </screen>
+
+   	<screen name="searchNRAFileListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchNRAFileListGS.jsp" />
+    </screen>
+    <!-- NRA Management (E) -->
+    
+    <!-- WHInExcelUploadPopup (S) -->
+	<screen name="WHInExcelUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHInExcelUploadPopup.jsp" />
+   	</screen>
+   	<!-- WHInExcelUploadPopup (E) -->
+   	
+   	<!-- WHInExcelUploadPopupGS (S) -->
+	<screen name="WHInExcelUploadPopupGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHInExcelUploadPopupGS.jsp" />
+    </screen>
+   	<!-- WHInExcelUploadPopupGS (E) -->
+   	
+   	<!-- WHItemExcelUploadPopup (S) -->
+	<screen name="WHItemExcelUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHItemExcelUploadPopup.jsp" />
+   	</screen>
+   	<!-- WHItemExcelUploadPopup (E) -->
+   	
+   	<!-- OB Complete Update (S) -->
+	<screen name="WHOCUpdateFileUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOCUpdateFileUploadPopup.jsp" />
+   	</screen>
+   	
+   	<screen name="WHOCUpdateFileUploadPopupAJ" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOCUpdateFileUploadPopupAJ.jsp" />
+   	</screen>
+   	
+	<!-- ContainerTypePopup (S) -->
+	<screen name="ContainerTypePopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/ContainerTypePopup.jsp" />
+   	</screen>
+   	
+   	<screen name="searchContainerTPSZListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchContainerTPSZListGS.jsp" />
+    </screen>
+	<!-- ContainerTypePopup (E) -->
+	
+	<!-- RateHistoryPopup (S) -->
+	<screen name="RateHistoryPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/RateHistoryPopup.jsp" />
+   	</screen>
+   	
+   	<screen name="searchRateHistoryMainGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchRateHistoryMainGS.jsp" />
+    </screen>
+    <screen name="searchRateHistoryListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchRateHistoryListGS.jsp" />
+    </screen>
+    <screen name="searchRateHistoryFooterGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchRateHistoryFooterGS.jsp" />
+    </screen>
+	<!-- RateHistoryPopup (E) -->
+<!-- Hoai.Vo (E) -->
+	 <screen name="WHLocBlockPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHLocBlockPopup.jsp" />
+    </screen>
+    
+    <screen name="WHLocBlockPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHLocBlockPopupGS.jsp" />
+    </screen>
+    
+    <!-- Long.Le start -->
+    <screen name="WHInvPrintOption" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHInvPrintOption.jsp" />
+    </screen>
+
+    <screen name="ItemGroupPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/ItemGroupPopup.jsp" />
+    </screen>
+   
+    <screen name="ItemGroupPopupGS" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/ItemGroupPopupGS.jsp" />
+    </screen>
+    <!-- Long.Le end -->
+    
+    <!-- Tin.luong (S) -->
+     <screen name="oms_print_001" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/oms_print_001.jsp" />
+    </screen>
+     <screen name="WHInPrintOption" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHInPrintOption.jsp" />
+    </screen>
+    
+     <screen name="WhDefaultPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WhDefaultPopup.jsp" />
+    </screen>
+    
+    <screen name="WhDefaultPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WhDefaultPopupGS.jsp" />
+    </screen>
+     <screen name="WHOutBookingExcelUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOutBookingExcelUploadPopup.jsp" />
+    </screen>
+    <screen name="searchWHOutBookingExcelUploadErrListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWHOutBookingExcelUploadErrListGS.jsp" />
+    </screen>
+    <screen name="saveWHOutBookingExcelUploadPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/saveWHOutBookingExcelUploadPopupGS.jsp" />
+    </screen>
+    <!-- LoadingPlanWavePopup  -->
+     <screen name="LoadingPlanWavePopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/LoadingPlanWavePopup.jsp" />
+    </screen>
+    
+     <screen name="saveConsolInfoWaveSimpleGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/saveConsolInfoWaveSimpleGS.jsp" />
+    </screen>
+     <screen name="searchLPShipmentListWaveSimpleGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchLPShipmentListWaveSimpleGS.jsp" />
+    </screen>
+     <screen name="searchLPCNTRParentListWaveSimpleGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchLPCNTRParentListWaveSimpleGS.jsp" />
+    </screen>
+     <screen name="searchLPVolumeWaveSimpleGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchLPVolumeWaveSimpleGS.jsp" />
+    </screen>
+     <screen name="addLPCntrWaveSimpleGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/addLPCntrWaveSimpleGS.jsp" />
+    </screen>
+    <!-- LoadingPlanWavePopup  -->
+    <!-- WaveSmpWorkSht -->
+     <screen name="WaveSmpWorkSht" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpWorkSht.jsp" />
+    </screen>
+    <screen name="saveWaveSmpWorkShtInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/saveWaveSmpWorkShtInfoGS.jsp" />
+    </screen>
+    
+    <screen name="searchWaveSmpWorkShtInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWaveSmpWorkShtInfoGS.jsp" />
+    </screen>
+    <!-- WaveSmpWorkSht -->
+     <!-- WaveSmpMgmtPrintOption -->
+     <screen name="WaveSmpMgmtPrintOption" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/outboundmanagement/jsp/WaveSmpMgmtPrintOption.jsp" />
+    </screen>
+    <!-- WaveSmpMgmtPrintOption -->
+     <screen name="WHOutWorkSht" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHOutWorkSht.jsp" />
+    </screen>
+    <screen name="searchWHOutWorkShtInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWHOutWorkShtInfoGS.jsp" />
+    </screen>
+    <screen name="saveWHOutWorkShtInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/saveWHOutWorkShtInfoGS.jsp" />
+    </screen>
+    <screen name="removeWHOutWorkShtInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/removeWHOutWorkShtInfoGS.jsp" />
+    </screen>
+    <!-- Tin.luong (E) -->
+    
+    <screen name="WaveSmpManualAllcPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WaveSmpManualAllcPopup.jsp" />
+    </screen>
+    
+    <screen name="searchWaveSimpleManualAllcPopupHeaderInfoGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWaveSimpleManualAllcPopupHeaderInfoGS.jsp" />
+    </screen>
+
+    <screen name="searchWaveSimpleManualAllcPopupListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWaveSimpleManualAllcPopupListGS.jsp" />
+    </screen>
+    
+    <screen name="modifyWaveSimpleManualAllcGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/modifyWaveSimpleManualAllcGS.jsp" />
+    </screen>
+    
+    <!-- WHInExcelUploadPopup (S) -->
+	<screen name="WHInBookingExcelUploadPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/WHInBookingExcelUploadPopup.jsp" />
+   	</screen>
+   	
+   	<screen name="saveWHInBookingExcelUploadPopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/saveWHInBookingExcelUploadPopupGS.jsp" />
+    </screen>
+   	<screen name="searchWHInBookingExcelUploadErrListGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/searchWHInBookingExcelUploadErrListGS.jsp" />
+    </screen>
+   	<!-- WHInExcelUploadPopup (E) -->
+   	
+	<screen name="LicPlatPopup" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/LicPlatPopup.jsp" />
+    </screen>
+    
+    <screen name="LicensePlatePopupGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/wms/common/jsp/LicensePlatePopupGS.jsp" />
+    </screen>
+</screen-definitions>

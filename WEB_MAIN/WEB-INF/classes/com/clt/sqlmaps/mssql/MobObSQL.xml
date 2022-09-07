@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="mobob.sql">
+	<select id="selectPickingList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mob.ob.dto.ObVO">
+		SELECT /*MobObSQL.xml : selectPickingList */
+			(SELECT WV.WAVE_NO FROM TL_WH_WAVE WV INNER JOIN TL_WH_WAVE_OB WVO ON WV.WAVE_NO = WVO.WAVE_NO WHERE WOB_BK_NO  = T.WOB_BK_NO) waveNo,
+			WALC_NO walcNo,
+			WOB_BK_NO wobBkNo,
+			CUST_ORD_NO orderNo,
+			CTRT_NO customerNo,
+			REF_NO refNo,
+			PICK_ITEM_EA_QTY qty,
+			PICKD_ITEM_EA_QTY shQty,
+	        BUYER_CD shipToCd,
+        	<!-- dbo.TL_GET_CUST_NM (BUYER_CD) shipToNm, -->
+        	BUYER_NM shipToNm,  <!--#4209 [BNX WMS4.0] Outbound Management Ship To BUYER_NM column add -->
+        	BK_STS_CD bkStsCd,
+
+			dbo.TL_GET_COMM_NM('WB6', BK_STS_CD) AS bkStsNm  <!-- #1950 WMS4.0 In/outBound Status 관리 개선 -->
+		FROM (
+			SELECT
+				CASE 
+					WHEN OB.CUST_ORD_NO = '' THEN OB.WOB_BK_NO 
+					ELSE ISNULL(OB.CUST_ORD_NO,
+					OB.WOB_BK_NO) 
+	            END AS CUST_ORD_NO,
+				OB.WOB_BK_NO,
+				OB.WH_CD,
+				dbo.TL_GET_LOC_NM(OB.WH_CD) AS WH_NM ,
+				OB.CTRT_NO,
+				OB.REF_NO,
+				OB.EST_OUT_DT,
+				OB.MODI_SYS_DT,
+				OB.BUYER_CD,
+				OB.BUYER_NM, <!--#4209 [BNX WMS4.0] Outbound Management Ship To BUYER_NM column add -->
+				( 
+					select
+					SUM(C.PICK_ITEM_EA_QTY)
+					from
+					    TL_WH_OB_ITEM B      
+					   , TL_WH_ALLC_ITEM C
+					 where B.WOB_BK_NO= OB.WOB_BK_NO                
+					AND B.WOB_BK_NO   = C.WOB_BK_NO
+					AND B.SAO_SYS_NO  = C.SAO_SYS_NO
+					AND B.ITEM_SYS_NO = C.ITEM_SYS_NO
+					AND B.ITEM_SEQ    = C.ITEM_SEQ    					
+				) PICK_ITEM_EA_QTY,
+				( 
+					select
+					SUM(C.PICKD_ITEM_EA_QTY)
+					from
+					    TL_WH_OB_ITEM B      
+					   , TL_WH_ALLC_ITEM C
+					 where B.WOB_BK_NO= OB.WOB_BK_NO                
+					AND B.WOB_BK_NO   = C.WOB_BK_NO
+					AND B.SAO_SYS_NO  = C.SAO_SYS_NO
+					AND B.ITEM_SYS_NO = C.ITEM_SYS_NO
+					AND B.ITEM_SEQ    = C.ITEM_SEQ    					
+				) PICKD_ITEM_EA_QTY,
+				CASE 
+					WHEN (SELECT COUNT(1) FROM TL_WH_LOAD_PLAN LP, TL_WH_LOAD_PLAN_ITEM LPI WHERE LP.LP_NO = LPI.LP_NO AND OB.WOB_BK_NO = LPI.WOB_BK_NO AND LP.LP_STS_CD = 'L') > 0 THEN 'X'
+					WHEN (SELECT COUNT(1) FROM TL_WH_ISSU ISSU, TL_WH_ISSU_ITEM ISSUI WHERE	ISSU.WOB_OUT_NO = ISSUI.WOB_OUT_NO AND ALLC.WALC_NO = ISSU.WALC_NO) > 0 THEN 'X'
+					WHEN ALLC.WALC_NO IS NOT NULL AND ALLC.PICKD_FLG = 'Y' THEN 'P'
+					WHEN ALLC.WALC_NO IS NOT NULL AND ISNULL(ALLC.PICKD_FLG,'N') != 'Y' THEN 'A'
+					ELSE OB.BK_STS_CD 
+				END BK_STS_CD,
+				ALLC.WALC_NO
+			FROM
+				TL_WH_OB OB
+			<!-- #2332 [WMS4.0] MOBILE SEARCH CONDITION (S)-->
+			JOIN (
+			      SELECT DISTINCT
+			             WOB_BK_NO
+			        FROM TL_WH_OB_ITEM
+			       WHERE 1 = 1
+			       <isNotEmpty property="itemCd">
+			         AND ITEM_CD = #itemCd#
+			       </isNotEmpty>
+			     ) ITEM ON OB.WOB_BK_NO = ITEM.WOB_BK_NO
+			<!-- #2332 [WMS4.0] MOBILE SEARCH CONDITION (E)-->
+			LEFT JOIN
+				TL_WH_ALLC ALLC
+			ON 
+				OB.WOB_BK_NO = ALLC.WOB_BK_NO
+			WHERE
+				1 = 1 
+			AND 
+				OB.WH_CD = #userInfo.def_wh_cd#
+		<isNotEmpty property="customerNo">
+			AND	
+				OB.CTRT_NO = #customerNo#
+		</isNotEmpty>
+		<isNotEmpty property="orderNo">
+			AND	
+				OB.CUST_ORD_NO = #orderNo#
+		</isNotEmpty>
+		<isNotEmpty property="wobBkNo">
+			AND	
+				OB.WOB_BK_NO = #wobBkNo#
+		</isNotEmpty>
+		) T
+		WHERE 
+			1 = 1
+		<isNotEmpty property="bkStsCd">
+			AND
+				BK_STS_CD = #bkStsCd#
+		</isNotEmpty>
+	</select>
+	<select id="selectPickingItemList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mob.ob.dto.ObItemVO">
+		SELECT /*MobObSQL.xml : selectPickingItemList */
+			ITEM_CD itemCd,
+			ITEM_NM itemNm,
+			ITEM_PKGQTY qty,
+			LOT_04 lot04,
+			LOT_05 lot05,
+			LIC_PLAT_NO licPlatNo,
+			LOT_NO lotNo,
+	        ITEM_EA_QTY itemEaQty,
+	        ITEM_PKGUNIT itemPkgunit,
+			ITEM_CBM itemCbm,
+			ITEM_CBF itemCbf,
+			ITEM_GRS_KGS itemGrsKgs,
+			ITEM_GRS_LBS itemGrsLbs,
+			ITEM_NET_KGS itemNetKgs,
+			ITEM_NET_LBS itemNetLbs,
+			SAO_SYS_NO saoSysNo,
+			ITEM_SYS_NO itemSysNo,
+			FIX_LOT_ID fixLotId,
+			ITEM_SEQ itemSeq
+		FROM 
+			TL_WH_OB_ITEM
+		WHERE 
+			1 = 1
+		<isNotEmpty property="wobBkNo">
+		AND
+			WOB_BK_NO =  #wobBkNo#
+		</isNotEmpty>	
+	</select>
+	
+	<select id="searchAllcCmplPopList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mob.ob.dto.ObItemPicVO">
+	/*MobObSQL.xml > searchAllcCmplPopList*/
+	SELECT TT.* 
+		 <![CDATA[, CASE WHEN TT.LP_NO IS NOT NULL THEN TT.OUT_PE_QTY_LP_I
+		        WHEN TT.CONSOL_NO IS NOT NULL THEN TT.OUT_PE_QTY_SH
+		        WHEN TT.WALC_NO IS NULL THEN 0
+		        WHEN ISNULL(TT.SHIP_ITEM_EA_QTY,0) > 0 THEN ( CASE WHEN TT.PE_QTY < 0  THEN 1 WHEN TT.PE_QTY > TT.SHIP_ITEM_EA_QTY THEN 1 ELSE CEILING(TT.SHIP_ITEM_EA_QTY / TT.PE_QTY) END)
+		        ELSE 0 END AS OUT_PE_QTY ]]>
+			  , CASE WHEN ISNULL(TT.TRO_FLG, 'N') != 'Y' THEN TT.EQ_TPSZ_CD_ORG 	ELSE (CASE WHEN ISNULL(LTRIM(RTRIM(TT.EQ_TPSZ_CD_ORG)), ' ') 	= ' ' AND TT.TRO_CNT = 1 AND TT.DLV_ORD_SEQ IS NULL THEN ISNULL(TRO.CNTR_TPSZ_CD, TRO.TRUCK_TPSZ_CD) ELSE TT.EQ_TPSZ_CD_ORG END) END AS EQ_TPSZ_CD
+			  , CASE WHEN ISNULL(TT.TRO_FLG, 'N') != 'Y' THEN TT.EQ_NO_ORG 		ELSE (CASE WHEN ISNULL(LTRIM(RTRIM(TT.EQ_TPSZ_CD_ORG)), ' ') 	= ' ' AND TT.TRO_CNT = 1 AND TT.DLV_ORD_SEQ IS NULL THEN  ISNULL(TRO.CNTR_NO, TRO.TRUCK_NO) ELSE TT.EQ_NO_ORG END) END AS EQ_NO
+			  , CASE WHEN ISNULL(TT.TRO_FLG, 'N') != 'Y' THEN TT.SEAL_NO_ORG 	ELSE (CASE WHEN ISNULL(LTRIM(RTRIM(TT.EQ_TPSZ_CD_ORG)), ' ') 	= ' ' AND TT.TRO_CNT = 1 AND TT.DLV_ORD_SEQ IS NULL THEN  TRO.SEAL_NO ELSE TT.SEAL_NO_ORG END) END AS SEAL_NO
+			  , CASE WHEN ISNULL(TT.TRO_FLG, 'N') != 'Y' THEN TT.TRUCKER_CD_ORG	ELSE (CASE WHEN ISNULL(LTRIM(RTRIM(TT.EQ_TPSZ_CD_ORG)), ' ') 	= ' ' AND TT.TRO_CNT = 1 AND TT.DLV_ORD_SEQ IS NULL THEN  TRO.TRUCKER_CD ELSE TT.TRUCKER_CD_ORG END) END AS TRUCKER_CD
+		 	  , CASE WHEN ISNULL(TT.TRO_FLG, 'N') != 'Y' THEN TT.TRUCKER_NM_ORG	ELSE (CASE WHEN ISNULL(LTRIM(RTRIM(TT.EQ_TPSZ_CD_ORG)), ' ') 	= ' ' AND TT.TRO_CNT = 1 AND TT.DLV_ORD_SEQ IS NULL THEN  TRO.TRUCKER_NM ELSE TT.TRUCKER_NM_ORG END) END AS TRUCKER_NM
+		FROM (
+		SELECT T.*
+			     , ISNULL(D.LOT_ATTRIB_01, T.INBOUND_DT_OB) AS INBOUND_DT
+			     , ISNULL(D.LOT_ATTRIB_02, T.LOT_NO_OB)     AS LOT_NO
+			     , ISNULL(D.LOT_ATTRIB_03, T.EXP_DT_OB)     AS EXP_DT
+			     , ISNULL(D.LOT_ATTRIB_04, T.LOT_04_OB)     AS LOT_04
+			     , ISNULL(D.LOT_ATTRIB_05, T.LOT_05_OB)     AS LOT_05
+			     , T.ITEM_EA_QTY - T.ALLC_SUM_EA_QTY AS UN_ALLOC_EA_QTY
+			     , (SELECT COUNT(1) 
+			          FROM TL_WH_LOAD_PLAN A
+			             , TL_WH_LOAD_PLAN_ITEM B
+			         WHERE A.LP_NO 			= B.LP_NO
+			           AND B.WOB_BK_NO 		= T.WOB_BK_NO
+			           AND B.SAO_SYS_NO 	= T.SAO_SYS_NO
+			           AND B.WIB_BK_NO 		= T.WIB_BK_NO
+			           AND B.PO_SYS_NO 		= T.PO_SYS_NO
+			           AND B.ITEM_SYS_NO 	= T.ITEM_SYS_NO
+			           AND B.LOT_ID 		= T.LOT_ID
+			           AND B.WH_LOC_CD 		= T.WH_LOC_CD
+			           AND B.ITEM_SEQ 		= T.ITEM_SEQ
+			           AND A.LP_STS_CD IN ('L')) AS LP_CNT
+			     <!-- #1214 [WMS4.0][Release Test]Allocation & Complete POPUP 수정 -->
+			     , ISNULL((SELECT CI.STRG_SYS_NO
+			               FROM TL_CTRT_CUST_ITEM CI
+			                  , TL_WH_ALLC_STRG STRG 
+			               WHERE 	CI.CTRT_NO = T.CTRT_NO 
+			                	AND CI.ITEM_SYS_NO = T.ITEM_SYS_NO 
+			                	AND CI.STRG_SYS_NO = STRG.STRG_SYS_NO
+		                    	AND STRG.USE_FLG ='Y'
+		                    	), 
+					       ISNULL((SELECT STRG.STRG_SYS_NO
+					               FROM (SELECT DENSE_RANK() OVER( ORDER BY S.STRG_CD ASC) RANK_SEQ
+					                          , S.* 
+					                     FROM TL_WH_ALLC_STRG S WHERE S.USE_FLG = 'Y' AND S.DEFAULT_FLG ='1'
+				                        ) STRG
+				                  WHERE STRG.RANK_SEQ = 1), ' ')) AS STRG_SYS_NO  
+			     , ISNULL((SELECT STRG.STRG_CD
+			               FROM TL_CTRT_CUST_ITEM CI
+			                  , TL_WH_ALLC_STRG STRG 
+			               WHERE 	CI.CTRT_NO = T.CTRT_NO 
+			                	AND CI.ITEM_SYS_NO = T.ITEM_SYS_NO 
+			                	AND CI.STRG_SYS_NO = STRG.STRG_SYS_NO
+		                    	AND STRG.USE_FLG ='Y'
+		                    	), 
+					       ISNULL((SELECT STRG.STRG_CD
+					               FROM (SELECT DENSE_RANK() OVER( ORDER BY S.STRG_CD ASC) RANK_SEQ
+					                          , S.* 
+					                     FROM TL_WH_ALLC_STRG S WHERE S.USE_FLG = 'Y' AND S.DEFAULT_FLG ='1'
+				                        ) STRG
+				                  WHERE STRG.RANK_SEQ = 1), ' ')) AS STRG_CD  
+				 , CASE WHEN T.LP_NO IS NOT NULL THEN LP_I.LOAD_ITEM_EA_QTY
+					WHEN T.CONSOL_NO IS NOT NULL THEN T.LOAD_ITEM_EA_QTY_SH
+					ELSE 0 END AS SHIP_ITEM_EA_QTY
+				 , ISNULL(CI.PKG_LV1_QTY, 0) AS PKG_LV1_QTY   
+				 , ISNULL(CI.LV1_CBM, 0) AS LV1_CBM
+				 , ISNULL(CI.LV1_CBF, 0) AS LV1_CBF
+				 , ISNULL(CI.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+				 , ISNULL(CI.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+				 , ISNULL(CI.LV1_NET_KGS, 0) AS LV1_NET_KGS
+				 , ISNULL(CI.LV1_NET_LBS, 0) AS LV1_NET_LBS 
+				 , (CASE WHEN CI.PKG_LV1_UNIT_CD = 'PE' THEN CI.PKG_LV1_QTY
+				         WHEN CI.ITEM_PKGUNIT    = 'PE' THEN CI.ITEM_PKGBASEQTY
+				         WHEN CI.PKG_LV3_UNIT_CD = 'PE' THEN CI.PKG_LV3_QTY
+				         WHEN CI.PKG_LV4_UNIT_CD = 'PE' THEN CI.PKG_LV4_QTY
+				         ELSE -1
+				         END
+				   ) AS PE_QTY	
+				  , LP_I.OUT_PE_QTY AS OUT_PE_QTY_LP_I   
+				  , dbo.TL_GET_COMM_NM('WB6', CASE T.BK_STS_CD_GRP WHEN 'LP' THEN 'X' ELSE T.BK_STS_CD_GRP END) AS BK_STS_NM
+				  , CASE WHEN T.LP_NO IS NOT NULL THEN LP_I.LP_ITEM_EA_QTY
+		            WHEN T.CONSOL_NO IS NOT NULL THEN T.LP_ITEM_EA_QTY_SH
+		            ELSE 0
+		            END AS LOAD_PLAN_ITEM_EA_QTY /*loading plan item ea qty*/	
+		          , CASE WHEN ISNULL(T.TRO_FLG, 'N') = 'Y' THEN 
+			    	(CASE WHEN T.DLV_ORD_SEQ IS NOT NULL THEN T.DLV_ORD_SEQ WHEN T.TRO_CNT = 1 THEN  
+			    		(SELECT MAX(TRO.TRO_SEQ)
+			             FROM TL_TRO TRO
+			                 ,TL_TRO_ITEM TRO_ITEM
+			             WHERE TRO.TRO_NO = TRO_ITEM.TRO_NO
+			             AND TRO.TRO_SEQ = TRO_ITEM.TRO_SEQ
+			             AND TRO.TRO_NO = T.DLV_ORD_NO_ORG
+			             AND TRO.TRO_STS_CD != 'D'
+			             AND TRO_ITEM.BK_NO = T.WOB_BK_NO
+			             AND TRO_ITEM.SAO_SYS_NO = T.SAO_SYS_NO
+			             AND TRO_ITEM.ITEM_SYS_NO = T.ITEM_SYS_NO
+			             AND TRO_ITEM.ITEM_SEQ = T.ITEM_SEQ )
+			          ELSE NULL END )ELSE NULL END AS TRO_SEQ
+			      <!-- #2137 [WMS4.0] [AIF FEEDBACK] MOBILE 개선사항 (S) -->
+			      , CI.PICKING_SKU_REQ_FLAG
+			      , CI.PICKING_LOC_REQ_FLAG
+			      <!-- #2137 [WMS4.0] [AIF FEEDBACK] MOBILE 개선사항 (E) -->
+			      <!-- #2888 [WMS4.0][Mobile]Picking 시 Serial# Scan & Validation 기능 추가 (S) -->
+			      , CI.PICKING_SERIAL_SCAN_REQ_FLAG
+			      <!-- #2888 [WMS4.0][Mobile]Picking 시 Serial# Scan & Validation 기능 추가 (E) -->
+			FROM (
+			        SELECT ROW_NUMBER() OVER(ORDER BY A.CUST_ORD_NO,B.ITEM_CD) AS RN
+			             , B.RUM
+			             , A.WOB_BK_NO
+			             , A.WOB_BK_NO AS WOB_BK_NO_ORG
+			             , ISNULL(A.CUST_ORD_NO, ' ') AS CUST_ORD_NO
+			             , ISNULL(dbo.TL_GET_COMM_NM('WB3',A.ORD_TP_CD), ' ') AS ORD_TP_NM
+			             , A.CTRT_NO
+			             , dbo.TL_GET_CTRT_NM(A.CTRT_NO) AS CTRT_NM
+			             , A.WH_CD
+			             , A.EST_OUT_DT
+			             , B.SAO_SYS_NO 
+			             , B.ITEM_SYS_NO
+			             , B.ITEM_SEQ
+			             , C.WALC_NO
+			             , C.PO_SYS_NO
+			             , C.LOT_ID
+			             , C.WH_LOC_CD
+			             , C.LIC_PLAT_NO
+			             , C.ITEM_SER_NO
+			             , B.SAO_NO
+			             , C.WIB_BK_NO
+			             , B.ITEM_CD
+			             , B.CUST_ITEM_CD
+			             , B.ITEM_NM
+			             , B.ITEM_PKGQTY
+			             , B.ITEM_PKGUNIT
+			             , B.ITEM_EA_QTY
+			             , SUM(ISNULL(C.PICK_ITEM_EA_QTY,0)) OVER ( PARTITION BY B.WOB_BK_NO, B.SAO_SYS_NO, B.ITEM_SYS_NO, B.ITEM_SEQ) AS ALLC_SUM_EA_QTY /*ALLOC*/
+			             , dbo.TL_GET_WH_LOC_NM(A.WH_CD, C.WH_LOC_CD) AS  WH_LOC_CD_NM
+			             , CAST(ISNULL(C.PICK_ITEM_EA_QTY, 0)as INTEGER) AS ALLC_ITEM_EA_QTY /*Picking*/
+			             , ISNULL(C.PICK_ITEM_CBM, B.ITEM_CBM) AS ITEM_CBM
+			             , ISNULL(C.PICK_ITEM_CBF, B.ITEM_CBF) AS ITEM_CBF
+			             , ISNULL(C.PICK_ITEM_GRS_KGS, B.ITEM_GRS_KGS) AS ITEM_GRS_KGS
+			             , ISNULL(C.PICK_ITEM_GRS_LBS, B.ITEM_GRS_LBS) AS ITEM_GRS_LBS
+			             , ISNULL(C.PICK_ITEM_NET_KGS, B.ITEM_NET_KGS) AS ITEM_NET_KGS
+			             , ISNULL(C.PICK_ITEM_NET_LBS, B.ITEM_NET_LBS) AS ITEM_NET_LBS             
+			             , C.PO_NO AS PO_NO_IN
+			             , B.INBOUND_DT AS INBOUND_DT_OB
+			             , B.LOT_NO AS LOT_NO_OB
+			             , B.EXP_DT AS EXP_DT_OB
+			             , B.LOT_04 AS LOT_04_OB
+			             , B.LOT_05 AS LOT_05_OB
+			             , B.RGST_TIMESTAMP
+			             , CASE WHEN LP.LP_NO IS NOT NULL AND LP.LP_STS_CD = 'L' THEN 'LP'
+							WHEN LP.LP_NO IS NOT NULL AND LP.LP_STS_CD = 'P' THEN 'PL'
+							WHEN C.WALC_NO IS NULL THEN 'I'
+							WHEN C.WALC_NO IS NOT NULL AND ALLC.PICKD_FLG = 'Y' THEN 'P'
+							WHEN C.WALC_NO IS NOT NULL AND ALLC.PICKD_FLG != 'Y' THEN 'A'
+							ELSE '' END AS BK_STS_CD
+			             , ISNULL(ALLC.PICKD_FLG, 'N') AS PICKD_FLG
+			             , CASE WHEN ALLC.PICKD_FLG = 'Y' THEN isnull(C.PICKD_ITEM_EA_QTY,0)	ELSE 0 END AS PICK_ITEM_EA_QTY /*Picking*/
+						 , LP.OUTBOUND_DT
+						 , LP.LP_NO
+						 , SHIP.CONSOL_NO
+						 , SHIP.LP_ID
+						 , SHIP.LP_SEQ 
+						 , SHIP.LOAD_ITEM_EA_QTY AS LOAD_ITEM_EA_QTY_SH
+						 , SHIP.LP_ITEM_EA_QTY AS LP_ITEM_EA_QTY_SH
+						 , SHIP.OUT_PE_QTY AS OUT_PE_QTY_SH
+						 , SHIP.SHIPNO
+						 , SHIP.SHIPNO_SEQ
+						 , ISNULL(A.TRO_FLG, 'N') AS TRO_FLG
+						 , CASE WHEN (SELECT COUNT (1)
+	                      	        FROM TL_WH_LOAD_PLAN LP
+			                           , TL_WH_LOAD_PLAN_ITEM LPI
+			                       WHERE LP.LP_NO = LPI.LP_NO		                                     
+			                         AND A.WOB_BK_NO = LPI.WOB_BK_NO
+			                         AND LP.LP_STS_CD = 'L') > 0 THEN 'LP'			             
+		                    WHEN ALLC.WALC_NO IS NOT NULL AND ALLC.PICKD_FLG = 'Y' THEN 'P'
+		                    WHEN ALLC.WALC_NO IS NOT NULL AND ISNULL(ALLC.PICKD_FLG, 'N') != 'Y' THEN 'A'
+		                    WHEN ALLC.WALC_NO IS NULL THEN 'I'     
+		                    ELSE '' END AS BK_STS_CD_GRP
+		                  , C.WALC_NO+C.WOB_BK_NO+C.SAO_SYS_NO+C.WIB_BK_NO+C.PO_SYS_NO+C.ITEM_SYS_NO+C.LOT_ID+C.WH_LOC_CD+CAST(C.ITEM_SEQ AS VARCHAR) +ISNULL(C.LIC_PLAT_NO,'') +ISNULL(C.ITEM_SER_NO,'') +ISNULL(C.PO_NO,'') AS ALLC_MERGE_KEY
+		                  , CASE WHEN ISNULL(A.TRO_FLG, 'N') = 'Y' THEN A.DLV_ORD_NO
+		                    WHEN ISNULL(A.TLO_FLG, 'N') = 'Y' THEN A.DLV_ORD_NO
+		                    WHEN LP.LP_NO IS NOT NULL THEN LP.DLV_ORD_NO 
+		                    WHEN SHIP.CONSOL_NO IS NOT NULL THEN SHIP.DLV_ORD_NO 
+	                        WHEN C.WALC_NO IS NOT NULL THEN C.DLV_ORD_NO
+		                    ELSE '' END AS DLV_ORD_NO_ORG
+		                  , CASE WHEN SHIP.CONSOL_NO IS NOT NULL THEN SHIP.DLV_ORD_SEQ
+	                       WHEN C.WALC_NO IS NOT NULL THEN C.DLV_ORD_SEQ
+	                       ELSE NULL END AS DLV_ORD_SEQ 
+	                      , CASE WHEN ISNULL(A.TRO_FLG, 'N') = 'Y' THEN 
+	                  		(SELECT COUNT(DISTINCT(TRO.TRO_SEQ)) 
+							 FROM TL_TRO TRO
+	                    		 ,TL_TRO_ITEM TRO_ITEM 
+							 WHERE TRO.TRO_NO = TRO_ITEM.TRO_NO
+							 AND TRO.TRO_SEQ = TRO_ITEM.TRO_SEQ
+							 AND TRO.TRO_NO = A.DLV_ORD_NO 
+							 AND TRO.TRO_STS_CD != 'D'
+							 AND TRO_ITEM.BK_NO = B.WOB_BK_NO
+							 AND TRO_ITEM.SAO_SYS_NO = B.SAO_SYS_NO
+							 AND TRO_ITEM.ITEM_SYS_NO = B.ITEM_SYS_NO
+							 AND TRO_ITEM.ITEM_SEQ = B.ITEM_SEQ) ELSE 0 END AS TRO_CNT
+						   , CASE WHEN LP.LP_NO IS NOT NULL THEN LP.EQ_TPSZ_CD 
+								WHEN SHIP.CONSOL_NO IS NOT NULL THEN SHIP.EQ_TPSZ_CD 
+								WHEN C.WALC_NO IS NOT NULL THEN C.EQ_TPSZ_CD
+								ELSE '' END AS EQ_TPSZ_CD_ORG
+						   , CASE WHEN LP.LP_NO IS NOT NULL THEN LP.EQ_NO 
+								WHEN SHIP.CONSOL_NO IS NOT NULL THEN SHIP.EQ_NO 
+								WHEN C.WALC_NO IS NOT NULL THEN C.EQ_NO
+								ELSE '' END AS EQ_NO_ORG 
+						   , CASE WHEN LP.LP_NO IS NOT NULL THEN LP.SEAL_NO 
+								WHEN SHIP.CONSOL_NO IS NOT NULL THEN SHIP.SEAL_NO 
+								WHEN C.WALC_NO IS NOT NULL THEN C.SEAL_NO
+								ELSE '' END AS SEAL_NO_ORG 
+							, CASE WHEN LP.LP_NO IS NOT NULL THEN LP.TRUCKER_CD 
+									WHEN SHIP.CONSOL_NO IS NOT NULL THEN SHIP.TRUCKER_CD 
+									WHEN C.WALC_NO IS NOT NULL THEN C.TRUCKER_CD
+									ELSE '' END AS TRUCKER_CD_ORG
+							, CASE WHEN LP.LP_NO IS NOT NULL THEN LP.TRUCKER_NM 
+									WHEN SHIP.CONSOL_NO IS NOT NULL THEN SHIP.TRUCKER_NM 
+									WHEN C.WALC_NO IS NOT NULL THEN C.TRUCKER_NM
+									ELSE '' END AS TRUCKER_NM_ORG
+			          FROM TL_WH_OB A LEFT JOIN (TL_WH_ALLC ALLC LEFT JOIN TL_WH_ISSU ISSU ON ALLC.WALC_NO = ISSU.WALC_NO) ON (A.WOB_BK_NO = ALLC.WOB_BK_NO)
+			             , (           
+			                 SELECT ROW_NUMBER() OVER(ORDER BY TT.CUST_ORD_NO ASC, TT.WOB_BK_NO ASC, TT.RGST_TIMESTAMP ASC, TT.SAO_SYS_NO ASC, TT.ITEM_SYS_NO ASC, TT.ITEM_SEQ ASC) AS RUM
+					              , TT.*
+					         FROM (SELECT OB_ITEM.*
+					              		 ,AL.PICK_ITEM_EA_QTY
+					              		 ,ISNULL(OB.CUST_ORD_NO, ' ') AS CUST_ORD_NO
+							       FROM 
+							       		TL_WH_OB_ITEM OB_ITEM 
+							       		LEFT JOIN
+							       			(SELECT AI.WOB_BK_NO, AI.SAO_SYS_NO, AI.ITEM_SYS_NO, AI.ITEM_SEQ
+							                      , SUM(AI.PICK_ITEM_EA_QTY) AS PICK_ITEM_EA_QTY
+		                            		 FROM TL_WH_ALLC_ITEM AI
+		                            		 WHERE 1 = 1                                   
+		                              		 AND AI.WOB_BK_NO IN (SELECT WOB_BK_NO
+		                                                     	  FROM TL_WH_WAVE_OB
+		                                                     	  WHERE WAVE_NO = #wave_no#)
+		                             		 GROUP BY AI.WOB_BK_NO, AI.SAO_SYS_NO, AI.ITEM_SYS_NO, AI.ITEM_SEQ) AL 
+		                             	ON( OB_ITEM.WOB_BK_NO = AL.WOB_BK_NO
+		                                AND OB_ITEM.SAO_SYS_NO = AL.SAO_SYS_NO
+		                                AND OB_ITEM.ITEM_SYS_NO = AL.ITEM_SYS_NO
+		                                AND OB_ITEM.ITEM_SEQ = AL.ITEM_SEQ) 
+		                              , TL_WH_OB OB
+		                              WHERE 1=1
+		                                AND OB_ITEM.WOB_BK_NO = OB.WOB_BK_NO
+							            AND OB_ITEM.WOB_BK_NO IN (SELECT WOB_BK_NO
+							                                      FROM TL_WH_WAVE_OB
+							                                      WHERE WAVE_NO = #wave_no#)
+							          <!-- #2332 [WMS4.0] MOBILE SEARCH CONDITION (S) -->
+							          <isNotEmpty property="itemCd">
+							            AND OB_ITEM.ITEM_CD = #itemCd#
+							          </isNotEmpty>
+							          <!-- #2332 [WMS4.0] MOBILE SEARCH CONDITION (E) -->
+							        ) TT
+					       ) B LEFT JOIN TL_WH_ALLC_ITEM C LEFT JOIN (TL_WH_PSUDO_LP_SHIP SHIP LEFT JOIN TL_WH_LOAD_PLAN LP ON (SHIP.CONSOL_NO = LP.CONSOL_NO AND SHIP.LP_ID = LP.LP_ID AND SHIP.LP_SEQ = LP.LP_SEQ))
+							                 	             ON (
+							                 	             		C.WOB_BK_NO   = SHIP.WOB_BK_NO
+													           	AND C.SAO_SYS_NO  = SHIP.SAO_SYS_NO
+													           	AND C.WIB_BK_NO   = SHIP.WIB_BK_NO
+													           	AND C.PO_SYS_NO   = SHIP.PO_SYS_NO
+													           	AND C.ITEM_SYS_NO = SHIP.ITEM_SYS_NO
+													           	AND C.LOT_ID      = SHIP.LOT_ID
+													           	AND C.WH_LOC_CD   = SHIP.WH_LOC_CD
+													           	AND C.ITEM_SEQ    = SHIP.ITEM_SEQ
+													           	AND 'G' 		  = SHIP.LP_STATUS
+													           	AND ISNULL(C.LIC_PLAT_NO,'') = ISNULL(SHIP.LIC_PLAT_NO,'')
+													           	AND ISNULL(C.PO_NO,'')		  = ISNULL(SHIP.PO_NO,'')
+													           	AND ISNULL(C.ITEM_SER_NO,'') = ISNULL(SHIP.ITEM_SER_NO,''))
+							   ON (
+							   		 	B.WOB_BK_NO   = C.WOB_BK_NO
+			           				AND B.SAO_SYS_NO  = C.SAO_SYS_NO
+			           				AND B.ITEM_SYS_NO = C.ITEM_SYS_NO
+			           				AND B.ITEM_SEQ    = C.ITEM_SEQ )
+			         WHERE A.BK_STS_CD   = 'I'
+			           AND A.WOB_BK_NO   = B.WOB_BK_NO
+			           AND A.WOB_BK_NO IN (SELECT WOB_BK_NO
+			                               FROM TL_WH_WAVE_OB
+			                               WHERE WAVE_NO =  #wave_no#)
+			        ) T 
+			        LEFT JOIN TL_WH_LOAD_PLAN PS_S ON (T.CONSOL_NO = PS_S.CONSOL_NO AND T.LP_ID = PS_S.LP_ID AND T.LP_SEQ = PS_S.LP_SEQ AND T.LP_NO = PS_S.LP_NO)
+			        LEFT JOIN TL_WH_LOAD_PLAN_ITEM LP_I 
+			        	ON (
+			        	 	 	T.LP_NO       = LP_I.LP_NO
+					        AND T.WOB_BK_NO   = LP_I.WOB_BK_NO
+						    AND T.SAO_SYS_NO  = LP_I.SAO_SYS_NO
+						    AND T.WIB_BK_NO   = LP_I.WIB_BK_NO
+						    AND T.PO_SYS_NO   = LP_I.PO_SYS_NO
+						    AND T.ITEM_SYS_NO = LP_I.ITEM_SYS_NO
+						    AND T.LOT_ID      = LP_I.LOT_ID
+						    AND T.WH_LOC_CD   = LP_I.WH_LOC_CD
+						    AND T.ITEM_SEQ    = LP_I.ITEM_SEQ
+						    AND ISNULL(T.LIC_PLAT_NO,'') = ISNULL(LP_I.LIC_PLAT_NO,'')
+						    AND ISNULL(T.ITEM_SER_NO,'') = ISNULL(LP_I.ITEM_SER_NO,'')
+						    AND ISNULL(T.PO_NO_IN,'')	  = ISNULL(LP_I.PO_NO,''))
+			        LEFT JOIN TL_CTRT_CUST_ITEM_LOT D ON (T.CTRT_NO = D.CTRT_NO AND T.ITEM_SYS_NO = D.ITEM_SYS_NO AND T.LOT_ID = D.LOT_ID)
+			        LEFT JOIN TL_CTRT_CUST_ITEM CI ON (T.CTRT_NO = CI.CTRT_NO AND T.ITEM_SYS_NO =  CI.ITEM_SYS_NO)
+			  WHERE 1=1
+		) TT LEFT JOIN TL_TRO TRO ON (TT.DLV_ORD_NO_ORG = TRO.TRO_NO AND TT.TRO_SEQ = TRO.TRO_SEQ)
+	</select>	
+	
+	
+	
+	<select id="selectShippingItemList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mob.ob.dto.ObShippingItemVO">
+	    SELECT
+	        /*MobObSQL.xml : selectPickingItemList */
+	        OI.WOB_BK_NO wobBkNo,
+	        OI.ITEM_CD itemCd,
+	        OI.ITEM_NM itemNm,
+	        ITEM_PKGQTY qty,
+	        LOT_04 lot04,
+	        LOT_05 lot05,
+	        OI.LIC_PLAT_NO licPlatNo,
+	        LOT_NO lotNo,
+	        ITEM_EA_QTY itemEaQty,
+	        ITEM_PKGUNIT itemPkgunit,
+	        ITEM_CBM itemCbm,
+	        ITEM_CBF itemCbf,
+	        ITEM_GRS_KGS itemGrsKgs,
+	        ITEM_GRS_LBS itemGrsLbs,
+	        ITEM_NET_KGS itemNetKgs,
+	        ITEM_NET_LBS itemNetLbs,
+	        OI.SAO_SYS_NO saoSysNo,
+	        OI.ITEM_SYS_NO itemSysNo,
+	        FIX_LOT_ID fixLotId,
+	        OI.ITEM_SEQ itemSeq,
+	        SHIP.CONSOL_NO consolNo,
+	        SHIP.SHIPNO shipno,
+	        SHIP.SHIPNO_SEQ shipnoSeq,
+	        SHIP.TRUCKER_CD truckerCd,
+	        SHIP.TRUCKER_NM truckerNm,
+	        SHIP.EQ_TPSZ_CD eqTpszCd,
+	        SHIP.EQ_NO eqNo,
+	        SHIP.SEAL_NO sealNo,
+	        SHIP.DLV_ORD_NO dlvOrdNo,
+	        OUT_PE_QTY outPeQty,
+	        WIB_BK_NO wibBkNo,
+	        PO_SYS_NO poSysNo,
+	        WH_LOC_CD whLocCd,
+	        OI.LIC_PLAT_NO licPlatNo,
+	        OI.ITEM_SER_NO itemSerNo
+	    FROM
+	        TL_WH_OB_ITEM OI
+		LEFT JOIN
+			TL_WH_PSUDO_LP_SHIP SHIP 
+		ON
+			OI.WOB_BK_NO = SHIP.WOB_BK_NO
+				AND OI.SAO_SYS_NO  = SHIP.SAO_SYS_NO
+				AND OI.ITEM_SYS_NO = SHIP.ITEM_SYS_NO
+				AND OI.ITEM_SEQ    = SHIP.ITEM_SEQ
+		LEFT JOIN
+			TL_WH_LOAD_PLAN LP 
+		ON 
+			SHIP.CONSOL_NO = LP.CONSOL_NO 
+			AND SHIP.LP_ID = LP.LP_ID 
+			AND SHIP.LP_SEQ = LP.LP_SEQ
+	    WHERE
+	        1 = 1      
+		<isNotEmpty property="wobBkNo">
+		AND
+			OI.WOB_BK_NO =  #wobBkNo#
+		</isNotEmpty>	
+	</select>
+</sqlMap>

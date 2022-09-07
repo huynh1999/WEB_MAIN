@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!-- ############ 해운수출 ################  -->
+    <!-- 해운수출 일본세관 화물적화 목록 신고   -->
+    <screen name="EDI_AWB_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/awb/jsp/EDI_AWB_0010.jsp"/>
+    </screen>
+
+    <!-- MAWB 데이터 조회   -->
+    <screen name="EDI_AWB_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/awb/jsp/EDI_AWB_0010GS.jsp"/>
+    </screen>
+    
+    <!-- HAWB 데이터 조회   -->
+    <screen name="EDI_AWB_0011GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/awb/jsp/EDI_AWB_0011GS.jsp"/>
+    </screen>
+    
+    <!-- History 조회   -->
+    <screen name="EDI_AWB_0020" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/awb/jsp/EDI_AWB_0020.jsp"/>
+    </screen>
+
+    <screen name="EDI_AWB_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/awb/jsp/EDI_AWB_0020GS.jsp"/>
+    </screen>
+	
+</screen-definitions>

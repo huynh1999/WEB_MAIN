@@ -1,0 +1,3440 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sal.tpm.tradepartner">
+	
+	<!-- Contact Info. List조회   -->
+    <select id="selectSAL_TPM_0011_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+        SELECT a.trdp_cd, a.cntc_seq, 
+		       (
+				SELECT b.pic_nm
+				FROM tb_trdp_cntc_pson b
+				WHERE a.sls_pson_pic = b.cntc_pson_seq
+				AND b.delt_flg = 'N'
+				AND b.trdp_cd = #trdp_cd#
+			   ) AS sls_pson_pic, 
+		       a.sls_his_tit,                a.sls_his_flat_url,     a.sls_his_flat_nm, 
+		       a.sls_his_ctnt,                  
+		       a.rgst_usrid,                 a.rgst_ofc_cd,          <!-- CONVERT(VARCHAR, a.rgst_tms, 110) AS rgst_tms, -->   rgst_tms,   
+		       a.modi_usrid,                 a.modi_ofc_cd,          a.modi_tms,           a.delt_flg,   'sheet1' AS sheet1
+		 FROM  tb_trdp_cntc a
+	    WHERE  delt_flg = 'N'
+		  AND  a.trdp_cd = #trdp_cd#
+		<isNotNull prepend="AND" property="cntc_seq">
+			a.cntc_seq = #cntc_seq#
+		</isNotNull>
+		ORDER BY  cntc_seq DESC
+    </select>
+	
+    <!-- Contact Info. List건수 조회   -->
+    <select id="selectSAL_TPM_0011_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT  count(trdp_cd)
+		  FROM  tb_trdp_cntc
+		 WHERE  delt_flg = 'N'
+		   AND  trdp_cd  = #trdp_cd#
+    </select>
+	
+    <select id="selectSAL_TPM_0011_PK" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT  ISNULL(max(cntc_seq)+1, 1)
+		  FROM  tb_trdp_cntc
+		 WHERE  trdp_cd = #trdp_cd#
+    </select>
+	
+    <insert id="insertSAL_TPM_0011" parameterClass="java.util.HashMap">
+    	INSERT INTO tb_trdp_cntc (
+		  trdp_cd,           cntc_seq,          sls_pson_pic,   sls_his_tit, 
+		  sls_his_flat_url,  sls_his_flat_nm,   sls_his_ctnt, 
+		  rgst_usrid,        rgst_ofc_cd,       rgst_tms,		
+          modi_usrid,        modi_ofc_cd,       modi_tms,       delt_flg
+		) VALUES (
+		  #trdp_cd#,         #cntc_seq#,        #sls_pson_pic#, #sls_his_tit#,
+		  #sls_his_flat_url#,#sls_his_flat_nm#, #sls_his_ctnt#,
+		  #rgst_usrid#,      #rgst_ofc_cd#,     getdate(),
+		  #modi_usrid#,      #modi_ofc_cd#,     GETUTCDATE(),          'N'
+		)
+    </insert>
+	
+    <update id="updateSAL_TPM_0011" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+    	UPDATE  tb_trdp_cntc
+		   SET  sls_pson_pic     = #sls_pson_pic#,      sls_his_tit     = #sls_his_tit#, 
+		         <isNotEmpty property="sls_his_flat_url">
+		            sls_his_flat_url = #sls_his_flat_url#,  
+				</isNotEmpty>
+				<isNotEmpty property="sls_his_flat_nm">
+		            sls_his_flat_nm = #sls_his_flat_nm#,  
+				</isNotEmpty>
+		        sls_his_ctnt     = #sls_his_ctnt#,      modi_usrid      = #modi_usrid#, 
+		        modi_ofc_cd      = #modi_ofc_cd#,       modi_tms = GETUTCDATE(),                   delt_flg = #delt_flg#
+		 WHERE  trdp_cd = #trdp_cd# AND cntc_seq = #cntc_seq#
+    </update>
+    
+    <select id="selectSAL_TPM_0012_Tariff_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpTariffVO">
+    	 SELECT  trf.trf_ctrt_no,  trf.trdp_cd, trdp.eng_nm as trdp_nm,
+                 trf.trdp_clnt_nm, trf.sell_buy_tp_cd, trf.trf_tp_cd, 
+                 trf.pol_cd, trf.pod_cd, trf.dest_del_cd, trf.trf_curr_cd,
+                 trf.trf_term_fm_dt, trf.trf_term_to_dt, trf.delt_flg,
+                 loc_pol.loc_nm AS pol_nm, loc_pod.loc_nm AS pod_nm, loc_del.loc_nm AS dest_del_nm
+           FROM  tb_frt_trf trf
+LEFT OUTER JOIN  tb_trdp trdp ON trf.trdp_cd = trdp.trdp_cd
+LEFT OUTER JOIN	 tb_loc loc_pol ON trf.pol_cd = loc_pol.LOC_CD
+LEFT OUTER JOIN	 tb_loc loc_pod ON trf.pod_cd = loc_pod.LOC_CD
+LEFT OUTER JOIN	 tb_loc loc_del ON trf.dest_del_cd = loc_del.LOC_CD
+          WHERE  trf.trdp_cd = #trdp_cd#
+    </select>
+    <select id="selectSAL_TPM_0012_Tariff_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+         SELECT  count(trdp_cd)
+		   FROM  tb_frt_trf
+		  WHERE  delt_flg = 'N'
+		    AND  trdp_cd = #trdp_cd#
+    </select>
+	
+    <!-- Trade Partner 계좌정보 조회  -->
+    <select id="selectSAL_TPM_0013_Account_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+        SELECT trdp_cd,     acct_no,      acct_dpsr_nm, 
+		       bank_cd,     acct_desc, 
+		       rgst_usrid,  rgst_ofc_cd,  CONVERT(VARCHAR, rgst_tms, 101) AS rgst_tms, 
+		       modi_usrid,  modi_ofc_cd,  CONVERT(VARCHAR, modi_tms, 101) AS modi_tms,     delt_flg, 
+		       'sheet3' AS sheet3
+		 FROM  tb_trdp_acct
+		WHERE  delt_flg = 'N'
+		  AND  trdp_cd = #trdp_cd#
+	 ORDER BY  bank_cd ASC
+    </select>
+	
+    <!-- Trade Partner 계좌정보 전체건수 조회  -->
+    <select id="selectSAL_TPM_0013_Account_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT count(trdp_cd)
+		  FROM tb_trdp_acct
+		 WHERE delt_flg = 'N'
+		   AND trdp_cd = #trdp_cd#
+    </select>
+	
+    <!-- Trade Partner 계좌정보 등록  -->
+    <insert id="insertSAL_TPM_0013_Account" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	INSERT INTO tb_trdp_acct(
+      		trdp_cd,     acct_no,       acct_dpsr_nm, 
+		    acct_desc,   bank_cd, 
+		    rgst_usrid,  rgst_ofc_cd,   rgst_tms, 
+		    modi_usrid,  modi_ofc_cd,   modi_tms,        delt_flg
+		) VALUES (
+		   #trdp_cd#,    #acct_no#,     #acct_dpsr_nm#, 
+		   #acct_desc#,  #bank_cd#,
+		   #rgst_usrid#, #rgst_ofc_cd#, getdate(),
+		   #modi_usrid#, #modi_ofc_cd#, GETUTCDATE(),          'N'
+		)
+    </insert>
+	
+	<!-- Trade Partner 계좌정보 수정  -->
+    <update id="updateSAL_TPM_0013_Account" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	UPDATE tb_trdp_acct
+		   SET acct_dpsr_nm = #acct_dpsr_nm#,  acct_desc =   #acct_desc#, 
+		       bank_cd =      #bank_cd#, 
+		       modi_usrid =   #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE(), 
+		       delt_flg = #delt_flg#
+		 WHERE trdp_cd =  #trdp_cd#
+		   AND acct_no =  #acct_no#
+    </update>
+	
+    <!-- Trade Partner Account Info Search    -->
+    <select id="selectSAL_TPM_0013_Contact_Person_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+        SELECT trdp_cd
+			, cntc_pson_seq
+			, pic_nm
+			, trd_div_cd
+			, pic_phn
+			, pic_mphn
+			, pic_fax
+			, pic_eml
+			, pic_desc
+			, rep_flg
+			, pic_eml_flg
+			, rgst_usrid
+			, rgst_ofc_cd
+			, CONVERT(VARCHAR, rgst_tms, 101) AS rgst_tms
+			, modi_usrid
+			, modi_ofc_cd
+			, CONVERT(VARCHAR, modi_tms, 101) AS modi_tms
+			, delt_flg
+			, 'sheet4' as sheet4
+			, trd_div_nm
+			FROM tb_trdp_cntc_pson
+		WHERE delt_flg = 'N'
+		AND trdp_cd = #trdp_cd#
+		ORDER BY  cntc_pson_seq ASC
+    </select>
+    <!-- Trade Partner Contact Info Count    -->
+    <select id="selectSAL_TPM_0013_Contact_Person_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT count(trdp_cd)
+		FROM tb_trdp_cntc_pson
+		WHERE delt_flg = 'N'
+		AND trdp_cd = #trdp_cd#
+    </select>
+	
+    <select id="selectSAL_TPM_0013_Contact_Person_PK" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT ISNULL(max(cntc_pson_seq)+1, 1)
+		  FROM tb_trdp_cntc_pson
+		 WHERE trdp_cd = #trdp_cd#
+    </select>
+    
+    <insert id="insertSAL_TPM_0013_Contact_Person" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	INSERT INTO tb_trdp_cntc_pson (
+      		trdp_cd,       cntc_pson_seq,
+		    pic_nm,        trd_div_cd,      trd_div_nm,
+		    pic_phn,       pic_fax,         pic_eml,
+		    pic_desc,      rep_flg, 		pic_eml_flg,
+		    rgst_usrid,    rgst_ofc_cd,     rgst_tms,
+		    modi_usrid,    modi_ofc_cd,     modi_tms, delt_flg,
+		    pic_mphn
+		) VALUES (
+			#trdp_cd#,     #cntc_pson_seq#,
+		    #pic_nm#,      #trd_div_cd#,     #trd_div_nm#,
+		    #pic_phn#,     #pic_fax#,        #pic_eml#,
+		    #pic_desc#,    #rep_flg#, 		 #pic_eml_flg#,
+		    #rgst_usrid#,  #rgst_ofc_cd#,    getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#,    GETUTCDATE(), 'N',
+		    #pic_mphn#
+		)
+    </insert>
+    <update id="updateSAL_TPM_0013_Contact_Person" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	UPDATE tb_trdp_cntc_pson
+		SET pic_nm = #pic_nm#
+			, trd_div_cd = #trd_div_cd#
+			, trd_div_nm = #trd_div_nm#
+			, pic_phn = #pic_phn#
+			, pic_fax = #pic_fax#
+			, pic_eml = #pic_eml#
+			, pic_desc = #pic_desc#
+			, rep_flg = #rep_flg#
+			, pic_eml_flg = #pic_eml_flg#
+			, modi_usrid = #modi_usrid#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, modi_tms = GETUTCDATE()
+			, delt_flg = #delt_flg#
+			, pic_mphn = #pic_mphn#
+		WHERE trdp_cd = #trdp_cd#
+		AND cntc_pson_seq = #cntc_pson_seq#
+    </update>
+    <select id="selectMDM_MCM_0013_ACCOUNT_NO" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+        SELECT acct_no
+		FROM tb_trdp_acct
+		WHERE acct_no = #s_acct_no#
+    </select>
+    <select id="select_BIZ_NO" parameterClass="java.util.HashMap" resultClass="String">
+    	SELECT  CASE WHEN COUNT(trdp.biz_no)=0 THEN 'Y' ELSE 'N' END AS biz_flg
+          FROM  tb_trdp trdp
+         WHERE  trdp.biz_no = #biz_no#
+    </select>
+    
+    <!-- ZOOT::TODO=2014.12.26-SQL MODIFY -->		 
+    <select id="selectTRDP_PRNR_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpMgmtVO">
+ 	    /* SalTpmTradePartnerSQL.xml > selectTRDP_PRNR_LIST */
+ 	    SELECT a1.*
+	    FROM (
+	   	 SELECT  ROW_NUMBER() OVER (ORDER BY trdp.trdp_cd) as ROWNUM, 
+	   	 		<dynamic>
+	        	<isNotEmpty property="o_eng_nm">
+					 CASE WHEN CHARINDEX(#o_eng_nm#,trdp.eng_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_nm#,trdp.eng_nm) END  o_eng_nm,
+					 CASE WHEN CHARINDEX(#o_eng_nm#,trdp.locl_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_nm#,trdp.locl_nm) END  o_locl_nm,
+					 CASE WHEN CHARINDEX(#o_eng_nm#,trdp.shrt_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_nm#,trdp.shrt_nm) END o_shrt_nm,
+	           	</isNotEmpty>
+	            </dynamic>
+      		 trdp.trdp_cd
+		     , trdp.trdp_tp_cd
+		     , com.cd_nm as trdp_tp_nm 
+		     , trdp.locl_nm
+		     , trdp.eng_nm
+		     , trdp.biz_no
+		     , trdp.rgst_tp_cd
+		     , CASE
+		         WHEN trdp.rgst_tp_cd = 'C' THEN 'Corporation'
+		         WHEN trdp.rgst_tp_cd = 'I' THEN 'Individual'
+		         WHEN trdp.rgst_tp_cd = 'O' THEN 'Overseas'
+		       END AS rgst_tp_nm
+		     , trdp.ceo_nm
+		     , cnt.cnt_cd
+		     , cnt.cnt_locl_nm
+		     , trdp.city_nm
+		     , trdp.state_cd
+		     <!-- #3148 -->
+		     , sta.state_locl_nm
+		     , trdp.rep_zip
+		     , trdp.rep_phn
+		     , trdp.shrt_nm
+		     , trdp.acct_cd
+		     , trdp.rep_fax
+		     , trdp.lgl_addr
+		     , trdp.eng_addr
+		     , trdp.rgst_tms
+			 , trdp.modi_tms
+		     , trdp.sls_gp_cd
+		     , trdp.cr_term_cd
+		     , trdp.cr_term_dt
+		     , trdp.crd_lmt_amt
+		     , trdp.profit_share
+		     , pson.pic_nm
+		     , pson.pic_phn
+		     , pson.pic_mphn
+		     , pson.pic_fax
+		     , pson.pic_eml
+<!--		     , dpt.cd_nm AS dept -->
+             , div.cd_nm AS dept
+		     , (SELECT a.eng_nm
+		          FROM tb_trdp a
+		         WHERE a.trdp_cd = (SELECT x.cb_trdp_cd
+		                  FROM tb_trdp_cb x
+		                 WHERE x.trdp_cd = trdp.trdp_cd
+		                   AND x.delt_flg = 'N'
+		                   AND X.cb_seq =1 ) ) AS cb_trdp_nm
+		     , CASE
+		         WHEN trdp.delt_flg = 'N' THEN 'Enable'
+		         WHEN trdp.delt_flg = 'Y' THEN 'Disable'
+		       END AS delt_flg,
+		       trdp.iata_cd iata_cd
+		     , trdp.sls_usrid
+		     , sls.locl_usr_nm AS sls_usrnm
+		  FROM tb_trdp trdp
+			LEFT OUTER JOIN  tb_trdp_cntc_pson pson
+			ON trdp.trdp_cd = pson.trdp_cd AND pson.delt_flg = 'N' AND pson.rep_flg = 'Y'
+			LEFT OUTER JOIN  tb_com_cd_dtl div
+			ON pson.trd_div_cd = div.cd_val AND div.com_cd = 'TCD1' AND div.delt_flg = 'N'
+			LEFT OUTER JOIN  tb_cnt cnt
+			ON cnt.cnt_cd = trdp.cnt_cd
+			LEFT OUTER JOIN  tb_state sta
+			ON sta.state_cd = trdp.state_cd AND sta.cnt_cd = trdp.cnt_cd
+			LEFT OUTER JOIN tb_com_cd_dtl com 
+	                    ON com.cd_val = trdp.trdp_tp_cd
+	                       AND com.com_cd = 'C033'
+	        LEFT OUTER JOIN tb_usr sls     
+            ON sls.usr_tp = 'I' AND trdp.sls_usrid = sls.usrid
+          WHERE  1 = 1
+		<isNotNull property="locl_nm">
+            AND  trdp.locl_nm LIKE '%' + #locl_nm# + '%'
+		</isNotNull>
+		<isNotNull property="s_eng_nm">
+            AND ( trdp.eng_nm LIKE #s_eng_nm# or trdp.locl_nm LIKE #s_eng_nm# or trdp.shrt_nm LIKE #s_eng_nm# )
+		</isNotNull>
+		<isNotNull property="s_shrt_nm">
+            AND trdp.shrt_nm LIKE #s_shrt_nm#
+		</isNotNull>
+		
+		<isNotNull property="cnt_cd">
+            AND  trdp.cnt_cd = #cnt_cd#
+		</isNotNull>
+		<isNotNull property="prefix">
+            AND  trdp.prefix = #prefix#
+		</isNotNull>
+		<isNotNull property="biz_no">
+            AND  trdp.biz_no LIKE '%' + #biz_no# + '%'
+		</isNotNull>
+		<isNotNull property="pic_nm">
+            AND  pson.pic_nm LIKE '%' + #pic_nm# + '%'
+		</isNotNull>
+		<isNotNull property="acct_cd">
+            AND  trdp.acct_cd LIKE '%' + #acct_cd# + '%'
+		</isNotNull>
+		<isNotNull property="pic_phn">
+            AND  (REPLACE(pson.pic_phn, '-', '') LIKE '%' + REPLACE(#pic_phn#, '-', '') + '%'
+            OR  REPLACE(pson.pic_mphn, '-', '') LIKE '%' + REPLACE(#pic_phn#, '-', '') + '%')
+		</isNotNull>
+		<isNotNull property="pic_fax">
+            AND  pson.pic_fax LIKE '%' + #pic_fax# + '%'
+		</isNotNull>
+		<isNotNull property="pic_eml">
+            AND  pson.pic_eml LIKE '%' + #pic_eml# + '%'
+		</isNotNull>
+		
+		
+		<!-- 52489 -->
+		<isEqual property="s_addr_zip" compareValue="ADDR">
+			<isNotNull property="addr">
+	            AND  trdp.eng_addr LIKE '%' + #addr# + '%'
+			</isNotNull>
+		</isEqual>
+		<isEqual property="s_addr_zip" compareValue="ZIP">
+			<isNotNull property="addr">
+	            AND  trdp.rep_zip LIKE '%' + #addr# + '%'
+			</isNotNull>
+		</isEqual>
+		<isEqual property="s_addr_zip" compareValue="LOCALADDR">
+			<isNotNull property="addr">
+	            AND  trdp.lgl_addr LIKE '%' + #addr# + '%'
+			</isNotNull>
+		</isEqual>		
+		
+		
+		<isNotNull property="trdp_tp_cd">
+            AND  trdp.trdp_tp_cd = #trdp_tp_cd#
+		</isNotNull>
+		<isNotNull property="trdp_cd">
+            AND  trdp.trdp_cd LIKE #trdp_cd#
+		</isNotNull>
+		<isNotNull property="delt_flg">
+            AND  trdp.delt_flg = #delt_flg#
+		</isNotNull>
+		<isNotEmpty property="s_strdt">
+			<isNotEmpty property="s_enddt">
+				AND REPLACE(CONVERT(VARCHAR(10), trdp.rgst_tms,120),'-','') BETWEEN #s_strdt# AND #s_enddt#
+			</isNotEmpty>
+		</isNotEmpty>
+		
+		<isNotNull prepend="AND" property="s_iata_cd">
+			isnull(trdp.iata_cd, '') != ''  and trdp.trdp_tp_cd != 'AC'   
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_iata_nm">
+			trdp.iata_cd = #s_iata_nm#  
+		</isNotNull>
+		<isNotNull property="tp_grp">
+            AND  trdp.tp_grp like '%' + #tp_grp# + '%'
+		</isNotNull>	
+		<isNotNull property="s_city_nm">
+            AND  trdp.city_nm LIKE '%' + #s_city_nm# + '%'
+		</isNotNull>
+		<isNotNull property="s_state_cd">
+            AND  trdp.state_cd = #s_state_cd#
+		</isNotNull>
+		<isNotNull property="s_sls_usrid">
+            AND  trdp.sls_usrid = #s_sls_usrid#
+		</isNotNull>
+		<isNotNull property="s_sls_usrnm">
+            AND  sls.locl_usr_nm LIKE '%' + #s_sls_usrnm# + '%'
+		</isNotNull>			
+		) a1	
+<!-- ZOOT::TODO -->			
+<![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]>
+	 <!-- 
+	 <dynamic>
+	    <isNotEmpty property="o_eng_nm">
+		order by o_shrt_nm, o_eng_nm, o_locl_nm
+		</isNotEmpty>
+	    <isEmpty property="o_eng_nm">
+		ORDER BY a1.modi_tms DESC, a1.shrt_nm, a1.trdp_cd ASC
+		</isEmpty>
+	</dynamic>
+	 -->
+	</select>
+	
+	<!-- #52472 Trade Partner List Excel Data Download(ALL) -->
+    <select id="selectTRDP_PRNR_EXCEL" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+ 	    /* SalTpmTradePartnerSQL.xml > selectTRDP_PRNR_EXCEL */
+ 	    SELECT a1.*
+	    FROM (
+	   	 SELECT  ROW_NUMBER() OVER (ORDER BY trdp.trdp_cd) as rownum, 
+	   	 		<dynamic>
+	        	<isNotEmpty property="o_eng_nm">
+					 CASE WHEN CHARINDEX(#o_eng_nm#,trdp.eng_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_nm#,trdp.eng_nm) END  o_eng_nm,
+					 CASE WHEN CHARINDEX(#o_eng_nm#,trdp.locl_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_nm#,trdp.locl_nm) END  o_locl_nm,
+					 CASE WHEN CHARINDEX(#o_eng_nm#,trdp.shrt_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_nm#,trdp.shrt_nm) END o_shrt_nm,
+	           	</isNotEmpty>
+	            </dynamic>
+      		 trdp.trdp_cd
+		     , trdp.trdp_tp_cd
+		     , com.cd_nm as trdp_tp_nm 
+		     , trdp.locl_nm
+		     , trdp.eng_nm
+		     , trdp.biz_no
+		     , trdp.rgst_tp_cd
+		     , CASE
+		         WHEN trdp.rgst_tp_cd = 'C' THEN 'Corporation'
+		         WHEN trdp.rgst_tp_cd = 'I' THEN 'Individual'
+		         WHEN trdp.rgst_tp_cd = 'O' THEN 'Overseas'
+		       END AS rgst_tp_nm
+		     , trdp.ceo_nm
+		     , cnt.cnt_cd
+		     , cnt.cnt_locl_nm
+		     , trdp.city_nm
+		     , trdp.state_cd
+		     , sta.state_locl_nm <!-- #3148 state name 추가 -->
+		     , trdp.rep_zip
+		     , trdp.rep_phn
+		     , trdp.shrt_nm
+		     , trdp.acct_cd
+		     , trdp.rep_fax
+		     , trdp.lgl_addr
+		     , trdp.eng_addr
+		     , trdp.rgst_tms
+			 , trdp.modi_tms
+		     , trdp.sls_gp_cd
+		     , trdp.cr_term_cd
+		     , trdp.cr_term_dt
+		     <!-- #1122 [Trade Partner List] Miss data when exporting Excel (All)  -->
+		     , (case when trdp.sls_gp_cd = 'CR' then 'Credit / '
+					       when trdp.sls_gp_cd = 'CO' then 'COD / '
+					       when trdp.sls_gp_cd = 'KO' then 'KOINFO / '
+					       when trdp.sls_gp_cd = 'CH' then 'Credit Hold / '
+					 end  
+				 + case when trdp.cr_term_cd = 'A' then trdp.cr_term_dt + ' Days'
+						when trdp.cr_term_cd = 'B' then ' End of this month'
+						when trdp.cr_term_cd = 'C' then ' End of next month'
+						when trdp.cr_term_cd = 'D' then (case when trdp.cr_term_dt = '1' then 'st'
+															  when trdp.cr_term_dt = '2' then 'nd'
+															  when trdp.cr_term_dt = '3' then 'rd'
+															  else  'th'
+														 end) + ' of next month'
+					 end) as payment_term	
+		     , trdp.crd_lmt_amt
+		     , trdp.profit_share
+		     , pson.pic_nm
+		     , pson.pic_phn
+		     , pson.pic_fax
+		     , pson.pic_eml
+<!--		     , dpt.cd_nm AS dept -->
+             , div.cd_nm AS dept
+		     , (SELECT a.eng_nm
+		          FROM tb_trdp a
+		         WHERE a.trdp_cd = (SELECT x.cb_trdp_cd
+		                  FROM tb_trdp_cb x
+		                 WHERE x.trdp_cd = trdp.trdp_cd
+		                   AND x.delt_flg = 'N'
+		                   AND X.cb_seq =1 ) ) AS cb_trdp_nm
+		     , CASE
+		         WHEN trdp.delt_flg = 'N' THEN 'Enable'
+		         WHEN trdp.delt_flg = 'Y' THEN 'Disable'
+		       END AS delt_flg,
+		       trdp.iata_cd iata_cd
+		     , trdp.sls_usrid
+		     , sls.locl_usr_nm AS sls_usrnm
+		     , pson.pic_mphn
+		  FROM tb_trdp trdp
+			LEFT OUTER JOIN  tb_trdp_cntc_pson pson
+			ON trdp.trdp_cd = pson.trdp_cd AND pson.delt_flg = 'N' AND pson.rep_flg = 'Y'
+			LEFT OUTER JOIN  tb_com_cd_dtl div
+			ON pson.trd_div_cd = div.cd_val AND div.com_cd = 'TCD1' AND div.delt_flg = 'N'
+			LEFT OUTER JOIN  tb_cnt cnt
+			ON cnt.cnt_cd = trdp.cnt_cd
+			LEFT OUTER JOIN  tb_state sta
+			ON sta.state_cd = trdp.state_cd AND sta.cnt_cd = trdp.cnt_cd
+			LEFT OUTER JOIN tb_com_cd_dtl com 
+	                    ON com.cd_val = trdp.trdp_tp_cd
+	                       AND com.com_cd = 'C033'
+	        LEFT OUTER JOIN tb_usr sls     
+            ON sls.usr_tp = 'I' AND trdp.sls_usrid = sls.usrid
+          WHERE  1 = 1
+		<isNotNull property="locl_nm">
+            AND  trdp.locl_nm LIKE '%' + #locl_nm# + '%'
+		</isNotNull>
+		<isNotNull property="s_eng_nm">
+            AND ( trdp.eng_nm LIKE #s_eng_nm# or trdp.locl_nm LIKE #s_eng_nm# or trdp.shrt_nm LIKE #s_eng_nm# )
+		</isNotNull>
+		<isNotNull property="s_shrt_nm">
+            AND trdp.shrt_nm LIKE #s_shrt_nm#
+		</isNotNull>
+		
+		<isNotNull property="cnt_cd">
+            AND  trdp.cnt_cd = #cnt_cd#
+		</isNotNull>
+		<isNotNull property="prefix">
+            AND  trdp.prefix = #prefix#
+		</isNotNull>
+		<isNotNull property="biz_no">
+            AND  trdp.biz_no LIKE '%' + #biz_no# + '%'
+		</isNotNull>
+		<isNotNull property="pic_nm">
+            AND  pson.pic_nm LIKE '%' + #pic_nm# + '%'
+		</isNotNull>
+		<isNotNull property="acct_cd">
+            AND  trdp.acct_cd LIKE '%' + #acct_cd# + '%'
+		</isNotNull>
+		<isNotNull property="pic_phn">
+            AND  (REPLACE(pson.pic_phn, '-', '') LIKE '%' + REPLACE(#pic_phn#, '-', '') + '%'
+             OR  REPLACE(pson.pic_mphn, '-', '') LIKE '%' + REPLACE(#pic_phn#, '-', '') + '%')
+		</isNotNull>
+		<isNotNull property="pic_fax">
+            AND  pson.pic_fax LIKE '%' + #pic_fax# + '%'
+		</isNotNull>
+		<isNotNull property="pic_eml">
+            AND  pson.pic_eml LIKE '%' + #pic_eml# + '%'
+		</isNotNull>
+
+		<!-- 52489 -->
+		<isEqual property="s_addr_zip" compareValue="ADDR">
+			<isNotNull property="addr">
+	            AND  trdp.eng_addr LIKE '%' + #addr# + '%'
+			</isNotNull>
+		</isEqual>
+		<isEqual property="s_addr_zip" compareValue="ZIP">
+			<isNotNull property="addr">
+	            AND  trdp.rep_zip LIKE '%' + #addr# + '%'
+			</isNotNull>
+		</isEqual>
+		
+		<isNotNull property="trdp_tp_cd">
+            AND  trdp.trdp_tp_cd = #trdp_tp_cd#
+		</isNotNull>
+		<isNotNull property="trdp_cd">
+            AND  trdp.trdp_cd LIKE #trdp_cd#
+		</isNotNull>
+		<isNotNull property="delt_flg">
+            AND  trdp.delt_flg = #delt_flg#
+		</isNotNull>
+		<isNotEmpty property="s_strdt">
+			<isNotEmpty property="s_enddt">
+				AND REPLACE(CONVERT(VARCHAR(10), trdp.rgst_tms,120),'-','') BETWEEN #s_strdt# AND #s_enddt#
+			</isNotEmpty>
+		</isNotEmpty>
+		
+		<isNotNull prepend="AND" property="s_iata_cd">
+			isnull(trdp.iata_cd, '') != ''  and trdp.trdp_tp_cd != 'AC'   
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_iata_nm">
+			trdp.iata_cd = #s_iata_nm#  
+		</isNotNull>
+		<isNotNull property="tp_grp">
+            AND  trdp.tp_grp like '%' + #tp_grp# + '%'
+		</isNotNull>	
+		<isNotNull property="s_city_nm">
+            AND  trdp.city_nm LIKE '%' + #s_city_nm# + '%'
+		</isNotNull>
+		<isNotNull property="s_state_cd">
+            AND  trdp.state_cd = #s_state_cd#
+		</isNotNull>
+		<isNotNull property="s_sls_usrid">
+            AND  trdp.sls_usrid = #s_sls_usrid#
+		</isNotNull>
+		<isNotNull property="s_sls_usrnm">
+            AND  sls.locl_usr_nm LIKE '%' + #s_sls_usrnm# + '%'
+		</isNotNull>			
+		) a1	
+	<!-- OutofMemory 발생으로 인한 조건추가 -->		
+	<!-- [Forwarding v4 - Test] [#1120] [Trade Partner List] Don't export all data when using Excel (All) function -->	
+	<!-- <![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #endMaxIdx#	]]> -->
+	</select>
+	
+	<select id="selectTRDP_PRNR_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+	 /* SalTpmTradePartnerSQL.xml > selectTRDP_PRNR_CNT */
+	
+	     SELECT  count(trdp.trdp_cd)
+		   FROM  tb_trdp trdp
+			LEFT OUTER JOIN  tb_trdp_cntc_pson pson
+			ON trdp.trdp_cd = pson.trdp_cd AND pson.delt_flg = 'N' AND pson.rep_flg = 'Y'
+			LEFT OUTER JOIN  tb_cnt cnt
+			ON cnt.cnt_cd = trdp.cnt_cd
+			LEFT OUTER JOIN  tb_state sta
+			ON sta.state_cd = trdp.state_cd AND sta.cnt_cd = trdp.cnt_cd
+			LEFT OUTER JOIN tb_usr sls     
+            ON sls.usr_tp = 'I' AND trdp.sls_usrid = sls.usrid
+          WHERE  1 = 1
+		<isNotNull property="locl_nm">
+            AND  trdp.locl_nm LIKE '%' + #locl_nm# + '%'
+		</isNotNull>
+		<isNotNull property="s_eng_nm">
+            AND ( trdp.eng_nm LIKE #s_eng_nm# or trdp.locl_nm LIKE #s_eng_nm# or trdp.shrt_nm LIKE #s_eng_nm# )
+		</isNotNull>
+		<isNotNull property="shrt_nm">
+            AND  trdp.shrt_nm LIKE '%' + #shrt_nm# + '%'
+		</isNotNull>
+		<isNotNull property="cnt_cd">
+            AND  trdp.cnt_cd = #cnt_cd#
+		</isNotNull>
+		<isNotNull property="prefix">
+            AND  trdp.prefix = #prefix#
+		</isNotNull>
+		<isNotNull property="biz_no">
+            AND  trdp.biz_no LIKE '%' + #biz_no# + '%'
+		</isNotNull>
+		<isNotNull property="pic_nm">
+            AND  pson.pic_nm LIKE '%' + #pic_nm# + '%'
+		</isNotNull>
+		<isNotNull property="acct_cd">
+            AND  trdp.acct_cd LIKE '%' + #acct_cd# + '%'
+		</isNotNull>
+		<isNotNull property="pic_phn">
+            AND (REPLACE(pson.pic_phn, '-', '') LIKE '%' + REPLACE(#pic_phn#, '-', '') + '%'
+             OR  REPLACE(pson.pic_mphn, '-', '') LIKE '%' + REPLACE(#pic_phn#, '-', '') + '%')
+		</isNotNull>
+		<isNotNull property="pic_fax">
+            AND  pson.pic_fax LIKE '%' + #pic_fax# + '%'
+		</isNotNull>
+		<isNotNull property="pic_eml">
+            AND  pson.pic_eml LIKE '%' + #pic_eml# + '%'
+		</isNotNull>
+		<!-- 52489 -->
+		<isEqual property="s_addr_zip" compareValue="ADDR">
+			<isNotNull property="addr">
+	            AND  trdp.eng_addr LIKE '%' + #addr# + '%'
+			</isNotNull>
+		</isEqual>
+		<isEqual property="s_addr_zip" compareValue="ZIP">
+			<isNotNull property="addr">
+	            AND  trdp.rep_zip LIKE '%' + #addr# + '%'
+			</isNotNull>
+		</isEqual>
+		
+		<isNotNull property="trdp_tp_cd">
+            AND  trdp.trdp_tp_cd = #trdp_tp_cd#
+		</isNotNull>
+		<isNotNull property="trdp_cd">
+            AND  trdp.trdp_cd LIKE #trdp_cd#
+		</isNotNull>
+		<isNotEmpty property="s_strdt">
+			<isNotEmpty property="s_enddt">
+				AND REPLACE(CONVERT(VARCHAR(10), trdp.rgst_tms,120),'-','') BETWEEN #s_strdt# AND #s_enddt#
+			</isNotEmpty>
+		</isNotEmpty>		
+		<isNotNull prepend="AND" property="s_iata_cd">
+			isnull(trdp.iata_cd, '') != ''  and trdp.trdp_tp_cd != 'AC'   
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_iata_nm">
+			trdp.iata_cd = #s_iata_nm#  
+		</isNotNull>		
+		<isNotNull property="delt_flg">
+            AND  trdp.delt_flg = #delt_flg#
+		</isNotNull>
+		<isNotNull property="tp_grp">
+            AND  trdp.tp_grp like '%' + #tp_grp# + '%'
+		</isNotNull>	
+		<isNotNull property="s_city_nm">
+            AND  trdp.city_nm LIKE '%' + #s_city_nm# + '%'
+		</isNotNull>
+		<isNotNull property="s_state_cd">
+            AND  trdp.state_cd = #s_state_cd#
+		</isNotNull>
+		<isNotNull property="s_sls_usrid">
+            AND  trdp.sls_usrid = #s_sls_usrid#
+		</isNotNull>
+		<isNotNull property="s_sls_usrnm">
+            AND  sls.locl_usr_nm LIKE '%' + #s_sls_usrnm# + '%'
+		</isNotNull>					
+	</select>
+    
+    <select id="selectTRDP_PRNR_CRD_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpMgmtVO">
+    	/* SalTpmTradePartnerSQL.xml > "selectTRDP_PRNR_CRD_LIST" */
+    	 SELECT a.*,
+    	        CASE WHEN ISNULL(a.crd_lmt_amt ,0) != 0 AND ISNULL(a.cur_lmt_amt ,0) - ISNULL(a.crd_lmt_amt ,0) <![CDATA[ > ]]> 0 
+                     THEN  ISNULL(a.cur_lmt_amt ,0) - ISNULL(a.crd_lmt_amt ,0)
+                     ELSE 0 END AS amt_over
+    	 FROM ( 
+         SELECT  
+         		<!-- #6767 [Zencon] How to enter the ETA +15 days credit term -->
+         		(CASE WHEN EXISTS(SELECT HIS.TRDP_CD FROM TB_TRDP_CNG_HIS HIS WHERE HIS.trdp_cd = trdp.trdp_cd) then 'Y' else '' end) as his_flg,   
+                 trdp.trdp_cd, 
+                 com.cd_nm as trdp_tp_nm,
+                 trdp.shrt_nm, 
+                 trdp.acct_cd,
+                 trdp.eng_nm,                  
+                 trdp.locl_nm,                
+                 trdp.sls_gp_cd,
+                 trdp.cr_term_cd, 
+                 trdp.cr_term_dt, 
+                 trdp.crd_lmt_amt, 
+                 <!-- #660 - [BINEX] CURRENT BALANCE, OVER LIMIT LOGIC (2017.01.12) -->
+                 <!-- trdp.cur_lmt_amt, -->
+                 (SELECT SUM(CASE WHEN INV.SELL_BUY_TP_CD = 'C' THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END) AS CUR_LMT_AMT
+				  FROM TB_INV INV
+				  JOIN TB_INV_DTL IDT ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N' AND (IDT.INV_DT <![CDATA[ <= ]]> GETDATE()) AND IDT.INV_APLY_CURR_CD = 'USD'
+				  WHERE 1=1
+				  AND INV.TRDP_CD = trdp.trdp_cd
+				  AND INV.SELL_BUY_TP_CD IN ('S','D','C')
+				  AND INV.DELT_FLG = 'N') AS CUR_LMT_AMT, 
+                 <!-- CASE WHEN 
+                 	ISNULL(trdp.cur_lmt_amt ,0)-ISNULL(trdp.crd_lmt_amt ,0) <![CDATA[ > ]]> 0 
+                 THEN 
+                 	ISNULL(trdp.cur_lmt_amt ,0)-ISNULL(trdp.crd_lmt_amt ,0)
+                 ELSE 0 END AS amt_over, -->
+                 trdp.crd_appr_dt,
+                 <!-- #1294 [BNX] TRADE PARTNER CREDIT ENTRY TO HAVE MEMO COLUMN -->
+                 '' AS mm   
+           FROM  tb_trdp trdp
+           LEFT OUTER JOIN tb_com_cd_dtl com                       
+           ON com.cd_val = trdp.trdp_tp_cd   AND com.com_cd = 'C033' 
+          WHERE  1 = 1
+          	AND trdp.delt_flg = 'N' 
+		<isNotNull property="e_trdp_nm">
+            AND  
+            (trdp.eng_nm LIKE '%' +  #e_trdp_nm# + '%'
+            OR 
+            trdp.shrt_nm LIKE '%' +  #e_trdp_nm# + '%'
+            OR 
+            trdp.locl_nm LIKE '%' +  #e_trdp_nm# + '%')
+		</isNotNull>
+		<isNotNull property="trdp_tp_cd">
+            AND  trdp.trdp_tp_cd = #trdp_tp_cd#
+		</isNotNull>
+		<isNotNull property="acct_no">
+            AND  trdp.acct_cd LIKE '%' + #acct_no# + '%'
+		</isNotNull>
+		<isNotNull property="sls_gp_cd">
+            AND  trdp.sls_gp_cd = #sls_gp_cd#
+		</isNotNull>
+		<isNotNull property="trdp_cd">
+            AND  trdp.trdp_cd LIKE #trdp_cd#
+		</isNotNull>
+		) a
+		WHERE 1 = 1
+		
+        <isEqual compareValue="Y" property="amt_over" >
+		    AND ((ISNULL(a.cur_lmt_amt ,0)-ISNULL(a.crd_lmt_amt ,0) <![CDATA[ > ]]> 0) AND NOT (a.sls_gp_cd = 'CR' AND ISNULL(a.crd_lmt_amt ,0) = 0))
+        </isEqual>
+        <isEqual compareValue="N" property="amt_over" >
+		    AND ((ISNULL(a.cur_lmt_amt ,0)-ISNULL(a.crd_lmt_amt ,0) <![CDATA[ <= ]]> 0) OR (a.sls_gp_cd = 'CR' AND ISNULL(a.crd_lmt_amt ,0) = 0))
+        </isEqual>
+       ORDER BY a.trdp_cd ASC
+	</select>
+	
+	<select id="selectTRDP_PRNR_CRD_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		/* SalTpmTradePartnerSQL.xml > "selectTRDP_PRNR_CRD_CNT" */
+		SELECT count(a.trdp_cd)
+    	 FROM ( 
+	     SELECT  trdp.trdp_cd, 
+	     	     trdp.sls_gp_cd,
+	             trdp.crd_lmt_amt, 
+	             <!-- #660 - [BINEX] CURRENT BALANCE, OVER LIMIT LOGIC (2017.01.12) -->
+                 (SELECT SUM(CASE WHEN INV.SELL_BUY_TP_CD = 'C' THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END) AS CUR_LMT_AMT
+				  FROM TB_INV INV
+				  JOIN TB_INV_DTL IDT ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N' AND (IDT.INV_DT <![CDATA[ <= ]]> GETDATE()) AND IDT.INV_APLY_CURR_CD = 'USD'
+				  WHERE 1=1
+				  AND INV.TRDP_CD = trdp.trdp_cd
+				  AND INV.SELL_BUY_TP_CD IN ('S','D','C')
+				  AND INV.DELT_FLG = 'N') AS CUR_LMT_AMT 
+		   FROM  tb_trdp trdp
+                   WHERE  1 = 1
+          	AND trdp.delt_flg = 'N' 
+		<isNotNull property="e_trdp_nm">
+            AND (trdp.eng_nm LIKE '%' +  #e_trdp_nm# + '%'
+            OR 
+            trdp.shrt_nm LIKE '%' +  #e_trdp_nm# + '%'
+            OR 
+            trdp.locl_nm LIKE '%' +  #e_trdp_nm# + '%')
+		</isNotNull>
+		<isNotNull property="trdp_tp_cd">
+            AND  trdp.trdp_tp_cd = #trdp_tp_cd#
+		</isNotNull>
+		<isNotNull property="acct_no">
+            AND  trdp.acct_cd LIKE '%' + #acct_no# + '%'
+		</isNotNull>
+		<isNotNull property="sls_gp_cd">
+            AND  trdp.sls_gp_cd = #sls_gp_cd#
+		</isNotNull>
+		<isNotNull property="trdp_cd">
+            AND  trdp.trdp_cd LIKE #trdp_cd#
+		</isNotNull>
+		) a
+		WHERE 1 = 1
+        <isEqual compareValue="Y" property="amt_over" >
+		    AND ((ISNULL(a.cur_lmt_amt ,0)-ISNULL(a.crd_lmt_amt ,0) <![CDATA[ > ]]> 0) AND NOT (a.sls_gp_cd = 'CR' AND ISNULL(a.crd_lmt_amt ,0) = 0))
+        </isEqual>
+        <isEqual compareValue="N" property="amt_over" >
+		    AND ((ISNULL(a.cur_lmt_amt ,0)-ISNULL(a.crd_lmt_amt ,0) <![CDATA[ <= ]]> 0) OR (a.sls_gp_cd = 'CR' AND ISNULL(a.crd_lmt_amt ,0) = 0))
+        </isEqual>
+	</select>
+	<!--#23 #52878 - [ZEN] TRADE PARTNER EDIT HISTORY MANAGEMENT  -->
+	<select id="selectTRDP_CNG_ITM_LIST" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCngItmVO">
+		SELECT  PPT.LGC_ATTR_NM AS itm_lbl       ,
+        		HIS.rgst_tms AS rgst_tms      ,
+        		HIS.rgst_ofc_cd AS rgst_ofc_cd,
+        		HIS.rgst_usrid AS rgst_usrid      ,
+				( CASE WHEN PPT.LGC_ATTR_NM ='Credit Term' then 
+					(CASE WHEN  HIS.bfr_cng_txt='A' THEN 'Days____'
+			 		  WHEN HIS.bfr_cng_txt='B' THEN 'End of this month'
+			  		  WHEN HIS.bfr_cng_txt='C' THEN 'End of next month'
+			  		  WHEN HIS.bfr_cng_txt='D' THEN '____th of next month'
+			  		  ELSE HIS.bfr_cng_txt
+			  		  END )
+				WHEN  PPT.LGC_ATTR_NM ='Payment type' then 
+					isnull((SELECT cd_nm FROM TB_COM_CD_DTL WHERE com_cd ='C083' AND cd_val = HIS.bfr_cng_txt),HIS.bfr_cng_txt)
+			    WHEN  PPT.LGC_ATTR_NM ='Credit Limit' then  REVERSE(SUBSTRING(REVERSE(HIS.bfr_cng_txt),3,LEN(HIS.bfr_cng_txt)))  
+				ELSE  HIS.bfr_cng_txt
+				END ) as bfr_cng_txt,
+				( CASE WHEN PPT.LGC_ATTR_NM ='Credit Term' then 
+					(CASE WHEN  HIS.aft_cng_txt='A' THEN 'Days____'
+					  WHEN HIS.aft_cng_txt='B' THEN 'End of this month'
+					  WHEN HIS.aft_cng_txt='C' THEN 'End of next month'
+					  WHEN HIS.aft_cng_txt='D' THEN '____th of next month'
+					  ELSE HIS.aft_cng_txt
+					  END )
+				WHEN  PPT.LGC_ATTR_NM ='Payment type' then 
+					isnull((SELECT cd_nm FROM TB_COM_CD_DTL WHERE com_cd ='C083' AND cd_val = HIS.aft_cng_txt), HIS.aft_cng_txt)
+				WHEN  PPT.LGC_ATTR_NM ='Credit Limit' then  REVERSE(SUBSTRING(REVERSE(HIS.aft_cng_txt),3,LEN(HIS.aft_cng_txt)))  
+				ELSE  HIS.aft_cng_txt
+				END ) as aft_cng_txt,
+				<!-- #1294 [BNX] TRADE PARTNER CREDIT ENTRY TO HAVE MEMO COLUMN -->
+				HIS.MM
+		  FROM  TB_TRDP_CNG_HIS HIS
+		  JOIN  TB_CNG_PPT PPT ON HIS.cng_attr_seq = PPT.CNG_ATTR_SEQ
+		    LEFT OUTER JOIN
+				TB_OFC TOF
+				ON HIS.RGST_OFC_CD = TOF.OFC_CD				
+		    LEFT OUTER JOIN
+				TB_COM_CD_DTL CCD
+				ON CCD.COM_CD = 'TIMEZN'
+				AND TOF.TIME_ZONE = CCD.CD_VAL				  
+		 WHERE  HIS.trdp_cd = #f_trdp_cd#
+	  ORDER BY  HIS.rgst_tms DESC
+	</select>
+	<update id="updateTRDP_PRNR_CRD_LIST" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+    	UPDATE tb_trdp SET 
+			sls_gp_cd = #sls_gp_cd#
+			, cr_term_cd = #cr_term_cd#
+			, cr_term_dt = #cr_term_dt#
+			, crd_lmt_amt = #crd_lmt_amt#
+			, modi_usrid = #modi_usrid#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, crd_appr_dt = #crd_appr_dt#
+			<!-- #1294 [BNX] TRADE PARTNER CREDIT ENTRY TO HAVE MEMO COLUMN -->
+			, mm = #mm#
+			, modi_tms = GETUTCDATE()
+		WHERE 
+			trdp_cd = #trdp_cd#
+    </update>
+	
+    
+    <select id="selectTRDP_PRNR_BOND_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpMgmtVO">
+        /* SalTpmTradePartnerSQL.xml > "selectTRDP_PRNR_BOND_LIST" */
+ 	    SELECT a1.*
+	    FROM (
+	   	 SELECT  ROW_NUMBER() OVER (ORDER BY trdp.trdp_cd) as ROWNUM, 
+   	 		<dynamic>
+        	<isNotEmpty property="o_eng_nm">
+				 CASE WHEN CHARINDEX(#o_eng_nm#,trdp.eng_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_nm#,trdp.eng_nm) END  o_eng_nm,
+				 CASE WHEN CHARINDEX(#o_eng_nm#,trdp.locl_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_nm#,trdp.locl_nm) END  o_locl_nm,
+				 CASE WHEN CHARINDEX(#o_eng_nm#,trdp.shrt_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_nm#,trdp.shrt_nm) END o_shrt_nm,
+           	</isNotEmpty>
+            </dynamic>
+      		 trdp.trdp_cd
+		     , trdp.trdp_tp_cd
+		     , com.cd_nm as trdp_tp_nm 
+		     , trdp.locl_nm
+		     , trdp.eng_nm
+		     , trdp.biz_no
+		     , trdp.rgst_tp_cd
+		     , CASE
+		         WHEN trdp.rgst_tp_cd = 'C' THEN 'Corporation'
+		         WHEN trdp.rgst_tp_cd = 'I' THEN 'Individual'
+		         WHEN trdp.rgst_tp_cd = 'O' THEN 'Overseas'
+		       END AS rgst_tp_nm
+		     , trdp.ceo_nm
+		     , cnt.cnt_cd
+		     , cnt.cnt_locl_nm
+		     , trdp.city_nm
+		     , trdp.state_cd
+		     , trdp.rep_zip
+		     , trdp.rep_phn
+		     , trdp.shrt_nm
+		     , trdp.acct_cd
+		     , trdp.rep_fax
+		     , trdp.lgl_addr
+		     , trdp.eng_addr
+		     , trdp.rgst_tms
+			 , trdp.modi_tms
+		     , trdp.sls_gp_cd
+		     , trdp.cr_term_cd
+		     , trdp.cr_term_dt
+		     , trdp.crd_lmt_amt
+		     , trdp.profit_share
+		     , pson.pic_nm
+		     , pson.pic_phn
+		     , pson.pic_fax
+		     , pson.pic_eml
+             , div.cd_nm AS dept
+		     , (SELECT a.eng_nm
+		          FROM tb_trdp a
+		         WHERE a.trdp_cd = (SELECT x.cb_trdp_cd
+		                  FROM tb_trdp_cb x
+		                 WHERE x.trdp_cd = trdp.trdp_cd
+		                   AND x.delt_flg = 'N'
+		                   AND X.cb_seq =1 ) ) AS cb_trdp_nm
+		     , CASE
+		         WHEN trdp.delt_flg = 'N' THEN 'Enable'
+		         WHEN trdp.delt_flg = 'Y' THEN 'Disable'
+		       END AS delt_flg,
+		       trdp.iata_cd iata_cd
+		     
+		    , trdp.an_bond_no
+			, trdp.an_bond_exp_dt
+			, trdp.an_bond_entr_usrid
+			, (select top 1 usr.eng_usr_nm from tb_usr usr where usr.usrid = trdp.an_bond_entr_usrid) as an_bond_entr_usrnm
+			, trdp.an_bond_pur_cd
+			, (SELECT x.eng_nm FROM tb_trdp x where x.trdp_cd = trdp.an_bond_pur_cd) AS an_bond_pur_nm
+			, trdp.an_bond_pur_dt
+		       
+		  FROM tb_trdp trdp
+			LEFT OUTER JOIN  tb_trdp_cntc_pson pson
+			ON trdp.trdp_cd = pson.trdp_cd AND pson.delt_flg = 'N' AND pson.rep_flg = 'Y'
+			LEFT OUTER JOIN  tb_com_cd_dtl div
+			ON pson.trd_div_cd = div.cd_val AND div.com_cd = 'TCD1' AND div.delt_flg = 'N'
+			LEFT OUTER JOIN  tb_cnt cnt
+			ON cnt.cnt_cd = trdp.cnt_cd
+			LEFT OUTER JOIN tb_com_cd_dtl com 
+	                    ON com.cd_val = trdp.trdp_tp_cd
+	                       AND com.com_cd = 'C033'
+          WHERE  1 = 1
+		<isNotNull property="locl_nm">
+            AND  trdp.locl_nm LIKE '%' + #locl_nm# + '%'
+		</isNotNull>
+		<isNotNull property="s_eng_nm">
+            AND ( trdp.eng_nm LIKE #s_eng_nm# or trdp.locl_nm LIKE #s_eng_nm# or trdp.shrt_nm LIKE #s_eng_nm# )
+		</isNotNull>
+		<isNotNull property="s_shrt_nm">
+            AND trdp.shrt_nm LIKE #s_shrt_nm#
+		</isNotNull>
+		
+		<isNotNull property="cnt_cd">
+            AND  trdp.cnt_cd = #cnt_cd#
+		</isNotNull>
+		<isNotNull property="prefix">
+            AND  trdp.prefix = #prefix#
+		</isNotNull>
+		<isNotNull property="biz_no">
+            AND  trdp.biz_no LIKE '%' + #biz_no# + '%'
+		</isNotNull>
+		<isNotNull property="pic_nm">
+            AND  pson.pic_nm LIKE '%' + #pic_nm# + '%'
+		</isNotNull>
+		<isNotNull property="acct_cd">
+            AND  trdp.acct_cd LIKE '%' + #acct_cd# + '%'
+		</isNotNull>
+		<isNotNull property="pic_phn">
+            AND  pson.pic_phn LIKE '%' + #pic_phn# + '%'
+		</isNotNull>
+		<isNotNull property="pic_fax">
+            AND  pson.pic_fax LIKE '%' + #pic_fax# + '%'
+		</isNotNull>
+		<isNotNull property="pic_eml">
+            AND  pson.pic_eml LIKE '%' + #pic_eml# + '%'
+		</isNotNull>
+		<isNotNull property="addr">
+            AND  trdp.eng_addr LIKE '%' + #addr# + '%'
+		</isNotNull>
+		<isNotNull property="trdp_tp_cd">
+            AND  trdp.trdp_tp_cd = #trdp_tp_cd#
+		</isNotNull>
+		<isNotNull property="trdp_cd">
+            AND  trdp.trdp_cd LIKE #trdp_cd#
+		</isNotNull>
+		<isNotNull property="an_bond_no">
+            AND  trdp.an_bond_no LIKE #an_bond_no# + '%'
+		</isNotNull>
+		<isNotNull property="an_bond_entr_usrid">
+            AND  trdp.an_bond_entr_usrid = #an_bond_entr_usrid#
+		</isNotNull>
+		<isNotNull property="an_bond_pur_cd">
+            AND  trdp.an_bond_pur_cd = #an_bond_pur_cd#
+		</isNotNull>
+
+		<isNotNull property="delt_flg">
+            AND  trdp.delt_flg = #delt_flg#
+		</isNotNull>
+		<isNotEmpty property="s_strdt">
+			<isNotEmpty property="s_enddt">
+				AND REPLACE(CONVERT(VARCHAR(10), trdp.rgst_tms,120),'-','') BETWEEN #s_strdt# AND #s_enddt#
+			</isNotEmpty>
+		</isNotEmpty>
+		
+		<isNotNull prepend="AND" property="s_iata_cd">
+			isnull(trdp.iata_cd, '') != ''  and trdp.trdp_tp_cd != 'AC'   
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_iata_nm">
+			trdp.iata_cd = #s_iata_nm#  
+		</isNotNull>		
+		) a1		
+		<![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]>
+	</select>
+	
+	<select id="selectTRDP_PRNR_BOND_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+	    SELECT  count(trdp.trdp_cd)
+		   FROM  tb_trdp trdp
+		LEFT OUTER JOIN  tb_trdp_cntc_pson pson
+		ON trdp.trdp_cd = pson.trdp_cd AND pson.delt_flg = 'N' AND pson.rep_flg = 'Y'
+		LEFT OUTER JOIN  tb_cnt cnt
+		ON cnt.cnt_cd = trdp.cnt_cd
+          WHERE  1 = 1
+		<isNotNull property="locl_nm">
+            AND  trdp.locl_nm LIKE '%' + #locl_nm# + '%'
+		</isNotNull>
+		<isNotNull property="s_eng_nm">
+            AND ( trdp.eng_nm LIKE #s_eng_nm# or trdp.locl_nm LIKE #s_eng_nm# or trdp.shrt_nm LIKE #s_eng_nm# )
+		</isNotNull>
+		<isNotNull property="shrt_nm">
+            AND  trdp.shrt_nm LIKE '%' + #shrt_nm# + '%'
+		</isNotNull>
+		<isNotNull property="cnt_cd">
+            AND  trdp.cnt_cd = #cnt_cd#
+		</isNotNull>
+		<isNotNull property="prefix">
+            AND  trdp.prefix = #prefix#
+		</isNotNull>
+		<isNotNull property="biz_no">
+            AND  trdp.biz_no LIKE '%' + #biz_no# + '%'
+		</isNotNull>
+		<isNotNull property="pic_nm">
+            AND  pson.pic_nm LIKE '%' + #pic_nm# + '%'
+		</isNotNull>
+		<isNotNull property="acct_cd">
+            AND  trdp.acct_cd LIKE '%' + #acct_cd# + '%'
+		</isNotNull>
+		<isNotNull property="pic_phn">
+            AND  pson.pic_phn LIKE '%' + #pic_phn# + '%'
+		</isNotNull>
+		<isNotNull property="pic_fax">
+            AND  pson.pic_fax LIKE '%' + #pic_fax# + '%'
+		</isNotNull>
+		<isNotNull property="pic_eml">
+            AND  pson.pic_eml LIKE '%' + #pic_eml# + '%'
+		</isNotNull>
+		<isNotNull property="addr">
+            AND  trdp.eng_addr LIKE '%' + #addr# + '%'
+		</isNotNull>
+		<isNotNull property="trdp_tp_cd">
+            AND  trdp.trdp_tp_cd = #trdp_tp_cd#
+		</isNotNull>
+		<isNotNull property="trdp_cd">
+            AND  trdp.trdp_cd LIKE #trdp_cd#
+		</isNotNull>
+		<isNotNull property="an_bond_no">
+            AND  trdp.an_bond_no LIKE #an_bond_no# + '%'
+		</isNotNull>
+		<isNotNull property="an_bond_entr_usrid">
+            AND  trdp.an_bond_entr_usrid = #an_bond_entr_usrid#
+		</isNotNull>
+		<isNotNull property="an_bond_pur_cd">
+            AND  trdp.an_bond_pur_cd = #an_bond_pur_cd#
+		</isNotNull>
+		
+		<isNotEmpty property="s_strdt">
+			<isNotEmpty property="s_enddt">
+				AND REPLACE(CONVERT(VARCHAR(10), trdp.rgst_tms,120),'-','') BETWEEN #s_strdt# AND #s_enddt#
+			</isNotEmpty>
+		</isNotEmpty>		
+		<isNotNull prepend="AND" property="s_iata_cd">
+			isnull(trdp.iata_cd, '') != ''  and trdp.trdp_tp_cd != 'AC'   
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_iata_nm">
+			trdp.iata_cd = #s_iata_nm#  
+		</isNotNull>		
+		<isNotNull property="delt_flg">
+            AND  trdp.delt_flg = #delt_flg#
+		</isNotNull>
+	</select>
+	
+	<update id="updateTRDP_PRNR_BOND_LIST" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+    	UPDATE tb_trdp SET 
+			an_bond_no = #an_bond_no#
+			, an_bond_exp_dt = #an_bond_exp_dt#
+			, an_bond_entr_usrid = #an_bond_entr_usrid#
+			, an_bond_pur_cd = #an_bond_pur_cd#
+			, an_bond_pur_dt = #an_bond_pur_dt#
+			, modi_usrid = #modi_usrid#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, modi_tms = GETUTCDATE()
+		WHERE 
+			trdp_cd = #trdp_cd#
+    </update>
+	
+	<select id="selectSAL_TPM_0015_CD_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCdVO">
+         SELECT  cd.trdp_cd, cd.cd_tp, cd.cmp_cd
+           FROM  tb_trdp_cd_list cd
+          WHERE  cd.trdp_cd = #s_trdp_cd#
+    </select>
+	
+	<insert id="insertSAL_TPM_0015_CD_INFO" parameterClass="java.util.HashMap">
+    	INSERT INTO tb_trdp_cd_list
+        (trdp_cd, cd_tp, cmp_cd)
+        VALUES
+        (#trdp_cd#, 'AMC', #amc_cd#)
+        
+        INSERT INTO tb_trdp_cd_list
+        (trdp_cd, cd_tp, cmp_cd)
+        VALUES
+        (#trdp_cd#, 'KRC', #krc_cd#)
+    </insert>
+    
+    <update id="updateSAL_TPM_0015_CD_INFO" parameterClass="java.util.HashMap">
+    	UPDATE tb_trdp_cd_list
+		SET cmp_cd = #amc_cd#
+		WHERE trdp_cd = #trdp_cd# AND cd_tp = 'AMC'
+		
+		UPDATE tb_trdp_cd_list
+		SET cmp_cd = #krc_cd#
+		WHERE trdp_cd = #trdp_cd# AND cd_tp = 'KRC'
+    </update>
+    
+    <!-- Trade Partner 정보를 회계쪽(KICOM) 과 인터페이스    -->
+	<procedure id="insertTrdpInterface" parameterClass="HashMap">
+		 { CALL SP_TRADEPARTNER_INTERFACE(#trdp_cd#, 'I') } 
+	</procedure>
+	
+	<!-- Trade Partner 정보를 회계쪽(KICOM) 과 인터페이스    -->
+	<procedure id="updateTrdpInterface" parameterClass="HashMap">
+		 { CALL SP_TRADEPARTNER_INTERFACE(#trdp_cd#, 'U') } 
+	</procedure>
+    
+    <select id="searchSAL_TPM_0015_CD" parameterClass="java.util.HashMap" resultClass="String">
+         SELECT  TOP 1 cd.cmp_cd
+           FROM  tb_trdp_cd_list cd
+          WHERE  cd.trdp_cd = #s_trdp_cd#
+    </select>
+    
+    <!-- Zip Code 정보를 가져옴.   -->
+    <select id="selectZIP_CODE" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.ZipCodeVO">
+         SELECT  zip_code, zip_seq, addr
+           FROM  tb_zip_code 
+          WHERE  si_do LIKE '%' + #addr# + '%'
+             OR  gu_gun LIKE '%' + #addr# + '%'
+             OR  dong LIKE '%' + #addr# + '%'
+             OR  li LIKE '%' + #addr# + '%'
+             OR  build_nm LIKE '%' + #addr# + '%'
+	</select>
+	
+	<select id="selectZIP_CODE_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+         SELECT  COUNT(zip_code)
+           FROM  tb_zip_code 
+          WHERE  si_do LIKE '%' + #addr# + '%'
+             OR  gu_gun LIKE '%' + #addr# + '%'
+             OR  dong LIKE '%' + #addr# + '%'
+             OR  li LIKE '%' + #addr# + '%'
+             OR  build_nm LIKE '%' + #addr# + '%'
+	</select>
+	
+	<select id="getTrdpCheck" parameterClass="HashMap" resultClass="String">
+			SELECT  COUNT('O') 
+			  FROM  TB_TRDP
+			 WHERE  ENG_NM LIKE #eng_nm# + '%'
+			 <isNotEmpty property="eng_addr">
+			 AND ENG_ADDR LIKE #eng_addr# + '%'
+			 </isNotEmpty>
+			 AND DELT_FLG = 'N'
+	</select>
+
+	<select id="getTrdpCheckByIata" parameterClass="HashMap" resultClass="String">
+			SELECT COUNT(TRDP_CD)
+			FROM  TB_TRDP
+			WHERE 1 = 1
+			AND IATA_CD = #iata_cd#
+			<![CDATA[  AND ISNULL(IATA_CD, '') <> '' ]]>
+			<![CDATA[  AND ISNULL(TRDP_CD, '') <> #trdp_cd# ]]>  
+	</select>
+	
+	<select id="chkTrdpCdDupl" parameterClass="HashMap" resultClass="String">
+			SELECT  'Y' 
+			  FROM  TB_TRDP
+			 WHERE  TRDP_CD = #trdp_cd#
+			  /* AND   DELT_FLG = 'N' */
+	</select>
+	
+	
+	<select id="chkTrdpOtherPrefix" parameterClass="HashMap" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TrdpVO">
+	    	/* SalTpmTradePartnerSQL.xml > chkTrdpOtherPrefix */
+	    	<![CDATA[ 
+	    	SELECT MAX(oe_ref_prfx) AS oe_ref_prfx
+				  ,MAX(oi_ref_prfx) AS oi_ref_prfx
+				  ,MAX(ae_ref_prfx) AS ae_ref_prfx
+				  ,MAX(ai_ref_prfx) AS ai_ref_prfx
+				  ,MAX(ae_awb_prfx) AS ae_awb_prfx
+				  ,MAX(oe_hbl_prfx) AS oe_hbl_prfx
+	    	  FROM TB_TRDP
+	    	 WHERE TRDP_CD <> #trdp_cd#
+	    	   AND  (oe_ref_prfx = #oe_ref_prfx#
+	    	   		OR oi_ref_prfx = #oi_ref_prfx#
+	    	   		OR ae_ref_prfx = #ae_ref_prfx#
+	    	   		OR ai_ref_prfx = #ai_ref_prfx#
+	    	   		OR oe_hbl_prfx = #oe_hbl_prfx#
+	    	   		OR ae_awb_prfx = #ae_awb_prfx#
+	    	   		)
+	    	 ]]> 	   		
+    </select>
+	
+	<insert id="insertPreWO" parameterClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickDeliVO">
+			INSERT INTO TB_WO(
+wo_no,
+intg_bl_seq,
+bnd_clss_cd,
+wo_sts_cd,
+pkup_ord_no,
+org_rout_addr,
+dest_rout_addr,
+cgo_itm_cmdt_cd,
+cgo_pck_qty,
+cgo_pck_ut_cd,
+via_rout_addr,
+trsp_trdp_cd,
+rmk,
+iss_usrid,
+iss_dt_tm,
+rgst_usrid,
+rgst_ofc_cd,
+rgst_tms,
+modi_usrid,
+modi_ofc_cd,
+modi_tms,
+delt_flg,
+trsp_trdp_nm,
+org2_rout_addr,
+org_rout_trdp_cd,
+org_rout_trdp_nm,
+dest_rout_trdp_cd,
+dest_rout_trdp_nm,
+act_wgt_k,
+act_wgt_l,
+cgo_meas_m,
+cgo_meas_f,
+bill_to_trdp_cd,
+bill_to_trdp_nm,
+bill_to_trdp_addr,
+trsp_trdp_addr,
+oth_seq,
+org_rout_dt_tm,
+org2_rout_dt_tm,
+dest_rout_dt_tm,
+via_rout_dt_tm,
+cgo_itm_cmdt_nm,
+certi_pkup_as_cd
+
+,chg_wgt
+,chg_wgt1
+,org_ofc_hr
+,via_ofc_hr
+,size_ut_cd
+			)VALUES(
+#wo_no#,           
+#intg_bl_seq#,     
+#bnd_clss_cd#,     
+#wo_sts_cd#,       
+#pkup_ord_no#,     
+#org_rout_addr#,   
+#dest_rout_addr#,  
+#cgo_itm_cmdt_cd#, 
+#cgo_pck_qty#,     
+#cgo_pck_ut_cd#,   
+#via_rout_addr#,   
+#trsp_trdp_cd#,    
+#rmk#,             
+#iss_usrid#,       
+#iss_dt_tm#,       
+#proc_usrid#,      
+#proc_ofccd#,     
+GETDATE(),        
+#proc_usrid#,      
+#proc_ofccd#,     
+GETUTCDATE(),        
+'N',        
+#trsp_trdp_nm#,    
+#org2_rout_addr#,  
+#org_rout_trdp_cd#,
+#org_rout_trdp_nm#,
+#dest_rout_trdp_cd#,
+#dest_rout_trdp_nm#,
+#act_wgt_k#,       
+#act_wgt_l#,       
+#cgo_meas_m#,      
+#cgo_meas_f#,      
+#bill_to_trdp_cd#, 
+#bill_to_trdp_nm#, 
+#bill_to_trdp_addr#,
+#trsp_trdp_addr#,  
+#oth_seq#,
+#org_rout_dt_tm#,
+#org2_rout_dt_tm#,
+#dest_rout_dt_tm#,
+#via_rout_dt_tm#,
+#cgo_itm_cmdt_nm#,
+#certi_pkup_as_cd#
+
+,#chg_wgt#
+,#chg_wgt1#
+,#org_ofc_hr#
+,#via_ofc_hr#
+,#size_ut_cd1#
+			)
+	</insert>
+	
+	<update id="updatePreWO" parameterClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickDeliVO">
+			UPDATE TB_WO
+			SET modi_tms = GETUTCDATE(),
+intg_bl_seq       = #intg_bl_seq#,      
+bnd_clss_cd       = #bnd_clss_cd#,      
+wo_sts_cd         = #wo_sts_cd#,        
+pkup_ord_no       = #pkup_ord_no#,      
+org_rout_addr     = #org_rout_addr#,    
+dest_rout_addr    = #dest_rout_addr#,   
+cgo_itm_cmdt_cd   = #cgo_itm_cmdt_cd#,  
+cgo_pck_qty       = #cgo_pck_qty#,      
+cgo_pck_ut_cd     = #cgo_pck_ut_cd#,    
+via_rout_addr     = #via_rout_addr#,    
+trsp_trdp_cd      = #trsp_trdp_cd#,     
+rmk               = #rmk#,              
+iss_usrid         = #iss_usrid#,        
+iss_dt_tm         = #iss_dt_tm#,        
+modi_usrid        = #proc_usrid#,       
+modi_ofc_cd       = #proc_ofccd#,
+<isNotNull property="delt_flg">
+delt_flg          = #delt_flg#,         
+</isNotNull>
+trsp_trdp_nm      = #trsp_trdp_nm#,     
+org2_rout_addr    = #org2_rout_addr#,   
+org_rout_trdp_cd  = #org_rout_trdp_cd#, 
+org_rout_trdp_nm  = #org_rout_trdp_nm#, 
+dest_rout_trdp_cd = #dest_rout_trdp_cd#,
+dest_rout_trdp_nm = #dest_rout_trdp_nm#,
+act_wgt_k         = #act_wgt_k#,        
+act_wgt_l         = #act_wgt_l#,        
+cgo_meas_m        = #cgo_meas_m#,       
+cgo_meas_f        = #cgo_meas_f#,       
+bill_to_trdp_cd   = #bill_to_trdp_cd#,  
+bill_to_trdp_nm   = #bill_to_trdp_nm#,  
+bill_to_trdp_addr = #bill_to_trdp_addr#,
+trsp_trdp_addr    = #trsp_trdp_addr#,   
+oth_seq           = #oth_seq#,
+org_rout_dt_tm = #org_rout_dt_tm#,
+org2_rout_dt_tm = #org2_rout_dt_tm#,
+dest_rout_dt_tm = #dest_rout_dt_tm#,
+via_rout_dt_tm = #via_rout_dt_tm#,
+cgo_itm_cmdt_nm = #cgo_itm_cmdt_nm#,
+certi_pkup_as_cd = #certi_pkup_as_cd#
+
+
+
+,chg_wgt = #chg_wgt#
+,chg_wgt1 = #chg_wgt1#
+,org_ofc_hr = #org_ofc_hr#
+,via_ofc_hr = #via_ofc_hr#
+,size_ut_cd = #size_ut_cd1#
+
+WHERE wo_no = #wo_no#
+	</update>
+	
+	<select id="selectTRDP_CD_LIST" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickDeliVO">
+        SELECT  shp.trdp_cd AS shpr_trdp_cd,
+                cne.trdp_cd AS cnee_trdp_cd,
+                ptn.trdp_cd AS prnr_trdp_cd
+        
+         FROM   tb_wo wo
+        
+LEFT OUTER JOIN tb_bl_prnr shp
+           ON   wo.wo_no = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+         
+LEFT OUTER JOIN tb_bl_prnr cne
+           ON   wo.wo_no = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr ptn
+           ON   wo.wo_no = ptn.intg_bl_seq  AND ptn.bl_trdp_tp_cd = 'P01' AND ptn.delt_flg = 'N'
+
+        WHERE wo.delt_flg = 'N' AND wo.wo_no = #wo_no#
+    </select>
+    
+    <select id="selectPreWO" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickDeliVO">
+    	SELECT 
+wo.wo_no,
+wo.intg_bl_seq,
+wo.bnd_clss_cd,
+wo.wo_sts_cd,
+wo.pkup_ord_no,
+wo.org_rout_addr,
+wo.dest_rout_addr,
+wo.cgo_itm_cmdt_cd,
+wo.cgo_pck_qty,
+wo.cgo_pck_ut_cd,
+wo.via_rout_addr,
+wo.trsp_trdp_cd,
+wo.rmk,
+wo.iss_usrid,
+wo.iss_dt_tm,
+wo.rgst_usrid,
+wo.rgst_ofc_cd,
+wo.rgst_tms,
+wo.modi_usrid,
+wo.modi_ofc_cd,
+wo.modi_tms,
+wo.delt_flg,
+wo.trsp_trdp_nm,
+wo.org2_rout_addr,
+wo.org_rout_trdp_cd,
+wo.org_rout_trdp_nm,
+wo.dest_rout_trdp_cd,
+wo.dest_rout_trdp_nm,
+wo.act_wgt_k,
+wo.act_wgt_l,
+wo.cgo_meas_m,
+wo.cgo_meas_f,
+wo.bill_to_trdp_cd,
+wo.bill_to_trdp_nm,
+wo.bill_to_trdp_addr,
+wo.trsp_trdp_addr,
+wo.oth_seq,
+wo.org_rout_dt_tm,
+wo.org2_rout_dt_tm,
+wo.dest_rout_dt_tm,
+wo.via_rout_dt_tm,
+wo.cgo_itm_cmdt_nm,
+
+shp.trdp_cd AS shpr_trdp_cd, shp.trdp_nm AS shpr_trdp_nm, shp.trdp_addr AS shpr_trdp_addr,
+cne.trdp_cd AS cnee_trdp_cd, cne.trdp_nm AS cnee_trdp_nm, cne.trdp_addr AS cnee_trdp_addr,
+ptn.trdp_cd AS prnr_trdp_cd, ptn.trdp_nm AS prnr_trdp_nm, ptn.trdp_addr AS prnr_trdp_addr,
+
+wo.certi_pkup_as_cd
+
+
+,wo.chg_wgt
+,wo.chg_wgt1
+,wo.org_ofc_hr
+,wo.via_ofc_hr
+,wo.size_ut_cd
+
+FROM TB_WO wo
+        
+LEFT OUTER JOIN tb_bl_prnr shp
+           ON   wo.wo_no = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+         
+LEFT OUTER JOIN tb_bl_prnr cne
+           ON   wo.wo_no = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr ptn
+           ON   wo.wo_no = ptn.intg_bl_seq  AND ptn.bl_trdp_tp_cd = 'P01' AND ptn.delt_flg = 'N'
+    	WHERE wo.delt_flg = 'N'
+    	AND wo.wo_no = #f_wo_no#
+	</select>
+	
+    <select id="selectPreWO_copy" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickDeliVO">
+		SELECT wo.trsp_trdp_nm,
+			   wo.trsp_trdp_addr,
+		  	   wo.org_rout_trdp_nm,
+			   wo.org_rout_addr,
+			   wo.dest_rout_trdp_nm,
+			   wo.dest_rout_addr,
+			   wo.bill_to_trdp_nm,
+			   wo.bill_to_trdp_addr,
+			   <!-- #2983 [IMPEX] AFTER V450, PRE PICK UP ORDER TP CODE MISSING -->
+			   wo.TRSP_TRDP_CD,
+			   wo.ORG_ROUT_TRDP_CD,
+			   wo.DEST_ROUT_TRDP_CD,
+			   wo.BILL_TO_TRDP_CD
+ 		FROM TB_WO wo          
+    	WHERE wo.delt_flg = 'N'      
+          AND wo.wo_no = #f_wo_no#
+	</select>
+	
+	<select id="selectPreWOList" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.workorder.dto.WoPickDeliVO">
+		SELECT 
+wo.wo_no,
+wo.intg_bl_seq,
+wo.bnd_clss_cd,
+wo.wo_sts_cd,
+wo.pkup_ord_no,
+wo.org_rout_addr,
+wo.dest_rout_addr,
+wo.cgo_itm_cmdt_cd,
+wo.cgo_pck_qty,
+wo.cgo_pck_ut_cd,
+pcd.pck_nm,
+wo.via_rout_addr,
+wo.trsp_trdp_cd,
+wo.rmk,
+wo.iss_usrid,
+wo.iss_dt_tm,
+wo.rgst_usrid,
+wo.rgst_ofc_cd,
+wo.rgst_tms,
+wo.modi_usrid,
+wo.modi_ofc_cd,
+wo.modi_tms,
+wo.delt_flg,
+wo.trsp_trdp_nm,
+wo.org2_rout_addr,
+wo.org_rout_trdp_cd,
+wo.org_rout_trdp_nm,
+wo.dest_rout_trdp_cd,
+wo.dest_rout_trdp_nm,
+wo.act_wgt_k,
+wo.act_wgt_l,
+wo.cgo_meas_m,
+wo.cgo_meas_f,
+wo.bill_to_trdp_cd,
+wo.bill_to_trdp_nm,
+wo.bill_to_trdp_addr,
+wo.trsp_trdp_addr,
+wo.oth_seq,
+wo.org_rout_dt_tm,
+wo.org2_rout_dt_tm,
+wo.dest_rout_dt_tm,
+wo.via_rout_dt_tm,
+wo.cgo_itm_cmdt_nm,
+wo.rgst_ofc_cd ofc_cd,
+
+shp.trdp_cd AS shpr_trdp_cd, shp.trdp_nm AS shpr_trdp_nm, shp.trdp_addr AS shpr_trdp_addr,
+cne.trdp_cd AS cnee_trdp_cd, cne.trdp_nm AS cnee_trdp_nm, cne.trdp_addr AS cnee_trdp_addr,
+ptn.trdp_cd AS prnr_trdp_cd, ptn.trdp_nm AS prnr_trdp_nm, ptn.trdp_addr AS prnr_trdp_addr
+
+
+,chg_wgt
+,chg_wgt1
+,wo.org_ofc_hr
+,wo.via_ofc_hr
+,wo.size_ut_cd
+
+
+FROM TB_WO wo
+        
+LEFT OUTER JOIN tb_bl_prnr shp
+           ON   wo.wo_no = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+         
+LEFT OUTER JOIN tb_bl_prnr cne
+           ON   wo.wo_no = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr ptn
+           ON   wo.wo_no = ptn.intg_bl_seq  AND ptn.bl_trdp_tp_cd = 'P01' AND ptn.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_pck_ut_cd pcd 
+           ON wo.cgo_pck_ut_cd = pcd.pck_ut_cd AND pcd.delt_flg = 'N'    
+                   
+    	WHERE wo.delt_flg = 'N'
+    	<isNotEmpty property="f_wo_no">
+    	AND wo.wo_no LIKE '%' + #f_wo_no# + '%'
+    	</isNotEmpty>
+    	<isNotEmpty property="iss_usrid">
+    	AND wo.iss_usrid = #iss_usrid#
+    	</isNotEmpty>
+    	<isNotEmpty property="fm_pck_qty">
+		AND wo.cgo_pck_qty BETWEEN #fm_pck_qty# AND #to_pck_qty#
+    	</isNotEmpty>
+    	<isNotEmpty property="fm_grs_wgt">
+		AND wo.act_wgt_k BETWEEN #fm_grs_wgt# AND #to_grs_wgt#
+    	</isNotEmpty>
+    	
+    	<isNotEmpty property="trsp_trdp_nm">
+	    	<isEqual property="toSearchType" compareValue="Like">
+	    		AND upper(wo.trsp_trdp_nm) Like upper( '%' + #trsp_trdp_nm# + '%' )
+	    	</isEqual>
+    		<isNotEqual property="toSearchType" compareValue="Like">
+    			<isNotEqual property="trsp_trdp_nm" compareValue="null">
+    			AND wo.trsp_trdp_nm = #trsp_trdp_nm#
+    			</isNotEqual>
+    		</isNotEqual>
+    	</isNotEmpty>
+    	<isNotEmpty property="org_rout_trdp_nm">
+	    	<isEqual property="atSearchType" compareValue="Like">
+	    		AND upper(wo.org_rout_trdp_nm) Like upper( '%' + #org_rout_trdp_nm# + '%' )
+	    	</isEqual>
+    		<isNotEqual property="atSearchType" compareValue="Like">
+    			<isNotEqual property="org_rout_trdp_nm" compareValue="null">
+    			AND wo.org_rout_trdp_nm = #org_rout_trdp_nm#
+    			</isNotEqual>
+    		</isNotEqual>
+    	</isNotEmpty>
+    	<isNotEmpty property="trsp_trdp_cd">
+    		AND WO.TRSP_TRDP_CD = #trsp_trdp_cd#
+    	</isNotEmpty>
+    	<isNotEmpty property="org_rout_trdp_cd">
+    		AND WO.ORG_ROUT_TRDP_CD = #org_rout_trdp_cd#
+    	</isNotEmpty>
+    	
+    	<isNotEmpty property="f_ofc_cd">
+		AND wo.rgst_ofc_cd = #f_ofc_cd#
+    	</isNotEmpty>
+    	
+    	ORDER BY wo.rgst_tms DESC
+	</select>
+	
+	<select id="selectPreWOList_CNT" parameterClass="HashMap" resultClass="Integer">
+	SELECT COUNT(*)
+	FROM TB_WO wo
+        
+LEFT OUTER JOIN tb_bl_prnr shp
+           ON   wo.wo_no = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+         
+LEFT OUTER JOIN tb_bl_prnr cne
+           ON   wo.wo_no = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr ptn
+           ON   wo.wo_no = ptn.intg_bl_seq  AND ptn.bl_trdp_tp_cd = 'P01' AND ptn.delt_flg = 'N'
+    	WHERE wo.delt_flg = 'N'
+    	<isNotEmpty property="f_wo_no">
+    	AND wo.wo_no LIKE '%' + #f_wo_no# + '%'
+    	</isNotEmpty>
+    	<isNotEmpty property="iss_usrid">
+    	AND wo.iss_usrid = #iss_usrid#
+    	</isNotEmpty>
+    	<isNotEmpty property="fm_pck_qty">
+		AND wo.cgo_pck_qty BETWEEN #fm_pck_qty# AND #to_pck_qty#
+    	</isNotEmpty>
+    	<isNotEmpty property="fm_grs_wgt">
+		AND wo.act_wgt_k BETWEEN #fm_grs_wgt# AND #to_grs_wgt#
+    	</isNotEmpty>
+    	
+    	<isNotEmpty property="trsp_trdp_nm">
+	    	<isEqual property="toSearchType" compareValue="Like">
+	    		AND upper(wo.trsp_trdp_nm) Like upper( '%' + #trsp_trdp_nm# + '%' )
+	    	</isEqual>
+    		<isNotEqual property="toSearchType" compareValue="Like">
+    			<isNotEqual property="trsp_trdp_nm" compareValue="null">
+    			AND wo.trsp_trdp_nm = #trsp_trdp_nm#
+    			</isNotEqual>
+    		</isNotEqual>
+    	</isNotEmpty>
+    	<isNotEmpty property="org_rout_trdp_nm">
+	    	<isEqual property="atSearchType" compareValue="Like">
+	    		AND upper(wo.org_rout_trdp_nm) Like upper( '%' + #org_rout_trdp_nm# + '%' )
+	    	</isEqual>
+    		<isNotEqual property="atSearchType" compareValue="Like">
+    			<isNotEqual property="org_rout_trdp_nm" compareValue="null">
+    			AND wo.org_rout_trdp_nm = #org_rout_trdp_nm#
+    			</isNotEqual>
+    		</isNotEqual>
+    	</isNotEmpty>
+    	<isNotEmpty property="trsp_trdp_cd">
+    		AND WO.TRSP_TRDP_CD = #trsp_trdp_cd#
+    	</isNotEmpty>
+    	<isNotEmpty property="org_rout_trdp_cd">
+    		AND WO.ORG_ROUT_TRDP_CD = #org_rout_trdp_cd#
+    	</isNotEmpty>
+    	
+    	<isNotEmpty property="f_ofc_cd">
+		AND wo.rgst_ofc_cd = #f_ofc_cd#
+    	</isNotEmpty>
+	</select>
+	
+	<select id="selectSAL_TPM_0016_CB_PK" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT ISNULL(max(cb_seq)+1, 1)
+		  FROM tb_trdp_cb
+		 WHERE trdp_cd = #trdp_cd#
+    </select>
+    
+    <insert id="insertSAL_TPM_0016_CB" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+        /* SalTpmTradePartnerSQL.xml > insertSAL_TPM_0016_CB */
+    	INSERT INTO TB_TRDP_CB(
+    		TRDP_CD, CB_SEQ, CB_DEST, CB_TRDP_CD, RLT_PRNR_TP_CD, DELT_FLG, RGST_USRID, RGST_OFC_CD, RGST_TMS, MODI_USRID, MODI_OFC_CD, MODI_TMS
+    	)VALUES(
+    		#trdp_cd#, #cb_seq#, #cb_dest#, #cb_trdp_cd#,#rlt_prnr_tp_cd#, 'N', #rgst_usrid#, #rgst_ofc_cd#, getdate(), #modi_usrid#, #modi_ofc_cd#, GETUTCDATE()
+    	)
+    </insert>
+    
+    <update id="updateSAL_TPM_0016_CB" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+   		/* SalTpmTradePartnerSQL.xml > updateSAL_TPM_0016_CB */
+    	UPDATE TB_TRDP_CB
+    	   SET MODI_TMS = GETUTCDATE()
+		<isNotNull property="cb_dest">
+    	     , CB_DEST = #cb_dest#
+		</isNotNull>
+		<isNotNull property="cb_trdp_cd">
+    	     , CB_TRDP_CD = #cb_trdp_cd#
+		</isNotNull>
+		<isNotNull property="rlt_prnr_tp_cd">
+    	     , RLT_PRNR_TP_CD = #rlt_prnr_tp_cd#
+		</isNotNull>
+		<isNotNull property="delt_flg">
+    	     , DELT_FLG = #delt_flg#
+		</isNotNull>
+		<isNotNull property="modi_usrid">
+    	     , MODI_USRID = #modi_usrid#
+		</isNotNull>
+		<isNotNull property="modi_ofc_cd">
+    	     , MODI_OFC_CD = #modi_ofc_cd#
+		</isNotNull>
+    	 WHERE TRDP_CD = #trdp_cd#
+    	 <isNotEmpty property="cb_seq">
+    	   AND CB_SEQ = #cb_seq#
+    	 </isNotEmpty>
+    </update>
+    
+	    <select id="selectSAL_TPM_0016_CB" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+	    	/* SalTpmTradePartnerSQL.xml > selectSAL_TPM_0016_CB */
+	    	SELECT TRDP_CD,
+	    	       CB_SEQ, 
+	    	       CB_DEST, 
+	    	       CB_TRDP_CD, 
+	    		   ISNULL((SELECT X.ENG_NM FROM TB_TRDP X WHERE X.TRDP_CD = CB_TRDP_CD), '') AS CB_TRDP_NM,
+	    		   ISNULL((SELECT X.ENG_ADDR FROM TB_TRDP X WHERE X.TRDP_CD = CB_TRDP_CD), '') AS CB_TRDP_ADDR,
+	    		   RLT_PRNR_TP_CD,
+	    		   DELT_FLG, 
+	    		   RGST_USRID, 
+	    		   RGST_OFC_CD, 
+	    		   <!-- CONVERT(VARCHAR, rgst_tms, 110) AS rgst_tms, -->
+	    		   rgst_tms, 
+	    		   MODI_USRID, 
+	    		   MODI_OFC_CD, 
+	    		   <!-- CONVERT(VARCHAR, modi_tms, 110) AS modi_tms, -->
+	    		   modi_tms,
+	    		   'sheet6' AS sheet6
+	    	  FROM TB_TRDP_CB
+	    	 WHERE TRDP_CD = #trdp_cd#
+	    	   AND DELT_FLG = 'N'
+	    </select>
+	    
+	    <!-- #2775 [BNX] DISABLED CUSTOMS BROKER STILL SHOWING (RELATED PARTNER) -->
+        <select id="selectSAL_TPM_0016_CB_CNT" parameterClass="HashMap" resultClass="Integer">
+	     /* SalTpmTradePartnerSQL.xml > selectSAL_TPM_0016_CB_CNT */
+	    	SELECT COUNT(*)
+	    	  FROM TB_TRDP_CB CB
+	    	  LEFT JOIN TB_TRDP TP ON CB.CB_TRDP_CD = TP.TRDP_CD
+	    	 WHERE CB.TRDP_CD = #trdp_cd#
+	    	   AND CB.DELT_FLG = 'N'
+	    	   AND TP.DELT_FLG = 'N'
+	    </select>
+	    
+	    <!-- #2775 [BNX] DISABLED CUSTOMS BROKER STILL SHOWING (RELATED PARTNER) -->
+        <select id="selectSAL_TPM_0016_CB_HBL" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+	    	/* SalTpmTradePartnerSQL.xml > selectSAL_TPM_0016_CB_HBL */
+	    	SELECT CB.TRDP_CD,
+	    	       CB.CB_SEQ, 
+	    	       CB.CB_DEST, 
+	    	       CB.CB_TRDP_CD, 
+	    		   ISNULL((SELECT X.ENG_NM FROM TB_TRDP X WHERE X.TRDP_CD = CB.CB_TRDP_CD), '') AS CB_TRDP_NM,
+	    		   ISNULL((SELECT X.ENG_ADDR FROM TB_TRDP X WHERE X.TRDP_CD = CB.CB_TRDP_CD), '') AS CB_TRDP_ADDR,
+	    		   CB.RLT_PRNR_TP_CD,
+	    		   CB.DELT_FLG, 
+	    		   CB.RGST_USRID, 
+	    		   CB.RGST_OFC_CD, 
+	    		   CONVERT(VARCHAR, CB.rgst_tms, 101) AS rgst_tms, 
+	    		   CB.MODI_USRID, 
+	    		   CB.MODI_OFC_CD, 
+	    		   CONVERT(VARCHAR, CB.modi_tms, 101) AS modi_tms,
+	    		   'sheet6' AS sheet6
+	    	  FROM TB_TRDP_CB CB
+	    	  LEFT JOIN TB_TRDP TP ON CB.CB_TRDP_CD = TP.TRDP_CD
+	    	 WHERE CB.TRDP_CD = #trdp_cd#
+	    	   AND CB.RLT_PRNR_TP_CD = 'CB' 
+	    	   AND CB.DELT_FLG = 'N'
+	    	   AND TP.DELT_FLG = 'N'
+    	</select>
+    
+    	<!-- #2775 [BNX] DISABLED CUSTOMS BROKER STILL SHOWING (RELATED PARTNER) -->
+        <select id="selectSAL_TPM_0016_TR_HBL" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+	    	/* SalTpmTradePartnerSQL.xml > selectSAL_TPM_0016_TR_HBL */
+	    	SELECT CB.TRDP_CD,
+	    	       CB.CB_SEQ, 
+	    	       CB.CB_DEST, 
+	    	       CB.CB_TRDP_CD, 
+	    		   ISNULL((SELECT X.ENG_NM FROM TB_TRDP X WHERE X.TRDP_CD = CB.CB_TRDP_CD), '') AS CB_TRDP_NM,
+	    		   ISNULL((SELECT X.ENG_ADDR FROM TB_TRDP X WHERE X.TRDP_CD = CB.CB_TRDP_CD), '') AS CB_TRDP_ADDR,
+	    		   RLT_PRNR_TP_CD,
+	    		   CB.DELT_FLG, 
+	    		   CB.RGST_USRID, 
+	    		   CB.RGST_OFC_CD, 
+	    		   CONVERT(VARCHAR, CB.rgst_tms, 101) AS rgst_tms, 
+	    		   CB.MODI_USRID, 
+	    		   CB.MODI_OFC_CD, 
+	    		   CONVERT(VARCHAR, CB.modi_tms, 101) AS modi_tms,
+	    		   'sheet6' AS sheet6
+	    	  FROM TB_TRDP_CB CB
+	    	  LEFT JOIN TB_TRDP TP ON CB.CB_TRDP_CD = TP.TRDP_CD
+	    	 WHERE CB.TRDP_CD = #trdp_cd#
+	    	   AND CB.RLT_PRNR_TP_CD = 'TR' 
+	    	   AND CB.DELT_FLG = 'N'
+	    	   AND TP.DELT_FLG = 'N'
+    	</select>
+    	
+    	<!-- #2775 [BNX] DISABLED CUSTOMS BROKER STILL SHOWING (RELATED PARTNER) -->
+    	<select id="selectSAL_TPM_0016_DO_HBL" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+	    	/* SalTpmTradePartnerSQL.xml > selectSAL_TPM_0016_DO_HBL */
+			  SELECT CB.TRDP_CD,
+	    	       CB.CB_SEQ, 
+	    	       CB.CB_DEST, 
+	    	       CB.CB_TRDP_CD, 
+	    		   ISNULL((SELECT X.ENG_NM FROM TB_TRDP X WHERE X.TRDP_CD = CB.CB_TRDP_CD), '') AS CB_TRDP_NM,
+	    		   ISNULL((SELECT X.ENG_ADDR FROM TB_TRDP X WHERE X.TRDP_CD = CB.CB_TRDP_CD), '') AS CB_TRDP_ADDR,
+	    		   CB.RLT_PRNR_TP_CD,
+	    		   CB.DELT_FLG, 
+	    		   CB.RGST_USRID, 
+	    		   CB.RGST_OFC_CD, 
+	    		   CONVERT(VARCHAR, CB.rgst_tms, 101) AS rgst_tms, 
+	    		   CB.MODI_USRID, 
+	    		   CB.MODI_OFC_CD, 
+	    		   CONVERT(VARCHAR, CB.modi_tms, 101) AS modi_tms,
+	    		   'sheet6' AS sheet6
+	    	  FROM TB_TRDP_CB CB
+	    	  LEFT JOIN TB_TRDP TP ON CB.CB_TRDP_CD = TP.TRDP_CD
+	    	 WHERE CB.TRDP_CD = #trdp_cd#
+	    	   AND CB.RLT_PRNR_TP_CD = 'DO' 
+	    	   AND CB.DELT_FLG = 'N'
+	    	   AND TP.DELT_FLG = 'N'
+    	</select>
+    
+    <select id="insertBL_PRNR_MergeList" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.BlCommonVO">
+		SELECT	distinct intg_bl_seq AS intg_bl_seq
+		  FROM	tb_bl_prnr prnr
+		 WHERE	trdp_cd = #fm_trdp_cd#
+    </select>	
+    
+    <!-- Trade Partner 병합  -->
+    <update id="updateSAL_TPM_0090_Merge" parameterClass="HashMap">
+    	UPDATE	tb_bl_prnr
+		   SET	trdp_cd = #to_trdp_cd#,
+				modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		 WHERE	trdp_cd = #fm_trdp_cd#
+		 
+		UPDATE	tb_inv
+		   SET	trdp_cd = #to_trdp_cd#,
+				modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		  FROM	tb_inv mst
+		  JOIN  tb_inv_dtl dtl ON mst.inv_seq = dtl.inv_seq
+		 WHERE  dtl.bal_amt != 0
+		   AND  mst.trdp_cd = #fm_trdp_cd#
+		   
+    	UPDATE	tb_cmb_inv
+		   SET	trdp_cd = #to_trdp_cd#,
+				modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		 WHERE	trdp_cd = #fm_trdp_cd#
+		
+		UPDATE	tb_frt
+		   SET	trdp_cd = #to_trdp_cd#,
+				modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		  FROM	tb_frt frt
+		  JOIN  tb_inv_dtl dtl ON frt.inv_seq = dtl.inv_seq
+		 WHERE  dtl.bal_amt != 0
+		   AND  frt.trdp_cd = #fm_trdp_cd#
+		 
+    	UPDATE	tb_trdp_cb
+		   SET	trdp_cd = #to_trdp_cd#,
+		   		cb_seq = (SELECT ISNULL(MAX(x.cb_seq),0) + tcb.cb_seq FROM tb_trdp_cb x WHERE x.trdp_cd = #to_trdp_cd#),
+				modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		  FROM	tb_trdp_cb tcb
+		 WHERE	trdp_cd = #fm_trdp_cd#
+		 
+    	UPDATE	tb_trdp_vat_opt
+		   SET	trdp_cd = #to_trdp_cd#,
+				modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		 WHERE	trdp_cd = #fm_trdp_cd#
+		 
+		 INSERT	INTO tb_trdp_merge(
+		 	trdp_cd,		fm_trdp_cd,			rgst_usrid,			rgst_ofc_cd,		rgst_tms,
+		 	modi_usrid,		modi_ofc_cd,		modi_tms
+		 )VALUES(
+		 	#to_trdp_cd#,	#fm_trdp_cd#,		#modi_usrid#,		#modi_ofc_cd#,		GETDATE(),
+		 	#modi_usrid#,	#modi_ofc_cd#,		GETUTCDATE()
+		 )
+    </update>
+    
+    <!-- Trade Partner 삭제  -->
+    <update id="updateSAL_TPM_0090_Trdp" parameterClass="HashMap">
+    	UPDATE	tb_trdp
+		   SET	delt_flg = 'Y', 
+		       	modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		 WHERE	trdp_cd = #fm_trdp_cd#
+		 
+		<!-- #1460 [Common] old T/P code reference after T/P merge -->
+		UPDATE TL_CTRT
+			SET CTRT_CUST_CD = #to_trdp_cd#,
+				modi_id = #modi_usrid#,    modi_sys_dt = GETUTCDATE()
+		WHERE CTRT_CUST_CD = #fm_trdp_cd#
+    </update>
+    
+    <!-- 453 [BNX] CHICAGO CANNOT SAVE ANY NEW B/L -->
+    <select id="selectCntc_MergeList" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	cntc_seq AS cntc_seq, rgst_ofc_cd  AS rgst_ofc_cd
+		  FROM	tb_trdp_cntc
+		 WHERE	trdp_cd = #to_trdp_cd#
+    </select>	
+    
+    <select id="selectMaxCntcSeq" parameterClass="HashMap" resultClass="Integer">
+    	SELECT isnull(max(cntc_seq), 0) + 1 as maxCntcSeq
+		  FROM tb_trdp_cntc
+		 WHERE TRDP_CD = #to_trdp_cd#
+    </select>
+    
+    <!-- Trade Partner Contact & Memo 병합  -->
+    <update id="updateSAL_TPM_0090_Cntc_2" parameterClass="HashMap">
+    	UPDATE	tb_trdp_cntc
+		   SET	cntc_seq = #max_cntc_seq#,trdp_cd = #to_trdp_cd#,
+				modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		  FROM	tb_trdp_cntc ctc
+		 WHERE	trdp_cd = #fm_trdp_cd# and cntc_seq = #cntc_seq#
+    </update>
+    
+    <update id="updateSAL_TPM_0090_Cntc_1" parameterClass="HashMap">
+        UPDATE	tb_trdp_cntc
+		   SET	trdp_cd = #fm_trdp_cd#,
+				modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		  FROM	tb_trdp_cntc ctc
+		 WHERE	trdp_cd = 'CLTMASTERMERGE'
+    </update>
+    
+    <!-- 453 [BNX] CHICAGO CANNOT SAVE ANY NEW B/L -->
+    <select id="selectPson_MergeList" parameterClass="HashMap" resultClass="HashMap">
+		SELECT	cntc_pson_seq AS cntc_pson_seq, rgst_ofc_cd  AS rgst_ofc_cd
+		  FROM	tb_trdp_cntc_pson
+		 WHERE	trdp_cd = #fm_trdp_cd#
+    </select>	
+    
+    <select id="selectMaxPsonSeq" parameterClass="HashMap" resultClass="Integer">
+    	SELECT isnull(max(cntc_pson_seq), 0) + 1 as maxPsonSeq
+		  FROM tb_trdp_cntc_pson
+		 WHERE TRDP_CD = #to_trdp_cd#
+    </select>
+    
+    <update id="updateSAL_TPM_0090_Pson" parameterClass="HashMap">
+		 <!-- C.W.Park
+		 	#412 [BNX] Contact info (From)  is not appear after T/P Merging -->
+		 UPDATE tb_trdp_cntc_pson
+		    SET	trdp_cd = #to_trdp_cd#, REP_FLG = 'N',cntc_pson_seq = #max_pson_seq#,
+		    	modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		 WHERE trdp_cd = #fm_trdp_cd# and cntc_pson_seq = #cntc_pson_seq#
+
+		  UPDATE tb_trdp_cntc
+		    SET	sls_pson_pic = #max_pson_seq#, trdp_cd = 'CLTMASTERMERGE', 
+		    	modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		 WHERE trdp_cd = #fm_trdp_cd# and sls_pson_pic = #cntc_pson_seq#
+    </update>
+    
+    <!-- Trade Partner Tariff 병합  -->
+    <update id="updateSAL_TPM_0090_Trf" parameterClass="HashMap">
+    	UPDATE	tb_frt_trf
+		   SET	trdp_cd = #to_trdp_cd#,
+				modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE()
+		 WHERE	trdp_cd = #fm_trdp_cd#
+    </update>
+        
+    <insert id="insertSAL_TPM_0090_History" parameterClass="HashMap">
+		INSERT INTO TB_TRDP_MRG_HIS
+			(FM_TRDP_CD
+			,TO_TRDP_CD
+			,MRG_CHK_N1ST
+			,MRG_CHK_N2ND
+			,MRG_CHK_N3RD
+			,RGST_USRID
+			,RGST_OFC_CD
+			,RGST_TMS)
+		VALUES
+			(#fm_trdp_cd#,
+			#to_trdp_cd#,
+			#merge_chk_1#,
+			#merge_chk_2#,
+			#merge_chk_3#,
+			#modi_usrid#,
+			#modi_ofc_cd#,
+			getDate()
+		)
+    </insert>
+
+    <select id="selectSAL_TPM_0130" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpMergeHistoryVO">
+		SELECT 
+			FM_TRDP_CD
+			,ISNULL((SELECT X.ENG_NM FROM TB_TRDP X WHERE X.TRDP_CD = FM_TRDP_CD), '') AS FM_TRDP_NM
+			,TO_TRDP_CD
+			,ISNULL((SELECT X.ENG_NM FROM TB_TRDP X WHERE X.TRDP_CD = TO_TRDP_CD), '') AS TO_TRDP_NM
+			,MRG_CHK_N1ST
+			,MRG_CHK_N2ND
+			,MRG_CHK_N3RD
+			,RGST_USRID
+			,RGST_OFC_CD
+			,RGST_TMS 
+		FROM TB_TRDP_MRG_HIS
+		WHERE 1=1
+		<isNotNull property="fm_trdp_cd">
+    	     AND FM_TRDP_CD = #fm_trdp_cd#
+		</isNotNull>
+		<isNotNull property="to_trdp_cd">
+    	     AND TO_TRDP_CD = #to_trdp_cd#
+		</isNotNull>
+		<isNotNull property="rgst_usrid">
+    	     AND RGST_USRID = #rgst_usrid#
+		</isNotNull>
+		ORDER BY RGST_TMS DESC
+    </select>
+
+    <select id="selectSAL_TPM_0130_CNT" parameterClass="HashMap" resultClass="Integer">
+		SELECT count(*) FROM TB_TRDP_MRG_HIS
+		WHERE 1=1
+		<isNotNull property="fm_trdp_cd">
+    	     AND FM_TRDP_CD = #fm_trdp_cd#
+		</isNotNull>
+		<isNotNull property="to_trdp_cd">
+    	     AND TO_TRDP_CD = #to_trdp_cd#
+		</isNotNull>
+		<isNotNull property="rgst_usrid">
+    	     AND RGST_USRID = #rgst_usrid#
+		</isNotNull>
+    </select>
+    
+    <!-- Sales Daily Report Entry 조회   -->
+    <select id="selectSAL_TPM_0100" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* selectSAL_TPM_0100 */
+		SELECT ctc.trdp_cd,			
+		       trdp.eng_nm AS trdp_nm,
+			   ctc.cntc_seq,			
+			   ctc.sls_pson_pic,			
+			   ctc.sls_his_tit, 
+			   ctc.sls_his_flat_url,	
+			   ctc.sls_his_flat_nm,		
+			   ctc.sls_his_ctnt,
+			   ctc.visit_tm_fm,		
+			   ctc.visit_tm_to,			
+			   ctc.division
+		  FROM tb_trdp_cntc ctc
+		  LEFT OUTER JOIN tb_trdp trdp
+			ON trdp.trdp_cd = ctc.trdp_cd AND trdp.delt_flg = 'N'
+		 WHERE 1 = 1
+		   AND ctc.trdp_cd = #trdp_cd#
+		   AND ctc.cntc_seq = #cntc_seq#
+    </select>
+    
+    <!-- Sales Daily Report Entry PIC 조회   -->
+    <select id="selectSAL_TPM_0100_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+		SELECT	trdp_cd,			cntc_pson_seq,			pic_nm
+		  FROM	tb_trdp_cntc_pson
+		 WHERE	delt_flg = 'N'
+		   AND	trdp_cd = #trdp_cd#
+		ORDER BY pic_nm
+    </select>
+	
+    <!-- Sales Daily Report Entry PIC 조회   -->
+    <select id="selectSAL_TPM_0100_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT	COUNT(trdp_cd)
+		  FROM	tb_trdp_cntc_pson
+		 WHERE	delt_flg = 'N'
+		   AND	trdp_cd = #trdp_cd#
+    </select>
+    
+    <!-- Sales Daily Report Entry 저장   -->
+    <insert id="insertSAL_TPM_0101" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+    	INSERT INTO tb_trdp_cntc (
+			trdp_cd,				cntc_seq,               trdp_nm,
+			sls_pson_pic,			sls_his_tit, 
+			sls_his_flat_url,		sls_his_flat_nm,		sls_his_ctnt,
+			visit_tm_fm,			visit_tm_to,			division,
+			sls_rpt,				delt_flg,
+			rgst_usrid,				rgst_ofc_cd,			rgst_tms,		
+			modi_usrid,				modi_ofc_cd,			modi_tms
+		) VALUES (
+			#trdp_cd#,				#cntc_seq#,             #trdp_nm#,
+			#sls_pson_pic#,			#sls_his_tit#,
+			#sls_his_flat_url#,		#sls_his_flat_nm#,		#sls_his_ctnt#,
+			#visit_tm_fm#,			#visit_tm_to#,			#division#,
+			'Y',					'N',
+			#rgst_usrid#,			#rgst_ofc_cd#,			GETDATE(),
+			#modi_usrid#,			#modi_ofc_cd#,			GETUTCDATE()
+		)
+    </insert>
+    
+    <select id="selectCntc_seq" parameterClass="String" resultClass="String">
+		SELECT ISNULL(MAX(cntc_seq),0)+1 
+		  FROM tb_trdp_cntc 
+		 WHERE 1 = 1
+		   AND trdp_cd = #trdp_cd#
+    </select>
+    
+    <!-- Sales Daily Report Entry 저장   -->
+    <update id="updateSAL_TPM_0101" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+    	UPDATE  tb_trdp_cntc
+		   SET  trdp_cd   = #trdp_cd#,
+		        cntc_seq = (SELECT ISNULL(MAX(cntc_seq),0) + 1 
+                              FROM tb_trdp_cntc 
+	                         WHERE 1 = 1
+	                           AND trdp_cd = #trdp_cd#),
+		        sls_pson_pic   = #sls_pson_pic#,      
+		        sls_his_tit    = #sls_his_tit#, 
+		        <isNotEmpty property="sls_his_flat_url">
+		            sls_his_flat_url = #sls_his_flat_url#,  
+				</isNotEmpty>
+				<isNotEmpty property="sls_his_flat_nm">
+		            sls_his_flat_nm = #sls_his_flat_nm#,  
+				</isNotEmpty>
+		        sls_his_ctnt   = #sls_his_ctnt#,      
+		        modi_usrid     = #modi_usrid#, 
+		        visit_tm_fm	   = #visit_tm_fm#,		
+		        visit_tm_to	   = #visit_tm_to#,
+		        division	   = #division#,
+		        modi_ofc_cd    = #modi_ofc_cd#,       
+		        modi_tms = GETUTCDATE()
+		 WHERE  trdp_cd  = #trdp_cd_ori#
+		   AND	cntc_seq = #cntc_seq#
+    </update>
+    
+    <!-- jsjang 2013.8.9 #16528 file delete  기능 추가  -->
+	<update id="updateDelFile_SAL_TPM_0101" parameterClass="java.util.HashMap">
+    	UPDATE  tb_trdp_cntc
+		   SET  sls_his_flat_url = null,  
+				sls_his_flat_nm = null,  
+		        modi_usrid      = #modi_usrid#, 
+		        modi_tms = GETUTCDATE()
+		 WHERE  trdp_cd = #trdp_cd#
+		   AND	cntc_seq = #cntc_seq#
+	</update>       
+    
+    <select id="selectSAL_TPM_0110_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpMgmtVO">
+		/*selectSAL_TPM_0110_LIST*/
+		SELECT ISNULL(trdp.trdp_cd,'') as trdp_cd,
+		       
+		       trdp.eng_nm,
+		       /* cf 50617 ctc.trdp_nm as eng_nm, */
+		       
+		       ctc.visit_tm_fm,
+		       ctp.pic_nm,
+		       ctc.division,
+		       usr.eng_usr_nm AS rgst_usrnm,
+		       ctc.sls_his_flat_url,
+		       ctc.sls_his_flat_nm,
+		       ctc.cntc_seq,
+		       CTC.SLS_HIS_TIT   
+		  FROM tb_trdp_cntc CTC
+          LEFT OUTER JOIN tb_trdp TRDP
+		    ON ctc.trdp_cd = trdp.trdp_cd
+		   AND TRDP.delt_flg = 'N'     
+		  LEFT OUTER JOIN tb_trdp_cntc_pson ctp    
+		    ON ctp.trdp_cd = ctc.trdp_cd 
+		   AND ctp.cntc_pson_seq = ctc.sls_pson_pic 
+		   AND ctp.delt_flg = 'N'     
+		  LEFT OUTER JOIN tb_usr usr    
+		    ON usr.usr_tp = 'I' 
+		   AND ctc.rgst_usrid = usr.usrid 
+		   AND usr.delt_flg = 'N'        
+		 WHERE 1 = 1
+		   AND ctc.delt_flg = 'N'  
+		<isNotEmpty property="s_trdp_cd">
+           AND CTC.trdp_cd = #s_trdp_cd#
+		</isNotEmpty>
+		<isEmpty property="s_trdp_cd">
+		      <isNotEmpty property="s_trdp_nm">
+		          AND  trdp.eng_nm LIKE #s_trdp_nm#+'%'
+              </isNotEmpty>
+		</isEmpty>
+		<isNotEmpty property="s_fm_visit_tm_fm">
+            AND  ctc.visit_tm_fm BETWEEN #s_fm_visit_tm_fm# AND #s_to_visit_tm_to#
+		</isNotEmpty>
+		 ORDER BY CTC.MODI_TMS DESC
+	</select>
+    
+    <select id="selectSAL_TPM_0110_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		/*selectSAL_TPM_0110_CNT*/
+		SELECT COUNT(*)
+		  FROM tb_trdp_cntc CTC
+          LEFT OUTER JOIN tb_trdp TRDP
+		    ON ctc.trdp_cd = trdp.trdp_cd
+		   AND TRDP.delt_flg = 'N'     
+		  LEFT OUTER JOIN tb_trdp_cntc_pson ctp    
+		    ON ctp.trdp_cd = ctc.trdp_cd 
+		   AND ctp.cntc_pson_seq = ctc.sls_pson_pic 
+		   AND ctp.delt_flg = 'N'     
+		  LEFT OUTER JOIN tb_usr usr    
+		    ON usr.usr_tp = 'I' 
+		   AND ctc.rgst_usrid = usr.usrid 
+		   AND usr.delt_flg = 'N'        
+		 WHERE 1 = 1
+		   AND ctc.delt_flg = 'N'  
+		<isNotEmpty property="s_trdp_cd">
+            AND ctc.trdp_cd = #s_trdp_cd#
+		</isNotEmpty>
+        <isEmpty property="s_trdp_cd">
+              <isNotEmpty property="s_trdp_nm">
+                  AND  trdp.eng_nm LIKE #s_trdp_nm#+'%'
+              </isNotEmpty>
+        </isEmpty>
+		<isNotEmpty property="s_fm_visit_tm_fm">
+            AND  ctc.visit_tm_fm BETWEEN #s_fm_visit_tm_fm# AND #s_to_visit_tm_to#
+		</isNotEmpty>
+	</select>
+    
+    
+    <!-- Trade Partner 계좌정보 등록  -->
+    <insert id="insertInterfaceSAL_TPM_0013_Account_JP" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	INSERT INTO [fwdaif-JP].dbo.tb_trdp_acct(
+      		trdp_cd,     acct_no,       acct_dpsr_nm, 
+		    acct_desc,   bank_cd, 
+		    rgst_usrid,  rgst_ofc_cd,   rgst_tms, 
+		    modi_usrid,  modi_ofc_cd,   modi_tms,        delt_flg
+		) VALUES (
+		   #trdp_cd#,    #acct_no#,     #acct_dpsr_nm#, 
+		   #acct_desc#,  #bank_cd#,
+		   #rgst_usrid#, #rgst_ofc_cd#, getdate(),
+		   #modi_usrid#, #modi_ofc_cd#, GETUTCDATE(),          'N'
+		)
+    </insert>
+    
+    <insert id="insertInterfaceSAL_TPM_0013_Account_IT" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	INSERT INTO [fwdaif-IT].dbo.tb_trdp_acct(
+      		trdp_cd,     acct_no,       acct_dpsr_nm, 
+		    acct_desc,   bank_cd, 
+		    rgst_usrid,  rgst_ofc_cd,   rgst_tms, 
+		    modi_usrid,  modi_ofc_cd,   modi_tms,        delt_flg
+		) VALUES (
+		   #trdp_cd#,    #acct_no#,     #acct_dpsr_nm#, 
+		   #acct_desc#,  #bank_cd#,
+		   #rgst_usrid#, #rgst_ofc_cd#, getdate(),
+		   #modi_usrid#, #modi_ofc_cd#, GETUTCDATE(),          'N'
+		)
+    </insert>
+    
+    <insert id="insertInterfaceSAL_TPM_0013_Account_FR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	INSERT INTO [fwdaif-FR].dbo.tb_trdp_acct(
+      		trdp_cd,     acct_no,       acct_dpsr_nm, 
+		    acct_desc,   bank_cd, 
+		    rgst_usrid,  rgst_ofc_cd,   rgst_tms, 
+		    modi_usrid,  modi_ofc_cd,   modi_tms,        delt_flg
+		) VALUES (
+		   #trdp_cd#,    #acct_no#,     #acct_dpsr_nm#, 
+		   #acct_desc#,  #bank_cd#,
+		   #rgst_usrid#, #rgst_ofc_cd#, getdate(),
+		   #modi_usrid#, #modi_ofc_cd#, GETUTCDATE(),          'N'
+		)
+    </insert>
+    
+    <insert id="insertInterfaceSAL_TPM_0013_Account_DE" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	INSERT INTO [fwdaif-DE].dbo.tb_trdp_acct(
+      		trdp_cd,     acct_no,       acct_dpsr_nm, 
+		    acct_desc,   bank_cd, 
+		    rgst_usrid,  rgst_ofc_cd,   rgst_tms, 
+		    modi_usrid,  modi_ofc_cd,   modi_tms,        delt_flg
+		) VALUES (
+		   #trdp_cd#,    #acct_no#,     #acct_dpsr_nm#, 
+		   #acct_desc#,  #bank_cd#,
+		   #rgst_usrid#, #rgst_ofc_cd#, getdate(),
+		   #modi_usrid#, #modi_ofc_cd#, GETUTCDATE(),          'N'
+		)
+    </insert>
+    
+    <insert id="insertInterfaceSAL_TPM_0013_Account_US" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	INSERT INTO [fwdaif-US].dbo.tb_trdp_acct(
+      		trdp_cd,     acct_no,       acct_dpsr_nm, 
+		    acct_desc,   bank_cd, 
+		    rgst_usrid,  rgst_ofc_cd,   rgst_tms, 
+		    modi_usrid,  modi_ofc_cd,   modi_tms,        delt_flg
+		) VALUES (
+		   #trdp_cd#,    #acct_no#,     #acct_dpsr_nm#, 
+		   #acct_desc#,  #bank_cd#,
+		   #rgst_usrid#, #rgst_ofc_cd#, getdate(),
+		   #modi_usrid#, #modi_ofc_cd#, GETUTCDATE(),          'N'
+		)
+    </insert>
+    
+    <update id="updateInterfaceSAL_TPM_0013_Account_JP" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	UPDATE [fwdaif-JP].dbo.tb_trdp_acct
+		   SET acct_dpsr_nm = #acct_dpsr_nm#,  acct_desc =   #acct_desc#, 
+		       bank_cd =      #bank_cd#, 
+		       modi_usrid =   #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE(), 
+		       delt_flg = #delt_flg#
+		 WHERE trdp_cd =  #trdp_cd#
+		   AND acct_no =  #acct_no#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0013_Account_IT" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	UPDATE [fwdaif-IT].dbo.tb_trdp_acct
+		   SET acct_dpsr_nm = #acct_dpsr_nm#,  acct_desc =   #acct_desc#, 
+		       bank_cd =      #bank_cd#, 
+		       modi_usrid =   #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE(), 
+		       delt_flg = #delt_flg#
+		 WHERE trdp_cd =  #trdp_cd#
+		   AND acct_no =  #acct_no#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0013_Account_FR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	UPDATE [fwdaif-FR].dbo.tb_trdp_acct
+		   SET acct_dpsr_nm = #acct_dpsr_nm#,  acct_desc =   #acct_desc#, 
+		       bank_cd =      #bank_cd#, 
+		       modi_usrid =   #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE(), 
+		       delt_flg = #delt_flg#
+		 WHERE trdp_cd =  #trdp_cd#
+		   AND acct_no =  #acct_no#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0013_Account_DE" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	UPDATE [fwdaif-DE].dbo.tb_trdp_acct
+		   SET acct_dpsr_nm = #acct_dpsr_nm#,  acct_desc =   #acct_desc#, 
+		       bank_cd =      #bank_cd#, 
+		       modi_usrid =   #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE(), 
+		       delt_flg = #delt_flg#
+		 WHERE trdp_cd =  #trdp_cd#
+		   AND acct_no =  #acct_no#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0013_Account_US" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	UPDATE [fwdaif-US].dbo.tb_trdp_acct
+		   SET acct_dpsr_nm = #acct_dpsr_nm#,  acct_desc =   #acct_desc#, 
+		       bank_cd =      #bank_cd#, 
+		       modi_usrid =   #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE(), 
+		       delt_flg = #delt_flg#
+		 WHERE trdp_cd =  #trdp_cd#
+		   AND acct_no =  #acct_no#
+    </update>
+    
+    <insert id="insertInterfaceSAL_TPM_0013_Contact_Person_JP" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	INSERT INTO [fwdaif-JP].dbo.tb_trdp_cntc_pson (
+      		trdp_cd,       cntc_pson_seq,
+		    pic_nm,        trd_div_cd,      trd_div_nm,
+		    pic_phn,       pic_fax,         pic_eml,
+		    pic_desc,      rep_flg, 		pic_eml_flg,
+		    rgst_usrid,    rgst_ofc_cd,     rgst_tms,
+		    modi_usrid,    modi_ofc_cd,     modi_tms, delt_flg
+		) VALUES (
+			#trdp_cd#,     #cntc_pson_seq#,
+		    #pic_nm#,      #trd_div_cd#,     #trd_div_nm#,
+		    #pic_phn#,     #pic_fax#,        #pic_eml#,
+		    #pic_desc#,    #rep_flg#, 		 #pic_eml_flg#,
+		    #rgst_usrid#,  #rgst_ofc_cd#,    getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#,    GETUTCDATE(), 'N'
+		)
+    </insert>
+
+    <insert id="insertInterfaceSAL_TPM_0013_Contact_Person_IT" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	INSERT INTO [fwdaif-IT].dbo.tb_trdp_cntc_pson (
+      		trdp_cd,       cntc_pson_seq,
+		    pic_nm,        trd_div_cd,      trd_div_nm,
+		    pic_phn,       pic_fax,         pic_eml,
+		    pic_desc,      rep_flg, 		pic_eml_flg,
+		    rgst_usrid,    rgst_ofc_cd,     rgst_tms,
+		    modi_usrid,    modi_ofc_cd,     modi_tms, delt_flg
+		) VALUES (
+			#trdp_cd#,     #cntc_pson_seq#,
+		    #pic_nm#,      #trd_div_cd#,     #trd_div_nm#,
+		    #pic_phn#,     #pic_fax#,        #pic_eml#,
+		    #pic_desc#,    #rep_flg#, 		 #pic_eml_flg#,
+		    #rgst_usrid#,  #rgst_ofc_cd#,    getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#,    GETUTCDATE(), 'N'
+		)
+    </insert>
+
+    <insert id="insertInterfaceSAL_TPM_0013_Contact_Person_FR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	INSERT INTO [fwdaif-FR].dbo.tb_trdp_cntc_pson (
+      		trdp_cd,       cntc_pson_seq,
+		    pic_nm,        trd_div_cd,      trd_div_nm,
+		    pic_phn,       pic_fax,         pic_eml,
+		    pic_desc,      rep_flg, 		pic_eml_flg,
+		    rgst_usrid,    rgst_ofc_cd,     rgst_tms,
+		    modi_usrid,    modi_ofc_cd,     modi_tms, delt_flg
+		) VALUES (
+			#trdp_cd#,     #cntc_pson_seq#,
+		    #pic_nm#,      #trd_div_cd#,     #trd_div_nm#,
+		    #pic_phn#,     #pic_fax#,        #pic_eml#,
+		    #pic_desc#,    #rep_flg#, 		 #pic_eml_flg#,
+		    #rgst_usrid#,  #rgst_ofc_cd#,    getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#,    GETUTCDATE(), 'N'
+		)
+    </insert>
+
+    <insert id="insertInterfaceSAL_TPM_0013_Contact_Person_DE" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	INSERT INTO [fwdaif-DE].dbo.tb_trdp_cntc_pson (
+      		trdp_cd,       cntc_pson_seq,
+		    pic_nm,        trd_div_cd,      trd_div_nm,
+		    pic_phn,       pic_fax,         pic_eml,
+		    pic_desc,      rep_flg, 		pic_eml_flg,
+		    rgst_usrid,    rgst_ofc_cd,     rgst_tms,
+		    modi_usrid,    modi_ofc_cd,     modi_tms, delt_flg
+		) VALUES (
+			#trdp_cd#,     #cntc_pson_seq#,
+		    #pic_nm#,      #trd_div_cd#,     #trd_div_nm#,
+		    #pic_phn#,     #pic_fax#,        #pic_eml#,
+		    #pic_desc#,    #rep_flg#, 		 #pic_eml_flg#,
+		    #rgst_usrid#,  #rgst_ofc_cd#,    getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#,    GETUTCDATE(), 'N'
+		)
+    </insert>
+
+    <insert id="insertInterfaceSAL_TPM_0013_Contact_Person_US" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	INSERT INTO [fwdaif-US].dbo.tb_trdp_cntc_pson (
+      		trdp_cd,       cntc_pson_seq,
+		    pic_nm,        trd_div_cd,      trd_div_nm,
+		    pic_phn,       pic_fax,         pic_eml,
+		    pic_desc,      rep_flg, 		pic_eml_flg,
+		    rgst_usrid,    rgst_ofc_cd,     rgst_tms,
+		    modi_usrid,    modi_ofc_cd,     modi_tms, delt_flg
+		) VALUES (
+			#trdp_cd#,     #cntc_pson_seq#,
+		    #pic_nm#,      #trd_div_cd#,     #trd_div_nm#,
+		    #pic_phn#,     #pic_fax#,        #pic_eml#,
+		    #pic_desc#,    #rep_flg#, 		 #pic_eml_flg#,
+		    #rgst_usrid#,  #rgst_ofc_cd#,    getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#,    GETUTCDATE(), 'N'
+		)
+    </insert>
+    
+    <update id="updateInterfaceSAL_TPM_0013_Contact_Person_JP" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	UPDATE [fwdaif-JP].dbo.tb_trdp_cntc_pson
+		SET pic_nm = #pic_nm#
+			, trd_div_nm = #trd_div_nm#
+			, pic_phn = #pic_phn#
+			, pic_fax = #pic_fax#
+			, pic_eml = #pic_eml#
+			, pic_desc = #pic_desc#
+			, rep_flg = #rep_flg#
+			, pic_eml_flg = #pic_eml_flg#
+			, modi_usrid = #modi_usrid#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, modi_tms = GETUTCDATE()
+			, delt_flg = #delt_flg#
+		WHERE trdp_cd = #trdp_cd#
+		AND cntc_pson_seq = #cntc_pson_seq#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0013_Contact_Person_IT" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	UPDATE [fwdaif-IT].dbo.tb_trdp_cntc_pson
+		SET pic_nm = #pic_nm#
+			, trd_div_nm = #trd_div_nm#
+			, pic_phn = #pic_phn#
+			, pic_fax = #pic_fax#
+			, pic_eml = #pic_eml#
+			, pic_desc = #pic_desc#
+			, rep_flg = #rep_flg#
+			, pic_eml_flg = #pic_eml_flg#
+			, modi_usrid = #modi_usrid#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, modi_tms = GETUTCDATE()
+			, delt_flg = #delt_flg#
+		WHERE trdp_cd = #trdp_cd#
+		AND cntc_pson_seq = #cntc_pson_seq#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0013_Contact_Person_FR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	UPDATE [fwdaif-FR].dbo.tb_trdp_cntc_pson
+		SET pic_nm = #pic_nm#
+			, trd_div_nm = #trd_div_nm#
+			, pic_phn = #pic_phn#
+			, pic_fax = #pic_fax#
+			, pic_eml = #pic_eml#
+			, pic_desc = #pic_desc#
+			, rep_flg = #rep_flg#
+			, pic_eml_flg = #pic_eml_flg#
+			, modi_usrid = #modi_usrid#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, modi_tms = GETUTCDATE()
+			, delt_flg = #delt_flg#
+		WHERE trdp_cd = #trdp_cd#
+		AND cntc_pson_seq = #cntc_pson_seq#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0013_Contact_Person_DE" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	UPDATE [fwdaif-DE].dbo.tb_trdp_cntc_pson
+		SET pic_nm = #pic_nm#
+			, trd_div_nm = #trd_div_nm#
+			, pic_phn = #pic_phn#
+			, pic_fax = #pic_fax#
+			, pic_eml = #pic_eml#
+			, pic_desc = #pic_desc#
+			, rep_flg = #rep_flg#
+			, pic_eml_flg = #pic_eml_flg#
+			, modi_usrid = #modi_usrid#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, modi_tms = GETUTCDATE()
+			, delt_flg = #delt_flg#
+		WHERE trdp_cd = #trdp_cd#
+		AND cntc_pson_seq = #cntc_pson_seq#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0013_Contact_Person_US" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	UPDATE [fwdaif-US].dbo.tb_trdp_cntc_pson
+		SET pic_nm = #pic_nm#
+			, trd_div_nm = #trd_div_nm#
+			, pic_phn = #pic_phn#
+			, pic_fax = #pic_fax#
+			, pic_eml = #pic_eml#
+			, pic_desc = #pic_desc#
+			, rep_flg = #rep_flg#
+			, pic_eml_flg = #pic_eml_flg#
+			, modi_usrid = #modi_usrid#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, modi_tms = GETUTCDATE()
+			, delt_flg = #delt_flg#
+		WHERE trdp_cd = #trdp_cd#
+		AND cntc_pson_seq = #cntc_pson_seq#
+    </update>
+    
+    <insert id="insertInterfaceSAL_TPM_0016_CB_JP" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+    	INSERT INTO [fwdaif-JP].dbo.TB_TRDP_CB(
+    		TRDP_CD, CB_SEQ, CB_DEST, CB_TRDP_CD, DELT_FLG, RGST_USRID, RGST_OFC_CD, RGST_TMS, MODI_USRID, MODI_OFC_CD, MODI_TMS
+    	)VALUES(
+    		#trdp_cd#, #cb_seq#, #cb_dest#, #cb_trdp_cd#, 'N', #rgst_usrid#, #rgst_ofc_cd#, getdate(), #modi_usrid#, #modi_ofc_cd#, GETUTCDATE()
+    	)
+    </insert>
+    
+    <insert id="insertInterfaceSAL_TPM_0016_CB_IT" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+    	INSERT INTO [fwdaif-IT].dbo.TB_TRDP_CB(
+    		TRDP_CD, CB_SEQ, CB_DEST, CB_TRDP_CD, DELT_FLG, RGST_USRID, RGST_OFC_CD, RGST_TMS, MODI_USRID, MODI_OFC_CD, MODI_TMS
+    	)VALUES(
+    		#trdp_cd#, #cb_seq#, #cb_dest#, #cb_trdp_cd#, 'N', #rgst_usrid#, #rgst_ofc_cd#, getdate(), #modi_usrid#, #modi_ofc_cd#, GETUTCDATE()
+    	)
+    </insert>
+    
+    <insert id="insertInterfaceSAL_TPM_0016_CB_FR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+    	INSERT INTO [fwdaif-FR].dbo.TB_TRDP_CB(
+    		TRDP_CD, CB_SEQ, CB_DEST, CB_TRDP_CD, DELT_FLG, RGST_USRID, RGST_OFC_CD, RGST_TMS, MODI_USRID, MODI_OFC_CD, MODI_TMS
+    	)VALUES(
+    		#trdp_cd#, #cb_seq#, #cb_dest#, #cb_trdp_cd#, 'N', #rgst_usrid#, #rgst_ofc_cd#, getdate(), #modi_usrid#, #modi_ofc_cd#, GETUTCDATE()
+    	)
+    </insert>
+    
+    <insert id="insertInterfaceSAL_TPM_0016_CB_DE" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+    	INSERT INTO [fwdaif-DE].dbo.TB_TRDP_CB(
+    		TRDP_CD, CB_SEQ, CB_DEST, CB_TRDP_CD, DELT_FLG, RGST_USRID, RGST_OFC_CD, RGST_TMS, MODI_USRID, MODI_OFC_CD, MODI_TMS
+    	)VALUES(
+    		#trdp_cd#, #cb_seq#, #cb_dest#, #cb_trdp_cd#, 'N', #rgst_usrid#, #rgst_ofc_cd#, getdate(), #modi_usrid#, #modi_ofc_cd#, GETUTCDATE()
+    	)
+    </insert>
+    
+    <insert id="insertInterfaceSAL_TPM_0016_CB_US" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+    	INSERT INTO [fwdaif-US].dbo.TB_TRDP_CB(
+    		TRDP_CD, CB_SEQ, CB_DEST, CB_TRDP_CD, DELT_FLG, RGST_USRID, RGST_OFC_CD, RGST_TMS, MODI_USRID, MODI_OFC_CD, MODI_TMS
+    	)VALUES(
+    		#trdp_cd#, #cb_seq#, #cb_dest#, #cb_trdp_cd#, 'N', #rgst_usrid#, #rgst_ofc_cd#, getdate(), #modi_usrid#, #modi_ofc_cd#, GETUTCDATE()
+    	)
+    </insert>
+    
+    <update id="updateInterfaceSAL_TPM_0016_CB_JP" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+    	UPDATE [fwdaif-JP].dbo.TB_TRDP_CB
+    	   SET MODI_TMS = GETUTCDATE()
+		<isNotNull property="cb_dest">
+    	     , CB_DEST = #cb_dest#
+		</isNotNull>
+		<isNotNull property="cb_trdp_cd">
+    	     , CB_TRDP_CD = #cb_trdp_cd#
+		</isNotNull>
+		<isNotNull property="delt_flg">
+    	     , DELT_FLG = #delt_flg#
+		</isNotNull>
+		<isNotNull property="modi_usrid">
+    	     , MODI_USRID = #modi_usrid#
+		</isNotNull>
+		<isNotNull property="modi_ofc_cd">
+    	     , MODI_OFC_CD = #modi_ofc_cd#
+		</isNotNull>
+    	 WHERE TRDP_CD = #trdp_cd#
+    	 <isNotEmpty property="cb_seq">
+    	   AND CB_SEQ = #cb_seq#
+    	 </isNotEmpty>
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0016_CB_IT" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+    	UPDATE [fwdaif-IT].dbo.TB_TRDP_CB
+    	   SET MODI_TMS = GETUTCDATE()
+		<isNotNull property="cb_dest">
+    	     , CB_DEST = #cb_dest#
+		</isNotNull>
+		<isNotNull property="cb_trdp_cd">
+    	     , CB_TRDP_CD = #cb_trdp_cd#
+		</isNotNull>
+		<isNotNull property="delt_flg">
+    	     , DELT_FLG = #delt_flg#
+		</isNotNull>
+		<isNotNull property="modi_usrid">
+    	     , MODI_USRID = #modi_usrid#
+		</isNotNull>
+		<isNotNull property="modi_ofc_cd">
+    	     , MODI_OFC_CD = #modi_ofc_cd#
+		</isNotNull>
+    	 WHERE TRDP_CD = #trdp_cd#
+    	 <isNotEmpty property="cb_seq">
+    	   AND CB_SEQ = #cb_seq#
+    	 </isNotEmpty>
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0016_CB_FR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+    	UPDATE [fwdaif-FR].dbo.TB_TRDP_CB
+    	   SET MODI_TMS = GETUTCDATE()
+		<isNotNull property="cb_dest">
+    	     , CB_DEST = #cb_dest#
+		</isNotNull>
+		<isNotNull property="cb_trdp_cd">
+    	     , CB_TRDP_CD = #cb_trdp_cd#
+		</isNotNull>
+		<isNotNull property="delt_flg">
+    	     , DELT_FLG = #delt_flg#
+		</isNotNull>
+		<isNotNull property="modi_usrid">
+    	     , MODI_USRID = #modi_usrid#
+		</isNotNull>
+		<isNotNull property="modi_ofc_cd">
+    	     , MODI_OFC_CD = #modi_ofc_cd#
+		</isNotNull>
+    	 WHERE TRDP_CD = #trdp_cd#
+    	 <isNotEmpty property="cb_seq">
+    	   AND CB_SEQ = #cb_seq#
+    	 </isNotEmpty>
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0016_CB_DE" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+    	UPDATE [fwdaif-DE].dbo.TB_TRDP_CB
+    	   SET MODI_TMS = GETUTCDATE()
+		<isNotNull property="cb_dest">
+    	     , CB_DEST = #cb_dest#
+		</isNotNull>
+		<isNotNull property="cb_trdp_cd">
+    	     , CB_TRDP_CD = #cb_trdp_cd#
+		</isNotNull>
+		<isNotNull property="delt_flg">
+    	     , DELT_FLG = #delt_flg#
+		</isNotNull>
+		<isNotNull property="modi_usrid">
+    	     , MODI_USRID = #modi_usrid#
+		</isNotNull>
+		<isNotNull property="modi_ofc_cd">
+    	     , MODI_OFC_CD = #modi_ofc_cd#
+		</isNotNull>
+    	 WHERE TRDP_CD = #trdp_cd#
+    	 <isNotEmpty property="cb_seq">
+    	   AND CB_SEQ = #cb_seq#
+    	 </isNotEmpty>
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0016_CB_US" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCbVO">
+    	UPDATE [fwdaif-US].dbo.TB_TRDP_CB
+    	   SET MODI_TMS = GETUTCDATE()
+		<isNotNull property="cb_dest">
+    	     , CB_DEST = #cb_dest#
+		</isNotNull>
+		<isNotNull property="cb_trdp_cd">
+    	     , CB_TRDP_CD = #cb_trdp_cd#
+		</isNotNull>
+		<isNotNull property="delt_flg">
+    	     , DELT_FLG = #delt_flg#
+		</isNotNull>
+		<isNotNull property="modi_usrid">
+    	     , MODI_USRID = #modi_usrid#
+		</isNotNull>
+		<isNotNull property="modi_ofc_cd">
+    	     , MODI_OFC_CD = #modi_ofc_cd#
+		</isNotNull>
+    	 WHERE TRDP_CD = #trdp_cd#
+    	 <isNotEmpty property="cb_seq">
+    	   AND CB_SEQ = #cb_seq#
+    	 </isNotEmpty>
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0011_JP" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+    	UPDATE  [fwdaif-JP].dbo.tb_trdp_cntc
+		   SET  sls_pson_pic     = #sls_pson_pic#,      sls_his_tit     = #sls_his_tit#, 
+		        sls_his_flat_url = #sls_his_flat_url#,  sls_his_flat_nm = #sls_his_flat_nm#, 
+		        sls_his_ctnt     = #sls_his_ctnt#,      modi_usrid      = #modi_usrid#, 
+		        modi_ofc_cd      = #modi_ofc_cd#,       modi_tms = GETUTCDATE(),                   delt_flg = #delt_flg#
+		 WHERE  trdp_cd = #trdp_cd# AND cntc_seq = #cntc_seq#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0011_IT" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+    	UPDATE  [fwdaif-IT].dbo.tb_trdp_cntc
+		   SET  sls_pson_pic     = #sls_pson_pic#,      sls_his_tit     = #sls_his_tit#, 
+		        sls_his_flat_url = #sls_his_flat_url#,  sls_his_flat_nm = #sls_his_flat_nm#, 
+		        sls_his_ctnt     = #sls_his_ctnt#,      modi_usrid      = #modi_usrid#, 
+		        modi_ofc_cd      = #modi_ofc_cd#,       modi_tms = GETUTCDATE(),                   delt_flg = #delt_flg#
+		 WHERE  trdp_cd = #trdp_cd# AND cntc_seq = #cntc_seq#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0011_FR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+    	UPDATE  [fwdaif-FR].dbo.tb_trdp_cntc
+		   SET  sls_pson_pic     = #sls_pson_pic#,      sls_his_tit     = #sls_his_tit#, 
+		        sls_his_flat_url = #sls_his_flat_url#,  sls_his_flat_nm = #sls_his_flat_nm#, 
+		        sls_his_ctnt     = #sls_his_ctnt#,      modi_usrid      = #modi_usrid#, 
+		        modi_ofc_cd      = #modi_ofc_cd#,       modi_tms = GETUTCDATE(),                   delt_flg = #delt_flg#
+		 WHERE  trdp_cd = #trdp_cd# AND cntc_seq = #cntc_seq#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0011_DE" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+    	UPDATE  [fwdaif-DE].dbo.tb_trdp_cntc
+		   SET  sls_pson_pic     = #sls_pson_pic#,      sls_his_tit     = #sls_his_tit#, 
+		        sls_his_flat_url = #sls_his_flat_url#,  sls_his_flat_nm = #sls_his_flat_nm#, 
+		        sls_his_ctnt     = #sls_his_ctnt#,      modi_usrid      = #modi_usrid#, 
+		        modi_ofc_cd      = #modi_ofc_cd#,       modi_tms = GETUTCDATE(),                   delt_flg = #delt_flg#
+		 WHERE  trdp_cd = #trdp_cd# AND cntc_seq = #cntc_seq#
+    </update>
+    
+    <update id="updateInterfaceSAL_TPM_0011_US" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+    	UPDATE  [fwdaif-US].dbo.tb_trdp_cntc
+		   SET  sls_pson_pic     = #sls_pson_pic#,      sls_his_tit     = #sls_his_tit#, 
+		        sls_his_flat_url = #sls_his_flat_url#,  sls_his_flat_nm = #sls_his_flat_nm#, 
+		        sls_his_ctnt     = #sls_his_ctnt#,      modi_usrid      = #modi_usrid#, 
+		        modi_ofc_cd      = #modi_ofc_cd#,       modi_tms = GETUTCDATE(),                   delt_flg = #delt_flg#
+		 WHERE  trdp_cd = #trdp_cd# AND cntc_seq = #cntc_seq#
+    </update>
+    
+    <select id="selectTrdpCntcPsonRepCheck" parameterClass="HashMap" resultClass="String">
+    	SELECT 'O' 
+		  FROM TB_TRDP_CNTC_PSON
+		 WHERE TRDP_CD = #trdp_cd#
+		   AND REP_FLG = 'Y'
+    </select>
+    
+    <update id="updateTrdpCntcPsonRepCheck" parameterClass="HashMap">
+    	UPDATE TB_TRDP_CNTC_PSON
+		   SET REP_FLG = 'Y'
+		 WHERE TRDP_CD = #trdp_cd#
+		   AND CNTC_PSON_SEQ = (
+							SELECT MIN(CNTC_PSON_SEQ)
+							  FROM TB_TRDP_CNTC_PSON
+							 WHERE TRDP_CD = #trdp_cd#
+							   AND REP_FLG = 'N'
+							   )
+    </update>
+    
+    <select id="selectTRDP_CHARGE_PK" resultClass="String">
+    	SELECT  ISNULL(MAX(SEQ), 0) + 1
+    	  FROM  TB_TRDP_CHARGE
+    </select>
+    
+    <select id="selectTRDP_ADDRESS_PK" resultClass="String">
+    	SELECT  ISNULL(MAX(SEQ), 0) + 1
+    	  FROM  TB_TRDP_ADDR
+    </select>    
+	<insert id="insertTRDP_ADDR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAddressVO">    
+		INSERT INTO [dbo].[TB_TRDP_ADDR]
+		           (
+		           [SEQ]
+		           ,[TRDP_CD]
+		           ,[TRDP_NM]
+		           ,[TRDP_ADDR_TP]
+		           ,[TRDP_ADD_ADDR]
+		           ,[RMK]
+		           ,[RGST_USRID]
+		           ,[RGST_OFC_CD]
+		           ,[RGST_TMS]
+		           ,[MODI_USRID]
+		           ,[MODI_OFC_CD]
+		           ,[MODI_TMS])
+		     VALUES
+		           (
+		           #seq#
+		         , #trdp_cd#
+		         ,  #trdp_nm#
+		         ,  #trdp_addr_tp#
+		         ,  #trdp_add_addr#
+		         ,  #rmk#
+		         ,  #rgst_usrid#
+		         ,  #rgst_ofc_cd#
+		         ,  getdate()
+		         ,  #modi_usrid#
+		         ,  #modi_ofc_cd#
+		         ,  getdate()
+		         )
+    </insert>
+    
+    
+    <update id="updateTRDP_ADDR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAddressVO">
+		UPDATE [dbo].[TB_TRDP_ADDR]
+		   SET [TRDP_CD] =#trdp_cd#
+		      ,[TRDP_NM] =#trdp_nm#
+		      ,[TRDP_ADDR_TP] =#trdp_addr_tp#
+		      ,[TRDP_ADD_ADDR] =#trdp_add_addr#
+		      ,[RMK] =#rmk#
+		      ,[RGST_USRID] =#rgst_usrid#
+		      ,[RGST_OFC_CD] =#rgst_ofc_cd#
+		      ,[RGST_TMS] =getdate()
+		      ,[MODI_USRID] =#modi_usrid#
+		      ,[MODI_OFC_CD]=#modi_ofc_cd#
+		      ,[MODI_TMS] =getdate()
+		 WHERE seq=#seq#
+
+    </update>
+    
+    
+    
+    <delete id="deleteTRDP_ADDR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAddressVO">
+    	DELETE FROM TB_TRDP_ADDR
+    	 WHERE SEQ = #seq#
+    </delete>
+    
+    <insert id="insertTRDP_CHARGE_F" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpChargeFVO">
+    	INSERT INTO TB_TRDP_CHARGE (
+    		SEQ, TYPE, TRDP_CD, RATE, UT_CD, VALID_DT, RGST_USRID, RGST_OFC_CD, RGST_TMS, MODI_USRID, MODI_OFC_CD, MODI_TMS, MIN, MAX
+    	) VALUES (
+    		#f_seq#, #f_type#, #f_trdp_cd#, #f_rate#, #f_ut_cd#, #f_valid_dt#, #rgst_usrid#, #rgst_ofc_cd#, GETDATE(), #modi_usrid#, #modi_ofc_cd#, GETUTCDATE(), #f_min#, #f_max#
+    	)
+    </insert>
+    
+    <insert id="insertTRDP_CHARGE_S" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpChargeSVO">
+    	INSERT INTO TB_TRDP_CHARGE (
+    		SEQ, TYPE, TRDP_CD, RATE, UT_CD, VALID_DT, RGST_USRID, RGST_OFC_CD, RGST_TMS, MODI_USRID, MODI_OFC_CD, MODI_TMS, MIN, MAX
+    	) VALUES (
+    		#s_seq#, #s_type#, #s_trdp_cd#, #s_rate#, #s_ut_cd#, #s_valid_dt#, #rgst_usrid#, #rgst_ofc_cd#, GETDATE(), #modi_usrid#, #modi_ofc_cd#, GETUTCDATE(), #s_min#, #s_max#
+    	)
+    </insert>
+    
+    <update id="updateTRDP_CHARGE_F" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpChargeFVO">
+    	UPDATE TB_TRDP_CHARGE
+    	   SET MODI_TMS = GETUTCDATE()
+    	     , MODI_USRID = #modi_usrid#
+    	     , MODI_OFC_CD = #modi_ofc_cd#
+    	     , RATE = #f_rate#
+    	     , UT_CD = #f_ut_cd#
+    	     , VALID_DT = #f_valid_dt#
+    	     , MIN = #f_min#
+    	     , MAX = #f_max#
+    	 WHERE SEQ = #f_seq#
+    </update>
+    
+    <update id="updateTRDP_CHARGE_S" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpChargeSVO">
+    	UPDATE TB_TRDP_CHARGE
+    	   SET MODI_TMS = GETUTCDATE()
+    	     , MODI_USRID = #modi_usrid#
+    	     , MODI_OFC_CD = #modi_ofc_cd#
+    	     , RATE = #s_rate#
+    	     , UT_CD = #s_ut_cd#
+    	     , VALID_DT = #s_valid_dt#
+    	     , MIN = #s_min#
+    	     , MAX = #s_max#
+    	 WHERE SEQ = #s_seq#
+    </update>
+    
+    <delete id="deleteTRDP_CHARGE_F" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpChargeFVO">
+    	DELETE FROM TB_TRDP_CHARGE
+    	 WHERE SEQ = #f_seq#
+    </delete>
+    
+    <delete id="deleteTRDP_CHARGE_S" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpChargeSVO">
+    	DELETE FROM TB_TRDP_CHARGE
+    	 WHERE SEQ = #s_seq#
+    </delete>
+    
+    <select id="selectTRDP_CHARGE_F_LIST" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpChargeFVO">
+    	SELECT SEQ AS f_seq, TYPE AS f_type, TRDP_CD AS f_trdp_cd
+    		 , RATE AS f_rate, UT_CD AS f_ut_cd, VALID_DT AS f_valid_dt
+    		 , MIN AS f_min, MAX AS f_max
+		  FROM TB_TRDP_CHARGE
+		 WHERE TRDP_CD = #trdp_cd#
+		   AND TYPE = #type#
+	  ORDER BY VALID_DT DESC
+    </select>
+    
+    <select id="selectTRDP_CHARGE_S_LIST" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpChargeSVO">
+    	SELECT SEQ AS s_seq, TYPE AS s_type, TRDP_CD AS s_trdp_cd
+    		 , RATE AS s_rate, UT_CD AS s_ut_cd, VALID_DT AS s_valid_dt
+    		 , MIN AS s_min, MAX AS s_max
+		  FROM TB_TRDP_CHARGE
+		 WHERE TRDP_CD = #trdp_cd#
+		   AND TYPE = #type#
+	  ORDER BY VALID_DT DESC
+    </select>
+    
+    <select id="selectTRDP_CHARGE_F_LIST_CNT" parameterClass="HashMap" resultClass="Integer">
+    	SELECT COUNT(*)
+		  FROM TB_TRDP_CHARGE
+		 WHERE TRDP_CD = #trdp_cd#
+		   AND TYPE = #type#
+    </select>
+    
+    <select id="selectTRDP_CHARGE_S_LIST_CNT" parameterClass="HashMap" resultClass="Integer">
+    	SELECT COUNT(*)
+		  FROM TB_TRDP_CHARGE
+		 WHERE TRDP_CD = #trdp_cd#
+		   AND TYPE = #type#
+    </select>
+    
+    <select id="selectTRDP_CHARGE_F" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpChargeFVO">
+    	SELECT TOP 1 SEQ AS f_seq, TYPE AS f_type, TRDP_CD AS f_trdp_cd
+    		 , RATE AS f_rate, UT_CD AS f_ut_cd, VALID_DT AS f_valid_dt
+    		 , MIN AS f_min, MAX AS f_max
+		  FROM TB_TRDP_CHARGE
+		 WHERE TRDP_CD = #trdp_cd#
+		   AND TYPE = #type#
+		   AND #etd# BETWEEN VALID_DT AND '99991231' 
+	  ORDER BY VALID_DT DESC
+    </select>
+    
+    <select id="selectTRDP_CHARGE_S" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpChargeSVO">
+    	SELECT TOP 1 SEQ AS s_seq, TYPE AS s_type, TRDP_CD AS s_trdp_cd
+    		 , RATE AS s_rate, UT_CD AS s_ut_cd, VALID_DT AS s_valid_dt
+    		 , MIN AS s_min, MAX AS s_max
+		  FROM TB_TRDP_CHARGE
+		 WHERE TRDP_CD = #trdp_cd#
+		   AND TYPE = #type#
+		   AND #etd# BETWEEN VALID_DT AND '99991231' 
+	  ORDER BY VALID_DT DESC
+    </select>
+    
+    <select id="selectTRDP_Address_LIST" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAddressVO">
+		SELECT [SEQ]
+		      ,[TRDP_CD]
+		      ,[TRDP_NM]
+		      ,[TRDP_ADDR_TP]
+		      ,[TRDP_ADD_ADDR]
+		      ,[RMK]
+		      ,[RGST_USRID]
+		      ,[RGST_OFC_CD]
+		      ,[RGST_TMS]
+		      ,[MODI_USRID]
+		      ,[MODI_OFC_CD]
+		      ,[MODI_TMS]
+		  FROM [dbo].[TB_TRDP_ADDR] WITH(NOLOCK)
+		  where 1=1
+		  and trdp_cd=#trdp_cd#
+		  order by seq asc
+    </select>    
+    
+    
+   <select id="selectTRDP_Address_LIST_CNT" parameterClass="HashMap" resultClass="Integer">
+		SELECT count(1)
+		  FROM [dbo].[TB_TRDP_ADDR] WITH(NOLOCK)
+		  where 1=1
+		  and trdp_cd=#trdp_cd#
+    </select>      
+    
+    
+    <select id="selectTRDP_Address" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAddressVO">
+		SELECT [SEQ]
+		      ,[TRDP_CD]
+		      ,[TRDP_NM]
+		      ,[TRDP_ADDR_TP]
+		      ,[TRDP_ADD_ADDR]
+		      ,[RMK]
+		      ,[RGST_USRID]
+		      ,[RGST_OFC_CD]
+		      ,[RGST_TMS]
+		      ,[MODI_USRID]
+		      ,[MODI_OFC_CD]
+		      ,[MODI_TMS]
+		  FROM [dbo].[TB_TRDP_ADDR]
+		  where 1=1
+		  and seq=#seq#
+		  order by seq asc
+    </select>
+    
+    <select id="selectFRT_CD_CHARGE" parameterClass="HashMap" resultClass="String">
+    	SELECT FRT_CD
+		  FROM TB_FRT_CD
+		 WHERE AEH_FLG = 'Y'
+		   AND DFLT_FLG = 'Y'
+	   <isEqual property="type" compareValue="F">
+		   AND SRT_SEQ = 2
+	   </isEqual>
+	   <isEqual property="type" compareValue="S">
+		   AND SRT_SEQ = 3
+	   </isEqual>
+    </select>
+    
+    <select id="selectTRDP_PSON" parameterClass="HashMap" resultClass="String">
+    	SELECT  PSON.PIC_EML
+		  FROM  TB_TRDP TRDP
+		  JOIN  TB_TRDP_CNTC_PSON PSON 
+			ON  TRDP.TRDP_CD = PSON.TRDP_CD
+		 WHERE  TRDP.TRDP_CD IN $trdp_cd$
+		   AND  PSON.PIC_EML <![CDATA[ <> ]]> ''
+    </select>
+    
+    <select id="getTrdpAddrInfo" parameterClass="HashMap" resultClass="String">
+    	SELECT  ENG_ADDR
+    	  FROM  TB_TRDP
+    	 WHERE  TRDP_CD = #trdp_cd#
+    </select>
+    
+    <select id="selectTrdpInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpMgmtVO">
+		SELECT trdp.trdp_cd
+		      ,trdp.locl_nm
+		      ,trdp.eng_nm
+		      ,trdp.lgl_addr
+		      ,trdp.eng_addr
+		      ,pic.pic_nm		      
+		      ,pic.pic_phn
+		      ,pic.pic_fax
+		      ,pic.pic_eml
+	     	  <!-- #4209 Buyer Address 표기 변경 관련 추가 -->
+	          ,ISNULL(TRDP.LGL_ADDR, '') + 
+			   (CASE
+	               WHEN ISNULL(TRDP.CITY_NM, '') != ''
+	                AND ISNULL(TRDP.STATE_CD, '') != ''
+	                AND ISNULL(TRDP.REP_ZIP, '') != '' 
+	                    THEN CHAR(13)+CHAR(10) + TRDP.CITY_NM + ', ' + TRDP.STATE_CD + ' ' + TRDP.REP_ZIP
+	               WHEN ISNULL(TRDP.CITY_NM, '') != ''
+	                AND ISNULL(TRDP.STATE_CD, '') != ''
+	                AND ISNULL(TRDP.REP_ZIP, '') = '' 
+	                    THEN CHAR(13)+CHAR(10) + TRDP.CITY_NM + ' ' + TRDP.STATE_CD
+	               WHEN ISNULL(TRDP.CITY_NM, '') != ''
+	                AND ISNULL(TRDP.STATE_CD, '') = ''
+	                AND ISNULL(TRDP.REP_ZIP, '') = '' 
+	                    THEN CHAR(13)+CHAR(10) + TRDP.CITY_NM
+	               WHEN ISNULL(TRDP.CITY_NM, '') != ''
+	                AND ISNULL(TRDP.STATE_CD, '') = ''
+	                AND ISNULL(TRDP.REP_ZIP, '') != '' THEN CHAR(13)+CHAR(10) + TRDP.CITY_NM + ', ' + TRDP.REP_ZIP
+	           ELSE ''
+	           END) AS DFLT_ADDR
+			  ,CNT.CNT_ENG_NM AS CNT_NM
+		  FROM tb_trdp trdp 
+		    LEFT OUTER JOIN tb_trdp_cntc_pson pic 
+		      ON pic.trdp_cd =  trdp.trdp_cd  
+		     AND pic.rep_flg = 'Y' 
+		     AND pic.DELT_FLG = 'N'    
+			LEFT OUTER JOIN TB_CNT CNT
+				  ON CNT.CNT_CD = TRDP.CNT_CD			   
+		 WHERE trdp.trdp_cd = #trdp_cd#
+		   AND trdp.DELT_FLG = 'N' 
+    </select>
+    
+    <!-- jsjang 2013.8.13 #19478 Pre-Pickup Order Entry - Wo no 중복 체크   -->
+    <select id="selectWoNoDuplCheck" parameterClass="HashMap" resultClass="Integer"> 
+        SELECT  count(wo.wo_no)
+        FROM   tb_wo wo           
+         WHERE  wo.wo_no = #f_wo_no# 
+         AND  wo.delt_flg = 'N'
+    </select>  
+    
+    <select id="selectTradePartmerPicList" parameterClass="HashMap" resultClass="String">
+		 SELECT convert(varchar,ISNULL(cntc_pson_seq, ''))+ '^^' +ISNULL(pic_nm, '')
+		  FROM	tb_trdp_cntc_pson
+		 WHERE	delt_flg = 'N'
+		   AND	trdp_cd = #f_trdp_cd#
+		ORDER BY pic_nm	
+	    
+    </select>
+    
+    <select id="selectTRDP_VIS_LIST" parameterClass="HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpVisVO">
+		SELECT 
+			UT.USRID		VIS_ID 
+			,U.PWD			VIS_PW
+			,UT.USR_TRDP_SEQ USR_TRDP_SEQ
+			,U.ENG_USR_NM	ENG_USR_NM
+			,U.LOCL_USR_NM	LOCL_USR_NM
+			,UT.TRDP_CD		TRDP_CD
+			,TRDP.ENG_NM	TRDP_NM
+			,UT.TRDP_TP_CD	TRDP_TP_CD
+		FROM TB_USR_TRDP UT,TB_USR U, TB_TRDP TRDP
+		WHERE UT.USRID = U.USRID
+		AND UT.TRDP_CD = TRDP.TRDP_CD
+		AND UT.DELT_FLG ='N'
+		<isNotEmpty property="f_vis_id">
+            AND UT.USRID = #f_vis_id#
+		</isNotEmpty>
+		<isNotEmpty property="f_trdp_cd">
+            AND  trdp.trdp_cd = #f_trdp_cd#
+		</isNotEmpty>
+		<isEmpty property="f_trdp_cd">
+		      <isNotEmpty property="f_trdp_nm">
+		          AND  trdp.eng_nm LIKE '%'+#f_trdp_nm#+'%'
+              </isNotEmpty>
+		</isEmpty>
+    </select>
+    
+    <select id="selectTRDP_VIS_LIST_CNT" parameterClass="HashMap" resultClass="Integer">
+		SELECT 
+			COUNT(UT.USRID)	
+		FROM TB_USR_TRDP UT,TB_USR U, TB_TRDP TRDP
+		WHERE UT.USRID = U.USRID
+		AND UT.TRDP_CD = TRDP.TRDP_CD
+		AND UT.DELT_FLG ='N'
+		<isNotEmpty property="f_vis_id">
+            AND UT.USRID = #f_vis_id#
+		</isNotEmpty>
+		<isNotEmpty property="f_trdp_cd">
+            AND  trdp.trdp_cd = #f_trdp_cd#
+		</isNotEmpty>
+		<isEmpty property="f_trdp_cd">
+		      <isNotEmpty property="f_trdp_nm">
+		          AND  trdp.eng_nm LIKE '%'+#f_trdp_nm#+'%'
+              </isNotEmpty>
+		</isEmpty>
+    </select>
+    
+    
+    <insert id="insertTRDP_VIS_LIST" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpVisVO">
+    	INSERT INTO TB_USR_TRDP
+           (USR_TRDP_SEQ
+           ,USRID
+           ,TRDP_CD
+           ,TRDP_TP_CD
+           ,RGST_USRID
+           ,RGST_OFC_CD
+           ,RGST_TMS
+           ,MODI_USRID
+           ,MODI_OFC_CD
+           ,MODI_TMS
+           ,DELT_FLG)
+		SELECT
+		 	ISNULL(MAX(USR_TRDP_SEQ)+1,1)
+			,#vis_id#
+			,#trdp_cd#
+	        ,#trdp_tp_cd#
+	        ,#rgst_usrid#
+	        ,#rgst_ofc_cd#
+	        ,getDate()
+	        ,#modi_usrid#
+	        ,#modi_ofc_cd#
+	        ,GETUTCDATE()
+	        ,'N'
+	    FROM TB_USR_TRDP
+    </insert>
+    
+    <update id="updateTRDP_VIS_LIST" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpVisVO">
+		UPDATE TB_USR_TRDP 
+		SET
+			USRID = #vis_id#
+			,TRDP_CD = #trdp_cd#
+			,TRDP_TP_CD = #trdp_tp_cd#
+			,modi_usrid = #modi_usrid#    
+			,modi_ofc_cd = #modi_ofc_cd#  
+			,modi_tms = GETUTCDATE()
+		WHERE USR_TRDP_SEQ = #usr_trdp_seq#
+    </update>
+    
+    <update id="deleteTRDP_VIS_LIST" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpVisVO">
+		UPDATE TB_USR_TRDP 
+		SET
+			DELT_FLG = 'Y'
+			,modi_usrid = #modi_usrid#    
+			,modi_ofc_cd = #modi_ofc_cd#  
+			,modi_tms = GETUTCDATE()
+		WHERE USR_TRDP_SEQ = #usr_trdp_seq#
+    </update>
+    
+    <delete id="deleteTRDP_VIS_USR" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpVisVO">
+		DELETE TB_USR
+		WHERE USRID = #vis_id#
+		AND ROLE_CD = 'VIS'
+		AND NOT EXISTS (select 'X' from TB_USR_TRDP UT where UT.USRID = #vis_id#  and delt_flg = 'N') 
+    </delete>
+    
+    <select id="checkDuplVisId" parameterClass="HashMap" resultClass="Integer">
+		SELECT 
+			COUNT(USR.USRID)	
+		FROM TB_USR USR
+		WHERE 1=1
+		AND USR.ROLE_CD != 'VIS'
+		AND USR.DELT_FLG ='N'
+        AND USR.USRID = #vis_id#
+    </select>
+    
+    <select id="checkDuplVisPartnerData" parameterClass="HashMap" resultClass="Integer">
+		SELECT 
+			COUNT(UT.USRID)	
+		FROM TB_USR_TRDP UT,TB_USR U, TB_TRDP TRDP
+		WHERE UT.USRID = U.USRID
+		AND UT.TRDP_CD = TRDP.TRDP_CD
+		AND UT.DELT_FLG ='N'
+        AND UT.USRID = #vis_id#
+        AND UT.TRDP_CD = #trdp_cd#
+        AND UT.TRDP_TP_CD = #trdp_tp_cd#
+        AND UT.USR_TRDP_SEQ != #usr_trdp_seq#
+    </select>
+    
+    
+    <select id="chkTrdpCdUse" parameterClass="String" resultClass="String">
+	SELECT 
+	CASE WHEN (SELECT COUNT(*) FROM TB_BL_PRNR PRNR
+	WHERE PRNR.TRDP_CD = #trdp_cd#
+	AND PRNR.DELT_FLG ='N') > 0
+	THEN 'BL'
+	ELSE
+		CASE WHEN (SELECT COUNT(*) FROM TB_FRT FRT
+		WHERE FRT.TRDP_CD = #trdp_cd#
+		AND FRT.DELT_FLG ='N') > 0
+		THEN 'INVOICE' 
+		ELSE 
+			CASE WHEN (SELECT COUNT(*) FROM TB_OTH_SALES OTHER
+			WHERE OTHER.CUST_CD = #trdp_cd#
+			AND OTHER.DELT_FLG ='N') > 0
+			THEN 'OTHER' 
+			ELSE 'NONE' END 
+		END
+	END 
+    </select>
+    <select id="checkDupCntc" parameterClass="HashMap" resultClass="Integer">
+	/* checkDupCntc */
+		SELECT COUNT(*)
+		  FROM TB_TRDP_CNTC
+		 WHERE 1 = 1
+		   AND TRDP_CD = #trdp_cd#
+		   AND CNTC_SEQ = #cntc_seq#
+		   AND DELT_FLG = 'N'
+	</select>
+	<select id="checkDupPhone" parameterClass="HashMap" resultClass="Integer">
+	/* checkDupPhone */
+		<isEqual compareValue="I" property="flag" >
+			SELECT COUNT(*)
+			  FROM TB_TRDP_CNTC_PSON
+			 WHERE 1 = 1
+			   AND DELT_FLG = 'N'
+
+			   <isNotEmpty property="pic_phn">
+				   <isNotEmpty property="pic_mphn">
+				   		AND (REPLACE(PIC_PHN,'-','') = REPLACE(#pic_phn#,'-','')
+			    		OR REPLACE(PIC_MPHN,'-','') = REPLACE(#pic_mphn#,'-',''))
+				   </isNotEmpty>
+			   </isNotEmpty>
+  			   <isNotEmpty property="pic_mphn">
+  			   		<isEmpty property="pic_phn">
+						AND REPLACE(PIC_MPHN,'-','') = REPLACE(#pic_mphn#,'-','')
+					</isEmpty>		   		
+			   </isNotEmpty>
+			   			   			   
+			   <isNotEmpty property="pic_phn">
+			   		<isEmpty property="pic_mphn">
+			 	  		AND REPLACE(PIC_PHN,'-','') = REPLACE(#pic_phn#,'-','')
+			 	  	</isEmpty>
+			   </isNotEmpty>				   			   
+		    
+	    </isEqual>
+	    <isEqual compareValue="U" property="flag" >
+		    SELECT (SELECT COUNT(*)
+					  FROM TB_TRDP_CNTC_PSON
+					 WHERE 1 = 1
+					   AND DELT_FLG = 'N'
+			   <isNotEmpty property="pic_phn">
+				   <isNotEmpty property="pic_mphn">
+				   		AND (REPLACE(PIC_PHN,'-','') = REPLACE(#pic_phn#,'-','')
+			    		OR REPLACE(PIC_MPHN,'-','') = REPLACE(#pic_mphn#,'-',''))
+				   </isNotEmpty>
+			   </isNotEmpty>
+  			   <isNotEmpty property="pic_mphn">
+  			   		<isEmpty property="pic_phn">
+						AND REPLACE(PIC_MPHN,'-','') = REPLACE(#pic_mphn#,'-','')
+					</isEmpty><!--  -->			   		
+			   </isNotEmpty>
+			   			   			   
+			   <isNotEmpty property="pic_phn">
+			   		<isEmpty property="pic_mphn">
+			 	  		AND REPLACE(PIC_PHN,'-','') = REPLACE(#pic_phn#,'-','')
+			 	  	</isEmpty>
+			   </isNotEmpty>		
+					    ) -
+				   (SELECT COUNT(*)
+					  FROM TB_TRDP_CNTC_PSON
+					 WHERE 1 = 1
+					   AND TRDP_CD = #trdp_cd#
+					   AND CNTC_PSON_SEQ = #cntc_pson_seq#
+					   AND RGST_OFC_CD = #rgst_ofc_cd#
+			   <isNotEmpty property="pic_phn">
+				   <isNotEmpty property="pic_mphn">
+				   		AND (REPLACE(PIC_PHN,'-','') = REPLACE(#pic_phn#,'-','')
+			    		OR REPLACE(PIC_MPHN,'-','') = REPLACE(#pic_mphn#,'-',''))
+				   </isNotEmpty>
+			   </isNotEmpty>
+  			   <isNotEmpty property="pic_mphn">
+  			   		<isEmpty property="pic_phn">
+						AND REPLACE(PIC_MPHN,'-','') = REPLACE(#pic_mphn#,'-','')
+					</isEmpty>		   		
+			   </isNotEmpty>
+			   			   			   
+			   <isNotEmpty property="pic_phn">
+			   		<isEmpty property="pic_mphn">
+			 	  		AND REPLACE(PIC_PHN,'-','') = REPLACE(#pic_phn#,'-','')
+			 	  	</isEmpty>
+			   </isNotEmpty>	
+					   AND DELT_FLG = 'N')	    
+	    </isEqual>
+	</select>
+    <select id="chkAgtEdiMsgTpCdUse" parameterClass="HashMap" resultClass="String">
+	select 
+		case when 'MSG' = #type# then 
+			    case when (select COUNT(*) from TB_EDI_CNFG where TP=#tp# and AGT_EDI_MSG_TP_CD = #agt_edi_msg_tp_cd#) > 0 then 'OK'
+			         when (select COUNT(*) from TB_EDI_CNFG where TP=#tp# ) > 0 then  'NOT'
+				     else 'EDI'
+	    		end
+	    	when 'TP' = #type# then 
+			    CASE when (select COUNT(*) from TB_TRDP where AGT_EDI_CD=#tp# AND TRDP_CD != #trdp_cd# ) > 0 then 'NOT'          
+			         else 'OK'     end   
+			end  	    
+    </select>
+    
+    <!-- Trade Partner Free Day Header 조회 -->
+    <select id="selectSAL_TPM_0140_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TrdpVO">
+        SELECT A.* 
+        FROM(        
+	        SELECT TRDP_CD
+	        	  ,ENG_NM,                 
+	        	  ROW_NUMBER() OVER(ORDER BY TRDP_CD)  as RNUM
+			 FROM  TB_TRDP
+		     WHERE  1=1
+		     <!-- AND TRDP_TP_CD IN 
+		     ( 'CS' Customer
+		      ,'FR' Forwarder
+		      ,'LN' Ocean Carrier
+		      ,'OT' Others
+		      ,'PR' Overseas Partner
+		      ,'TM' Terminal
+		     ) -->
+		     AND DELT_FLG = 'N'
+		     <isNotNull property="s_trdp_tp_cd">
+		     	AND TRDP_TP_CD = #s_trdp_tp_cd#
+		     </isNotNull>
+		     
+			 <isNotNull property="trdp_cd">
+	            AND  TRDP_CD = #trdp_cd#
+			 </isNotNull>
+		 ) A
+		 WHERE <![CDATA[ A.RNUM > #beginIdx# AND A.RNUM <= #topCnt#	]]>
+    </select>    
+    
+    <select id="selectSAL_TPM_0140_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT COUNT(TRDP_CD)                 
+		 FROM  TB_TRDP
+	     WHERE  1=1
+	     <!-- AND TRDP_TP_CD IN 
+	     ( 'CS' Customer
+	      ,'FR' Forwarder
+	      ,'LN' Ocean Carrier
+	      ,'OT' Others
+	      ,'PR' Overseas Partner
+	      ,'TM' Terminal
+	     ) -->
+	     AND DELT_FLG = 'N'
+	     <isNotNull property="s_trdp_tp_cd">
+	     	AND TRDP_TP_CD = #s_trdp_tp_cd#
+	     </isNotNull>
+	     
+		 <isNotNull property="trdp_cd">
+            AND  TRDP_CD = #trdp_cd#
+		 </isNotNull>
+    </select>    
+    
+    <!-- Trade Partner Free Day Deatail 조회 -->
+    <select id="selectSAL_TPM_0140_DETAIL_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TrdpVO">
+        SELECT TRDP_CD
+        	  ,FRE_DAY_SEQ
+        	  ,CNTR_TPSZ_CD
+			  ,SCAC_CD
+			  ,PORT_CD
+			  ,TMNL_FRE_DAY
+			  ,PDM_FRE_DAY
+			  ,COMB_FRE_DAY   
+			  ,RGST_TMS
+			  ,RGST_USRID             
+		 FROM  TB_TRDP_FRE_DAY
+	     WHERE  1=1
+	     AND DELT_FLG = 'N'
+		 <isNotNull property="f_trdp_cd">
+            AND  TRDP_CD = #f_trdp_cd#
+		 </isNotNull>
+    </select>    
+    
+    <select id="selectSAL_TPM_0140_DETAIL_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT COUNT(TRDP_CD)            
+		 FROM  TB_TRDP_FRE_DAY
+	     WHERE  1=1
+	     AND DELT_FLG = 'N'
+		 <isNotNull property="f_trdp_cd">
+            AND  TRDP_CD = #f_trdp_cd#
+		 </isNotNull>
+    </select>   
+    
+    <!-- Trade Partner Free Day Detail - Primary Key Sequence 조회  -->
+    <select id="selectTRDP_FRE_DAY_PK" parameterClass="java.util.HashMap" resultClass="String">
+    	SELECT  ISNULL(MAX(FRE_DAY_SEQ), 0) + 1
+    	FROM  TB_TRDP_FRE_DAY
+    	WHERE 1=1
+    	AND  TRDP_CD = #f_trdp_cd#	  
+    </select>
+    
+    <!-- Trade Partner Free Day Detail 생성  -->
+    <insert id="insertSAL_TPM_0140_DETAIL_LIST" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.TrdpVO">
+         INSERT INTO TB_TRDP_FRE_DAY
+         ( TRDP_CD, 	   FRE_DAY_SEQ,    CNTR_TPSZ_CD,   SCAC_CD   ,PORT_CD
+		  ,TMNL_FRE_DAY,   PDM_FRE_DAY,    COMB_FRE_DAY   ,DELT_FLG     
+		  ,RGST_TMS,       RGST_USRID,     RGST_OFC_CD    
+		  ,MODI_TMS,	   MODI_USRID,	   MODI_OFC_CD				)  
+		 VALUES
+		 ( #trdp_cd#,      #fre_day_seq#,  #cntr_tpsz_cd#, #scac_cd#, #port_cd#
+		  ,#tmnl_fre_day#, #pdm_fre_day#,  #comb_fre_day#, 'N'
+		  ,GETDATE(),     #rgst_usrid#,   #rgst_ofc_cd#							
+		  ,GETDATE(),     #modi_usrid#,   #modi_ofc_cd#			)		             
+     </insert>
+    
+    <!-- Trade Partner Free Day Detail 수정  -->
+    <update id="updateSAL_TPM_0140_DETAIL_LIST" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.TrdpVO">
+         UPDATE TB_TRDP_FRE_DAY
+         SET  CNTR_TPSZ_CD = #cntr_tpsz_cd#
+			  ,SCAC_CD		= #scac_cd#
+			  ,PORT_CD		= #port_cd#
+			  ,TMNL_FRE_DAY = #tmnl_fre_day#
+			  ,PDM_FRE_DAY  = #pdm_fre_day#
+			  ,COMB_FRE_DAY = #comb_fre_day#  
+			  ,MODI_TMS     = GETDATE()
+			  ,MODI_USRID   = #modi_usrid#
+			  ,MODI_OFC_CD  = #modi_ofc_cd#			             
+	     WHERE  1=1
+	     AND DELT_FLG = 'N'
+            AND TRDP_CD      = #trdp_cd#
+			AND FRE_DAY_SEQ  = #fre_day_seq# 
+     </update>
+
+    <!-- Trade Partner Free Day Detail 삭제  -->
+     <update id="deleteSAL_TPM_0140_DETAIL_LIST" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.TrdpVO">
+	 	UPDATE TB_TRDP_FRE_DAY 
+		SET
+			DELT_FLG = 'Y'
+			,MODI_USRID = #modi_usrid#    
+			,MODI_OFC_CD = #modi_ofc_cd#  
+			,MODI_TMS = GETDATE()
+		WHERE 1=1
+		AND TRDP_CD      = #trdp_cd#
+		AND FRE_DAY_SEQ  = #fre_day_seq# 
+     </update>
+    <!-- OFVFOUR-7902 [Lever Logistics] Trade Partner Entry - Additional Name & Address -->
+   	<select id="chkTrdpNmDupl" parameterClass="HashMap" resultClass="String">
+		 SELECT  'Y' 
+		 FROM  TB_TRDP_ADDR
+		 WHERE  TRDP_CD = #trdp_cd#
+		 AND TRDP_NM = #trdp_nm#
+	</select>
+	
+	<select id="chkTrdpModiTms" parameterClass="HashMap" resultClass="String">
+	 	SELECT	 modi_tms
+		FROM  TB_TRDP
+		WHERE TRDP_CD = #trdp_cd#
+	</select>
+</sqlMap>

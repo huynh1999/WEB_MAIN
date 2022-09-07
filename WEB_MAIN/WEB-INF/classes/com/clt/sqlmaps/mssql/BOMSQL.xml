@@ -1,0 +1,895 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="wms.whbom">
+	<!-- ACC INVOICE CREATE B/L Search -->
+
+	<typeAlias alias="BOMListVO" type="com.clt.apps.fis.wms.whbom.dto.BOMListVO" />
+	<typeAlias alias="DocinBOMMgmtVO" type="com.clt.apps.fis.wms.whbom.dto.DocinBOMMgmtVO" />
+	<typeAlias alias="ProcWHMakeKitVO" type="com.clt.apps.fis.wms.whbom.dto.ProcWHMakeKitVO" />
+
+
+
+
+
+	<parameterMap class="com.clt.apps.fis.wms.whbom.dto.ProcWHMakeKitVO" id="callWHMakeKitProc_Param">
+	 <parameter property="kit_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHMakeKitProc"  parameterMap="callWHMakeKitProc_Param">
+		{ CALL dbo.PKG_MAKE_TL_WH_KIT_PRC (?,
+										        	?,
+										        	?,
+										        	?,
+										        	?) }
+	</procedure>
+	
+	<parameterMap class="com.clt.apps.fis.wms.whbom.dto.ProcWHMakeKitVO" id="callWHMakeKitMeasureProc_Param">
+	 <parameter property="kit_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHMakeKitMeasureProc"  parameterMap="callWHMakeKitMeasureProc_Param">
+		{ CALL dbo.PKG_MAKE_TL_WH_KIT_MEASURE_PRC (?,
+										        	?,
+										        	?,
+										        	?,
+										        	?) }
+	</procedure>
+	<!-- <procedure id="callWHMakeKitProc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		{ CALL PKG_MAKE_TL_WH_KIT_PRC(#kit_no#, #org_cd#, #user_id#, '', '') }
+	</procedure> -->
+	<parameterMap class="com.clt.apps.fis.wms.whbom.dto.ProcWHMakeDekitVO" id="callWHMake_DeKit_Param">
+	 <parameter property="dekit_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHMakeDekitProc" parameterMap="callWHMake_DeKit_Param">
+		{ CALL dbo.PKG_MAKE_TL_WH_DEKIT_PRC(?, ?, ?, ?, ?) }
+	</procedure>
+
+	<!-- <procedure id="callWHMakeKitMeasureProc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		{ CALL PKG_MAKE_TL_WH_KIT_MEASURE_PRC(#kit_no#, #org_cd#, #user_id#, '', '') }
+	</procedure> -->
+
+	<insert id="saveWhKitItem" parameterClass="DocinBOMMgmtVO">
+	/*WHBOM.saveWhKitItem*/
+	DECLARE @WH_CD VARCHAR(20)
+		SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#kit_wh_cd#)
+	INSERT INTO TL_WH_KIT_ITEM
+	       ( KIT_NO
+	       , CTRT_NO
+	       , WH_CD
+	       , PO_SYS_NO
+	       , ITEM_SYS_NO
+	       , LOT_ID
+	       , PUTAWAY_WH_LOC_CD
+	       , ITEM_CD
+	       , ITEM_NM
+	       , ITEM_EA_QTY
+	       , ITEM_CBM
+	       , ITEM_CBF
+	       , ITEM_GRS_KGS
+	       , ITEM_GRS_LBS
+	       , ITEM_NET_KGS
+	       , ITEM_NET_LBS
+	       , KIT_DT
+	       , KIT_HM_FR
+	       , KIT_HM_TO
+	       , LOT_NO
+	       , EXP_DT
+	       , LOT_04
+	       , LOT_05
+	       , CTRT_PIC_NM
+	       , SUPV_NM
+	       , WORKER_NM
+	       , RMK
+	       , RGST_ID
+	       , RGST_OFC_CD
+	       , RGST_SYS_DT
+	       , RGST_LOC_DT
+	       , MODI_ID
+	       , MODI_OFC_CD
+	       , MODI_SYS_DT
+	       , MODI_LOC_DT
+	       )
+	  VALUES
+	       ( #kit_no#
+	       , #kit_ctrt_no#
+	       , #kit_wh_cd#
+	       , #kit_no#
+	       , #kit_item_sys_no#
+	       , #kit_lot_id#
+	       , #kit_wh_loc_cd#
+	       , #kit_item_cd#
+	       , #kit_item_nm#
+	       , ISNULL((SELECT CONVERT(NUMERIC(15,2), CAST(#kit_item_ea_qty# AS INTEGER))),0)
+	       , ISNULL((SELECT CONVERT(NUMERIC(15,2), CAST(#kit_item_cbm# AS FLOAT))),0)
+	       , ISNULL((SELECT CONVERT(NUMERIC(15,2), CAST(#kit_item_cbf# AS FLOAT))),0)
+	       , ISNULL((SELECT CONVERT(NUMERIC(15,2), CAST(#kit_item_grs_kgs# AS FLOAT))),0)
+	       , ISNULL((SELECT CONVERT(NUMERIC(15,2), CAST(#kit_item_grs_lbs# AS FLOAT))),0)
+	       , ISNULL((SELECT CONVERT(NUMERIC(15,2), CAST(#kit_item_net_kgs# AS FLOAT))),0)
+	       , ISNULL((SELECT CONVERT(NUMERIC(15,2), CAST(#kit_item_net_lbs# AS FLOAT))),0)
+	       , REPLACE(#kit_dt#, '-', '')
+	       , REPLACE(#kit_hm_fr#, ':', '')
+	       , REPLACE(#kit_hm_to#, ':', '')
+	       , #kit_lot_no#
+	       , REPLACE(#kit_exp_dt#, '-', '')
+	       , #kit_lot_04#
+	       , #kit_lot_05#
+	       , #kit_ctrt_pic_nm#
+	       , #kit_supv_nm#
+	       , #kit_worker_nm#
+	       , #kit_rmk#
+	       , #rgst_id#
+	       , #rgst_ofc_cd#
+	       , GETDATE()
+	       , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+								       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+								       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+								       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	       , #modi_id#
+	       , #modi_ofc_cd#
+	       , GETDATE()
+	       , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+								       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+								       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+								       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	       )
+	</insert>
+
+	<select id="searchBOMMgmtForDekittingDetail" parameterClass="java.util.HashMap" resultClass="BOMListVO">
+	/*WHBOM.searchBOMMgmtForDekittingDetail*/
+		SELECT T.*
+		  FROM (
+				SELECT KI.KIT_NO
+				     , KIS.SUB_ITEM_CD
+				     , KIS.SUB_ITEM_NM
+				     , KIS.SUB_ITEM_UNIT_EA_QTY
+				     , #dekit_item_ea_qty# * KIS.SUB_ITEM_UNIT_EA_QTY AS COMPONENT_QTY
+				     , KISI.SUB_WH_LOC_CD
+				     , dbo.TL_GET_WH_LOC_NM(KISI.WH_CD, KISI.SUB_WH_LOC_CD) AS SUB_WH_LOC_NM
+				     , LOT.LOT_ATTRIB_01 AS SUB_INBOUND_DT
+				     , KISI.SUB_LOT_ID
+				     , LOT.LOT_ATTRIB_02 AS SUB_LOT_NO
+				     , KISI.SUB_ITEM_EA_QTY
+				      <![CDATA[   
+				     , CASE WHEN KISI.SUB_ITEM_CBM     <= 0 THEN 0 ELSE KISI.SUB_ITEM_CBM END     AS SUB_ITEM_CBM
+				     , CASE WHEN KISI.SUB_ITEM_CBF     <= 0 THEN 0 ELSE KISI.SUB_ITEM_CBF END     AS SUB_ITEM_CBF
+				     , CASE WHEN KISI.SUB_ITEM_GRS_KGS <= 0 THEN 0 ELSE KISI.SUB_ITEM_GRS_KGS END AS SUB_ITEM_GRS_KGS
+				     , CASE WHEN KISI.SUB_ITEM_GRS_LBS <= 0 THEN 0 ELSE KISI.SUB_ITEM_GRS_LBS END AS SUB_ITEM_GRS_LBS
+				     , CASE WHEN KISI.SUB_ITEM_NET_KGS <= 0 THEN 0 ELSE KISI.SUB_ITEM_NET_KGS END AS SUB_ITEM_NET_KGS
+				     , CASE WHEN KISI.SUB_ITEM_NET_LBS <= 0 THEN 0 ELSE KISI.SUB_ITEM_NET_LBS END AS SUB_ITEM_NET_LBS
+				     ]]>
+				     , ISNULL(IT.PKG_LV1_QTY, 0) AS PKG_LV1_QTY
+					 , ISNULL(IT.LV1_CBM, 0) AS LV1_CBM
+					 , ISNULL(IT.LV1_CBF, 0) AS LV1_CBF
+					 , ISNULL(IT.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+					 , ISNULL(IT.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+					 , ISNULL(IT.LV1_NET_KGS, 0) AS LV1_NET_KGS
+					 , ISNULL(IT.LV1_NET_LBS, 0) AS LV1_NET_LBS
+				     , LOT.LOT_ATTRIB_03 AS SUB_EXP_DT
+				     , LOT.LOT_ATTRIB_04 AS SUB_LOT_04
+				     , LOT.LOT_ATTRIB_05 AS SUB_LOT_05
+				     , '' AS DEKIT_WH_LOC_CD
+				     , '' AS DEKIT_WH_LOC_NM
+				     , KISI.SUB_PO_SYS_NO
+				     , KISI.SUB_ITEM_SYS_NO
+				     , KISI.SUB_ITEM_SO_NO
+				     , KISI.SUB_WIB_BK_NO
+				     , KISI.SUB_ITEM_PO_NO
+				     /* 엑셀다운로드시 필요컬럼 */
+				     , KI.KIT_DT    
+				     , KI.ITEM_CD
+				     , KI.ITEM_NM	     
+				     , ISNULL(dbo.TL_GET_WH_LOC_NM(KI.WH_CD, KI.PUTAWAY_WH_LOC_CD), ' ') AS PUTAWAY_WH_LOC_NM 
+				     , ISNULL(INV.IN_QTY, 0) - ISNULL(INV.ALLC_QTY, 0) AS STOCK_QTY
+				     /*, KI.ITEM_CBM
+				     , KI.ITEM_CBF
+				     , KI.ITEM_GRS_KGS
+				     , KI.ITEM_GRS_LBS
+				     , KI.ITEM_NET_KGS
+				     , KI.ITEM_NET_LBS
+				     */
+				     <![CDATA[ 
+				     , CASE WHEN ISNULL(INV.IN_CBM, 0)     - ISNULL(INV.ALLC_CBM, 0)     < 0 THEN 0 ELSE ISNULL(INV.IN_CBM, 0)     - ISNULL(INV.ALLC_CBM, 0)     END AS ITEM_CBM
+				     , CASE WHEN ISNULL(INV.IN_CBF, 0)     - ISNULL(INV.ALLC_CBF, 0)     < 0 THEN 0 ELSE ISNULL(INV.IN_CBF, 0)     - ISNULL(INV.ALLC_CBF, 0)     END AS ITEM_CBF
+				     , CASE WHEN ISNULL(INV.IN_GRS_KGS, 0) - ISNULL(INV.ALLC_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_GRS_KGS, 0) - ISNULL(INV.ALLC_GRS_KGS, 0) END AS ITEM_GRS_KGS
+				     , CASE WHEN ISNULL(INV.IN_GRS_LBS, 0) - ISNULL(INV.ALLC_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_GRS_LBS, 0) - ISNULL(INV.ALLC_GRS_LBS, 0) END AS ITEM_GRS_LBS
+				     , CASE WHEN ISNULL(INV.IN_NET_KGS, 0) - ISNULL(INV.ALLC_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_NET_KGS, 0) - ISNULL(INV.ALLC_NET_KGS, 0) END AS ITEM_NET_KGS
+				     , CASE WHEN ISNULL(INV.IN_NET_LBS, 0) - ISNULL(INV.ALLC_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_NET_LBS, 0) - ISNULL(INV.ALLC_NET_LBS, 0) END AS ITEM_NET_LBS
+				     ]]>
+				     , KI.LOT_ID
+				     , ISNULL(KI.LOT_NO, ' ') AS LOT_NO
+				     , ISNULL(CONVERT(DATETIME, KI.EXP_DT, 101), ' ') AS EXP_DT /*sheet머지를 위하여*/
+				     , ISNULL(KI.LOT_04, ' ') AS LOT_04
+				     , ISNULL(KI.LOT_05, ' ') AS LOT_05
+				     , KI.WH_CD
+				     , dbo.TL_GET_LOC_NM(KI.WH_CD) AS WH_NM
+				     , KI.CTRT_NO
+				     , dbo.TL_GET_CTRT_NM(KI.CTRT_NO) AS CTRT_NM
+				     , KISI.SUB_ITEM_LIC_PLAT_NO
+				     , KISI.SUB_ITEM_SER_NO
+				     , KISI.SUB_ITEM_SEQ
+				  FROM TL_WH_KIT_ITEM KI LEFT JOIN TL_WH_INV_LOC INV ON KI.KIT_NO = INV.WIB_BK_NO
+						AND KI.PO_SYS_NO = INV.PO_SYS_NO
+						AND KI.ITEM_SYS_NO = INV.ITEM_SYS_NO
+						AND KI.LOT_ID = INV.LOT_ID
+						AND KI.PUTAWAY_WH_LOC_CD = INV.WH_LOC_CD
+					, TL_WH_KIT_SUB_ITEM_INV KISI LEFT JOIN TL_CTRT_CUST_ITEM IT ON KISI.CTRT_NO = IT.CTRT_NO
+						AND KISI.SUB_ITEM_SYS_NO = IT.ITEM_SYS_NO	
+					, TL_WH_KIT_SUB_ITEM KIS
+					, TL_CTRT_CUST_ITEM_LOT LOT
+				WHERE KI.KIT_NO = KIS.KIT_NO
+				  AND KIS.KIT_NO = KISI.KIT_NO
+				  AND KIS.SUB_ITEM_SYS_NO = KISI.SUB_ITEM_SYS_NO
+			
+				  AND KISI.CTRT_NO = LOT.CTRT_NO
+			      AND KISI.SUB_ITEM_SYS_NO = LOT.ITEM_SYS_NO
+			      AND KISI.SUB_LOT_ID = LOT.LOT_ID
+		   
+				  AND KI.KIT_NO = #kit_no#
+		
+			   ) T
+		 WHERE 1=1
+		 ORDER BY T.KIT_NO ASC, T.SUB_ITEM_CD ASC, T.SUB_INBOUND_DT, T.SUB_LOT_NO, T.SUB_WH_LOC_NM
+	</select>
+
+	<delete id="deleteWhkitSubItemInvForDekit" parameterClass="com.clt.apps.fis.wms.whbom.dto.DocinBOMMgmtVO">
+	/*WHBOM.deleteWhkitSubItemInvForDekit*/
+	DELETE FROM TL_WH_KIT_SUB_ITEM_INV
+	<![CDATA[ 
+		WHERE KIT_NO           = #kit_no#
+			AND SUB_ITEM_EA_QTY <= 0
+	]]>
+	</delete>
+
+	<update id="modifyWhkitSubItemInvForDekit" parameterClass="java.util.HashMap">
+		/*WHBOM.modifyWhkitSubItemInvForDekit*/
+		DECLARE @WH_CD VARCHAR(20)
+		SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+		UPDATE TL_WH_KIT_SUB_ITEM_INV
+		   SET SUB_ITEM_EA_QTY  = SUB_ITEM_EA_QTY  - #dekit_sub_item_ea_qty#
+		     , SUB_ITEM_CBM     = SUB_ITEM_CBM     - #dekit_sub_item_cbm#
+		     , SUB_ITEM_CBF     = SUB_ITEM_CBF     - #dekit_sub_item_cbf#
+		     , SUB_ITEM_GRS_KGS = SUB_ITEM_GRS_KGS - #dekit_sub_item_grs_kgs#
+		     , SUB_ITEM_GRS_LBS = SUB_ITEM_GRS_LBS - #dekit_sub_item_grs_lbs#
+		     , SUB_ITEM_NET_KGS = SUB_ITEM_NET_KGS - #dekit_sub_item_net_kgs#
+		     , SUB_ITEM_NET_LBS = SUB_ITEM_NET_LBS - #dekit_sub_item_net_lbs#
+		     , MODI_ID          = #modi_id#
+		     , MODI_OFC_CD      = #modi_ofc_cd#
+		     , MODI_SYS_DT      = GETDATE()
+		<!--      , MODI_LOC_DT      = (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+								       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+								       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+								       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2)) -->
+			 ,MODI_LOC_DT  		=  CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),120)
+		 WHERE KIT_NO           = #kit_no#
+	   	   <!-- AND SUB_PO_SYS_NO    = #sub_po_sys_no# -->
+	       AND SUB_ITEM_SYS_NO  = #sub_item_sys_no#
+	       AND SUB_LOT_ID       = #sub_lot_id#
+	       AND SUB_WH_LOC_CD    = #sub_wh_loc_cd#
+	       AND ISNULL(SUB_ITEM_PO_NO,'') 	   = ISNULL(#sub_item_po_no#,'')
+		   AND ISNULL(SUB_ITEM_LIC_PLAT_NO,'') = ISNULL(#dekit_sub_item_lic_plat_no#,'')
+		   AND ISNULL(SUB_ITEM_SER_NO,'')      = ISNULL(#dekit_sub_item_ser_no#,'')
+		   AND ISNULL(SUB_ITEM_SEQ,'')         = ISNULL(#sub_item_seq#,'')
+	</update>	
+
+	<insert id="saveWhDekitSubItemInv" parameterClass="java.util.HashMap">
+	/*WHBOM.saveWhDekitSubItemInv*/
+	DECLARE @WH_CD VARCHAR(20)
+	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	INSERT INTO TL_WH_DEKIT_SUB_ITEM_INV
+	       ( DEKIT_NO
+	       , KIT_NO
+	       , KIT_SUB_ITEM_SEQ
+	       , CTRT_NO
+	       , WH_CD
+	       , SUB_PO_SYS_NO
+	       , SUB_ITEM_SYS_NO
+	       , SUB_LOT_ID
+	       , SUB_WH_LOC_CD
+	       , SUB_ITEM_CD
+	       , SUB_ITEM_NM
+	       , SUB_ITEM_EA_QTY
+	       , SUB_ITEM_SO_NO
+	       , SUB_WIB_BK_NO
+	       , SUB_ITEM_PO_NO
+	       , DEKIT_WH_LOC_CD
+	       , DEKIT_SUB_ITEM_EA_QTY
+	       , DEKIT_SUB_ITEM_CBM
+	       , DEKIT_SUB_ITEM_CBF
+	       , DEKIT_SUB_ITEM_GRS_KGS
+	       , DEKIT_SUB_ITEM_GRS_LBS
+	       , DEKIT_SUB_ITEM_NET_KGS
+	       , DEKIT_SUB_ITEM_NET_LBS
+	       , RGST_ID
+	       , RGST_OFC_CD
+	       , RGST_SYS_DT
+	       , RGST_LOC_DT
+	       , MODI_ID
+	       , MODI_OFC_CD
+	       , MODI_SYS_DT
+	       , MODI_LOC_DT
+	       , DEKIT_SUB_ITEM_LIC_PLAT_NO
+	       , DEKIT_SUB_ITEM_SER_NO
+	       )
+	  VALUES
+	       ( #dekit_no#
+	       , #kit_no#
+	       , (SELECT ISNULL(MAX(KIT_SUB_ITEM_SEQ),0) + 1 
+	            FROM TL_WH_DEKIT_SUB_ITEM_INV
+	           WHERE DEKIT_NO = #dekit_no#
+	             AND KIT_NO = #kit_no#
+	         )
+	       , #ctrt_no#
+	       , #wh_cd#
+	       , #sub_po_sys_no#
+	       , #sub_item_sys_no#
+	       , #sub_lot_id#
+	       , #sub_wh_loc_cd#	       
+	       , #sub_item_cd#
+	       , #sub_item_nm#
+	       , #sub_item_ea_qty#	       
+	       , #sub_item_so_no#
+	       , #sub_wib_bk_no#
+	       , #sub_item_po_no#
+	       , #dekit_wh_loc_cd#
+	       , #dekit_sub_item_ea_qty#	         
+	       , #dekit_sub_item_cbm#	       
+	       , #dekit_sub_item_cbf#
+	       , #dekit_sub_item_grs_kgs#
+	       , #dekit_sub_item_grs_lbs#
+	       , #dekit_sub_item_net_kgs#
+	       , #dekit_sub_item_net_lbs#	            
+	       , #rgst_id#
+	       , #rgst_ofc_cd#
+	       , GETDATE()
+	       , CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),120)
+	       , #modi_id#
+	       , #modi_ofc_cd#
+	       , GETDATE()
+	       , CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),120) 
+	       , #dekit_sub_item_lic_plat_no#
+		   , #dekit_sub_item_ser_no#
+	      )
+	</insert>
+
+	<update id="modifyWhkitItemForDekit" >
+	/*WHBOM.modifyWhkitItemForDekit*/
+	DECLARE @WH_CD VARCHAR(20)
+	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	UPDATE TL_WH_KIT_ITEM
+	  SET ITEM_EA_QTY  = ITEM_EA_QTY - #dekit_item_ea_qty#
+	    , ITEM_CBM     = ISNULL(ITEM_CBM,0) - #dekit_item_cbm#
+	    , ITEM_CBF     = ISNULL(ITEM_CBF,0) - #dekit_item_cbf#
+	    , ITEM_GRS_KGS = ISNULL(ITEM_GRS_KGS,0) - #dekit_item_grs_kgs#
+	    , ITEM_GRS_LBS = ISNULL(ITEM_GRS_LBS,0) - #dekit_item_grs_lbs#
+	    , ITEM_NET_KGS = ISNULL(ITEM_NET_KGS,0) - #dekit_item_net_kgs#
+	    , ITEM_NET_LBS = ISNULL(ITEM_NET_LBS,0) - #dekit_item_net_lbs#
+        , MODI_ID      = #modi_id#
+	    , MODI_OFC_CD  = #modi_ofc_cd#
+	    , MODI_SYS_DT  = GETDATE()
+	    <!-- , MODI_LOC_DT  = SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+					       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+					       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+					       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2)) -->
+		,MODI_LOC_DT  =  CONVERT(VARCHAR(20),dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),120)
+	WHERE KIT_NO       = #kit_no#
+	</update>
+	
+	<insert id="saveWhDekitItem" parameterClass="java.util.HashMap">
+	/*WHBOM.saveWhDekitItem*/
+	DECLARE @WH_CD VARCHAR(20)
+	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	INSERT INTO TL_WH_DEKIT_ITEM
+	       ( DEKIT_NO
+	       , KIT_NO
+	       , CTRT_NO
+	       , WH_CD
+	       , PO_SYS_NO
+	       , ITEM_SYS_NO
+	       , LOT_ID
+	       , WH_LOC_CD
+	       , ITEM_CD
+	       , ITEM_NM
+	       , DEKIT_ITEM_EA_QTY
+	       , DEKIT_ITEM_CBM
+	       , DEKIT_ITEM_CBF
+	       , DEKIT_ITEM_GRS_KGS
+	       , DEKIT_ITEM_GRS_LBS
+	       , DEKIT_ITEM_NET_KGS
+	       , DEKIT_ITEM_NET_LBS
+	       , RGST_ID
+	       , RGST_OFC_CD
+	       , RGST_SYS_DT
+	       , RGST_LOC_DT
+	       , MODI_ID
+	       , MODI_OFC_CD
+	       , MODI_SYS_DT
+	       , MODI_LOC_DT
+	       )
+	  SELECT #dekit_no#
+	       , KIT_NO
+	       , CTRT_NO
+	       , WH_CD
+	       , PO_SYS_NO
+	       , ITEM_SYS_NO
+	       , LOT_ID
+	       , PUTAWAY_WH_LOC_CD
+	       , ITEM_CD
+	       , ITEM_NM
+	       , #dekit_item_ea_qty#
+	       , #dekit_item_cbm#
+	       , #dekit_item_cbf#
+	       , #dekit_item_grs_kgs#
+	       , #dekit_item_grs_lbs#
+	       , #dekit_item_net_kgs#
+	       , #dekit_item_net_lbs#
+	       , #rgst_id#
+	       , #rgst_ofc_cd#
+	       , GETDATE()
+	       , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+		       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	       , #modi_id#
+	       , #modi_ofc_cd#
+	       , GETDATE()
+	       , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+		       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	    FROM TL_WH_KIT_ITEM
+	   WHERE KIT_NO =  #kit_no#
+	</insert>
+
+	<update id="modifyWhKitItem" parameterClass="DocinBOMMgmtVO">
+	/*WHBOM.modifyWhKitItem*/
+		DECLARE @WH_CD VARCHAR(20)
+		SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+		UPDATE TL_WH_KIT_ITEM
+		   SET ITEM_CBM = REPLACE(#kit_item_cbm#, ',','')
+		     , ITEM_CBF = REPLACE(#kit_item_cbf#, ',','')
+		     , ITEM_GRS_KGS = REPLACE(#kit_item_grs_kgs#, ',','')
+		     , ITEM_GRS_LBS = REPLACE(#kit_item_grs_lbs#, ',','')
+		     , ITEM_NET_KGS = REPLACE(#kit_item_net_kgs#, ',','')
+		     , ITEM_NET_LBS = REPLACE(#kit_item_net_lbs#, ',','')
+		     , KIT_HM_FR = REPLACE(#kit_hm_fr#, ':', '')
+		     , KIT_HM_TO = REPLACE(#kit_hm_to#, ':', '')
+		     , CTRT_PIC_NM = #kit_ctrt_pic_nm#
+		     , SUPV_NM = #kit_supv_nm#
+		     , WORKER_NM = #kit_worker_nm#
+		     , RMK = #kit_rmk#	       
+		     , MODI_ID = #modi_id#
+		     , MODI_OFC_CD = #modi_ofc_cd#
+		     , MODI_SYS_DT = GETDATE()
+		     , MODI_LOC_DT = (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+						       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+						       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+						       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	     WHERE KIT_NO = #kit_no#
+	</update>
+
+	<insert id="saveWhKitSubItemInv" parameterClass="java.util.HashMap">
+	/*WHBOM.saveWhKitSubItemInv*/
+	DECLARE @WH_CD VARCHAR(20)
+	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	INSERT INTO TL_WH_KIT_SUB_ITEM_INV
+	       ( KIT_NO
+	       , SUB_PO_SYS_NO
+	       , SUB_ITEM_SYS_NO
+	       , SUB_LOT_ID
+	       , SUB_WH_LOC_CD
+	       , CTRT_NO
+	       , WH_CD
+	       , SUB_ITEM_CD
+	       , SUB_ITEM_NM
+	       , SUB_ITEM_EA_QTY
+	       , SUB_ITEM_SO_NO
+	       , SUB_WIB_BK_NO
+	       , SUB_ITEM_PO_NO
+	       , SUB_ITEM_CBM
+	       , SUB_ITEM_CBF
+	       , SUB_ITEM_GRS_KGS
+	       , SUB_ITEM_GRS_LBS
+	       , SUB_ITEM_NET_KGS
+	       , SUB_ITEM_NET_LBS
+	       , RGST_ID
+	       , RGST_OFC_CD
+	       , RGST_SYS_DT
+	       , RGST_LOC_DT
+	       , MODI_ID
+	       , MODI_OFC_CD
+	       , MODI_SYS_DT
+	       , MODI_LOC_DT
+	       , SUB_ITEM_LIC_PLAT_NO
+		   , SUB_ITEM_SER_NO
+		   , SUB_ITEM_SEQ
+	       )
+	  VALUES
+	       ( #kit_no#
+	       , #sub_po_sys_no#
+	       , #sub_item_sys_no#
+	       , #sub_lot_id#
+	       , #sub_wh_loc_cd#
+	       , #ctrt_no#
+	       , #wh_cd#
+	       , #sub_item_cd#
+	       , #sub_item_nm#
+	       , #sub_item_ea_qty#
+	       , #sub_item_so_no#
+	       , #sub_wib_bk_no#
+	       , #sub_item_po_no#
+	       , #sub_item_cbm#
+	       , #sub_item_cbf#
+	       , #sub_item_grs_kgs#
+	       , #sub_item_grs_lbs#
+	       , #sub_item_net_kgs#
+	       , #sub_item_net_lbs#
+	       , #rgst_id#
+	       , #rgst_ofc_cd#
+	       , GETDATE()
+	       , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+		       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	       , #modi_id#
+	       , #modi_ofc_cd#
+	       , GETDATE()
+	       , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+		       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+		   , #sub_item_lic_plat_no#
+	       , #sub_item_ser_no#
+	       , (
+				SELECT ISNULL(MAX(T.SUB_ITEM_SEQ),0) + 1 FROM TL_WH_KIT_SUB_ITEM_INV T 
+				WHERE T.KIT_NO   	  = #kit_no#
+				AND T.SUB_PO_SYS_NO   = #sub_po_sys_no#
+				AND T.SUB_ITEM_SYS_NO = #sub_item_sys_no#
+				AND T.SUB_LOT_ID      = #sub_lot_id#
+				AND T.SUB_WH_LOC_CD   = #sub_wh_loc_cd#
+				AND T.SUB_WIB_BK_NO   = #sub_wib_bk_no#
+			  )
+	       )
+	</insert>
+
+	<insert id="saveWhKitSubItem" parameterClass="java.util.HashMap">
+	/*WHBOM.saveWhKitSubItem*/
+	DECLARE @WH_CD VARCHAR(20)
+	SET @WH_CD = dbo.TL_GET_TM_ZONE_DATE (#wh_cd#)
+	INSERT INTO TL_WH_KIT_SUB_ITEM
+	       ( KIT_NO
+	       , SUB_ITEM_SYS_NO
+	       , SUB_ITEM_CD
+	       , SUB_ITEM_NM
+	       , SUB_ITEM_UNIT_EA_QTY
+	       , RGST_ID
+	       , RGST_OFC_CD
+	       , RGST_SYS_DT
+	       , RGST_LOC_DT
+	       , MODI_ID
+	       , MODI_OFC_CD
+	       , MODI_SYS_DT
+	       , MODI_LOC_DT
+	       )
+	  VALUES
+	       ( #kit_no#
+	       , #sub_item_sys_no#
+	       , #sub_item_cd#
+	       , #sub_item_nm#
+	       , #sub_item_unit_ea_qty#
+	       , #rgst_id#
+	       , #rgst_ofc_cd#
+	       , GETDATE()
+	       , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+		       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	       , #modi_id#
+	       , #modi_ofc_cd#
+	       , GETDATE()
+	       , (SELECT CONVERT(VARCHAR, CONVERT(DATETIME, SUBSTRING((SELECT @WH_CD), 0, 9)), 111)
+		       + ' ' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 1, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 3, 2)
+		       + ':' + SUBSTRING(SUBSTRING((SELECT @WH_CD), 9, LEN((SELECT @WH_CD))), 5, 2))
+	       )
+	</insert>
+
+	<select id="searchBOMMgmtForDekittingHeader" parameterClass="java.util.HashMap" resultClass="DocinBOMMgmtVO">
+	/*WHBOM.searchBOMMgmtForDekittingHeader*/
+		SELECT T.*     
+		  FROM (
+				SELECT KI.KIT_NO
+				     , KI.PO_SYS_NO
+				     , KI.ITEM_SYS_NO
+				     , KI.WH_CD
+				     , dbo.TL_GET_LOC_NM(KI.WH_CD) AS WH_NM
+				     , KI.CTRT_NO
+				     , dbo.TL_GET_CTRT_NM(KI.CTRT_NO) AS CTRT_NM
+				     , KI.KIT_DT    
+				     , KI.ITEM_CD
+				     , KI.ITEM_NM	     
+				     , dbo.TL_GET_WH_LOC_NM(KI.WH_CD, KI.PUTAWAY_WH_LOC_CD) AS PUTAWAY_WH_LOC_NM 
+				     , KI.PUTAWAY_WH_LOC_CD 
+				     , ISNULL(KI.LOT_NO, ' ') AS LOT_NO
+				     , KI.LOT_ID
+				     , KI.EXP_DT
+				     , KI.LOT_04
+				     , KI.LOT_05
+				     , KI.CTRT_PIC_NM
+				     , KI.SUPV_NM
+				     , KI.WORKER_NM
+				     /*, KI.ITEM_CBM
+				     , KI.ITEM_CBF
+				     , KI.ITEM_GRS_KGS
+				     , KI.ITEM_GRS_LBS
+				     , KI.ITEM_NET_KGS
+				     , KI.ITEM_NET_LBS*/
+				     <![CDATA[ 
+				     , CASE WHEN ISNULL(INV.IN_CBM, 0)     - ISNULL(INV.ALLC_CBM, 0)     < 0 THEN 0 ELSE ISNULL(INV.IN_CBM, 0)     - ISNULL(INV.ALLC_CBM, 0)     END AS ITEM_CBM
+				     , CASE WHEN ISNULL(INV.IN_CBF, 0)     - ISNULL(INV.ALLC_CBF, 0)     < 0 THEN 0 ELSE ISNULL(INV.IN_CBF, 0)     - ISNULL(INV.ALLC_CBF, 0)     END AS ITEM_CBF
+				     , CASE WHEN ISNULL(INV.IN_GRS_KGS, 0) - ISNULL(INV.ALLC_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_GRS_KGS, 0) - ISNULL(INV.ALLC_GRS_KGS, 0) END AS ITEM_GRS_KGS
+				     , CASE WHEN ISNULL(INV.IN_GRS_LBS, 0) - ISNULL(INV.ALLC_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_GRS_LBS, 0) - ISNULL(INV.ALLC_GRS_LBS, 0) END AS ITEM_GRS_LBS
+				     , CASE WHEN ISNULL(INV.IN_NET_KGS, 0) - ISNULL(INV.ALLC_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_NET_KGS, 0) - ISNULL(INV.ALLC_NET_KGS, 0) END AS ITEM_NET_KGS
+				     , CASE WHEN ISNULL(INV.IN_NET_LBS, 0) - ISNULL(INV.ALLC_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_NET_LBS, 0) - ISNULL(INV.ALLC_NET_LBS, 0) END AS ITEM_NET_LBS
+				     ]]>
+				     /* Item Pack Master Level1 Info S */
+				     , ISNULL (I.PKG_LV1_QTY, 0) AS PKG_LV1_QTY			      
+				     , ISNULL (I.LV1_CBM, 0) AS LV1_CBM
+				     , ISNULL (I.LV1_CBF, 0) AS LV1_CBF
+				     , ISNULL (I.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+				     , ISNULL (I.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+				     , ISNULL (I.LV1_NET_KGS, 0) AS LV1_NET_KGS
+				     , ISNULL (I.LV1_NET_LBS, 0) AS LV1_NET_LBS
+				     /* Item Pack Master Level1 Info E */		     
+			         , ISNULL(INV.IN_QTY, 0) - ISNULL(INV.ALLC_QTY, 0) AS STOCK_QTY
+				  FROM TL_WH_KIT_ITEM KI LEFT JOIN TL_WH_INV_LOC INV ON KI.KIT_NO = INV.WIB_BK_NO
+						AND KI.PO_SYS_NO = INV.PO_SYS_NO
+						AND KI.ITEM_SYS_NO = INV.ITEM_SYS_NO
+						AND KI.LOT_ID = INV.LOT_ID
+						AND KI.PUTAWAY_WH_LOC_CD = INV.WH_LOC_CD
+					, TL_CTRT_CUST_ITEM I
+			      WHERE
+				       	  KI.CTRT_NO = I.CTRT_NO
+					  AND KI.ITEM_SYS_NO = I.ITEM_SYS_NO
+				
+				<isNotNull property="dekit_wh_cd">
+		           	AND KI.WH_CD = #dekit_wh_cd#
+		        </isNotNull>
+			    <isNotNull property="dekit_ctrt_no">
+		           	AND KI.CTRT_NO = #dekit_ctrt_no#
+		        </isNotNull>
+				<isNotNull property="in_dekit_no">
+		           	AND KI.KIT_NO = #in_dekit_no#
+		        </isNotNull>
+				<isNotNull property="dekit_fm_kit_dt">
+		           	AND KI.KIT_DT BETWEEN REPLACE(#dekit_fm_kit_dt#, '-', '')  AND REPLACE(#dekit_to_kit_dt#, '-','')
+		        </isNotNull>
+				<isNotNull property="dekit_item_cd">
+		           	AND KI.ITEM_CD IN (
+  				    	<iterate property="dekit_item_cd_in" conjunction=",">#dekit_item_cd#</iterate>
+  				    )
+		        </isNotNull>
+			    <isNotNull property="dekit_lot_no">
+		           	AND KI.LOT_NO = #dekit_lot_no#
+		        </isNotNull>
+				<isNotNull property="dekit_wh_loc_cd">
+		           	AND KI.PUTAWAY_WH_LOC_CD = #dekit_wh_loc_cd#
+		        </isNotNull>
+			   ) T
+		 WHERE 1=1
+			  <![CDATA[  AND T.STOCK_QTY > 0 ]]>
+		 ORDER BY T.KIT_NO ASC, T.ITEM_CD ASC
+	</select>	
+
+	<select id="searchWhKitSubItemInv" parameterClass="java.util.HashMap" resultClass="DocinBOMMgmtVO">
+	/*WHBOM.searchWhKitSubItemInv*/
+		SELECT T.*
+		     , LOT.LOT_ATTRIB_01 AS INBOUND_DT
+		     , LOT.LOT_ATTRIB_02 AS LOT_NO
+		     , LOT.LOT_ATTRIB_03 AS EXP_DT/*EXPIRATION DATE*/
+		     , LOT.LOT_ATTRIB_04 AS LOT_04
+		     , LOT.LOT_ATTRIB_05 AS LOT_05
+		  FROM (
+				SELECT KISI.KIT_NO
+				     , KISI.SUB_PO_SYS_NO
+				     , KISI.SUB_ITEM_SYS_NO
+				     , KISI.SUB_LOT_ID
+				     , KISI.SUB_WH_LOC_CD
+				     , dbo.TL_GET_WH_LOC_NM(KISI.WH_CD, KISI.SUB_WH_LOC_CD) AS SUB_WH_LOC_CD_NM
+				     , KISI.SUB_ITEM_CD
+				     , KISI.SUB_ITEM_NM
+				     , KISI.SUB_ITEM_EA_QTY
+				     <![CDATA[   
+				     , CASE WHEN KISI.SUB_ITEM_CBM     <= 0 THEN 0 ELSE KISI.SUB_ITEM_CBM END     AS SUB_ITEM_CBM
+				     , CASE WHEN KISI.SUB_ITEM_CBF     <= 0 THEN 0 ELSE KISI.SUB_ITEM_CBF END     AS SUB_ITEM_CBF
+				     , CASE WHEN KISI.SUB_ITEM_GRS_KGS <= 0 THEN 0 ELSE KISI.SUB_ITEM_GRS_KGS END AS SUB_ITEM_GRS_KGS
+				     , CASE WHEN KISI.SUB_ITEM_GRS_LBS <= 0 THEN 0 ELSE KISI.SUB_ITEM_GRS_LBS END AS SUB_ITEM_GRS_LBS
+				     , CASE WHEN KISI.SUB_ITEM_NET_KGS <= 0 THEN 0 ELSE KISI.SUB_ITEM_NET_KGS END AS SUB_ITEM_NET_KGS
+				     , CASE WHEN KISI.SUB_ITEM_NET_LBS <= 0 THEN 0 ELSE KISI.SUB_ITEM_NET_LBS END AS SUB_ITEM_NET_LBS
+				     ]]>
+				     , KISI.SUB_ITEM_SO_NO
+				     , KISI.SUB_WIB_BK_NO
+				     , KISI.SUB_ITEM_PO_NO
+				     , KISI.CTRT_NO
+					 , KISI.SUB_ITEM_SER_NO
+					 , KISI.SUB_ITEM_LIC_PLAT_NO
+					 , KISI.SUB_ITEM_SEQ
+				  FROM TL_WH_KIT_SUB_ITEM_INV KISI
+				 WHERE KISI.KIT_NO = #in_kit_no#
+			   ) T
+		     , TL_CTRT_CUST_ITEM_LOT LOT
+		 WHERE T.CTRT_NO = LOT.CTRT_NO
+		   AND T.SUB_ITEM_SYS_NO = LOT.ITEM_SYS_NO
+		   AND T.SUB_LOT_ID = LOT.LOT_ID 
+		 ORDER BY T.SUB_ITEM_CD ASC, LOT.LOT_ATTRIB_01, LOT.LOT_ATTRIB_02, T.SUB_WH_LOC_CD_NM
+	</select>	
+
+	<select id="searchWhKitSubItem" parameterClass="java.util.HashMap" resultClass="DocinBOMMgmtVO">
+		/*WHBOM.searchWhKitSubItem*/
+		SELECT KIS.KIT_NO
+		     , KIS.SUB_ITEM_SYS_NO
+		     , KIS.SUB_ITEM_CD
+		     , KIS.SUB_ITEM_NM
+		     , KIS.SUB_ITEM_UNIT_EA_QTY
+		     , KIS.SUB_ITEM_UNIT_EA_QTY * KI.ITEM_EA_QTY AS REQUIRED_QTY
+		     , KIS.SUB_ITEM_UNIT_EA_QTY * KI.ITEM_EA_QTY AS ASSIGNED_QTY
+		  FROM TL_WH_KIT_SUB_ITEM KIS
+		     , TL_WH_KIT_ITEM KI
+		 WHERE KIS.KIT_NO = KI.KIT_NO
+		   AND KIS.KIT_NO = #in_kit_no#
+		 ORDER BY KIS.SUB_ITEM_CD ASC
+	</select>
+
+	<select id="searchWhKitItem" parameterClass="java.util.HashMap" resultClass="DocinBOMMgmtVO">
+		/*WHBOM.searchWhKitItem*/
+		SELECT KI.KIT_NO
+		     , KI.WH_CD
+		     , dbo.TL_GET_LOC_NM(KI.WH_CD) AS WH_NM
+		     , KI.CTRT_NO
+		     , dbo.TL_GET_CTRT_NM(KI.CTRT_NO) AS CTRT_NM
+		     , CONVERT(VARCHAR(10), KI.KIT_DT, 101) AS KIT_DT
+		     , CASE WHEN KI.KIT_HM_FR IS NULL OR KI.KIT_HM_FR = '' THEN ''
+			        ELSE SUBSTRING(KI.KIT_HM_FR, 1, 2) + ':' + SUBSTRING(KI.KIT_HM_FR, 3, 2)  END AS KIT_HM_FR
+			 , CASE WHEN KI.KIT_HM_TO IS NULL OR KI.KIT_HM_TO = '' THEN ''
+			        ELSE SUBSTRING(KI.KIT_HM_TO, 1, 2) + ':' + SUBSTRING(KI.KIT_HM_TO, 3, 2)  END AS KIT_HM_TO	 
+		     , KI.ITEM_CD
+		     , KI.ITEM_NM
+		     , 'KIT' AS ITEM_GRP_CD
+		     , KI.ITEM_EA_QTY
+		     , dbo.TL_GET_WH_LOC_NM(KI.WH_CD, KI.PUTAWAY_WH_LOC_CD)  AS kit_wh_loc_nm
+		     , KI.PUTAWAY_WH_LOC_CD AS kit_wh_loc_cd
+		     , KI.LOT_NO
+		     , KI.LOT_ID
+		     , CONVERT(VARCHAR(10), KI.EXP_DT, 101) AS EXP_DT     
+		     , KI.LOT_04
+		     , KI.LOT_05
+		     , KI.CTRT_PIC_NM
+		     , KI.SUPV_NM
+		     , KI.WORKER_NM	  
+		     <![CDATA[    
+		     	, LTRIM(RTRIM(CONVERT(DECIMAL(15, 3), (CASE WHEN ISNULL(KI.ITEM_CBM,0) < 0 THEN 0 ELSE ISNULL(KI.ITEM_CBM,0) END)))) AS ITEM_CBM
+				, LTRIM(RTRIM(CONVERT(DECIMAL(15, 3), (CASE WHEN ISNULL(KI.ITEM_CBF,0) < 0 THEN 0 ELSE ISNULL(KI.ITEM_CBF,0) END)))) AS ITEM_CBF
+				, LTRIM(RTRIM(CONVERT(DECIMAL(15, 3), (CASE WHEN ISNULL(KI.ITEM_GRS_KGS,0) < 0 THEN 0 ELSE ISNULL(KI.ITEM_GRS_KGS,0) END)))) AS ITEM_GRS_KGS
+				, LTRIM(RTRIM(CONVERT(DECIMAL(15, 3), (CASE WHEN ISNULL(KI.ITEM_GRS_LBS,0) < 0 THEN 0 ELSE ISNULL(KI.ITEM_GRS_LBS,0) END)))) AS ITEM_GRS_LBS
+				, LTRIM(RTRIM(CONVERT(DECIMAL(15, 3), (CASE WHEN ISNULL(KI.ITEM_NET_KGS,0) < 0 THEN 0 ELSE ISNULL(KI.ITEM_NET_KGS,0) END)))) AS ITEM_NET_KGS
+				, LTRIM(RTRIM(CONVERT(DECIMAL(15, 3), (CASE WHEN ISNULL(KI.ITEM_NET_LBS,0) < 0 THEN 0 ELSE ISNULL(KI.ITEM_NET_LBS,0) END)))) AS ITEM_NET_LBS
+		     ]]>
+		     , KI.RMK 
+		  FROM TL_WH_KIT_ITEM KI
+		 WHERE 1 = 1
+		   AND KI.KIT_NO = #in_kit_no#
+	</select>
+
+	<select id="searchBOMList" parameterClass="java.util.HashMap" resultClass="BOMListVO">
+		/*WHBOM.searchBOMList*/
+		SELECT T.*
+		FROM (
+		SELECT KI.KIT_NO
+		, KI.PO_SYS_NO
+		, KI.ITEM_SYS_NO
+		, KI.WH_CD
+		, dbo.TL_GET_LOC_NM(KI.WH_CD) AS WH_NM
+		, KI.CTRT_NO
+		, dbo.TL_GET_CTRT_NM(KI.CTRT_NO) AS CTRT_NM
+		, KI.KIT_DT
+		, KI.ITEM_CD
+		, KI.ITEM_NM
+		, dbo.TL_GET_WH_LOC_NM(KI.WH_CD, KI.PUTAWAY_WH_LOC_CD) AS PUTAWAY_WH_LOC_NM
+		, KI.PUTAWAY_WH_LOC_CD
+		, ISNULL(KI.LOT_NO, ' ') AS LOT_NO
+		, KI.LOT_ID
+		, ISNULL(CONVERT(VARCHAR(10), KI.EXP_DT, 101), ' ') AS EXP_DT		
+		, ISNULL(KI.LOT_04, ' ') AS LOT_04
+		, ISNULL(KI.LOT_05, ' ') AS LOT_05
+		, KI.CTRT_PIC_NM
+		, KI.SUPV_NM
+		, KI.WORKER_NM
+		     <![CDATA[    
+		    , CASE WHEN ISNULL(INV.IN_CBM, 0)     - ISNULL(INV.ALLC_CBM, 0)     < 0 THEN 0 ELSE ISNULL(INV.IN_CBM, 0)     - ISNULL(INV.ALLC_CBM, 0)     END AS ITEM_CBM
+			, CASE WHEN ISNULL(INV.IN_CBF, 0)     - ISNULL(INV.ALLC_CBF, 0)     < 0 THEN 0 ELSE ISNULL(INV.IN_CBF, 0)     - ISNULL(INV.ALLC_CBF, 0)     END AS ITEM_CBF
+			, CASE WHEN ISNULL(INV.IN_GRS_KGS, 0) - ISNULL(INV.ALLC_GRS_KGS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_GRS_KGS, 0) - ISNULL(INV.ALLC_GRS_KGS, 0) END AS ITEM_GRS_KGS
+			, CASE WHEN ISNULL(INV.IN_GRS_LBS, 0) - ISNULL(INV.ALLC_GRS_LBS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_GRS_LBS, 0) - ISNULL(INV.ALLC_GRS_LBS, 0) END AS ITEM_GRS_LBS
+			, CASE WHEN ISNULL(INV.IN_NET_KGS, 0) - ISNULL(INV.ALLC_NET_KGS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_NET_KGS, 0) - ISNULL(INV.ALLC_NET_KGS, 0) END AS ITEM_NET_KGS
+			, CASE WHEN ISNULL(INV.IN_NET_LBS, 0) - ISNULL(INV.ALLC_NET_LBS, 0) < 0 THEN 0 ELSE ISNULL(INV.IN_NET_LBS, 0) - ISNULL(INV.ALLC_NET_LBS, 0) END AS ITEM_NET_LBS
+		     ]]>
+		, KIS.SUB_ITEM_CD
+		, KIS.SUB_ITEM_NM
+		, KIS.SUB_ITEM_UNIT_EA_QTY
+		, KIS.SUB_ITEM_UNIT_EA_QTY * KI.ITEM_EA_QTY AS SUB_TOT_QTY
+		, KISI.SUB_ITEM_SYS_NO
+		, KISI.SUB_LOT_ID
+		, KISI.SUB_WH_LOC_CD
+		, dbo.TL_GET_WH_LOC_NM(KISI.WH_CD, KISI.SUB_WH_LOC_CD) AS SUB_WH_LOC_NM
+		, KISI.SUB_ITEM_EA_QTY
+		, LOT.LOT_ATTRIB_01 AS SUB_INBOUND_DT
+		, LOT.LOT_ATTRIB_02 AS SUB_LOT_NO
+		, ISNULL(INV.IN_QTY, 0) - ISNULL(INV.ALLC_QTY, 0) AS STOCK_QTY
+		FROM TL_WH_INV_LOC INV RIGHT JOIN TL_WH_KIT_ITEM KI ON KI.KIT_NO = INV.WIB_BK_NO 
+				AND KI.PO_SYS_NO = INV.PO_SYS_NO
+				AND KI.ITEM_SYS_NO = INV.ITEM_SYS_NO
+				AND KI.LOT_ID = INV.LOT_ID
+				AND KI.PUTAWAY_WH_LOC_CD = INV.WH_LOC_CD
+			LEFT JOIN TL_WH_KIT_SUB_ITEM KIS ON KI.KIT_NO = KIS.KIT_NO
+			LEFT JOIN TL_WH_KIT_SUB_ITEM_INV KISI ON KIS.KIT_NO = KISI.KIT_NO
+				AND KIS.SUB_ITEM_SYS_NO = KISI.SUB_ITEM_SYS_NO
+			LEFT JOIN TL_CTRT_CUST_ITEM_LOT LOT ON KISI.CTRT_NO = LOT.CTRT_NO
+				AND KISI.SUB_ITEM_SYS_NO = LOT.ITEM_SYS_NO
+				AND KISI.SUB_LOT_ID = LOT.LOT_ID
+		WHERE 
+		<isNotEmpty property="wh_cd">
+           	 KI.WH_CD = #wh_cd#
+        </isNotEmpty>
+		<isNotEmpty property="ctrt_no">
+           	AND KI.CTRT_NO = #ctrt_no#
+        </isNotEmpty>
+		<isNotEmpty property="kit_no">
+           	AND KI.KIT_NO = #kit_no#
+        </isNotEmpty>
+		<isNotEmpty property="fm_kit_dt">
+           	AND KI.KIT_DT BETWEEN REPLACE(#fm_kit_dt#, '-', '') AND
+			REPLACE(#to_kit_dt#, '-','')
+        </isNotEmpty>
+		<isNotEmpty property="kit_item_cd">
+           	AND KI.ITEM_CD IN (
+				<iterate property="kit_item_cd_in" conjunction=",">#kit_item_cd#</iterate>
+			)
+        </isNotEmpty>
+		<isNotEmpty property="kit_lot_no">
+           	AND KI.LOT_NO = #kit_lot_no#
+        </isNotEmpty>
+		<isNotEmpty property="wh_loc_cd">
+           	AND KI.PUTAWAY_WH_LOC_CD = #wh_loc_cd#
+        </isNotEmpty>
+		) T
+		WHERE 1=1
+		<isEqual property="inv_tp" compareValue="Y">
+			<![CDATA[  AND T.STOCK_QTY > 0 ]]>
+		</isEqual>
+		<isEqual property="inv_tp" compareValue="N">
+			<![CDATA[  AND T.STOCK_QTY <= 0 ]]>
+		</isEqual>
+		ORDER BY T.KIT_NO ASC, T.ITEM_CD ASC, T.SUB_ITEM_CD ASC,
+		T.SUB_INBOUND_DT, T.SUB_LOT_NO, T.SUB_WH_LOC_NM
+	</select>
+
+<select id="searchWarehouseCdListRSQL" parameterClass="java.util.HashMap" resultClass="BOMListVO">
+/* searchWarehouseListRSQL */
+		SELECT 
+		   WH_CD,
+		   WH_NM		  
+		FROM TL_WH
+		WHERE USE_FLG = 'Y'
+</select>
+
+</sqlMap>

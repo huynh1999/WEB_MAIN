@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+	<!--#### 메뉴관리 Start ####  -->
+    <!-- 최 상위 메뉴관리   -->
+    <screen name="SYS_PGM_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/pgm/menu/jsp/SYS_PGM_0010.jsp" />
+    </screen>
+
+    <!-- 최 상위 메뉴관리 그리드  -->
+    <screen name="SYS_PGM_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/sys/pgm/menu/jsp/SYS_PGM_0010GS.jsp" />
+    </screen>
+	
+    <!-- 메뉴관리   -->
+    <screen name="SYS_PGM_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/pgm/menu/jsp/SYS_PGM_0020.jsp" />
+    </screen>
+
+    <!-- 메뉴관리 그리드  -->
+    <screen name="SYS_PGM_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/sys/pgm/menu/jsp/SYS_PGM_0020GS.jsp" />
+    </screen>
+
+    <!-- 메뉴관리 트리표시   -->
+	<screen name="SYS_PGM_0020SUB">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/pgm/menu/jsp/SYS_PGM_0020SUB.jsp" />
+    </screen>
+		
+    <!-- 프로그램 관리화면   -->
+    <screen name="SYS_PGM_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/pgm/menu/jsp/SYS_PGM_0030.jsp" />
+    </screen>
+
+    <!-- 프로그램 관리화면 데이터  -->
+    <screen name="SYS_PGM_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/sys/pgm/menu/jsp/SYS_PGM_0030GS.jsp" />
+    </screen>
+    
+    <!-- 프로그램 관리화면 메뉴트리 표시   -->
+    <screen name="SYS_PGM_0030SUB">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/pgm/menu/jsp/SYS_PGM_0030SUB.jsp" />
+    </screen>
+	
+    <!-- 프로그램 관리화면   -->
+    <screen name="SYS_PGM_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/pgm/menu/jsp/SYS_PGM_0030.jsp" />
+    </screen>
+
+    <!-- 프로그램 관리화면 데이터  -->
+    <screen name="SYS_PGM_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/sys/pgm/menu/jsp/SYS_PGM_0030GS.jsp" />
+    </screen>
+	<!--#### 메뉴관리 End ####  -->
+
+	
+    <!--#### 롤관리 Start ####  -->
+        
+    <!-- 롤 관리팝업 화면   -->
+    <screen name="SYS_ROL_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/pgm/role/jsp/SYS_ROL_0010.jsp" />
+    </screen>
+
+    <!-- 롤 관리팝업 데이터  -->
+    <screen name="SYS_ROL_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/sys/pgm/role/jsp/SYS_ROL_0010GS.jsp" />
+    </screen>
+    
+    <!-- 롤 매핑 화면   -->
+    <screen name="SYS_ROL_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/pgm/role/jsp/SYS_ROL_0020.jsp" />
+    </screen>
+
+	<!--#### 롤관리 End ####  -->
+	
+	<!--#### 사용자관리 Start ####  -->
+    <!-- 사용자관리 화면. Jung-Gu, Kang(2008.12.25)  -->
+    <screen name="SYS_AUT_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/aut/user/jsp/SYS_AUT_0010.jsp" />
+    </screen>
+
+    <!-- 사용자관리 화면 데이터. Jung-Gu, Kang(2008.12.25)  -->
+    <screen name="SYS_AUT_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/sys/aut/user/jsp/SYS_AUT_0010GS.jsp" />
+    </screen>
+
+    <!-- 개인정보 관리화면. Jung-Gu, Kang(2009.01.23)  -->
+	<screen name="SYS_AUT_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/aut/user/jsp/SYS_AUT_0020.jsp" />
+    </screen>
+	
+    <!-- 패스워드 변경. Jung-Gu, Kang(2009.01.23)  -->
+    <screen name="SYS_AUT_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/aut/user/jsp/SYS_AUT_0030.jsp" />
+    </screen>
+    <!--#### 사용자관리 End ####  -->
+	
+    <!--#### Office Hierarchy  Start ####  -->
+    <!-- Office Hierarchy 화면. Jung-Gu, Kang(2008.12.25)  -->
+    <screen name="SYS_OFC_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/aut/user/jsp/SYS_OFC_0010.jsp" />
+    </screen>
+
+    <!-- Office Hierarchy 데이터. Jung-Gu, Kang(2008.12.25)  -->
+    <screen name="SYS_OFC_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/sys/aut/user/jsp/SYS_OFC_0010GS.jsp" />
+    </screen>
+
+    <!--#### Office Hierarchy  End ####  -->
+    
+    
+    <!--#### Log Level 설정 Start ####  -->
+    <!-- Log Level 설정 화면. LEE, SY (2018.12.10)  -->
+    <screen name="SYS_LOG_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sys/aut/user/jsp/log4jLevel.jsp" />
+    </screen>
+    <!--#### Log Level 설정 End ####  -->
+    
+</screen-definitions>

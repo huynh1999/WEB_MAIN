@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="mobbase.sql">
+
+    <typeAlias alias="loginVO" type="com.clt.apps.opusbase.login.dto.UserInfoVO"/>
+    <typeAlias alias="StatisticsVO" type="com.clt.apps.opusbase.login.dto.StatisticsVO"/>
+    <typeAlias alias="CmmAjaxVO" type="com.clt.apps.common.dto.CmmAjaxVO"/>
+    
+	<update id="updateUserPwdChg" parameterClass="HashMap">
+        UPDATE  tb_usr 
+           SET  pwd = #newPwd#,  
+                modi_usrid = #userId#,
+                modi_ofc_cd = #user_ofccd#,
+                modi_tms = GETUTCDATE(),
+                LAST_PWD_CHG_DT = CONVERT(VARCHAR(8), GETDATE(), 112)
+         WHERE  usrid = #userId#
+		   AND  pwd = #inPwd#	
+	</update>
+    
+	<update id="updateUserInfo" parameterClass="HashMap">
+        UPDATE  tb_usr 
+           SET  dflt_wh_cd = #dflt_wh_cd#,  
+                use_lang_cd = #use_lang_cd#,  
+                modi_usrid = #userId#,
+                modi_ofc_cd = #user_ofccd#,
+                modi_tms = GETUTCDATE()
+         WHERE  usrid = #userId#
+	</update>
+	
+	<select id="selectUserPwd" resultClass="String" parameterClass="HashMap">
+		SELECT /* mobbase.sql > selectUserPwd */
+			CASE WHEN pwd = #inPwd# THEN 'T' ELSE 'F' END
+		FROM
+			TB_USR
+		WHERE
+			USRID = #userId#
+	</select>
+    <!-- 로그인시 사용되는 SQL구문임   -->
+    <select id="selectUSR" resultClass="loginVO" parameterClass="HashMap">
+        SELECT  /* mobbase.sql > selectUSR */
+        		a.usrid,                    a.pwd,           a.use_flg, 
+                a.eng_usr_nm  user_name,    a.eml,			 a.eml_con,
+                a.use_lang_cd,              a.ofc_cd,        a.role_cd,   a.dept_cd,
+                ISNULL((SELECT CD_NM FROM TB_COM_CD_DTL
+		                 WHERE 1 = 1
+		                   AND COM_CD = 'C056'
+		                   AND CD_VAL = A.DEPT_CD),'') AS DEPT_NM, 
+		        a.eml_svc_tp,               a.lgin_chk_val,		
+				b.ofc_eng_nm,				b.ofc_locl_nm,   b.cnt_cd  AS ofc_cnt_cd,
+		        b.loc_cd AS ofc_loc_cd,		a.phn,           a.fax,		b.use_hbl_ser,	b.trf_cur_cd AS ofc_curr_cd,
+		        isnull(a.rpt_file_path,'') as rpt_file_path,
+		        (SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A01') AS dp_flg,
+				(SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A02' ) AS fb_flg,
+				(SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A03' ) AS jo_flg,
+				(SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'O01' ) AS oo_flg,
+				(SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'O03' ) AS oa_flg,
+				(SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A04' ) AS vc_flg,
+				(SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A05' ) AS prn_flg,
+				(SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'O02' ) AS ofc_flg,
+				isnull((SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A06' ),'N') AS apo_flg, <!-- 201601 ACCESS PAYMENT/DEPOSIT OF ALL OFFICES 추가 -->
+				isnull((SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A07' ),'N') AS efc_flg, <!-- 201601 EDIT AFTER CREATING INVOICES추가 -->
+				isnull((SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A08' ),'N') AS edob_flg, <!-- 201601 ENABLE EDITING OTHER OFFICE (B/L)추가 -->
+				isnull((SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A09' ),'N') AS edoa_flg, <!-- 201601 ENABLE EDITING OTHER OFFICE (ACCT)추가 -->
+				isnull((SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A10' ),'N') AS credit_flg, 
+				isnull((SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'A11' ),'N') AS uod_flg, <!-- VIEW AND EDIT OTHER USER OPERATION DATA -->
+				
+				isnull((SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'O05' ),'N') AS codp_flg, <!-- CHANGE OFFICE CODE OF DEPOSIT/PAYMENT -->
+				isnull((SELECT use_flg FROM tb_role_fnc WHERE role_cd = a.role_cd AND role_fnc_cd = 'O14' ),'N') AS eblfn_flg, <!-- OFVFOUR-7862: [ZEN] Add Role "Edit B/L Filing No." -->
+				isnull((SELECT opt_val FROM TB_SYS_OPT WHERE opt_key = 'MULTI_LANGUAGE' ),'N') AS multi_language, <!-- 201601 다국어 추가 -->
+  			    a.dflt_wh_ctrt_no as def_wh_ctrt_no,
+                isnull((select ctrt_nm from TL_CTRT where ctrt_no = a.dflt_wh_ctrt_no),'') as def_wh_ctrt_nm,
+                <!-- #3390-Check Authority WMS CODE -->
+                <!-- a.dflt_wh_cd as def_wh_cd, -->
+                (SELECT ISNULL(MAX(PRE_FIX),'UNKNOW' ) FROM TB_SEQ WHERE SEQ_TYPE='WH_CD' AND PRE_FIX = a.dflt_wh_cd) as def_wh_cd,
+                a.wh_cfg as wh_cfg,
+                dbo.TL_GET_ROWTOCOLL_WHCD_DLT() as wh_list_ath,
+               	a.dflt_ord_tp_cd,
+                isnull((select wh.wh_nm from TL_WH wh where wh.wh_cd = a.dflt_wh_cd),'') as def_wh_nm,
+                b.RPT_TP_CD,
+                <!-- #5664 [Webtrans] Popup size option complaint -->
+                isnull((SELECT opt_val FROM TB_SYS_OPT WHERE opt_key = 'POPUP_FULL_SCREEN' ),'N') AS popup_full_screen
+        FROM    tb_usr a,      tb_ofc b
+        WHERE   a.usr_tp = 'I'
+          AND   a.usrid = #userId#
+          AND   a.ofc_cd = b.ofc_cd
+          AND   a.use_flg = 'Y'
+		  AND   b.delt_flg = 'N'
+		  AND   a.role_cd != 'DUM'
+	</select>
+	 
+
+    <!-- 로그인시 세션키 생성   -->
+    <update id="updateUSR_SESSIONKEY" parameterClass="HashMap">
+		UPDATE tb_usr
+		   SET lgin_chk_val = #lgin_chk_val#
+		 WHERE usrid = #usrid#  AND  pwd = #pwd#
+	</update>
+	<select id="searchMobCtrtList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mob.cmm.dto.CtrtsVO$CtrtVO">
+		SELECT
+			CTRT_NO ctrtNo,
+			CTRT_NM ctrtNm
+		FROM
+			TL_CTRT C
+		WHERE
+			1 = 1
+		AND
+			C.CTRT_USE_FLG   = 'Y'
+	</select>
+	<select id="selectUOMInfo" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mob.ob.dto.UomInfoVO">
+		SELECT /*MobObSQL.xml : selectUOMInfo */
+			ITEM_PKGBASEQTY itemPkgbaseqty,
+			ITEM_PKGUNIT itemPkgunit,
+			(SELECT
+				PCK_NM 
+			FROM
+				TB_PCK_UT_CD PKG 
+			WHERE
+				PKG.PCK_UT_CD = ISNULL(ITEM_PKGUNIT, '')
+			) AS itemPkgunitNm,
+			ITEM_CBM,
+			ITEM_CBF,
+			ITEM_KGS ITEM_GRS_KGS,
+			ITEM_KGS ITEM_NET_KGS,
+			ITEM_GRS_LBS,
+			ITEM_NET_LBS,
+			PKG_LV1_QTY pkgLv1Qty,
+			PKG_LV1_UNIT_CD pkgLv1UnitCd,
+			(SELECT
+				PCK_NM 
+			FROM
+				TB_PCK_UT_CD PKG 
+			WHERE
+				PKG.PCK_UT_CD = ISNULL(PKG_LV1_UNIT_CD, '')
+			) AS pkgLv1UnitNm,
+			LV1_CBM,
+			LV1_CBF,
+			LV1_GRS_KGS,
+			LV1_GRS_LBS,
+			LV1_NET_KGS,
+			LV1_NET_LBS,
+			PKG_LV3_QTY pkgLv3Qty,
+			PKG_LV3_UNIT_CD pkgLv3UnitCd,
+			(SELECT
+				LIC_PLAT_DESC 
+			FROM
+				TL_WH_LIC_PLAT_UT_CD PKG 
+			WHERE
+				PKG.LIC_PLAT_UT_CD = ISNULL(PKG_LV3_UNIT_CD, '')
+			) AS pkgLv3UnitNm,
+			LV3_CBM,
+			LV3_CBF,
+			LV3_GRS_KGS,
+			LV3_GRS_LBS,
+			LV3_NET_KGS,
+			LV3_NET_LBS
+		FROM 
+			TL_CTRT_CUST_ITEM 
+		WHERE 
+			1=1
+		AND
+			ITEM_CD = #itemCd#
+		AND 
+			CTRT_NO = #ctrtNo#
+		AND 
+			ITEM_USE_FLG = 'Y'
+	</select>
+	
+	<select id="selectGetLocation" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mob.cmm.dto.LocVO">
+	
+		SELECT 
+			   TOP 1	
+			   WL.ZONE_CD
+		      ,WL.WH_LOC_CD
+		      ,WL.WH_LOC_NM
+		      ,WL.PROP_CD
+		      ,dbo.TL_GET_COMM_NM('WL0', WL.PROP_CD)   AS PROP_NM
+		      ,WL.PUT_TP_CD
+		      ,dbo.TL_GET_COMM_NM('PP0', WL.PUT_TP_CD) AS PUT_TP_NM
+		      ,WP.PUTAWAY_FLG
+		      ,WP.ALLOC_FLG
+		      ,WP.MOVE_FLG
+		      ,WP.REPLENISH_FLG
+		      ,WP.ADJUST_FLG
+		      ,WL.LOC_CD
+		      ,WL.SPACE_TP_CD
+		      ,dbo.TL_GET_COMM_NM('WS0', WL.SPACE_TP_CD) AS SPACE_TP_NM
+		  FROM TL_WH_LOC WL 
+		  INNER JOIN TL_WH_PROP WP 
+		    ON WL.LOC_CD  = WP.LOC_CD  AND WL.PROP_CD = WP.PROP_CD
+		 WHERE WL.USE_FLG = 'Y'
+	 	   AND WL.LOC_CD = #loc_cd#
+		   AND WL.WH_LOC_NM like #wh_loc_nm#+'%'
+             
+	</select>	
+	
+	<select id="searchComCodeList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mob.cmm.dto.CodesVO$CodeVO">
+	/* MobBaseSQL.xml > searchComCodeList */
+	  SELECT
+	        cd_val AS CODE_CD
+	        ,cd_nm  AS CODE_NM
+	        ,rmk         
+	    FROM
+	        tb_com_cd_dtl         
+	    WHERE
+	        delt_flg = 'N' 
+	        AND use_flg = 'Y'                                       
+	        AND com_cd  = #com_cd#
+	                                       
+	    ORDER BY
+	        com_cd ASC,
+	        srt_seq ASC     
+	</select>	
+	
+	<select id="searchWarehouseList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mob.cmm.dto.CodesVO$CodeVO">
+	<!-- #3390-Check Authority WMS CODE
+	/* MobBaseSQL.xml > searchWarehouseList */
+			SELECT 
+			   WH_CD  AS CODE_CD
+			   ,WH_NM  AS CODE_NM 	  
+			FROM TL_WH
+			WHERE USE_FLG = 'Y'
+	 -->
+	/* MobBaseSQL.xml > searchWarehouseList */
+			SELECT 
+			    A.WH_CD  AS CODE_CD
+			   ,A.WH_NM  AS CODE_NM 	  
+			FROM TL_WH A, TB_SEQ B 
+			WHERE A.WH_CD = B.PRE_FIX AND A.USE_FLG = 'Y' AND B.SEQ_TYPE='WH_CD'
+	</select>
+
+	<select id="searchCtrtLotAlias" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		/* MobBaseSQL.xml > mobbase.sql.searchCtrtLotAlias */
+		SELECT CASE WHEN LOT4_ALIAS IS NULL OR LOT4_ALIAS = ''    <!-- #2807 [BINEX WMS4.0] LOT04, LOT05 NICKNAME CUSTOMIZATION -->
+		            THEN 'LOT4'
+		            ELSE LOT4_ALIAS
+		       END + '|' +
+		       CASE WHEN LOT5_ALIAS IS NULL OR LOT5_ALIAS = ''
+		            THEN 'LOT5'
+		            ELSE LOT5_ALIAS
+		       END AS LOT_ALIAS
+		  FROM TL_CTRT
+		 WHERE CTRT_NO = #ctrt_no#
+	</select>
+
+</sqlMap>

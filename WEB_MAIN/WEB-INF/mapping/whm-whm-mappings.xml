@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+<!--#### tinluong 2014/12/15 warehouse entry ####-->
+   <url-mapping url="WHM_WHM_0003.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.item.itementry.event.WHM_WHM_0003HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0003.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="WHM_WHM_0003GS.clt" screen="WHM_WHM_0003GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.item.itementry.event.WHM_WHM_0003HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <url-mapping url="WHM_WHM_0003_01GS.clt" screen="WHM_WHM_0003_01GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.item.itementry.event.WHM_WHM_0003HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0013GS.clt" screen="WHM_WHM_0013GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.item.itementry.event.WHM_WHM_0003HTMLAction</web-action-class>
+    </url-mapping>
+    
+
+<!--#### tinluong 2014/12/15 warehouse entry ####-->
+
+<!--#### tinluong 2014/12/15 warehouse List ####-->
+   <url-mapping url="WHM_WHM_0004.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.item.itemlist.event.WHM_WHM_0004HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0004.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="WHM_WHM_0004GS.clt" screen="WHM_WHM_0004GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.item.itemlist.event.WHM_WHM_0004HTMLAction</web-action-class>
+    </url-mapping>
+    
+	<event-mapping>
+        <event-class>com.clt.apps.fis.whm.item.itementry.event.ItemEntryEvent</event-class>
+        <service-action-class>com.clt.apps.fis.whm.item.itementry.itementrySC</service-action-class>
+    </event-mapping>
+    
+	<!--  <event-mapping>
+        <event-class>com.clt.apps.fis.whm.item.itemlist.event.ItemListEvent</event-class>
+        <service-action-class>com.clt.apps.fis.whm.item.itemlist.ItemListSC</service-action-class>
+    </event-mapping> --> 
+    
+<!--#### tinluong 2014/12/15 warehouse entry ####-->
+	
+<!--#### WHM RECEIVING 관련 프로그램  Start ####  -->
+	<url-mapping url="WHM_WHM_0005.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0005HTMLAction</web-action-class>
+<!--         <web-action-class>com.clt.apps.fis.oth.whr.details.event.OTH_WHR_0010HTMLAction</web-action-class> -->
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0005.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+	<event-mapping>
+        <event-class>com.clt.apps.fis.whm.receiving.receiving.event.ReceivingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.whm.receiving.receiving.receivingSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="WHM_WHM_0005_01GS.clt" screen="WHM_WHM_0005_01GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0005HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHM_WHM_0005_02GS.clt" screen="WHM_WHM_0005_02GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0005HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHM_WHM_0005_03GS.clt" screen="WHM_WHM_0005_03GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0005HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHM_WHM_0005_04GS.clt" screen="WHM_WHM_0005_04GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0005HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHM_WHM_0005_05GS.clt" screen="WHM_WHM_0005_05GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0005HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHM_WHM_0005_06GS.clt" screen="WHM_WHM_0005_06GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0005HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHM_WHM_0005_07GS.clt" screen="WHM_WHM_0005_07GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0005HTMLAction</web-action-class>
+    </url-mapping>    
+    <!-- Bao.Huynh 2015/10/14 (S) -->
+    <url-mapping url="WHM_WHM_0005_08GS.clt" screen="WHM_WHM_0005_08GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0005HTMLAction</web-action-class>
+    </url-mapping>    
+    <!-- Bao.Huynh 2015/10/14 (E) -->
+    
+    <!-- Vinh.Vo 2015/1/9 (S) -->
+    <url-mapping url="WHM_ITL_0001.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_ITL_0001HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_ITL_0001.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="WHM_ITL_0001GS.clt" screen="WHM_ITL_0001GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_ITL_0001HTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Vinh.Vo 2015/1/9 (E) -->
+    
+	
+	<url-mapping url="WHM_WHM_0006.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0006HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0006.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0006GS.clt" screen="WHM_WHM_0006GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0006HTMLAction</web-action-class>
+    </url-mapping>
+
+	<!-- <url-mapping url="WHM_WHM_0006_01GS.clt" screen="WHM_WHM_0006_01GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.item.itemlist.event.WHM_WHM_0004HTMLAction</web-action-class>
+    </url-mapping> -->
+<!--#### WHM RECEIVING 관련 프로그램  End ####  -->
+
+<!--#### WHM SHIPPING 관련 프로그램  Start ####  -->
+	
+	<url-mapping url="WHM_WHM_0008.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.shipping.shippinglist.event.WHM_WHM_0008HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0008.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+     <url-mapping url="WHM_WHM_0008GS.clt" screen="WHM_WHM_0008GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.shipping.shippinglist.event.WHM_WHM_0008HTMLAction</web-action-class>
+    </url-mapping>
+    <event-mapping>
+        <event-class>com.clt.apps.fis.whm.shipping.shippinglist.event.ShippingListEvent</event-class>
+        <service-action-class>com.clt.apps.fis.whm.shipping.shippinglist.ShippingListSC</service-action-class>
+    </event-mapping>
+<!--#### WHM SHIPPING 관련 프로그램  End ####  -->
+
+<!--#### VINH.VO WHM WAREHOUSE 관련 프로그램  Start ####  -->
+	<!-- Entry (S)  -->
+	<url-mapping url="WHM_WHM_0001.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.entry.event.WHM_WHM_0001HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0001.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0001_01GS.clt" screen="WHM_WHM_0001_01GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.entry.event.WHM_WHM_0001HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0001_02GS.clt" screen="WHM_WHM_0001_02GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.entry.event.WHM_WHM_0001HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0001_03GS.clt" screen="WHM_WHM_0001_03GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.entry.event.WHM_WHM_0001HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0001_04GS.clt">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.entry.event.WHM_WHM_0001HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="WHM_WHM_0001_05GS.clt" screen="WHM_WHM_0001_05GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.entry.event.WHM_WHM_0001HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.whm.warehouse.entry.event.WhmWarehouseEntryEvent</event-class>
+        <service-action-class>com.clt.apps.fis.whm.warehouse.entry.WhmWarehouseEntrySC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="WHM_WHM_NEW_0001.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.entry.event.WHM_WHM_NEW_0001HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_NEW_0001.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_NEW_0001_01GS.clt" screen="WHM_WHM_0001_01GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.entry.event.WHM_WHM_NEW_0001HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_NEW_0001_02GS.clt" screen="WHM_WHM_0001_02GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.entry.event.WHM_WHM_NEW_0001HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_NEW_0001_03GS.clt" screen="WHM_WHM_0001_05GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.entry.event.WHM_WHM_NEW_0001HTMLAction</web-action-class>
+    </url-mapping>
+	<!-- 	Entry (E)  -->
+	
+	<!-- 	List (S)  -->
+	<url-mapping url="WHM_WHM_0002.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.list.event.WHM_WHM_0002HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0002.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0002GS.clt" screen="WHM_WHM_0002GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehouse.list.event.WHM_WHM_0002HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.whm.warehouse.list.event.WhmWarehouseListEvent</event-class>
+        <service-action-class>com.clt.apps.fis.whm.warehouse.list.WhmWarehouseListSC</service-action-class>
+    </event-mapping>
+	<!-- 	List (E)  -->
+	
+<!--#### VINH.VO WHM WAREHOUSE 관련 프로그램  End ####  -->
+
+<!-- Inventory(S) -->
+  <url-mapping url="WHM_WHM_0009.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.inventory.event.WHM_WHM_0009HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0009.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="WHM_WHM_0009GS.clt" screen="WHM_WHM_0009GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.inventory.event.WHM_WHM_0009HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0009_01GS.clt" screen="WHM_WHM_0009_01GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.inventory.event.WHM_WHM_0009HTMLAction</web-action-class>
+    </url-mapping>
+    
+  	<event-mapping>
+        <event-class>com.clt.apps.fis.whm.inventory.event.InventoryEvent</event-class>
+        <service-action-class>com.clt.apps.fis.whm.inventory.InventorySC</service-action-class>
+    </event-mapping>
+    
+    <!-- Shipping(S) -->
+  <url-mapping url="WHM_WHM_0007.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.receiving.receiving.event.WHM_WHM_0005HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0007.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+  <!-- Shipping(E) -->
+  
+  
+  <!-- wHAREHOUSE Doc Entry(S) -->
+  <url-mapping url="WHM_WHM_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.warehousedoc.entry.event.WHM_WHM_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    
+    <url-mapping url="WHM_WHM_0010GS.clt" screen="WHM_WHM_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehousedoc.entry.event.WHM_WHM_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0010_01GS.clt" screen="WHM_WHM_0010_01GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehousedoc.entry.event.WHM_WHM_0010HTMLAction</web-action-class>
+    </url-mapping>    
+    <!-- wHAREHOUSE Doc Entry(E) -->
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.whm.warehousedoc.entry.event.WhmWarehousedocEntryEvent</event-class>
+        <service-action-class>com.clt.apps.fis.whm.warehousedoc.entry.WhmWarehousedocEntrySC</service-action-class>
+    </event-mapping>
+    
+    
+    <!-- wHAREHOUSE Doc List(S) -->    
+    <url-mapping url="WHM_WHM_0011.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.warehousedoc.list.event.WHM_WHM_0011HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0011.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+     <url-mapping url="WHM_WHM_0011GS.clt" screen="WHM_WHM_0011GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.warehousedoc.list.event.WHM_WHM_0011HTMLAction</web-action-class>
+    </url-mapping>
+    <!-- wHAREHOUSE Doc List(E) -->
+      
+    <event-mapping>
+        <event-class>com.clt.apps.fis.whm.warehousedoc.list.event.WhmWarehousedocListEvent</event-class>
+        <service-action-class>com.clt.apps.fis.whm.warehousedoc.list.WhmWarehousedocListSC</service-action-class>
+    </event-mapping>
+    
+   
+    <!--  W/H Received Item search pop -->   
+    <url-mapping url="WHM_POP_0007.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.inventory.event.WHM_WHM_0009HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="WHM_POP_0007.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHM_POP_0007GS.clt" screen="WHM_POP_0007GS.screen" >
+        <web-action-class>com.clt.apps.fis.whm.inventory.event.WHM_WHM_0009HTMLAction</web-action-class>
+    </url-mapping>
+   
+   <!-- Bao.Huynh Warehouse Closing (S) -->
+   <url-mapping url="WHM_WHM_0012.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.history.event.WHM_WHM_0012HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0012.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0012GS.clt" screen="WHM_WHM_0012GS.screen" >
+        <web-action-class>com.clt.apps.fis.whm.history.event.WHM_WHM_0012HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0012_1GS.clt" screen="WHM_WHM_0012_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.whm.history.event.WHM_WHM_0012HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0012_2GS.clt" screen="WHM_WHM_0012_2GS.screen" >
+        <web-action-class>com.clt.apps.fis.whm.history.event.WHM_WHM_0012HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0012_3GS.clt" screen="WHM_WHM_0012_3GS.screen" >
+        <web-action-class>com.clt.apps.fis.whm.history.event.WHM_WHM_0012HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHM_WHM_0012_4GS.clt" screen="WHM_WHM_0012_4GS.screen" >
+        <web-action-class>com.clt.apps.fis.whm.history.event.WHM_WHM_0012HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="HSTPrint.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.history.event.WHM_WHM_0012HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="HSTPrint.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.whm.history.event.HistoryEvent</event-class>
+        <service-action-class>com.clt.apps.fis.whm.history.HistorySC</service-action-class>
+    </event-mapping>
+   <!-- Bao.Huynh Warehouse Closing (E) -->
+
+
+    <url-mapping url="WHM_WHM_0015.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.whm.inventory.event.WHM_WHM_0015HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHM_WHM_0015.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="WHM_WHM_0015GS.clt" screen="WHM_WHM_0015GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.inventory.event.WHM_WHM_0015HTMLAction</web-action-class>
+    </url-mapping>
+
+    <url-mapping url="WHM_WHM_0015_01GS.clt" screen="WHM_WHM_0015_01GS.screen">
+        <web-action-class>com.clt.apps.fis.whm.inventory.event.WHM_WHM_0015HTMLAction</web-action-class>
+    </url-mapping>
+
+</mappings>

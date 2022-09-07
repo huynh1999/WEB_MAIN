@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.code.gl">
+	
+    <select id="selectGlCodeList" resultClass="com.clt.apps.fis.mdm.code.gl.dto.GlVO" parameterClass="java.util.HashMap">
+		SELECT  TOP $topCnt$
+		        gl_cd, gl_type, rmk, gl_grp_cd, gl_sub, acct_gl_cd,
+		        CASE WHEN use_flg = 'Y' THEN 1 ELSE 0 END AS use_flg,
+		        block_yn, ggl_cd, 
+		        (select max(x.rmk) from tb_ggl_cd x where x.ggl_cd = y.ggl_cd) as ggl_nm, modi_tms,
+		        CASE WHEN gl_dept_flg = 'Y' THEN 1 ELSE 0 END AS gl_dept_flg,
+		        CASE WHEN gl_pay_flg = 'Y' THEN 1 ELSE 0 END AS gl_pay_flg, gl_pty_tp_cd
+		  FROM  tb_gl_cd y
+		 WHERE  1=1
+		<isNotEmpty property="gl_type">
+		   AND  gl_type = #gl_type#
+		</isNotEmpty>
+		<isNotEmpty property="s_gl_cd">
+		   AND  gl_cd LIKE '%' + #s_gl_cd# + '%'
+		</isNotEmpty>
+		<isNotEmpty property="s_gl_desc">
+		   AND  rmk LIKE '%' + #s_gl_desc# + '%'
+		</isNotEmpty>
+	  ORDER BY  gl_cd, gl_type
+	</select>
+	
+    <select id="selectGlCodeList_CNT" resultClass="Integer">
+        SELECT  COUNT(*)
+		  FROM  tb_gl_cd
+		 WHERE  1=1
+		<isNotEmpty property="gl_type">
+		   AND  gl_type = #gl_type#
+		</isNotEmpty>
+		<isNotEmpty property="s_gl_cd">
+		   AND  gl_cd LIKE '%' + #s_gl_cd# + '%'
+		</isNotEmpty>
+		<isNotEmpty property="s_gl_desc">
+		   AND  rmk LIKE '%' + #s_gl_desc# + '%'
+		</isNotEmpty>
+	</select>
+	
+    <select id="selectGglCodeList" resultClass="com.clt.apps.fis.mdm.code.gl.dto.GglVO" parameterClass="java.util.HashMap">
+		SELECT  TOP $topCnt$
+		        ggl_cd, ggl_type, rmk, ggl_grp_cd,
+		        CASE WHEN use_flg = 'Y' THEN 1 ELSE 0 END AS use_flg,
+		        (select count(x.gl_cd) from tb_gl_cd x where x.ggl_cd = y.ggl_cd) gl_cnt
+		  FROM  tb_ggl_cd y
+		 WHERE  1=1
+		<isNotEmpty property="ggl_type">
+		   AND  ggl_type = #ggl_type#
+		</isNotEmpty>
+		<isNotEmpty property="s_ggl_cd">
+		   AND  ggl_cd LIKE '%' + #s_ggl_cd# + '%'
+		</isNotEmpty>
+		<isNotEmpty property="s_ggl_desc">
+		   AND  rmk LIKE '%' + #s_ggl_desc# + '%'
+		</isNotEmpty>
+	  ORDER BY  ggl_cd, ggl_type
+	</select>
+	
+    <select id="selectGglCodeList_CNT" resultClass="Integer">
+        SELECT  COUNT(*)
+		  FROM  tb_ggl_cd
+		 WHERE  1=1
+		<isNotEmpty property="ggl_type">
+		   AND  ggl_type = #ggl_type#
+		</isNotEmpty>
+		<isNotEmpty property="s_ggl_cd">
+		   AND  ggl_cd LIKE '%' + #s_ggl_cd# + '%'
+		</isNotEmpty>
+		<isNotEmpty property="s_ggl_desc">
+		   AND  rmk LIKE '%' + #s_ggl_desc# + '%'
+		</isNotEmpty>
+	</select>
+	
+	<insert id="insertGlCode" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.GlVO">
+		INSERT INTO tb_gl_cd
+		(
+			gl_cd, gl_type, rmk, gl_grp_cd, gl_sub, use_flg, acct_gl_cd,block_yn, ggl_cd,
+			rgst_usrid, rgst_ofc_cd, rgst_tms,
+			modi_usrid, modi_ofc_cd, modi_tms, gl_pay_flg, gl_dept_flg, gl_pty_tp_cd
+		)
+		VALUES
+		(
+			#gl_cd#, #gl_type#, #rmk#, #gl_grp_cd#, #gl_sub#, #use_flg#, #acct_gl_cd#,#block_yn#, #ggl_cd#,
+			#rgst_usrid#, #rgst_ofc_cd#, GETDATE(),
+			#modi_usrid#, #modi_ofc_cd#, GETUTCDATE(), #gl_pay_flg#, #gl_dept_flg# , #gl_pty_tp_cd#
+		)
+	</insert>
+	<insert id="insertHisGlCode" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.GlVO">
+		INSERT INTO TB_GL_CD_HIS(
+			   MODI_SEQ,      HIS_TYPE,    
+			   GL_CD,         GL_TYPE,     RMK,      GL_GRP_CD,  GL_SUB,      
+			   ACCT_GL_CD,    BLOCK_YN,    GGL_CD,   GL_PAY_FLG, GL_DEPT_FLG, USE_FLG, gl_pty_tp_cd,
+			   RGST_USRID,    RGST_OFC_CD, RGST_TMS, MODI_USRID, MODI_OFC_CD, MODI_TMS)
+        SELECT (SELECT ISNULL(MAX(MODI_SEQ)+1,1) 
+                  FROM TB_GL_CD_HIS
+                 WHERE 1 = 1
+                   AND GL_CD = #gl_cd#) AS MODI_SEQ, 
+               (CASE WHEN #ibflag# = 'I' THEN 'C'
+                     WHEN #ibflag# = 'U' THEN 'U'
+				     WHEN #ibflag# = 'D' THEN 'D'
+				 END) AS HIS_TYPE,
+               GL_CD,         GL_TYPE,     RMK,      GL_GRP_CD,  GL_SUB,     
+               ACCT_GL_CD,    BLOCK_YN,    GGL_CD,   GL_PAY_FLG, GL_DEPT_FLG, USE_FLG, gl_pty_tp_cd,
+               #rgst_usrid#,    #rgst_ofc_cd#, GETUTCDATE(), #rgst_usrid#, #rgst_ofc_cd#, GETUTCDATE()
+          FROM TB_GL_CD
+         WHERE 1 = 1
+           AND GL_CD = #gl_cd#   
+	</insert>
+	
+	<update id="updateGlCode" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.GlVO">
+		UPDATE tb_gl_cd
+		   SET modi_tms = GETUTCDATE()
+		     , modi_usrid = #modi_usrid#
+		     , modi_ofc_cd = #modi_ofc_cd#
+		<isNotNull property="ggl_cd">
+		     , ggl_cd = #ggl_cd#
+		</isNotNull>
+		<isNotNull property="gl_type">
+		     , gl_type = #gl_type#
+		</isNotNull>
+		<isNotNull property="rmk">
+		     , rmk = #rmk#
+		</isNotNull>
+		<isNotNull property="gl_grp_cd">
+		     , gl_grp_cd = #gl_grp_cd#
+		</isNotNull>
+		<isNotNull property="gl_sub">
+		     , gl_sub = #gl_sub#
+		</isNotNull>
+		<isNotNull property="use_flg">
+		     , use_flg = #use_flg#
+		</isNotNull>
+		<isNotNull property="acct_gl_cd">
+		     , acct_gl_cd = #acct_gl_cd#
+		</isNotNull>
+		<isNotNull property="block_yn">
+		     , block_yn = #block_yn#
+		</isNotNull>
+		<isNotNull property="gl_dept_flg">
+		     , gl_dept_flg = #gl_dept_flg#
+		</isNotNull>
+		<isNotNull property="gl_pay_flg">
+		     , gl_pay_flg = #gl_pay_flg#
+		</isNotNull>
+		<isNotNull property="gl_pty_tp_cd">
+		     , gl_pty_tp_cd = #gl_pty_tp_cd#
+		</isNotNull>		
+		 WHERE gl_cd = #gl_cd#
+	</update>
+	
+	<delete id="deleteGlCode" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.GlVO">
+		DELETE FROM tb_gl_cd
+		 WHERE gl_cd = #gl_cd#
+	</delete>
+	<delete id="deleteHisGlCode" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.GlVO">
+		DELETE FROM TB_GL_CD_HIS
+		 WHERE gl_cd = #gl_cd#
+	</delete>
+	<update id="updateInactiveBankSetup" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.GlVO">
+		UPDATE tb_bank
+		   SET modi_tms  = GETUTCDATE()
+		     , inact_tms = GETDATE()
+		     , use_flg = 'N'
+		 WHERE gl_cd = #gl_cd#
+		 AND use_flg != 'N'
+	</update>
+	
+	<insert id="insertGglCode" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.GglVO">
+		INSERT INTO tb_ggl_cd
+		(
+			ggl_cd, ggl_type, rmk, ggl_grp_cd, use_flg,
+			rgst_usrid, rgst_ofc_cd, rgst_tms,
+			modi_usrid, modi_ofc_cd, modi_tms
+		)
+		VALUES
+		(
+			#ggl_cd#, #ggl_type#, #rmk#, #ggl_grp_cd#, #use_flg#,
+			#rgst_usrid#, #rgst_ofc_cd#, GETDATE(),
+			#modi_usrid#, #modi_ofc_cd#, GETUTCDATE()
+		)
+	</insert>
+	
+	<update id="updateGglCode" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.GglVO">
+		UPDATE tb_ggl_cd
+		   SET modi_tms = GETUTCDATE()
+		     , modi_usrid = #modi_usrid#
+		     , modi_ofc_cd = #modi_ofc_cd#
+		<isNotNull property="ggl_type">
+		     , ggl_type = #ggl_type#
+		</isNotNull>
+		<isNotNull property="rmk">
+		     , rmk = #rmk#
+		</isNotNull>
+		<isNotNull property="ggl_grp_cd">
+		     , ggl_grp_cd = #ggl_grp_cd#
+		</isNotNull>
+		<isNotNull property="use_flg">
+		     , use_flg = #use_flg#
+		</isNotNull>
+		 WHERE ggl_cd = #ggl_cd#
+	</update>
+	
+	<update id="updateGglGlCode" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.GglVO">
+		UPDATE tb_gl_cd
+		   SET modi_tms    = GETUTCDATE()
+		     , modi_usrid  = #modi_usrid#
+		     , modi_ofc_cd = #modi_ofc_cd#
+		     , gl_type     = #ggl_type#
+		     , gl_grp_cd   = #ggl_grp_cd#
+		 WHERE ggl_cd      = #ggl_cd#
+	</update>
+	
+	<delete id="deleteGglCode" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.GglVO">
+		DELETE FROM tb_ggl_cd
+		 WHERE ggl_cd = #ggl_cd#
+       	   AND not exists (select 'X' from tb_gl_cd x where x.ggl_cd = #ggl_cd#)
+	</delete>
+	
+	<select id="selectGlCodeList_COMMON" resultClass="com.clt.apps.fis.mdm.code.gl.dto.GlVO" parameterClass="java.util.HashMap">
+		SELECT  gl_cd, gl_type, rmk, gl_grp_cd, gl_sub, 
+				gl_cd + ' : ' + rmk AS gl_desc,
+		        CASE WHEN use_flg = 'Y' THEN 1 ELSE 0 END AS use_flg
+		  FROM  tb_gl_cd
+		 WHERE  1=1
+		<isNotEmpty property="gl_type">
+		   AND  gl_type = #gl_type#
+		</isNotEmpty>
+		   AND  use_flg = 'Y'
+		<isNotEqual property="block_all_yn" compareValue="Y">
+		  AND (BLOCK_YN = 'N' OR BLOCK_YN = (SELECT
+			  ISNULL(MAX(A.USE_FLG), 'N') AS AUTH_BLOCK
+			 FROM TB_ROLE_FNC A, TB_USR B
+			 WHERE A.ROLE_CD = B.ROLE_CD
+			 AND ROLE_FNC_CD = 'G01' 
+			 AND B.USRID  = #usrid#))
+		</isNotEqual>
+	  ORDER BY  gl_cd, gl_type
+	</select>
+	
+	
+	
+	<!-- GL CODE POP UP   -->
+	<select id="selectGlCodeList_POPUP" resultClass="com.clt.apps.fis.mdm.code.gl.dto.GlVO" parameterClass="java.util.HashMap">
+		SELECT TOP $topCnt$
+			   gl_cd
+		      ,rmk
+		      ,gl_grp_cd
+		      ,gl_sub
+		      ,gl_type <!-- #2500 [PATENT]Journal Entry Amendment  -->
+		  FROM  tb_gl_cd
+		 WHERE use_flg = 'Y'
+		 <isNotEmpty property="s_gl_cd">
+		 	AND gl_cd LIKE #s_gl_cd# + '%'
+		 </isNotEmpty>
+		 <isNotEmpty property="s_gl_rmk">
+		 	AND rmk LIKE '%' + #s_gl_rmk# + '%'
+		 </isNotEmpty>
+		 <isEqual property="f_jnr_tp" compareValue="P">
+		 	AND gl_pay_flg = 'Y'
+		 </isEqual>
+		 <isEqual property="f_jnr_tp" compareValue="D">
+		 	AND gl_dept_flg = 'Y'
+		 </isEqual>
+		 <isNotEqual property="f_block_all_yn" compareValue="Y">
+		 	AND (BLOCK_YN = 'N' OR BLOCK_YN = (SELECT
+			 ISNULL(MAX(A.USE_FLG), 'N') AS AUTH_BLOCK
+			 FROM TB_ROLE_FNC A, TB_USR B
+			 WHERE A.ROLE_CD = B.ROLE_CD
+			 AND ROLE_FNC_CD = 'G01' 
+			 AND B.USRID  = #usrid#))
+		 </isNotEqual>
+		 ORDER BY gl_cd
+	</select>
+	
+	
+	<!-- GL CODE POP UP   -->
+	<select id="selectGlCodeList_POPUP_CNT" resultClass="Integer" parameterClass="java.util.HashMap">
+		SELECT COUNT(gl_cd)
+		  FROM  tb_gl_cd
+		 WHERE use_flg = 'Y'
+		 <isNotEmpty property="s_gl_cd">
+		 	AND gl_cd LIKE #s_gl_cd# + '%'
+		 </isNotEmpty>
+		 <isNotEmpty property="s_gl_rmk">
+		 	AND rmk LIKE '%' + #s_gl_rmk# + '%'
+		 </isNotEmpty>
+		 <isEqual property="f_jnr_tp" compareValue="P">
+		 	AND gl_pay_flg = 'Y'
+		 </isEqual>
+		 <isEqual property="f_jnr_tp" compareValue="D">
+		 	AND gl_dept_flg = 'Y'
+		 </isEqual>
+		 <isNotEqual property="f_block_all_yn" compareValue="Y">
+		 	AND (BLOCK_YN = 'N' OR BLOCK_YN = (SELECT
+			 ISNULL(MAX(A.USE_FLG), 'N') AS AUTH_BLOCK
+			 FROM TB_ROLE_FNC A, TB_USR B
+			 WHERE A.ROLE_CD = B.ROLE_CD
+			 AND ROLE_FNC_CD = 'G01' 
+			 AND B.USRID  = #usrid#))
+		 </isNotEqual>	 
+	</select>
+	
+	<!-- GL CODE DUPLICATE CHECK  -->
+	<select id="selectGlCode" resultClass="Integer">
+        SELECT  COUNT(*) as cnt
+		  FROM  tb_gl_cd
+		 WHERE  1=1
+		   AND  gl_cd = #gl_cd#
+	</select>
+	
+	<!-- GL CODE POP UP   -->
+	<select id="selectGglCodeList_POPUP" resultClass="com.clt.apps.fis.mdm.code.gl.dto.GglVO" parameterClass="java.util.HashMap">
+		SELECT TOP $topCnt$
+			   ggl_cd
+		      ,ggl_type
+		      ,ggl_grp_cd
+		      ,(select cd_nm from TB_COM_CD_DTL where com_cd = 'C080' and cd_val = ggl_type) as ggl_type_nm
+		      ,(select cd_nm from TB_COM_CD_DTL where com_cd = 'C088' and cd_val = ggl_grp_cd) as ggl_grp_cd_nm
+		      ,rmk
+		  FROM  tb_ggl_cd
+		 WHERE use_flg = 'Y'
+		 <isNotEmpty property="s_ggl_cd">
+		 	AND ggl_cd LIKE #s_ggl_cd# + '%'
+		 </isNotEmpty>
+		 <isNotEmpty property="s_ggl_rmk">
+		 	AND rmk LIKE '%' + #s_ggl_rmk# + '%'
+		 </isNotEmpty>
+	</select>
+                
+	<!-- GL CODE POP UP   -->
+	<select id="selectGglCodeList_POPUP_CNT" resultClass="Integer" parameterClass="java.util.HashMap">
+		SELECT COUNT(ggl_cd)
+		  FROM  tb_ggl_cd
+		 WHERE use_flg = 'Y'
+		 <isNotEmpty property="s_ggl_cd">
+		 	AND ggl_cd LIKE #s_ggl_cd# + '%'
+		 </isNotEmpty>
+		 <isNotEmpty property="s_ggl_rmk">
+		 	AND rmk LIKE '%' + #s_ggl_rmk# + '%'
+		 </isNotEmpty>
+	</select>
+	
+	<!-- GGL CODE DUPLICATE CHECK  -->
+	<select id="selectGglCode" resultClass="Integer">
+        SELECT  COUNT(*) as cnt
+		  FROM  tb_ggl_cd
+		 WHERE  1=1
+		   AND  ggl_cd = #ggl_cd#
+	</select>
+	
+	<select id="searchHisGlCodeList" resultClass="com.clt.apps.fis.mdm.code.gl.dto.GlVO" parameterClass="java.util.HashMap">
+		SELECT  
+				<!-- CONVERT(VARCHAR(10),
+		        DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), y.MODI_TMS ),
+		        110)+' '+CONVERT(VARCHAR(5),
+		        DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), y.MODI_TMS ),
+		        108) AS MODI_TMS, -->
+		        DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), y.MODI_TMS ) AS MODI_TMS,
+                y.modi_usrid,
+	           (CASE WHEN y.HIS_TYPE = 'C'
+			          THEN 'Create' 
+			 		  WHEN y.HIS_TYPE = 'U' 
+		 			  THEN 'Update'
+		 			  WHEN y.HIS_TYPE = 'D'
+		 			  THEN 'Delete'
+	 				  ELSE ''
+                  END) AS HIS_TYPE,
+		        y.gl_cd, 
+		        y.gl_type, 
+		        y.rmk, 
+		        y.gl_grp_cd, 
+		        y.gl_sub, 
+		        y.acct_gl_cd,
+		        CASE WHEN y.use_flg = 'Y' THEN 1 ELSE 0 END AS use_flg,
+		        y.block_yn, 
+		        y.ggl_cd, 
+		        (select max(x.rmk) 
+		           from tb_ggl_cd x 
+		          where x.ggl_cd = y.ggl_cd) as ggl_nm, 
+		        CASE WHEN y.gl_dept_flg = 'Y' THEN 1 ELSE 0 END AS gl_dept_flg,
+		        CASE WHEN y.gl_pay_flg  = 'Y' THEN 1 ELSE 0 END AS gl_pay_flg, gl_pty_tp_cd
+		  FROM  TB_GL_CD_HIS y
+		  
+		  		    LEFT OUTER JOIN
+		        TB_OFC TOF     
+		            ON y.RGST_OFC_CD = TOF.OFC_CD            
+		    LEFT OUTER JOIN
+		        TB_COM_CD_DTL CCD     
+		            ON CCD.COM_CD = 'TIMEZN'     
+		            AND TOF.TIME_ZONE = CCD.CD_VAL   
+		 WHERE  1 = 1
+		<isNotEmpty property="gl_cd_s">
+		   AND  y.gl_cd = #gl_cd_s#
+		</isNotEmpty>
+	  ORDER BY  y.gl_cd, y.MODI_TMS DESC
+	</select>
+	
+	 <select id="selectNewGlCodeListRSQL" resultClass="com.clt.apps.fis.mdm.code.gl.dto.NewGlVO" parameterClass="java.util.HashMap">
+	    /* MdmCodeGlSQL.xml > selectNewGlCodeListRSQL */
+		WITH tree_GLCode( GL_CD, GL_NM, GL_TP_CD, PRNT_CD, GL_LVL, FOR_OPR_FLG, USE_FLG, ROLE_LVL, DPS_FLG, PAY_FLG, GEN_JNR_FLG, ACCT_GL_CD, GL_PTY_TP_CD, DELT_FLG, RGST_OFC_CD, RGST_USRID, RGST_TMS, MODI_OFC_CD, MODI_USRID, MODI_TMS, CONDITION_ORDERBY) AS
+		(
+		  SELECT GL_CD, GL_NM, GL_TP_CD, PRNT_CD, GL_LVL, FOR_OPR_FLG, USE_FLG, ROLE_LVL, DPS_FLG, PAY_FLG, GEN_JNR_FLG, ACCT_GL_CD, GL_PTY_TP_CD, DELT_FLG, RGST_OFC_CD, RGST_USRID, RGST_TMS, MODI_OFC_CD, MODI_USRID, MODI_TMS
+		         , '('+CONVERT(VARCHAR (MAX), GL_CD)+' - '+CONVERT(VARCHAR (MAX), GL_LVL)+')' as CONDITION_ORDERBY
+		    FROM TB_GL_CD_NW
+		   WHERE PRNT_CD IS NULL or PRNT_CD = ''
+			 UNION ALL
+		  SELECT A.GL_CD
+				 , A.GL_NM 
+				 , A.GL_TP_CD 
+				 , A.PRNT_CD
+				 , A.GL_LVL 
+				 , A.FOR_OPR_FLG 
+				 , A.USE_FLG 
+				 , A.ROLE_LVL 
+				 , A.DPS_FLG 
+				 , A.PAY_FLG 
+				 , A.GEN_JNR_FLG 
+				 , A.ACCT_GL_CD 
+				 , A.GL_PTY_TP_CD 
+				 , A.DELT_FLG 
+				 , A.RGST_OFC_CD 
+				 , A.RGST_USRID 
+				 , A.RGST_TMS
+				 , A.MODI_OFC_CD 
+				 , A.MODI_USRID 
+				 , A.MODI_TMS
+				 , B.CONDITION_ORDERBY+' * ('+CONVERT (VARCHAR (MAX), case when ISNULL(A.PRNT_CD, '') = '0' then '0' else A.GL_CD END)+' - '+ CONVERT(VARCHAR (MAX), A.GL_LVL)+')' as CONDITION_ORDERBY
+			FROM TB_GL_CD_NW A, tree_GLCode B
+		   WHERE B.GL_CD = A.PRNT_CD 
+		)	
+		
+		  SELECT DISTINCT T.GL_CD
+				 , T.GL_NM 
+				 , T.GL_TP_CD 
+				 , T.PRNT_CD
+				 , T.GL_LVL 
+				 , T.FOR_OPR_FLG 
+				 , T.USE_FLG 
+				 , T.ROLE_LVL 
+				 , T.DPS_FLG 
+				 , T.PAY_FLG 
+				 , T.GEN_JNR_FLG 
+				 , T.ACCT_GL_CD 
+				 , T.GL_PTY_TP_CD 
+				 , T.DELT_FLG 
+				 , T.RGST_OFC_CD 
+				 , T.RGST_USRID 
+				 , T.RGST_TMS
+				 , T.MODI_OFC_CD 
+				 , T.MODI_USRID 
+				 , T.MODI_TMS
+				 , T.GL_LVL LEVEL
+				 , T.CONDITION_ORDERBY
+		  FROM tree_GLCode T
+		 WHERE 1=1
+		   AND T.DELT_FLG = 'N'
+		<isNotEmpty property="s_gl_cd">
+		   AND  T.GL_CD LIKE '%' + #s_gl_cd# + '%'
+		</isNotEmpty>
+		<isNotEmpty property="s_gl_nm">
+		   AND  T.GL_NM LIKE '%' + #s_gl_desc# + '%'
+		</isNotEmpty>
+		ORDER BY T.CONDITION_ORDERBY 
+	</select>
+	
+	 <select id="selectGLCdDupRQSLRQSL" parameterClass="HashMap" resultClass="Integer">
+        /* MdmCodeGlSQL.xml > selectGLCdDupRQSLRQSL*/
+       SELECT COUNT(*)
+         FROM TB_GL_CD_NW
+		WHERE GL_CD = #f_gl_cd#
+		  AND DELT_FLG = 'N'
+    </select>
+	<insert id="insertNewGlCodeISQL" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.NewGlVO">
+	 /* MdmCodeGlSQL.xml > insertNewGlCodeISQL*/
+		INSERT INTO TB_GL_CD_NW (GL_CD
+			 , GL_TP_CD 
+			 , GL_NM 
+			 , PRNT_CD 
+			 , GL_LVL 
+			 , FOR_OPR_FLG 
+			 , USE_FLG 
+			 , ROLE_LVL 
+			 , DPS_FLG 
+			 , PAY_FLG 
+			 , GEN_JNR_FLG 
+			 , ACCT_GL_CD 
+			 , GL_PTY_TP_CD 
+			 , DELT_FLG 
+			 , RGST_OFC_CD 
+			 , RGST_USRID 
+			 , RGST_TMS
+			 , MODI_OFC_CD 
+			 , MODI_USRID 
+			 , MODI_TMS
+		) VALUES ( #gl_cd#
+			 , #gl_tp_cd# 
+			 , #gl_nm#
+			 , #prnt_cd# 
+			 , ISNULL(#gl_lvl#,0)
+			 , #for_opr_flg#
+			 , #use_flg# 
+			 , #role_lvl# 
+			 , #dps_flg# 
+			 , #pay_flg#
+			 , #gen_jnr_flg# 
+			 , #acct_gl_cd# 
+			 , #gl_pty_tp_cd# 
+			 , 'N' 
+			 , #rgst_ofc_cd# 
+			 , #rgst_usrid# 
+			 , getDate()
+			 , #modi_ofc_cd# 
+			 , #modi_usrid#
+			 , GETUTCDATE()
+		)
+	</insert>
+	
+	<update  id="updateNewGlCodeUSQL" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.NewGlVO">
+	    /* MdmCodeGlSQL.xml > updateNewGlCodeUSQL*/
+		UPDATE TB_GL_CD_NW
+	       SET GL_TP_CD     = #gl_tp_cd#
+			 , GL_NM        = #gl_nm#   
+			 , PRNT_CD      = #prnt_cd#
+			 , FOR_OPR_FLG  = #for_opr_flg#
+			 , USE_FLG      = #use_flg#
+			 , ROLE_LVL     = #role_lvl#
+			 , DPS_FLG      = #dps_flg#
+			 , PAY_FLG      = #pay_flg#
+			 , GEN_JNR_FLG  = #gen_jnr_flg#
+			 , ACCT_GL_CD   = #acct_gl_cd#
+			 , GL_PTY_TP_CD = #gl_pty_tp_cd#
+			 , MODI_OFC_CD  = #modi_ofc_cd#
+			 , MODI_USRID   = #modi_usrid#
+			 , MODI_TMS     = GETUTCDATE()
+	    WHERE GL_CD = #gl_cd#
+	</update>
+	
+	<delete id="deleteNewGlCodeDSQL" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.NewGlVO">
+		 /* MdmCodeGlSQL.xml > selectNewGlCodeListRSQL*/
+		 UPDATE TB_GL_CD_NW
+		    SET DELT_FLG    = 'Y'
+		      , MODI_TMS    = GETUTCDATE()
+		      , MODI_USRID  = #modi_usrid#
+		      , MODI_OFC_CD = #modi_ofc_cd#
+		 WHERE  GL_CD = #gl_cd#
+	</delete>
+	
+	
+	 <select id="selectNewLclNmListRSQL" resultClass="com.clt.apps.fis.mdm.code.gl.dto.NewLocalVO" parameterClass="java.util.HashMap">
+	    /* MdmCodeGlSQL.xml > selectNewLclNmListRSQL*/
+			SELECT CO_OFC_CD 	lcl_co_ofc_cd
+				 , CD_TP_CD 	lcl_cd_tp_cd
+				 , REF_CD 		lcl_ref_cd
+				 , LOCL_NM 		lcl_nm
+				 , RGST_OFC_CD 	lcl_rgst_ofc_cd
+				 , RGST_USRID 	lcl_rgst_usrid
+				 , RGST_TMS 	lcl_rgst_tms
+				 , MODI_OFC_CD 	lcl_modi_ofc_cd
+				 , MODI_USRID 	lcl_modi_usrid
+				 , MODI_TMS 	lcl_modi_tms
+		     FROM TB_LOCL_ACCT
+		    WHERE 1=1
+		      AND REF_CD    = #i_gl_cd#
+	          AND CD_TP_CD  = 'GL' <!-- GL  / BILLING  -->
+	</select>
+
+	 <select id="selectLocalNmDupChkRQSL" parameterClass="HashMap" resultClass="Integer">
+        /* MdmCodeGlSQL.xml > selectLocalNmDupChkRQSL*/
+       SELECT  COUNT(*)
+         FROM TB_LOCL_ACCT
+		WHERE CO_OFC_CD = #f_lcl_co_ofc_cd#
+	      AND CD_TP_CD  = 'GL'
+	      AND REF_CD    = #f_lcl_ref_cd#
+    </select>
+	
+	<insert id="insertNewLocalNmISQL" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.NewLocalVO">
+	 /* MdmCodeGlSQL.xml > insertNewLocalNmISQL*/
+		INSERT INTO TB_LOCL_ACCT ( CO_OFC_CD
+			 , CD_TP_CD 
+			 , REF_CD 
+			 , LOCL_NM 
+			 , USE_FLG
+			 , BLK_FLG
+			 , RGST_OFC_CD 
+			 , RGST_USRID 
+			 , RGST_TMS
+			 , MODI_OFC_CD 
+			 , MODI_USRID 
+			 , MODI_TMS
+		) VALUES ( #lcl_co_ofc_cd#
+			 , 'GL'
+			 , #lcl_ref_cd#
+			 , #lcl_nm# 
+			 , 'Y'
+			 , 'N'
+			 , #lcl_rgst_ofc_cd# 
+			 , #lcl_rgst_usrid# 
+			 , GETUTCDATE()
+			 , #lcl_modi_ofc_cd# 
+			 , #lcl_modi_usrid#
+			 , GETUTCDATE()
+		)
+	</insert>
+	<update  id="updateNewLocalNmUSQL" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.NewLocalVO">
+	    /* MdmCodeGlSQL.xml > updateNewLocalNmUSQL*/
+		UPDATE TB_LOCL_ACCT
+	       SET LOCL_NM      = #lcl_nm#
+	       	 , USE_FLG      = #use_flg#
+			 , BLK_FLG      = #blk_flg#
+			 , MODI_OFC_CD  = #lcl_modi_ofc_cd#
+			 , MODI_USRID   = #lcl_modi_usrid#
+			 , MODI_TMS     = GETUTCDATE()
+	    WHERE CO_OFC_CD = #lcl_co_ofc_cd#
+	      AND CD_TP_CD  = #lcl_cd_tp_cd#
+	      AND REF_CD    = #lcl_ref_cd#
+	</update>
+	
+	<delete id="deleteNewLocalDSQL" parameterClass="java.util.HashMap">
+		 /* MdmCodeGlSQL.xml > selectNewGlCodeListRSQL*/
+		 DELETE TB_LOCL_ACCT
+		  WHERE CO_OFC_CD = #s_lcl_co_ofc_cd#
+	        AND CD_TP_CD  = 'GL'
+	        AND REF_CD    = #s_lcl_ref_cd#
+	</delete>
+	
+	<select id="selectNewHistoryGLCodeListRSQL" resultClass="com.clt.apps.fis.mdm.code.gl.dto.NewGlVO" parameterClass="java.util.HashMap">
+	    /* MdmCodeGlSQL.xml > selectNewHistoryGLCodeListRSQL*/
+			SELECT HIS_SEQ
+				 , MODI_SEQ     
+				 , HIS_TYPE     
+				 , GL_CD        
+				 , GL_TP_CD    
+			 	 , GL_LVL 
+				 , GL_NM        
+				 , PRNT_CD      
+				 , FOR_OPR_FLG  
+				 , USE_FLG      
+				 , ROLE_LVL     
+				 , DPS_FLG      
+				 , PAY_FLG      
+				 , GEN_JNR_FLG  
+				 , ACCT_GL_CD   
+				 , GL_PTY_TP_CD 
+				 , DELT_FLG     
+				 , RGST_OFC_CD  
+				 , RGST_USRID   
+				 , RGST_TMS     
+				 , MODI_OFC_CD  
+				 , MODI_USRID   
+				 , MODI_TMS 
+		     FROM TB_GL_CD_HIS_NW
+		    WHERE 1=1
+		      AND GL_CD = #i_gl_cd#
+	</select>
+	
+	<select id="getHistoryModiSeqRSQL" resultClass="com.clt.apps.fis.mdm.code.gl.dto.NewGlVO">
+	    /* MdmCodeGlSQL.xml > getHistoryModiSeqRSQL*/
+			SELECT ISNULL(MAX(HIS_SEQ),0) + 1 HIS_SEQ
+				 , ISNULL(MAX(MODI_SEQ),0)  + 1  MODI_SEQ
+		     FROM TB_GL_CD_HIS_NW
+	</select>
+	
+	<insert id="insertNewHistoryGlCodeISQL" parameterClass="com.clt.apps.fis.mdm.code.gl.dto.NewGlVO">
+	 /* MdmCodeGlSQL.xml > insertNewHistoryGlCodeISQL*/
+		INSERT INTO TB_GL_CD_HIS_NW ( MODI_SEQ
+			 , HIS_TYPE
+			 , GL_CD
+			 , GL_TP_CD 
+			 , GL_NM 
+			 , PRNT_CD 
+			 , GL_LVL 
+			 , FOR_OPR_FLG 
+			 , USE_FLG 
+			 , ROLE_LVL 
+			 , DPS_FLG 
+			 , PAY_FLG 
+			 , GEN_JNR_FLG 
+			 , ACCT_GL_CD 
+			 , GL_PTY_TP_CD 
+			 , DELT_FLG 
+			 , RGST_OFC_CD 
+			 , RGST_USRID 
+			 , RGST_TMS
+			 , MODI_OFC_CD 
+			 , MODI_USRID 
+			 , MODI_TMS
+		) VALUES ( (SELECT ISNULL(MAX(MODI_SEQ),0)  + 1  MODI_SEQ FROM TB_GL_CD_HIS_NW)
+			 , #his_type#
+			 , #gl_cd#
+			 , #gl_tp_cd# 
+			 , #gl_nm#
+			 , #prnt_cd# 
+			 , ISNULL(#gl_lvl#,0)
+			 , #for_opr_flg# 
+			 , #use_flg# 
+			 , #role_lvl# 
+			 , #dps_flg# 
+			 , #pay_flg#
+			 , #gen_jnr_flg# 
+			 , #acct_gl_cd# 
+			 , #gl_pty_tp_cd# 
+			 , 'N'
+			 , #rgst_ofc_cd# 
+			 , #rgst_usrid# 
+			 , GETUTCDATE()
+			 , #modi_ofc_cd# 
+			 , #modi_usrid#
+			 , GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- GL CODE POP UP   -->
+	<select id="selectGlCodeNewList_POPUP" resultClass="com.clt.apps.fis.mdm.code.gl.dto.NewGlVO" parameterClass="java.util.HashMap">
+		SELECT TOP $topCnt$
+			   gl_cd
+		      ,GL_NM
+		  FROM  tb_gl_cd_nw
+		 WHERE use_flg = 'Y'
+		 <isNotEmpty property="s_gl_cd">
+		 	AND gl_cd LIKE #s_gl_cd# + '%'
+		 </isNotEmpty>
+		 <isNotEmpty property="s_gl_nm">
+		 	AND gl_nm LIKE '%' + #s_gl_nm# + '%'
+		 </isNotEmpty>
+		 <isEqual property="f_jnr_tp" compareValue="P">
+		 	AND pay_flg = 'Y'
+		 </isEqual>
+		 <isEqual property="f_jnr_tp" compareValue="D">
+		 	AND dps_flg = 'Y'
+		 </isEqual>		 
+		 ORDER BY gl_cd
+	</select>
+	
+	
+	<!-- GL CODE POP UP   -->
+	<select id="selectGlCodeNewList_POPUP_CNT" resultClass="Integer" parameterClass="java.util.HashMap">
+		SELECT COUNT(gl_cd)
+		  FROM  tb_gl_cd_nw
+		 WHERE use_flg = 'Y'
+		 <isNotEmpty property="s_gl_cd">
+		 	AND gl_cd LIKE #s_gl_cd# + '%'
+		 </isNotEmpty>
+		 <isNotEmpty property="s_gl_nm">
+		 	AND gl_nm LIKE '%' + #s_gl_nm# + '%'
+		 </isNotEmpty>
+		 <isEqual property="f_jnr_tp" compareValue="P">
+		 	AND pay_flg = 'Y'
+		 </isEqual>
+		 <isEqual property="f_jnr_tp" compareValue="D">
+		 	AND dps_flg = 'Y'
+		 </isEqual>		  
+	</select>
+	
+	<!--  Check GL code on Office Code when un-active   -->
+	<select id="checkUseGLOnOfficeCode" resultClass="Integer">
+      SELECT  COUNT(*) as cnt  
+		 FROM  tb_ofc a INNER JOIN TB_OFC_ADD_ITM B ON A.OFC_CD = B.OFC_CD    
+  		 WHERE  a.delt_flg = 'N'  
+   	 	 AND    a.gl_ar = #gl_cd#
+   	 	 OR a.gl_ap = #gl_cd#
+   	 	 OR a.gl_agent_ar= #gl_cd#
+   	 	 OR a.gl_re_earn = #gl_cd#
+   	 	 OR a.gl_ex_profit = #gl_cd#
+   	 	 OR a.gl_ex_loss = #gl_cd#
+   	 	 OR a.gl_misc_profit = #gl_cd#
+   	 	 OR a.gl_misc_loss = #gl_cd#
+   	 	 OR a.gl_xcrt_gain = #gl_cd#
+   	 	  OR a.gl_xcrt_lss = #gl_cd#
+	</select>
+</sqlMap>

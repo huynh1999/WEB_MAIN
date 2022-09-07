@@ -1,0 +1,55 @@
+////PERFORMANCE (PFM) & REPORT (RPT) COMMON IBSHEET GRID TITLE
+MSG_KEY['PFM_ACC_0020_HDR1'] 	= "ibflag|CHK|inv_seq|D/C No.|Filing No.|Agent Ref. No.|B/L No.|Balance Amount|ETD|ETA";
+MSG_KEY['PFM_ACC_0020_HDR2'] 	= "trdp_cd|inv_seq|curr_cd|acct_cd|sell_buy_tp_cd";
+MSG_KEY['PFM_ACC_0030_HDR1'] 	= "ibflag|trdp_cd|inv_seq";
+MSG_KEY['PFM_ACC_0050_HDR1'] 	= "From|Exchange Rate";
+MSG_KEY['PFM_MGT_0020_HDR1'] 	= "CHK|||Report Type|Option";
+MSG_KEY['PFM_MGT_0020_HDR2'] 	= "DEL|||Report Type|Option";
+MSG_KEY['PFM_MGT_0030_HDR1'] 	= "From|Month|Exchange Rate";
+MSG_KEY['PFM_MGT_0030_HDR2'] 	= "CHK|||Report Type|Option";
+MSG_KEY['PFM_MGT_0030_HDR3'] 	= "DEL|||Report Type|Option";
+MSG_KEY['PFM_MGT_0030_HDR4'] 	= "Multi Curr.";
+MSG_KEY['PFM_MGT_0030_HDR5'] 	= "DEL|Type|Value|Code";
+MSG_KEY['PFM_MGT_0040_HDR1'] 	= "From|Exchange Rate";
+MSG_KEY['PFM_MGT_0040_HDR2'] 	= "CHK|||Report Type|Option";
+MSG_KEY['PFM_MGT_0040_HDR3'] 	= "DEL|||Report Type|Option";
+MSG_KEY['PFM_MGT_0040_HDR4'] 	= "Multi Curr.";
+MSG_KEY['PFM_MGT_0050_HDR1'] 	= "CHK|||Report Type|Option";
+MSG_KEY['PFM_MGT_0050_HDR2'] 	= "DEL|||Report Type|Option";
+MSG_KEY['PFM_MGT_0090_HDR1'] 	= "CHK|Report Type|Option";
+MSG_KEY['PFM_MGT_0110_HDR1'] 	= "No|rpt_seq|Title|desc_1|tp_1|desc_2|tp_2|desc_3|tp_3|desc_4|tp_4|desc_5|tp_5|desc_6|tp_6|hdr_txt|qry_txt|Indexing|ibflag";
+MSG_KEY['PFM_MGT_0120_HDR1'] 	= "Rank|Customer|Department|Commodity|POL|POD|Number of\nHBL/HAWB|Gross Weight|Gross Weight|Measurement|Measurement|Chargeable Weight|Chargeable Weight";
+MSG_KEY['PFM_MGT_0120_HDR2'] 	= "Rank|Customer|Department|Commodity|POL|POD|Number of\nHBL/HAWB|KGS|LBS|CBM|CFT|KGS|LBS";
+MSG_KEY['RPT_FAX_0010_HDR1'] 	= "CHK|Company|Country No|Area No|Fax Number|trdp_cd|ibflag1";
+MSG_KEY['RPT_FAX_0020_HDR'] 	= "Del|CK|Company|Name|Dept.|Fax#";
+MSG_KEY['RPT_FAX_0021_HDR'] 	= "Del|CK|Company|Name|Dept.|Email#";
+MSG_KEY['PFM_MGT_0140_HDR1'] 	= "Rank|Vendor|Total Amount|%|Billing Item|Billing Item|Billing Item";
+MSG_KEY['PFM_MGT_0140_HDR2'] 	= "Rank|Vendor|Total Amount|%|Code|Amount|%|";
+MSG_KEY['PFM_MGT_0150_HDR1'] 	= "Rank||Agent|Total Amount|%";
+MSG_KEY['RPT_PRN_0150_HDR1'] 	= "CHK|HBL/HAWB NO.|cust_ref_no|cust_cd|Customer|brk_cd|Broker|CF|CM|BF|BM|intg_bl_seq|cust_fax|cust_eml|brk_fax|brk_eml";
+MSG_KEY['RPT_PRN_0201_HDR1'] 	= "TYPE|B/L NO.|INV NO.|POST DATE|COMPANY|TYPE|DESCRIPTION|RATIO %|A/R Amount|A/P Amount|D/C Amount|PMT|||||";
+MSG_KEY['RPT_PRN_0181_HDR1'] 	= "TYPE|B/L NO.|INV NO.|COMPANY|ITEM DESCRIPTION(H/BL NO)|REVENUE|COST|DEBIT(+)|CREDIT(-)|POST DATE|A/R Amount|A/P Amount|D/C Amount|PMT|REMARK||||||||||";
+MSG_KEY['RPT_PRN_0182_HDR1'] 	= "TYPE|B/L NO.|INV NO.|COMPANY|POST DATE|A/R Amount|A/P Amount|D/C Amount|PMT|REMARK|";
+MSG_KEY['RPT_PRN_0191_HDR1'] 	= "B/L NO.|CUSTOMER|SALES MAN|FINAL DESTINATION|CBM/G.WT|RATIO %|PROFIT||";
+
+////PERFORMANCE (PFM) & REPORT (RPT) COMMON MESSAGE (2012.11.26)
+MSG_KEY['PFM_COM_ALT001'] = 'If you want to add CR/DR in the Report, \n B/L or Other Operation should be selected! '; //CR/DR을 리포트에 추가하기 위해서는 B/L 혹은 Other Operation을 선택해 주세요!
+MSG_KEY['PFM_COM_ALT002'] = 'Enter more than one Search Condition, Please print out! '; //MESSAGE REFINE???
+MSG_KEY['PFM_COM_ALT003'] = 'Please enter within a perifod of 3 Months! '; //MESSAGE REFINE???
+MSG_KEY['PFM_COM_ALT004'] = 'Please enter Exchange Rate after retrieving Currency! '; //MESSAGE REFINE???
+MSG_KEY['PFM_COM_ALT005'] = 'Please select Report Type! '; //Report Type을 선택해 주세요!
+MSG_KEY['PFM_COM_ALT006'] = 'Please check Report List! '; //Report List를 확인해 주세요!
+MSG_KEY['PFM_COM_ALT008'] = 'Original B/L Output is limited to @ Times! '; //Original B/L 출력은 @회로 제한되어 있습니다!
+MSG_KEY['PFM_COM_ALT009'] = 'Please select Data! - Sub Agent '; //Data를 선택해 주세요! - Sub Agent
+MSG_KEY['PFM_COM_ALT010'] = 'End date is greater than start date.';
+MSG_KEY['PFM_COM_ALT011'] = 'Please check search condition!';
+MSG_KEY['PFM_COM_ALT012'] = 'Please check the Sort By condition';
+MSG_KEY['PFM_COM_ALT013'] = 'Please select currency';
+MSG_KEY['PFM_COM_ALT014'] = 'Please check the Department condition';
+MSG_KEY['PFM_COM_ALT015'] = 'To attach original invoices, B/L or Other Operation must choose only one of.';
+MSG_KEY['PFM_COM_ALT016'] = 'When “Attached Original Invoice(s)” is selected, you must select an option for the “Office” dropdown menu. You cannot leave it as “All”.';
+MSG_KEY['PFM_COM_ALT017'] = 'In order to print, you must choose either “Other Operations” or “Attached Original Invoice(s)” must be selected. Both cannot be selected at the same time.';
+MSG_KEY['PFM_COM_ALT018'] = 'Please enter Exchange Rate! '; //
+MSG_KEY['PFM_COM_ALT019'] = 'Already blocked status! '; //
+MSG_KEY['PFM_COM_ALT020'] = 'Completed! '; //
+//"In order to print, you must choose either 'Other Operations' or 'Attached Original Invoice(s)' must be selected. Both cannot be selected at the same time."

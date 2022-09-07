@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+    <!-- Other Sales Details   -->
+    <url-mapping url="OTH_OPR_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="OTH_OPR_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="OTH_OPR_0010GS.clt" screen="OTH_OPR_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="OTH_OPR_0011GS.clt" screen="OTH_OPR_0011GS.screen">
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="OTH_OPR_0010_1GS.clt" screen="OTH_OPR_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <event-mapping>
+        <event-class>com.clt.apps.fis.oth.opr.details.event.OthDetailsEvent</event-class>
+        <service-action-class>com.clt.apps.fis.oth.opr.details.OthDetailsSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Other Sales List   -->
+    <url-mapping url="OTH_OPR_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.oth.opr.list.event.OTH_OPR_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="OTH_OPR_0020.screen"/>
+            <handler-result result="EXCEL"   screen="ExcelDownload.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="OTH_OPR_0020GS.clt" screen="OTH_OPR_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.oth.opr.list.event.OTH_OPR_0020HTMLAction</web-action-class>
+    </url-mapping>
+
+    <event-mapping>
+        <event-class>com.clt.apps.fis.oth.opr.list.event.OthListEvent</event-class>
+        <service-action-class>com.clt.apps.fis.oth.opr.list.OthListSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Ajax loading -->
+    <url-mapping url="OTH_OPR_0010AJ.clt" screen="OTH_OPR_0010AJ.screen">
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Purchase Order 조회 및 등록   -->
+    <url-mapping url="OTH_OPR_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="OTH_OPR_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+   	<!-- Purchase Order Logic처리용 Hidden Grid   -->
+    <url-mapping url="OTH_OPR_0030GS.clt" screen="OTH_OPR_0030GS.screen" >
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="OTH_OPR_0030AJ.clt" screen="OTH_OPR_0030AJ.screen">
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+   	<!-- Purchase Order Item 목록 조회   -->
+    <url-mapping url="OTH_OPR_0030_1GS.clt" screen="OTH_OPR_0030_1GS.screen" >
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0030HTMLAction</web-action-class>
+    </url-mapping>
+
+	<!-- Purchase Order User Define Field 목록 조회   -->
+    <url-mapping url="OTH_OPR_0030_2GS.clt" screen="OTH_OPR_0030_2GS.screen" >
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Purchase Order Document list 목록 조회   -->
+    <url-mapping url="OTH_OPR_0030_3GS.clt" screen="OTH_OPR_0030_3GS.screen" >
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--  Purchase Order Search    -->
+    <url-mapping url="OTH_OPR_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.oth.opr.list.event.OTH_OPR_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="OTH_OPR_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Purchase Order Search의 화면필드정보를 그리드로 통신한다.  -->
+    <url-mapping url="OTH_OPR_0040GS.clt" screen="OTH_OPR_0040GS.screen" >
+        <web-action-class>com.clt.apps.fis.oth.opr.list.event.OTH_OPR_0040HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <!--Shipping Document 처리   -->
+    <url-mapping url="OTH_OPR_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.oth.opr.details.event.OTH_OPR_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="OTH_OPR_0050.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+</mappings>

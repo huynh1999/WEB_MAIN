@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<bean id="properties" class="com.clt.balloon.conf.Properties">
+		<property name="commandFileLocation" value="C:/balloon/command.txt"/>
+		<property name="commandInitialDelay" value="2"/>
+		<property name="commandPeriod" value="2"/>
+		<property name="connectType" value="DB"/>
+	</bean>
+	<bean id="disclaimer" class="com.clt.balloon.conf.Disclaimer">
+		<property name="disclaimerMap">
+			<map>
+				<entry key="PL.HANJIN.COM" value="PL"/>
+				<entry key="DE.HANJIN.COM" value="DE"/>
+				<entry key="NL.HANJIN.COM" value="NL"/>
+				<entry key="FR.HANJIN.COM" value="FR"/>
+				<entry key="CZ.HANJIN.COM" value="CZ"/>
+				<entry key="BE.HANJIN.COM" value="BE"/>
+				<entry key="UK.HANJIN.COM" value="GB"/>
+			</map>
+		</property>
+	</bean>
+	<bean id="connectionManager" class="com.clt.balloon.manager.ConnectionManager">
+		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
+		<property name="url" value="jdbc:sqlserver://localhost:1433;databaseName=opusfms"/>
+		<property name="username" value="opus_fms" />
+		<property name="password" value="fms" />
+	</bean>
+	<bean id="transactionManager" class="com.clt.balloon.utility.TransactionManager">
+		<property name="resultSetFactory" ref="resultSetFactory"/>
+	</bean>
+	<bean id="JMS_TYPE_MAILS" class="com.clt.balloon.process.MailProcess">
+		<property name="mailProcessDao" ref="mailProcessDao"/>
+		<property name="keyGenerator" ref="keyGenerator"/>
+		<property name="exporter" ref="reportDesignerExporter"/>
+		<property name="sender" ref="mailSender"/>
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="fileDeleter" ref="fileDeleter"/>
+		<property name="emailStart" value="1"/>
+		<property name="emailRunning" value="2"/>
+		<property name="emailSuccess" value="3"/>
+		<property name="emailFailure" value="4"/>
+		<property name="RPT_OUTPUT_PATH_DEFAULT" value="f_report/RD/" />
+		<property name="RPT_OUTPUT_PATH_SERVER" value="C:/" />
+		<property name="MAIL_FILE_DIRECTORY" value="/a_upload/FILE/EML/" />
+		<property name="reportMergeFlag" value="Y" />
+	</bean>
+	<bean id="JMS_TYPE_FAXS" class="com.clt.balloon.process.FaxProcess">
+		<property name="faxProcessDao" ref="faxProcessDao"/>
+		<property name="mailProcessDao" ref="mailProcessDao"/>
+		<property name="exporter" ref="reportDesignerExporter"/>
+		<property name="fileDeleter" ref="fileDeleter"/>
+		<property name="faxSender" ref="faxSender"/>
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="success" value="3"/>
+		<property name="faxFailure" value="4"/>
+		<property name="RPT_OUTPUT_PATH_DEFAULT" value="f_report/" />
+	</bean>
+	<bean id="faxSender" class="com.clt.balloon.sender.FaxSenderForBiscom">
+		<property name="RPT_OUTPUT_PATH_SERVER" value="" />
+		<property name="FAX_FTP_ID" value="webservice"/>
+		<property name="FAX_FTP_PW" value="biscom"/>
+		<property name="success" value="3"/>
+	</bean>
+	<bean id="JMS_TYPE_FTPS" class="com.clt.balloon.process.FtpProcess">
+		<property name="ftpProcessDao" ref="ftpProcessDao"/>
+		<property name="sender" ref="ftpSender"/>
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+	<bean id="fileDeleter" class="com.clt.balloon.deleter.FileDeleter">
+		<property name="mailProcessDao" ref="mailProcessDao"/>
+		<property name="RPT_OUTPUT_PATH_SERVER" value="C:/" />
+	</bean>
+	<bean id="mailSender" class="com.clt.balloon.sender.MailSender">
+		<property name="contentTransferEncodingType" value="base64"/>
+		<property name="encoding" value="UTF-8"/>
+		<property name="mailProcessDao" ref="mailProcessDao"/>
+		<property name="policyUtil" ref="policyUtil"/>
+		<property name="RPT_OUTPUT_PATH_SERVER" value="C:" />		
+		<property name="serverType" value="LOCAL" />
+		<property name="disclaimer" ref="disclaimer" />
+		<property name="homKey" value="HOM" />
+		<property name="homValue" value="/hom" />
+		<property name="mailSession" ref="mailSession" />
+		<property name="fromSetter" ref="fromSetter" />
+	</bean>
+	<bean id="ftpSender" class="com.clt.balloon.sender.FtpSender">
+		<property name="timeout" value="120000"/>
+		<property name="encoding" value="UTF-8"/>
+		<property name="limitFileSize" value="5000000"/>
+		<property name="exporter" ref="reportDesignerExporter"/>
+		<property name="RPT_OUTPUT_PATH_SERVER" value="C:" />
+	</bean>
+	<bean id="policyUtil" class="com.clt.balloon.utility.PolicyUtil">
+		<property name="POLICY_RECIPIENT_ENABLED" value="false"/>
+		<property name="mailRecipientsPolicy" ref="mailRecipientsPolicy"/>
+	</bean>
+	<bean id="mailRecipientsPolicy" class="com.clt.balloon.policy.MailRecipientsPolicy">
+		<property name="POLICY_RECIPIENT_DOMAIN" value="hanjin.com;cyberlogitec.com;hk.hanjin.com;jp.hanjin.com;lk.hanjin.com;in.hanjin.com;my.hanjin.com;au.hanjin.com;sg.hanjin.com;cn.hanjin.com;us.hanjin.com;be.hanjin.com;cz.hanjin.com;eu.hanjin.com;fr.hanjin.com;hu.hanjin.com;nl.hanjin.com;pl.hanjin.com;uk.hanjin.com;de.hanjin.com;bd.hanjin.com;tw.hanjin.com;cy.hanjin.com;hanjinsm.com;hjnc.co.kr;yanghyun.org;hanjin-holdings.com;ae.hanjin.com;HANJIN.COM;CYBERLOGITEC.COM;HK.HANJIN.COM;JP.HANJIN.COM;LK.HANJIN.COM;IN.HANJIN.COM;MY.HANJIN.COM;AU.HANJIN.COM;SG.HANJIN.COM;CN.HANJIN.COM;US.HANJIN.COM;BE.HANJIN.COM;CZ.HANJIN.COM;EU.HANJIN.COM;FR.HANJIN.COM;HU.HANJIN.COM;NL.HANJIN.COM;PL.HANJIN.COM;UK.HANJIN.COM;DE.HANJIN.COM;BD.HANJIN.COM;TW.HANJIN.COM;CY.HANJIN.COM;HANJINSM.COM;HJNC.CO.KR;YANGHYUN.ORG;HANJIN-HOLDINGS.COM;AE.HANJIN.COM"/>
+	</bean>
+	<bean id="reportDesignerExporter" class="com.clt.balloon.exporter.ReportDesignerExporter">
+		<property name="commander" ref="commander"/>
+		<property name="mailProcessDao" ref="mailProcessDao"/>
+		<property name="ftpProcessDao" ref="ftpProcessDao"/>
+		<property name="RPT_OUTPUT_PATH_SERVER" value="C:/" />
+	</bean>
+	<bean id="commander" class="com.clt.balloon.commander.PromptCommander">
+		<property name="VIEWER" value="C:\Program Files (x86)\M2Soft\Report Designer 5.0u Viewer\rdviewer_u.exe" />
+		<property name="RPT_TEMPLATE_PATH" value="C:\clt\FMS\WEB_MAIN\apps\fis\rpt\mrd\letter\" />
+		<property name="RPT_TEMPORARY_PATH" value="C:/balloon/template/temp" />
+		<property name="RPT_AGENT_URL" value="http://localhost:8001/RDServer/rdagent.jsp" />
+		<property name="RPT_AGENT_DB_JNDI" value="OPUS_FIS" />
+	</bean>
+	<bean id="mailProcessDao" class="com.clt.balloon.dao.MailProcessDao">
+		<property name="resultSetFactory" ref="resultSetFactory"/>
+		<property name="processName" value="TestMailProcess"/>
+		<property name="directoryDefaultAdjust" value="0"/>
+	</bean>
+	<bean id="faxProcessDao" class="com.clt.balloon.dao.FaxProcessDao">
+		<property name="resultSetFactory" ref="resultSetFactory"/>
+		<property name="processName" value="TestFaxProcess"/>
+	</bean>
+	<bean id="ftpProcessDao" class="com.clt.balloon.dao.FtpProcessDao">
+		<property name="resultSetFactory" ref="resultSetFactory"/>
+		<property name="processName" value="TestFtpProcess"/>
+	</bean>
+	<bean id="resultSetFactory" class="com.clt.balloon.utility.ResultSetFactory">
+		<property name="connectionManager" ref="connectionManager" />
+		<property name="sqlService" ref="sqlService" />
+	</bean>
+	<bean id="mailDataRequestsGetter" class="com.clt.balloon.getter.requests.MailDataRequestsGetter">
+		<property name="mailProcessDao" ref="mailProcessDao"/>		
+	</bean>
+	<bean id="faxDataRequestsGetter" class="com.clt.balloon.getter.requests.FaxDataRequestsGetter">
+		<property name="faxProcessDao" ref="faxProcessDao"/>		
+	</bean>
+	
+	<bean id="dataListenerContainer" class="com.clt.balloon.listener.DefaultDataListenerContainer" >
+		<property name="sleepTime" value ="1000" />
+	</bean>
+	<bean id="keyGenerator" class="com.clt.balloon.keygenerator.KeyGeneratorGeneral"/>
+	<bean id="mailSession" class="com.clt.balloon.session.MailSessionAuthenticationMd5FromClient" />
+	<bean id="fromSetter" class="com.clt.balloon.sender.mail.FromSetterGeneral" />
+	<bean id="sqlService" class="com.clt.balloon.SqlService">
+		<property name="sqlMap">
+			<map>
+				<entry key="getEmlSndInfo" value="select * from COM_EML_SND_INFO where eml_snd_no = ?"/>
+				<entry key="getComRptDsgnXptInfo" value="SELECT * FROM COM_RPT_DSGN_XPT_INFO WHERE EML_SND_NO = ? ORDER BY RPT_XPT_NO ASC"/>
+				<entry key="getComRptDsgnXptInfoRptXptNo" value="SELECT * FROM COM_RPT_DSGN_XPT_INFO WHERE RPT_XPT_NO = ?"/>
+				<entry key="getRdTmpltNm" value="select rd_tmplt_nm from com_rpt_dsgn_snd_appl where rd_appl_cd = ?"/>
+				<entry key="getComUpldFile" value="SELECT * FROM COM_UPLD_FILE WHERE FILE_SAV_ID = ?"/>
+				<entry key="getComEmlAtchFile" value="SELECT * FROM COM_EML_ATCH_FILE WHERE EML_SND_NO = ? ORDER BY EML_ATCH_FILE_SEQ ASC"/>
+				<entry key="getNewSndNo" value="execute nextval 'COM_MAIL_SEND_SEQ'"/>
+				<entry key="getComEmlSndRsltInfo" value="SELECT * FROM COM_EML_SND_RSLT_INFO WHERE EML_SND_RSLT_NO = ?"/>
+				<entry key="getComEmlSndCtnt" value="SELECT * FROM COM_EML_SND_CTNT WHERE EML_SND_NO = ?"/>
+				<entry key="getComEmlAtchFileRslt" value="SELECT * FROM COM_EML_ATCH_FILE_RSLT WHERE EML_SND_RSLT_NO = ? ORDER BY EML_ATCH_FILE_SEQ ASC"/>
+				<entry key="getComFaxSndInfo" value="SELECT * FROM COM_FAX_SND_INFO WHERE FAX_SND_NO = ? "/>
+				<entry key="getComRptDsgnSndApplRdTmpltNm" value="select rd_tmplt_nm from com_rpt_dsgn_snd_appl where rd_appl_cd = ?"/>
+				<entry key="getComFtpSndInfo" value="select * from com_ftp_snd_info WHERE FTP_SND_NO = ?"/>
+				<entry key="getEmlDsclmCtnt" value="SELECT EML_DSCLM_CTNT FROM MDM_COUNTRY WHERE CNT_CD =  ? AND ROWNUM = 1"/>
+				<entry key="insertComUpldFile" value="INSERT INTO COM_UPLD_FILE (FILE_SAV_ID, FILE_UPLD_NM, FILE_SZ_CAPA, FILE_PATH_URL, PGM_SUB_SYS_CD, DELT_FLG, CRE_USR_ID, CRE_DT, UPD_USR_ID, UPD_DT) VALUES(?, ?, ?, ?, ?, ?, ?, getdate(), ?, getdate())"/>
+				<entry key="insertComEmlSndRsltInfo" value="INSERT INTO COM_EML_SND_RSLT_INFO (EML_SND_RSLT_NO, EML_SND_NO, EML_PROC_STS_CD, EML_DT, CRE_USR_ID, CRE_DT, UPD_USR_ID, UPD_DT) VALUES(?, ?, ?, getdate(), ?, getdate(), ?, getdate())"/>
+				<entry key="insertComEmlAtchFileRslt" value="INSERT INTO COM_EML_ATCH_FILE_RSLT ( EML_ATCH_FILE_NO, EML_SND_RSLT_NO, EML_ATCH_FILE_SEQ, CRE_USR_ID, CRE_DT, UPD_USR_ID, UPD_DT) VALUES( ?, ?, ?, ?, getdate(), ?, getdate())"/>
+				<entry key="insertComFtpSndInfo" value="INSERT INTO COM_FTP_SND_INFO ( APPL_SVR_NM, CRE_USR_ID, Ftp_Dir_Ctnt, Ftp_File_Path_Url_Ctnt, Ftp_Proc_Sts_Cd, Ftp_Snd_No, Ftp_Svr_Ip, Ftp_Usr_Id, Ftp_Usr_Pwd, Sub_Sys_Cd, Thd_Id, Upd_Usr_Id, CRE_DT, UPD_DT) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), getdate())"/>
+				<entry key="insertComRptDsgnXptInfo" value="INSERT INTO COM_RPT_DSGN_XPT_INFO(RPT_XPT_NO, EML_SND_NO, RD_APPL_CD, RD_TMPLT_NM, RD_PARA_CTNT, XPT_FILE_NM, XPT_FILE_TP_CD, XPT_RSLT_CD, XPT_DT, XPT_ERR_MSG, CRE_USR_ID, CRE_DT, UPD_USR_ID, UPD_DT) VALUES(?, ?, ?, ?, ?, ?, ?, ?, getdate(), ?, ?, getdate(), ?, getdate())"/>
+				<entry key="updateDeltFlg" value="UPDATE COM_UPLD_FILE SET DELT_FLG = ?, UPD_USR_ID = ?, UPD_DT = getdate() WHERE FILE_SAV_ID = ?"/>
+				<entry key="updateEmlSndStatusInfo" value="UPDATE COM_EML_SND_INFO SET EML_PROC_STS_CD = ?, EML_ERR_MSG = ?, UPD_USR_ID = ?, UPD_DT = getdate() WHERE EML_SND_NO = ?"/>
+				<entry key="updateEmlSndRsltStatusInfo" value="UPDATE COM_EML_SND_RSLT_INFO SET EML_PROC_STS_CD = ?, UPD_USR_ID = ?, UPD_DT = getdate() WHERE EML_SND_RSLT_NO = ?"/>
+				<entry key="updateFaxSndStatusInfo" value="UPDATE COM_FAX_SND_INFO SET FAX_PROC_STS_CD = ?, XPT_RSLT_CD = ?, XPT_DT = getdate(), XPT_ERR_MSG = ?, UPD_USR_ID = ?, UPD_DT = getdate() WHERE FAX_SND_NO = ?"/>
+				<entry key="updateComFtpSndInfoFtpProcStsCd" value="UPDATE COM_FTP_SND_INFO SET FTP_PROC_STS_CD = ?, UPD_USR_ID = ?, UPD_DT = getdate() WHERE FTP_SND_NO = ?"/>
+				<entry key="getEmlSndNosWithStatusRequest" value="select eml_snd_no from com_eml_snd_info where eml_snd_no like convert(varchar(8),getdate()-1,112)+'%' and eml_proc_sts_cd = 1 UNION select eml_snd_no from com_eml_snd_info where eml_snd_no like convert(varchar(8),getdate(),112)+'%' and eml_proc_sts_cd = 1 UNION select eml_snd_no from com_eml_snd_info where eml_snd_no like convert(varchar(8),getdate()+1,112)+'%' and eml_proc_sts_cd = 1"/>
+				<entry key="getFaxSndNosWithStatusRequest" value="select fax_snd_no from com_fax_snd_info where fax_snd_no like convert(varchar(8),getdate()-1,112)+'%' and fax_proc_sts_cd = 1 UNION select fax_snd_no from com_fax_snd_info where fax_snd_no like convert(varchar(8),getdate(),112)+'%' and fax_proc_sts_cd = 1 UNION select fax_snd_no from com_fax_snd_info where fax_snd_no like convert(varchar(8),getdate()+1,112)+'%' and fax_proc_sts_cd = 1"/>
+			</map>
+		</property>
+	</bean>
+</beans>

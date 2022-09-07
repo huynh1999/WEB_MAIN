@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### ACC Invoice 관련 프로그램  Start ####  -->
+    <url-mapping url="ACC_INV_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0010GS.clt" screen="ACC_INV_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0010HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0011GS.clt" screen="ACC_INV_0011GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- DB/CR INVOICE  -->
+    <url-mapping url="ACC_INV_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0020GS.clt" screen="ACC_INV_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="ACC_INV_0022GS.clt" screen="ACC_INV_0022GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="ACC_INV_0023GS.clt" screen="ACC_INV_0023GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- AP INVOICE  -->
+    <url-mapping url="ACC_INV_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0030GS.clt" screen="ACC_INV_0030GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- AP EXPENSE  -->
+    <url-mapping url="ACC_INV_0031.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0031HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0031.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0031GS.clt" screen="ACC_INV_0031GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0031HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- AP EXPENSE LIST   -->
+    <url-mapping url="ACC_INV_0032.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0032HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0032.screen"/>
+            <handler-result result="EXCEL"   screen="ExcelDownload.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0032GS.clt" screen="ACC_INV_0032GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0032HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- AP EXPENSE OTHER BRANCH   -->
+    <url-mapping url="ACC_INV_0033.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0033HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0033.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0033GS.clt" screen="ACC_INV_0033GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0033HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- AP EXPENSE OTHER BRANCH LIST   -->
+    <url-mapping url="ACC_INV_0034.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0034HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0034.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0034GS.clt" screen="ACC_INV_0034GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0034HTMLAction</web-action-class>
+    </url-mapping>
+    
+     <!-- AR EXPENSE  -->
+    <url-mapping url="ACC_INV_0035.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0035HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0035.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0035GS.clt" screen="ACC_INV_0035GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0035HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Invoice List   -->
+    <url-mapping url="ACC_INV_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0040.screen"/>
+            <handler-result result="EXCEL"   screen="ExcelDownload.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0040GS.clt" screen="ACC_INV_0040GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0040HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Invoice Report Option Screen - for Japan Trust Co. -->
+    <url-mapping url="ACC_INV_0041.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0041.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Invoice Print   -->
+    <url-mapping url="ACC_INV_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0050.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    
+    <!-- Invoice Batch Print   -->
+    <url-mapping url="ACC_INV_0051.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0051HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0051.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0051GS.clt" screen="ACC_INV_0051GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0051HTMLAction</web-action-class>
+    </url-mapping>
+
+    <event-mapping>
+        <event-class>com.clt.apps.fis.acc.inv.invoice.event.AccInvoiceEvent</event-class>
+        <service-action-class>com.clt.apps.fis.acc.inv.invoice.AccInvoiceSC</service-action-class>
+    </event-mapping>
+    
+	
+    <!--#### 통합 Invoice 관련 프로그램  Start ####  -->
+    <url-mapping url="ACC_INV_0080.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0080HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0080.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="ACC_INV_0080GS.clt"   screen="ACC_INV_0080GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0080HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <url-mapping url="ACC_INV_0080_1GS.clt" screen="ACC_INV_0080_1GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0080HTMLAction</web-action-class>
+    </url-mapping>
+
+	<!--#### 통합 Invoice 목록 조회 Start ####  -->
+    <url-mapping url="ACC_INV_0090.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0090HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0090.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="ACC_INV_0090GS.clt"   screen="ACC_INV_0090GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0090HTMLAction</web-action-class>
+    </url-mapping>
+	
+	<!--통합인보이스 생성팝업   -->
+    <url-mapping url="ACC_INV_0081.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0081HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0081.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0081GS.clt"   screen="ACC_INV_0081GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0081HTMLAction</web-action-class>
+    </url-mapping>
+	
+    
+    
+    
+    <!--#### ACC Invoice List 관련 프로그램  Start ####  -->
+    <url-mapping url="ACC_INV_0021.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invlist.event.ACC_INV_0021HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0021.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0021GS.clt" screen="ACC_INV_0021GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invlist.event.ACC_INV_0021HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.acc.inv.invlist.event.AccInvoiceListEvent</event-class>
+        <service-action-class>com.clt.apps.fis.acc.inv.invlist.AccInvoiceListSC</service-action-class>
+    </event-mapping>
+    
+    
+    
+    <url-mapping url="ACC_INV_0060.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.report.event.ACC_INV_0060HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0060.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0060GS.clt" screen="ACC_INV_0060GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.report.event.ACC_INV_0060HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <url-mapping url="ACC_INV_0070.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.report.event.ACC_INV_0070HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0070.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0070GS.clt" screen="ACC_INV_0070GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.report.event.ACC_INV_0070HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0070_1GS.clt" screen="ACC_INV_0070_1GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.report.event.ACC_INV_0070HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    
+    
+    <!-- Journal History PopUp   -->
+	<url-mapping url="ACC_INV_0100.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0100HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0100.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="ACC_INV_0100GS.clt"   screen="ACC_INV_0100GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0100HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- Invoice History PopUp   -->
+    <url-mapping url="ACC_INV_0110.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0110HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="ACC_INV_0110.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="ACC_INV_0110GS.clt"   screen="ACC_INV_0110GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0110HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0111GS.clt"   screen="ACC_INV_0111GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0110HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0112GS.clt"   screen="ACC_INV_0112GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0110HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Invoice #52016 e-Tax XML Download   -->
+    <url-mapping url="ACC_INV_0120.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0120HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="ACC_INV_0120.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+        
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.acc.inv.report.event.AccInvoiceReportEvent</event-class>
+        <service-action-class>com.clt.apps.fis.acc.inv.report.AccInvoiceReportSC</service-action-class>
+    </event-mapping>
+    
+    <!--  Report   -->   
+    <url-mapping url="ACC_RPT_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.rpt.inv.event.ACC_RPT_0010HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="ACC_RPT_0010.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="ACC_RPT_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.rpt.inv.event.ACC_RPT_0020HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="ACC_RPT_0020.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="ACC_RPT_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.rpt.inv.event.ACC_RPT_0030HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="ACC_RPT_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="ACC_RPT_0110.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.rpt.inv.event.ACC_RPT_0110HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="ACC_RPT_0110.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="ACC_RPT_0120.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.rpt.inv.event.ACC_RPT_0120HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="ACC_RPT_0120.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="ACC_RPT_0130.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.rpt.inv.event.ACC_RPT_0130HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="ACC_RPT_0130.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.acc.rpt.inv.event.AccReportInvEvent</event-class>
+        <service-action-class>com.clt.apps.fis.acc.rpt.inv.AccReportInvSC</service-action-class>
+    </event-mapping>
+    <!-- Ajax loading -->
+    <url-mapping url="ACC_INV_0010AJ.clt" screen="ACC_INV_0010AJ.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0010HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0020AJ.clt" screen='ACC_INV_0020AJ.screen'>
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0020HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0030AJ.clt" screen="ACC_INV_0030AJ.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Payment Verification #1428 [PATENT] 0215_12 VERIFY PAYMENT SCREEN - Last Paid Date -->
+    <url-mapping url="ACC_INV_0130.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0130HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0130.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0130GS.clt" screen="ACC_INV_0130GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0130HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0130GS_1.clt" screen="ACC_INV_0130GS_1.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0130HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_INV_0130GS_2.clt" screen="ACC_INV_0130GS_2.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0130HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- #2502 [PATENT] Tax Invoice -->
+    <url-mapping url="ACC_INV_0140.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0140HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0140.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>  
+    <url-mapping url="ACC_INV_0140GS.clt" screen="ACC_INV_0140GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0140HTMLAction</web-action-class>
+    </url-mapping>    
+
+    <url-mapping url="ACC_INV_0150.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0150HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_INV_0150.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>  
+    <url-mapping url="ACC_INV_0150GS.clt" screen="ACC_INV_0150GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.inv.invoice.event.ACC_INV_0150HTMLAction</web-action-class>
+    </url-mapping>        
+      
+</mappings>

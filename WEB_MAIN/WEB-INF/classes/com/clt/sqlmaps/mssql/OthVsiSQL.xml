@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="oth.vsi">
+
+	<select id="selectVndrSi" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.vndrsi.dto.VndrSiVO">
+		/* OthVsiSQL.xml > selectVndrSi */
+		SELECT VNDR_SI_NO,
+		       STS_CD,
+		       (SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD = 'C110' AND CD_VAL = STS_CD) AS STS_NM,
+		       SNDR_USRID,
+		       (SELECT ENG_USR_NM FROM TB_USR WHERE USR_TP = 'I' AND USRID = SNDR_USRID) AS SNDR_USRNM,
+		       SND_DT,
+		       EST_SHP_DT,
+		       PO_NO,
+		       TO_TRDP_CD,
+		       TO_TRDP_NM,
+		       TO_TRDP_ADDR,
+		       TO_TRDP_PIC_NM,
+		       TO_TRDP_PIC_PHN,
+		       TO_TRDP_PIC_FAX,
+		       TO_TRDP_PIC_EML,
+		       FRT_TO_TRDP_CD,
+		       FRT_TO_TRDP_NM,
+		       FRT_TO_TRDP_ADDR,
+		       FRT_TO_TRDP_PIC_NM,
+		       FRT_TO_TRDP_PIC_PHN,
+		       FRT_TO_TRDP_PIC_FAX,
+		       FRT_TO_TRDP_PIC_EML,
+		       DOC_TO_TRDP_CD,
+		       DOC_TO_TRDP_NM,
+		       DOC_TO_TRDP_ADDR,
+		       DOC_TO_TRDP_PIC_NM,
+		       DOC_TO_TRDP_PIC_PHN,
+		       DOC_TO_TRDP_PIC_FAX,
+		       DOC_TO_TRDP_PIC_EML,
+		       CI_FLG,
+		       PL_FLG,
+		       LC_FLG,
+		       SHP_EXP_DCL_FLG,
+		       OTH_FLG,
+		       OTH_DOC_TXT,
+		       RMK
+		  FROM TB_VNDR_SI
+		 WHERE VNDR_SI_NO = #vndr_si_no#
+	</select>
+
+
+	<select id="getVndrSiNo" resultClass="String">
+		/* OthVsiSQL.xml > getVndrSiNo */
+		SELECT 'VSI' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + ISNULL(dbo.LPAD(MAX(SUBSTRING(VNDR_SI_NO, 10, 5))+1, 5, '0'), '00001') AS VNDR_SI_NO
+		  FROM TB_VNDR_SI
+		 WHERE VNDR_SI_NO LIKE 'VSI' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + '%'
+	</select>
+
+
+	<insert id="insertVndrSi" parameterClass="com.clt.apps.fis.oth.vndrsi.dto.VndrSiVO">
+		/* OthVsiSQL.xml > insertVndrSi */
+		INSERT INTO TB_VNDR_SI (
+			   VNDR_SI_NO,
+			   STS_CD,
+			   SNDR_USRID,
+			   SND_DT,
+			   EST_SHP_DT,
+			   PO_NO,
+			   TO_TRDP_CD,
+			   TO_TRDP_NM,
+			   TO_TRDP_ADDR,
+			   TO_TRDP_PIC_NM,
+			   TO_TRDP_PIC_PHN,
+			   TO_TRDP_PIC_FAX,
+			   TO_TRDP_PIC_EML,
+			   FRT_TO_TRDP_CD,
+			   FRT_TO_TRDP_NM,
+			   FRT_TO_TRDP_ADDR,
+			   FRT_TO_TRDP_PIC_NM,
+			   FRT_TO_TRDP_PIC_PHN,
+			   FRT_TO_TRDP_PIC_FAX,
+			   FRT_TO_TRDP_PIC_EML,
+			   DOC_TO_TRDP_CD,
+			   DOC_TO_TRDP_NM,
+			   DOC_TO_TRDP_ADDR,
+			   DOC_TO_TRDP_PIC_NM,
+			   DOC_TO_TRDP_PIC_PHN,
+			   DOC_TO_TRDP_PIC_FAX,
+			   DOC_TO_TRDP_PIC_EML,
+			   CI_FLG,
+		       PL_FLG,
+			   LC_FLG,
+			   SHP_EXP_DCL_FLG,
+			   OTH_FLG,
+			   OTH_DOC_TXT,
+			   RMK,
+			   RGST_USRID,
+			   RGST_OFC_CD,
+			   RGST_TMS,
+			   MODI_USRID,
+			   MODI_OFC_CD,
+			   MODI_TMS
+		) VALUES (
+			   #vndr_si_no#,
+			   #sts_cd#,
+			   #sndr_usrid#,
+			   #snd_dt#,
+			   #est_shp_dt#,
+			   #po_no#,
+			   #to_trdp_cd#,
+			   #to_trdp_nm#,
+			   #to_trdp_addr#,
+			   #to_trdp_pic_nm#,
+			   #to_trdp_pic_phn#,
+			   #to_trdp_pic_fax#,
+			   #to_trdp_pic_eml#,
+			   #frt_to_trdp_cd#,
+			   #frt_to_trdp_nm#,
+			   #frt_to_trdp_addr#,
+			   #frt_to_trdp_pic_nm#,
+			   #frt_to_trdp_pic_phn#,
+			   #frt_to_trdp_pic_fax#,
+			   #frt_to_trdp_pic_eml#,
+			   #doc_to_trdp_cd#,
+			   #doc_to_trdp_nm#,
+			   #doc_to_trdp_addr#,
+			   #doc_to_trdp_pic_nm#,
+			   #doc_to_trdp_pic_phn#,
+			   #doc_to_trdp_pic_fax#,
+			   #doc_to_trdp_pic_eml#,
+			   #ci_flg#,
+			   #pl_flg#,
+			   #lc_flg#,
+			   #shp_exp_dcl_flg#,
+			   #oth_flg#,
+			   #oth_doc_txt#,
+			   #rmk#,
+			   #rgst_usrid#,
+			   #rgst_ofc_cd#,
+			   GETDATE(),
+			   #modi_usrid#,
+			   #modi_ofc_cd#,
+			   GETUTCDATE()
+		)
+	</insert>
+
+
+	<update id="updateVndrSi" parameterClass="com.clt.apps.fis.oth.vndrsi.dto.VndrSiVO">
+		/* OthVsiSQL.xml > updateVndrSi */
+		UPDATE TB_VNDR_SI
+		   SET VNDR_SI_NO = #vndr_si_no#,
+		       STS_CD = #sts_cd#,
+		       SNDR_USRID = #sndr_usrid#,
+		       SND_DT = #snd_dt#,
+		       EST_SHP_DT = #est_shp_dt#,
+		       PO_NO = #po_no#,
+		       TO_TRDP_CD = #to_trdp_cd#,
+		       TO_TRDP_NM = #to_trdp_nm#,
+		       TO_TRDP_ADDR = #to_trdp_addr#,
+		       TO_TRDP_PIC_NM = #to_trdp_pic_nm#,
+		       TO_TRDP_PIC_PHN = #to_trdp_pic_phn#,
+		       TO_TRDP_PIC_FAX = #to_trdp_pic_fax#,
+		       TO_TRDP_PIC_EML = #to_trdp_pic_eml#,
+		       FRT_TO_TRDP_CD = #frt_to_trdp_cd#,
+		       FRT_TO_TRDP_NM = #frt_to_trdp_nm#,
+		       FRT_TO_TRDP_ADDR = #frt_to_trdp_addr#,
+		       FRT_TO_TRDP_PIC_NM = #frt_to_trdp_pic_nm#,
+		       FRT_TO_TRDP_PIC_PHN = #frt_to_trdp_pic_phn#,
+		       FRT_TO_TRDP_PIC_FAX = #frt_to_trdp_pic_fax#,
+		       FRT_TO_TRDP_PIC_EML = #frt_to_trdp_pic_eml#,
+		       DOC_TO_TRDP_CD = #doc_to_trdp_cd#,
+		       DOC_TO_TRDP_NM = #doc_to_trdp_nm#,
+		       DOC_TO_TRDP_ADDR = #doc_to_trdp_addr#,
+		       DOC_TO_TRDP_PIC_NM = #doc_to_trdp_pic_nm#,
+		       DOC_TO_TRDP_PIC_PHN = #doc_to_trdp_pic_phn#,
+		       DOC_TO_TRDP_PIC_FAX = #doc_to_trdp_pic_fax#,
+		       DOC_TO_TRDP_PIC_EML = #doc_to_trdp_pic_eml#,
+		       CI_FLG = #ci_flg#,
+		       PL_FLG = #pl_flg#,
+		       LC_FLG = #lc_flg#,
+		       SHP_EXP_DCL_FLG = #shp_exp_dcl_flg#,
+		       OTH_FLG = #oth_flg#,
+		       OTH_DOC_TXT = #oth_doc_txt#,
+		       RMK = #rmk#,
+		       MODI_USRID = #modi_usrid#,
+		       MODI_OFC_CD = #modi_ofc_cd#,
+		       MODI_TMS = GETUTCDATE()
+		 WHERE VNDR_SI_NO = #vndr_si_no#
+	</update>
+
+
+	<!-- Vendor S/I List    -->
+	<select id="selectVndrSiList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.vndrsi.dto.VndrSiVO">
+		/* OthVsiSQL.xml > selectVndrSiList */
+		SELECT VNDR_SI_NO,
+			       TO_TRDP_NM,
+			       FRT_TO_TRDP_NM,
+			       PO_NO,
+			       SND_DT,
+			       EST_SHP_DT,
+			       (SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD = 'C110' AND CD_VAL = STS_CD) AS STS_NM,
+			       (SELECT LOCL_USR_NM FROM TB_USR WHERE USR_TP = 'I' AND  USRID = SNDR_USRID) AS SNDR_USRNM
+		  FROM TB_VNDR_SI
+		 WHERE 1=1
+		<isNotEmpty property="f_snd_strdt">
+		   AND SND_DT BETWEEN #f_snd_strdt# AND #f_snd_enddt#
+		</isNotEmpty>
+		<isNotEmpty property="f_est_shp_strdt">
+		   AND EST_SHP_DT BETWEEN #f_est_shp_strdt# AND #f_est_shp_enddt#
+		</isNotEmpty>
+		<isNotEmpty property="f_to_trdp_cd">
+		   AND TO_TRDP_CD = #f_to_trdp_cd#
+		</isNotEmpty>
+        <isNotEmpty property="f_to_trdp_nm">
+           AND TO_TRDP_NM LIKE #f_to_trdp_nm#+'%'
+        </isNotEmpty>		
+		<isNotEmpty property="f_frt_to_trdp_cd">
+		  AND FRT_TO_TRDP_CD = #f_frt_to_trdp_cd#
+		</isNotEmpty>
+        <isNotEmpty property="f_frt_to_trdp_nm">
+          AND FRT_TO_TRDP_NM LIKE #f_frt_to_trdp_nm#+'%'
+        </isNotEmpty>
+		<isNotEmpty property="f_sts_cd">
+		  AND STS_CD = #f_sts_cd#
+		</isNotEmpty>
+		<isNotEmpty property="f_po_no">
+		  AND PO_NO = #f_po_no#
+		</isNotEmpty>
+	</select>
+
+</sqlMap>

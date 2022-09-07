@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### Workflow Management  ####  -->
+    <screen name="MGT_LOG_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/log/mail/jsp/MGT_LOG_0010.jsp"/>
+    </screen>
+    <screen name="MGT_LOG_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/log/mail/jsp/MGT_LOG_0010GS.jsp"/>
+    </screen>
+    
+    <screen name="MGT_LOG_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/log/fax/jsp/MGT_LOG_0020.jsp"/>
+    </screen>
+    <screen name="MGT_LOG_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/log/fax/jsp/MGT_LOG_0020GS.jsp"/>
+    </screen>
+    
+</screen-definitions>

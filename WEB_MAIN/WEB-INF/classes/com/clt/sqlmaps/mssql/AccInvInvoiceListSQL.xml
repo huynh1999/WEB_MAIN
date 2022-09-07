@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc.inv.invlist">
+
+	<typeAlias alias="InvVO" 	type="com.clt.apps.fis.acc.inv.invlist.dto.InvVO"/>
+	<typeAlias alias="inv_FrtVO" 	type="com.clt.apps.fis.see.frt.freight.dto.FrtVO"/>
+	
+	<select id="selectUSER_FIN_OFC" parameterClass="java.util.HashMap" resultClass="String">
+		SELECT  finc_ofc_cd FROM  tb_ofc WHERE  ofc_cd = #proc_ofccd#
+    </select>
+
+	<!-- ACC INVOICE List Search    -->
+    <select id="selectACC_INV_0020_LIST" parameterClass="java.util.HashMap" resultClass="InvVO">
+	        SELECT DTL.INV_DT AS STL_FM_DT			, TMP_FRT.ET_DT_TM AS STL_TO_DT			, DTL.CLT_DUE_DT
+		 		 , INV.TRDP_CD						, TRDP.LOCL_NM AS TRDP_NM				, TMP_FRT.MBL_NO
+		 		 , TMP_FRT.BL_NO					, DTL.INV_NO
+		 		 , CASE WHEN TMP_FRT.RAT_CURR_CD IS NULL 
+					    THEN DTL.INV_APLY_CURR_CD 
+					    ELSE TMP_FRT.RAT_CURR_CD 
+				    END AS INV_APLY_CURR_CD
+				 , CASE WHEN TMP_FRT.RAT_CURR_CD != 'KRW' 
+						THEN CASE WHEN DTL.INV_APLY_CURR_CD = TMP_FRT.RAT_CURR_CD 
+								  THEN ROUND(DTL.INV_SUM_AMT, 2) 
+								  ELSE ROUND(DTL.FRGN_AMT, 2) 
+							  END ELSE TMP_FRT.INV_AMT + TMP_FRT.FRT_VAT_AMT 
+					END AS INV_AMOUNT
+				 , CASE WHEN TMP_FRT.RAT_CURR_CD != 'KRW' 
+				        THEN CASE WHEN DTL.INV_APLY_CURR_CD = TMP_FRT.RAT_CURR_CD 
+				                  THEN ROUND(DTL.PAY_AMT, 2) 
+				                  ELSE ROUND(DTL.PAY_FRGN_AMT, 2) 
+				              END 
+				        ELSE (DTL.PAY_AMT + DTL.PAY_VAT_AMT) - CASE WHEN DTL.FRGN_AMT != 0 
+				                                                    THEN ROUND(TMP_FRT.FRGN_INV_AMT * ROUND(DTL.PAY_FRGN_AMT, 2) / ROUND(DTL.FRGN_AMT, 2), 0) 
+				                                                    ELSE 0 
+				                                                END 
+				    END AS PER_AMOUNT
+				 , CASE WHEN TMP_FRT.RAT_CURR_CD != 'KRW'
+				        THEN CASE WHEN DTL.INV_APLY_CURR_CD = TMP_FRT.RAT_CURR_CD 
+				                  THEN ROUND(ROUND(DTL.BAL_AMT, 2) * TMP_FRT.FRT_INV_XCRT, 2) 
+				                  ELSE ROUND(ROUND(DTL.BAL_FRGN_AMT, 2) * TMP_FRT.FRT_INV_XCRT, 0) 
+				              END 
+				        ELSE (DTL.BAL_AMT + DTL.BAL_VAT_AMT) - CASE WHEN DTL.FRGN_AMT != 0 
+				                                                    THEN ROUND(TMP_FRT.FRGN_INV_AMT * ROUND(DTL.BAL_FRGN_AMT, 2) / ROUND(DTL.FRGN_AMT, 2), 0) 
+				                                                    ELSE 0 
+				                                                END 
+				    END AS KRW_AMOUNT
+				 , DTL.BUY_INV_NO					, DTL.INV_STS_CD						, STS.CD_NM AS INV_STS_NM
+				 , DTL.CMPL_STS_FLG					, DTL.FRT_ASK_CLSS_CD
+				 , CASE WHEN DTL.FRT_ASK_CLSS_CD = 'BL' 
+				        THEN 'Individual' WHEN DTL.FRT_ASK_CLSS_CD = 'SU' 
+				                          THEN 'Summary' 
+				                          ELSE 'Division' 
+				    END AS FRT_ASK_CLSS_NM
+				 , DTL.SLIP_NO						, DTL.INV_XCRT_DT
+				 , CASE WHEN DTL.INV_STS_CD = 'IE' 
+				        THEN DTL.INV_TO_DT 
+				    END AS INV_TO_DT
+				 , DEPT.CD_NM + ' / ' + USR.USRID AS RGST_USRID
+				 , DTL.INV_SEQ						, INV.AIR_SEA_CLSS_CD					, INV.BND_CLSS_CD
+				 , INV.SELL_BUY_TP_CD				, TMP_FRT.BL_CNT						, INV.INV_RMK
+				 , TMP_FRT.FRT_INV_XCRT
+				 , CASE WHEN TMP_FRT.RAT_CURR_CD = 'KRW'
+				        THEN 1
+				        ELSE TMP_FRT.FRT_INV_XCRT 
+				    END AS INV_APLY_XCRT
+				 , CASE WHEN TMP_FRT.RAT_CURR_CD = 'KRW'
+				        THEN 1
+				        ELSE TMP_FRT.FRT_INV_XCRT 
+				    END AS INV_XCRT_RT_UT
+	          FROM TB_INV_DTL DTL
+	          JOIN TB_INV INV 
+	            ON DTL.INV_SEQ = INV.INV_SEQ AND DTL.DELT_FLG = 'N' AND INV.DELT_FLG = 'N'
+			  JOIN TB_TRDP TRDP 
+			    ON INV.TRDP_CD = TRDP.TRDP_CD AND TRDP.DELT_FLG = 'N'
+			<isNotNull property="trdp_cd">
+			   AND TRDP.TRDP_CD = #trdp_cd#
+			</isNotNull>
+   LEFT OUTER JOIN TB_COM_CD_DTL STS 
+                ON STS.COM_CD = 'C048' AND DTL.INV_STS_CD = STS.CD_VAL
+   LEFT OUTER JOIN TB_USR USR 
+                ON USR.USR_TP = 'I' AND INV.RGST_USRID = USR.USRID
+   LEFT OUTER JOIN TB_COM_CD_DTL DEPT 
+   				ON DEPT.COM_CD = 'C056' AND DEPT.CD_VAL = INV.DEPT_CD
+			  JOIN (
+					SELECT FRT.INV_SEQ								, MAX(FRT.INTG_BL_SEQ) AS INTG_BL_SEQ
+						 , SUM(FRT.INV_AMT) AS INV_AMT				, TEST.FRT_VAT_AMT
+						 , TEST.FRGN_INV_AMT						, TEST.FRT_INV_XCRT
+						 , FRT.RAT_CURR_CD							, MAX(BL.BL_NO) AS BL_NO
+					 	 , MAX(MBL.BL_NO) AS MBL_NO					, MAX(BLCNT.BL_CNT) AS BL_CNT
+						 , MAX(BL.ET_DT_TM) AS ET_DT_TM
+					  FROM TB_FRT FRT
+		   LEFT OUTER JOIN (
+		   					SELECT FRT.INV_SEQ			, MAX(FRT.INV_XCRT) AS FRT_INV_XCRT			
+								 , TMP.FRGN_INV_AMT		, SUM(FRT.INV_VAT_AMT) AS FRT_VAT_AMT
+							  FROM TB_FRT FRT
+                   LEFT OUTER JOIN (
+									SELECT FRT.INV_SEQ, SUM(FRT.INV_AMT) AS FRGN_INV_AMT
+									  FROM TB_FRT FRT
+									 WHERE FRT.DELT_FLG = 'N'
+									   AND FRT.RAT_CURR_CD != 'KRW'
+								  GROUP BY FRT.INV_SEQ
+								   ) TMP ON FRT.INV_SEQ = TMP.INV_SEQ
+						     WHERE FRT.DELT_FLG = 'N'
+						  GROUP BY FRT.INV_SEQ, TMP.FRGN_INV_AMT
+						   ) TEST ON FRT.INV_SEQ = TEST.INV_SEQ
+		   LEFT OUTER JOIN (
+							SELECT COUNT(DISTINCT BL.INTG_BL_SEQ) AS BL_CNT, INV_SEQ 
+							  FROM TB_FRT FRT, TB_INTG_BL BL
+							 WHERE FRT.INTG_BL_SEQ = BL.INTG_BL_SEQ
+						  GROUP BY INV_SEQ) BLCNT ON BLCNT.INV_SEQ = FRT.INV_SEQ
+		   			  JOIN (
+							SELECT BL.BL_NO, BL.INTG_BL_SEQ, BL.ETD_DT_TM AS ET_DT_TM
+							  FROM TB_INTG_BL BL 
+				   LEFT OUTER JOIN TB_ADD_INFO_BND BND 
+				                ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ AND BND.DELT_FLG = 'N'
+							 WHERE BL.DELT_FLG = 'N'
+							   AND BND.BND_CLSS_CD = 'O'
+							<isEqual property="date_cd" compareValue="E">
+      						   AND CONVERT(VARCHAR(8), BL.ETD_DT_TM, 120) BETWEEN #sel_strdt# AND #sel_enddt#
+							</isEqual>
+
+						 UNION ALL
+
+							SELECT BL.BL_NO, BL.INTG_BL_SEQ, BL.ETA_DT_TM AS ET_DT_TM
+							  FROM TB_INTG_BL BL 
+				   LEFT OUTER JOIN TB_ADD_INFO_BND BND 
+				   				ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ AND BND.DELT_FLG = 'N'
+							 WHERE BL.DELT_FLG = 'N'
+							   AND BND.BND_CLSS_CD = 'I'
+							<isEqual property="date_cd" compareValue="E">
+      						   AND CONVERT(VARCHAR(8), BL.ETA_DT_TM, 120) BETWEEN #sel_strdt# AND #sel_enddt#
+							</isEqual>
+						   ) BL ON FRT.INTG_BL_SEQ = BL.INTG_BL_SEQ 
+		   LEFT OUTER JOIN TB_INTG_BL_RLT RLT 
+		   				ON BL.INTG_BL_SEQ = RLT.INTG_BL_SEQ AND RLT.DELT_FLG = 'N'
+		   LEFT OUTER JOIN TB_INTG_BL MBL 
+		   				ON RLT.RLT_INTG_BL_SEQ = MBL.INTG_BL_SEQ AND MBL.DELT_FLG = 'N'
+					 WHERE FRT.DELT_FLG = 'N'
+				  GROUP BY FRT.INV_SEQ, FRT.RAT_CURR_CD, TEST.FRT_INV_XCRT, TEST.FRT_VAT_AMT, TEST.FRGN_INV_AMT
+				   ) TMP_FRT ON DTL.INV_SEQ = TMP_FRT.INV_SEQ 
+
+			 WHERE INV.RGST_OFC_CD = #s_finc_ofc_cd# 
+				<isNotNull prepend="AND" property="s_air_sea_clss_cd">
+    			   INV.AIR_SEA_CLSS_CD = #s_air_sea_clss_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_bnd_clss_cd">
+				   INV.BND_CLSS_CD = #s_bnd_clss_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_sell_buy_tp_cd">
+				   INV.SELL_BUY_TP_CD = #s_sell_buy_tp_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_inv_sts_cd">
+				   DTL.INV_STS_CD = #s_inv_sts_cd#
+				</isNotNull>    
+				<isNotNull prepend="AND" property="s_inv_no">
+				   DTL.INV_NO LIKE '%'+#s_inv_no# +'%'
+				</isNotNull>
+				<isNotNull prepend="AND" property="bl_no">
+				   TMP_FRT.BL_NO LIKE '%'+#bl_no# +'%'
+				</isNotNull>
+				<isEqual prepend="AND" property="slip_no" compareValue="Y">
+				   DTL.SLIP_NO IS NOT NULL
+				</isEqual>
+				<isEqual prepend="AND" property="slip_no" compareValue="N">
+				   DTL.SLIP_NO IS NULL
+				</isEqual>
+				<isEqual prepend="AND" property="date_cd" compareValue="B">
+				   DTL.INV_DT BETWEEN #sel_strdt# AND #sel_enddt#
+				</isEqual>
+				<isEqual prepend="AND" property="date_cd" compareValue="D">
+				   DTL.CLT_DUE_DT BETWEEN #sel_strdt# AND #sel_enddt#
+				</isEqual>
+				<isEqual prepend="AND" property="date_cd" compareValue="S">
+				   DTL.INV_TO_DT BETWEEN #sel_strdt# AND #sel_enddt#
+				</isEqual>
+				<isEqual prepend="AND" property="date_cd" compareValue="S">
+				   DTL.INV_STS_CD = 'IE'
+				</isEqual>
+		        <isNotNull prepend="AND" property="usr_cd">
+		           USR.USRID = #usr_cd#
+		        </isNotNull>
+		        <isNotNull prepend="AND" property="dept_cd">
+		           INV.DEPT_CD = #dept_cd#
+		        </isNotNull>
+		        <isEqual property="date_cd" compareValue="E">
+		           ORDER BY TMP_FRT.RAT_CURR_CD, TMP_FRT.ET_DT_TM, DTL.INV_SEQ
+		        </isEqual>
+		        <isEqual property="date_cd" compareValue="B">
+		           ORDER BY TMP_FRT.RAT_CURR_CD, DTL.INV_DT DESC, DTL.INV_SEQ
+		        </isEqual>
+		        <isEqual property="date_cd" compareValue="D">
+		           ORDER BY TMP_FRT.RAT_CURR_CD, DTL.CLT_DUE_DT DESC, DTL.INV_SEQ
+		        </isEqual>
+		        <isEqual property="date_cd" compareValue="S">
+		           ORDER BY TMP_FRT.RAT_CURR_CD, DTL.INV_TO_DT DESC, DTL.INV_SEQ
+		        </isEqual>
+    </select>
+    
+    <select id="selectACC_INV_0020_LIST_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT COUNT(*)
+          FROM (
+                SELECT DTL.INV_DT AS STL_FM_DT			, TMP_FRT.ET_DT_TM AS STL_TO_DT			, DTL.CLT_DUE_DT
+		 		 , INV.TRDP_CD						, TRDP.LOCL_NM AS TRDP_NM				, TMP_FRT.MBL_NO
+		 		 , TMP_FRT.BL_NO					, DTL.INV_NO
+		 		 , CASE WHEN TMP_FRT.RAT_CURR_CD IS NULL 
+					    THEN DTL.INV_APLY_CURR_CD 
+					    ELSE TMP_FRT.RAT_CURR_CD 
+				    END AS INV_APLY_CURR_CD
+				 , CASE WHEN TMP_FRT.RAT_CURR_CD != 'KRW' 
+						THEN CASE WHEN DTL.INV_APLY_CURR_CD = TMP_FRT.RAT_CURR_CD 
+								  THEN ROUND(DTL.INV_SUM_AMT, 2) 
+								  ELSE ROUND(DTL.FRGN_AMT, 2) 
+							  END ELSE TMP_FRT.INV_AMT + TMP_FRT.FRT_VAT_AMT 
+					END AS INV_AMOUNT
+				 , CASE WHEN TMP_FRT.RAT_CURR_CD != 'KRW' 
+				        THEN CASE WHEN DTL.INV_APLY_CURR_CD = TMP_FRT.RAT_CURR_CD 
+				                  THEN ROUND(DTL.PAY_AMT, 2) 
+				                  ELSE ROUND(DTL.PAY_FRGN_AMT, 2) 
+				              END 
+				        ELSE (DTL.PAY_AMT + DTL.PAY_VAT_AMT) - CASE WHEN DTL.FRGN_AMT != 0 
+				                                                    THEN ROUND(TMP_FRT.FRGN_INV_AMT * ROUND(DTL.PAY_FRGN_AMT, 2) / ROUND(DTL.FRGN_AMT, 2), 0) 
+				                                                    ELSE 0 
+				                                                END 
+				    END AS PER_AMOUNT
+				 , CASE WHEN TMP_FRT.RAT_CURR_CD != 'KRW'
+				        THEN CASE WHEN DTL.INV_APLY_CURR_CD = TMP_FRT.RAT_CURR_CD 
+				                  THEN ROUND(ROUND(DTL.BAL_AMT, 2) * TMP_FRT.FRT_INV_XCRT, 2) 
+				                  ELSE ROUND(ROUND(DTL.BAL_FRGN_AMT, 2) * TMP_FRT.FRT_INV_XCRT, 0) 
+				              END 
+				        ELSE (DTL.BAL_AMT + DTL.BAL_VAT_AMT) - CASE WHEN DTL.FRGN_AMT != 0 
+				                                                    THEN ROUND(TMP_FRT.FRGN_INV_AMT * ROUND(DTL.BAL_FRGN_AMT, 2) / ROUND(DTL.FRGN_AMT, 2), 0) 
+				                                                    ELSE 0 
+				                                                END 
+				    END AS KRW_AMOUNT
+				 , DTL.BUY_INV_NO					, DTL.INV_STS_CD						, STS.CD_NM AS INV_STS_NM
+				 , DTL.CMPL_STS_FLG					, DTL.FRT_ASK_CLSS_CD
+				 , CASE WHEN DTL.FRT_ASK_CLSS_CD = 'BL' 
+				        THEN 'Individual' WHEN DTL.FRT_ASK_CLSS_CD = 'SU' 
+				                          THEN 'Summary' 
+				                          ELSE 'Division' 
+				    END AS FRT_ASK_CLSS_NM
+				 , DTL.SLIP_NO						, DTL.INV_XCRT_DT
+				 , CASE WHEN DTL.INV_STS_CD = 'IE' 
+				        THEN DTL.INV_TO_DT 
+				    END AS INV_TO_DT
+				 , DEPT.CD_NM + ' / ' + USR.USRID AS RGST_USRID
+				 , DTL.INV_SEQ						, INV.AIR_SEA_CLSS_CD					, INV.BND_CLSS_CD
+				 , INV.SELL_BUY_TP_CD				, TMP_FRT.BL_CNT						, INV.INV_RMK
+				 , TMP_FRT.FRT_INV_XCRT
+				 , CASE WHEN TMP_FRT.RAT_CURR_CD = 'KRW'
+				        THEN 1
+				        ELSE TMP_FRT.FRT_INV_XCRT 
+				    END AS INV_APLY_XCRT
+				 , CASE WHEN TMP_FRT.RAT_CURR_CD = 'KRW'
+				        THEN 1
+				        ELSE TMP_FRT.FRT_INV_XCRT 
+				    END AS INV_XCRT_RT_UT
+	          FROM TB_INV_DTL DTL
+	          JOIN TB_INV INV 
+	            ON DTL.INV_SEQ = INV.INV_SEQ AND DTL.DELT_FLG = 'N' AND INV.DELT_FLG = 'N'
+			  JOIN TB_TRDP TRDP 
+			    ON INV.TRDP_CD = TRDP.TRDP_CD AND TRDP.DELT_FLG = 'N'
+			<isNotNull property="trdp_cd">
+			   AND TRDP.TRDP_CD = #trdp_cd#
+			</isNotNull>
+   LEFT OUTER JOIN TB_COM_CD_DTL STS 
+                ON STS.COM_CD = 'C048' AND DTL.INV_STS_CD = STS.CD_VAL
+   LEFT OUTER JOIN TB_USR USR 
+                ON USR.USR_TP = 'I' AND INV.RGST_USRID = USR.USRID
+   LEFT OUTER JOIN TB_COM_CD_DTL DEPT 
+   				ON DEPT.COM_CD = 'C056' AND DEPT.CD_VAL = INV.DEPT_CD
+			  JOIN (
+					SELECT FRT.INV_SEQ								, MAX(FRT.INTG_BL_SEQ) AS INTG_BL_SEQ
+						 , SUM(FRT.INV_AMT) AS INV_AMT				, TEST.FRT_VAT_AMT
+						 , TEST.FRGN_INV_AMT						, TEST.FRT_INV_XCRT
+						 , FRT.RAT_CURR_CD							, MAX(BL.BL_NO) AS BL_NO
+					 	 , MAX(MBL.BL_NO) AS MBL_NO					, MAX(BLCNT.BL_CNT) AS BL_CNT
+						 , MAX(BL.ET_DT_TM) AS ET_DT_TM
+					  FROM TB_FRT FRT
+		   LEFT OUTER JOIN (
+		   					SELECT FRT.INV_SEQ			, MAX(FRT.INV_XCRT) AS FRT_INV_XCRT			
+								 , TMP.FRGN_INV_AMT		, SUM(FRT.INV_VAT_AMT) AS FRT_VAT_AMT
+							  FROM TB_FRT FRT
+                   LEFT OUTER JOIN (
+									SELECT FRT.INV_SEQ, SUM(FRT.INV_AMT) AS FRGN_INV_AMT
+									  FROM TB_FRT FRT
+									 WHERE FRT.DELT_FLG = 'N'
+									   AND FRT.RAT_CURR_CD != 'KRW'
+								  GROUP BY FRT.INV_SEQ
+								   ) TMP ON FRT.INV_SEQ = TMP.INV_SEQ
+						     WHERE FRT.DELT_FLG = 'N'
+						  GROUP BY FRT.INV_SEQ, TMP.FRGN_INV_AMT
+						   ) TEST ON FRT.INV_SEQ = TEST.INV_SEQ
+		   LEFT OUTER JOIN (
+							SELECT COUNT(DISTINCT BL.INTG_BL_SEQ) AS BL_CNT, INV_SEQ 
+							  FROM TB_FRT FRT, TB_INTG_BL BL
+							 WHERE FRT.INTG_BL_SEQ = BL.INTG_BL_SEQ
+						  GROUP BY INV_SEQ) BLCNT ON BLCNT.INV_SEQ = FRT.INV_SEQ
+		   			  JOIN (
+							SELECT BL.BL_NO, BL.INTG_BL_SEQ, BL.ETD_DT_TM AS ET_DT_TM
+							  FROM TB_INTG_BL BL 
+				   LEFT OUTER JOIN TB_ADD_INFO_BND BND 
+				                ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ AND BND.DELT_FLG = 'N'
+							 WHERE BL.DELT_FLG = 'N'
+							   AND BND.BND_CLSS_CD = 'O'
+							<isEqual property="date_cd" compareValue="E">
+      						   AND CONVERT(VARCHAR(8), BL.ETD_DT_TM, 120) BETWEEN #sel_strdt# AND #sel_enddt#
+							</isEqual>
+
+						 UNION ALL
+
+							SELECT BL.BL_NO, BL.INTG_BL_SEQ, BL.ETA_DT_TM AS ET_DT_TM
+							  FROM TB_INTG_BL BL 
+				   LEFT OUTER JOIN TB_ADD_INFO_BND BND 
+				   				ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ AND BND.DELT_FLG = 'N'
+							 WHERE BL.DELT_FLG = 'N'
+							   AND BND.BND_CLSS_CD = 'I'
+							<isEqual property="date_cd" compareValue="E">
+      						   AND CONVERT(VARCHAR(8), BL.ETA_DT_TM, 120) BETWEEN #sel_strdt# AND #sel_enddt#
+							</isEqual>
+						   ) BL ON FRT.INTG_BL_SEQ = BL.INTG_BL_SEQ 
+		   LEFT OUTER JOIN TB_INTG_BL_RLT RLT 
+		   				ON BL.INTG_BL_SEQ = RLT.INTG_BL_SEQ AND RLT.DELT_FLG = 'N'
+		   LEFT OUTER JOIN TB_INTG_BL MBL 
+		   				ON RLT.RLT_INTG_BL_SEQ = MBL.INTG_BL_SEQ AND MBL.DELT_FLG = 'N'
+					 WHERE FRT.DELT_FLG = 'N'
+				  GROUP BY FRT.INV_SEQ, FRT.RAT_CURR_CD, TEST.FRT_INV_XCRT, TEST.FRT_VAT_AMT, TEST.FRGN_INV_AMT
+				   ) TMP_FRT ON DTL.INV_SEQ = TMP_FRT.INV_SEQ 
+
+			 WHERE INV.RGST_OFC_CD = #s_finc_ofc_cd# 
+				<isNotNull prepend="AND" property="s_air_sea_clss_cd">
+    			   INV.AIR_SEA_CLSS_CD = #s_air_sea_clss_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_bnd_clss_cd">
+				   INV.BND_CLSS_CD = #s_bnd_clss_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_sell_buy_tp_cd">
+				   INV.SELL_BUY_TP_CD = #s_sell_buy_tp_cd#
+				</isNotNull>
+				<isNotNull prepend="AND" property="s_inv_sts_cd">
+				   DTL.INV_STS_CD = #s_inv_sts_cd#
+				</isNotNull>    
+				<isNotNull prepend="AND" property="s_inv_no">
+				   DTL.INV_NO LIKE '%'+#s_inv_no# +'%'
+				</isNotNull>
+				<isNotNull prepend="AND" property="bl_no">
+				   TMP_FRT.BL_NO LIKE '%'+#bl_no# +'%'
+				</isNotNull>
+				<isEqual prepend="AND" property="slip_no" compareValue="Y">
+				   DTL.SLIP_NO IS NOT NULL
+				</isEqual>
+				<isEqual prepend="AND" property="slip_no" compareValue="N">
+				   DTL.SLIP_NO IS NULL
+				</isEqual>
+				<isEqual prepend="AND" property="date_cd" compareValue="B">
+				   DTL.INV_DT BETWEEN #sel_strdt# AND #sel_enddt#
+				</isEqual>
+				<isEqual prepend="AND" property="date_cd" compareValue="D">
+				   DTL.CLT_DUE_DT BETWEEN #sel_strdt# AND #sel_enddt#
+				</isEqual>
+				<isEqual prepend="AND" property="date_cd" compareValue="S">
+				   DTL.INV_TO_DT BETWEEN #sel_strdt# AND #sel_enddt#
+				</isEqual>
+				<isEqual prepend="AND" property="date_cd" compareValue="S">
+				   DTL.INV_STS_CD = 'IE'
+				</isEqual>
+		        <isNotNull prepend="AND" property="usr_cd">
+		           USR.USRID = #usr_cd#
+		        </isNotNull>
+		        <isNotNull prepend="AND" property="dept_cd">
+		           INV.DEPT_CD = #dept_cd#
+		        </isNotNull>
+			  ) A
+    </select>
+    
+    <update id ="updateInv_Confirm" parameterClass="InvVO">
+    	UPDATE tb_inv 
+		SET 
+		 inv_sts_cd 	= #inv_sts_cd#
+		<isNotNull prepend="," property="locl_ttl_amt">
+			locl_ttl_amt = #locl_ttl_amt#
+		</isNotNull>
+		<isNotNull prepend="," property="perf_ttl_amt">
+			perf_ttl_amt = #perf_ttl_amt#
+		</isNotNull>
+		<isNotNull prepend="," property="stl_to_dt">
+			stl_to_dt = #stl_to_dt#
+		</isNotNull>
+		,
+		 modi_usrid 	= #proc_usrid#,
+		 modi_ofc_cd 	= #proc_ofccd#,
+		 modi_tms 		= GETUTCDATE()
+		WHERE inv_seq = #inv_seq# 
+    </update>
+    
+    <update id ="updateInvDtl_Confirm" parameterClass="InvVO">
+    	UPDATE tb_inv_dtl 
+		SET
+		 inv_sts_cd 	= #inv_sts_cd#,
+		 <isNotEqual property="inv_sts_cd" compareValue="IC">
+            slip_no        = null,
+            inv_to_dt      = null,
+        </isNotEqual>
+		 modi_usrid 	= #proc_usrid#,
+		 modi_ofc_cd 	= #proc_ofccd#,
+		 modi_tms 		= GETUTCDATE()
+		WHERE inv_seq 	= #inv_seq# 
+		AND   inv_no 	= #inv_no#
+    </update>
+    
+    <update id ="updateInv_Cancel" parameterClass="java.util.HashMap">
+    	UPDATE tb_inv 
+		SET 
+		 modi_usrid 	= #proc_usrid#,
+		 modi_ofc_cd 	= #proc_ofccd#,
+		 modi_tms 		= GETUTCDATE(),
+		 delt_flg 		= 'Y'
+		WHERE inv_seq = #s_inv_seq# 
+    </update>
+    
+    <update id ="updateInvDtl_Cancel" parameterClass="java.util.HashMap">
+    	UPDATE tb_inv_dtl 
+		SET
+		 modi_usrid 	= #proc_usrid#,
+		 modi_ofc_cd 	= #proc_ofccd#,
+		 modi_tms 		= GETUTCDATE(),
+		 delt_flg 		= 'Y'
+		WHERE inv_seq 	= #s_inv_seq# 
+		AND   inv_no 	= #del_inv_no#
+    </update>
+    
+    <select id="selectACC_INV_RLT_LIST" parameterClass="java.util.HashMap" resultClass="inv_FrtVO">
+		SELECT frt_seq 
+		FROM tb_inv_rlt 
+		WHERE  inv_seq = #sel_inv_seq#
+		AND    inv_no = #sel_inv_no#
+    </select>
+    
+    <update id ="updateFrt_Confirm" parameterClass="java.util.HashMap">
+    	UPDATE tb_frt
+		SET      inv_sts_cd 	= #i_inv_sts_cd#,
+				 modi_usrid 	= #proc_usrid#,
+				 modi_ofc_cd 	= #proc_ofccd#,
+				 modi_tms 		= GETUTCDATE()
+		WHERE inv_seq = #sel_inv_seq#
+    </update>
+    
+    <update id ="updateFrt_Cancel" parameterClass="java.util.HashMap">
+    	UPDATE tb_frt
+		SET     inv_sts_cd 	= 'FC',
+				inv_iss_flg ='N',
+				inv_seq = null,
+				modi_usrid 	= #proc_usrid#,
+				modi_ofc_cd 	= #proc_ofccd#,
+				modi_tms 		= GETUTCDATE()
+		WHERE frt_seq = #frt_seq#
+    </update>
+    
+    <update id ="updateRlt_Cancel" parameterClass="java.util.HashMap">
+    	UPDATE tb_inv_rlt
+		   SET delt_flg ='Y',
+			   modi_usrid 	= #proc_usrid#,
+			   modi_ofc_cd 	= #proc_ofccd#,
+			   modi_tms 		= GETUTCDATE()
+		WHERE frt_seq = #frt_seq#
+    </update>
+        
+    <select id="selectACC_INV_0021" parameterClass="java.util.HashMap" resultClass="InvVO">
+		SELECT     
+			inv.inv_seq, inv.inv_iss_flg,  inv.frt_ask_clss_cd, inv.inv_sts_cd,   
+			code2.CD_NM inv_sts_nm,
+			CASE WHEN inv.frt_ask_clss_cd = 'BL' THEN 'Individual'      ELSE 'Division'      END AS frt_ask_clss_nm,     
+			inv.trdp_cd,   trdp.locl_nm AS trdp_nm, 
+			inv.inv_ttl_amt,      	inv.inv_ttl_vat_amt,    inv.perf_ttl_vat_amt,    inv.locl_ttl_amt,     
+			inv.locl_ttl_vat_amt,   	inv.trdp_calc_clss_cd,  inv.ofc_cd,    			inv.air_sea_clss_cd,  	inv.bnd_clss_cd,      
+			ISNULL(BLCK.CLT_CMPL_FLG1, INV.CLT_CMPL_FLG) AS CLT_CMPL_FLG,       inv.sell_buy_tp_cd, 
+			inv_aply_curr_cd,
+			SUBSTRING(CONVERT(VARCHAR, inv.stl_fm_dt, 120), 1, 10) AS stl_fm_dt,      
+			SUBSTRING(CONVERT(VARCHAR, inv.stl_to_dt, 120), 1, 10) AS stl_to_dt,      
+			code1.CD_NM sell_buy_tp_nm,
+			ofc_eng_nm, eng_usr_nm,
+			inv.modi_ofc_cd, inv.modi_usrid  
+		FROM tb_inv  inv
+		JOIN TB_INV_DTL dtl 
+		  ON inv.inv_seq = dtl.INV_SEQ
+		JOIN tb_trdp trdp 
+		  ON inv.trdp_cd = trdp.trdp_cd
+LEFT OUTER JOIN TB_COM_CD_DTL code1 
+          ON code1.COM_CD = 'C030' AND inv.SELL_BUY_TP_CD = code1.CD_VAL
+LEFT OUTER JOIN TB_COM_CD_DTL code2
+          ON code2.COM_CD = 'C048' AND inv.inv_sts_cd = code2.CD_VAL
+LEFT OUTER JOIN tb_ofc ofc
+          ON ofc.ofc_cd = inv.modi_ofc_cd
+LEFT OUTER JOIN tb_usr usr 
+          ON  usr.usr_tp = 'I' AND usr.usrid = inv.modi_usrid	
+LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_BLCK) BLCK 
+		  ON INV.INV_SEQ = BLCK.INV_SEQ1          	
+		WHERE inv.delt_flg = 'N'  AND trdp.delt_flg = 'N'  
+		AND   inv.inv_seq = #s_inv_seq#
+    </select>
+    
+    <select id="selectACC_INV_0021_LIST" parameterClass="java.util.HashMap" resultClass="InvVO">
+		SELECT
+			a.inv_seq, a.inv_no, a.inv_dtl_seq,
+			a.inv_amt inv_no_amount,
+			a.pay_amt col_amount,
+			a.bal_amt bal_amount,
+			a.frt_ask_clss_cd,  a.inv_iss_flg,  a.inv_sts_cd, 	a.cmpl_sts_flg,		a.eng_usr_nm,
+			SUBSTRING(CONVERT(VARCHAR, a.inv_dt, 120), 1, 10) AS inv_dt,          
+			SUBSTRING(CONVERT(VARCHAR, a.inv_fm_dt, 120), 1, 10) AS inv_fm_dt,          	
+			SUBSTRING(CONVERT(VARCHAR, a.inv_to_dt, 120), 1, 10) AS inv_to_dt,
+		    SUBSTRING(CONVERT(VARCHAR, a.clt_due_dt, 120), 1, 10) AS clt_due_dt,       
+		    SUBSTRING(CONVERT(VARCHAR, a.inv_iss_dt, 120), 1, 10) AS inv_iss_dt 	
+		FROM     
+			(SELECT
+					a.sell_buy_tp_cd,  	b.inv_seq,     		b.inv_no,     	b.inv_dtl_seq,
+					b.frt_ask_clss_cd,  b.inv_iss_flg,  	b.inv_sts_cd, 	b.cmpl_sts_flg,     
+					b.inv_amt,    		b.clt_amt,     		b.pay_amt,  		
+					b.disbur_amt,   	b.clt_disbur_amt,   b.bal_amt ,			
+					b.modi_ofc_cd, 		b.modi_usrid, 		b.inv_dt,           
+					b.inv_fm_dt,        b.inv_to_dt,		b.clt_due_dt,       b.inv_iss_dt,	
+					(SELECT  x.ofc_eng_nm FROM tb_ofc x WHERE x.ofc_cd = a.modi_ofc_cd) AS ofc_eng_nm,
+					(SELECT  y.eng_usr_nm FROM tb_usr y WHERE y.usr_tp = 'I' AND y.usrid = a.modi_usrid) AS eng_usr_nm
+			FROM  tb_inv a,      tb_inv_dtl b    
+			WHERE  a.delt_flg = 'N' AND b.delt_flg = 'N'        AND    a.inv_seq = b.inv_seq  
+			AND  a.inv_seq = #s_inv_seq#
+			AND  b.inv_no = #s_inv_no#
+			) a
+    </select>
+    
+    <select id="selectACC_INV_0021_LIST_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT 
+			COUNT(*)
+		FROM 
+			(SELECT   
+					a.sell_buy_tp_cd
+			FROM  tb_inv a,      tb_inv_dtl b    
+			WHERE  a.delt_flg = 'N' AND b.delt_flg = 'N'        AND    a.inv_seq = b.inv_seq  
+			AND  a.inv_seq = #s_inv_seq#
+			AND  b.inv_no = #s_inv_no#
+			) a
+    </select>
+    
+    <select id="selectINV_DTL_SEQ" parameterClass="java.util.HashMap" resultClass="String">
+		SELECT IFNULL(MAX(inv_dtl_seq),0)+1
+		FROM tb_inv_dtl  
+		WHERE  inv_seq = #s_inv_seq#
+		AND  inv_no = #s_inv_no#
+    </select>
+    
+    <insert id ="insertACC_INV_0021" parameterClass="InvVO">
+    	INSERT INTO tb_inv_dtl
+		      (
+		          inv_seq,          inv_dtl_seq,          	inv_no,
+		          frt_ask_clss_cd,	inv_iss_flg,			inv_sts_cd,		
+		          cmpl_sts_flg,     inv_aply_curr_cd,     	inv_aply_xcrt,
+		          inv_amt,          clt_amt,          		sell_bal_amt,
+		          disbur_amt,       clt_disbur_amt,         buy_bal_amt,
+		          inv_dt,           inv_fm_dt,          	inv_to_dt,
+		          clt_due_dt,       inv_iss_dt,
+		          rgst_usrid,       rgst_ofc_cd,       		rgst_tms,
+		          modi_usrid,       modi_ofc_cd,          	modi_tms, delt_flg
+		      )
+		VALUES (
+		          #inv_seq#,          	#inv_dtl_seq#,          #inv_no#,
+		          #frt_ask_clss_cd#,	#inv_iss_flg#,			#inv_sts_cd#,		
+		          #cmpl_sts_flg#,       #inv_aply_curr_cd#,     #inv_aply_xcrt#,
+		          #inv_amt#,         	#clt_amt#,          	#sell_bal_amt#,
+		          #disbur_amt#,         #clt_disbur_amt#,       #buy_bal_amt#,
+		          #inv_dt#,          	#inv_fm_dt#,          	#inv_to_dt#,
+		          #clt_due_dt#,    		#inv_iss_dt#,
+		          #proc_usrid#,			#proc_ofccd#,		    getDate(),
+		          #proc_usrid#,			#proc_ofccd#,		    GETUTCDATE(), 'N'
+		       )
+    </insert>
+    
+    <update id ="updateACC_INV_0021" parameterClass="InvVO">
+    	UPDATE tb_inv_dtl 
+		SET
+		 inv_amt 		= #inv_amt#,
+		 clt_amt 		= #clt_amt#,
+		 sell_bal_amt 	= #sell_bal_amt#,
+		 disbur_amt 	= #disbur_amt#,
+		 clt_disbur_amt = #clt_disbur_amt#,
+		 buy_bal_amt 	= #buy_bal_amt#,
+		 inv_to_dt 		= #inv_to_dt#,
+		 inv_iss_dt 	= #inv_iss_dt#,
+		 modi_usrid 	= #proc_usrid#,
+		 modi_ofc_cd 	= #proc_ofccd#,
+		 modi_tms 		= GETUTCDATE()
+		WHERE inv_seq 	= #inv_seq# 
+		AND   inv_no 	= #inv_no#
+		AND   inv_dtl_seq 	= #inv_dtl_seq#
+    </update>
+    
+    <!-- invoice 정보를 회계쪽(KICOM) 과 인터페이스    -->
+	<procedure id="insertInvoiceInterface" parameterClass="HashMap">
+		 { CALL SP_INVOICE_INTERFACE(#inv_no#, #sell_buy_tp_cd#) } 
+	</procedure>
+    
+    <!-- invoice status 값 가져오기   -->
+    <select id="selectInvStatus" resultClass="String" parameterClass="String">
+        select INV_STS_CD from TB_INV_DTL where INV_NO = #inv_no# and DELT_FLG='N'
+        
+    </select>
+    
+</sqlMap>

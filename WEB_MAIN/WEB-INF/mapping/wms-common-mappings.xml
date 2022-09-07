@@ -1,0 +1,1043 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+	<url-mapping url="searchWarehouseLocInfoForName.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WMSCommonHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="searchWarehouseLocInfoForNameGS.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+<!-- Duy.Nguyen(S) -->
+	
+	<url-mapping url="RateExcelUpLoadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateExcelUpLoadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RateExcelUpLoadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="saveRateExcelUpLoad.clt">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateExcelUpLoadPopupHTMLAction</web-action-class>
+    </url-mapping>
+
+	<url-mapping url="WaveBookingSelectPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WaveBookingSelectPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WaveBookingSelectPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WaveBookingSelectPopupGS.clt" screen="WaveBookingSelectPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WaveBookingSelectPopupHTMLAction</web-action-class>
+    </url-mapping>
+
+	<url-mapping url="WHICPrintOption.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHICPrintOptionHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHICPrintOption.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHInLotSelectPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInLotSelectPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInLotSelectPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWHInLotSelectListGS.clt" screen="searchWHInLotSelectListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInLotSelectPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="FreightHstPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightHstPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="FreightHstPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchFreightHstSellListGS.clt" screen="searchFreightHstSellListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightHstPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchFreightHstBuyListGS.clt" screen="searchFreightHstBuyListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightHstPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchFreightHistoryDeleteListGS.clt" screen="searchFreightHistoryDeleteListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightHstPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="RateExcelTemplatePopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateExcelTemplatePopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RateExcelTemplatePopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="FreightCopyFormPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightCopyFormPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="FreightCopyFormPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchFreightCopyFormWO.clt" screen="searchFreightCopyFormWOGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightCopyFormPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchFreightCopyFormSVO.clt" screen="searchFreightCopyFormWOGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightCopyFormPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchFreightCopyFormFCR.clt" screen="searchFreightCopyFormWOGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightCopyFormPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchFreightCopyFormDtlSellList.clt" screen="searchFreightCopyFormDtlSellListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightCopyFormPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchFreightCopyFormDtlBuyList.clt" screen="searchFreightCopyFormDtlBuyListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightCopyFormPopupHTMLAction</web-action-class>
+    </url-mapping>
+
+   <url-mapping url="ContractRoutePopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ContractRoutePopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ContractRoutePopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>	
+    <url-mapping url="searchContractOrderTypeList.clt" screen="searchContractOrderTypeListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ContractRoutePopupHTMLAction</web-action-class>
+    </url-mapping>	
+    <url-mapping url="searchContractRouteList.clt" screen="searchContractRouteListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ContractRoutePopupHTMLAction</web-action-class>
+    </url-mapping>
+     <url-mapping url="searchTlCustInfo.clt" screen="searchTlCustInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ContractRoutePopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHPutawayPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHPutawayPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHPutawayPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchWHPutawayPopupGS.clt" screen="searchWHPutawayPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHPutawayPopupHTMLAction</web-action-class>
+    </url-mapping>	
+    <url-mapping url="saveWHPutawayPopup.clt" screen="saveWHPutawayPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHPutawayPopupHTMLAction</web-action-class>
+    </url-mapping>	
+    <url-mapping url="cancelWHPutawayPopup.clt" screen="saveWHPutawayPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHPutawayPopupHTMLAction</web-action-class>
+    </url-mapping>	
+    
+<!-- Duy.Nguyen(E) -->
+    
+    <!-- Nam Tran (S) -->
+    <url-mapping url="ServiceOrderPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ServiceOrderPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ServiceOrderPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="ServiceOrderPopupGS.clt" screen="ServiceOrderPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ServiceOrderPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="ESOPGPPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ESOPGPPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ESOPGPPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="ESOPGPPopupGS.clt" screen="ESOPGPPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ESOPGPPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="TransloadingShipPopUp.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.TransloadingShipPopUpHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="TransloadingShipPopUp.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WOExcelUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WOExcelUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WOExcelUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="TransloadingInboundItemPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.TransloadingInboundItemPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="TransloadingInboundItemPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="TransloadingInboundItemPopupGS.clt" screen="TransloadingInboundItemPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.TransloadingInboundItemPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="TLODispatch.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.TLODispatchHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="TLODispatch.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="TransloadingOutboundItemPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.TransloadingOutboundItemPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="TransloadingOutboundItemPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="hstPopUp.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CTRTHSTPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="hstPopUp.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CTRTHSTPopupGS.clt" screen="CTRTHSTPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CTRTHSTPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CTRTHSTPopup_1GS.clt" screen="CTRTHSTPopup_1GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CTRTHSTPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CommonCodePopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CommonCodePopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CommonCodePopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CommonCodePopupGS.clt" screen="CommonCodePopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CommonCodePopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHICUpdateFileUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHICUpdateFileUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHICUpdateFileUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHICUpdateFileUploadPopupAJ.clt" screen="WHICUpdateFileUploadPopupAJ.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHICUpdateFileUploadPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchWHOCPopup_1GS.clt" screen="searchWHOCPopup_1GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOCPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Nam Tran (E) -->
+    
+	<!-- Khang.Dong (S) -->
+	
+	<!-- Unloading Task Note (S) -->
+	<url-mapping url="WHUnloadSht.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHUnloadShtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHUnloadSht.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchWHUnloadShtInfoGS.clt" screen="searchWHUnloadShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHUnloadShtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="saveWHUnloadShtInfo.clt" screen="saveWHUnloadShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHUnloadShtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="removeWHUnloadShtInfo.clt" screen="saveWHUnloadShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHUnloadShtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Unloading Task Note (E) -->
+    
+    <!-- Manual Allocation (S)-->
+    <url-mapping url="ManualAllcPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ManualAllcPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ManualAllcPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+
+    <url-mapping url="searchManualAllcPopupListGS.clt" screen="searchManualAllcPopupListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ManualAllcPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchManualAllcPopupList_1GS.clt" screen="searchManualAllcPopupList_1GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ManualAllcPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="modifyManualAllc.clt" screen="searchManualAllcPopupListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ManualAllcPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Manual Allocation (E)-->
+    <!-- Manual Allocation & Complete Popup (S) -->
+     <url-mapping url="ManualAllcCmplPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ManualAllcCmplPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ManualAllcCmplPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchAllcCmplPopListGS.clt" screen="searchAllcCmplPopListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ManualAllcCmplPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Manual Allocation & Complete Popup (E) -->
+    <!-- CARGO SEARCH (S)-->
+    
+    <url-mapping url="LoadPlanPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadPlanPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="LoadPlanPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchLPShipmentGS.clt" screen="LoadPlanPopupListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadPlanPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="addCONSOL.clt" screen="LoadPlanPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadPlanPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- CARGO SEARCH (E)-->
+    
+    
+    <!-- Excel Upload for Express CLP (S)-->
+    
+    <url-mapping url="MCLPExpressPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.MCLPExpressPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MCLPExpressPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchPoItemSysNo.clt" screen="MCLPExpressPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.MCLPExpressPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="addExpressMCLP.clt" screen="MCLPExpressPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.MCLPExpressPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Excel Upload for Express CLP (E)-->
+    
+    
+    <!-- BL Load (S)-->
+    
+    <url-mapping url="WOLoadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WOLoadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WOLoadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchWOLoadList.clt" screen="WOLoadPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WOLoadPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- BL Load (E)-->
+    
+    
+	<!-- Khang.Dong (E) -->
+	
+	<!-- Khanh.Nguyen (S) -->
+	
+	<url-mapping url="WarehouseLocPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WarehouseLocPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WarehouseLocPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WarehouseLocPopupGS.clt" screen="WarehouseLocPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WarehouseLocPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CtrtItemPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CtrtItemPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CtrtItemPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CtrtItemPopupGS.clt" screen="CtrtItemPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CtrtItemPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="RateLocPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateLocPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RateLocPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RateLocPopupGS.clt" screen="RateLocPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateLocPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCListByBookingPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOCListByBookingPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOCListByBookingPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHOCListByBookingPopupGS.clt" screen="WHOCListByBookingPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOCListByBookingPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="CheckpointPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CheckpointPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CheckpointPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="CheckpointPopupGS.clt" screen="CheckpointPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CheckpointPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOutStockSelectPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutStockSelectPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOutStockSelectPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHOutStockSelectPopupGS.clt" screen="WHOutStockSelectPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutStockSelectPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHInPackDefPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInPackDefPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInPackDefPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHInPackDefPopupGS.clt" screen="WHInPackDefPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInPackDefPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="InvMoveFileUploadPopupAJ.clt" screen="InvMoveFileUploadPopupAJ.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.InvMoveFileUploadPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+	<!-- Khanh.Nguyen (E) -->
+	
+	<!-- Bao.Huynh Modification (S)-->
+	<url-mapping url="WHOCPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOCPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOCPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="searchWHOCPopupGS.clt" screen="searchWHOCPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOCPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOutExcelUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutExcelUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOutExcelUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="InvAdjustPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.InvAdjustPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="InvAdjustPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchInvAdjustInfoGS.clt" screen="searchInvAdjustInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.InvAdjustPopupHTMLAction</web-action-class>
+    </url-mapping>
+     <url-mapping url="searchInvAdjustResultInfoGS.clt" screen="searchInvAdjustResultInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.InvAdjustPopupHTMLAction</web-action-class>
+    </url-mapping>
+     <url-mapping url="saveInvAdjustInfoGS.clt" screen="saveInvAdjustInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.InvAdjustPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="FCRExcelUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FCRExcelUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="FCRExcelUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="FreightCAIssuePopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightCAIssuePopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="FreightCAIssuePopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchFreightCAIssuePopupListGS.clt" screen="searchFreightCAIssuePopupListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightCAIssuePopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="FreightIndirectCostPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightIndirectCostPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="FreightIndirectCostPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchFreightIndirectCostPopupListGS.clt" screen="searchFreightIndirectCostPopupListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightIndirectCostPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHOCEQUpdatePopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOCEQUpdatePopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOCEQUpdatePopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Bao.Huynh Modification (E)-->
+    
+    <!-- Tan.Pham (S) - WHOutbkPrintOption -->
+    <url-mapping url="WHOutbkPrintOption.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutbkPrintOptionPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOutbkPrintOptionPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="WHOutbkPrintOptionGS.clt" screen="WHOutbkPrintOptionPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutbkPrintOptionPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Tan.Pham (E)- WHOutbkPrintOption -->
+    
+    <!-- Tan.Pham (S) - WHBookingPopup -->
+    <url-mapping url="WHBookingPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHBookingPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHBookingPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHBookingPopupGS.clt" screen="WHBookingPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHBookingPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Tan.Pham (E)- WHBookingPopup -->
+    
+    <!-- Tan.Pham (S) - WHICListPopup -->
+    <url-mapping url="WHICListPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHICListPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHICListPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHICListPopupGS.clt" screen="WHICListPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHICListPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="FreightPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="FreightPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="FreightPopupGS.clt" screen="FreightPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WHLocBlockPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHLocBlockPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHLocBlockPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHLocBlockPopupGS.clt" screen="WHLocBlockPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHLocBlockPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Tan.Pham (E)- WHICListPopup -->
+	<event-mapping>
+        <event-class>com.clt.apps.fis.wms.common.event.WMSCommonEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.common.WMSCommonSC</service-action-class>
+    </event-mapping>
+	<!-- Lap.Nguyen (S) -->
+    <!-- Print Size - WHICPrintOptionForUnloadSht -->
+    <url-mapping url="WHICPrintOptionForUnloadSht.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHICPrintOptionForUnloadShtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHICPrintOptionForUnloadSht.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <!-- SalesPicPopup -->
+    <url-mapping url="SalesPicPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.SalesPicPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SalesPicPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="searchSalesPICListGS.clt" screen="searchSalesPICListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.SalesPicPopupHTMLAction</web-action-class>
+    </url-mapping>
+        
+    <!-- [COM_RD_COMMON_POPUP_MODAL] Supplier Booking Print -->
+    <url-mapping url="CtrtChkPopUp.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CTRTCHKPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CTRTCHKPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="searchCTRTCHKListGS.clt" screen="searchCTRTCHKListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.CTRTCHKPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- [Additional] TransloadingAddPopup -->
+    <url-mapping url="TransloadingAddPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.TransloadingAddPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="TransloadingAddPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="searchESOPHSTListGS.clt" screen="searchESOPHSTListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.TransloadingAddPopupHTMLAction</web-action-class>
+    </url-mapping>
+   	<!-- [InvMoveFileUploadPopup] Inventory Movement & Hold & Damage - File Upload -->
+    <url-mapping url="InvMoveFileUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.InvMoveFileUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="InvMoveFileUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <!-- [MCLPChangePopup] CLP Move to another CLP Creation No -->
+    <url-mapping url="MCLPChangePopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.MCLPChangePopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MCLPChangePopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MCLPChangePopupGS.clt" screen="MCLPChangePopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.MCLPChangePopupHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- [LPShipSplit] Shipment Split -->
+    <url-mapping url="LPShipSplit.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LPShipSplitHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="LPShipSplit.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="addLPSplitShipGS.clt" screen="addLPSplitShipGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LPShipSplitHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- [FreightRouteRatePopup] Route/Rate Information - SEA -->
+    <url-mapping url="FreightRouteRatePopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightRouteRatePopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="FreightRouteRatePopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="searchFreightSellBuyRouteListGS.clt" screen="searchFreightSellBuyRouteListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightRouteRatePopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchFreightSellBuyRouteList_3GS.clt" screen="searchFreightSellBuyRouteList_3GS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightRouteRatePopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchFreightSellBuyRateListGS.clt" screen="searchFreightSellBuyRateListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightRouteRatePopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchTlCustInfoGS.clt" screen="searchTlCustInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightRouteRatePopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchTlLocInfoGS.clt" screen="searchTlLocInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.FreightRouteRatePopupHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Lap.Nguyen (E) -->
+	
+<!-- Hoai.Vo (S) -->
+	<!-- Inbound Complete Search (S) -->
+	 <url-mapping url="WHICItemListPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHICItemListPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHICItemListPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+	<url-mapping url="searchWHICItemListPopupGS.clt" screen="searchWHICItemListPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHICItemListPopupHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- Inbound Complete Search (E) -->
+	
+	<!--NRA Management (S)  -->
+	<url-mapping url="RateUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RateUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+	<url-mapping url="RateUploadPopupAJ.clt" screen="RateUploadPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateUploadPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="RateUploadPopupGS.clt" screen="RateUploadPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateUploadPopupSearchHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- NRA Management (E) -->
+	
+	<!-- WHInExcelUploadPopup (S) -->
+	<url-mapping url="WHInExcelUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInExcelUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInExcelUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	<!-- WHInExcelUploadPopup (E) -->
+	
+	<!-- WHInExcelUploadPopupGS (S) -->
+	<url-mapping url="WHInExcelUploadPopupGS.clt" screen="WHInExcelUploadPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInExcelUploadPopupHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- WHInExcelUploadPopupGS (E) -->
+		
+	<!-- WHInExcelUploadPopup (S) -->
+	<url-mapping url="WHItemExcelUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHItemExcelUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHItemExcelUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	<!-- WHInExcelUploadPopup (E) -->
+	
+	<!-- OB Complete Update (S) -->
+	 <url-mapping url="WHOCUpdateFileUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOCUpdateFileUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOCUpdateFileUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+ 	<url-mapping url="WHOCUpdateFileUploadPopupAJ.clt" screen="WHOCUpdateFileUploadPopupAJ.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOCUpdateFileUploadPopupHTMLAction</web-action-class>
+    </url-mapping> 
+	<!-- OB Complete Update (E) -->
+	<!-- ContainerTypePopup (S) -->
+	 <url-mapping url="ContainerTypePopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ContainerTypePopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ContainerTypePopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+	<url-mapping url="searchContainerTPSZListGS.clt" screen="searchContainerTPSZListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ContainerTypePopupHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- ContainerTypePopup (E) -->
+	
+	<!-- RateHistoryPopup (S) -->
+	<url-mapping url="RateHistoryPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateHistoryPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RateHistoryPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+	<url-mapping url="searchRateHistoryMainGS.clt" screen="searchRateHistoryMainGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateHistoryPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchRateHistoryListGS.clt" screen="searchRateHistoryListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateHistoryPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchRateHistoryFooterGS.clt" screen="searchRateHistoryFooterGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.RateHistoryPopupHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- RateHistoryPopup (E) -->
+<!-- Hoai.Vo (E) -->
+
+<!-- Long.Le (S) --> 
+    <url-mapping url="WHInvPrintOption.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInvPrintOptionHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInvPrintOption.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="ItemGroupPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ItemGroupPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ItemGroupPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+	<url-mapping url="ItemGroupPopupGS.clt" screen="ItemGroupPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.ItemGroupPopupHTMLAction</web-action-class>
+    </url-mapping>
+<!-- Long.Le (E) -->
+
+    <!-- Tin.Luong (S) -->
+	<url-mapping url="oms_print_001.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.oms_print_001HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="oms_print_001.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+	<url-mapping url="WHInPrintOption.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInPrintOptionHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInPrintOption.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHCreateMultiItemPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHCreateMultiItemPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHCreateMultiItemPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WHCreateMultiItemPopupGS.clt" screen="WHCreateMultiItemPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHCreateMultiItemPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="WhDefaultPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WhDefaultPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+        	<handler-result result="SUCCESS" screen="WhDefaultPopup.screen"/>
+        	<handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="WhDefaultPopupGS.clt" screen="WhDefaultPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WhDefaultPopupHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- Tin.Luong (E) -->
+	
+	<url-mapping url="verifyCreateMultiItemPopupGS.clt" screen="verifyCreateMultiItemPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHCreateMultiItemPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Loading Plan Wave  -->
+     <url-mapping url="LoadingPlanWavePopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="LoadingPlanWavePopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+   	 </url-mapping>
+    
+     <url-mapping url="saveConsolInfoWaveSimpleGS.clt" screen="saveConsolInfoWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     
+     <url-mapping url="searchLPShipmentListWaveSimpleGS.clt" screen="searchLPShipmentListWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     
+     <url-mapping url="searchLPCNTRParentListWaveSimpleGS.clt" screen="searchLPCNTRParentListWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     
+     <url-mapping url="searchLPVolumeWaveSimpleGS.clt" screen="searchLPVolumeWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     
+     <url-mapping url="addLPCntrWaveSimpleGS.clt" screen="addLPCntrWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     <url-mapping url="modifyLPDownShipmentWaveSimpleGS.clt" screen="addLPCntrWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     <url-mapping url="modifyLPUpShipmentWaveSimpleGS.clt" screen="addLPCntrWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     <url-mapping url="delLPShipmentWaveSimpleGS.clt" screen="addLPCntrWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     <url-mapping url="mergeLPShipmentWaveSimpleGS.clt" screen="addLPCntrWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     <url-mapping url="removeLPCntrWaveSimpleGS.clt" screen="addLPCntrWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     <url-mapping url="modifyLpGrpEqSealNoGS.clt" screen="addLPCntrWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     <url-mapping url="cancelLoadPlanWaveSimpleGS.clt" screen="addLPCntrWaveSimpleGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LoadingPlanWavePopupHTMLAction</web-action-class>
+     </url-mapping>
+     
+    <!-- Loading Plan Wave  -->
+    <!-- WaveSmpWorkSht -->
+    <url-mapping url="WaveSmpWorkSht.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WaveSmpWorkShtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WaveSmpWorkSht.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="saveWaveSmpWorkShtInfoGS.clt" screen="saveWaveSmpWorkShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WaveSmpWorkShtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWaveSmpWorkShtInfoGS.clt" screen="searchWaveSmpWorkShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WaveSmpWorkShtHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- WaveSmpWorkSht -->
+     <!-- WaveSmpMgmtPrintOption -->
+    <url-mapping url="WaveSmpMgmtPrintOption.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WaveSmpWorkShtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WaveSmpMgmtPrintOption.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <!-- WaveSmpMgmtPrintOption -->
+    <!-- WHOutWorkSht  -->
+    <url-mapping url="WHOutWorkSht.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutWorkShtHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOutWorkSht.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchWHOutWorkShtInfoGS.clt" screen="searchWHOutWorkShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutWorkShtHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="saveWHOutWorkShtInfoGS.clt" screen="saveWHOutWorkShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutWorkShtHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="removeWHOutWorkShtInfoGS.clt" screen="removeWHOutWorkShtInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutWorkShtHTMLAction</web-action-class>
+    </url-mapping>
+    <!--  WHOutWorkSht -->
+    <url-mapping url="WHOutBookingExcelUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutBookingExcelUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHOutBookingExcelUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="saveWHOutBookingExcelUploadPopupGS.clt" screen="saveWHOutBookingExcelUploadPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutBookingExcelUploadPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="searchWHOutBookingExcelUploadErrListGS.clt" screen="searchWHOutBookingExcelUploadErrListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHOutBookingExcelUploadPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Manual Allocation 20160916(S)-->
+    <url-mapping url="WaveSmpManualAllcPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WaveSmpManualAllcPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WaveSmpManualAllcPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="searchWaveSimpleManualAllcPopupHeaderInfoGS.clt" screen="searchWaveSimpleManualAllcPopupHeaderInfoGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WaveSmpManualAllcPopupHTMLAction</web-action-class>
+    </url-mapping>
+
+    <url-mapping url="searchWaveSimpleManualAllcPopupListGS.clt" screen="searchWaveSimpleManualAllcPopupListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WaveSmpManualAllcPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="modifyWaveSimpleManualAllcGS.clt" screen="modifyWaveSimpleManualAllcGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WaveSmpManualAllcPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Manual Allocation 20160916(E)-->
+    
+    <!-- WHInExcelUploadPopup (S) -->
+	<url-mapping url="WHInBookingExcelUploadPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInBookingExcelUploadPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="WHInBookingExcelUploadPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="saveWHInBookingExcelUploadPopupGS.clt" screen="saveWHInBookingExcelUploadPopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInBookingExcelUploadPopupHTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="searchWHInBookingExcelUploadErrListGS.clt" screen="searchWHInBookingExcelUploadErrListGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.WHInBookingExcelUploadPopupHTMLAction</web-action-class>
+    </url-mapping>
+	<!-- WHInExcelUploadPopup (E) -->
+	
+	<url-mapping url="LicPlatPopup.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LicPlatPopupHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="LicPlatPopup.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="LicensePlatePopupGS.clt" screen="LicensePlatePopupGS.screen">
+        <web-action-class>com.clt.apps.fis.wms.common.event.LicPlatPopupHTMLAction</web-action-class>
+    </url-mapping>
+</mappings>

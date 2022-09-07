@@ -1,0 +1,769 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="oth.pur.ord">
+	
+	<!-- Purchase Order List    -->
+    <!-- ZOOT::TODO=NoPaging 처리  -->
+    <!-- ZOOT::TODO=LIST PAGE PROCESS -->
+    <select id="selectPurOrdList_NOPAGING" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.list.dto.OthPurOrdListVO">
+           /* selectPurOrdList_NOPAGING */
+           		SELECT  TOP $topCnt$ 
+						 po.cust_po_no
+						,po.po_sys_no
+						,po.cust_trdp_cd
+						,po.cust_trdp_nm
+						,po.buyr_trdp_cd
+						,po.buyr_trdp_nm
+						,po.vndr_trdp_cd
+						,po.vndr_trdp_nm
+						,cdt.cd_nm AS ord_sts_cd
+						,po.org_loc_cd
+						,po.org_loc_nm
+						,po.dest_loc_cd
+						,po.dest_loc_nm
+						,po.ord_dt
+						,po.arr_dt
+						,po.shpwin_fr_dt
+						,po.shpwin_to_dt
+						,po.cgo_rdy_dt
+						,case when po.air_sea_clss_cd = 'S' then 'Ocean'
+							  when po.air_sea_clss_cd = 'A' then 'Air' else '' end air_sea_clss_cd
+				  FROM	tb_po po with(nolock)
+				  LEFT OUTER JOIN tb_com_cd_dtl cdt ON po.ord_sts_cd = cdt.cd_val AND cdt.com_cd = 'C129' AND cdt.delt_flg = 'N' 
+				 WHERE  po.delt_flg = 'N'       
+    </select>
+    
+    <select id="selectPurOrdList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.list.dto.OthPurOrdListVO">
+		/* selectPurOrdList */
+		SELECT a1.*
+			  FROM (
+	         		SELECT  ROW_NUMBER() OVER (ORDER BY po.MODI_TMS DESC) as ROWNUM,
+							 po.cust_po_no
+							,po.po_sys_no
+							,po.cust_trdp_cd
+							,po.cust_trdp_nm
+							,po.buyr_trdp_cd
+							,po.buyr_trdp_nm
+							,po.vndr_trdp_cd
+							,po.vndr_trdp_nm
+							,cdt.cd_nm AS ord_sts_cd
+							,po.org_loc_cd
+							,po.org_loc_nm
+							,po.dest_loc_cd
+							,po.dest_loc_nm
+							,po.ord_dt
+							,po.arr_dt
+							,po.shpwin_fr_dt
+							,po.shpwin_to_dt
+							,po.cgo_rdy_dt
+							,case when po.air_sea_clss_cd = 'S' then 'Ocean'
+								  when po.air_sea_clss_cd = 'A' then 'Air' else '' end air_sea_clss_cd
+					  FROM	tb_po po
+					  LEFT OUTER JOIN tb_com_cd_dtl cdt ON po.ord_sts_cd = cdt.cd_val AND cdt.com_cd = 'C129' AND cdt.delt_flg = 'N' 
+					 WHERE  po.delt_flg = 'N'
+					  <isNotEmpty property="ord_strdt"> 
+						<isNotEmpty property="ord_enddt">
+					  		AND po.ord_dt BETWEEN #ord_strdt# AND #ord_enddt#
+						</isNotEmpty>
+					  </isNotEmpty>
+					  <isNotEmpty property="arr_strdt"> 
+						<isNotEmpty property="arr_enddt">
+					  		AND po.arr_dt BETWEEN #arr_strdt# AND #arr_enddt#
+						</isNotEmpty>
+					  </isNotEmpty>
+					  <isNotEmpty property="cgo_rdy_strdt"> 
+						<isNotEmpty property="cgo_rdy_enddt">
+					  		AND po.cgo_rdy_dt BETWEEN #cgo_rdy_strdt# AND #cgo_rdy_enddt#
+						</isNotEmpty>
+					  </isNotEmpty>
+					  <isNotEmpty property="shpwin_strdt"> 
+						<isNotEmpty property="shpwin_enddt">
+					  		<![CDATA[AND (po.shpwin_to_dt >= #shpwin_strdt# AND po.shpwin_to_dt <= #shpwin_enddt#)]]>
+						</isNotEmpty>
+					  </isNotEmpty>
+					  <isNotNull prepend="AND" property="cust_po_no"> 
+					  	po.cust_po_no LIKE #cust_po_no#+'%'
+					  </isNotNull>
+					  <isNotNull prepend="AND" property="po_sys_no"> 
+					  	po.po_sys_no LIKE #po_sys_no#+'%'
+					  </isNotNull>
+					  <isNotNull prepend="AND" property="item_desc"> 
+					  	exists (select 	1 
+								from 	tb_po_cmdt cmdt
+								join 	TL_CTRT_CUST_ITEM itm on cmdt.ctrt_no = itm.ctrt_no and cmdt.item_sys_no = itm.item_sys_no and cmdt.cust_itm_id = itm.ITEM_CD and itm.ITEM_USE_FLG = 'Y'
+								where 	po.po_sys_no = cmdt.po_sys_no
+								and 	cmdt.delt_flg = 'N'
+								and 	itm.ITEM_NM like '%'+#item_desc#+'%') 
+					  </isNotNull>
+					  <isNotNull prepend="AND" property="ctrt_no"> 
+					  	po.ctrt_no LIKE #ctrt_no#+'%'
+					  </isNotNull>
+					  <isNotNull prepend="AND" property="ord_sts_cd"> 
+					  	po.ord_sts_cd = #ord_sts_cd#
+					  </isNotNull>
+					  <isNotNull prepend="AND" property="air_sea_clss_cd"> 
+					  	po.air_sea_clss_cd = #air_sea_clss_cd#
+					  </isNotNull>
+					  <isNotNull prepend="AND" property="cust_trdp_cd"> 
+					  	po.cust_trdp_cd = #cust_trdp_cd#
+					  </isNotNull>
+			          <isNotNull prepend="AND" property="cust_trdp_nm"> 
+			            po.cust_trdp_nm LIKE #cust_trdp_nm#+'%'
+			          </isNotNull>
+			          <isNotNull prepend="AND" property="buyr_trdp_cd"> 
+					  	po.buyr_trdp_cd = #buyr_trdp_cd#
+					  </isNotNull>
+			          <isNotNull prepend="AND" property="buyr_trdp_nm"> 
+			            po.buyr_trdp_nm LIKE #buyr_trdp_nm#+'%'
+			          </isNotNull>
+			          <isNotNull prepend="AND" property="vndr_trdp_cd"> 
+					  	po.vndr_trdp_cd = #vndr_trdp_cd#
+					  </isNotNull>
+			          <isNotNull prepend="AND" property="vndr_trdp_nm"> 
+			            po.vndr_trdp_nm LIKE #vndr_trdp_nm#+'%'
+			          </isNotNull>
+			          <isNotNull prepend="AND" property="org_loc_cd"> 
+					  	po.org_loc_cd = #org_loc_cd#
+					  </isNotNull>
+			          <isNotNull prepend="AND" property="org_loc_nm"> 
+			            po.org_loc_nm LIKE #org_loc_nm#+'%'
+			          </isNotNull>
+			          <isNotNull prepend="AND" property="dest_loc_cd"> 
+					  	po.dest_loc_cd = #dest_loc_cd#
+					  </isNotNull>
+			          <isNotNull prepend="AND" property="dest_loc_nm"> 
+			            po.dest_loc_nm LIKE #dest_loc_nm#+'%'
+			          </isNotNull>
+		 			  ) a1
+<![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]>
+	</select>
+	
+	<!-- Purchase Order List    -->
+    <select id="selectPurOrdList_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+       	SELECT  COUNT(po_sys_no)
+		  FROM	tb_po po
+		  LEFT OUTER JOIN tb_com_cd_dtl cdt ON po.ord_sts_cd = cdt.cd_val AND cdt.com_cd = 'C129' AND cdt.delt_flg = 'N' 
+		 WHERE  po.delt_flg = 'N'
+		  
+		  <isNotEmpty property="ord_strdt"> 
+			<isNotEmpty property="ord_enddt">
+		  		AND po.ord_dt BETWEEN #ord_strdt# AND #ord_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="arr_strdt"> 
+			<isNotEmpty property="arr_enddt">
+		  		AND po.arr_dt BETWEEN #arr_strdt# AND #arr_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="cgo_rdy_strdt"> 
+			<isNotEmpty property="cgo_rdy_enddt">
+		  		AND po.cgo_rdy_dt BETWEEN #cgo_rdy_strdt# AND #cgo_rdy_enddt#
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotEmpty property="shpwin_strdt"> 
+			<isNotEmpty property="shpwin_enddt">
+		  		<![CDATA[AND (po.shpwin_to_dt >= #shpwin_strdt# AND po.shpwin_to_dt <= #shpwin_enddt#)]]>
+			</isNotEmpty>
+		  </isNotEmpty>
+		  <isNotNull prepend="AND" property="cust_po_no"> 
+		  	po.cust_po_no LIKE #cust_po_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="po_sys_no"> 
+		  	po.po_sys_no LIKE #po_sys_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="item_desc"> 
+		  	exists (select 	1 
+					from 	tb_po_cmdt cmdt
+					join 	TL_CTRT_CUST_ITEM itm on cmdt.ctrt_no = itm.ctrt_no and cmdt.item_sys_no = itm.item_sys_no and cmdt.cust_itm_id = itm.ITEM_CD and itm.ITEM_USE_FLG = 'Y'
+					where 	po.po_sys_no = cmdt.po_sys_no
+					and 	cmdt.delt_flg = 'N'
+					and 	itm.item_nm like '%'+#item_desc#+'%') 
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="ctrt_no"> 
+		  	po.ctrt_no LIKE #ctrt_no#+'%'
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="ord_sts_cd"> 
+		  	po.ord_sts_cd = #ord_sts_cd#
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="air_sea_clss_cd"> 
+		  	po.air_sea_clss_cd = #air_sea_clss_cd#
+		  </isNotNull>
+		  <isNotNull prepend="AND" property="cust_trdp_cd"> 
+		  	po.cust_trdp_cd = #cust_trdp_cd#
+		  </isNotNull>
+          <isNotNull prepend="AND" property="cust_trdp_nm"> 
+            po.cust_trdp_nm LIKE #cust_trdp_nm#+'%'
+          </isNotNull>
+		  <isNotNull prepend="AND" property="buyr_trdp_cd"> 
+		  	po.buyr_trdp_cd = #buyr_trdp_cd#
+		  </isNotNull>
+          <isNotNull prepend="AND" property="buyr_trdp_nm"> 
+            po.buyr_trdp_nm LIKE #buyr_trdp_nm#+'%'
+          </isNotNull>
+          <isNotNull prepend="AND" property="vndr_trdp_cd"> 
+		  	po.vndr_trdp_cd = #vndr_trdp_cd#
+		  </isNotNull>
+          <isNotNull prepend="AND" property="vndr_trdp_nm"> 
+            po.vndr_trdp_nm LIKE #vndr_trdp_nm#+'%'
+          </isNotNull>
+          <isNotNull prepend="AND" property="org_loc_cd"> 
+		  	po.org_loc_cd = #org_loc_cd#
+		  </isNotNull>
+          <isNotNull prepend="AND" property="org_loc_nm"> 
+            po.org_loc_nm LIKE #org_loc_nm#+'%'
+          </isNotNull>
+          <isNotNull prepend="AND" property="dest_loc_cd"> 
+		  	po.dest_loc_cd = #dest_loc_cd#
+		  </isNotNull>
+          <isNotNull prepend="AND" property="dest_loc_nm"> 
+            po.dest_loc_nm LIKE #dest_loc_nm#+'%'
+          </isNotNull>
+	</select>
+
+	<select id="selectPurOrdDetails" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdVO">
+	/* OthPurOrdSQL.xml > selectPurOrdDetails*/
+        	SELECT  top 1
+					 po.po_sys_no
+					,po.cust_po_no
+					,po.ref_ofc_cd
+					,po.intg_bl_seq
+					,po.ord_sts_cd
+					,po.ctrt_no
+					,po.ctrt_nm
+					,po.cust_trdp_cd
+					,po.cust_trdp_nm
+					,po.cust_trdp_addr
+					,po.cust_trdp_pic
+					,po.cust_trdp_eml
+					,po.cust_trdp_phn
+					,po.cust_trdp_fax
+					,po.buyr_trdp_cd
+					,po.buyr_trdp_nm
+					,po.vndr_trdp_cd
+					,po.vndr_trdp_nm
+					,po.vndr_trdp_addr
+					,po.vndr_trdp_pic
+					,po.vndr_trdp_eml
+					,po.vndr_trdp_phn
+					,po.vndr_trdp_fax
+					,po.fctry_trdp_cd
+					,po.fctry_trdp_nm
+					,po.fctry_trdp_addr
+					,po.fctry_trdp_pic
+					,po.fctry_trdp_eml
+					,po.fctry_trdp_phn
+					,po.fctry_trdp_fax
+					,po.shpto_trdp_cd
+					,po.shpto_trdp_nm
+					,po.shpto_trdp_addr
+					,po.shpto_trdp_pic
+					,po.shpto_trdp_eml
+					,po.shpto_trdp_phn
+					,po.shpto_trdp_fax
+					,po.org_loc_cd
+					,po.org_loc_nm
+					,po.dest_loc_cd
+					,po.dest_loc_nm
+					,po.air_sea_clss_cd
+					,po.frt_term_cd
+					,po.inco_cd
+					,po.cust_instr_txt
+					,po.po_rmk
+					,po.ord_dt
+					,po.ord_yr
+					,po.ord_wk
+					,po.arr_dt
+					,po.shpwin_fr_dt
+					,po.shpwin_to_dt
+					,po.shpwin_alert_yn
+					,po.cgo_rdy_dt
+					,po.dept_cd
+					,po.cntr_tpsz_cd
+					,po.cntr_qty
+					,po.rgst_usrid
+					,po.rgst_ofc_cd
+					,CONVERT(varchar,po.rgst_tms,112) AS rgst_tms 
+					,po.modi_usrid
+					,po.modi_ofc_cd
+					,CONVERT(VARCHAR,DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), po.modi_tms ),112) AS modi_tms
+					,po.delt_flg
+					,po.noti_send_yn
+			  FROM	tb_po po
+			  LEFT OUTER JOIN TB_OFC TOF ON PO.RGST_OFC_CD = TOF.OFC_CD      
+		      LEFT OUTER JOIN TB_COM_CD_DTL CCD ON CCD.COM_CD = 'TIMEZN' AND TOF.TIME_ZONE = CCD.CD_VAL      
+			 WHERE  po.delt_flg = 'N'
+			  <isNotNull prepend="AND" property="f_cust_po_no"> 
+			  	po.cust_po_no = #f_cust_po_no#
+			  </isNotNull>
+			  <isNotNull prepend="AND" property="f_po_sys_no"> 
+			  	po.po_sys_no = #f_po_sys_no#
+			  </isNotNull>
+	</select>
+
+	<insert id="insertPurOrdDetails" parameterClass="java.util.HashMap">
+	/* OthOprPurOrdSQL.xml >  insertPurOrdDetails */
+		INSERT INTO tb_po( 
+				po_sys_no,
+				ref_ofc_cd,				cust_po_no,				ord_sts_cd,				
+				cust_trdp_cd,			cust_trdp_nm,			cust_trdp_addr, 		cust_trdp_pic, 			cust_trdp_eml,			cust_trdp_phn,			cust_trdp_fax,
+				buyr_trdp_cd,			buyr_trdp_nm,
+				vndr_trdp_cd,			vndr_trdp_nm,			vndr_trdp_addr, 		vndr_trdp_pic, 			vndr_trdp_eml,			vndr_trdp_phn,			vndr_trdp_fax,
+				fctry_trdp_cd,			fctry_trdp_nm,			fctry_trdp_addr, 		fctry_trdp_pic, 		fctry_trdp_eml,			fctry_trdp_phn,			fctry_trdp_fax,				
+				shpto_trdp_cd,			shpto_trdp_nm,			shpto_trdp_addr, 		shpto_trdp_pic, 		shpto_trdp_eml,			shpto_trdp_phn,			shpto_trdp_fax,				
+				org_loc_cd,				org_loc_nm,				dest_loc_cd,			dest_loc_nm,			air_sea_clss_cd,		frt_term_cd,			inco_cd,
+				cust_instr_txt,			po_rmk,					ord_dt,					arr_dt,					shpwin_fr_dt,			shpwin_to_dt,			cgo_rdy_dt,
+				dept_cd,				cntr_qty,				cntr_tpsz_cd,			shpwin_alert_yn , 
+				rgst_usrid,				rgst_ofc_cd,			rgst_tms,				modi_usrid,				modi_ofc_cd,			modi_tms,	
+				<dynamic>
+					<isEqual property="mail_send_yn" compareValue="Y">					
+						noti_send_yn,					
+					</isEqual>
+				</dynamic>			
+				delt_flg, 				ctrt_no, 				ctrt_nm,				ord_yr,					ord_wk	
+					
+		) VALUES (
+				#po_sys_no#,
+				#ref_ofc_cd#,			#cust_po_no#,			#ord_sts_cd#,				
+				#cust_trdp_cd#,			#cust_trdp_nm#,			#cust_trdp_addr#, 		#cust_trdp_pic#, 		#cust_trdp_eml#,		#cust_trdp_phn#,		#cust_trdp_fax#,
+				#buyr_trdp_cd#,			#buyr_trdp_nm#,			
+				#vndr_trdp_cd#,			#vndr_trdp_nm#,			#vndr_trdp_addr#, 		#vndr_trdp_pic#, 		#vndr_trdp_eml#,		#vndr_trdp_phn#,		#vndr_trdp_fax#,
+				#fctry_trdp_cd#,		#fctry_trdp_nm#,		#fctry_trdp_addr#, 		#fctry_trdp_pic#, 		#fctry_trdp_eml#,		#fctry_trdp_phn#,		#fctry_trdp_fax#,				
+				#shpto_trdp_cd#,		#shpto_trdp_nm#,		#shpto_trdp_addr#, 		#shpto_trdp_pic#, 		#shpto_trdp_eml#,		#shpto_trdp_phn#,		#shpto_trdp_fax#,				
+				#org_loc_cd#,			#org_loc_nm#,			#dest_loc_cd#,			#dest_loc_nm#,			#air_sea_clss_cd#,		#frt_term_cd#,			#inco_cd#,
+				#cust_instr_txt#,		#po_rmk#,				#ord_dt#,				#arr_dt#,				#shpwin_fr_dt#,			#shpwin_to_dt#,			#cgo_rdy_dt#,
+				#dept_cd#,				#cntr_qty#,				#cntr_tpsz_cd#,			#shpwin_alert_yn#,	
+				#proc_usrid#,			#proc_ofccd#,			getdate(),				#proc_usrid#,			#proc_ofccd#,			GETUTCDATE(),				
+				<dynamic>
+					<isEqual property="mail_send_yn" compareValue="Y">				
+						'Y',	
+					</isEqual>
+				</dynamic>	
+				'N', 					#ctrt_no#, 				#ctrt_nm#,				#ord_yr#,				#ord_wk#
+		)
+	</insert>
+	
+	<update id="updatePurOrdDetails" parameterClass="java.util.HashMap">
+		/* OthOprPurOrdSQL.xml >  updatePurOrdDetails */
+		UPDATE	tb_po
+		   SET	ref_ofc_cd = #ref_ofc_cd#,				cust_po_no = #cust_po_no#,			ord_sts_cd = #ord_sts_cd#,				
+				cust_trdp_cd = #cust_trdp_cd#,			cust_trdp_nm = #cust_trdp_nm#,		cust_trdp_addr = #cust_trdp_addr#,		
+				cust_trdp_pic = #cust_trdp_pic#,		cust_trdp_eml = #cust_trdp_eml#,	cust_trdp_phn = #cust_trdp_phn#,		cust_trdp_fax = #cust_trdp_fax#,
+				buyr_trdp_cd = #buyr_trdp_cd#,			buyr_trdp_nm = #buyr_trdp_nm#,		
+				vndr_trdp_cd = #vndr_trdp_cd#,			vndr_trdp_nm = #vndr_trdp_nm#,		vndr_trdp_addr = #vndr_trdp_addr#,		
+				vndr_trdp_pic = #vndr_trdp_pic#,		vndr_trdp_eml = #vndr_trdp_eml#,	vndr_trdp_phn = #vndr_trdp_phn#,		vndr_trdp_fax = #vndr_trdp_fax#,
+				fctry_trdp_cd = #fctry_trdp_cd#,		fctry_trdp_nm = #fctry_trdp_nm#,	fctry_trdp_addr = #fctry_trdp_addr#,		
+				fctry_trdp_pic = #fctry_trdp_pic#,		fctry_trdp_eml = #fctry_trdp_eml#,	fctry_trdp_phn = #fctry_trdp_phn#,		fctry_trdp_fax = #fctry_trdp_fax#,
+				shpto_trdp_cd = #shpto_trdp_cd#,		shpto_trdp_nm = #shpto_trdp_nm#,	shpto_trdp_addr = #shpto_trdp_addr#,		
+				shpto_trdp_pic = #shpto_trdp_pic#,		shpto_trdp_eml = #shpto_trdp_eml#,	shpto_trdp_phn = #shpto_trdp_phn#,		shpto_trdp_fax = #shpto_trdp_fax#,
+				org_loc_cd = #org_loc_cd#,				org_loc_nm = #org_loc_nm#,			dest_loc_cd = #dest_loc_cd#,			dest_loc_nm = #dest_loc_nm#,
+				air_sea_clss_cd = #air_sea_clss_cd#,	frt_term_cd = #frt_term_cd#,		inco_cd = #inco_cd#,					cust_instr_txt = #cust_instr_txt#,
+				po_rmk = #po_rmk#,						ord_dt = #ord_dt#,					arr_dt = #arr_dt#,						shpwin_fr_dt = #shpwin_fr_dt#,			shpwin_to_dt = #shpwin_to_dt#,
+				cgo_rdy_dt = #cgo_rdy_dt#,				dept_cd = #dept_cd#,				cntr_qty = CONVERT(NUMERIC, REPLACE(#cntr_qty#, ',', '')),					cntr_tpsz_cd = #cntr_tpsz_cd#,        shpwin_alert_yn = #shpwin_alert_yn#,
+				<dynamic>
+					<isEqual property="mail_send_yn" compareValue="Y">					
+						noti_send_yn ='Y',					
+					</isEqual>
+				</dynamic>					
+				modi_usrid = #proc_usrid#,				modi_ofc_cd = #proc_ofccd#,			modi_tms = GETUTCDATE(),
+				ctrt_no = #ctrt_no#,					ctrt_nm = #ctrt_nm#,				ord_yr = #ord_yr#,						ord_wk = #ord_wk#
+		 WHERE	po_sys_no = #po_sys_no#
+	</update>
+	
+	<select id="searchDupCustPoNo" parameterClass="HashMap" resultClass="java.util.HashMap">
+			select CUST_PO_NO 
+			from   tb_po
+			where  1=1  
+			AND    CUST_PO_NO = #cust_po_no#
+			AND    DELT_FLG ='N' 
+	</select>  
+	
+	<!-- Purchase Order Item LIST 조회   -->
+	<select id="selectPurOrdItemList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdItemVO">
+		SELECT   ITM.PO_CMDT_SEQ
+				,ITM.PO_SYS_NO
+				,ITM.CTRT_NO
+				,ITM.ITEM_SYS_NO
+				,ITM.CUST_ITM_ID
+				,(SELECT ITEM_NM FROM TL_CTRT_CUST_ITEM WHM WHERE WHM.CTRT_NO = ITM.CTRT_NO AND WHM.ITEM_SYS_NO = ITM.ITEM_SYS_NO AND WHM.ITEM_CD = ITM.CUST_ITM_ID AND ITEM_USE_FLG = 'Y') AS CUST_ITM_NM
+				,ITM.PCK_UT_CD
+				,ITM.PCK_UT_NM
+				,ITM.PCK_INR_QTY
+				,ITM.PCK_QTY
+				,ITM.PCK_QTY - ISNULL(BKG.BK_PCK_QTY,0) AS RMN_PCK_QTY
+				,ITM.EA_CNT
+				,ITM.EA_CNT - ISNULL(BKG.BK_EA_CNT,0) AS RMN_EA_CNT
+				,ITM.TTL_QTY
+				,ITM.TTL_QTY - ISNULL(BKG.BK_TTL_QTY,0) AS RMN_TTL_QTY
+				,ITM.CMDT_RMK
+				,ITM.CMDT_KGS_WGT
+				,ITM.CMDT_LBS_WGT
+				,ITM.CMDT_CBM_MEAS
+				,ITM.CMDT_CFT_MEAS
+				,ITM.RGST_USRID
+				,ITM.RGST_OFC_CD
+				,ITM.RGST_TMS
+				,ITM.MODI_USRID
+				,ITM.MODI_OFC_CD
+				,ITM.MODI_TMS
+				,ITM.DELT_FLG
+		  FROM TB_PO_CMDT ITM
+		  LEFT OUTER JOIN (
+			   SELECT ITM.PO_CMDT_SEQ, SUM(ITM.PCK_QTY) AS BK_PCK_QTY, SUM(ITM.EA_CNT) AS BK_EA_CNT, SUM(ITM.TTL_QTY) AS BK_TTL_QTY
+			   FROM   TB_BKG_PO ITM	   
+			   WHERE  ITM.PO_SYS_NO = #po_sys_no#
+			   AND    ITM.DELT_FLG = 'N'
+			   GROUP BY ITM.PO_CMDT_SEQ
+		  ) BKG ON ITM.PO_CMDT_SEQ = BKG.PO_CMDT_SEQ
+		 WHERE ITM.DELT_FLG = 'N'
+		   AND ITM.PO_SYS_NO = #po_sys_no#
+	</select>
+	
+	<!-- Purchase Order Item 등록   -->
+	<insert id="insertPurOrdItemList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdItemVO">
+		INSERT INTO TB_PO_CMDT(
+			 PO_SYS_NO
+			,CTRT_NO
+			,ITEM_SYS_NO
+			,CUST_ITM_ID
+			,PCK_UT_CD
+			,PCK_UT_NM
+			,PCK_INR_QTY
+			,PCK_QTY
+			,EA_CNT
+			,TTL_QTY
+			,CMDT_RMK
+			,CMDT_KGS_WGT
+			,CMDT_LBS_WGT
+			,CMDT_CBM_MEAS
+			,CMDT_CFT_MEAS
+			,RGST_USRID
+			,RGST_OFC_CD
+			,RGST_TMS
+			,MODI_USRID
+			,MODI_OFC_CD
+			,MODI_TMS
+			,DELT_FLG
+		) VALUES (
+			 #po_sys_no#
+			,#ctrt_no#
+			,#item_sys_no#
+			,#cust_itm_id#
+			,#pck_ut_cd#
+			,#pck_ut_nm#
+			,#pck_inr_qty#
+			,#pck_qty#
+			,#ea_cnt#
+			,#ttl_qty#
+			,#cmdt_rmk#
+			,#cmdt_kgs_wgt#
+			,#cmdt_lbs_wgt#
+			,#cmdt_cbm_meas#
+			,#cmdt_cft_meas#
+			,#proc_usrid#
+			,#proc_ofccd#
+			,getdate()
+			,#proc_usrid#
+			,#proc_ofccd#
+			,GETUTCDATE()
+			,'N'
+		)
+	</insert>
+	
+	<!-- Purchase Order Item 수정   -->
+	<update id="updatePurOrdItemList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdItemVO">
+		UPDATE   TB_PO_CMDT
+		   SET   ITEM_SYS_NO	= #item_sys_no#
+		        ,CTRT_NO		= #ctrt_no#
+		        ,CUST_ITM_ID	= #cust_itm_id#
+				,PCK_UT_CD		= #pck_ut_cd#
+				,PCK_UT_NM		= #pck_ut_nm#
+				,PCK_INR_QTY	= #pck_inr_qty#
+				,PCK_QTY		= #pck_qty#
+				,EA_CNT			= #ea_cnt#
+				,TTL_QTY		= #ttl_qty#
+				,CMDT_RMK		= #cmdt_rmk#
+				,CMDT_KGS_WGT	= #cmdt_kgs_wgt#
+				,CMDT_LBS_WGT	= #cmdt_lbs_wgt#
+				,CMDT_CBM_MEAS	= #cmdt_cbm_meas#
+				,CMDT_CFT_MEAS	= #cmdt_cft_meas#
+				,MODI_USRID		= #proc_usrid#
+				,MODI_OFC_CD	= #proc_ofccd#
+				,MODI_TMS		= GETUTCDATE()
+		 WHERE   PO_CMDT_SEQ  	= #po_cmdt_seq#
+		   AND   PO_SYS_NO 		= #po_sys_no#
+	</update>
+	
+	<!-- Purchase Order Item 삭제   -->
+	<update id="deletePurOrdItemList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdItemVO">
+		UPDATE   TB_PO_CMDT
+		   SET   DELT_FLG		= 'Y'
+				,MODI_USRID		= #proc_usrid#
+				,MODI_OFC_CD	= #proc_ofccd#
+				,MODI_TMS		= GETUTCDATE()
+		 WHERE   PO_CMDT_SEQ  	= #po_cmdt_seq#
+		   AND   PO_SYS_NO 		= #po_sys_no#
+	</update>
+	
+	<!-- Purchase Order User Define Field LIST 조회   -->
+	<select id="selectPurOrdUdfList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdUdfVO">
+		SELECT   PO_SYS_NO
+				,UDF_CD
+				,UDF_VAL
+				,RGST_USRID
+				,RGST_OFC_CD
+				,RGST_TMS
+				,MODI_USRID
+				,MODI_OFC_CD
+				,MODI_TMS
+		  FROM TB_PO_UDF UDF
+		 WHERE PO_SYS_NO = #po_sys_no#
+	</select>
+	
+	<!-- Purchase Order User Define Field 등록   -->
+	<insert id="insertPurOrdUdfList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdUdfVO">
+		INSERT INTO TB_PO_UDF(
+			 PO_SYS_NO
+			,UDF_CD
+			,UDF_VAL
+			,RGST_USRID
+			,RGST_OFC_CD
+			,RGST_TMS
+			,MODI_USRID
+			,MODI_OFC_CD
+			,MODI_TMS
+		) VALUES (
+			 #po_sys_no#
+			,#udf_cd#
+			,#udf_val#
+			,#proc_usrid#
+			,#proc_ofccd#
+			,getdate()
+			,#proc_usrid#
+			,#proc_ofccd#
+			,GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- Purchase Order User Define Field 수정   -->
+	<update id="updatePurOrdUdfList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdUdfVO">
+		UPDATE   TB_PO_UDF
+		   SET   UDF_VAL		= #udf_val#
+				,MODI_USRID		= #proc_usrid#
+				,MODI_OFC_CD	= #proc_ofccd#
+				,MODI_TMS		= GETUTCDATE()
+		 WHERE   PO_SYS_NO  	= #po_sys_no#
+		   AND   UDF_CD 		= #udf_cd#
+	</update>
+	
+	<!-- Purchase Order User Define Field 삭제   -->
+	<update id="deletePurOrdUdfList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdUdfVO">
+		DELETE	 FROM TB_PO_UDF
+		 WHERE   PO_SYS_NO  	= #po_sys_no#
+		   AND   UDF_CD 		= #udf_cd#
+	</update>
+	
+	<!-- Purchase Order Document LIST 조회   -->
+    <select id="selectPurOrdShpDocList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdDocVO">
+        SELECT  palt_doc_seq,         	po_sys_no,          
+                po_doc_tp_cd,       
+                (SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD = 'C027' AND CD_VAL = po_doc_tp_cd) AS po_doc_tp_nm,
+                po_doc_nm,            	po_doc_no,      
+                po_doc_img_url,     	po_doc_img_nm,
+                po_doc_pdf_url,     	po_doc_pdf_nm,  
+                po_doc_msg,         	po_doc_rmk,				isnull(po_ext_flg, 'N') AS po_ext_flg,
+                rgst_usrid,           	rgst_ofc_cd,          	CONVERT(VARCHAR(8), rgst_tms, 112) AS rgst_tms
+          FROM  tb_po_shp_doc
+         WHERE  delt_flg = 'N'
+           AND  po_sys_no = #po_sys_no#
+    </select>
+    
+    <!-- Purchase Order Document LIST 삭제   -->
+    <delete id="deletePurOrdShpDocList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdDocVO">
+        DELETE  tb_po_shp_doc
+         WHERE  po_sys_no  = #po_sys_no# AND palt_doc_seq =#palt_doc_seq#
+    </delete>
+    
+	<!-- PO info select    -->
+    <select id="selectPO_INFO" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdDocVO">
+		SELECT  a.po_sys_no,     a.cust_po_no
+		  FROM  tb_po a   
+		 WHERE  a.po_sys_no = #po_sys_no# AND a.delt_flg = 'N'
+	</select>
+	
+	<!-- Shipping Document select    -->
+    <select id="selectPurOrdShpDocInfo" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdDocVO">
+        SELECT  a.palt_doc_seq,         a.po_sys_no,          	
+                a.po_doc_tp_cd,       	a.po_doc_nm,          	a.po_doc_no,      
+                a.po_doc_img_url,     	a.po_doc_img_nm,
+                a.po_doc_pdf_url,     	a.po_doc_pdf_nm,  
+                a.po_doc_msg,         	a.po_doc_rmk,			isnull(a.po_ext_flg, 'N') AS po_ext_flg,
+                a.rgst_usrid,           a.rgst_ofc_cd,          CONVERT(VARCHAR(8), a.rgst_tms, 112) AS rgst_tms
+         FROM  tb_po_shp_doc a
+        WHERE  1=1
+          AND  a.delt_flg = 'N'
+          AND  a.po_doc_tp_cd NOT IN ('AN','DO')
+		<dynamic>
+			<isNotNull property="s_palt_doc_seq">
+				AND a.palt_doc_seq =#s_palt_doc_seq#
+			</isNotNull>
+			<isNotNull property="po_sys_no">
+				AND a.po_sys_no = #po_sys_no#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- PK생성  -->
+    <select id="selectPurOrdShpDocInfoPK" resultClass="String">
+    	SELECT MAX(PALT_DOC_SEQ)
+  		FROM   tb_po_shp_doc
+  		WHERE  DELT_FLG = 'N'
+  		AND    PO_SYS_NO = #po_sys_no#
+    </select>
+    
+    <!--  등록   -->
+    <insert id="insertPurOrdShpDocInfo" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdDocVO">    
+        INSERT INTO tb_po_shp_doc
+			(
+			po_sys_no,          	
+			po_doc_tp_cd,     		po_doc_nm,          	po_doc_no, 
+			po_doc_msg,           	po_doc_rmk,         	po_ext_flg,
+			po_doc_img_url,       	po_doc_img_nm,
+		    po_doc_pdf_url,       	po_doc_pdf_nm,	  
+			rgst_usrid,          	rgst_ofc_cd,          	rgst_tms,
+			modi_usrid,          	modi_ofc_cd,          	modi_tms, 			delt_flg 
+			)
+		VALUES 
+		(
+			#po_sys_no#,			
+			#po_doc_tp_cd#,     	#po_doc_nm#,          	#po_doc_no#, 
+			#po_doc_msg#,         	#po_doc_rmk#,         	#po_ext_flg#,
+		    #po_doc_img_url#,     	#po_doc_img_nm#,
+		    #po_doc_pdf_url#,     	#po_doc_pdf_nm#,
+			#proc_usrid#,			#proc_ofccd#,			getdate(),
+			#proc_usrid#,			#proc_ofccd#,			GETUTCDATE(), 			'N'
+		)
+    </insert>
+	
+	<!-- 수정   -->
+    <update id="updatePurOrdShpDocInfo" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdDocVO">
+      UPDATE tb_po_shp_doc
+		SET po_doc_tp_cd 	= #po_doc_tp_cd#,    	po_doc_nm 	  = #po_doc_nm#,        po_doc_no 		= #po_doc_no#,
+			po_doc_msg 	 	= #po_doc_msg#,      	po_doc_rmk 	  = #po_doc_rmk#,		po_ext_flg		= #po_ext_flg#,
+			po_doc_img_url 	= #po_doc_img_url#,  	po_doc_img_nm = #po_doc_img_nm#,  
+			po_doc_pdf_url  = #po_doc_pdf_url#,  	po_doc_pdf_nm = #po_doc_pdf_nm#,
+			modi_usrid 		= #proc_usrid#,
+			modi_ofc_cd 	= #proc_ofccd#,
+			modi_tms 		=  GETUTCDATE()
+		WHERE palt_doc_seq 	= #palt_doc_seq#
+		AND   po_sys_no 	= #po_sys_no#
+    </update>      
+    
+    <select id="selectPurOrdDetailsCOPY" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthPurOrdVO">
+	/* OthPurOrdSQL.xml > selectPurOrdDetailsCOPY*/
+        	SELECT  top 1
+					 po.ctrt_no
+					,po.ctrt_nm
+					,po.cust_trdp_cd
+					,po.cust_trdp_nm
+					,po.cust_trdp_addr
+					,po.cust_trdp_pic
+					,po.cust_trdp_eml
+					,po.cust_trdp_phn
+					,po.cust_trdp_fax
+					,po.buyr_trdp_cd
+					,po.buyr_trdp_nm
+					,po.vndr_trdp_cd
+					,po.vndr_trdp_nm
+					,po.vndr_trdp_addr
+					,po.vndr_trdp_pic
+					,po.vndr_trdp_eml
+					,po.vndr_trdp_phn
+					,po.vndr_trdp_fax
+					,po.fctry_trdp_cd
+					,po.fctry_trdp_nm
+					,po.fctry_trdp_addr
+					,po.fctry_trdp_pic
+					,po.fctry_trdp_eml
+					,po.fctry_trdp_phn
+					,po.fctry_trdp_fax
+					,po.shpto_trdp_cd
+					,po.shpto_trdp_nm
+					,po.shpto_trdp_addr
+					,po.shpto_trdp_pic
+					,po.shpto_trdp_eml
+					,po.shpto_trdp_phn
+					,po.shpto_trdp_fax
+					,po.org_loc_cd
+					,po.org_loc_nm
+					,po.dest_loc_cd
+					,po.dest_loc_nm
+					,po.air_sea_clss_cd
+					,po.frt_term_cd
+					,po.inco_cd
+					,po.cust_instr_txt
+					,po.po_rmk
+					,po.ord_dt
+					,po.arr_dt
+					,po.shpwin_fr_dt
+					,po.shpwin_to_dt
+					,po.shpwin_alert_yn
+					,po.cgo_rdy_dt
+					,po.dept_cd
+					,po.cntr_tpsz_cd
+					,po.cntr_qty
+					,po.delt_flg
+					,po.noti_send_yn
+			  FROM	tb_po po
+			 WHERE  po.delt_flg = 'N'
+			   AND  po.po_sys_no = #f_po_sys_no#
+	</select>
+    
+    <!-- Department List (조회조건)   -->
+	<select id="searchDeptCdList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO">
+		SELECT  b.cd_val, b.cd_nm
+		  FROM  tb_com_cd a
+		  JOIN  tb_com_cd_dtl b ON a.com_cd = b.com_cd AND b.delt_flg = 'N'
+		 WHERE  a.delt_flg = 'N'
+		   AND  a.prnt_com_cd = 'C128'
+		   AND  a.ref_cd = #f_buyr_trdp_cd#
+	</select>
+	
+	<select id="searchPoBkgYn" parameterClass="HashMap" resultClass="java.util.HashMap">
+		SELECT po_sys_no
+		  FROM tb_bkg_po
+		 WHERE po_sys_no = #f_po_sys_no#
+		   AND delt_flg = 'N'
+	</select>  
+	
+	<select id="searchPoItemBlYn" parameterClass="HashMap" resultClass="java.util.HashMap">
+		SELECT CUST_ITM_ID
+		FROM   (
+				SELECT PO.PO_CMDT_SEQ, PO.CUST_ITM_ID 
+		          FROM TB_SHP_CMDT ITM       
+		          JOIN TB_INTG_BL BL ON ITM.INTG_BL_SEQ = BL.INTG_BL_SEQ AND BL.DELT_FLG = 'N'  
+		          JOIN TB_PO_CMDT PO ON ITM.PO_CMDT_SEQ = PO.PO_CMDT_SEQ AND PO.DELT_FLG = 'N'       
+		         WHERE ITM.PO_SYS_NO = #f_po_sys_no#
+		         <dynamic>
+					<isNotNull property="f_po_cmdt_seq">
+						AND ITM.PO_CMDT_SEQ =#f_po_cmdt_seq#
+					</isNotNull>
+				</dynamic>
+		           AND ITM.DELT_FLG = 'N' 
+		           
+		        UNION ALL
+		        
+		        SELECT PO.PO_CMDT_SEQ, PO.CUST_ITM_ID  
+		          FROM TB_BKG_PO PO    
+		         WHERE PO.PO_SYS_NO = #f_po_sys_no#
+		         <dynamic>
+					<isNotNull property="f_po_cmdt_seq">
+						AND PO.PO_CMDT_SEQ =#f_po_cmdt_seq#
+					</isNotNull>
+				</dynamic>
+		           AND PO.DELT_FLG = 'N' 
+				) INVAL
+		GROUP BY PO_CMDT_SEQ, CUST_ITM_ID
+	</select>  
+</sqlMap>

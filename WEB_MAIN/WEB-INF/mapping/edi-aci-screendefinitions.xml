@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <screen name="EDI_ACI_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/aci/jsp/EDI_ACI_0010.jsp"/>
+    </screen>
+
+    <screen name="EDI_ACI_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/aci/jsp/EDI_ACI_0010GS.jsp"/>
+    </screen>
+    
+     <screen name="EDI_ACI_0011" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/aci/jsp/EDI_ACI_0011.jsp"/>
+    </screen>
+
+    <screen name="EDI_ACI_0011GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/aci/jsp/EDI_ACI_0011GS.jsp"/>
+    </screen>
+    
+    <screen name="EDI_ACI_0012" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/aci/jsp/EDI_ACI_0012.jsp"/>
+    </screen>
+
+    <screen name="EDI_ACI_0012GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/aci/jsp/EDI_ACI_0012GS.jsp"/>
+    </screen>
+    
+    <screen name="EDI_ACI_0013" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/aci/jsp/EDI_ACI_0013.jsp"/>
+    </screen>
+
+    <screen name="EDI_ACI_0013GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/aci/jsp/EDI_ACI_0013GS.jsp"/>
+    </screen>
+    
+    <screen name="EDI_ACI_0014" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/aci/jsp/EDI_ACI_0014.jsp"/>
+    </screen>
+
+    <screen name="EDI_ACI_0014GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/aci/jsp/EDI_ACI_0014GS.jsp"/>
+    </screen>
+	
+</screen-definitions>

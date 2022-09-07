@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+	<!--  Ocean    -->
+	<!-- ISF EDI (Ocean)   -->
+    <url-mapping url="EDI_ISF_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_ISF_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <!-- ISF EDI (Ocean)    -->
+    <url-mapping url="EDI_ISF_0010GS.clt" screen="EDI_ISF_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- ISF EDI (Ocean)    -->
+    <url-mapping url="EDI_ISF_0010_1GS.clt" screen="EDI_ISF_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- ISF EDI (Ocean)    -->
+    <url-mapping url="EDI_ISF_0010_2GS.clt" screen="EDI_ISF_0010_2GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- ISF EDI (Ocean)    -->
+    <url-mapping url="EDI_ISF_0010_3GS.clt" screen="EDI_ISF_0010_3GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- ISF EDI (Ocean)    -->
+    <url-mapping url="EDI_ISF_0010_4GS.clt" screen="EDI_ISF_0010_4GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0010HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <!-- ISF EDI (Ocean) List   -->
+    <url-mapping url="EDI_ISF_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_ISF_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <!-- ISF EDI (Ocean) MRN 데이터 List    -->
+    <url-mapping url="EDI_ISF_0020GS.clt" screen="EDI_ISF_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+     <url-mapping url="EDI_ISF_0020_1GS.clt" screen="EDI_ISF_0020_1GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- ISF EDI (Ocean) ZBNUMBER Popup   -->
+    <url-mapping url="EDI_ISF_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_ISF_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <!-- ISF EDI (Ocean) ZBNUMBER Popup   -->
+    <url-mapping url="EDI_ISF_0030GS.clt" screen="EDI_ISF_0030GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- ISF EDI (Ocean) Event와 SC Mapping함   -->
+    <event-mapping>
+        <event-class>com.clt.apps.fis.edi.isf.sei.event.EdiIsfSeiEvent</event-class>
+        <service-action-class>com.clt.apps.fis.edi.isf.sei.EdiIsfSeiSC</service-action-class>
+    </event-mapping>
+    
+    <!-- ISF EDI (Ocean) List   -->
+    <url-mapping url="EDI_ISF_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_ISF_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <!-- ISF EDI (Ocean) MRN 데이터 List    -->
+    <url-mapping url="EDI_ISF_0040GS.clt" screen="EDI_ISF_0040GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0040HTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Ajax loading -->
+    <url-mapping url="EDI_ISF_0010AJ.clt" screen="EDI_ISF_0010AJ.screen">
+        <web-action-class>com.clt.apps.fis.edi.isf.sei.event.EDI_ISF_0010HTMLAction</web-action-class>
+    </url-mapping>
+</mappings>

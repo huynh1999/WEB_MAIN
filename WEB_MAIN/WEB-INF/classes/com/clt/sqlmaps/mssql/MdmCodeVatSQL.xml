@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="mdm.code.vat">
+	<!-- Package Code List    -->
+    <select id="selectVAT_RT_LIST" resultClass="com.clt.apps.fis.mdm.code.vat.dto.VatVO">
+           SELECT  TOP $topCnt$
+		           y.cnt_cd,      y.frt_cd,        z.vat_aply_seq,
+		           z.vat_rt,      z.descr, 
+		           CASE z.tax_aply_flg  WHEN 'N' THEN 0  WHEN 'Y' THEN 1 END AS tax_aply_flg, 
+		           z.rgst_usrid,  z.rgst_ofc_cd,   z.rgst_tms, 
+		           z.modi_usrid,  z.modi_ofc_cd,   z.modi_tms,       z.delt_flg, 
+				   'Y' AS db_value
+			FROM ( SELECT a.cnt_cd, b.frt_cd
+				     FROM tb_cnt a, tb_frt_cd b
+				  ) y		
+ LEFT OUTER JOIN  tb_tax_aply z
+			  ON  y.cnt_cd = z.cnt_cd
+			 AND  y.frt_cd = z.frt_cd
+           WHERE  y.cnt_cd = #s_cnt_cd#
+			<isNotNull prepend="AND" property="s_frt_cd">
+				y.frt_cd = #s_frt_cd#
+			</isNotNull>
+        GROUP BY  y.cnt_cd,      y.frt_cd,        z.vat_aply_seq,   z.vat_rt,      
+		          z.descr,       z.tax_aply_flg,  z.rgst_usrid,     z.rgst_ofc_cd,   z.rgst_tms, 
+                  z.modi_usrid,  z.modi_ofc_cd,   z.modi_tms,       z.delt_flg
+		ORDER BY  y.cnt_cd, y.frt_cd ASC
+	</select>
+	
+	<!-- Package Code Count    -->
+    <select id="selectVAT_RT_CNT" resultClass="Integer">
+		SELECT  count(a.cnt_cd)
+          FROM  tb_cnt a, tb_frt_cd b
+		 WHERE  a.cnt_cd = #s_cnt_cd#
+		<isNotNull prepend="AND" property="s_frt_cd">
+			b.frt_cd = #s_frt_cd#
+		</isNotNull>
+	</select>
+	
+	<select id="selectMDM_MCM_0170_MAX" resultClass="Integer">
+        SELECT ISNULL(MAX(vat_aply_seq), 0)+1
+		  FROM tb_tax_aply
+	</select>
+	
+	<!-- VAT Code Update    -->
+	<update id="updateVAT_CD" parameterClass="com.clt.apps.fis.mdm.code.vat.dto.VatVO">
+		UPDATE  tb_tax_aply
+		   SET  cnt_cd       = #cnt_cd#,          frt_cd      = #frt_cd#,   
+		        tax_aply_flg = #tax_aply_flg#,    vat_rt      = #vat_rt#,       descr = #descr# 
+		        modi_usrid   = #proc_usrid#,      modi_ofc_cd = #proc_ofccd#,   modi_tms = GETUTCDATE()
+		 WHERE  vat_aply_seq = #vat_aply_seq#
+	</update>
+	
+	<!-- VAT Code Insert    -->
+	<insert id="insertVAT_CD" parameterClass="com.clt.apps.fis.mdm.code.vat.dto.VatVO">
+		INSERT INTO tb_tax_aply (
+			   vat_aply_seq,    cnt_cd,        frt_cd, 
+		       tax_aply_flg,    vat_rt,        descr, 
+		       rgst_usrid,      rgst_ofc_cd,   rgst_tms, 
+		       modi_usrid,      modi_ofc_cd,   modi_tms,   delt_flg
+		) VALUES (
+			   #vat_aply_seq#,  #cnt_cd#,      #frt_cd#, 
+		       #tax_aply_flg#,  #vat_rt#,      #descr#, 
+		       #proc_usrid#,    #proc_ofccd#,  getdate(), 
+		       #proc_usrid#,    #proc_ofccd#,  GETUTCDATE(),  'N'
+		)
+	</insert>
+</sqlMap>

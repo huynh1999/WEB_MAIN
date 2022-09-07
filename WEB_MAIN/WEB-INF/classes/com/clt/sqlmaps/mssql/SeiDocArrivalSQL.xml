@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sei.doc.arrivalnotice"> 
+
+    <typeAlias alias="SeiArrivalListVO"     type="com.clt.apps.fis.sei.bmd.arrivalnotice.dto.SeiArrivalListVO"/>
+    <typeAlias alias="SeiPaltShpDocVO"      type="com.clt.apps.fis.sei.bmd.arrivalnotice.dto.SeiPaltShpDocVO"/>
+    
+    <!--  Arrival Notice/Deliver Order 목록화면 조회시   --> 
+    <select id="selectSEI_DOC_0030_LIST" parameterClass="java.util.HashMap" resultClass="SeiArrivalListVO">
+        SELECT  TOP $topCnt$
+		        bl.intg_bl_seq,      bl.bl_no AS house_bl_no,
+		        bl.eta_dt_tm, 
+		
+                bl.biz_clss_cd,      bl.grs_wgt_ut_cd,      bl.grs_wgt, 
+                bl.meas_ut_cd,       bl.meas,              
+                bl.por_cd,           bl.por_nm,             '' AS por_nod_cd,
+                bl.pol_cd,           bl.pol_nm,             bl.pol_nod_cd,
+                bl.pod_cd,           bl.pod_nm,             bl.pod_nod_cd,      
+                bl.del_cd,           bl.del_nm,             '' AS del_nod_cd,
+                
+                mbl.bl_no AS master_bl_no,           
+		        andoc.palt_doc_seq AS an_palt_doc_seq,      andoc.palt_doc_tp_cd AS an_palt_doc_tp_cd,
+				CASE WHEN andoc.palt_doc_img_url IS NULL THEN 99 ELSE 1 END AS an_palt_doc_pdf_url,
+		
+		        dodoc.palt_doc_seq AS do_palt_doc_seq,      dodoc.palt_doc_tp_cd AS do_palt_doc_tp_cd,
+                CASE WHEN dodoc.palt_doc_img_url IS NULL THEN 99 ELSE 1 END AS do_palt_doc_pdf_url,
+		
+                shp.trdp_cd AS shpr_trdp_cd,      shp.trdp_nm AS shpr_trdp_nm,
+                cne.trdp_cd AS cnee_trdp_cd,      cne.trdp_nm AS cnee_trdp_nm,
+                lnr.trdp_cd AS lnr_trdp_cd,       lnr.trdp_nm AS lnr_trdp_nm
+		
+          FROM  tb_intg_bl bl
+          JOIN  tb_add_info_bnd bnd
+            ON  bl.intg_bl_seq = bnd.intg_bl_seq   AND bnd.delt_flg = 'N'
+            
+          JOIN  tb_intg_bl_rlt  rlt
+            ON  rlt.intg_bl_seq = bl.intg_bl_seq   AND rlt.delt_flg = 'N'
+            
+          JOIN  tb_intg_bl mbl
+            ON  rlt.rlt_intg_bl_seq = mbl.intg_bl_seq  AND mbl.delt_flg = 'N'
+            
+LEFT OUTER JOIN tb_palt_shp_doc andoc
+            ON  andoc.INTG_BL_SEQ = bl.intg_bl_seq AND andoc.palt_doc_tp_cd = 'AN'   AND andoc.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_palt_shp_doc dodoc
+            ON  dodoc.INTG_BL_SEQ = bl.intg_bl_seq AND dodoc.palt_doc_tp_cd = 'DO'   AND dodoc.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr shp
+           ON   bl.intg_bl_seq = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01'      AND shp.delt_flg = 'N'
+         
+LEFT OUTER JOIN tb_bl_prnr cne
+           ON   bl.intg_bl_seq = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01'      AND cne.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr lnr
+           ON   bl.intg_bl_seq = lnr.intg_bl_seq  AND lnr.bl_trdp_tp_cd = 'L01'      AND lnr.delt_flg = 'N'
+           
+        WHERE  bl.biz_clss_cd = 'H'
+          AND  bl.air_sea_clss_cd= #air_sea_clss_cd#
+          AND  bnd.bnd_clss_cd   = #bnd_clss_cd#
+		  AND  bl.delt_flg = 'N'
+			<isNotNull property="s_status_i">
+				AND  andoc.palt_doc_tp_cd IS NOT NULL OR dodoc.palt_doc_tp_cd IS NOT NULL 
+			</isNotNull>
+			<isNotNull property="s_status_n">
+                AND  andoc.palt_doc_tp_cd IS NULL OR dodoc.palt_doc_tp_cd IS NULL 
+			</isNotNull>
+			<isNotNull property="s_house_bl_no">
+				AND  bl.bl_no LIKE #s_house_bl_no#
+			</isNotNull>        
+			<isNotNull property="eta_strdt">
+				AND  bl.eta_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# 
+			</isNotNull>
+			<isNotNull property="s_trdp_cd">  
+			    AND bl.intg_bl_seq IN  (  SELECT  intg_bl_seq
+					                        FROM  tb_bl_prnr
+					                       WHERE  delt_flg = 'N'
+					                         AND  bl_trdp_tp_cd IN( 'C01','S01')    
+					                         AND  trdp_cd =#s_trdp_cd#  )
+			</isNotNull>
+          ORDER BY bl.intg_bl_seq DESC
+    </select>
+    
+    <!--  arrivalnotice List select count    -->
+    <select id="selectSEI_DOC_0030_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT  count(bl.intg_bl_seq) 
+          FROM  tb_intg_bl bl
+          JOIN  tb_add_info_bnd bnd
+            ON  bl.intg_bl_seq = bnd.intg_bl_seq   AND bnd.delt_flg = 'N'
+            
+          JOIN  tb_intg_bl_rlt  rlt
+            ON  rlt.intg_bl_seq = bl.intg_bl_seq   AND rlt.delt_flg = 'N'
+            
+          JOIN  tb_intg_bl mbl
+            ON  rlt.rlt_intg_bl_seq = mbl.intg_bl_seq  AND mbl.delt_flg = 'N'
+            
+LEFT OUTER JOIN tb_palt_shp_doc andoc
+            ON  andoc.INTG_BL_SEQ = bl.intg_bl_seq AND andoc.palt_doc_tp_cd = 'AN'   AND andoc.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_palt_shp_doc dodoc
+            ON  dodoc.INTG_BL_SEQ = bl.intg_bl_seq AND dodoc.palt_doc_tp_cd = 'DO'   AND dodoc.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr shp
+           ON   bl.intg_bl_seq = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01'      AND shp.delt_flg = 'N'
+         
+LEFT OUTER JOIN tb_bl_prnr cne
+           ON   bl.intg_bl_seq = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01'      AND cne.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr lnr
+           ON   bl.intg_bl_seq = lnr.intg_bl_seq  AND lnr.bl_trdp_tp_cd = 'L01'      AND lnr.delt_flg = 'N'
+           
+        WHERE  bl.biz_clss_cd = 'H'
+          AND  bl.air_sea_clss_cd= #air_sea_clss_cd#
+          AND  bnd.bnd_clss_cd   = #bnd_clss_cd#
+          AND  bl.delt_flg = 'N'
+            <isNotNull property="s_status_i">
+                AND  andoc.palt_doc_tp_cd IS NOT NULL OR dodoc.palt_doc_tp_cd IS NOT NULL 
+            </isNotNull>
+            <isNotNull property="s_status_n">
+                AND  andoc.palt_doc_tp_cd IS NULL OR dodoc.palt_doc_tp_cd IS NULL 
+            </isNotNull>
+            <isNotNull property="s_house_bl_no">
+                AND  bl.bl_no LIKE #s_house_bl_no#
+            </isNotNull>        
+            <isNotNull property="eta_strdt">
+                AND  bl.eta_dt_tm BETWEEN #eta_strdt# AND #eta_enddt# 
+            </isNotNull>
+            <isNotNull property="s_trdp_cd">  
+                AND bl.intg_bl_seq IN  (  SELECT  intg_bl_seq
+                                            FROM  tb_bl_prnr
+                                           WHERE  delt_flg = 'N'
+                                             AND  bl_trdp_tp_cd IN( 'C01','S01')    
+                                             AND  trdp_cd =#s_trdp_cd#  )
+            </isNotNull>
+
+    </select>
+    
+    <!-- Templage select    -->
+    <select id="selectTemplate" parameterClass="java.util.HashMap" resultClass="SeiPaltShpDocVO">
+        SELECT tmplt_seq,       bztp_cd,       tmplt_tit,       tmplt_msg
+        FROM tb_an_do_tmplt  
+        WHERE delt_flg = 'N'
+        AND  bztp_cd    =#s_bztp_cd#
+        <dynamic prepend="AND"> 
+        <isNotNull prepend="AND" property="s_tmplt_seq">
+               tmplt_seq =#s_tmplt_seq#
+        </isNotNull>
+        </dynamic>   
+    </select>
+    
+    <!-- Templage max seq select    -->
+    <select id="selectTemplateSeq" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT ISNULL(MAX(tmplt_seq),0) +1
+          FROM tb_an_do_tmplt  
+    </select>
+    
+    <!-- Templage title select     -->
+    <select id="selectTemplateTitle" parameterClass="java.util.HashMap" resultClass="String">    
+        SELECT tmplt_seq
+        FROM tb_an_do_tmplt
+        WHERE bztp_cd   =#bztp_cd#
+        AND  tmplt_tit  = #tmplt_tit#
+        
+    </select>
+    
+    <!--  등록   -->
+    <insert id="insertTemplate" parameterClass="java.util.HashMap">    
+        INSERT INTO tb_an_do_tmplt
+        (
+            tmplt_seq,       bztp_cd,              tmplt_tit,       tmplt_msg,
+            rgst_usrid,      rgst_ofc_cd,          rgst_tms,
+            modi_usrid,      modi_ofc_cd,          modi_tms
+        )
+        VALUES 
+        (
+            #tmplt_seq#,      #bztp_cd#,            #tmplt_tit#,            #tmplt_msg#,    
+            #proc_usrid#,     #proc_ofccd#,         getdate(),
+            #proc_usrid#,     #proc_ofccd#,         GETUTCDATE(), 	'N'
+        )
+    </insert>
+    
+    <!-- 수정   -->
+    <update id="updateTemplate" parameterClass="java.util.HashMap">    
+      UPDATE tb_an_do_tmplt
+        SET tmplt_msg   = #tmplt_msg#,
+            modi_usrid          = #proc_usrid#,
+            modi_ofc_cd         = #proc_ofccd#,
+            modi_tms            =  GETUTCDATE()
+        WHERE bztp_cd   = #bztp_cd#
+        AND  tmplt_tit  = #tmplt_tit#
+    </update>
+    
+    <!-- A/N B/L info select    -->
+    <select id="selectANBL_PRNR_INFO" parameterClass="java.util.HashMap" resultClass="SeiPaltShpDocVO">
+		SELECT  a.intg_bl_seq ,                     a.bl_no AS house_bl_no,
+                b.bl_trdp_tp_cd,                    b.trdp_cd AS palt_trdp_cd,                  b.trdp_nm,          
+                b.trdp_pic AS palt_trdp_pic_nm,     b.trdp_phn AS palt_trdp_pic_phn,       
+                b.trdp_fax AS palt_trdp_pic_fax,    b.trdp_eml,  b.trdp_addr ,
+                c.shrt_nm,                          c.full_nm,
+
+                (SELECT  bl_no FROM  tb_intg_bl  
+                  WHERE  delt_flg = 'N' 
+                    AND  intg_bl_seq =    (SELECT  rlt_intg_bl_seq    
+                                             FROM  tb_intg_bl_rlt    WHERE  intg_bl_seq = a.intg_bl_seq  )) master_bl_no             
+          FROM  tb_intg_bl a 
+LEFT OUTER JOIN tb_bl_prnr b 
+		    ON  a.intg_bl_seq = b.intg_bl_seq  AND   b.bl_trdp_tp_cd = 'N01'
+		 
+LEFT OUTER JOIN tb_trdp c   ON b.trdp_cd = c.trdp_cd   
+        WHERE a.delt_flg = 'N'
+        AND   a.air_sea_clss_cd = 'S'
+        AND   a.intg_bl_seq = cast(#intg_bl_seq# as varchar) 
+    </select>
+    
+    <!-- D/O B/L info select    -->
+    <select id="selectDOBL_PRNR_INFO" parameterClass="java.util.HashMap" resultClass="SeiPaltShpDocVO">
+		SELECT  a.intg_bl_seq ,                     a.bl_no AS house_bl_no,   
+			    b.bl_trdp_tp_cd,                    b.trdp_cd AS palt_trdp_cd,          b.trdp_nm,          
+			    b.trdp_pic AS palt_trdp_pic_nm,     b.trdp_phn AS palt_trdp_pic_phn,
+			    b.trdp_fax AS palt_trdp_pic_fax,    b.trdp_eml,                         b.trdp_addr ,
+			    c.shrt_nm,                          c.full_nm,
+		
+                (SELECT  bl_no FROM  tb_intg_bl  
+                         WHERE  delt_flg = 'N' 
+                      AND    intg_bl_seq =    (SELECT  rlt_intg_bl_seq    
+                    FROM  tb_intg_bl_rlt    WHERE  intg_bl_seq = a.intg_bl_seq  ) ) master_bl_no
+                             
+		  FROM  tb_intg_bl a 
+LEFT OUTER JOIN tb_bl_prnr b 
+		    ON  a.intg_bl_seq = b.intg_bl_seq  AND   b.bl_trdp_tp_cd = 'C01'
+		
+LEFT OUTER JOIN tb_trdp c   
+		    ON  b.trdp_cd = c.trdp_cd
+		   
+         WHERE  a.delt_flg = 'N'
+           AND  a.air_sea_clss_cd = 'S'
+           AND  a.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </select>
+    
+    <!-- 정보 조회AN/DO select    -->
+    <select id="selectSEI_DOC_0031" parameterClass="java.util.HashMap" resultClass="SeiPaltShpDocVO">
+		SELECT  doc.palt_doc_seq,         doc.intg_bl_seq,          
+				doc.palt_trdp_cd,         trd.shrt_nm,              trd.full_nm,
+				
+				doc.palt_trdp_pic_nm,     doc.palt_trdp_pic_fax,    doc.palt_trdp_pic_phn,    
+				doc.palt_doc_tp_cd,       doc.palt_doc_nm,          doc.palt_doc_no,
+				
+				doc.palt_doc_img_url,     doc.palt_doc_img_nm,
+				doc.palt_doc_pdf_url,     doc.palt_doc_pdf_nm,
+				
+				doc.palt_doc_msg,         doc.palt_doc_rmk,         
+				doc.tmplt_seq,            doc.iss_dt,               
+		
+				hbl.bl_no AS house_bl_no, hbl.ft_dt,                 mbl.bl_no AS master_bl_no
+		
+		  FROM  tb_palt_shp_doc doc
+		  JOIN  tb_intg_bl hbl
+		    ON  doc.intg_bl_seq = hbl.intg_bl_seq     AND hbl.delt_flg = 'N'
+		
+		  JOIN  tb_intg_bl_rlt rlt
+		    ON  hbl.intg_bl_seq = rlt.intg_bl_seq     AND rlt.delt_flg = 'N'
+		
+		  JOIN  tb_intg_bl mbl
+		    ON  mbl.intg_bl_seq = rlt.rlt_intg_bl_seq AND mbl.delt_flg = 'N'
+		
+LEFT OUTER JOIN tb_trdp trd
+            ON  doc.palt_trdp_cd  = trd.trdp_cd 
+         WHERE  doc.palt_doc_tp_cd=#s_palt_doc_tp_cd#
+        <isNotNull property="s_intg_bl_seq">
+			AND doc.intg_bl_seq =#s_intg_bl_seq#
+        </isNotNull>
+        <isNotNull property="s_palt_doc_seq">
+            AND doc.palt_doc_seq =#s_palt_doc_seq#
+        </isNotNull>
+    </select>
+    
+	<!-- 등록된 File 정보를 조회  -->
+    <select id="selectSHP_DOC_FILE" parameterClass="java.util.HashMap" resultClass="SeiPaltShpDocVO">
+	        SELECT  palt_doc_img_url,     palt_doc_img_nm,
+                palt_doc_pdf_url,     palt_doc_pdf_nm
+         FROM   tb_palt_shp_doc a 
+        WHERE   palt_doc_seq = #s_palt_doc_seq# AND delt_flg = 'N' AND   palt_doc_tp_cd = #s_palt_doc_tp_cd#
+	</select>
+	
+	
+    <!-- PK생성  -->
+    <select id="selectSEI_DOC_0031_MkPK" resultClass="String">
+        SELECT ISNULL(MAX(palt_doc_seq),0)+1
+        FROM tb_palt_shp_doc
+    </select>
+    
+    <!--  등록   -->
+    <insert id="insertSEI_DOC_0031" parameterClass="SeiPaltShpDocVO">    
+        INSERT INTO tb_palt_shp_doc(
+            palt_doc_seq,           intg_bl_seq,          palt_trdp_cd,
+            palt_trdp_pic_nm,       palt_trdp_pic_fax,    palt_trdp_pic_phn,
+            palt_doc_tp_cd,         palt_doc_nm,          palt_doc_no, 
+            palt_doc_msg,           palt_doc_rmk,         
+            palt_doc_img_url,       palt_doc_img_nm,
+            palt_doc_pdf_url,       palt_doc_pdf_nm,
+            iss_dt,
+            rgst_usrid,             rgst_ofc_cd,          rgst_tms,
+            modi_usrid,             modi_ofc_cd,          modi_tms
+        )VALUES(
+            #palt_doc_seq#,         #intg_bl_seq#,          #palt_trdp_cd#,
+            #palt_trdp_pic_nm#,     #palt_trdp_pic_fax#,    #palt_trdp_pic_phn#,
+            #palt_doc_tp_cd#,       #palt_doc_nm#,          #palt_doc_no#, 
+            #palt_doc_msg#,         #palt_doc_rmk#,         
+            #palt_doc_img_url#,     #palt_doc_img_nm#,
+            #palt_doc_pdf_url#,     #palt_doc_pdf_nm#,
+            #iss_dt#,
+            #proc_usrid#,           #proc_ofccd#,           getdate(),
+            #proc_usrid#,           #proc_ofccd#,           GETUTCDATE()
+        )
+    </insert>
+    
+    <!-- 기존에  AN/DO 저장 여부  select    -->
+    <select id="selectANDO_CNT" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT count(*) from tb_palt_shp_doc
+        WHERE palt_doc_seq = #s_palt_doc_seq#
+        AND   palt_doc_tp_cd = #palt_doc_tp_cd#
+        
+    </select>
+    
+    <!-- 수정   -->
+    <update id="updateSEI_DOC_0031" parameterClass="SeiPaltShpDocVO">
+      UPDATE tb_palt_shp_doc
+        SET 
+            palt_trdp_cd        = #palt_trdp_cd#,
+            palt_trdp_pic_nm    = #palt_trdp_pic_nm#,
+            palt_trdp_pic_fax   = #palt_trdp_pic_fax#,
+            palt_trdp_pic_phn   = #palt_trdp_pic_phn#,
+            palt_doc_tp_cd      = #palt_doc_tp_cd#,
+            palt_doc_nm         = #palt_doc_nm#,
+            palt_doc_no         = #palt_doc_no#,
+            palt_doc_msg        = #palt_doc_msg#,
+            palt_doc_rmk        = #palt_doc_rmk#,
+        <dynamic prepend="">    
+        <isNotNull prepend="" property="palt_doc_img_url">
+            palt_doc_img_url    = #palt_doc_img_url#,   palt_doc_img_nm = #palt_doc_img_nm#,
+            palt_doc_pdf_url    = #palt_doc_pdf_url#,   palt_doc_pdf_nm = #palt_doc_pdf_nm#,
+        </isNotNull>
+        </dynamic>   
+            iss_dt              = #iss_dt#,
+            modi_usrid          = #proc_usrid#,
+            modi_ofc_cd         = #proc_ofccd#,
+            modi_tms            =  GETUTCDATE()
+        WHERE palt_doc_seq  = #palt_doc_seq#
+        AND   intg_bl_seq   = cast(#intg_bl_seq# as varchar)
+    </update>
+    
+    <!-- 삭제  -->
+    <update id="deleteShppingDoc" parameterClass="SeiPaltShpDocVO">
+       UPDATE tb_palt_shp_doc
+          SET modi_ofc_cd  = #proc_usrid#,   modi_usrid = #proc_ofccd#,
+              modi_tms     = GETUTCDATE(),          delt_flg   = 'Y'
+        WHERE palt_doc_seq = #palt_doc_seq#
+    </update>
+    
+    <!-- 수정   -->
+    <update id="updateFree_Date" parameterClass="SeiPaltShpDocVO">
+      UPDATE tb_intg_bl
+        SET ft_dt           = #ft_dt#,
+            modi_usrid      = #proc_usrid#,
+            modi_ofc_cd     = #proc_ofccd#,
+            modi_tms        =  GETUTCDATE()
+        WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </update>
+    
+    <!-- issue 수정   -->
+    <update id="updateISSUE" parameterClass="java.util.HashMap">
+      UPDATE tb_palt_shp_doc
+        SET palt_doc_no     = #palt_doc_no#,
+            modi_usrid      = #proc_usrid#,
+            modi_ofc_cd     = #proc_ofccd#,
+            modi_tms        =  GETUTCDATE()
+        WHERE palt_doc_seq = #s_palt_doc_seq#
+    </update>
+    
+	<!-- Issue시에 저장할 문서번호를 채번한다  -->
+	<select id="selectDOC_NO_KEY" resultClass="String" parameterClass="String">
+		SELECT  MAX(maxInv) as maxInv
+		  FROM  (
+				   SELECT  CASE    WHEN MAX(SUBSTRING(palt_doc_no,5,4)) = SUBSTRING(CONVERT(VARCHAR, getdate(),12),1,4)
+								   THEN 'GLAI'+'$flg$'++SUBSTRING(CAST(SUBSTRING(palt_doc_no,5,8)+100000001 as VARCHAR), 2, 8)
+						   ELSE    'GLAI'+'$flg$'++SUBSTRING(CONVERT(VARCHAR, getdate(),12),1,4)+'0001' END 
+						   AS maxInv
+				   FROM    tb_palt_shp_doc
+				   WHERE   SUBSTRING(palt_doc_no, 1,8) = 'GLAI'+SUBSTRING(CONVERT(VARCHAR, getdate(),12),1,4)
+						   AND palt_doc_tp_cd = '$flg$'
+				   group BY palt_doc_no
+				   UNION ALL
+				   SELECT 'GLAI'+'$flg$'++ SUBSTRING(CONVERT(VARCHAR, getdate(),12),1,4)+'0001' as maxInv
+		   ) a
+	</select>
+	
+	
+	
+	    <!-- Ocean Import > House BL > Release Order/Turnover   -->
+    <select id="selectSEI_DOC_1080" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* SeiDocArrivalSQL > selectSEI_DOC_1080 */    
+	   SELECT  a1.intg_bl_seq 
+			  ,a1.bl_no hbl_no
+			  ,a1.pck_qty
+			  ,a1.fnl_wh_cd
+			  ,a3.ENG_NM fnl_wh_nm 
+			  ,a2.trdp_cd
+			  ,a2.trdp_nm AS trdp_nm
+			  ,isnull(trdp.lgl_addr,'') + 
+				 (case when isnull(trdp.city_nm,'') != '' and isnull(trdp.state_cd,'') != '' and isnull(trdp.rep_zip,'') != '' then char(13) + trdp.city_nm + ', ' + trdp.state_cd + ' ' + trdp.rep_zip
+				  	   when isnull(trdp.city_nm,'') != '' and isnull(trdp.state_cd,'') != '' and isnull(trdp.rep_zip,'') = '' then char(13) + trdp.city_nm + ' ' + trdp.state_cd
+					   when isnull(trdp.city_nm,'') != '' and isnull(trdp.state_cd,'') = '' and isnull(trdp.rep_zip,'') = '' then char(13) + trdp.city_nm
+					   when isnull(trdp.city_nm,'') != '' and isnull(trdp.state_cd,'') = '' and isnull(trdp.rep_zip,'') != '' then char(13) + trdp.city_nm + ', ' + trdp.rep_zip
+					   else '' end) as trdp_addr 
+			  ,trdp_pic.pic_nm AS trdp_pic_nm 
+			  ,trdp_pic.pic_phn AS trdp_phn
+		      ,trdp_pic.pic_fax AS trdp_fax
+		      ,trdp_pic.pic_eml AS trdp_eml
+		      ,a3.trdp_cd AS cfs_trdp_cd
+		      ,a3.eng_nm AS cfs_trdp_nm
+		      ,isnull(a3.lgl_addr,'') + 
+				 (case when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') != '' and isnull(a3.rep_zip,'') != '' then char(13) + a3.city_nm + ', ' + a3.state_cd + ' ' + a3.rep_zip
+				  	   when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') != '' and isnull(a3.rep_zip,'') = '' then char(13) + a3.city_nm + ' ' + a3.state_cd
+					   when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') = '' and isnull(a3.rep_zip,'') = '' then char(13) + a3.city_nm
+					   when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') = '' and isnull(a3.rep_zip,'') != '' then char(13) + a3.city_nm + ', ' + a3.rep_zip
+					   else '' end) as cfs_trdp_addr 
+			  ,cfs_pic.pic_nm AS cfs_trdp_pic_nm 
+			  ,cfs_pic.pic_phn AS cfs_trdp_phn
+		      ,cfs_pic.pic_fax AS cfs_trdp_fax
+		      ,cfs_pic.pic_eml AS cfs_trdp_eml		      
+		      ,brk.trdp_cd AS brk_trdp_cd
+		      ,ntfy.trdp_cd AS ntfy_trdp_cd
+		FROM tb_intg_bl a1 
+			LEFT OUTER JOIN tb_bl_prnr a2 
+				ON a2.intg_bl_seq = a1.intg_bl_seq
+				AND a2.bl_trdp_tp_cd = 'C01' 
+			LEFT OUTER JOIN tb_trdp trdp
+			    ON a2.trdp_cd = trdp.trdp_cd
+			LEFT OUTER JOIN tb_trdp_cntc_pson trdp_pic
+				ON trdp.trdp_cd = trdp_pic.trdp_cd AND trdp_pic.rep_flg = 'Y' AND trdp_pic.delt_flg = 'N'
+			LEFT OUTER JOIN tb_bl_prnr brk 
+				ON brk.intg_bl_seq = a1.intg_bl_seq
+				AND brk.bl_trdp_tp_cd = 'C03'
+			LEFT OUTER JOIN tb_bl_prnr ntfy 
+				ON ntfy.intg_bl_seq = a1.intg_bl_seq
+				AND ntfy.bl_trdp_tp_cd = 'N01'	 			 	
+			LEFT OUTER JOIN tb_trdp a3 
+				ON a3.trdp_cd =  isnull(a1.cfs_trdp_cd,a1.cy_trdp_cd )
+			LEFT OUTER JOIN tb_trdp_cntc_pson cfs_pic
+				ON a3.trdp_cd = cfs_pic.trdp_cd AND cfs_pic.rep_flg = 'Y' AND cfs_pic.delt_flg = 'N'
+	  WHERE a1.intg_bl_seq = #s_intg_bl_seq#
+    </select>    
+ 
+ 
+ 
+	    <!-- Air Import > House BL > Release Order/Turnover   -->
+    <select id="selectSEI_DOC_1081" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	  /* SeiDocArrivalSQL > selectSEI_DOC_1081 */    
+	   SELECT  a1.intg_bl_seq 
+			  ,a1.bl_no hbl_no
+			  ,a1.pck_qty
+			  ,a1.fnl_wh_cd
+			  ,a3.ENG_NM fnl_wh_nm 
+			  ,a2.trdp_cd
+			  ,a2.trdp_nm AS trdp_nm
+			  ,isnull(trdp.lgl_addr,'') + 
+				 (case when isnull(trdp.city_nm,'') != '' and isnull(trdp.state_cd,'') != '' and isnull(trdp.rep_zip,'') != '' then char(13) + trdp.city_nm + ', ' + trdp.state_cd + ' ' + trdp.rep_zip
+				  	   when isnull(trdp.city_nm,'') != '' and isnull(trdp.state_cd,'') != '' and isnull(trdp.rep_zip,'') = '' then char(13) + trdp.city_nm + ' ' + trdp.state_cd
+					   when isnull(trdp.city_nm,'') != '' and isnull(trdp.state_cd,'') = '' and isnull(trdp.rep_zip,'') = '' then char(13) + trdp.city_nm
+					   when isnull(trdp.city_nm,'') != '' and isnull(trdp.state_cd,'') = '' and isnull(trdp.rep_zip,'') != '' then char(13) + trdp.city_nm + ', ' + trdp.rep_zip
+					   else '' end) as trdp_addr 
+			  ,trdp_pic.pic_nm AS trdp_pic_nm 
+			  ,trdp_pic.pic_phn AS trdp_phn
+		      ,trdp_pic.pic_fax AS trdp_fax
+		      ,trdp_pic.pic_eml AS trdp_eml
+		      ,a3.trdp_cd AS cfs_trdp_cd
+		      ,a3.eng_nm AS cfs_trdp_nm
+		      ,isnull(a3.lgl_addr,'') + 
+				 (case when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') != '' and isnull(a3.rep_zip,'') != '' then char(13) + a3.city_nm + ', ' + a3.state_cd + ' ' + a3.rep_zip
+				  	   when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') != '' and isnull(a3.rep_zip,'') = '' then char(13) + a3.city_nm + ' ' + a3.state_cd
+					   when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') = '' and isnull(a3.rep_zip,'') = '' then char(13) + a3.city_nm
+					   when isnull(a3.city_nm,'') != '' and isnull(a3.state_cd,'') = '' and isnull(a3.rep_zip,'') != '' then char(13) + a3.city_nm + ', ' + a3.rep_zip
+					   else '' end) as cfs_trdp_addr 
+		      ,cfs_pic.pic_nm AS cfs_trdp_pic_nm 
+			  ,cfs_pic.pic_phn AS cfs_trdp_phn
+		      ,cfs_pic.pic_fax AS cfs_trdp_fax
+		      ,cfs_pic.pic_eml AS cfs_trdp_eml		
+		      ,brk.trdp_cd AS brk_trdp_cd
+		      ,ntfy.trdp_cd AS ntfy_trdp_cd
+		FROM tb_intg_bl a1 
+			LEFT OUTER JOIN tb_bl_prnr a2 
+				ON a2.intg_bl_seq = a1.intg_bl_seq
+				AND a2.bl_trdp_tp_cd = 'C01' 
+			LEFT OUTER JOIN tb_trdp trdp
+			    ON a2.trdp_cd = trdp.trdp_cd
+			LEFT OUTER JOIN tb_trdp_cntc_pson trdp_pic
+				ON trdp.trdp_cd = trdp_pic.trdp_cd AND trdp_pic.rep_flg = 'Y' AND trdp_pic.delt_flg = 'N'
+			LEFT OUTER JOIN tb_bl_prnr brk 
+				ON brk.intg_bl_seq = a1.intg_bl_seq
+				AND brk.bl_trdp_tp_cd = 'C03'
+			LEFT OUTER JOIN tb_bl_prnr ntfy 
+				ON ntfy.intg_bl_seq = a1.intg_bl_seq
+				AND ntfy.bl_trdp_tp_cd = 'N01'	 			
+			LEFT OUTER JOIN tb_trdp a3 
+				ON a3.trdp_cd =  isnull(a1.cfs_trdp_cd,a1.cy_trdp_cd )
+			LEFT OUTER JOIN tb_trdp_cntc_pson cfs_pic
+				ON a3.trdp_cd = cfs_pic.trdp_cd AND cfs_pic.rep_flg = 'Y' AND cfs_pic.delt_flg = 'N'
+	  WHERE a1.intg_bl_seq = #s_intg_bl_seq#
+    </select>    
+    
+
+    
+</sqlMap>

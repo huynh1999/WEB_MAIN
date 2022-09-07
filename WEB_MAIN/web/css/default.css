@@ -1,0 +1,1176 @@
+body {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+}
+.td {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    padding-top: 5px;
+    padding-left: 10px;
+    height: 100%;
+    width: 864px;
+    vertical-align: top;
+    padding-right: 30px;
+}
+.td2 {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    padding-top: 5px;
+    padding-left: 26px;
+    height: 100%;
+    width: 940px;
+    vertical-align: top;
+    padding-right: 30px;
+}
+select { 
+    font-family: "Tahoma", "Arial", "Verdana"; 
+    font-size: 12px; 
+    border: 1px solid #c7c7c7;
+    border-style: solid; 
+    border-top-width: 1px; 
+    border-right-width: 1px; 
+    border-bottom-width: 1px; 
+    border-left-width: 1px
+} 
+
+.bigtitle {
+    font-size: 15px;
+    color: #484848;
+    font-weight: bold;
+    font-family: "Tahoma", "Arial", "Verdana";
+    text-align: left;
+    text-indent: 10px;
+    text-decoration: none;
+    list-style-position: inside;
+    background-image: url(/fms/web/img/main/main_icon.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 5px;
+}
+.navi {
+    font-size: 11px;
+    color: #484848;
+    font-weight: normal;
+    font-family: "Tahoma", "Arial", "Verdana";
+    text-decoration: none;
+    list-style-position: inside;
+    background-repeat: no-repeat;
+    background-position: left center;
+}
+.navi_b {
+    font-size: 11px;
+    color: #484848;
+    font-weight: bold;
+    font-family: "Tahoma", "Arial", "Verdana";
+    text-decoration: none;
+    list-style-position: inside;
+}
+    
+.td_head0   {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size:11px;
+    text-align:center;
+    color:#657676;
+    height: 20px;
+    vertical-align: middle;
+    background-image: url(/fms/web/img/main/table_title_bg.gif);
+    font-weight: bold;
+    padding-top: 2px;
+    line-height: 110%;
+}
+
+.td_head1   {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size:11px;
+    color:#657676;
+    height: 20px;
+    vertical-align: middle;
+    background-image: url(/fms/web/img/main/table_title_bg.gif);
+    font-weight: bold;
+    padding-top: 2px;
+    line-height: 110%;
+}
+
+.table_body_line {
+    background-color: #c0d0e3;
+    height: 1px;
+}
+
+.table_search_bg1 {
+    background-color: #D6FFFF;
+    padding-top: 0px;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 0px;
+    border: 1px solid #c2c9d0;
+}
+
+.table_search_bg {
+    background-color: #f7f9fc;
+    padding-top: 0px;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 0px;
+    border: 1px solid #c2c9d0;
+}
+.table_search_head_old {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #616161;
+    background-image: url(/fms/web/img/main/search_t_icon1.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+.table_search_head {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #484848;
+    background-image: url(/fms/web/img/main/search_t_icon1.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+.table_search_head_1 {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #383838;
+    background-image: url(/fms/web/img/main/search_t_icon1.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+
+.table_search_head_2 {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 13px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #2E2E2E;
+    background-image: url(/fms/web/img/main/search_t_icon1.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+
+.table_search_head_top {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: top;
+    color: #484848;
+    background-image: url(/fms/web/img/main/search_t_icon1.gif);
+    background-repeat: no-repeat;
+    background-position: left 4px center;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+.table_body_blue {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    vertical-align: middle;
+    color: #484848;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+.table_search_body {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: normal;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin: 0px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    text-align: left;
+    vertical-align: top;
+}
+
+
+.text_body_title {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin: 0px;
+    padding-top: 5px;
+    padding-right: 3px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.text_check_title {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin: 0px;
+    padding-top: 0px;
+    padding-right: 3px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    text-align: left;
+    vertical-align: top;
+}
+
+
+.text_bold_title {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: bold;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 100px;
+    margin: 0px;
+    padding-top: 0px;
+    padding-right: 50px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    text-align: right;
+    vertical-align: middle;
+}
+
+.text_bold_title_line {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: bold;
+    color: #000000;
+    padding-left: 0px;
+    padding-right: 100px;
+    margin: 0px;
+    padding-top: 0px;
+    padding-right: 50px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    text-align: right;
+    vertical-align: middle;
+    text-decoration : underline;
+}
+
+
+.text_bold_title_left {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: bold;
+    color: #000000;
+    padding-left: 0px;
+    padding-right: 100px;
+    margin: 0px;
+    padding-top: 0px;
+    padding-right: 50px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+
+.table_td_title {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin: 0px;
+    padding-top: 0px;
+    padding-right: 3px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.label_text {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin: 0px;
+    padding-top: 0px;
+    padding-right: 3px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.text_body {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: nomal;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin: 0px;
+    padding-top: 6px;
+    padding-right: 3px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    text-align: left;
+    vertical-align: top;
+}
+.table_head {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    height: 16px;
+    text-align: left;
+    vertical-align: middle;
+    color: #FFFFFF;
+    text-indent: 6px;
+    background-color: #95afd6;
+}
+.table_body_c {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: normal;
+    background-color: #FFFFFF;
+    height: 22px;
+    text-align: center;
+    vertical-align: middle;
+    color: #808080;
+    padding-top: 2px;
+    padding-right: 3px;
+    padding-bottom: 2px;
+    padding-left: 3px;
+}
+.table_body_l {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: normal;
+    background-color: #FFFFFF;
+    height: 22px;
+    text-align: left;
+    vertical-align: middle;
+    color: #808080;
+    padding-top: 2px;
+    padding-right: 3px;
+    padding-bottom: 2px;
+    padding-left: 3px;
+}
+.table_body_r {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: normal;
+    background-color: #FFFFFF;
+    height: 22px;
+    text-align: right;
+    vertical-align: middle;
+    color: #808080;
+    padding-top: 2px;
+    padding-right: 3px;
+    padding-bottom: 2px;
+    padding-left: 3px;
+}
+.table_search_head2 {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #484848;
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-right: 2px;
+    text-indent: 4px;
+    padding-left: 0px;
+}
+.table_search_head3 {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #484848;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+.search_form {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: normal;
+    color: #666666;
+    border: 1px solid #c7c7c7;
+    text-align: left;
+    height: 20px;
+    padding-right: 2px;
+    padding-left: 3px;
+}
+
+.search_form_alert {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: normal;
+    color: #FF0000;
+    border: 1px solid #c7c7c7;
+    text-align: left;
+    height: 20px;
+    padding-right: 2px;
+    padding-left: 3px;
+}
+
+.txtarea{
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: normal;
+    color: #666666;
+    border: 1px solid #c7c7c7;
+    text-align: left;
+    padding-right: 2px;
+    padding-left: 3px;
+}
+
+.bt_name_old {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    color: #FFFFFF;
+}
+
+.bt_name {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #616161;
+}
+
+.sub_title {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    color: #26557d;
+    background-image: url(/fms/web/img/main/sub_title_bg.gif);
+    padding-left: 2px;
+    vertical-align: middle;
+    background-position: 4px;
+    padding-right: 6px;
+    border: 1px solid #a3c7db;
+    height :16px;
+}
+.dotline {
+    background-image: url(/fms/web/img/main/dotline.gif);
+    background-repeat: repeat-x;
+    height: 2px;
+}
+
+.dotline2 {
+    background-image: url(/fms/web/img/main/dotline.gif);
+    background-repeat: repeat-x;
+    background-position: center center;
+    height: 0px;
+    vertical-align: middle;
+    padding-top: 0px;
+}
+
+
+.line {
+    background-image: url(/fms/web/img/main/line.gif);
+    background-repeat: repeat-x;
+    background-position: center center;
+    height: 0px;
+    vertical-align: middle;
+    padding-top: 0px;
+}
+
+
+.tab_head {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #6c6c6c;
+    background-image: url(/fms/web/img/main/tab_table_choice_bg-m.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    width: 80px;
+    text-indent: -1px;
+}
+.tab_head_non {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #FFFFFF;
+    background-image: url(/fms/web/img/main/tab_table_nochoice_bg-m.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    padding-top: 3px;
+    width: 80px;
+    text-indent: -1px;
+}
+.tab_head2 {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #6c6c6c;
+    background-image: url(/fms/web/img/main/tab_table_choice_bg-m2.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    width: 100px;
+    text-indent: -1px;
+}
+.tab_head_non2 {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #FFFFFF;
+    background-image: url('/fms/web/img/main/tab_table_nochoice_bg-m2.gif');
+    background-repeat: no-repeat;
+    background-position: left;
+    padding-top: 3px;
+    width: 100px;
+    text-indent: -1px;
+}
+.tab_head2_blue {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #6c6c6c;
+    background-image: url(/fms/web/img/main/tab_table_choice_bg-m2-blue.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    width: 100px;
+    text-indent: -1px;
+}
+.tab_head_non2_blue {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #FFFFFF;
+    background-image: url('/fms/web/img/main/tab_table_nochoice_bg-m2-blue.gif');
+    background-repeat: no-repeat;
+    background-position: left;
+    padding-top: 3px;
+    width: 100px;
+    text-indent: -1px;
+}
+.tab_head-l {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #6c6c6c;
+    background-image: url(/fms/web/img/main/tab_table_choice_bg-l.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    width: 140px;
+}
+.tab_head_non-l {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #FFFFFF;
+    background-image: url(/fms/web/img/main/tab_table_nochoice_bg-l.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    padding-top: 3px;
+    width: 140px;
+}
+.tab_head-s {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #6c6c6c;
+    background-image: url(/fms/web/img/main/tab_table_choice_bg-s.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    width: 50px;
+    text-indent: -1px;
+}
+.tab_head_non-s {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #FFFFFF;
+    background-image: url(/fms/web/img/main/tab_table_nochoice_bg-s.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    padding-top: 3px;
+    width: 50px;
+    text-indent: -1px;
+}
+
+.tab_bt_name_01 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+.tab_bt_name {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #616161;
+}
+
+.tab_table_search_body {
+
+    font-family: Tahoma, Arial, Helvetica;
+    font-size: 11px;
+    font-weight: normal;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin: 0px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    text-align: left;
+    vertical-align: top;
+}
+
+
+.tab_table_body {
+
+    font-family: Tahoma, Arial, Helvetica;
+    font-size: 11px;
+    font-weight: normal;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin: 0px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+
+.tab_table_search_head {
+
+    font-family: Tahoma, Arial, Helvetica;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #484848;
+    background-image: url(/fms/web/img/main/search_t_icon1.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+.tab_search_form {
+
+    font-family: Tahoma, Arial, Helvetica;
+    font-size: 12px;
+    font-weight: normal;
+    color: #666666;
+    border: 1px solid #c7c7c7;
+    text-align: left;
+    height: 16px;
+}
+.bigtitle_pop {
+
+    font-size: 13px;
+    color: #484848;
+    font-weight: bold;
+    font-family: "Tahoma", "Arial", "Verdana";
+    text-align: left;
+    text-indent: 15px;
+    text-decoration: none;
+    list-style-position: inside;
+    background-image: url(/fms/web/img/main/bigtitle_pop_icon.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-top: 3px;
+}
+.body_pop {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    background-repeat: repeat-y;
+    background-attachment: fixed;
+    background-position: left;
+    margin: 12px;
+}
+.error_text_l {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    color: #5a5a5a;
+    line-height: 110%;
+    text-align: left;
+    padding-left: 40px;
+}
+.error_text_r {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    color: #5a5a5a;
+    line-height: 130%;
+    text-align: right;
+}
+
+.intext_white{  
+    background-color:#FFFFFF; 
+    border:1px solid #FFFFFF; 
+}
+
+a:link.error_text_r {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    color: #34b7ca;
+    line-height: 110%;
+}
+a:visited.error_text_r {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    color: #34b7ca;
+    line-height: 110%;
+}
+a:hover.error_text_r {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    color: #34b7ca;
+    line-height: 110%;
+}
+a:active.error_text_r {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    color: #34b7ca;
+    line-height: 110%;
+}
+.main_sub_title {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    color: #5675aa;
+    height: 21px;
+    padding-left: 4px;
+    vertical-align: middle;
+    background-image: url(/fms/web/img/main/main_sub_title.gif);
+}
+.table_body_calendar_title {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #FFFFFF;
+    text-align: center;
+    color: #808080;
+    height: 10px;
+}
+.table_body_calendar {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    background-color: #FFFFFF;
+    height: 40px;
+    text-align: right;
+    vertical-align: text-top;
+    color: #808080;
+    padding-top: 0px;
+    padding-right: 0px;
+    
+}
+.table_body_calendar_l {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    background-color: #FFFFFF;
+    text-align: right;
+    vertical-align: text-top;
+    color: #FF0000;
+    padding-top: 0px;
+    padding-right: 0px;
+   
+}
+.table_body_calendar_t {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: normal;
+    background-color: #FFFFFF;
+    text-align: center;
+    vertical-align: baseline;
+    color: #808080;
+    padding-top: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-left: 2px;
+}
+a:link.table_body_calendar_t {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    color: #34b7ca;
+    line-height: 110%;
+    text-decoration: none;
+}
+a:visited.table_body_calendar_t {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    color: #34b7ca;
+    line-height: 110%;
+    text-decoration: none;
+}
+a:hover.table_body_calendar_t {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    color: #34b7ca;
+    line-height: 110%;
+    text-decoration: underline;
+}
+a:active.table_body_calendar_t {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    color: #34b7ca;
+    line-height: 110%;
+    text-decoration: none;
+}
+.table_body_line_h {
+    background-color: #c0d0e3;
+    width: 1px;
+}
+
+.menu_tree {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: baseline;
+    color: #6e6e6e;
+    padding: 0px;
+}
+a:link.menu_tree {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    color: #6e6e6e;
+    line-height: 110%;
+    text-decoration: none;
+}
+a:visited.menu_tree {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    color: #6e6e6e;
+    line-height: 110%;
+    text-decoration: none;
+}
+a:hover.menu_tree {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    color: #34b7ca;
+    line-height: 110%;
+    text-decoration: underline;
+}
+a:active.menu_tree {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    color: #34b7ca;
+    line-height: 110%;
+    text-decoration: none;
+}
+.sub_title2 {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    color: #26557d;
+    padding-left: 2px;
+    vertical-align: middle;
+    padding-right: 5px;
+    background-image: url(/fms/web/img/main/sub_title_bg_dot.gif);
+    background-repeat: repeat-x;
+    background-position: left center;
+}
+.table_search_head_s {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #484848;
+    background-image: url(/fms/web/img/main/search_t_icon1.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    background-color: #E8FCFF;
+    border-top-width: 4px;
+    border-top-style: solid;
+    border-top-color: #f7f9fc;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: #f7f9fc;
+}
+.table_search_head_etc {
+
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: normal;
+    text-align: left;
+    vertical-align: middle;
+    color: #2D5CAC;
+    background-image: url(/fms/web/img/main/star_icon2.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    text-indent: 6px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+.table_search_body_r {
+
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: normal;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    text-align: right;
+    vertical-align: top;
+}
+.table_search_body2 {
+
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: normal;
+    color: #6c6c6c;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin: 0px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+
+.paging {
+    font-family: "Tahoma", "Arial", "Verdana", "Dotum", "DotumChe";
+    font-size: 11px;
+    text-decoration: none;
+    word-spacing: 5px;
+    font-weight: bold;
+    padding-left:5px;
+    vertical-align: middle;
+}
+
+.paging2 {
+    font-family: "Tahoma", "Arial", "Verdana", "Dotum", "DotumChe";
+    font-size: 11px;
+    text-decoration: none;
+    font-weight: bold;
+    word-spacing: 5px;
+    vertical-align: middle;
+    padding-left:5px;
+    color: #2659b9;
+}
+
+
+
+
+
+a.paging:link {
+    font-family: "Tahoma", "Arial", "Verdana", "Dotum", "DotumChe";
+    font-size: 11px;
+    text-decoration: none;
+    color: #434242;
+    font-weight: bold;
+    }
+a.paging:visited {
+    font-family: "Tahoma", "Arial", "Verdana", "Dotum", "DotumChe";
+    font-size: 11px;
+    text-decoration: none;
+    color: #434242;
+    font-weight: bold;
+    }
+a.paging:hover {
+    font-family: "Tahoma", "Arial", "Verdana", "Dotum", "DotumChe";
+    font-size: 11px;
+    text-decoration: none;
+    color: #004eff;
+    font-weight: bold;
+    }
+a.paging:active {
+    font-family: "Tahoma", "Arial", "Verdana", "Dotum", "DotumChe";
+    font-size: 11px;
+    text-decoration: none;
+    color: #004eff;
+    font-weight: bold;
+    }
+    
+.grid_head {
+    background-color: #E4F1FA;
+    font-size: 11px;
+    font-weight: bold;
+    color: #576686;
+    text-align: center;
+    padding-right: 3px;
+    padding-left: 3px;
+    vertical-align: middle;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    height: 18px;
+}
+.table_body_c_t {
+
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    background-color: #E3E3E3;
+    height: 20px;
+    text-align: center;
+    vertical-align: middle;
+    color: #484848;
+    padding-top: 2px;
+    padding-right: 3px;
+    padding-bottom: 2px;
+    padding-left: 3px;
+}
+
+.sub_title {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    color: #26557d;
+    background-image: url(/fms/web/img/main/sub_title_bg.gif);
+    background-repeat: repeat-x;
+    vertical-align: middle;
+    background-position: 4px;
+    padding-left: 2px;
+    padding-right: 6px;
+    padding-bottom: 1px;
+    border: 1px solid #a3c7db;
+    height :16px;
+}
+
+.table_search_head_r {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #2D5591;
+    background-image: url(/fms/web/img/main/search_t_icon1-r.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+.search_form-disable {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: normal;
+    color: #888683;
+    border: 1px solid #e6e6e6;
+    text-align: left;
+    height: 20px;
+    padding-right: 2px;
+    padding-left: 3px;
+    background-color: #F1F0EF;
+    border-color: #C0BFBD;
+    
+}
+
+.search_form-none {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: normal;
+    color: #888683;
+    border: 1px solid #e6e6e6;
+    border-top-width: 0px;
+    border-left-width: 0px;
+    border-right-width: 0px;
+    text-align: left;
+    height: 20px;
+    padding-right: 2px;
+    padding-left: 3px;
+    background-color: #f7f9fc;
+    border-color: #C0BFBD;
+    
+}
+
+.table_search_head_r_t {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: top;
+    color: #2D5591;
+    background-image: url(/fms/web/img/main/search_t_icon1-r.gif);
+    background-repeat: no-repeat;
+    background-position: left 4px center;
+    text-indent: 12px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+}
+.radio_select {
+	margin-left: -4px;
+}

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <url-mapping url="EDI_ACI_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.aci.event.EDI_ACI_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_ACI_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EDI_ACI_0010GS.clt" screen="EDI_ACI_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.aci.event.EDI_ACI_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+	<event-mapping>
+        <event-class>com.clt.apps.fis.edi.aci.event.EdiAciEvent</event-class>
+        <service-action-class>com.clt.apps.fis.edi.aci.EdiAciSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="EDI_ACI_0011.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.aci.event.EDI_ACI_0011HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_ACI_0011.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EDI_ACI_0011GS.clt" screen="EDI_ACI_0011GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.aci.event.EDI_ACI_0011HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="EDI_ACI_0012.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.aci.event.EDI_ACI_0012HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_ACI_0012.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EDI_ACI_0012GS.clt" screen="EDI_ACI_0012GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.aci.event.EDI_ACI_0012HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="EDI_ACI_0013.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.aci.event.EDI_ACI_0013HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_ACI_0013.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EDI_ACI_0013GS.clt" screen="EDI_ACI_0013GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.aci.event.EDI_ACI_0013HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="EDI_ACI_0014.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.aci.event.EDI_ACI_0014HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_ACI_0014.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EDI_ACI_0014GS.clt" screen="EDI_ACI_0014GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.aci.event.EDI_ACI_0014HTMLAction</web-action-class>
+    </url-mapping>
+    
+</mappings>

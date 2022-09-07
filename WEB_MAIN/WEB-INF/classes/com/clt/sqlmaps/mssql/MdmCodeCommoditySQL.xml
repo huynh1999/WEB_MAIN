@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.code.commodity">
+    
+    <!-- Trade Commodity List pop select    -->
+    <select id="selectCMM_POP_0110_LIST" resultClass="com.clt.apps.fis.mdm.code.commodity.dto.CmdtCdVO">
+        SELECT  TOP $topCnt$
+                cmdt_cd,         cmdt_grp_cd,        cmdt_nm,
+                cmdt_ut1,		 cmdt_ut2
+          FROM  tb_cmdt_cd
+         WHERE  delt_flg ='N'
+        <dynamic prepend="AND">
+            <isNotNull prepend="AND" property="s_hs_grp_cd">
+                hs_grp_cd = #s_hs_grp_cd#
+            </isNotNull>
+            <isNotNull prepend="AND" property="s_commodity_code">
+                cmdt_cd like '%' + #s_commodity_code# + '%'
+            </isNotNull>        
+            <isNotNull prepend="AND" property="s_key_word">
+                cmdt_nm like '%' + #s_key_word# + '%'
+            </isNotNull>        
+            <isNotNull prepend="AND" property="s_cmdt_grp_cd">
+                cmdt_grp_cd like '%' + #s_cmdt_grp_cd# + '%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="sel_cmdt_grp_cd">
+                cmdt_grp_cd = #sel_cmdt_grp_cd#
+            </isNotNull>
+        </dynamic>
+        ORDER  BY cmdt_cd
+    </select>
+    
+    <!-- Trade Commodity List pop select count    -->
+    <select id="selectCMM_POP_0110_CNT" resultClass="Integer">
+        SELECT      count(*)
+        FROM tb_cmdt_cd
+        WHERE delt_flg ='N'
+        <dynamic prepend="AND">
+            <isNotNull prepend="AND" property="s_hs_grp_cd">
+                hs_grp_cd = #s_hs_grp_cd#
+            </isNotNull>
+            <isNotNull prepend="AND" property="s_commodity_code">
+                cmdt_cd like '%' + #s_commodity_code# + '%'
+            </isNotNull>        
+            <isNotNull prepend="AND" property="s_key_word">
+                cmdt_nm like '%' + #s_key_word# + '%'
+            </isNotNull>        
+            <isNotNull prepend="AND" property="s_cmdt_grp_cd">
+                cmdt_grp_cd like '%' + #s_cmdt_grp_cd# + '%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="sel_cmdt_grp_cd">
+                cmdt_grp_cd = #sel_cmdt_grp_cd#
+            </isNotNull>
+        </dynamic>
+    </select>
+    
+    <!-- Commodity Code 목록 조회   -->
+    <select id="selectCMDTCODE_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.code.commodity.dto.CmdtCdVO">
+        SELECT  TOP $topCnt$   
+                cmdt_cd,     hs_grp_cd,     imo_cd_no, 
+                cmdt_nm,     uppr_cmdt_cd,  cmdt_grp_cd,
+                descr,		 cmdt_ut1,	 	cmdt_ut2, 
+                rgst_usrid,  rgst_ofc_cd,   rgst_tms, 
+                modi_usrid,  modi_ofc_cd,   modi_tms, 
+                (CASE delt_flg WHEN 'Y' THEN 0 WHEN 'N' THEN 1 ELSE 1 END) AS delt_flg,
+                'Y' AS db_value
+          FROM  tb_cmdt_cd
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sel_hs_grp_cd">
+                hs_grp_cd = #sel_hs_grp_cd#
+            </isNotNull>        
+            <isNotNull prepend="AND" property="txt_cmdt_cd">
+                cmdt_cd like '%'+#txt_cmdt_cd#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="txt_cmdt_nm">
+                cmdt_nm like '%'+#txt_cmdt_nm#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="txt_disc">
+                descr like '%'+#txt_disc#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="sel_cmdt_grp_cd">
+                cmdt_grp_cd = #sel_cmdt_grp_cd#
+            </isNotNull>
+            <isNotNull prepend="AND" property="delt_flg">
+                delt_flg = #delt_flg#
+            </isNotNull>
+        </dynamic>  
+        ORDER BY  cmdt_cd ASC
+    </select>
+    
+    <!-- Commodity Code 목록 카운트   -->
+    <select id="selectCMDTCODE_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT  count(cmdt_cd)
+          FROM  tb_cmdt_cd
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sel_hs_grp_cd">
+                hs_grp_cd = #sel_hs_grp_cd#
+            </isNotNull>        
+            <isNotNull prepend="AND" property="txt_cmdt_cd">
+                cmdt_cd like '%'+#txt_cmdt_cd#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="txt_cmdt_nm">
+                cmdt_nm like '%'+#txt_cmdt_nm#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="txt_disc">
+                descr like '%'+#txt_disc#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="sel_cmdt_grp_cd">
+                cmdt_grp_cd = #sel_cmdt_grp_cd#
+            </isNotNull>
+        </dynamic>          
+    </select>
+    
+    <!-- #19729 cmdt_grp_cd 한글코드 미지정으로 일단 막음처리 jsjang 2013.9.16 -->
+    <update id="updateMDM_MCM_0120" parameterClass="com.clt.apps.fis.mdm.code.commodity.dto.CmdtCdVO">
+        UPDATE tb_cmdt_cd
+           SET imo_cd_no    = #imo_cd_no# ,      cmdt_nm = #cmdt_nm#, 
+               uppr_cmdt_cd = #uppr_cmdt_cd#,    
+               <!--  cmdt_grp_cd = #cmdt_grp_cd#,  --> 
+               descr = #descr#,
+               cmdt_ut1 = #cmdt_ut1#,			 cmdt_ut2 = #cmdt_ut2#,         hs_grp_cd=#hs_grp_cd#,
+               modi_usrid = #modi_usrid#,        modi_ofc_cd = #modi_ofc_cd#,   modi_tms = GETUTCDATE(), delt_flg = #delt_flg#
+        WHERE cmdt_cd = #cmdt_cd#
+    </update>
+    
+    <!-- #19729 cmdt_grp_cd 한글코드 미지정으로 일단 막음처리 jsjang 2013.9.16 -->
+    <insert id="insertMDM_MCM_0120" parameterClass="com.clt.apps.fis.mdm.code.commodity.dto.CmdtCdVO">
+        INSERT INTO tb_cmdt_cd (
+               cmdt_cd,       imo_cd_no,      cmdt_nm,     hs_grp_cd,     
+               uppr_cmdt_cd,  
+               <!--  cmdt_grp_cd,  -->    
+               descr,
+               cmdt_ut1,	  cmdt_ut2,
+               rgst_usrid,    rgst_ofc_cd,    rgst_tms, 
+               modi_usrid,    modi_ofc_cd,    modi_tms,    delt_flg
+        ) VALUES (
+              #cmdt_cd#,      #imo_cd_no#,    #cmdt_nm#,   #hs_grp_cd#,
+              #uppr_cmdt_cd#, 
+              <!--  #cmdt_grp_cd#,  -->  
+              #descr#,
+              #cmdt_ut1#,	  #cmdt_ut2#,
+              #rgst_usrid#,   #rgst_ofc_cd#,  getdate(),
+              #modi_usrid#,   #modi_ofc_cd#,  GETUTCDATE(),   #delt_flg#
+        )
+    </insert>
+    
+    <select id="selectMDM_MCM_0120_CODE" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT cmdt_cd
+        FROM tb_cmdt_cd
+        WHERE cmdt_cd = #s_cmdt_cd#
+    </select>
+</sqlMap>

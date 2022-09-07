@@ -1,0 +1,673 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="wms.whoutbkmgmt">
+	<typeAlias type="com.clt.apps.fis.wms.whoutbooking.dto.WHOutbkInfoVO" alias="WHOutbkInfoVO"/>
+	<typeAlias type="com.clt.apps.fis.wms.whoutbooking.dto.WHOutbkItemVO" alias="WHOutbkItemVO"/>
+	<typeAlias type="com.clt.apps.fis.wms.whoutbooking.dto.WHOutbkDocVO" alias="WHOutbkDocVO"/>
+	<typeAlias type="com.clt.apps.fis.wms.whoutbooking.dto.WHOutbkAttachmentVO" alias="WHOutbkAttachmentVO"/>
+	<typeAlias type="com.clt.apps.fis.wms.whoutbooking.dto.ContractItemCodeInfoVO" alias="ContractItemCodeInfoVO"/>
+	<typeAlias type="com.clt.apps.fis.wms.whoutbooking.dto.WHPutawayCalcEaQtyVO" alias="WHPutawayCalcEaQtyVO"/>
+	<typeAlias type="com.clt.apps.fis.wms.whoutbooking.dto.ProcWHOCutbkConsolNoVO" alias="ProcWHOCutbkConsolNoVO"/>
+	<typeAlias type="java.lang.String" alias="String"/>
+	<typeAlias type="java.util.HashMap" alias="HashMap"/>
+
+	<select id="searchWHOutbkInfo" resultClass="WHOutbkInfoVO">
+		/* WmsWHOutbkMgmtSQL.xml > searchWHOutbkInfo */
+		   SELECT S.WOB_BK_NO
+		      ,S.SO_NO
+		      ,S.CTRT_NO
+		      ,dbo.TL_GET_CTRT_NM (S.CTRT_NO) AS CTRT_NM
+			  ,dbo.TL_GET_CTRT_CUST_CD (S.CTRT_NO) AS CTRT_CUST_CD
+		      ,C.SALES_OFC_CD
+					,dbo.TL_GET_PIC_NM (C.SALES_PIC_ID) AS SALES_PIC_NM
+		      ,S.RTP_NO
+		      ,S.WH_CD
+		      ,dbo.TL_GET_LOC_NM (S.WH_CD) AS WH_NM		      
+					,CASE WHEN ISNULL(S.BK_DATE,'') = '' THEN S.BK_DATE
+							ELSE SUBSTRING(S.BK_DATE, 5, 2) + '-' +  RIGHT(S.BK_DATE,2) + '-' + LEFT(S.BK_DATE,4) END AS BK_DATE
+		      ,S.ORD_TP_CD
+		      ,S.BK_STS_CD 
+					,CASE WHEN ISNULL(S.EST_OUT_DT,'') = '' THEN S.EST_OUT_DT
+							ELSE SUBSTRING(S.EST_OUT_DT, 5, 2) + '-' +  RIGHT(S.EST_OUT_DT,2) + '-' + LEFT(S.EST_OUT_DT,4) END AS EST_OUT_DT
+		      ,S.LOAD_TP_CD
+		      ,S.FWD_DIR
+		      ,S.ORDER_REL
+		      <!-- ,dbo.TL_GET_SVO_MAIN_SVC_TYPE (S.SO_NO) AS MAIN_SVC_TYPE
+		      ,dbo.TL_GET_COMM_NM ('FG', dbo.TL_GET_SVO_MAIN_SVC_TYPE (S.SO_NO)) AS MAIN_SVC_TP_NM TinLuong Modify: not use table: TL_SO-->
+		      <!-- ,dbo.TL_GET_CTRT_ORD_TP_NM (S.CTRT_NO, S.RTP_NO) AS CTRT_ORD_TP_NM TinLuong Modify: not use table: TL_RTP-->
+		      ,S.OWNER_CD
+		      ,dbo.TL_GET_CUST_NM (S.OWNER_CD) AS OWNER_NM
+		      ,S.OWNER_ADDR1
+		      ,S.OWNER_ADDR2
+		      ,S.OWNER_ADDR3
+		      ,S.OWNER_ADDR4
+		      ,S.OWNER_ADDR5
+		      ,S.SUPP_CD
+		      ,dbo.TL_GET_CUST_NM (S.SUPP_CD) AS SUPP_NM
+		      ,S.SUPP_ADDR1
+		      ,S.SUPP_ADDR2
+		      ,S.SUPP_ADDR3
+		      ,S.SUPP_ADDR4
+		      ,S.SUPP_ADDR5
+		      ,CASE WHEN S.SUPP_CD = '' THEN '' ELSE 'S' END AS SUPP_TYPE
+		      ,S.BUYER_CD
+		      ,dbo.TL_GET_CUST_NM (S.BUYER_CD) AS BUYER_NM
+		      ,S.BUYER_ADDR1
+		      ,S.BUYER_ADDR2
+		      ,S.BUYER_ADDR3
+		      ,S.BUYER_ADDR4
+		      ,S.BUYER_ADDR5
+		      ,CASE WHEN S.BUYER_CD = '' THEN '' ELSE 'S' END AS BUYER_TYPE
+		      ,S.CUST_ORD_NO
+		      ,S.COMMC_INV_NO
+		      ,S.DLV_ORD_NO
+		      ,S.JOB_NO
+		      ,S.RMK
+		      ,S.VSL_CD
+		      ,S.VSL_NM
+		      ,S.VOY
+		      ,S.HBL_NO
+		      ,S.MBL_NO
+		      ,S.CARRIER_CD
+		      ,dbo.TL_GET_CUST_NM (S.CARRIER_CD) AS CARRIER_NM
+		      ,S.POL
+		      ,dbo.TL_GET_LOC_NM (S.POL) AS POL_NM		      
+					,CASE WHEN ISNULL(S.ETD,'') = '' THEN S.ETD
+							ELSE SUBSTRING(S.ETD, 5, 2) + '-' +  RIGHT(S.ETD,2) + '-' + LEFT(S.ETD,4) END AS ETD
+		      ,S.POD
+		      ,dbo.TL_GET_LOC_NM (S.POD) AS POD_NM
+					,CASE WHEN ISNULL(S.ETA,'') = '' THEN S.ETA
+							ELSE SUBSTRING(S.ETA, 5, 2) + '-' +  RIGHT(S.ETA,2) + '-' + LEFT(S.ETA,4) END AS ETA
+		      ,S.DEL
+		      ,dbo.TL_GET_LOC_NM (S.DEL) AS DEL_NM
+					,CASE WHEN ISNULL(S.EST_CMPL_DT,'') = '' THEN S.EST_CMPL_DT
+							ELSE SUBSTRING(S.EST_CMPL_DT, 5, 2) + '-' +  RIGHT(S.EST_CMPL_DT,2) + '-' + LEFT(S.EST_CMPL_DT,4) END AS EST_CMPL_DT
+		      ,S.SRC_CD
+		      ,(SELECT WAVE_NO FROM TL_WH_WAVE_OB WHERE WOB_BK_NO = S.WOB_BK_NO) AS WAVE_NO
+		      ,S.REQ_DEPT
+		      ,S.REQ_APPLICANT
+		      ,ISNULL(S.SRC_TP_CD, 'WMS') AS SRC_TP_CD
+		      ,S.REF_NO
+		  FROM TL_WH_OB S LEFT JOIN TL_CTRT C ON S.CTRT_NO = C.CTRT_NO
+		 WHERE S.WOB_BK_NO = #c_wob_bk_no#
+	</select>
+	
+	<select id="searchWHOutbkItemList" resultClass="WHOutbkItemVO">
+		/* WmsWHOutbkMgmtSQL.xml > searchWHOutbkItemList */
+			SELECT B.WOB_BK_NO,
+		         I.SAO_SYS_NO,
+		         I.ITEM_SYS_NO,
+		         I.ITEM_SEQ,
+		         I.ITEM_CD,
+		         I.ITEM_NM,
+		         I.LOT_NO,
+		         I.ITEM_EA_QTY,
+		         I.ITEM_PKGUNIT,
+		         I.ITEM_PKGQTY,
+		         (SELECT ISNULL(SUM (ISNULL (V.IN_QTY, 0) - ISNULL (V.ALLC_QTY, 0) - ISNULL (V.HOLD_QTY, 0) - ISNULL (V.DMG_QTY, 0) ), 0) 
+		            FROM TL_WH_INV_ITEM V
+		           WHERE V.CTRT_NO = B.CTRT_NO
+		             AND V.ITEM_SYS_NO = I.ITEM_SYS_NO
+		             AND NOT EXISTS
+		                    (SELECT 'X'
+		                       FROM TL_WH_ALLC AL
+		                      WHERE AL.WOB_BK_NO = B.WOB_BK_NO)
+		             AND V.WH_CD = B.WH_CD ) AS STOCK_QTY,
+		         I.ITEM_CBM,
+		         I.ITEM_CBF,
+		         I.ITEM_GRS_KGS,
+		         I.ITEM_GRS_LBS,
+		         I.ITEM_NET_KGS,
+		         I.ITEM_NET_LBS,
+		         I.INBOUND_DT,
+		         I.EXP_DT,
+		         I.LOT_04,
+		         I.LOT_05,
+		         I.FIX_LOT_ID,
+		         I.CUST_ITEM_CD,
+		         I.SAO_NO,
+		         CI.ITEM_REMARK,
+		         I.CURR_CD,
+		         I.UNIT_PRICE,
+	             ISNULL (CI.PKG_LV1_QTY, 0) AS PKG_LV1_QTY,		         
+		         ISNULL (CI.LV1_CBM, 0) AS LV1_CBM,
+		         ISNULL (CI.LV1_CBF, 0) AS LV1_CBF,
+		         ISNULL (CI.LV1_GRS_KGS, 0) AS LV1_GRS_KGS,
+		         ISNULL (CI.LV1_GRS_LBS, 0) AS LV1_GRS_LBS,
+		         ISNULL (CI.LV1_NET_KGS, 0) AS LV1_NET_KGS,
+		         ISNULL (CI.LV1_NET_LBS, 0) AS LV1_NET_LBS,
+		         dbo.TL_GET_WH_PACK_MST_INFO(CI.PKG_LV1_QTY, CI.PKG_LV1_UNIT_CD, CI.ITEM_PKGBASEQTY, CI.ITEM_PKGUNIT
+                                       , CI.PKG_LV3_QTY, CI.PKG_LV3_UNIT_CD, CI.PKG_LV4_QTY, CI.PKG_LV4_UNIT_CD) AS PKG_INFO,
+                 I.INVALID_YN,
+                 I.RGST_TIMESTAMP
+		    FROM TL_WH_OB B, TL_WH_OB_ITEM I, TL_CTRT_CUST_ITEM CI
+		   WHERE B.WOB_BK_NO = I.WOB_BK_NO
+		     AND B.CTRT_NO = CI.CTRT_NO
+		     AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		     AND B.WOB_BK_NO = #c_wob_bk_no#
+		ORDER BY I.RGST_TIMESTAMP, I.ITEM_CD, I.ITEM_SEQ, I.LOT_NO
+	</select>	
+	
+	<select id="searchWHOutbkDocList" resultClass="WHOutbkDocVO">
+		/* WmsWHOutbkMgmtSQL.xml > searchWHOutbkDocList */
+         SELECT FIELD_NAME, FIELD_VAL, DOC_TYPE
+          FROM (SELECT DISTINCT 'Allocation' AS FIELD_NAME,
+                                A.WALC_NO AS FIELD_VAL,
+                                'AL' AS DOC_TYPE,
+                                '1' AS DISP
+                  FROM TL_WH_OB B, TL_WH_ALLC A
+                 WHERE B.WOB_BK_NO = A.WOB_BK_NO
+                   AND B.WOB_BK_NO = #c_wob_bk_no#
+                   AND NOT EXISTS 
+	                 ( SELECT 'X'
+	                     FROM TL_WH_WAVE_OB WV
+	                    WHERE WV.WOB_BK_NO = A.WOB_BK_NO
+	                  ) 
+                 UNION
+                SELECT DISTINCT 'Wave' AS FIELD_NAME,
+                                A.WAVE_NO AS FIELD_VAL,
+                                'WV' AS DOC_TYPE,
+                                '1' AS DISP
+                  FROM TL_WH_OB B, TL_WH_WAVE_OB A
+                 WHERE B.WOB_BK_NO = A.WOB_BK_NO
+                   AND A.WOB_BK_NO = #c_wob_bk_no#
+                 UNION  
+                SELECT DISTINCT 'Outbound Complete by Booking' AS FIELD_NAME,
+                                S.WOB_OUT_NO AS FIELD_VAL,
+                                'OCBK' AS DOC_TYPE,
+                                '2' AS DISP
+                  FROM TL_WH_OB B, TL_WH_ALLC A, TL_WH_ISSU S
+                 WHERE B.WOB_BK_NO = A.WOB_BK_NO
+                   AND A.WALC_NO = S.WALC_NO
+                   AND B.WOB_BK_NO = #c_wob_bk_no#
+                UNION
+                SELECT DISTINCT 'Load Plan' AS FIELD_NAME,
+                                LPS.CONSOL_NO AS FIELD_VAL,
+                                'LP' AS DOC_TYPE,
+                                '3' AS DISP
+                  FROM TL_WH_OB B, TL_WH_ALLC A, TL_WH_ALLC_ITEM AI, TL_WH_PSUDO_LP_SHIP LPS
+                 WHERE B.WOB_BK_NO = A.WOB_BK_NO
+                   AND A.WALC_NO = AI.WALC_NO
+                   AND AI.WOB_BK_NO = LPS.WOB_BK_NO
+                   AND AI.SAO_SYS_NO = LPS.SAO_SYS_NO
+                   AND AI.PO_SYS_NO = LPS.PO_SYS_NO
+                   AND AI.ITEM_SYS_NO = LPS.ITEM_SYS_NO
+                   AND AI.LOT_ID = LPS.LOT_ID
+                   AND AI.WH_LOC_CD = LPS.WH_LOC_CD
+                   AND AI.ITEM_SEQ = LPS.ITEM_SEQ
+                   AND B.WOB_BK_NO = #c_wob_bk_no#
+                UNION
+                SELECT DISTINCT 'Outbound Complete by Load Plan' AS FIELD_NAME,
+                                LP.LP_NO AS FIELD_VAL,
+                                'OCLP' AS DOC_TYPE,
+                                '4' AS DISP
+                  FROM TL_WH_OB B, TL_WH_ALLC A, TL_WH_ALLC_ITEM AI, TL_WH_LOAD_PLAN LP, TL_WH_LOAD_PLAN_ITEM LPI
+                 WHERE B.WOB_BK_NO = A.WOB_BK_NO
+                   AND A.WALC_NO = AI.WALC_NO
+                   AND LP.LP_NO = LPI.LP_NO
+                   AND LP.LP_STS_CD IN ('P','L')
+                   AND AI.WOB_BK_NO = LPI.WOB_BK_NO
+                   AND AI.SAO_SYS_NO = LPI.SAO_SYS_NO
+                   AND AI.PO_SYS_NO = LPI.PO_SYS_NO
+                   AND AI.ITEM_SYS_NO = LPI.ITEM_SYS_NO
+                   AND AI.LOT_ID = LPI.LOT_ID
+                   AND AI.WH_LOC_CD = LPI.WH_LOC_CD
+                   AND AI.ITEM_SEQ = LPI.ITEM_SEQ
+                   AND B.WOB_BK_NO = #c_wob_bk_no#
+               ) TB
+         ORDER BY  DISP,FIELD_VAL		
+	</select>
+	
+	<select id="searchWHOutbkFileList" resultClass="WHOutbkAttachmentVO">
+		/* WmsWHOutbkMgmtSQL.xml > searchWHOutbkFileList */
+		SELECT R.DOC_NO
+		      ,R.FILE_ORG_NM
+		      ,R.FILE_PATH
+		      ,R.FILE_SYS_NM
+		      ,R.FILE_SIZE
+		      ,CONVERT(VARCHAR(8),R.RGST_SYS_DT,112) AS UPLOAD_DATE
+		  FROM TL_FILE_REP R
+		 WHERE 1 = 1
+		   AND R.DOC_REF_NO = (SELECT T.WOB_BK_NO
+		                         FROM TL_WH_OB T
+		                        WHERE T.WOB_BK_NO = #c_wob_bk_no#)
+		   AND R.DOC_REF_TP_CD = 'WOB'
+		   AND R.SVC_TP_CD = 'WB'
+		   AND R.DOC_TP_CD = 'WOB'
+	</select>
+	
+	<select id="searchWHItemCodeInfo" resultClass="ContractItemCodeInfoVO">
+		/* WmsWHOutbkMgmtSQL.xml > searchWHItemCodeInfo */	
+		SELECT T.CTRT_NO
+		      ,T.ITEM_SYS_NO
+		      ,T.ITEM_CD
+		      ,T.ITEM_NM
+		      ,T.LOT_NO
+		      ,ISNULL(T.ITEM_PKGBASEQTY,0) AS ITEM_PKGBASEQTY /*LEVEL 2*/
+		      ,T.ITEM_PKGUNIT    /*LEVEL 2*/
+		      ,T.PKG_LV1_UNIT_CD
+		      ,ISNULL(T.PKG_LV1_QTY,0) AS PKG_LV1_QTY
+		      ,T.PKG_LV3_UNIT_CD
+		      ,ISNULL(T.PKG_LV3_QTY,0) AS PKG_LV3_QTY
+		      ,T.PKG_LV4_UNIT_CD
+		      ,ISNULL(T.PKG_LV4_QTY,0) AS PKG_LV4_QTY		      
+		      ,ISNULL (T.LV1_CBM, 0) AS LV1_CBM
+		      ,ISNULL (T.LV1_CBF, 0) AS LV1_CBF
+		      ,ISNULL (T.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+		      ,ISNULL (T.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+		      ,ISNULL (T.LV1_NET_KGS, 0) AS LV1_NET_KGS
+		      ,ISNULL (T.LV1_NET_LBS, 0) AS LV1_NET_LBS
+		      ,T.ITEM_REMARK
+		      ,dbo.TL_GET_WH_PACK_MST_INFO(T.PKG_LV1_QTY, T.PKG_LV1_UNIT_CD, T.ITEM_PKGBASEQTY, T.ITEM_PKGUNIT
+                                     , T.PKG_LV3_QTY, T.PKG_LV3_UNIT_CD, T.PKG_LV4_QTY, T.PKG_LV4_UNIT_CD) AS PKG_INFO 
+   
+			  ,UNIT_CURR_CD 
+              ,UNIT_PRICE 
+              ,ISNULL(PKG_PL_STD_QTY,0) AS PKG_PL_STD_QTY
+              ,ISNULL(PKG_PL_OVER_WGT,0) AS PKG_PL_OVER_WGT
+		  FROM (SELECT C.*, ROW_NUMBER () OVER (PARTITION BY C.ITEM_CD ORDER BY C.ITEM_SYS_NO DESC) AS RNUM
+		          FROM TL_CTRT_CUST_ITEM C
+				   <isNotEmpty property="item_grp_cd">
+				   	LEFT JOIN TL_CTRT_CUST_ITEM_GRP IG ON C.CTRT_NO = IG.CTRT_NO AND C.ITEM_GRP_CD = IG.ITEM_GRP_CD
+			   		</isNotEmpty>
+		         WHERE 1=1
+			   		
+		           AND C.CTRT_NO = #ctrt_no#
+			       AND C.ITEM_CD = #item_cd#
+			       
+			       <isNotEmpty property="item_sys_no">
+			       AND C.ITEM_SYS_NO = #item_sys_no#
+			       </isNotEmpty>
+			       
+		           AND C.ITEM_USE_FLG = 'Y'
+		           <isEqual property="item_grp_cd_include_yn" compareValue="Y">
+		           		<isNotEmpty property="item_grp_cd">
+		           		AND IG.ITEM_GRP_CD = #item_grp_cd#
+		           		</isNotEmpty>
+		           </isEqual>
+		           
+		           <isEqual property="item_grp_cd_include_yn" compareValue="N">
+		           		<isNotEmpty property="item_grp_cd">
+		           		AND (IG.ITEM_GRP_CD IS NULL OR IG.ITEM_GRP_CD != #item_grp_cd# )
+		           		</isNotEmpty>
+		           </isEqual>
+		       ) T
+		 WHERE T.RNUM = 1		
+	</select>	
+	
+	<select id="searchPutawayEaQty" resultClass="WHPutawayCalcEaQtyVO">
+		/* WmsWHOutbkMgmtSQL.xml > searchPutawayEaQty */
+		
+		SELECT A.PKG_LV1_QTY     AS LVL1_QTY
+		     , A.PKG_LV1_UNIT_CD AS LVL1_UNIT
+		     , A.ITEM_PKGBASEQTY AS LVL2_QTY
+		     , A.ITEM_PKGUNIT    AS LVL2_UNIT
+		     , A.PKG_LV3_QTY     AS LVL3_QTY
+		     , A.PKG_LV3_UNIT_CD AS LVL3_UNIT
+		     , A.PKG_LV4_QTY     AS LVL4_QTY
+		     , A.PKG_LV4_UNIT_CD AS LVL4_UNIT
+		   FROM TL_CTRT_CUST_ITEM A
+		  WHERE A.CTRT_NO = #ctrt_no#
+		    AND A.ITEM_SYS_NO = #item_sys_no#
+		    
+	</select>
+	
+	<update id="modifyWHOutbkInfo">
+	/* WmsWHOutbkMgmtSQL.xml > modifyWHOutbkInfo */
+	UPDATE TL_WH_OB
+	SET   CTRT_NO      = #ctrt_no#
+	      ,WH_CD        = #wh_cd#
+	      ,BK_DATE      = REPLACE (#bk_date#, '-', '')
+	      ,BK_STS_CD    = (CASE #issue# WHEN 'Y' THEN  'I' ELSE #bk_sts_cd# END)
+	      ,EST_OUT_DT   = REPLACE (#est_out_dt#, '-', '')
+	      ,ORD_TP_CD    = #ord_tp_cd#
+	      ,LOAD_TP_CD   = #load_tp_cd#
+	      ,FWD_DIR      = #fwd_dir#
+	      ,ORDER_REL    = #order_rel#
+	      ,OWNER_CD     = #owner_cd#
+	      ,OWNER_ADDR1  = #owner_addr1#
+	      ,OWNER_ADDR2  = #owner_addr2#
+	      ,OWNER_ADDR3  = #owner_addr3#
+	      ,OWNER_ADDR4  = #owner_addr4#
+	      ,OWNER_ADDR5  = #owner_addr5#
+	      ,SUPP_CD      = #supp_cd#
+	      ,SUPP_ADDR1   = #supp_addr1#
+	      ,SUPP_ADDR2   = #supp_addr2#
+	      ,SUPP_ADDR3   = #supp_addr3#
+	      ,SUPP_ADDR4   = #supp_addr4#
+	      ,SUPP_ADDR5   = #supp_addr5#
+	      ,BUYER_CD     = #buyer_cd#
+	      ,BUYER_ADDR1  = #buyer_addr1#
+	      ,BUYER_ADDR2  = #buyer_addr2#
+	      ,BUYER_ADDR3  = #buyer_addr3#
+	      ,BUYER_ADDR4  = #buyer_addr4#
+	      ,BUYER_ADDR5  = #buyer_addr5#
+	      ,CUST_ORD_NO  = #cust_ord_no#
+	      ,COMMC_INV_NO = #commc_inv_no#
+	      ,DLV_ORD_NO   = #dlv_ord_no#
+	      ,JOB_NO       = #job_no#
+	      ,RMK          = #rmk#
+	      ,VSL_CD       = #vsl_cd#
+	      ,VSL_NM       = #vsl_nm#
+	      ,VOY          = #voy#
+	      ,CARRIER_CD   = #carrier_cd#
+	      ,HBL_NO       = #hbl_no#
+	      ,MBL_NO       = #mbl_no#
+	      ,POL          = #pol#
+	      ,POD          = #pod#
+	      ,DEL          = #del#
+	      ,ETD          = REPLACE (#etd#, '-', '')
+	      ,ETA          = REPLACE (#eta#, '-', '')
+	      ,DEL_DT       = REPLACE (#del_dt#, '-', '')
+	      ,EST_CMPL_DT  = REPLACE (#est_cmpl_dt#, '-', '')
+	      ,SRC_CD       = #src_cd#
+	      ,MODI_ID      = #user_id#
+	      ,MODI_OFC_CD  = #org_cd#
+	      ,MODI_SYS_DT  = GETDATE()
+	      ,MODI_LOC_DT  = CONVERT(DATETIME, LEFT(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),4) + '-'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),5,2)+ '-'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),7,2)+ ' '
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),9,2)+ ':'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),11,2)+ ':'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),13,2),20)
+	      ,REQ_DEPT		 = #req_dept#
+		  ,REQ_APPLICANT = #req_applicant#
+		  ,REF_NO       = #ref_no#
+	WHERE  WOB_BK_NO    = #wob_bk_no#	
+	</update>
+	
+	<insert id="addWHOutbkInfo">
+	/* WmsWHOutbkMgmtSQL.xml > addWHOutbkInfo */
+		INSERT INTO TL_WH_OB
+		(
+		    WOB_BK_NO
+		   ,CTRT_NO
+		   ,WH_CD
+		   ,BK_DATE
+		   ,BK_STS_CD
+		   ,EST_OUT_DT
+		   ,ORD_TP_CD
+		   ,LOAD_TP_CD
+		   ,FWD_DIR
+		   ,ORDER_REL
+		   ,OWNER_CD
+		   ,OWNER_ADDR1
+		   ,OWNER_ADDR2
+		   ,OWNER_ADDR3
+		   ,OWNER_ADDR4
+		   ,OWNER_ADDR5
+		   ,SUPP_CD
+		   ,SUPP_ADDR1
+		   ,SUPP_ADDR2
+		   ,SUPP_ADDR3
+		   ,SUPP_ADDR4
+		   ,SUPP_ADDR5
+		   ,BUYER_CD
+		   ,BUYER_ADDR1
+		   ,BUYER_ADDR2
+		   ,BUYER_ADDR3
+		   ,BUYER_ADDR4
+		   ,BUYER_ADDR5
+		   ,CUST_ORD_NO
+		   ,COMMC_INV_NO
+		   ,DLV_ORD_NO
+		   ,JOB_NO
+		   ,RMK
+		   ,VSL_CD
+		   ,VSL_NM
+		   ,VOY
+		   ,CARRIER_CD
+		   ,HBL_NO
+		   ,MBL_NO
+		   ,POL
+		   ,POD
+		   ,DEL
+		   ,ETD
+		   ,ETA
+		   ,DEL_DT
+		   ,EST_CMPL_DT
+		   ,SRC_CD
+		   ,RGST_ID
+		   ,RGST_OFC_CD
+		   ,RGST_SYS_DT
+		   ,RGST_LOC_DT
+		   ,MODI_ID
+		   ,MODI_OFC_CD
+		   ,MODI_SYS_DT
+		   ,MODI_LOC_DT
+		   ,REQ_DEPT
+		   ,REQ_APPLICANT
+		   ,REF_NO
+		)
+		VALUES
+		(
+		    #wob_bk_no#
+		   ,#ctrt_no#
+		   ,#wh_cd#
+		   ,REPLACE (#bk_date#, '-', '')
+		   ,(CASE #issue# WHEN  'Y' THEN 'I' ELSE #bk_sts_cd# END)
+		   ,REPLACE (#est_out_dt#, '-', '')
+		   ,#ord_tp_cd#
+		   ,#load_tp_cd#
+		   ,#fwd_dir#
+		   ,#order_rel#
+		   ,#owner_cd#
+		   ,#owner_addr1#
+		   ,#owner_addr2#
+		   ,#owner_addr3#
+		   ,#owner_addr4#
+		   ,#owner_addr5#
+		   ,#supp_cd#
+		   ,#supp_addr1#
+		   ,#supp_addr2#
+		   ,#supp_addr3#
+		   ,#supp_addr4#
+		   ,#supp_addr5#
+		   ,#buyer_cd#
+		   ,#buyer_addr1#
+		   ,#buyer_addr2#
+		   ,#buyer_addr3#
+		   ,#buyer_addr4#
+		   ,#buyer_addr5#
+		   ,#cust_ord_no#
+		   ,#commc_inv_no#
+		   ,#dlv_ord_no#
+		   ,#job_no#
+		   ,#rmk#
+		   ,#vsl_cd#
+		   ,#vsl_nm#
+		   ,#voy#
+		   ,#carrier_cd#
+		   ,#hbl_no#
+		   ,#mbl_no#
+		   ,#pol#
+		   ,#pod#
+		   ,#del#
+		   ,REPLACE (#etd#, '-', '')
+		   ,REPLACE (#eta#, '-', '')
+		   ,REPLACE (#del_dt#, '-', '')
+		   ,REPLACE (#est_cmpl_dt#, '-', '')
+		   ,'M'
+		   ,#user_id#
+		   ,#org_cd#
+		   ,GETDATE()
+		   ,CONVERT(DATETIME, LEFT(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),4) + '-'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),5,2)+ '-'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),7,2)+ ' '
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),9,2)+ ':'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),11,2)+ ':'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),13,2),20)
+		   ,#user_id#
+		   ,#org_cd#
+		   ,GETDATE()
+		   ,CONVERT(DATETIME, LEFT(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),4) + '-'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),5,2)+ '-'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),7,2)+ ' '
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),9,2)+ ':'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),11,2)+ ':'
+												+ SUBSTRING(dbo.TL_GET_TM_ZONE_DATE(#wh_cd#),13,2),20)
+		   ,#req_dept#
+		   ,#req_applicant#
+		   ,#ref_no#
+		)	
+	</insert>
+	
+	<procedure id="callWHOutbkItemProc" resultClass="com.clt.apps.fis.wms.common.dto.ErrorProcVO">
+		{ 
+	 		CALL PKG_MAKE_TL_WH_OB_ITEM_PRC ( 
+	                                             #wob_bk_no#
+												,#ctrt_no#
+												,#wh_cd#
+												,#supp_cd#												
+												,#sao_sys_no#												
+												,#item_sys_no#
+												,#item_seq#												
+												,#sao_no#
+												,#item_cd#
+												,#cust_item_cd#
+												,#item_nm#
+												,#item_ea_qty#
+												,#item_pkgqty#
+												,#item_pkgunit#
+												,#item_cbm#
+												,#item_cbf#
+												,#item_grs_kgs#
+												,#item_grs_lbs#
+												,#item_net_kgs#
+												,#item_net_lbs#												
+												,#inbound_dt#
+												,#lot_no#
+												,#exp_dt#
+												,#lot_04#
+												,#lot_05#
+												,#fix_lot_id#												
+												,#curr_cd#
+												,#unit_price#												
+												,#uniq_no#
+												,#invalid_yn#
+												,#ibflag#
+												,#org_cd#
+												,#user_id#
+                                                ,#lic_plat_no#
+                                                ,#item_ser_no#
+                                                ,#po_no#
+                                                ,#eq_tpsz_cd#
+                                                ,#eq_no#
+                                                ,#seal_no#
+                                                ,''
+                                                ,''
+        )
+    } 
+	</procedure>
+	
+	<procedure id="callWHOutbkProc" resultClass="com.clt.apps.fis.wms.common.dto.ErrorProcVO">
+    { 
+        CALL PKG_MAKE_TL_WH_OB_PRC (
+									          #wob_bk_no#
+											 ,#org_cd#
+											 ,#user_id#
+                                             ,''
+                                             ,''
+        )
+    } 
+    </procedure>
+    
+    <parameterMap class="com.clt.apps.fis.wms.whoutbooking.dto.WHOutbkInfoVO" id="callCancelWHOutbk_PARAM">
+		<parameter property="wob_bk_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+    
+    <procedure id="callCancelWHOutbk" parameterMap="callCancelWHOutbk_PARAM">
+    { 
+        CALL PGK_MAKE_TL_WH_OB_CANCEL_PRC (
+										             ?
+												    ,?
+												    ,?
+	                                                ,?
+	                                                ,?
+        )
+    } 
+    </procedure>
+    <parameterMap class="com.clt.apps.fis.wms.whoutbooking.dto.ProcWHOCutbkConsolNoVO" id="WHOCutbkConsolNo_Map">
+		<parameter property="wob_bk_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="consol_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="calltWHOCutbkCreationConsolNoProc"  parameterMap="WHOCutbkConsolNo_Map">
+		 { CALL PKG_CONSOLE_CREATION_PRC (?, ?, ?, ?, ?, ?) } 
+	</procedure>
+	
+	<parameterMap id="OMS_callReinstateWHOutbk" class="com.clt.apps.fis.wms.whoutbooking.dto.WHOutbkInfoVO">
+		<parameter property="wob_bk_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="org_cd" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="user_id" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="rtncd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	    <parameter property="rtnmsg" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	
+    <procedure id="callReinstateWHOutbk" parameterMap="OMS_callReinstateWHOutbk">
+    { 
+        CALL PKG_MAKE_TL_WH_OB_REINSTATE_PRC (
+											            ?
+													   ,?
+													   ,?
+		                                               ,?
+		                                               ,?
+        )
+    } 
+    </procedure>  
+    
+	
+	<select id="searchFileNo" resultClass="String">      
+	/* WmsWHOutbkMgmtSQL.xml > searchFileNo */     
+		SELECT 'HJD' + CONVERT(VARCHAR(6), GETDATE(), 12) + dbo.LPAD(CONVERT(NUMERIC, ISNULL(MAX (SUBSTRING(doc_no, 10, 6)), 0) + 1), 6, 0) AS DOC_NO
+			FROM TL_FILE_REP
+		 WHERE DOC_NO LIKE 'HJD' + CONVERT(VARCHAR(6), GETDATE(), 12) + '%'
+    </select>
+    
+    <insert id="addFile">
+	/* WmsWHOutbkMgmtSQL.xml > addFile */  
+      INSERT INTO TL_FILE_REP 
+      (
+        DOC_NO, 
+        SVC_TP_CD, 
+        DOC_REF_TP_CD, 
+        DOC_REF_NO, 
+        DOC_REF_NO2, 
+        DOC_TP_CD, 
+        FILE_PATH, 
+        FILE_SYS_NM, 
+        FILE_ORG_NM, 
+        FILE_SIZE,
+        RGST_ID, 
+        RGST_SYS_DT
+      )
+      VALUES( #doc_no#,
+             #svc_tp_cd#, 
+             #doc_ref_tp_cd#, 
+             #doc_ref_no#, 
+             #doc_ref_no2#, 
+             #doc_tp_cd#, 
+             #file_url#,
+             #file_sys_nm#,
+             #file_nm#,
+             #file_capa#,
+             #user_id#,
+             GETDATE()
+             )
+    </insert>
+    
+    <delete id="removeFile">
+      DELETE FROM TL_FILE_REP
+       WHERE DOC_NO = #doc_no#
+    </delete>
+</sqlMap>

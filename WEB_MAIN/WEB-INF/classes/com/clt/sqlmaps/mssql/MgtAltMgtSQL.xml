@@ -1,0 +1,4074 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.alt.altmgt">
+
+    <typeAlias alias="MgtAltVO"        type="com.clt.apps.fis.mgt.alt.altmgt.dto.MgtAltMgtVO"/>
+    <typeAlias alias="MgtAltFormVO"    type="com.clt.apps.fis.mgt.alt.altmgt.dto.MgtAltFormVO"/>
+    <typeAlias alias="MgtItfMgtVO"     type="com.clt.apps.fis.mgt.alt.altmgt.dto.MgtItfMgtVO"/>
+    <typeAlias alias="EdiSmtAmsRcvVO"  type="com.clt.apps.fis.see.bmd.ams.dto.EdiSmtAmsRcvVO"/>
+    <typeAlias alias="FrtEdiTempVO"  type="com.clt.apps.fis.mgt.alt.altmgt.dto.FrtEdiTempVO"/>
+	    
+	<!-- Alert/Notification 을 등록한다.  -->
+	 <insert id="insertAlert" parameterClass="MgtAltVO">
+    	/* MgtAltMgt.xml > insertAlert*/	
+        INSERT TB_ALT( 
+				[ALT_TP]
+			   ,[ALT_NM]
+			   ,[OFC_CD]
+			   ,[PHYS_ETT_NM]
+			   ,[PHYS_ATTR_NM]
+			   ,[ST_DAYS]
+			   ,[ST_HOURS]
+			   ,[ST_TM]
+			   ,[END_DAYS]
+			   ,[END_HOURS]
+			   ,[END_TM]
+			   ,[BATCH_TM]
+			   ,[WKND_SND_FLG]
+			   ,[EML_TO]
+			   ,[EML_CC]
+			   ,[USE_FLG]
+			   ,[RGST_USRID]
+			   ,[RGST_OFC_CD]
+			   ,[RGST_TMS]
+			   ,[MODI_USRID]
+			   ,[MODI_OFC_CD]
+			   ,[MODI_TMS]
+			   ,[DELT_FLG]
+			   ,[TRDP_CD]
+			   ,[TP_GRP]
+			   ,[USR_PARAM]
+			   )
+			VALUES
+	           (#alt_tp#
+	           ,#alt_nm#
+	           ,#ofc_cd#
+	           ,#phys_ett_nm# 
+	           ,#phys_attr_nm#
+	           ,#st_days#
+	           ,#st_hours#
+	           ,#st_tm#
+	           ,#end_days#
+	           ,#end_hours#
+	           ,#end_tm#
+	           ,#batch_tm#
+	           ,#wknd_snd_flg#
+	           ,#eml_to#
+	           ,#eml_cc#
+	           ,#use_flg#
+	           ,#rgst_usrid#
+	           ,#rgst_ofc_cd#
+	           ,getDate()
+	           ,#modi_usrid#
+	           ,#modi_ofc_cd#
+	           ,GETUTCDATE()
+	           ,'N'
+	           ,#trdp_cd#
+	           ,#tp_grp#
+	           ,#usr_param#)           
+    </insert>
+	
+	<!-- Alert/Notification List를 취득한다  -->
+	<select id="selectAlertList" parameterClass="java.util.HashMap" resultClass="MgtAltVO">
+		/* MgtAltMgt.xml > selectAlertList */
+		SELECT 
+			ALT.ALT_SEQ 
+			,ALT.ALT_TP 
+			,ALT.ALT_NM 
+			,ALT.OFC_CD
+			,ALT.PHYS_ETT_NM
+			,ALT.PHYS_ATTR_NM
+			,ALT.ST_DAYS
+			,ALT.ST_HOURS
+			,ALT.ST_TM
+			,ALT.END_DAYS
+			,ALT.END_HOURS
+			,ALT.END_TM
+			,ALT.BATCH_TM
+			,ALT.WKND_SND_FLG
+			,ALT.LAST_SND_TM
+			,ALT.EML_TO
+			,ALT.EML_CC
+			,FOM.FOM_SEQ AS RGST_FOM_SEQ
+			,FOM.ALT_SQL AS ALT_SQL
+			,ALT.USE_FLG
+			,ALT.RGST_USRID
+			,(SELECT DATEADD(MINUTE,60*CONVERT( float,
+					isnull (
+						(
+							select RMK from TB_COM_CD_DTL
+							where COM_CD = 'TIMEZN'
+							and CD_VAL = (
+							select TIME_ZONE from tb_ofc
+							where OFC_CD = #rgst_ofc_cd#
+						)
+					) ,'0')
+				), ALT.RGST_TMS)) AS RGST_TMS
+			,(SELECT DATEADD(MINUTE,60*CONVERT( float,
+					isnull (
+						(
+							select RMK from TB_COM_CD_DTL
+							where COM_CD = 'TIMEZN'
+							and CD_VAL = (
+							select TIME_ZONE from tb_ofc
+							where OFC_CD = #rgst_ofc_cd#
+						)
+					) ,'0')
+				), ALT.MODI_TMS)) AS MODI_TMS
+			,(SELECT DATEADD(MINUTE,60*CONVERT( float,
+					isnull (
+						(
+							select RMK from TB_COM_CD_DTL
+							where COM_CD = 'TIMEZN'
+							and CD_VAL = (
+							select TIME_ZONE from tb_ofc
+							where OFC_CD = #rgst_ofc_cd#
+						)
+					) ,'0')
+				), FOM.MODI_TMS)) AS FOM_MODI_TMS
+			,ALT.MODI_USRID
+			,ALT.TRDP_CD
+			,ALT.TP_GRP
+			,FOM.MODI_USRID AS FOM_MODI_USRID
+			,ALT.USR_PARAM
+		FROM TB_ALT ALT 
+		LEFT JOIN TB_ALT_FOM FOM ON ALT.ALT_SEQ = FOM.ALT_SEQ AND FOM.DELT_FLG != 'Y'
+		WHERE ALT.DELT_FLG !='Y'
+			<isNotEmpty property="alt_nm">
+				AND alt_nm like #alt_nm# + '%'
+			</isNotEmpty>
+	</select>
+
+	<select id="selectAlertListByEtt" parameterClass="java.util.HashMap" resultClass="MgtAltVO">
+		/* MgtAltMgt.xml > selectAlertListByEtt */
+			SELECT                                                                        
+			ALT.ALT_SEQ                                                           
+			,ALT.ALT_TP                                                     
+			,ALT.ALT_NM                                                     
+			,ALT.OFC_CD                                                           
+			,ALT.PHYS_ETT_NM                                                      
+			,ALT.PHYS_ATTR_NM                                                     
+			,ALT.ST_DAYS                                                          
+			,ALT.ST_HOURS                                                         
+			,ALT.ST_TM                                                            
+			,ALT.END_DAYS                                                         
+			,ALT.END_HOURS                                                        
+			,ALT.END_TM                                                           
+			,ALT.BATCH_TM                                                         
+			,ALT.WKND_SND_FLG                                                     
+			,ALT.LAST_SND_TM 						
+			,ALT.EML_TO                                                           
+			,ALT.EML_CC                                                           
+			,FOM.FOM_SEQ AS RGST_FOM_SEQ                              	      
+			,FOM.FOM_TIT AS FOM_TIT		                              	      
+			,FOM.FOM_CTNT AS FOM_CTNT	 
+			,#usrid#  AS USRID
+		 	,(SELECT LOCL_USR_NM FROM TB_USR WHERE USRID = #usrid#) AS USR_NM
+		 	,(SELECT ORG_EML FROM TB_USR WHERE USRID = #usrid#) AS USR_EML
+		 	,(SELECT ORG_PHN FROM TB_USR WHERE USRID = #usrid#) AS USR_PHONE
+		 	,(SELECT EML_PASS FROM TB_USR WHERE USRID = #usrid#) AS USR_EML_PASS
+		 	,(SELECT OFC_ENG_NM FROM TB_OFC OFC WHERE OFC.OFC_CD = (SELECT OFC_CD FROM TB_USR USR WHERE USR.USRID = #usrid#)) AS USR_OFFICE
+		 	,ALT.USR_PARAM                           	      
+		FROM TB_ALT ALT                                                               
+		LEFT JOIN TB_ALT_FOM FOM ON ALT.ALT_SEQ = FOM.ALT_SEQ AND FOM.DELT_FLG != 'Y' 
+		WHERE ALT.DELT_FLG !='Y' 
+			AND ALT_TP = 'N' 
+			AND PHYS_ETT_NM = #phys_ett_nm#
+			AND ALT.USE_FLG = '1'
+	</select>
+	
+	<update id="updateAlert" parameterClass="MgtAltVO">
+		/* MgtAltMgt.xml > updateAlert*/	
+		UPDATE TB_ALT SET 
+			ALT_TP = #alt_tp#,
+			ALT_NM = #alt_nm#,
+			OFC_CD = #ofc_cd#,
+			PHYS_ETT_NM = #phys_ett_nm#,
+			PHYS_ATTR_NM = #phys_attr_nm#,
+			ST_DAYS = #st_days#,
+			ST_HOURS = #st_hours#,
+			ST_TM = #st_tm#,
+			END_DAYS = #end_days#,
+			END_HOURS = #end_hours#,
+			END_TM = #end_tm#,
+			EML_TO = #eml_to#,
+			EML_CC = #eml_cc#,
+			BATCH_TM = #batch_tm#,
+			WKND_SND_FLG = #wknd_snd_flg#,
+			RGST_FOM_SEQ = #rgst_fom_seq#,
+			USE_FLG = #use_flg#,
+			MODI_USRID = #modi_usrid#,
+			MODI_OFC_CD = #modi_ofc_cd#,
+			MODI_TMS = GETUTCDATE(),
+			TRDP_CD = #trdp_cd#,
+			TP_GRP = #tp_grp#,
+			USR_PARAM = #usr_param#
+		WHERE ALT_SEQ = #alt_seq#	
+	</update>
+
+	<update id="deleteAlert" parameterClass="MgtAltVO">
+		/* MgtAltMgt.xml > updateAlert*/	
+		UPDATE TB_ALT SET 
+			USE_FLG = 'N',
+			DELT_FLG = 'Y',
+			MODI_USRID = #modi_usrid#,
+			MODI_OFC_CD = #modi_ofc_cd#,
+			MODI_TMS = GETUTCDATE()
+		WHERE ALT_SEQ = #alt_seq#	
+	</update>
+
+	<insert id="insertForm" parameterClass="MgtAltFormVO">
+    	/* MgtAltMgt.xml > insertForm*/	
+        INSERT TB_ALT_FOM( 
+				[ALT_SEQ]
+			   ,[FOM_NM]
+			   ,[FOM_TIT]
+			   ,[FOM_CTNT]
+			   ,[ALT_SQL]
+			   ,[RGST_USRID]
+			   ,[RGST_OFC_CD]
+			   ,[RGST_TMS]
+			   ,[MODI_USRID]
+			   ,[MODI_OFC_CD]
+			   ,[MODI_TMS]
+			   ,[DELT_FLG])
+			VALUES
+	           (#alt_seq#
+	           ,#fom_nm# 
+	           ,#fom_tit#
+	           ,#fom_ctnt#
+	           ,#alt_sql#
+	           ,#rgst_usrid#
+	           ,#rgst_ofc_cd#
+	           ,getDate()
+	           ,#modi_usrid#
+	           ,#modi_ofc_cd#
+	           ,GETUTCDATE()
+	           ,'N')           
+    </insert>
+	
+	<!-- Alert/Notification List를 취득한다  -->
+	<select id="selectForm" parameterClass="java.util.HashMap" resultClass="MgtAltFormVO">
+		/* MgtAltMgt.xml > selectForm */
+		SELECT
+			FOM_SEQ 
+			,FOM_NM 
+			,FOM_TIT
+			,FOM_CTNT
+			,ALT_SQL
+		FROM TB_ALT_FOM
+		WHERE ALT_SEQ = #alt_seq#
+			<isNotEmpty property="fom_seq">
+				AND FOM_SEQ = #fom_seq#
+			</isNotEmpty>
+		AND	DELT_FLG !='Y'
+	</select>
+	
+	<update id="updateForm" parameterClass="MgtAltFormVO">
+		/* MgtAltMgt.xml > updateAlert*/	
+		UPDATE TB_ALT_FOM SET 
+			FOM_NM = #fom_nm#,
+			FOM_TIT = #fom_tit#,
+			FOM_CTNT = #fom_ctnt#,
+			ALT_SQL = #alt_sql#,
+			MODI_USRID = #modi_usrid#,
+			MODI_OFC_CD = #modi_ofc_cd#,
+			MODI_TMS = GETUTCDATE()
+		WHERE FOM_SEQ = #fom_seq# AND ALT_SEQ = #alt_seq#
+	</update>
+
+	<update id="deleteForm" parameterClass="MgtAltFormVO">
+		/* MgtAltMgt.xml > updateAlert*/	
+		UPDATE TB_ALT_FOM SET 
+			USE_FLG = '0',
+			DELT_FLG = 'Y',
+			MODI_USRID = #modi_usrid#,
+			MODI_OFC_CD = #modi_ofc_cd#,
+			MODI_TMS = GETUTCDATE()
+		WHERE FOM_SEQ = #fom_seq# AND ALT_SEQ = #alt_seq#
+	</update>
+	
+	<select id="selectForCustEmail" parameterClass="String" resultClass="String">
+		/* MgtAltMgt.xml > selectForCustEmail */
+		SELECT STUFF((SELECT ';' + x.PIC_EML FROM TB_TRDP_CNTC_PSON x 
+		WHERE (x.TRDP_CD = z.TRDP_CD)FOR XML PATH ('')),1,1,'') 
+		FROM TB_TRDP_CNTC_PSON z WHERE TRDP_CD = #param# GROUP BY TRDP_CD
+	</select>
+	
+	<select id="selectBlSeqTemp"  resultClass="String">
+		/*selectBlSeqTemp*/
+		SELECT ISNULL(MAX(CONVERT(NUMERIC, BL_SEQ)),0) + 1
+          FROM TB_INTG_BL_EDI_TEMP
+         WHERE 1 = 1
+	</select>
+	<select id="selectCntrSeqTemp"  parameterClass="EdiSmtAmsRcvVO" resultClass="String">
+		/*selectCntrSeqTemp*/
+		SELECT ISNULL(MAX(CNTR_LIST_SEQ),0) + 1
+		  FROM TB_CNTR_LIST_EDI_TEMP
+		 WHERE 1 = 1
+		   AND BL_SEQ       = #bl_key# 
+		   AND BL_NO        = #mbl_no#
+		   AND BIZ_CLSS_CD  = #biz_clss_cd#
+	</select>
+	<select id="selectCntrSeqTemp_Hbl"  parameterClass="EdiSmtAmsRcvVO" resultClass="String">
+		/*selectCntrSeqTemp_Hbl*/
+		SELECT ISNULL(MAX(CNTR_LIST_SEQ),0) + 1
+		  FROM TB_CNTR_LIST_EDI_TEMP
+		 WHERE 1 = 1
+		   AND BL_SEQ       = #bl_key# 
+		   AND BL_NO        = #hbl_no#
+		   AND BIZ_CLSS_CD  = #biz_clss_cd#
+	</select>
+	
+	<update id="mergeEdiBlTemp" parameterClass="EdiSmtAmsRcvVO">
+	    /*mergeEdiBlTemp*/
+	    MERGE INTO  TB_INTG_BL_EDI_TEMP X1   
+		      USING (SELECT #bl_key# 		BL_SEQ,
+		                    #mbl_no# 		BL_NO,
+							#shp_mod_cd#    SHP_MOD_CD,
+		                    #express_tp_cd# EXPRESS_TP_CD,
+							#rep_cmdt_nm#   REP_CMDT_NM,
+							#eta_dt_tm#     ETA_DT_TM,
+							#etd_dt_tm#     ETD_DT_TM,
+							#cust_ref_no#   CUST_REF_NO,
+							#por_cd#        POR_CD,
+							#por_nm#        POR_NM,
+							#pod_cd#        POD_CD,
+							#pod_nm#        POD_NM,
+							#pol_cd#        POL_CD,
+							#pol_nm#        POL_NM,
+							#del_cd#        DEL_CD,
+							#del_nm#        DEL_NM,
+							#mk_txt#        MK_TXT,
+							#desc_txt#      DESC_TXT,
+							#biz_clss_cd#   BIZ_CLSS_CD,
+							#usr_id#        USR_ID,
+							#usr_ofc_cd#    USR_OFC_CD,
+							#trnk_vsl_nm# 	TRNK_VSL_NM,
+							#trnk_voy# 		TRNK_VOY,
+							#trnk_vsl_lloyd_no# TRNK_VSL_LLOYD_NO,
+							#grs_wgt#       GRS_WGT,
+							#meas#          MEAS,
+							#pck_qty#       PCK_QTY,
+							#pck_ut_cd#     PCK_UT_CD,
+							#edi_tp#        EDI_TP,
+							#por_un_loc_cd# POR_UN_LOC_CD,
+							#pol_un_loc_cd# POL_UN_LOC_CD,
+							#pod_un_loc_cd# POD_UN_LOC_CD,
+							#del_un_loc_cd# DEL_UN_LOC_CD,
+							#frt_term_cd# FRT_TERM_CD,
+							#grs_wgt1# GRS_WGT1,
+							#meas1#          MEAS1,
+							<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+							#ref_no#        REF_NO,
+							#mbl_shp_mod#        SHP_MOD,
+							#isf_no#        ISF_NO,
+							#sndr_brnc_ofc_cd#        SNDR_BRNC_OFC_CD,
+							#rcvr_brnc_ofc_cd#        RCVR_BRNC_OFC_CD,
+							#sndr_agn_id#        SNDR_AGN_ID,
+							#rcvr_agn_id#        RCVR_AGN_ID
+		            ) X2  
+		         ON (X1.BL_SEQ = X2.BL_SEQ  
+		             AND X1.BL_NO = X2.BL_NO
+		             AND X1.BIZ_CLSS_CD = X2.BIZ_CLSS_CD)      
+		        WHEN MATCHED 
+				THEN UPDATE SET X1.SHP_MOD_CD      = X2.SHP_MOD_CD,
+		                        X1.EXPRESS_TP_CD   = X2.EXPRESS_TP_CD,
+								X1.REP_CMDT_NM     = X2.REP_CMDT_NM,
+								X1.ETA_DT_TM       = X2.ETA_DT_TM,
+								X1.ETD_DT_TM       = X2.ETD_DT_TM,
+								X1.AMS_NO          = X2.CUST_REF_NO,
+								X1.POR_CD          = X2.POR_CD,
+								X1.POR_NM          = X2.POR_NM,
+								X1.POD_CD          = X2.POD_CD,
+								X1.POD_NM          = X2.POD_NM,
+								X1.POL_CD          = X2.POL_CD,
+								X1.POL_NM          = X2.POL_NM,
+								X1.DEL_CD          = X2.DEL_CD,
+								X1.DEL_NM          = X2.DEL_NM,
+								X1.BIZ_CLSS_CD     = X2.BIZ_CLSS_CD,
+								X1.MODI_USRID      = X2.USR_ID,
+								X1.MODI_OFC_CD     = X2.USR_OFC_CD,
+								
+								X1.TRNK_VSL_NM     = X2.TRNK_VSL_NM,
+								X1.TRNK_VOY     = X2.TRNK_VOY,
+								X1.TRNK_VSL_LLOYD_NO     = X2.TRNK_VSL_LLOYD_NO,
+								
+								X1.MODI_TMS        = GETUTCDATE(),
+								X1.GRS_WGT         = X2.GRS_WGT,
+								X1.MEAS			   = X2.MEAS,
+								X1.PCK_QTY		   = X2.PCK_QTY,
+								X1.PCK_UT_CD	   = X2.PCK_UT_CD,
+								X1.EDI_TP	   = X2.EDI_TP,
+								X1.POR_UN_LOC_CD	   = X2.POR_UN_LOC_CD,
+								X1.POL_UN_LOC_CD	   = X2.POL_UN_LOC_CD,
+								X1.POD_UN_LOC_CD	   = X2.POD_UN_LOC_CD,
+								X1.DEL_UN_LOC_CD	   = X2.DEL_UN_LOC_CD,
+								X1.FRT_TERM_CD  = X2.FRT_TERM_CD,
+								X1.GRS_WGT1         = X2.GRS_WGT1,
+								X1.MEAS1			   = X2.MEAS1,
+								<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+								X1.REF_NO		   	   = X2.REF_NO,
+								X1.SHP_MOD		   	   = X2.SHP_MOD,
+								X1.ISF_NO		   	   = X2.ISF_NO,
+								X1.SNDR_BRNC_OFC_CD		   	   = X2.SNDR_BRNC_OFC_CD,
+								X1.RCVR_BRNC_OFC_CD		   	   = X2.RCVR_BRNC_OFC_CD,
+								X1.SNDR_AGN_ID		   	   = X2.SNDR_AGN_ID,
+								X1.RCVR_AGN_ID		   	   = X2.RCVR_AGN_ID
+                 WHEN NOT MATCHED THEN                        
+                 INSERT ( BL_SEQ,
+				          BL_NO,
+				          SHP_MOD_CD,
+				          EXPRESS_TP_CD,
+				          REP_CMDT_NM,
+				          ETA_DT_TM,
+				          ETD_DT_TM,
+				          AMS_NO,
+				          POR_CD,
+				          POR_NM,
+				          POD_CD,
+				          POD_NM,
+				          POL_CD,
+				          POL_NM,
+				          DEL_CD,
+				          DEL_NM,
+				          BIZ_CLSS_CD,
+						  DELT_FLG,
+						  RGST_USRID,
+						  RGST_OFC_CD,
+						  RGST_TMS,
+						  MODI_USRID,
+						  MODI_OFC_CD,
+						  TRNK_VSL_NM,
+						  TRNK_VOY,
+						  TRNK_VSL_LLOYD_NO,
+				          MODI_TMS,
+				          GRS_WGT,
+				          MEAS,
+				          PCK_QTY,
+				          PCK_UT_CD,
+				          EDI_TP,
+				          POR_UN_LOC_CD,
+				          POL_UN_LOC_CD,
+				          POD_UN_LOC_CD,
+				          DEL_UN_LOC_CD,
+				          FRT_TERM_CD,
+				          GRS_WGT1,
+				          MEAS1,
+				          <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+				          REF_NO,
+						  SHP_MOD,
+						  ISF_NO,
+						  SNDR_BRNC_OFC_CD,
+						  RCVR_BRNC_OFC_CD,
+					      SNDR_AGN_ID,
+						  RCVR_AGN_ID
+				          )                        
+				 VALUES ( X2.BL_SEQ,
+				          X2.BL_NO,
+				          X2.SHP_MOD_CD,
+				          X2.EXPRESS_TP_CD,
+				          X2.REP_CMDT_NM,
+				          X2.ETA_DT_TM,
+				          X2.ETD_DT_TM,
+				          X2.CUST_REF_NO,
+				          X2.POR_CD,
+				          X2.POR_NM,
+				          X2.POD_CD,
+				          X2.POD_NM,
+				          X2.POL_CD,
+				          X2.POL_NM,
+				          X2.DEL_CD,
+				          X2.DEL_NM,
+				          X2.BIZ_CLSS_CD,
+				          'N',
+						  X2.USR_ID,
+						  X2.USR_OFC_CD,
+					 	  GETUTCDATE(),
+						  X2.USR_ID,
+						  X2.USR_OFC_CD,
+						  X2.TRNK_VSL_NM,
+						  X2.TRNK_VOY,
+						  X2.TRNK_VSL_LLOYD_NO,
+						  GETUTCDATE(),
+						  x2.GRS_WGT,
+				          x2.MEAS,
+				          x2.PCK_QTY,
+				          x2.PCK_UT_CD,
+				          x2.EDI_TP,
+				          X2.POR_UN_LOC_CD,
+				          X2.POL_UN_LOC_CD,
+				          X2.POD_UN_LOC_CD,
+				          X2.DEL_UN_LOC_CD,
+				          X2.FRT_TERM_CD,
+				          x2.GRS_WGT1,
+				          x2.MEAS1,
+						  <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+				          x2.REF_NO,
+						  x2.SHP_MOD,
+						  x2.ISF_NO,
+						  x2.SNDR_BRNC_OFC_CD,
+						  x2.RCVR_BRNC_OFC_CD,
+					      x2.SNDR_AGN_ID,
+						  x2.RCVR_AGN_ID
+						  );
+	</update>
+	<update id="mergeEdiCntPrnrTemp" parameterClass="EdiSmtAmsRcvVO">
+	/*mergeEdiCntPrnrTemp*/
+	MERGE INTO  TB_BL_PRNR_EDI_TEMP X1   
+		      USING (SELECT  #bl_key#           BL_SEQ,
+				             #mbl_no#           BL_NO,
+				             'L01'              BL_TRDP_TP_CD,
+						     #biz_clss_cd#      BIZ_CLSS_CD,
+						     #cnt_prnr_cd#      TRDP_CD,
+						     #cnt_prnr_nm#      TRDP_NM,
+						     'TEMP'             TRDP_CNT_CD,
+						     #usr_id#           USR_ID,
+							 #usr_ofc_cd#       USR_OFC_CD
+				            ) X2  
+		         ON (X1.BL_SEQ              = X2.BL_SEQ  
+		             AND X1.BL_NO           = X2.BL_NO
+		             AND X1.BL_TRDP_TP_CD   = X2.BL_TRDP_TP_CD
+		             AND X1.TRDP_CNT_CD     = X2.TRDP_CNT_CD
+		             AND X1.BIZ_CLSS_CD     = X2.BIZ_CLSS_CD)           
+		        WHEN MATCHED 
+				THEN UPDATE SET X1.BL_TRDP_TP_CD = X2.BL_TRDP_TP_CD,
+		                        X1.BIZ_CLSS_CD   = X2.BIZ_CLSS_CD,
+								X1.TRDP_NM       = X2.TRDP_NM,
+								X1.MODI_USRID    = X2.USR_ID,
+								X1.MODI_OFC_CD   = X2.USR_OFC_CD,
+								X1.MODI_TMS      = GETUTCDATE()
+                WHEN NOT MATCHED THEN                        
+                INSERT ( BL_SEQ,
+				         BL_NO,
+				         BL_TRDP_TP_CD,
+				         BIZ_CLSS_CD,
+				         TRDP_CD,
+				         TRDP_NM,
+				         TRDP_CNT_CD,
+				         DELT_FLG,
+				         RGST_USRID,
+				         RGST_OFC_CD,
+				         RGST_TMS,
+				         MODI_USRID,
+				         MODI_OFC_CD,
+				         MODI_TMS)                        
+				VALUES ( X2.BL_SEQ,
+				         X2.BL_NO,
+				         X2.BL_TRDP_TP_CD,
+				         X2.BIZ_CLSS_CD,
+				         X2.TRDP_CD,
+				         X2.TRDP_NM,
+				         X2.TRDP_CNT_CD,
+				         'N',
+				         X2.USR_ID,
+				         X2.USR_OFC_CD,
+				         GETUTCDATE(),
+				         X2.USR_ID,
+				         X2.USR_OFC_CD,
+				         GETUTCDATE());
+	</update>
+	<update id="mergeEdiPrnrTemp" parameterClass="EdiSmtAmsRcvVO">
+	/* MgtAltMgt.xml > mergeEdiPrnrTemp */
+	MERGE INTO  TB_BL_PRNR_EDI_TEMP X1   
+		      USING (SELECT  #bl_key#           BL_SEQ,
+				             #mbl_no#           BL_NO,
+				             <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+				             <!-- 'C01'              BL_TRDP_TP_CD, -->
+				             #bl_trdp_tp_cd#      BL_TRDP_TP_CD,
+						     #biz_clss_cd#      BIZ_CLSS_CD,
+						     <!-- #2684 [CLA DEMO] BL EDI INTERFACE ERROR -->
+						     isnull((select top 1 trdp_cd from tb_trdp where ENG_NM = #prnr_trdp_nm#), #prnr_trdp_cd#)    TRDP_CD,
+						     isnull((select top 1 eng_nm from tb_trdp where ENG_NM = #prnr_trdp_nm#), #prnr_trdp_nm#)     TRDP_NM,
+						     isnull((select top 1 eng_addr from tb_trdp where ENG_NM = #prnr_trdp_nm#), #prnr_trdp_nm#)    TRDP_ADDR,
+						     <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+						     ''             TRDP_CNT_CD,
+						     #usr_id#           USR_ID,
+							 #usr_ofc_cd#       USR_OFC_CD
+				            ) X2  
+		         ON (X1.BL_SEQ              = X2.BL_SEQ  
+		             AND X1.BL_NO           = X2.BL_NO
+		             AND X1.BL_TRDP_TP_CD   = X2.BL_TRDP_TP_CD
+		             AND X1.TRDP_CNT_CD     = X2.TRDP_CNT_CD
+		             AND X1.BIZ_CLSS_CD     = X2.BIZ_CLSS_CD)           
+		        WHEN MATCHED 
+				THEN UPDATE SET X1.BL_TRDP_TP_CD = X2.BL_TRDP_TP_CD,
+		                        X1.BIZ_CLSS_CD   = X2.BIZ_CLSS_CD,
+								X1.TRDP_NM       = X2.TRDP_NM,
+								X1.MODI_USRID    = X2.USR_ID,
+								X1.MODI_OFC_CD   = X2.USR_OFC_CD,
+								X1.MODI_TMS      = GETUTCDATE()
+                WHEN NOT MATCHED THEN                        
+                INSERT ( BL_SEQ,
+				         BL_NO,
+				         BL_TRDP_TP_CD,
+				         BIZ_CLSS_CD,
+				         TRDP_CD,
+				         TRDP_NM,
+				         TRDP_ADDR,
+				         TRDP_CNT_CD,
+				         DELT_FLG,
+				         RGST_USRID,
+				         RGST_OFC_CD,
+				         RGST_TMS,
+				         MODI_USRID,
+				         MODI_OFC_CD,
+				         MODI_TMS)                        
+				VALUES ( X2.BL_SEQ,
+				         X2.BL_NO,
+				         X2.BL_TRDP_TP_CD,
+				         X2.BIZ_CLSS_CD,
+				         X2.TRDP_CD,
+				         X2.TRDP_NM,
+				         X2.TRDP_ADDR,
+				         X2.TRDP_CNT_CD,
+				         'N',
+				         X2.USR_ID,
+				         X2.USR_OFC_CD,
+				         GETUTCDATE(),
+				         X2.USR_ID,
+				         X2.USR_OFC_CD,
+				         GETUTCDATE());
+	</update>
+	<update id="mergeEdiCntrTemp" parameterClass="EdiSmtAmsRcvVO">
+	/*mergeEdiCntrTemp*/
+	MERGE INTO  TB_CNTR_LIST_EDI_TEMP X1   
+		      USING (SELECT  #bl_key#           BL_SEQ,
+				             #cntr_key#         CNTR_LIST_SEQ,
+						     #mbl_no#           BL_NO,
+						     #biz_clss_cd#      BIZ_CLSS_CD,
+						     #mbl_cgo_meas#     CGO_MEAS,
+						     #mbl_cgo_pck_qty#  CGO_PCK_QTY,
+						     #mbl_cgo_pck_ut#   CGO_PCK_UT,
+							 #mbl_cgo_wgt#      CGO_WGT,
+							 #mbl_cntr_no#      CNTR_NO,
+							 <!-- #4549 ISO code mapping -->
+							 (SELECT TOP 1 CNTR_TPSZ_CD 
+							    FROM TB_CNTR_TPSZ 
+							   WHERE ISO_CNTR_CD = #mbl_cntr_tpsz_cd# 
+							     AND USE_FLG = 'Y') CNTR_TPSZ_CD,						      	
+							 #mbl_seal_no1#     SEAL_NO1,
+							 #usr_id#           USR_ID,
+							 #usr_ofc_cd#       USR_OFC_CD
+				            ) X2  
+		         ON (X1.BL_SEQ              = X2.BL_SEQ  
+		             AND X1.BL_NO           = X2.BL_NO
+		             AND X1.CNTR_LIST_SEQ   = X2.CNTR_LIST_SEQ
+		             AND X1.BIZ_CLSS_CD     = X2.BIZ_CLSS_CD)           
+		        WHEN MATCHED 
+				THEN UPDATE SET X1.BIZ_CLSS_CD  = X2.BIZ_CLSS_CD,
+		                        X1.CGO_MEAS     = X2.CGO_MEAS,
+								X1.CGO_PCK_UT   = X2.CGO_PCK_UT,
+								X1.CGO_PCK_QTY  = X2.CGO_PCK_QTY,
+								X1.CGO_WGT      = X2.CGO_WGT,
+								X1.CNTR_NO      = X2.CNTR_NO,
+								X1.CNTR_TPSZ_CD = X2.CNTR_TPSZ_CD,
+								X1.SEAL_NO1     = X2.SEAL_NO1,
+								X1.MODI_USRID   = X2.USR_ID,
+								X1.MODI_OFC_CD  = X2.USR_OFC_CD,
+								X1.MODI_TMS     = GETUTCDATE()
+                WHEN NOT MATCHED THEN                        
+                INSERT ( BL_SEQ,
+				         BL_NO,
+				         CNTR_LIST_SEQ,
+				         BIZ_CLSS_CD,
+				         CGO_MEAS,
+				         CGO_PCK_UT,
+				         CGO_PCK_QTY,
+				         CGO_WGT,
+				         CNTR_NO,
+				         CNTR_TPSZ_CD,
+				         SEAL_NO1,
+				         DELT_FLG,
+				         RGST_USRID,
+				         RGST_OFC_CD,
+				         RGST_TMS,
+				         MODI_USRID,
+				         MODI_OFC_CD,
+				         MODI_TMS)                        
+				VALUES ( X2.BL_SEQ,
+				         X2.BL_NO,
+				         X2.CNTR_LIST_SEQ,
+				         X2.BIZ_CLSS_CD,
+				         X2.CGO_MEAS,
+				         X2.CGO_PCK_UT,
+				         X2.CGO_PCK_QTY,
+				         X2.CGO_WGT,
+				         X2.CNTR_NO,
+				         X2.CNTR_TPSZ_CD,
+				         X2.SEAL_NO1,
+				         'N',
+				         X2.USR_ID,
+				         X2.USR_OFC_CD,
+				         GETUTCDATE(),
+				         X2.USR_ID,
+				         X2.USR_OFC_CD,
+				         GETUTCDATE());
+    </update>
+    <update id="mergeEdiHblTemp" parameterClass="EdiSmtAmsRcvVO">
+	    /*mergeEdiHblTemp*/
+	    MERGE INTO  TB_INTG_BL_EDI_TEMP X1   
+		      USING (SELECT #bl_key# 		     BL_SEQ,
+		                    #hbl_no# 		     BL_NO,
+							#hbl_fm_svc_term_cd# FM_SVC_TERM_CD,
+		                    #hbl_to_svc_term_cd# TO_SVC_TERM_CD,
+							#hbl_express_tp_cd#  EXPRESS_TP_CD,
+							#hbl_etd_dt_tm#      ETD_DT_TM,
+							#hbl_eta_dt_tm#      ETA_DT_TM,
+							#hbl_ams_no#         CUST_REF_NO,
+							#hbl_rep_cmdt_nm#    REP_CMDT_NM,
+							#hbl_por_cd#         POR_CD,
+							#hbl_por_nm#         POR_NM,
+							#hbl_pod_cd#         POD_CD,
+							#hbl_pod_nm#         POD_NM,
+							#hbl_pol_cd#         POL_CD,
+							#hbl_pol_nm#         POL_NM,
+							#hbl_del_cd#         DEL_CD,
+							#hbl_del_nm#         DEL_NM,
+							
+							<!-- #4847 [CLA] Agent BL EDI connection with Smart Link - 누락사항 추가반영 -->
+							#hbl_fnl_dest_loc_cd#         FNL_DEST_LOC_CD,
+							#hbl_fnl_dest_loc_nm#         FNL_DEST_LOC_NM,
+							
+							<!-- #mk_txt# MK_TXT,
+							#desc_txt# DESC_TXT, -->
+							REPLACE(#mk_txt#,'char(13)+char(10)',char(13)+char(10)) MK_TXT,
+							REPLACE(#desc_txt#,'char(13)+char(10)',char(13)+char(10)) DESC_TXT,
+							#biz_clss_cd#        BIZ_CLSS_CD,
+							#usr_id#             USR_ID,
+							#usr_ofc_cd#         USR_OFC_CD,
+							#grs_wgt#			 GRS_WGT,
+							#meas# 				 meas,
+							#pck_qty#			 pck_qty,
+							#pck_ut_cd# 		 pck_ut_cd,
+							#edi_tp#        EDI_TP,
+						    #por_un_loc_cd# POR_UN_LOC_CD,
+							#pol_un_loc_cd# POL_UN_LOC_CD,
+							#pod_un_loc_cd# POD_UN_LOC_CD,
+							#del_un_loc_cd# DEL_UN_LOC_CD,
+							#frt_term_cd#   FRT_TERM_CD,
+							#grs_wgt1#			 GRS_WGT1,
+							#meas1# 				 meas1,
+							<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+							#mbl_shp_mod#        SHP_MOD,
+							#isf_no#        ISF_NO,
+							#sndr_brnc_ofc_cd#        SNDR_BRNC_OFC_CD,
+							#rcvr_brnc_ofc_cd#        RCVR_BRNC_OFC_CD,
+							#sndr_agn_id#        SNDR_AGN_ID,
+							#rcvr_agn_id#        RCVR_AGN_ID
+		            ) X2  
+		         ON (X1.BL_SEQ = X2.BL_SEQ  
+		             AND X1.BL_NO = X2.BL_NO
+		             AND X1.BIZ_CLSS_CD = X2.BIZ_CLSS_CD)   
+		        WHEN MATCHED 
+				THEN UPDATE SET X1.FM_SVC_TERM_CD  = X2.FM_SVC_TERM_CD,
+		                        X1.TO_SVC_TERM_CD  = X2.TO_SVC_TERM_CD,
+								X1.EXPRESS_TP_CD   = X2.EXPRESS_TP_CD,
+								X1.ETA_DT_TM       = X2.ETA_DT_TM,
+								X1.ETD_DT_TM       = X2.ETD_DT_TM,
+								X1.AMS_NO          = X2.CUST_REF_NO,
+								X1.REP_CMDT_NM = X2.REP_CMDT_NM,
+								X1.POR_CD          = X2.POR_CD,
+								X1.POR_NM          = X2.POR_NM,
+								X1.POD_CD          = X2.POD_CD,
+								X1.POD_NM          = X2.POD_NM,
+								X1.POL_CD          = X2.POL_CD,
+								X1.POL_NM          = X2.POL_NM,
+								X1.DEL_CD          = X2.DEL_CD,
+								X1.DEL_NM          = X2.DEL_NM,
+								
+								<!-- #4847 [CLA] Agent BL EDI connection with Smart Link - 누락사항 추가반영 -->
+								X1.FNL_DEST_LOC_CD = X2.FNL_DEST_LOC_CD,
+								X1.FNL_DEST_LOC_NM = X2.FNL_DEST_LOC_NM,
+								
+								X1.MK_TXT          = X2.MK_TXT,
+								X1.DESC_TXT        = X2.DESC_TXT,
+								X1.BIZ_CLSS_CD     = X2.BIZ_CLSS_CD,
+								X1.MODI_USRID      = X2.USR_ID,
+								X1.MODI_OFC_CD     = X2.USR_OFC_CD,
+								X1.MODI_TMS        = GETUTCDATE(),
+								x1.grs_wgt         = x2.grs_wgt,
+								x1.meas			   = x2.meas,
+								x1.pck_qty		   = x2.pck_qty,
+								x1.pck_ut_cd	   = x2.pck_ut_cd,
+								x1.EDI_TP = x2.EDI_TP,
+								X1.POR_UN_LOC_CD	   = X2.POR_UN_LOC_CD,
+								X1.POL_UN_LOC_CD	   = X2.POL_UN_LOC_CD,
+								X1.POD_UN_LOC_CD	   = X2.POD_UN_LOC_CD,
+								X1.DEL_UN_LOC_CD	   = X2.DEL_UN_LOC_CD,
+								X1.FRT_TERM_CD         = X2.FRT_TERM_CD,
+								x1.grs_wgt1         = x2.grs_wgt1,
+								x1.meas1			   = x2.meas1,
+								<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+								X1.SHP_MOD		   	   = X2.SHP_MOD,
+								X1.ISF_NO		   	   = X2.ISF_NO,
+								X1.SNDR_BRNC_OFC_CD		   	   = X2.SNDR_BRNC_OFC_CD,
+								X1.RCVR_BRNC_OFC_CD		   	   = X2.RCVR_BRNC_OFC_CD,
+								X1.SNDR_AGN_ID		   	   = X2.SNDR_AGN_ID,
+								X1.RCVR_AGN_ID		   	   = X2.RCVR_AGN_ID
+                 WHEN NOT MATCHED THEN                        
+                 INSERT ( BL_SEQ,
+				          BL_NO,
+				          FM_SVC_TERM_CD,
+				          TO_SVC_TERM_CD,
+				          EXPRESS_TP_CD,
+				          ETA_DT_TM,
+				          ETD_DT_TM,
+				          AMS_NO,
+				          REP_CMDT_NM,
+				          POR_CD,
+				          POR_NM,
+				          POD_CD,
+				          POD_NM,
+				          POL_CD,
+				          POL_NM,
+				          DEL_CD,
+				          DEL_NM,
+				          
+				          <!-- #4847 [CLA] Agent BL EDI connection with Smart Link - 누락사항 추가반영 -->
+				          FNL_DEST_LOC_CD,
+						  FNL_DEST_LOC_NM,
+				          
+				          MK_TXT,
+				          DESC_TXT,
+				          BIZ_CLSS_CD,
+						  DELT_FLG,
+						  RGST_USRID,
+						  RGST_OFC_CD,
+						  RGST_TMS,
+						  MODI_USRID,
+						  MODI_OFC_CD,
+				          MODI_TMS,
+				          GRS_WGT,
+				          MEAS,
+				          PCK_QTY,
+				          PCK_UT_CD,
+				          EDI_TP,
+				          POR_UN_LOC_CD,
+				          POL_UN_LOC_CD,
+				          POD_UN_LOC_CD,
+				          DEL_UN_LOC_CD,
+				          FRT_TERM_CD,
+				          GRS_WGT1,
+				          MEAS1,
+				          <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+						  SHP_MOD,
+						  ISF_NO,
+						  SNDR_BRNC_OFC_CD,
+						  RCVR_BRNC_OFC_CD,
+					      SNDR_AGN_ID,
+						  RCVR_AGN_ID
+				          )                        
+				 VALUES ( X2.BL_SEQ,
+				          X2.BL_NO,
+				          X2.FM_SVC_TERM_CD,
+				          X2.TO_SVC_TERM_CD,
+				          X2.EXPRESS_TP_CD,
+				          X2.ETA_DT_TM,
+				          X2.ETD_DT_TM,
+				          X2.CUST_REF_NO,
+				          X2.REP_CMDT_NM,
+				          X2.POR_CD,
+				          X2.POR_NM,
+				          X2.POD_CD,
+				          X2.POD_NM,
+				          X2.POL_CD,
+				          X2.POL_NM,
+				          X2.DEL_CD,
+				          X2.DEL_NM,
+				          
+				          <!-- #4847 [CLA] Agent BL EDI connection with Smart Link - 누락사항 추가반영 -->
+				          X2.FNL_DEST_LOC_CD,
+						  X2.FNL_DEST_LOC_NM,
+				          
+				          X2.MK_TXT,
+				          X2.DESC_TXT,
+				          X2.BIZ_CLSS_CD,
+				          'N',
+						  X2.USR_ID,
+						  X2.USR_OFC_CD,
+					 	  GETUTCDATE(),
+						  X2.USR_ID,
+						  X2.USR_OFC_CD,
+						  GETUTCDATE(),
+						  X2.GRS_WGT,
+				          X2.MEAS,
+				          X2.PCK_QTY,
+				          X2.PCK_UT_CD,
+				          X2.EDI_TP,
+				          X2.POR_UN_LOC_CD,
+				          X2.POL_UN_LOC_CD,
+				          X2.POD_UN_LOC_CD,
+				          X2.DEL_UN_LOC_CD,
+				          X2.FRT_TERM_CD,
+				          X2.GRS_WGT1,
+				          X2.MEAS1,
+				          <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+						  X2.SHP_MOD,
+						  X2.ISF_NO,
+						  X2.SNDR_BRNC_OFC_CD,
+						  X2.RCVR_BRNC_OFC_CD,
+					      X2.SNDR_AGN_ID,
+						  X2.RCVR_AGN_ID
+						  );
+	</update>
+	<update id="mergeEdiHblPrnrTemp" parameterClass="EdiSmtAmsRcvVO">
+	/* MgtAltMgtSQL.xml > mergeEdiHblPrnrTemp */
+	MERGE INTO  TB_BL_PRNR_EDI_TEMP X1   
+		       USING (SELECT #bl_key#            BL_SEQ,
+				             #hbl_no#            BL_NO,
+				             #hbl_trdp_cnt_kind# BL_TRDP_TP_CD,
+						     #biz_clss_cd#       BIZ_CLSS_CD,
+						     
+						     <!-- #2684 [CLA DEMO] BL EDI INTERFACE ERROR -->
+						     isnull((select top 1 trdp_cd from tb_trdp where ENG_NM = #hbl_trdp_nm#), #hbl_trdp_cd#)    TRDP_CD,
+						     isnull((select top 1 eng_nm from tb_trdp where ENG_NM = #hbl_trdp_nm#), #hbl_trdp_nm#)     HBL_TRDP_NM,
+						     isnull((select top 1 eng_addr from tb_trdp where ENG_NM = #hbl_trdp_nm#), #hbl_trdp_addr#)     HBL_TRDP_ADDR,
+						     <!-- #hbl_trdp_cd#       TRDP_CD,
+						     #hbl_trdp_nm#       HBL_TRDP_NM,
+						     #hbl_trdp_addr#     HBL_TRDP_ADDR, -->
+						     <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+						     ISNULL(#hbl_trdp_cnt_cd#,'')  TRDP_CNT_CD,
+						     #usr_id#            USR_ID,
+							 #usr_ofc_cd#        USR_OFC_CD) X2  
+		          ON (X1.BL_SEQ              = X2.BL_SEQ  
+		             AND X1.BL_NO           = X2.BL_NO
+		             AND X1.BL_TRDP_TP_CD   = X2.BL_TRDP_TP_CD
+		             AND X1.TRDP_CNT_CD     = X2.TRDP_CNT_CD 
+		             AND X1.BIZ_CLSS_CD     = X2.BIZ_CLSS_CD)  
+		        WHEN MATCHED 
+				THEN UPDATE SET X1.BL_TRDP_TP_CD = X2.BL_TRDP_TP_CD,
+		                        X1.BIZ_CLSS_CD   = X2.BIZ_CLSS_CD,
+								X1.TRDP_NM       = X2.HBL_TRDP_NM,
+								X1.TRDP_ADDR     = X2.HBL_TRDP_ADDR,
+								X1.TRDP_CNT_CD   = X2.TRDP_CNT_CD,
+								X1.MODI_USRID    = X2.USR_ID,
+								X1.MODI_OFC_CD   = X2.USR_OFC_CD,
+								X1.MODI_TMS      = GETUTCDATE()
+								
+                WHEN NOT MATCHED THEN                        
+                INSERT ( BL_SEQ,
+				         BL_NO,
+				         BL_TRDP_TP_CD,
+				         BIZ_CLSS_CD,
+				         TRDP_CD,
+				         TRDP_NM,
+				         TRDP_ADDR,
+				         TRDP_CNT_CD,
+				         DELT_FLG,
+				         RGST_USRID,
+				         RGST_OFC_CD,
+				         RGST_TMS,
+				         MODI_USRID,
+				         MODI_OFC_CD,
+				         MODI_TMS)                        
+				VALUES ( X2.BL_SEQ,
+				         X2.BL_NO,
+				         X2.BL_TRDP_TP_CD,
+				         X2.BIZ_CLSS_CD,
+				         X2.TRDP_CD,
+				         X2.HBL_TRDP_NM,
+				         X2.HBL_TRDP_ADDR,
+				         X2.TRDP_CNT_CD,
+				         'N',
+				         X2.USR_ID,
+				         X2.USR_OFC_CD,
+				         GETUTCDATE(),
+				         X2.USR_ID,
+				         X2.USR_OFC_CD,
+				         GETUTCDATE());
+	</update>
+	<update id="mergeEdiHblCntrTemp" parameterClass="EdiSmtAmsRcvVO">
+	/*mergeEdiHblCntrTemp*/
+	MERGE INTO  TB_CNTR_LIST_EDI_TEMP X1   
+		      USING (SELECT  #bl_key#           BL_SEQ,
+				             #cntr_key#         CNTR_LIST_SEQ,
+						     #hbl_no#           BL_NO,
+						     #biz_clss_cd#      BIZ_CLSS_CD,
+						     #hbl_cntr_no#      CNTR_NO,
+						     <!-- #4549 ISO code mapping -->
+							 (SELECT TOP 1 CNTR_TPSZ_CD 
+							    FROM TB_CNTR_TPSZ 
+							   WHERE ISO_CNTR_CD = #hbl_cntr_tpsz_cd# 
+							     AND USE_FLG = 'Y') CNTR_TPSZ_CD,						     
+						     #hbl_cgo_wgt#      CGO_WGT,
+						     #hbl_cgo_meas#     CGO_MEAS,
+						     #hbl_cgo_pck_qty#  CGO_PCK_QTY,
+						     #hbl_cgo_pck_ut#   CGO_PCK_UT,
+							 #usr_id#           USR_ID,
+							 #usr_ofc_cd#       USR_OFC_CD,
+							 (SELECT TOP 1 M.SEAL_NO1  
+								FROM TB_CNTR_LIST_EDI_TEMP M  
+						       WHERE M.CNTR_NO = #hbl_cntr_no# AND M.BIZ_CLSS_CD = 'M' 
+								 AND M.BL_SEQ = #bl_key# ) 
+							SEAL_NO1 
+				            ) X2  
+		         ON (X1.BL_SEQ              = X2.BL_SEQ  
+		             AND X1.BL_NO           = X2.BL_NO
+		             AND X1.CNTR_LIST_SEQ   = X2.CNTR_LIST_SEQ
+		             AND X1.BIZ_CLSS_CD     = X2.BIZ_CLSS_CD)           
+		        WHEN MATCHED 
+				THEN UPDATE SET X1.BIZ_CLSS_CD  = X2.BIZ_CLSS_CD,
+		                        X1.CGO_MEAS     = X2.CGO_MEAS,
+								X1.CGO_PCK_UT   = X2.CGO_PCK_UT,
+								X1.CGO_WGT      = X2.CGO_WGT,
+								X1.CNTR_NO      = X2.CNTR_NO,
+								X1.CNTR_TPSZ_CD = X2.CNTR_TPSZ_CD,
+								X1.CGO_PCK_QTY  = X2.CGO_PCK_QTY,
+								X1.SEAL_NO1		= X2.SEAL_NO1,  
+								X1.MODI_USRID   = X2.USR_ID,
+								X1.MODI_OFC_CD  = X2.USR_OFC_CD,
+								X1.MODI_TMS     = GETUTCDATE()
+                WHEN NOT MATCHED THEN                        
+                INSERT ( BL_SEQ,
+				         BL_NO,
+				         CNTR_LIST_SEQ,
+				         BIZ_CLSS_CD,
+				         CGO_MEAS,
+				         CGO_PCK_UT,
+				         CGO_PCK_QTY,
+				         CGO_WGT,
+				         CNTR_NO,
+				         CNTR_TPSZ_CD,
+				         SEAL_NO1,
+				         DELT_FLG,
+				         RGST_USRID,
+				         RGST_OFC_CD,
+				         RGST_TMS,
+				         MODI_USRID,
+				         MODI_OFC_CD,
+				         MODI_TMS)                        
+				VALUES ( X2.BL_SEQ,
+				         X2.BL_NO,
+				         X2.CNTR_LIST_SEQ,
+				         X2.BIZ_CLSS_CD,
+				         X2.CGO_MEAS,
+				         X2.CGO_PCK_UT,
+				         X2.CGO_PCK_QTY,
+				         X2.CGO_WGT,
+				         X2.CNTR_NO,
+				         X2.CNTR_TPSZ_CD,
+				         X2.SEAL_NO1,
+				         'N',
+				         X2.USR_ID,
+				         X2.USR_OFC_CD,
+				         GETUTCDATE(),
+				         X2.USR_ID,
+				         X2.USR_OFC_CD,
+				         GETUTCDATE());
+    </update>
+    <select id="selectMkTxt"  parameterClass="EdiSmtAmsRcvVO" resultClass="String">
+		/*selectMkTxt*/
+		SELECT ISNULL(MK_TXT,'')
+		  FROM TB_INTG_BL_EDI_TEMP
+		 WHERE 1 = 1
+		   AND BL_SEQ       = #bl_key# 
+		   AND BL_NO        = #hbl_no#
+		   <!-- OFVFOUR-7564 [UNICO] B/L EDI DATA MISSING ISSUE -->
+		   AND BIZ_CLSS_CD  = 'H'
+	</select>
+	<select id="selectDescTxt"  parameterClass="EdiSmtAmsRcvVO" resultClass="String">
+		/*selectDescTxt*/
+		SELECT ISNULL(DESC_TXT,'')
+		  FROM TB_INTG_BL_EDI_TEMP
+		 WHERE 1 = 1
+		   AND BL_SEQ       = #bl_key# 
+		   AND BL_NO        = #hbl_no#
+		   <!-- OFVFOUR-7564 [UNICO] B/L EDI DATA MISSING ISSUE -->
+		   AND BIZ_CLSS_CD  = 'H'
+	</select>
+	
+	<select id="selectBlTempList" parameterClass="java.util.HashMap" resultClass="MgtItfMgtVO">
+		 /* MgtAltMgtSQL.xml > selectBlTempList  */    
+		SELECT 
+		t.*
+		, CASE WHEN t.BL_TABLE_COUNT>0
+		  THEN t.BL_POST_DT
+		  ELSE t.INIT_POST_DT
+		  END AS POST_DT   
+		
+		FROM (
+		
+			   SELECT 
+			              
+			            <!-- #5246 [BINEX] AFTER V470.06 RELEASE, BL INTERFACE TO OIM BL ENTRY:binex B/L 수신 후 추가로 HOUSER B/L 전송 시 REF_NO 버그 로직 변경
+			            BL.REF_NO, -->			            
+			            (SELECT TOP 1 A1.REF_NO  FROM
+			                    TB_INTG_BL A1            
+			                JOIN
+			                    TB_ADD_INFO_BND ADD_INFO1 
+			                        ON A1.INTG_BL_SEQ = ADD_INFO1.INTG_BL_SEQ            
+						 WHERE
+						 A1.AIR_SEA_CLSS_CD = 'S'             
+			                    AND A1.DELT_FLG = 'N'             
+			                    AND ADD_INFO1.BND_CLSS_CD = 'I'             
+			                    AND A1.BIZ_CLSS_CD = 'M'         
+								AND A1.BL_NO =  MBLT.BL_NO
+						) AS REF_NO,
+			  			 
+			              BL.HBL_INTG_BL_SEQ AS INTG_BL_SEQ,  
+					    MBLT.BL_NO AS MBL_NO, /*MB/L NO.*/
+					    MBLT.ETD_DT_TM AS MBL_ETD, /*MBL_ETD*/
+					    MBLT.ETA_DT_TM AS MBL_ETA, /*MBL_ETA*/
+ 					    <!--#3704 [JAPT] Post Date 로직 추가 -->
+						 CASE WHEN (SELECT A.POST_DT_IMP FROM TB_OFC A  WHERE 1 = 1 AND A.OFC_CD = #rgst_ofc_cd# AND A.DELT_FLG = 'N' ) = 'ETD'
+					     THEN REPLACE(MBLT.ETD_DT_TM,'-','')
+						 WHEN (SELECT A.POST_DT_IMP FROM TB_OFC A  WHERE 1 = 1 AND A.OFC_CD = #rgst_ofc_cd# AND A.DELT_FLG = 'N' ) = 'ETA'
+						 THEN REPLACE(MBLT.ETA_DT_TM,'-','')
+						 WHEN (SELECT A.POST_DT_IMP FROM TB_OFC A  WHERE 1 = 1 AND A.OFC_CD = #rgst_ofc_cd# AND A.DELT_FLG = 'N' ) = 'TODAY'
+						 THEN CONVERT(VARCHAR(10),GETDATE(),112)
+						 ELSE REPLACE(MBLT.ETA_DT_TM,'-','') /*CONVERT(VARCHAR(10),GETDATE(),112)*/
+					     END AS INIT_POST_DT,
+			     
+					    ISNULL(MBLT.POR_NM, '') AS MBL_POR_NM, /*MBL_POR*/
+					    ISNULL(MBLT.POL_NM, '') AS MBL_POL_NM, /*MBL_POL*/
+					    ISNULL(MBLT.POD_NM, '') AS MBL_POD_NM, /*MBL_POD*/
+					    ISNULL(MBLT.DEL_NM, '') AS MBL_DEL_NM,  /*MBL_DEL*/
+		
+					    isnull(HBLT.BL_NO, '') AS bl_no , /*HB/L NO.*/
+					    isnull(HBLT.BL_seq, MBLT.BL_SEQ) AS BL_SEQ, /*bl_seq*/
+					    (
+							   SELECT COUNT(*)
+							   FROM TB_INTG_BL BL
+								   JOIN TB_ADD_INFO_BND ADD_INFO ON BL.INTG_BL_SEQ = ADD_INFO.INTG_BL_SEQ
+							   WHERE 1 = 1        
+							   /* AND BIZ_CLSS_CD = 'M' */
+								    AND BL.AIR_SEA_CLSS_CD = 'S'
+								    AND BL.DELT_FLG = 'N'
+								    AND ADD_INFO.BND_CLSS_CD = 'I'
+								    AND BL.BL_NO IN
+										    (
+											   SELECT BL_NO
+											   FROM TB_INTG_BL_EDI_TEMP
+											   WHERE BL_SEQ = ISNULL(HBLT.BL_SEQ,MBLT.BL_SEQ)   
+										    )
+						) AS BL_TABLE_COUNT, /*BL_TABLE_COUNT*/
+						<![CDATA[
+					     (CASE
+						    WHEN
+							  (
+								 SELECT COUNT(*)
+								 FROM TB_INTG_BL BL
+									 JOIN TB_ADD_INFO_BND ADD_INFO ON BL.INTG_BL_SEQ = ADD_INFO.INTG_BL_SEQ
+								 WHERE 1 = 1                        
+								 /* AND HTBL.BIZ_CLSS_CD = 'H' */
+								  AND BL.AIR_SEA_CLSS_CD = 'S'
+								  AND BL.DELT_FLG = 'N'
+								  AND ADD_INFO.BND_CLSS_CD = 'I'
+								  AND BL.BL_NO IN
+										(
+										    SELECT BL_NO
+										    FROM TB_INTG_BL_EDI_TEMP
+										    WHERE BL_SEQ = ISNULL(HBLT.BL_SEQ,MBLT.BL_SEQ)
+										)
+							  ) > 0
+						    THEN 'B/L Created'
+						    ELSE 'Downloaded'
+						END) AS STATUS_BL,
+					    ]]>	
+					    HBLT.SHP_MOD_CD, /*SHIP MODE*/
+					    HBLT.ETD_DT_TM AS ETD, /*ETD*/
+					    HBLT.ETA_DT_TM AS ETA, /*ETA*/
+					    SHPR.TRDP_NM AS SHPR_TRDP_NM, /*SHIPPER*/
+					    CNEE.TRDP_NM AS CNEE_TRDP_NM, /*CONSIGNEE*/
+					    NTF.TRDP_NM AS NTFY_TRDP_NM, /*NOTIFY*/
+					    <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+					    MORGAGT.TRDP_NM AS MBL_ORG_AGT_TRDP_NM, /*MBL ORIGIN AGENT */  
+					    MSHPR.TRDP_NM AS MBL_SHPR_TRDP_NM, /*MBL SIPPER*/
+					    MCNEE.TRDP_NM AS MBL_CNEE_TRDP_NM, /*MBL CONSIGNEE*/
+						(
+						    SELECT TOP 1 MP_CD
+						    FROM TB_EDI_DATA_MP
+						    WHERE MP_VAL = SHPR.TRDP_NM
+								AND MP_TP = 'TRDP'
+								and EDI_TP =MBLT.edi_tp
+						) AS SHPR_CD,
+						(
+						    SELECT TOP 1 MP_CD
+						    FROM TB_EDI_DATA_MP
+						    WHERE MP_VAL = CNEE.TRDP_NM
+								AND MP_TP = 'TRDP'
+								and EDI_TP =MBLT.edi_tp
+						) AS CNEE_CD,
+						(
+						    SELECT TOP 1 MP_CD
+						    FROM TB_EDI_DATA_MP
+						    WHERE MP_VAL = NTF.TRDP_NM
+								AND MP_TP = 'TRDP'
+								and EDI_TP =MBLT.edi_tp
+						) AS NTFY_CD,
+						<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+						(
+						    SELECT TOP 1 MP_CD
+						    FROM TB_EDI_DATA_MP
+						    WHERE MP_VAL = MORGAGT.TRDP_NM
+								AND MP_TP = 'TRDP'
+								and EDI_TP =MBLT.edi_tp
+						) AS MBL_ORG_AGT_CD,
+						(
+						    SELECT TOP 1 MP_CD
+						    FROM TB_EDI_DATA_MP
+						    WHERE MP_VAL = MSHPR.TRDP_NM
+								AND MP_TP = 'TRDP'
+								and EDI_TP =MBLT.edi_tp
+						) AS MBL_SHPR_CD,
+						(
+						    SELECT TOP 1 MP_CD
+						    FROM TB_EDI_DATA_MP
+						    WHERE MP_VAL = MCNEE.TRDP_NM
+								AND MP_TP = 'TRDP'
+								and EDI_TP =MBLT.edi_tp
+						) AS MBL_CNEE_CD,
+					    CASE
+						   WHEN
+						    (
+							   SELECT MAX(CNTR.CNTR_NO)
+							   FROM TB_CNTR_LIST_EDI_TEMP CNTR
+							   WHERE 1 = 1
+								    AND CNTR.BL_SEQ = HBLT.BL_SEQ
+								    AND CNTR.DELT_FLG = 'N'
+								    AND CNTR.BL_NO = HBLT.BL_NO
+						    ) = ''
+						   THEN ''
+						   ELSE
+						    (
+							   SELECT MAX(CNTR.CNTR_NO)
+							   FROM TB_CNTR_LIST_EDI_TEMP CNTR
+							   WHERE 1 = 1
+								    AND CNTR.BL_SEQ = HBLT.BL_SEQ
+								    AND CNTR.DELT_FLG = 'N'
+								    AND CNTR.BL_NO = HBLT.BL_NO
+						    )+
+						    (
+							   SELECT CASE
+									    WHEN COUNT(CNTR.CNTR_NO) = 1
+									    THEN ''
+									    ELSE '+'+CONVERT(VARCHAR, COUNT(CNTR.CNTR_NO) - 1)
+									END
+							   FROM TB_CNTR_LIST_EDI_TEMP CNTR
+							   WHERE 1 = 1
+								    AND CNTR.BL_SEQ = HBLT.BL_SEQ
+								    AND CNTR.DELT_FLG = 'N'
+								    AND CNTR.BL_NO = HBLT.BL_NO
+						    )
+					    END AS CNTR_TOTAL,
+						(
+						    SELECT MAX(CNTR.CNTR_NO)
+						    FROM TB_CNTR_LIST_EDI_TEMP CNTR
+						    WHERE 1 = 1
+								AND CNTR.BL_SEQ = HBLT.BL_SEQ
+								AND CNTR.DELT_FLG = 'N'
+								AND CNTR.BL_NO = HBLT.BL_NO
+						) AS CNTR_NO, /*CONTAINER*/
+						(
+						    SELECT COUNT(CNTR.CNTR_NO) - 1
+						    FROM TB_CNTR_LIST_EDI_TEMP CNTR
+						    WHERE 1 = 1
+								AND CNTR.BL_SEQ = HBLT.BL_SEQ
+								AND CNTR.DELT_FLG = 'N'
+								AND CNTR.BL_NO = HBLT.BL_NO
+						) AS CNTR_CNT, /*CONTAINER_COUNT*/
+					    ISNULL(HBLT.POR_NM, '') AS POR_NM, /*POR*/
+					    ISNULL(HBLT.POL_NM, '') AS POL_NM, /*POL*/
+					    ISNULL(HBLT.POD_NM, '') AS POD_NM, /*POD*/
+					    ISNULL(HBLT.DEL_NM, '') AS DEL_NM  /*DEL*/
+					    
+					    ,MBLT.EDI_TP
+		 			    ,tpor.UN_LOC_CD as hbl_por_un_loc_cd   
+					    ,tpol.UN_LOC_CD as hbl_pol_un_loc_cd
+					    ,tpod.UN_LOC_CD as hbl_pod_un_loc_cd
+					    ,tdel.UN_LOC_CD as hbl_del_un_loc_cd
+					    ,tmpor.UN_LOC_CD as mbl_por_un_loc_cd
+					    ,tmpol.UN_LOC_CD as mbl_pol_un_loc_cd
+					    ,tmpod.UN_LOC_CD as mbl_pod_un_loc_cd
+					    ,tmdel.UN_LOC_CD as mbl_del_un_loc_cd
+					    ,MBLT.POR_CD as mbl_por_cd
+					    ,MBLT.POL_CD as mbl_pol_cd
+					    ,MBLT.POD_CD as mbl_pod_cd
+					    ,MBLT.DEL_CD as mbl_del_cd
+					    ,tmpor.LOC_CD AS MBL_MAP_POR_LOC_CD   
+					    ,tmpol.LOC_CD AS MBL_MAP_POL_LOC_CD
+					    ,tmpod.LOC_CD AS MBL_MAP_POD_LOC_CD
+					    ,tmdel.LOC_CD AS MBL_MAP_DEL_LOC_CD
+					    ,tpor.LOC_CD as hbl_map_por_cd    
+					    ,tpol.LOC_CD as hbl_map_pol_cd
+					    ,tpod.LOC_CD as hbl_map_pod_cd
+					    ,tdel.LOC_CD as hbl_map_del_cd   
+		
+					    ,HBLT.POR_CD as hbl_por_cd
+					    ,HBLT.POL_CD as hbl_pol_cd
+					    ,HBLT.POD_CD as hbl_pod_cd
+					    ,HBLT.DEL_CD as hbl_del_cd
+					    
+					    , case when isnull(mblt.POR_CD ,'')!='' and isnull(MBLT.por_un_loc_cd, '') != '' and isnull(tmpor.UN_LOC_CD,'') ='' then  'N'   
+							 else 'Y'
+						end mbl_por_un_loc_chk
+						, case when isnull(mblt.POL_CD ,'')!='' and isnull(MBLT.pol_un_loc_cd, '') != '' and isnull(tmpol.UN_LOC_CD,'') ='' then  'N'
+							 else 'Y'
+						end mbl_pol_un_loc_chk
+						, case when isnull(mblt.POD_CD ,'')!='' and isnull(MBLT.pod_un_loc_cd, '') != '' and isnull(tmpod.UN_LOC_CD,'') ='' then  'N'
+							  else 'Y'
+						end mbl_pod_un_loc_chk
+						, case when isnull(mblt.DEL_CD ,'')!='' and isnull(MBLT.DEL_UN_LOC_CD, '') != ''  and isnull(tmdel.UN_LOC_CD,'') ='' then  'N'
+							  else 'Y'
+						end mbl_del_un_loc_chk
+					    , case when isnull(HBLT.POR_CD ,'')!='' and isnull(HBLT.por_un_loc_cd, '') != '' and isnull(tpor.UN_LOC_CD,'') ='' then  'N'
+							 else 'Y'
+						end hbl_por_un_loc_chk
+						, case when isnull(HBLT.POL_CD ,'')!='' and isnull(HBLT.POL_UN_LOC_CD, '') != '' and isnull(tpol.UN_LOC_CD,'') ='' then  'N'
+							 else 'Y'
+						end hbl_pol_un_loc_chk
+						, case when isnull(HBLT.POD_CD ,'')!='' and isnull(HBLT.POD_UN_LOC_CD, '') != '' and isnull(tpod.UN_LOC_CD,'') ='' then  'N'
+							 else 'Y'
+						end hbl_pod_un_loc_chk
+						, case when isnull(HBLT.DEL_CD ,'')!='' and isnull(HBLT.DEL_UN_LOC_CD,'') != '' and isnull(tdel.UN_LOC_CD,'') ='' then  'N'
+							 else 'Y'
+						end hbl_del_un_loc_chk
+					    
+					    ,ROW_NUMBER() over( partition by mblt.bl_no,HBLT.bl_no order by convert(int,mblt.bl_seq) desc,convert(int,HBLT.bl_seq) desc) rn
+					    ,isnull(( SELECT top 1 
+		
+								  case when  COUNT(frt.FRT_CD) over (partition by frt.bl_seq ) = 0 then 'N/A'
+									  when COUNT(frt.FRT_CD) over (partition by frt.bl_seq ) =count(isnull(frt.map_frt_cd,mp.MP_CD)) over (partition by frt.bl_seq ) then 'Verified'
+									  when COUNT(frt.FRT_CD) over (partition by frt.bl_seq ) >count(isnull(frt.map_frt_cd,mp.MP_CD)) over (partition by frt.bl_seq ) then 'Not Verified'
+									  else 'N/A'
+									  end frt_cnt
+							   FROM TB_frt_edi_temp  frt
+									 left join TB_EDI_DATA_MP mp on frt.FRT_CD_NM= mp.MP_VAL and mp.MP_tp='FRT' and mp.EDI_TP=MBLT.edi_tp  	
+							   WHERE 1 = 1        
+							   /* AND BIZ_CLSS_CD = 'M' */
+									 AND frt.bl_seq = isnull(HBLT.BL_SEQ ,mblt.bl_seq) 
+									 AND frt.DELT_FLG = 'N'
+								),'N/A') AS dc_note
+						,BL_POST_DT		
+						
+						<!-- #5083 [CLA] BL EDI Improvement Requests -->	
+						,MBLT.TRNK_VSL_NM
+						,MBLT.TRNK_VOY
+						
+						<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+					    ,MORGAGT.TRDP_ADDR AS MBL_ORG_AGT_TRDP_ADDR   
+					    ,MORGAGT.TRDP_CNT_CD AS MBL_ORG_AGT_TRDP_CNT_CD
+					    ,MSHPR.TRDP_ADDR AS MBL_SHPR_TRDP_ADDR
+					    ,MSHPR.TRDP_CNT_CD AS MBL_SHPR_TRDP_CNT_CD
+					    ,MCNEE.TRDP_ADDR AS MBL_CNEE_TRDP_ADDR
+					    ,MCNEE.TRDP_CNT_CD AS MBL_CNEE_TRDP_CNT_CD
+					    
+						,SHPR.TRDP_ADDR		AS SHPR_TRDP_ADDR
+						,SHPR.TRDP_CNT_CD   AS SHPR_TRDP_CNT_CD
+						,CNEE.TRDP_ADDR		AS CNEE_TRDP_ADDR
+						,CNEE.TRDP_CNT_CD   AS CNEE_TRDP_CNT_CD
+						,NTF.TRDP_ADDR		AS NTF_TRDP_ADDR
+						,NTF.TRDP_CNT_CD	AS NTF_TRDP_CNT_CD
+						
+						,MBLT.RGST_TMS    																 AS DNLD_TMS
+						,(SELECT MAX(USR.ENG_USR_NM) FROM TB_USR USR WHERE USR.USRID = MBLT.RGST_USRID ) AS DNLD_USR_NM
+						,BL.RGST_TMS	  																 AS ISS_TMS
+						,(SELECT MAX(USR.ENG_USR_NM) FROM TB_USR USR WHERE USR.USRID = BL.RGST_USRID )   AS ISS_USR_NM
+						<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+						,MBLT.REF_NO AS MBL_ORG_REF_NO	
+						,MBLT.SHP_MOD
+						,MBLT.ISF_NO
+						,MBLT.SNDR_BRNC_OFC_CD
+						,MBLT.RCVR_BRNC_OFC_CD
+						,MBLT.SNDR_AGN_ID
+						,MBLT.RCVR_AGN_ID	
+				  FROM 
+					 (SELECT * FROM TB_INTG_BL_EDI_TEMP 
+					   WHERE 1=1
+					   AND BIZ_CLSS_CD ='M'
+					   AND DELT_FLG != 'Y'
+					   and BL_SEQ in (
+					   
+							   SELECT 
+								   MAX(CONVERT(INT,BL_SEQ)) 
+							   FROM TB_INTG_BL_EDI_TEMP
+							   WHERE BIZ_CLSS_CD = 'M'
+							   AND DELT_FLG != 'Y'
+					 		   GROUP  BY BL_NO 
+								  )
+					 ) MBLT
+					  LEFT JOIN TB_INTG_BL_EDI_TEMP HBLT ON HBLT.BL_SEQ = MBLT.BL_SEQ  
+												AND HBLT.DELT_FLG != 'Y'   
+												AND HBLT.BIZ_CLSS_CD = 'H'  
+					  /* MBL */
+					  left join TB_LOC tmpor on tmpor.UN_LOC_CD = MBLT.por_un_loc_cd  AND ISNULL(tmpor.UN_LOC_CD  ,'')!= '' AND ISNULL(MBLT.poR_un_loc_cd, '') != '' AND tmpor.DELT_FLG ='N' 
+					  left join TB_LOC tmpol on tmpol.UN_LOC_CD = MBLT.pol_un_loc_cd  AND ISNULL(tmpol.UN_LOC_CD, '') != '' AND ISNULL(MBLT.poL_un_loc_cd, '') != '' AND tmpol.DELT_FLG ='N' 
+					  left join TB_LOC tmpod on tmpod.UN_LOC_CD = MBLT.pod_un_loc_cd  AND ISNULL(tmpod.UN_LOC_CD, '') != '' AND ISNULL(MBLT.pod_un_loc_cd, '') != '' AND tmpod.DELT_FLG ='N' 
+					  left join TB_LOC tmdel on tmdel.UN_LOC_CD = MBLT.del_un_loc_cd  AND ISNULL(tmdel.UN_LOC_CD, '') != '' AND ISNULL(MBLT.DEL_un_loc_cd, '') != '' AND tmdel.DELT_FLG ='N' 
+		
+					  /* HBL */
+					  left join TB_LOC tpor on tpor.UN_LOC_CD = HBLT.por_un_loc_cd  AND ISNULL(tpor.UN_LOC_CD, '') != ''  AND ISNULL(HBLT.poR_un_loc_cd, '') != '' AND tpor.DELT_FLG ='N' 
+					  left join TB_LOC tpol on tpol.UN_LOC_CD = HBLT.pol_un_loc_cd  AND ISNULL(tpol.UN_LOC_CD, '') != ''  AND ISNULL(HBLT.poL_un_loc_cd, '') != '' AND tpol.DELT_FLG ='N' 
+					  left join TB_LOC tpod on tpod.UN_LOC_CD = HBLT.pod_un_loc_cd  AND ISNULL(tpod.UN_LOC_CD, '') != ''  AND ISNULL(HBLT.pod_un_loc_cd, '') != '' AND tpod.DELT_FLG ='N' 
+					  left join TB_LOC tdel on tdel.UN_LOC_CD = HBLT.del_un_loc_cd  AND ISNULL(tdel.UN_LOC_CD, '') != ''  AND ISNULL(HBLT.DEL_un_loc_cd, '') != '' AND tdel.DELT_FLG ='N' 
+					  
+					  <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+					  LEFT JOIN TB_BL_PRNR_EDI_TEMP MORGAGT ON MORGAGT.BL_SEQ = MBLT.BL_SEQ
+													 AND MORGAGT.DELT_FLG != 'Y'
+													 AND MORGAGT.BL_NO = MBLT.BL_NO 
+													 AND MORGAGT.BIZ_CLSS_CD = 'M'
+													 AND MORGAGT.BL_TRDP_TP_CD = 'P01'
+					  LEFT JOIN TB_BL_PRNR_EDI_TEMP MSHPR ON MSHPR.BL_SEQ = MBLT.BL_SEQ
+													 AND MSHPR.DELT_FLG != 'Y'
+													 AND MSHPR.BL_NO = MBLT.BL_NO 
+													 AND MSHPR.BIZ_CLSS_CD = 'M'
+													 AND MSHPR.BL_TRDP_TP_CD = 'S01'
+													 													 	
+					  LEFT JOIN TB_BL_PRNR_EDI_TEMP MCNEE ON MCNEE.BL_SEQ = MBLT.BL_SEQ
+													 AND MCNEE.DELT_FLG != 'Y'
+													 AND MCNEE.BL_NO = MBLT.BL_NO 
+													 AND MCNEE.BIZ_CLSS_CD = 'M'
+													 AND MCNEE.BL_TRDP_TP_CD = 'C01'
+					  LEFT JOIN TB_BL_PRNR_EDI_TEMP SHPR ON SHPR.BL_SEQ = MBLT.BL_SEQ
+													AND SHPR.DELT_FLG != 'Y'
+													AND SHPR.BL_NO = HBLT.BL_NO 
+													AND SHPR.BIZ_CLSS_CD = 'H'
+													AND SHPR.BL_TRDP_TP_CD = 'S01'
+					  LEFT JOIN TB_BL_PRNR_EDI_TEMP CNEE ON CNEE.BL_SEQ = MBLT.BL_SEQ
+													AND CNEE.DELT_FLG != 'Y'
+													AND CNEE.BL_NO = HBLT.BL_NO
+													AND CNEE.BIZ_CLSS_CD = 'H'
+													AND CNEE.BL_TRDP_TP_CD = 'C01'
+					  LEFT JOIN TB_BL_PRNR_EDI_TEMP NTF ON NTF.BL_SEQ = MBLT.BL_SEQ
+												    AND NTF.DELT_FLG != 'Y'
+												    AND NTF.BL_NO = HBLT.BL_NO
+												    AND NTF.BIZ_CLSS_CD = 'H'
+												    AND NTF.BL_TRDP_TP_CD = 'N01'
+					  LEFT JOIN
+						    (
+							   SELECT A.BL_NO,
+									A.INTG_BL_SEQ,
+									A.REF_NO
+									,HBL.INTG_BL_SEQ AS HBL_INTG_BL_SEQ   
+									,HBL.BL_NO AS HBL_BL_NO
+									,A.POST_DT AS BL_POST_DT
+									
+									<!-- #5083 [CLA] BL EDI Improvement Requests -->
+									,A.RGST_TMS
+									,A.RGST_USRID           
+							   FROM TB_INTG_BL A
+								   JOIN TB_ADD_INFO_BND ADD_INFO ON A.INTG_BL_SEQ = ADD_INFO.INTG_BL_SEQ
+								   LEFT JOIN TB_INTG_BL HBL ON A.REF_NO = HBL.REF_NO AND HBL.BIZ_CLSS_CD='H'
+							   WHERE A.AIR_SEA_CLSS_CD = 'S'
+								    AND A.DELT_FLG = 'N'
+								    AND ADD_INFO.BND_CLSS_CD = 'I'
+								    AND A.BIZ_CLSS_CD = 'M'
+						    ) BL ON BL.BL_NO = MBLT.BL_NO AND ISNULL(BL.HBL_BL_NO ,'')= ISNULL(HBLT.BL_NO,'')
+				 WHERE 1 = 1
+				   <isNotNull property="f_mbl_no">
+				       AND MBLT.BL_NO LIKE #f_mbl_no#+'%'
+				   </isNotNull>       
+				   <isNotNull property="etd_strdt">
+		               AND  REPLACE(MBLT.ETD_DT_TM,'-','') BETWEEN #etd_strdt_real# AND #etd_enddt_real#
+		             </isNotNull>
+		             <isNotNull property="eta_strdt">
+		               AND  REPLACE(MBLT.ETA_DT_TM,'-','') BETWEEN #eta_strdt_real# AND #eta_enddt_real#
+		             </isNotNull>
+					 <isNotNull property="dl_strdt">
+		               AND  REPLACE(CONVERT(VARCHAR(10), MBLT.RGST_TMS, 120),'-','') BETWEEN #dl_strdt_real# AND #dl_enddt_real#
+		             </isNotNull>
+				   <isNotNull property="f_cntr_no">
+				   <![CDATA[
+				       AND (SELECT COUNT(*) 
+				              FROM TB_CNTR_LIST_EDI_TEMP CNTR
+				             WHERE 1 = 1
+				               AND CNTR.BL_SEQ = MBLT.BL_SEQ
+		                       AND CNTR.BIZ_CLSS_CD = 'M'
+		                       AND CNTR.BL_NO = MBLT.BL_NO
+		                       AND CNTR.DELT_FLG = 'N'
+		                       AND CNTR.CNTR_NO LIKE #f_cntr_no#+'%') > 0
+		           ]]>            
+				   </isNotNull>
+				   <isNotNull property="f_por_cd">
+				       AND  MBLT.POR_CD = #f_por_cd#
+				   </isNotNull>
+				   <isNull property="f_por_cd">
+					   <isNotNull property="f_por_nm">
+					       AND  MBLT.POR_NM like #f_por_nm_real#
+					   </isNotNull>
+				   </isNull>
+				   <isNotNull property="f_pod_cd">
+				       AND  MBLT.POD_CD = #f_pod_cd#
+				   </isNotNull>
+				   <isNull property="f_pod_cd">
+					   <isNotNull property="f_pod_nm">
+					       AND  MBLT.POD_NM like #f_pod_nm_real#
+					   </isNotNull>
+				   </isNull>
+				   <isNotNull property="f_pol_cd">
+				       AND  MBLT.POL_CD = #f_pol_cd#
+				   </isNotNull>
+				   <isNull property="f_pol_cd">
+					   <isNotNull property="f_pol_nm">
+					       AND  MBLT.POL_NM like #f_pol_nm_real#
+					   </isNotNull>
+				   </isNull>
+				   <isNotNull property="f_del_cd">
+				       AND  MBLT.DEL_CD = #f_del_cd#
+				   </isNotNull>
+				   <isNull property="f_del_cd">
+					   <isNotNull property="f_del_nm">
+					       AND  MBLT.DEL_NM like #f_del_nm_real#
+					   </isNotNull>
+				   </isNull>
+				   
+    			   <!-- #5083 [CLA] BL EDI Improvement Requests -->
+    			    <isNotEmpty property="f_hbl_no">
+    			   		AND HBLT.BL_NO LIKE #f_hbl_no# +'%'
+    			    </isNotEmpty>
+    			   
+			  	    <isNotEmpty property="f_ref_no">
+						<!-- OFVFOUR-7709 [PQC][OI B/L EDI] The system show missing data after search with Filling No -->
+						<!--AND BL.REF_NO LIKE #f_ref_no#+'%' -->
+						AND (
+							SELECT TOP 1 A1.REF_NO
+							FROM 
+								TB_INTG_BL A1
+								JOIN TB_ADD_INFO_BND ADD_INFO1 ON A1.INTG_BL_SEQ = ADD_INFO1.INTG_BL_SEQ
+							WHERE
+								A1.AIR_SEA_CLSS_CD = 'S'
+								AND A1.DELT_FLG = 'N'
+								AND ADD_INFO1.BND_CLSS_CD = 'I'
+								AND A1.BIZ_CLSS_CD = 'M'
+								AND A1.BL_NO =  MBLT.BL_NO
+						) LIKE #f_ref_no#+'%'
+				    </isNotEmpty>
+				   	
+				   	<isNotEmpty property="f_shpr_nm">
+					<!-- MSHPR.TRDP_NM LIKE #f_shpr_nm# + '%' -->
+					</isNotEmpty>
+					
+					<isNotEmpty property="f_cnee_nm">
+					 	AND MCNEE.TRDP_NM LIKE #f_cnee_nm# + '%'
+					</isNotEmpty>
+					
+					<isNotEmpty property="f_trnk_vsl">
+					 	AND MBLT.TRNK_VSL_NM LIKE #f_trnk_vsl# + '%'
+					</isNotEmpty>
+					
+					<isNotEmpty property="f_trnk_voy">
+					 	AND MBLT.TRNK_VOY LIKE #f_trnk_voy# + '%'
+					</isNotEmpty>
+					
+					<!-- #1309-[BINEX] OI AMS LIST TO HAVE "AGENT ID" SEARCH FIELD -->
+					<isNotEmpty property="f_agt_id">
+					 	AND MBLT.EDI_TP = #f_agt_id#
+					</isNotEmpty>
+					<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+				   <isNotNull property="f_rcvr_brnc_ofc_cd">
+					       AND MBLT.RCVR_BRNC_OFC_CD = #f_rcvr_brnc_ofc_cd#
+				   </isNotNull>
+		) t 
+		where t.rn = 1
+		<isEqual prepend="AND" property="f_sts_cd" compareValue="D">
+		    t.BL_TABLE_COUNT = 0
+		</isEqual>
+		<isEqual prepend="AND" property="f_sts_cd" compareValue="C">
+		    t.BL_TABLE_COUNT > 0
+		</isEqual>	
+		ORDER BY t.MBL_NO, t.BL_NO 
+	</select>
+	<insert id="insertBlTable" parameterClass="MgtItfMgtVO">
+	    /*insertBlTable*/
+    	INSERT INTO TB_INTG_BL(   
+    	       INTG_BL_SEQ,
+    	       REF_NO,
+    	       AIR_SEA_CLSS_CD,
+    	       BL_STS_CD,
+			   AMS_NO,
+			   BIZ_CLSS_CD ,
+			   BL_NO,
+			   DEL_CD,
+			   DEL_NM ,
+			   MK_TXT ,
+			   DESC_TXT ,
+			   ETD_DT_TM ,
+			   ETA_DT_TM,
+			   EXPRESS_TP_CD ,
+			   FM_SVC_TERM_CD,
+			   TO_SVC_TERM_CD ,
+			   FNL_DEST_LOC_CD ,
+			   FNL_DEST_LOC_NM ,
+			   POD_CD,
+			   POD_NM ,
+			   POL_CD,
+			   POL_NM,
+			   POR_CD,
+			   POR_NM,
+			   SHP_MOD_CD,
+			   
+			   PCK_QTY,
+			   PCK_UT_CD,
+			   GRS_WGT_UT_CD,
+			   MEAS_UT_CD,
+			   FRT_TERM_CD,
+			   CFS_TRDP_CD,
+			   REF_OFC_CD,
+			   SIZE_UT_CD,
+			   HBL_TP_CD,
+			   CURR_CD,
+			   BL_ISS_DT,
+			   MODI_USR_NM,
+			   CY_TRDP_CD,
+			   POST_DT,
+			   
+			   DELT_FLG ,
+			   RGST_USRID,
+			   RGST_OFC_CD,
+			   RGST_TMS ,
+			   MODI_USRID ,
+			   MODI_OFC_CD ,
+			   MODI_TMS,
+			   <!-- #2684 [CLA DEMO] BL EDI INTERFACE ERROR -->
+			   REP_CMDT_CD,
+			   REP_CMDT_NM,
+			   GRS_WGT,  
+			   MEAS,
+			   GRS_WGT1,  
+			   MEAS1,
+			   <!-- #6185 [Impex-LA] Ocean Import Outstanding Report (10/8) - Express Type Code related -->
+			   OBL_TP_CD,
+			   DESC_TXT1
+			    )
+		SELECT #intg_bl_seq#,
+		       #ref_no#,
+		       'S',
+		       'MC',
+			   edi.AMS_NO,
+			   edi.BIZ_CLSS_CD,
+			   edi.BL_NO,
+			   isnull(ISNULL(#mbl_map_del_loc_cd#, edi.DEL_CD),''),
+			   edi.DEL_NM ,
+			   edi.MK_TXT ,
+			   <!-- #5428 [Binex] BL EDI improvement request : DESC + Commodity  
+			   edi.DESC_TXT ,-->
+			   CASE WHEN ISNULL(edi.DESC_TXT, '') = '' THEN
+						ISNULL(edi.DESC_TXT, '') + ISNULL(edi.REP_CMDT_NM,'')
+				    ELSE
+						CASE WHEN ISNULL(edi.REP_CMDT_NM, '') = '' THEN
+							ISNULL(edi.DESC_TXT, '') 
+						ELSE
+							ISNULL(edi.DESC_TXT, '') + CHAR(10)+ISNULL(edi.REP_CMDT_NM,'')
+					END 
+			   END AS DESC_TXT,    
+			   REPLACE(edi.ETD_DT_TM,'-',''),
+			   REPLACE(edi.ETA_DT_TM,'-',''),
+			   edi.EXPRESS_TP_CD,
+			   <!-- #5543 [Binex] BL EDI - House SVC Term Auto Assign :: SHP_MOD 없는 경우 FCL 세팅
+			   edi.FM_SVC_TERM_CD,
+			   edi.TO_SVC_TERM_CD,
+			   -->
+			   CASE WHEN ISNULL(edi.FM_SVC_TERM_CD,'') ='' 
+					THEN CASE WHEN ISNULL(edi.SHP_MOD,'FCL') ='FAK' OR ISNULL(edi.SHP_MOD,'FCL') ='LCL'
+							 THEN 'CF'
+							 ELSE 'CY'
+						 END	 
+				    ELSE edi.FM_SVC_TERM_CD
+				END AS FM_SVC_TERM_CD,
+				CASE WHEN ISNULL(edi.TO_SVC_TERM_CD,'') ='' 
+					THEN CASE WHEN ISNULL(edi.SHP_MOD,'FCL') ='FAK' OR ISNULL(edi.SHP_MOD,'FCL') ='LCL'
+							 THEN 'CF'
+							 ELSE 'CY'
+						 END	 
+				    ELSE edi.TO_SVC_TERM_CD
+				END AS TO_SVC_TERM_CD,
+				
+			   edi.FNL_DEST_LOC_CD,
+			   edi.FNL_DEST_LOC_NM,
+			   isnull(ISNULL(#mbl_map_pod_loc_cd#, edi.POD_CD),''),
+			   edi.POD_NM,
+			   isnull(#mbl_map_pol_loc_cd#, edi.POL_CD),
+			   ISNULL(edi.POL_NM,''),
+			   isnull(ISNULL(#mbl_map_por_loc_cd#, edi.POR_CD),''),
+			   ISNULL(edi.POR_NM,''),
+			    <!-- Agent EDI Spec 추가 사항 2018.12.10 
+			   edi.SHP_MOD_CD, -->
+			   <!-- #5543 [Binex] BL EDI - House SVC Term Auto Assign :: SHP_MOD 없는 경우 FCL 세팅
+			   edi.SHP_MOD, -->
+			   ISNULL(SHP_MOD,'FCL') AS SHP_MOD,
+			   
+			   isnull(EDI.PCK_QTY ,0),
+			   <!-- isnull(EDI.PCK_UT_CD ,'CT'), -->
+			   <!-- #5428 [Binex] BL EDI improvement request - Default PK:PACKAGES -->
+			   CASE WHEN EDI.PCK_UT_CD IS NULL
+					 THEN 'PK'
+			   ELSE 
+					(CASE WHEN EXISTS ( SELECT PCK.PCK_UT_CD FROM TB_PCK_UT_CD PCK WHERE PCK.PCK_UT_CD = EDI.PCK_UT_CD AND DELT_FLG = 'N' )
+					 THEN EDI.PCK_UT_CD
+					ELSE 'PK'
+					END )
+			   END,
+			   'K',
+			   'CBM',
+			   ISNULL(edi.FRT_TERM_CD ,(CASE WHEN (SELECT MAX(CNT_CD) 
+												     FROM TB_OFC 
+												    WHERE 1 = 1
+													  AND DELT_FLG = 'N'
+													  AND OFC_CD = #rgst_ofc_cd#) = 'DE'
+									         THEN 'PP'
+									         ELSE 'CC'
+									     END ) ), 
+			   '',
+			   #rgst_ofc_cd#,
+			   'INCH',
+			   'NR',
+			   (SELECT max(TRF_CUR_CD) FROM TB_OFC
+		         WHERE 1 = 1 
+			   	   AND OFC_CD = #rgst_ofc_cd#),  
+			   CONVERT(VARCHAR(10),GETDATE(),112),
+			   #user_nm#,
+			   '',
+<!-- 			   (CASE WHEN (SELECT A.POST_DT_IMP FROM TB_OFC A  WHERE 1 = 1 AND A.OFC_CD = #rgst_ofc_cd# AND A.DELT_FLG = 'N' ) = 'ETD' -->
+<!-- 				     THEN REPLACE(ETD_DT_TM,'-','') -->
+<!-- 					 WHEN (SELECT A.POST_DT_IMP FROM TB_OFC A  WHERE 1 = 1 AND A.OFC_CD = #rgst_ofc_cd# AND A.DELT_FLG = 'N' ) = 'ETA' -->
+<!-- 					 THEN REPLACE(ETA_DT_TM,'-','') -->
+<!-- 					 WHEN (SELECT A.POST_DT_IMP FROM TB_OFC A  WHERE 1 = 1 AND A.OFC_CD = #rgst_ofc_cd# AND A.DELT_FLG = 'N' ) = 'TODAY' -->
+<!-- 					 THEN CONVERT(VARCHAR(10),GETDATE(),112) -->
+<!-- 					 ELSE CONVERT(VARCHAR(10),GETDATE(),112) -->
+<!-- 				 END), -->
+			   #post_dt#,
+			   
+			   'N',
+			   #rgst_usrid#,
+			   #rgst_ofc_cd#,
+			   GETUTCDATE(),
+			   #modi_usrid#,
+			   #modi_ofc_cd#,
+			   GETUTCDATE(),
+			   <!-- #2684 [CLA DEMO] BL EDI INTERFACE ERROR -->
+			   <!-- 6828 [JAPT] Duplicate Commodity name makes error on BL EDI ( HS Code & Schedule B ) -->
+			   case when (select COUNT(cmdt_nm)
+ 			   from tb_cmdt_cd
+               where cmdt_nm = edi.REP_CMDT_NM) > 1 then null
+               else (select cmdt_cd from tb_cmdt_cd where cmdt_nm = edi.REP_CMDT_NM) end,
+			   edi.REP_CMDT_NM
+			   ,EDI.GRS_WGT  
+			   ,EDI.MEAS 
+			   <!-- #5428 [Binex] BL EDI improvement request : KG=>LB, CBM=>LFT 자동 변환 
+               ,EDI.GRS_WGT1  
+			   ,EDI.MEAS1
+			   -->
+               ,CASE WHEN ISNULL(EDI.GRS_WGT1,0) = 0
+					THEN
+						ROUND(ISNULL(EDI.GRS_WGT,0)*2.20462262185, (select CONVERT (INT,ISNULL(MAX(OPT_VAL),3)) from TB_SYS_OPT where OPT_KEY='OBL_DECIMAL_LEN'))
+					ELSE
+						ISNULL(EDI.GRS_WGT1,0)
+				END AS GRS_WGT1
+			   ,CASE WHEN ISNULL(EDI.MEAS1,0) = 0
+					THEN
+						ROUND(ISNULL(EDI.MEAS,0)*35.3165, (select CONVERT (INT,ISNULL(MAX(OPT_VAL),3)) from TB_SYS_OPT where OPT_KEY='OBL_DECIMAL_LEN'))	
+					ELSE
+						ISNULL(EDI.MEAS1,0)
+				END AS MEAS1
+				<!-- #6185 [Impex-LA] Ocean Import Outstanding Report (10/8) - Express Type Code related -->
+				,(SELECT TOP 1 CD_VAL FROM TB_COM_CD_DTL WHERE COM_CD = 'C089' AND USE_FLG = 'Y' AND DELT_FLG = 'N' ORDER BY SRT_SEQ) as OBL_TP_CD
+				,#desc_txt1#
+		  FROM TB_INTG_BL_EDI_TEMP edi
+		 WHERE 1 = 1
+		   AND edi.BL_SEQ = #bl_seq#
+		   AND edi.BIZ_CLSS_CD = #biz_clss_cd#
+		   AND edi.DELT_FLG = 'N'
+    </insert>
+    
+    <insert id="insertPrnrTable" parameterClass="MgtItfMgtVO">
+    /*insertPrnrTable*/
+    INSERT INTO TB_BL_PRNR(
+	       INTG_BL_SEQ,
+		   BL_TRDP_TP_CD,
+		   TRDP_CD,
+		   TRDP_NM,
+		   TRDP_PIC,
+		   TRDP_PHN,
+		   TRDP_FAX,
+		   TRDP_EML,
+		   TRDP_ADDR,
+		   RGST_USRID,
+		   RGST_OFC_CD,
+		   RGST_TMS,
+		   MODI_USRID,
+		   MODI_OFC_CD,
+		   MODI_TMS,
+		   DELT_FLG)
+	SELECT #intg_bl_seq#,
+		   BL_TRDP_TP_CD,
+		   isnull(MP_CD, a.TRDP_CD) as TRDP_CD,
+		   CASE WHEN MP_CD is null THEN a.trdp_nm WHEN MP_CD is not null THEN c.eng_nm END as TRDP_NM,
+		   TRDP_PIC,
+		   TRDP_PHN,
+		   TRDP_FAX,
+		   TRDP_EML,
+		   CASE WHEN MP_CD is null THEN a.trdp_addr WHEN MP_CD is not null THEN c.eng_addr END as TRDP_ADDR,
+		   #rgst_usrid#,
+		   #rgst_ofc_cd#,
+		   GETUTCDATE(),
+		   #modi_usrid# ,
+		   #modi_ofc_cd# ,
+		   GETUTCDATE(),
+		   'N' as DELT_FLG
+	  FROM TB_BL_PRNR_EDI_TEMP  a
+	  	LEFT OUTER JOIN  TB_EDI_DATA_MP b
+	  		ON a.TRDP_nm = b.MP_VAL  AND b.MP_TP = 'TRDP' and b.EDI_TP=#edi_tp#
+	  	LEFT OUTER JOIN TB_TRDP c
+	  		ON c.TRDP_CD = b.MP_CD
+	 WHERE 1 = 1
+	   AND BL_SEQ = #bl_seq#
+	   AND BIZ_CLSS_CD = #biz_clss_cd#
+	   AND a.DELT_FLG = 'N'
+	   
+    </insert>
+   
+    <insert id="insertCntrTable" parameterClass="MgtItfMgtVO">
+    /*insertCntrTable*/
+    INSERT INTO TB_CNTR_LIST( 
+	       INTG_BL_SEQ, 
+	       CNTR_LIST_SEQ,
+		   CGO_MEAS,
+		   CGO_PCK_QTY,
+		   CGO_PCK_UT,
+		   CGO_WGT,
+		   CNTR_NO,
+		   CNTR_TPSZ_CD,
+		   SEAL_NO1,
+		   DELT_FLG,
+		   RGST_USRID,
+		   RGST_OFC_CD,
+		   RGST_TMS,
+		   MODI_USRID,
+		   MODI_OFC_CD,
+		   MODI_TMS,
+		   <!-- #2684 [CLA DEMO] BL EDI INTERFACE ERROR -->
+		   CGO_WGT1,
+		   CGO_MEAS1
+		   
+		   )
+    SELECT #intg_bl_seq#,
+	       #cntr_list_seq# +RANK() OVER (PARTITION BY BL_SEQ ORDER BY CNTR_LIST_SEQ DESC) AS AB,
+		   CGO_MEAS,
+		   CGO_PCK_QTY,
+		   <!-- CGO_PCK_UT, -->
+		   <!-- #5428 [Binex] BL EDI improvement request - Default PK:PACKAGES -->
+		   CASE WHEN CGO_PCK_UT IS NULL
+				 THEN 'PK'
+		   ELSE 
+				(CASE WHEN EXISTS ( SELECT PCK.PCK_UT_CD FROM TB_PCK_UT_CD PCK WHERE PCK.PCK_UT_CD = CGO_PCK_UT AND DELT_FLG = 'N' )
+				 THEN CGO_PCK_UT
+				 ELSE 'PK'
+				 END )
+		   END,
+		   CGO_WGT,
+		   CNTR_NO,
+		   CNTR_TPSZ_CD,
+		   SEAL_NO1,
+		   DELT_FLG,
+		   RGST_USRID,
+		   RGST_OFC_CD,
+		   RGST_TMS,
+		   MODI_USRID,
+		   MODI_OFC_CD,
+		   MODI_TMS,
+		   <!-- #2684 [CLA DEMO] BL EDI INTERFACE ERROR -->
+		   CONVERT(NUMERIC(15,3), ROUND(isnull(CGO_WGT, 0) / 0.453597315,2)),
+		   CONVERT(NUMERIC(16,6), ROUND(isnull(CGO_MEAS, 0) * 35.3165,6))
+		   
+	  FROM TB_CNTR_LIST_EDI_TEMP
+	 WHERE BL_SEQ = #bl_seq#
+	   AND BIZ_CLSS_CD = #biz_clss_cd#
+	   AND DELT_FLG = 'N'
+    </insert>
+    
+    <select id="selecthblList" parameterClass="MgtItfMgtVO" resultClass="MgtItfMgtVO">
+    /*selecthblList*/
+    SELECT BL_NO AS HBL_NO
+      FROM TB_INTG_BL_EDI_TEMP
+	 WHERE 1 = 1
+	   AND BL_SEQ = #bl_seq#
+	   AND DELT_FLG = 'N'
+	   AND BIZ_CLSS_CD = 'H'
+   </select>
+   
+   <insert id="insertBlTable_Hbl" parameterClass="MgtItfMgtVO">
+	    /*insertBlTable_Hbl*/
+    	INSERT INTO TB_INTG_BL(   
+    	       INTG_BL_SEQ,
+    	       REF_NO,
+    	       AIR_SEA_CLSS_CD,
+    	       BL_STS_CD,
+			   AMS_NO,
+			   BIZ_CLSS_CD,
+			   BL_NO,
+			   DEL_CD,
+			   DEL_NM,
+			   MK_TXT,
+			   DESC_TXT,
+			   ETD_DT_TM,
+			   ETA_DT_TM,
+			   EXPRESS_TP_CD,
+			   FM_SVC_TERM_CD,
+			   TO_SVC_TERM_CD,
+			   FNL_DEST_LOC_CD,
+			   FNL_DEST_LOC_NM,
+			   POD_CD,
+			   POD_NM,
+			   POL_CD,
+			   POL_NM,
+			   POR_CD,
+			   POR_NM,
+			   SHP_MOD_CD,
+			   
+			   PCK_QTY,
+			   PCK_UT_CD,
+			   GRS_WGT_UT_CD,
+			   MEAS_UT_CD,
+			   FRT_TERM_CD,
+			   CFS_TRDP_CD,
+			   REF_OFC_CD,
+			   SIZE_UT_CD,
+			   HBL_TP_CD,
+			   CURR_CD,
+			   BL_ISS_DT,
+			   MODI_USR_NM,
+			   POST_DT,
+			   REP_CMDT_NM,
+			   <!-- #2684 [CLA DEMO] BL EDI INTERFACE ERROR -->
+			   REP_CMDT_CD,
+			   
+			   DELT_FLG,
+			   RGST_USRID,
+			   RGST_OFC_CD,
+			   RGST_TMS,
+			   MODI_USRID,
+			   MODI_OFC_CD,
+			   MODI_TMS 
+			   ,GRS_WGT  
+			   ,MEAS 
+			   ,GRS_WGT1  
+			   ,MEAS1 
+			   ,act_shp_info
+			   <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+			   ,isf_no
+			   <!-- #6185 [Impex-LA] Ocean Import Outstanding Report (10/8) - Express Type Code related -->
+			   ,obl_tp_cd
+			   ,desc_txt1
+			   )
+		SELECT #intg_bl_seq#,
+		       #ref_no#,
+		       'S',
+		       'HC',
+			   edi.AMS_NO,
+			   edi.BIZ_CLSS_CD ,
+			   edi.BL_NO,
+			   ISNULL(edi.DEL_CD,''),
+			   edi.DEL_NM,
+			   edi.MK_TXT ,
+			   <!-- #5428 [Binex] BL EDI improvement request : DESC + Commodity  
+			   edi.DESC_TXT ,-->
+			   CASE WHEN ISNULL(edi.DESC_TXT, '') = '' THEN
+						ISNULL(edi.DESC_TXT, '') + ISNULL(edi.REP_CMDT_NM,'')
+				    ELSE
+						CASE WHEN ISNULL(edi.REP_CMDT_NM, '') = '' THEN
+							ISNULL(edi.DESC_TXT, '') 
+						ELSE
+							ISNULL(edi.DESC_TXT, '') + CHAR(10)+ISNULL(edi.REP_CMDT_NM,'')
+					END 
+			   END AS DESC_TXT,    
+			   REPLACE(edi.ETD_DT_TM,'-','') ,
+			   REPLACE(edi.ETA_DT_TM,'-','') ,
+			   edi.EXPRESS_TP_CD ,
+			   <!-- #5543 [Binex] BL EDI - House SVC Term Auto Assign :: SHP_MOD 없는 경우 FCL 세팅
+			   edi.FM_SVC_TERM_CD,
+			   edi.TO_SVC_TERM_CD ,
+			   -->
+			   CASE WHEN ISNULL(edi.FM_SVC_TERM_CD,'') ='' 
+					THEN CASE WHEN ISNULL(edi.SHP_MOD,'FCL') ='FAK' OR ISNULL(edi.SHP_MOD,'FCL') ='LCL'
+							 THEN 'CF'
+							 ELSE 'CY'
+						 END	 
+				    ELSE edi.FM_SVC_TERM_CD
+				END AS FM_SVC_TERM_CD,
+				CASE WHEN ISNULL(edi.TO_SVC_TERM_CD,'') ='' 
+					THEN CASE WHEN ISNULL(edi.SHP_MOD,'FCL') ='FAK' OR ISNULL(edi.SHP_MOD,'FCL') ='LCL'
+							 THEN 'CF'
+							 ELSE 'CY'
+						 END	 
+				    ELSE edi.TO_SVC_TERM_CD
+				END AS TO_SVC_TERM_CD,
+				
+			   edi.FNL_DEST_LOC_CD ,
+			   edi.FNL_DEST_LOC_NM ,
+			   ISNULL(edi.POD_CD,''),
+			   ISNULL(edi.POD_NM,''),
+			   edi.POL_CD,
+			   ISNULL(edi.POL_NM,''),
+			   ISNULL(edi.POR_CD,''),
+			   ISNULL(edi.POR_NM,''),
+			   <!-- Agent EDI Spec 추가 사항 2018.12.10
+			   edi.SHP_MOD_CD, -->
+			   <!-- #5543 [Binex] BL EDI - House SVC Term Auto Assign :: SHP_MOD 없는 경우 FCL 세팅
+			   edi.SHP_MOD, -->
+			   ISNULL(SHP_MOD,'FCL') AS SHP_MOD,
+			   isnull(EDI.PCK_QTY ,0),
+			   <!-- isnull(EDI.PCK_UT_CD ,'CT'), -->
+			   <!-- #5428 [Binex] BL EDI improvement request - Default PK:PACKAGES -->
+			   CASE WHEN EDI.PCK_UT_CD IS NULL
+					 THEN 'PK'
+			   ELSE 
+					(CASE WHEN EXISTS ( SELECT PCK.PCK_UT_CD FROM TB_PCK_UT_CD PCK WHERE PCK.PCK_UT_CD = EDI.PCK_UT_CD AND DELT_FLG = 'N' )
+					 THEN EDI.PCK_UT_CD
+					ELSE 'PK'
+					END )
+			   END, 
+			   'K',
+			   'CBM',
+			   isnull(edi.FRT_TERM_CD ,(CASE WHEN (SELECT MAX(CNT_CD) 
+												     FROM TB_OFC 
+												    WHERE 1 = 1
+													  AND DELT_FLG = 'N'
+													  AND OFC_CD = #rgst_ofc_cd#) = 'DE'
+									         THEN 'PP'
+									         ELSE 'CC'
+									     END ) ), 
+			   '',
+			   #rgst_ofc_cd#,
+			   'INCH',
+			   'NR',
+			   (SELECT max(TRF_CUR_CD) FROM TB_OFC
+		         WHERE 1 = 1 
+			   	   AND OFC_CD = #rgst_ofc_cd#),  
+			   CONVERT(VARCHAR(10),GETDATE(),112),
+			   #user_nm#,
+<!-- 			   (CASE WHEN (SELECT A.POST_DT_IMP FROM TB_OFC A  WHERE 1 = 1 AND A.OFC_CD = #rgst_ofc_cd# AND A.DELT_FLG = 'N' ) = 'ETD' -->
+<!-- 				     THEN REPLACE(ETD_DT_TM,'-','') -->
+<!-- 					 WHEN (SELECT A.POST_DT_IMP FROM TB_OFC A  WHERE 1 = 1 AND A.OFC_CD = #rgst_ofc_cd# AND A.DELT_FLG = 'N' ) = 'ETA' -->
+<!-- 					 THEN REPLACE(ETA_DT_TM,'-','') -->
+<!-- 					 WHEN (SELECT A.POST_DT_IMP FROM TB_OFC A  WHERE 1 = 1 AND A.OFC_CD = #rgst_ofc_cd# AND A.DELT_FLG = 'N' ) = 'TODAY' -->
+<!-- 					 THEN CONVERT(VARCHAR(10),GETDATE(),112) -->
+<!-- 					 ELSE CONVERT(VARCHAR(10),GETDATE(),112) -->
+<!-- 				 END), -->
+			   #post_dt#,
+			   edi.REP_CMDT_NM,
+			   <!-- #2684 [CLA DEMO] BL EDI INTERFACE ERROR -->
+			   (select top 1 cmdt_cd from tb_cmdt_cd where cmdt_nm = edi.REP_CMDT_NM),
+			   	    
+			   'N',
+			   #rgst_usrid#,
+			   #rgst_ofc_cd#,
+			   GETUTCDATE(),
+			   #modi_usrid# ,
+			   #modi_ofc_cd# ,
+			   GETUTCDATE()
+			   ,edi.GRS_WGT  
+			   ,edi.MEAS 
+			   <!-- #5428 [Binex] BL EDI improvement request : KG=>LB, CBM=>LFT 자동 변환 
+               ,edi.GRS_WGT1   
+			   ,edi.MEAS1 
+			   -->
+			   ,CASE WHEN ISNULL(EDI.GRS_WGT1,0) = 0
+					THEN
+						ROUND(ISNULL(EDI.GRS_WGT,0)*2.20462262185, (select CONVERT (INT,ISNULL(MAX(OPT_VAL),3)) from TB_SYS_OPT where OPT_KEY='OBL_DECIMAL_LEN'))
+					ELSE
+						ISNULL(EDI.GRS_WGT1,0)
+				END AS GRS_WGT1
+			   ,CASE WHEN ISNULL(EDI.MEAS1,0) = 0
+					THEN
+						ROUND(ISNULL(EDI.MEAS,0)*35.3165, (select CONVERT (INT,ISNULL(MAX(OPT_VAL),3)) from TB_SYS_OPT where OPT_KEY='OBL_DECIMAL_LEN'))	
+					ELSE
+						ISNULL(EDI.MEAS1,0)
+				END AS MEAS1
+               ,(SELECT  
+				CASE 
+					WHEN MP_CD is null THEN a.trdp_addr 
+					WHEN MP_CD is not null THEN c.eng_addr 
+				END
+				FROM
+					TB_BL_PRNR_EDI_TEMP  a     
+				LEFT OUTER JOIN
+					TB_EDI_DATA_MP b      
+						ON a.TRDP_nm = b.MP_VAL  
+						AND b.MP_TP = 'TRDP' 
+						and b.EDI_TP= edi.EDI_TP
+				LEFT OUTER JOIN
+					TB_TRDP c      
+						ON c.TRDP_CD = b.MP_CD   
+				WHERE
+					1 = 1     
+					AND BL_SEQ = #bl_seq#
+					AND BIZ_CLSS_CD = #biz_clss_cd#    
+					AND BL_NO = #hbl_no#
+					AND a.DELT_FLG = 'N'     
+					AND BL_TRDP_TP_CD = 'C01')
+				<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+				,edi.isf_no
+				<!-- #6185 [Impex-LA] Ocean Import Outstanding Report (10/8) - Express Type Code related -->
+				,(SELECT TOP 1 CD_VAL FROM TB_COM_CD_DTL WHERE COM_CD = 'C222' AND USE_FLG = 'Y' AND DELT_FLG = 'N' ORDER BY SRT_SEQ)
+				,#desc_txt1#
+		  FROM TB_INTG_BL_EDI_TEMP edi
+		 WHERE 1 = 1
+		   AND edi.BL_SEQ = #bl_seq#
+		   AND edi.BIZ_CLSS_CD = #biz_clss_cd#
+		   AND edi.BL_NO = #hbl_no#
+		   AND edi.DELT_FLG = 'N'
+    </insert>
+    
+    <insert id="insertPrnrTable_Hbl" parameterClass="MgtItfMgtVO">
+    /*insertPrnrTable_Hbl*/
+    INSERT INTO TB_BL_PRNR(
+	       INTG_BL_SEQ,
+		   BL_TRDP_TP_CD,
+		   TRDP_CD,
+		   TRDP_NM,
+		   TRDP_PIC,
+		   TRDP_PHN,
+		   TRDP_FAX,
+		   TRDP_EML,
+		   TRDP_ADDR,
+		   RGST_USRID,
+		   RGST_OFC_CD,
+		   RGST_TMS,
+		   MODI_USRID,
+		   MODI_OFC_CD,
+		   MODI_TMS,
+		   DELT_FLG)
+	SELECT #intg_bl_seq#,
+		   BL_TRDP_TP_CD,
+		   isnull(MP_CD, a.TRDP_CD) as TRDP_CD,
+		   CASE WHEN MP_CD is null THEN a.trdp_nm WHEN MP_CD is not null THEN c.eng_nm END as TRDP_NM,
+		   TRDP_PIC,
+		   TRDP_PHN,
+		   TRDP_FAX,
+		   TRDP_EML,
+		   CASE WHEN MP_CD is null THEN a.trdp_addr WHEN MP_CD is not null THEN c.eng_addr END as TRDP_ADDR,
+		   #rgst_usrid#,
+		   #rgst_ofc_cd#,
+		   GETUTCDATE(),
+		   #modi_usrid# ,
+		   #modi_ofc_cd# ,
+		   GETUTCDATE(),
+		   'N' as DELT_FLG
+	  FROM TB_BL_PRNR_EDI_TEMP a
+	  	LEFT OUTER JOIN  TB_EDI_DATA_MP b
+	  		ON a.TRDP_nm = b.MP_VAL  AND b.MP_TP = 'TRDP' and b.EDI_TP=#edi_tp#
+	  	LEFT OUTER JOIN TB_TRDP c
+	  		ON c.TRDP_CD = b.MP_CD
+	 WHERE 1 = 1
+	   AND BL_SEQ = #bl_seq#
+	   AND BIZ_CLSS_CD = #biz_clss_cd#
+	   AND BL_NO = #hbl_no#
+	   AND a.DELT_FLG = 'N'
+	   
+    </insert>
+   
+    <insert id="insertCntrTable_Hbl" parameterClass="MgtItfMgtVO">
+    /*insertCntrTable_Hbl*/
+    INSERT INTO TB_CNTR_LIST( 
+	       INTG_BL_SEQ, 
+	       CNTR_LIST_SEQ,
+		   CGO_MEAS,
+		   CGO_PCK_QTY,
+		   CGO_PCK_UT,
+		   CGO_WGT,
+		   CNTR_NO,
+		   CNTR_TPSZ_CD,
+		   SEAL_NO1,
+		   DELT_FLG,
+		   RGST_USRID,
+		   RGST_OFC_CD,
+		   RGST_TMS,
+		   MODI_USRID,
+		   MODI_OFC_CD,
+		   MODI_TMS,
+		   <!-- #2684 [CLA DEMO] BL EDI INTERFACE ERROR -->
+		   CGO_WGT1,
+		   CGO_MEAS1
+		   )
+    SELECT #intg_bl_seq#,
+	       #cntr_list_seq# +RANK() OVER (PARTITION BY BL_SEQ ORDER BY CNTR_LIST_SEQ DESC) AS AB,
+		   CGO_MEAS,
+		   CGO_PCK_QTY,
+		   <!-- CGO_PCK_UT, -->
+		   <!-- #5428 [Binex] BL EDI improvement request - Default PK:PACKAGES -->
+		   CASE WHEN CGO_PCK_UT IS NULL
+				 THEN 'PK'
+		   ELSE 
+				(CASE WHEN EXISTS ( SELECT PCK.PCK_UT_CD FROM TB_PCK_UT_CD PCK WHERE PCK.PCK_UT_CD = CGO_PCK_UT AND DELT_FLG = 'N' )
+				 THEN CGO_PCK_UT
+				 ELSE 'PK'
+				 END )
+		   END,
+		   CGO_WGT,
+		   CNTR_NO,
+		   CNTR_TPSZ_CD,
+		   SEAL_NO1,
+		   DELT_FLG,
+		   RGST_USRID,
+		   RGST_OFC_CD,
+		   RGST_TMS,
+		   MODI_USRID,
+		   MODI_OFC_CD,
+		   MODI_TMS,
+		   <!-- #2684 [CLA DEMO] BL EDI INTERFACE ERROR -->
+		   CONVERT(NUMERIC(15,3), ROUND(isnull(CGO_WGT, 0) / 0.453597315,2)),
+		   CONVERT(NUMERIC(16,6), ROUND(isnull(CGO_MEAS, 0) * 35.3165,6))
+	  FROM TB_CNTR_LIST_EDI_TEMP 
+	 WHERE BL_SEQ = #bl_seq#
+	   AND BIZ_CLSS_CD = #biz_clss_cd#
+	   AND BL_NO = #hbl_no#
+	   AND DELT_FLG = 'N'
+    </insert>
+    <insert id="insertBl_Rlt" parameterClass="MgtItfMgtVO">
+    INSERT INTO TB_INTG_BL_RLT(
+                intg_bl_seq,     rlt_intg_bl_seq,     intg_bl_rlt_cd,
+                rgst_usrid,      rgst_ofc_cd,         rgst_tms,         
+                modi_usrid,      modi_ofc_cd,         modi_tms,        delt_flg)
+         VALUES(#intg_bl_seq#,   #rlt_intg_bl_seq#,   'HTM',
+                #rgst_usrid#,    #rgst_ofc_cd#,       GETDATE(),
+                #rgst_usrid#,    #rgst_ofc_cd#,       GETUTCDATE(),    'N')
+    </insert>
+    <select id="checkBlLive" parameterClass="java.util.HashMap" resultClass="Integer">
+	    SELECT COUNT(A.BL_NO) AS BL_DATA_COUNT
+		  FROM TB_INTG_BL A
+		  JOIN TB_ADD_INFO_BND C
+		    ON A.INTG_BL_SEQ = C.INTG_BL_SEQ
+		  JOIN TB_INTG_BL_EDI_TEMP B
+		    ON A.BL_NO = B.BL_NO
+		   AND A.BIZ_CLSS_CD = B.BIZ_CLSS_CD
+		 WHERE 1 = 1
+		   AND A.DELT_FLG = 'N'
+		   AND B.DELT_FLG = 'N'
+		   AND C.DELT_FLG = 'N'
+		   AND A.AIR_SEA_CLSS_CD = 'S'
+		   AND C.BND_CLSS_CD = 'I'    
+		   AND B.BL_SEQ = #bl_seq#
+    </select>
+    
+    <select id="checkCosignee" parameterClass="MgtItfMgtVO" resultClass="Integer">	
+	    SELECT COUNT(*) 
+		  FROM TB_BL_PRNR_EDI_TEMP
+		 WHERE 1 = 1
+		   AND BL_SEQ = #bl_seq#
+		   AND BIZ_CLSS_CD = 'H'
+		   AND BL_NO = #hbl_no#
+		   AND DELT_FLG = 'N'
+		   AND BL_TRDP_TP_CD = 'C01'
+    </select>
+    <select id="checkOptionValue" parameterClass="MgtItfMgtVO" resultClass="String">	
+	    SELECT ISNULL(OPT_VAL , '')
+		  FROM TB_SYS_OPT
+		 WHERE OPT_KEY = 'BL_SAME_AS_CNEE01'
+    </select>
+    <select id="checknoty" parameterClass="MgtItfMgtVO" resultClass="Integer">	
+	    SELECT COUNT(*) 
+		  FROM TB_BL_PRNR_EDI_TEMP
+		 WHERE 1 = 1
+		   AND BL_SEQ = #bl_seq#
+		   AND BIZ_CLSS_CD = 'H'
+		   AND BL_NO = #hbl_no#
+		   AND DELT_FLG = 'N'
+		   AND BL_TRDP_TP_CD = 'N01'
+    </select>
+    <select id="checkPartner" parameterClass="MgtItfMgtVO" resultClass="Integer">	
+	    SELECT COUNT(*) 
+		  FROM TB_BL_PRNR_EDI_TEMP
+		 WHERE 1 = 1
+		   AND BL_SEQ = #bl_seq#
+		   AND BIZ_CLSS_CD = 'H'
+		   AND BL_NO = #hbl_no#
+		   AND DELT_FLG = 'N'
+		   AND BL_TRDP_TP_CD = 'S02'
+    </select>
+    <insert id="insertPrnrTable_Hbl_noty" parameterClass="MgtItfMgtVO">
+    /*insertPrnrTable_Hbl_noty*/
+    INSERT INTO TB_BL_PRNR(
+	       INTG_BL_SEQ,
+		   BL_TRDP_TP_CD,
+		   TRDP_CD,
+		   TRDP_NM,
+		   TRDP_PIC,
+		   TRDP_PHN,
+		   TRDP_FAX,
+		   TRDP_EML,
+		   TRDP_ADDR,
+		   RGST_USRID,
+		   RGST_OFC_CD,
+		   RGST_TMS,
+		   MODI_USRID,
+		   MODI_OFC_CD,
+		   MODI_TMS,
+		   DELT_FLG)
+	SELECT #intg_bl_seq#,
+		   'N01',
+		   isnull(MP_CD, a.TRDP_CD) as TRDP_CD,
+		   CASE WHEN MP_CD is null THEN a.trdp_nm WHEN MP_CD is not null THEN c.eng_nm END as TRDP_NM,
+		   TRDP_PIC,
+		   TRDP_PHN,
+		   TRDP_FAX,
+		   TRDP_EML,
+		   CASE WHEN MP_CD is null THEN a.trdp_addr WHEN MP_CD is not null THEN c.eng_addr END as TRDP_ADDR,
+		   #rgst_usrid#,
+		   #rgst_ofc_cd#,
+		   GETUTCDATE(),
+		   #modi_usrid# ,
+		   #modi_ofc_cd# ,
+		   GETUTCDATE(),
+		   'N' as DELT_FLG
+	  FROM TB_BL_PRNR_EDI_TEMP  a
+	  	LEFT OUTER JOIN  TB_EDI_DATA_MP b
+	  		ON a.TRDP_nm = b.MP_VAL  AND b.MP_TP = 'TRDP' and b.EDI_TP=#edi_tp#
+	  	LEFT OUTER JOIN TB_TRDP c
+	  		ON c.TRDP_CD = b.MP_CD
+	 WHERE 1 = 1
+	   AND BL_SEQ = #bl_seq#
+	   AND BIZ_CLSS_CD = #biz_clss_cd#
+	   AND BL_NO = #hbl_no#
+	   AND a.DELT_FLG = 'N'
+	   AND BL_TRDP_TP_CD = 'C01'
+	   
+    </insert>
+    <insert id="insertPrnrTable_Hbl_PARTNER" parameterClass="MgtItfMgtVO">
+    /*insertPrnrTable_Hbl_PARTNER*/
+    INSERT INTO TB_BL_PRNR(
+	       INTG_BL_SEQ,
+		   BL_TRDP_TP_CD,
+		   TRDP_CD,
+		   TRDP_NM,
+		   TRDP_PIC,
+		   TRDP_PHN,
+		   TRDP_FAX,
+		   TRDP_EML,
+		   TRDP_ADDR,
+		   RGST_USRID,
+		   RGST_OFC_CD,
+		   RGST_TMS,
+		   MODI_USRID,
+		   MODI_OFC_CD,
+		   MODI_TMS,
+		   DELT_FLG)
+	SELECT #intg_bl_seq#,
+		   'S02',
+		   isnull(MP_CD, a.TRDP_CD) as TRDP_CD,
+		   CASE WHEN MP_CD is null THEN a.trdp_nm WHEN MP_CD is not null THEN c.eng_nm END as TRDP_NM,
+		   TRDP_PIC,
+		   TRDP_PHN,
+		   TRDP_FAX,
+		   TRDP_EML,
+		   CASE WHEN MP_CD is null THEN a.trdp_addr WHEN MP_CD is not null THEN c.eng_addr END as TRDP_ADDR,
+		   #rgst_usrid#,
+		   #rgst_ofc_cd#,
+		   GETUTCDATE(),
+		   #modi_usrid# ,
+		   #modi_ofc_cd# ,
+		   GETUTCDATE(),
+		   'N' as DELT_FLG
+	  FROM TB_BL_PRNR_EDI_TEMP  a
+	  	LEFT OUTER JOIN  TB_EDI_DATA_MP b
+	  		ON a.TRDP_nm = b.MP_VAL  AND b.MP_TP = 'TRDP' and b.EDI_TP=#edi_tp#
+	  	LEFT OUTER JOIN TB_TRDP c
+	  		ON c.TRDP_CD = b.MP_CD
+	 WHERE 1 = 1
+	   AND BL_SEQ = #bl_seq#
+	   AND BIZ_CLSS_CD = #biz_clss_cd#
+	   AND BL_NO = #hbl_no#
+	   AND a.DELT_FLG = 'N'
+	   AND BL_TRDP_TP_CD = 'C01'
+	   
+    </insert>
+    <select id="selectDbContents" parameterClass="String" resultClass="com.clt.apps.opusbase.system.edicnfg.dto.EdiCnfgVO">	
+	    SELECT URL,
+		       PORT,
+			   ID,
+			   PWD,
+			   RCV_DIR,
+			   RCV_FILE_REPO,
+			   SMT_CUST_ID,
+			   SCAC,
+			   IS_PASSIVE
+		  FROM TB_EDI_CNFG 
+		 WHERE 1 = 1
+		   AND TP = #tp#
+    </select>
+
+    <select id="selectEdiCnfgList" parameterClass="String" resultClass="com.clt.apps.opusbase.system.edicnfg.dto.EdiCnfgVO">	
+	    SELECT TP,
+	    	   URL,
+		       PORT,
+			   ID,
+			   PWD,
+			   RCV_DIR,
+			   RCV_FILE_REPO,
+			   SMT_CUST_ID,
+			   SCAC,
+			   IS_PASSIVE
+			   ,AGT_EDI_MSG_TP_CD
+		  FROM TB_EDI_CNFG 
+		 WHERE 1 = 1
+		   AND TP in (select CD_VAL from tb_com_cd_dtl where com_cd='AEDI')
+    </select>
+        
+    <select id="selectExportMasterBlList" parameterClass="java.util.HashMap" resultClass="MgtItfMgtVO">
+		/* selectImportMasterBlList */
+		SELECT
+			A1.*
+		FROM
+			(
+			SELECT DISTINCT
+				  ROW_NUMBER() OVER (ORDER BY  BL.BL_NO) AS ROWNUM
+				, BL.BL_NO			 AS MBL_NO
+				, BL.INTG_BL_SEQ	 AS BL_SEQ
+				, BL.REF_OFC_CD		 AS REF_OFC_CD
+				, BL.REF_NO			 AS REF_NO
+				, BL.ETD_DT_TM		 AS MBL_ETD
+				, BL.ETA_DT_TM		 AS MBL_ETA
+				, LST.CNTR_NO		 AS CNTR_NO
+				, SHP.TRDP_NM 		 AS SHPR_TRDP_NM
+				, CNE.TRDP_NM 		 AS CNEE_TRDP_NM
+				, LNR.TRDP_NM 		 AS LNR_TRDP_NM
+				, BL.POL_NM			 AS MBL_POL_NM
+				, BL.POD_NM			 AS MBL_POD_NM
+				, BL.AIR_SEA_CLSS_CD AS AIR_SEA_CLSS_CD
+				, COUNT(*) OVER(PARTITION BY 1) AS TOTAL_ROWS_CNT
+			FROM
+			    TB_INTG_BL BL   
+			JOIN 
+		   		TB_ADD_INFO_BND ADD_INFO 
+		   	  		ON BL.INTG_BL_SEQ = ADD_INFO.INTG_BL_SEQ
+		   	  		AND ADD_INFO.BND_CLSS_CD = 'O'
+			LEFT OUTER JOIN
+			    TB_CNTR_LIST LST            
+			        ON  BL.INTG_BL_SEQ = LST.INTG_BL_SEQ  
+			        AND ISNULL(LST.DELT_FLG, 'N') = 'N'
+			LEFT OUTER JOIN
+			    TB_BL_PRNR SHP  
+			        ON BL.INTG_BL_SEQ = SHP.INTG_BL_SEQ 
+			        AND SHP.BL_TRDP_TP_CD = 'S01' 
+			        AND ISNULL(SHP.DELT_FLG, 'N') = 'N'   
+			LEFT OUTER JOIN
+			    TB_BL_PRNR CNE  
+			        ON BL.INTG_BL_SEQ = CNE.INTG_BL_SEQ 
+			        AND CNE.BL_TRDP_TP_CD = 'C01' 
+			        AND ISNULL(CNE.DELT_FLG, 'N') = 'N'   
+			LEFT OUTER JOIN
+			    TB_BL_PRNR LNR  
+			        ON BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ 
+			        AND LNR.BL_TRDP_TP_CD = 'L01' 
+			        AND ISNULL(LNR.DELT_FLG, 'N') = 'N'   
+			WHERE   ISNULL(BL.DELT_FLG, 'N') = 'N' 
+			    AND BL.BIZ_CLSS_CD = 'M'
+		    <isNotNull property="f_ref_no">
+		        AND BL.REF_NO = #f_ref_no#
+		    </isNotNull>       
+		    <isNotNull property="ref_ofc_cd">
+		        AND BL.REF_OFC_CD = #ref_ofc_cd#
+		    </isNotNull>    
+		    <isNotNull property="f_air_sea_clss_cd">
+		        AND BL.AIR_SEA_CLSS_CD = #f_air_sea_clss_cd#
+		    </isNotNull>
+		    <isNotNull property="f_bl_no">
+		        AND BL.BL_NO = #f_bl_no#
+		    </isNotNull>       
+		    <isNotNull property="etd_strdt">
+	            AND  REPLACE(BL.ETD_DT_TM,'-','') BETWEEN #etd_strdt_real# AND #etd_enddt_real#
+	        </isNotNull>
+	        <isNotNull property="eta_strdt">
+	            AND  REPLACE(BL.ETA_DT_TM,'-','') BETWEEN #eta_strdt_real# AND #eta_enddt_real#
+	        </isNotNull>
+		    <isNotNull property="f_cntr_no">
+		    	AND LST.CNTR_NO = #f_cntr_no#        
+		    </isNotNull>
+		    <isNotNull property="f_por_cd">
+		        AND  BL.POR_CD = #f_por_cd#
+		    </isNotNull>
+		    <isNull property="f_por_cd">
+			    <isNotNull property="f_por_nm">
+			        AND  BL.POR_NM like #f_por_nm_real#
+			    </isNotNull>
+		    </isNull>
+		    <isNotNull property="f_pod_cd">
+		        AND  BL.POD_CD = #f_pod_cd#
+		    </isNotNull>
+		    <isNull property="f_pod_cd">
+			    <isNotNull property="f_pod_nm">
+			        AND  BL.POD_NM like #f_pod_nm_real#
+			    </isNotNull>
+		    </isNull>
+		    <isNotNull property="f_pol_cd">
+		        AND  BL.POL_CD = #f_pol_cd#
+		    </isNotNull>
+		    <isNull property="f_pol_cd">
+			    <isNotNull property="f_pol_nm">
+			        AND  BL.POL_NM like #f_pol_nm_real#
+			    </isNotNull>
+		    </isNull>
+		    <isNotNull property="f_del_cd">
+		        AND  BL.DEL_CD = #f_del_cd#
+		    </isNotNull>
+		    <isNull property="f_del_cd">
+			    <isNotNull property="f_del_nm">
+			        AND  BL.DEL_NM like #f_del_nm_real#
+			    </isNotNull>
+		    </isNull>        
+	    	) A1
+		 <![CDATA[ WHERE A1.ROWNUM > #beginIdx# AND A1.ROWNUM <= #topCnt#	]]> 
+        ORDER BY A1.MBL_NO
+	</select>
+	
+	<select id="selectMasterBlInfo" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.alt.altmgt.dto.MgtItfIntgVo">
+		/* selectMasterBlInfo */
+		SELECT
+			   INTG_BL_SEQ		, BIZ_CLSS_CD		, BL_NO				, FRT_TERM_CD		, REP_CMDT_CD		, REP_CMDT_NM		, PCK_UT_CD			, PCK_QTY			, GRS_WGT_UT_CD		, GRS_WGT
+			 , MEAS_UT_CD		, MEAS,POR_CD		, POR_NM			, POL_CD			, POL_NOD_CD		, POL_NM			, POD_CD			, POD_NOD_CD		, POD_NM,DEL_CD		, DEL_NM
+			 , ISS_LOC_CD		, PAY_LOC_CD		, OBRD_DT_TM		, FT_DT				, CURR_CD			, ETD_DT_TM			, ETA_DT_TM			, LNR_RMK			, SHP_MOD_CD		, FM_SVC_TERM_CD
+			 , TO_SVC_TERM_CD	, TRNK_VSL_CD		, TRNK_VOY			, PRE_VSL_CD		, PRE_VOY			, FLT_NO			, CGO_CLZ_DT_TM		, CARGO_TP_CD		, OTR_CHG_TERM_CD	, CHG_WGT_UT_CD
+			 , CHG_WGT			, FNL_DEST_LOC_CD	, FNL_DEST_LOC_NM	, DECL_CRR_VAL		, DECL_CSTMS_VAL	, AMT_INSUR_VAL		, HNDL_INFO_TXT		, ACCTG_INFO_TXT	, BKG_NO,PO_NO		, BKG_DT_TM
+			 , LNR_BKG_NO		, HBL_TP_CD			, INCO_CD			, MK_TXT			, DESC_TXT			, AIR_SEA_CLSS_CD	, ACT_WGT_UT_CD		, ACT_WGT			, CGO_RCV_DT_TM		, CFS_LOC_CD
+			 , CFS_NOD_CD		, DE_DUE_DT			, LNR_SKD_SEQ		, CA_STS_CD			, ORG_BL_QTY		, TTL_BL_QTY		, SAD_TXT			, SAY_TXT			, BL_KND_CD  		, BL_ISS_DT		
+			 , RMK				, BL_STS_CD			, BKG_SEQ			, HBL_SEQ			, HBL_CRE_DT		, MM_TXT			, SHP_TP_CD			, TRNK_VSL_NM		, PRE_VSL_NM 		, SRD_FLG			
+			 , ACT_SHP_INFO		, NOMI_FLG			, TS1_PORT_CD		, TS1_FLT_NO		, TS2_PORT_CD		, TS2_FLT_NO		, TS3_PORT_CD		, TS3_FLT_NO	    , CFS_LOC_NM		, BL_SER_NO			
+			 , CSTS_CLR_TP		, ISS_LOC_NM		, PAY_LOC_NM		, REF_NO			, SUB_BL_NO			, MBL_REF_NO		, POST_DT			, SUB_MBL_FLG       , STATE_CD			, GRS_WGT1			
+			 , ACT_WGT1			, MEAS1				, SIZE_UT_CD		, AGENT_RT			, AGENT_AMT			, AGENT_CURR_CD		, CUST_RT			, CUST_AMT			, CUST_CURR_CD		, PROFIT_SHARE		
+			 , EXPRESS_TP_CD	, ISS_LOC_CD1		, ISS_LOC_NM1		, TRANS_SHIPMENT	, ITN_NO			, ONWARD_ROUT		, CLEAN_ON_BOARD	, FRT_TERM_C_CD		, FRT_TERM_A_CD		, OBRD_DT_TM1		
+			 , REF_OFC_CD		, EXP_REF_NO		, OBL_TP_CD			, BROKER_RT			, RCV_WH_CD			, SC_NO				, CNT_CD			, MK_GRS_WGT		, MK_GRS_WGT1		, MK_MEAS			
+			 , MK_MEAS1			, F_ETA_DT_TM		, D_ETA_DT_TM		, AVAIL_DT_TM		, LFD_DT_TM			, GO_DT_TM			, RCVD_DT_TM		, RLSD_DT_TM		, TE				, IT_NO				
+			 , IT_LOC			, BOND_CARR_CD		, BOND_NO			, GOODS_AT			, GOODS_VALUE		, DOOR_LOC_CD		, FNL_WH_CD			, ORG_BL_RCVD_FLG	, ROR_FLG			, RLSD_FLG			
+			 , RLSD_USRID		, TE_DT_TM			, AMS_NO			, ISF_NO			, CARR_TRDP_CD1		, CY_TRDP_CD		, CFS_TRDP_CD		, RT_TRDP_CD		, IMP_REF_NO		, CUST_REF_NO		
+			 , AGENT_GRS_WGT	, AGENT_GRS_WGT1	, AGENT_CHG_WGT		, AGENT_CHG_WGT1	, PRNR_REF_NO		, LC_NO				, INV_NO			, DISP_NTFY_FLG		, CHG_WGT1			, BL_DT_TM			
+			 , WGT_DISP_CD		, VOL_WGT			, VOL_MEAS			, SPOT_NO			, IATA_CD			, IT_CLASS			, STO_START_DT		, FOREIGN_DEST		, WH_ARRV_DT_TM		, DOC_PKUP_ON_DT_TM	
+			 , DOC_PKUP_BY		, CGO_RLSD_ON_DT_TM	, CGO_RLSD_TO		, MANIFEST_TO		, FIRST_PORT_CD		, LAST_PORT_CD		, FRT_LOC_CD		, SVC_SCOPE			, ATT_MK_TXT		, ATT_DESC_TXT		
+			 , BL_GRS_WGT		, BL_CHG_WGT		, BL_GRS_WGT1		, BL_CHG_WGT1		, AGENT_UNIT_CHK	, CUSTOMER_UNIT_CHK	, DESC_TXT1			, AN_INV_NO			, AN_DUE_DT			, AN_CURR_CD		
+			 , CNTR_INFO		, RT_CLSS_CD		, DOC_RECPT_NO		, RESERVE_FIELD01	, RESERVE_FIELD02	, RESERVE_FIELD03	, RESERVE_FIELD04	, RESERVE_FIELD05	, RESERVE_FIELD06	, RESERVE_FIELD11	
+			 , LANE_CD			, WH_CUT_OFF_DT		, DOC_CUT_OFF_DT	, PU_TRDP_CD		, CUT_OFF_DT		, RAIL_CUT_OFF_DT	, ETA_FPOE_TM		, ETD_POR_TM		, SHIP_WIN_TITLE	, SHIP_WIN_DESC		
+			 , AMS_ID			, CCN_NO			, PRE_CCN_NO		, MNF_FR_LOC		, MNF_TO_LOC		, CCN_DT
+			 , #proc_usrid# 	AS PROC_USRID
+			 , #proc_ofccd# 	AS PROC_OFCCD	
+		 FROM TB_INTG_BL
+		WHERE ISNULL(DELT_FLG, 'N')    = 'N'  
+		  AND BIZ_CLSS_CD = 'M'
+		  AND INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<select id="selectHouseBlList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.alt.altmgt.dto.MgtItfIntgVo">
+		/* selectHouseBlList */
+		SELECT
+			   HBL.INTG_BL_SEQ		, HBL.BIZ_CLSS_CD		, HBL.BL_NO				, HBL.FRT_TERM_CD		, HBL.REP_CMDT_CD		, HBL.REP_CMDT_NM		, HBL.PCK_UT_CD			, HBL.PCK_QTY			, HBL.GRS_WGT_UT_CD		, HBL.GRS_WGT
+			 , HBL.MEAS_UT_CD		, HBL.MEAS				, HBL.POR_CD			, HBL.POR_NM			, HBL.POL_CD			, HBL.POL_NOD_CD		, HBL.POL_NM			, HBL.POD_CD			, HBL.POD_NOD_CD		, HBL.POD_NM	
+			 , HBL.DEL_CD			, HBL.DEL_NM			, HBL.ISS_LOC_CD		, HBL.PAY_LOC_CD		, HBL.OBRD_DT_TM		, HBL.FT_DT				, HBL.CURR_CD			, HBL.ETD_DT_TM			, HBL.ETA_DT_TM			, HBL.LNR_RMK			
+			 , HBL.SHP_MOD_CD		, HBL.FM_SVC_TERM_CD    , HBL.TO_SVC_TERM_CD	, HBL.TRNK_VSL_CD		, HBL.TRNK_VOY			, HBL.PRE_VSL_CD		, HBL.PRE_VOY			, HBL.FLT_NO			, HBL.CGO_CLZ_DT_TM		, HBL.CARGO_TP_CD		
+			 , HBL.OTR_CHG_TERM_CD	, HBL.CHG_WGT_UT_CD	 	, HBL.CHG_WGT			, HBL.FNL_DEST_LOC_CD	, HBL.FNL_DEST_LOC_NM	, HBL.DECL_CRR_VAL		, HBL.DECL_CSTMS_VAL	, HBL.AMT_INSUR_VAL		, HBL.HNDL_INFO_TXT		, HBL.ACCTG_INFO_TXT	
+			 , HBL.BKG_NO			, HBL.PO_NO				, HBL.BKG_DT_TM		 	, HBL.LNR_BKG_NO		, HBL.HBL_TP_CD			, HBL.INCO_CD			, HBL.MK_TXT			, HBL.DESC_TXT			, HBL.AIR_SEA_CLSS_CD	, HBL.ACT_WGT_UT_CD		
+			 , HBL.ACT_WGT			, HBL.CGO_RCV_DT_TM		, HBL.CFS_LOC_CD	 	, HBL.CFS_NOD_CD		, HBL.DE_DUE_DT			, HBL.LNR_SKD_SEQ		, HBL.CA_STS_CD			, HBL.ORG_BL_QTY		, HBL.TTL_BL_QTY		, HBL.SAD_TXT			
+			 , HBL.SAY_TXT			, HBL.BL_KND_CD  		, HBL.BL_ISS_DT		 	, HBL.RMK				, HBL.BL_STS_CD			, HBL.BKG_SEQ			, HBL.HBL_SEQ			, HBL.HBL_CRE_DT		, HBL.MM_TXT			, HBL.SHP_TP_CD			
+			 , HBL.TRNK_VSL_NM		, HBL.PRE_VSL_NM 		, HBL.SRD_FLG		 	, HBL.ACT_SHP_INFO		, HBL.NOMI_FLG			, HBL.TS1_PORT_CD		, HBL.TS1_FLT_NO		, HBL.TS2_PORT_CD		, HBL.TS2_FLT_NO		, HBL.TS3_PORT_CD		
+			 , HBL.TS3_FLT_NO	    , HBL.CFS_LOC_NM		, HBL.BL_SER_NO		 	, HBL.CSTS_CLR_TP		, HBL.ISS_LOC_NM		, HBL.PAY_LOC_NM		, HBL.REF_NO			, HBL.SUB_BL_NO			, HBL.MBL_REF_NO		, HBL.POST_DT			
+			 , HBL.SUB_MBL_FLG      , HBL.STATE_CD			, HBL.GRS_WGT1		 	, HBL.ACT_WGT1			, HBL.MEAS1				, HBL.SIZE_UT_CD		, HBL.AGENT_RT			, HBL.AGENT_AMT			, HBL.AGENT_CURR_CD		, HBL.CUST_RT			
+			 , HBL.CUST_AMT			, HBL.CUST_CURR_CD		, HBL.PROFIT_SHARE	 	, HBL.EXPRESS_TP_CD		, HBL.ISS_LOC_CD1		, HBL.ISS_LOC_NM1		, HBL.TRANS_SHIPMENT	, HBL.ITN_NO			, HBL.ONWARD_ROUT		, HBL.CLEAN_ON_BOARD	
+			 , HBL.FRT_TERM_C_CD	, HBL.FRT_TERM_A_CD		, HBL.OBRD_DT_TM1	 	, HBL.REF_OFC_CD		, HBL.EXP_REF_NO		, HBL.OBL_TP_CD			, HBL.BROKER_RT			, HBL.RCV_WH_CD			, HBL.SC_NO				, HBL.CNT_CD			
+			 , HBL.MK_GRS_WGT		, HBL.MK_GRS_WGT1		, HBL.MK_MEAS		 	, HBL.MK_MEAS1			, HBL.F_ETA_DT_TM		, HBL.D_ETA_DT_TM		, HBL.AVAIL_DT_TM		, HBL.LFD_DT_TM			, HBL.GO_DT_TM			, HBL.RCVD_DT_TM		
+			 , HBL.RLSD_DT_TM		, HBL.TE				, HBL.IT_NO			 	, HBL.IT_LOC			, HBL.BOND_CARR_CD		, HBL.BOND_NO			, HBL.GOODS_AT			, HBL.GOODS_VALUE		, HBL.DOOR_LOC_CD		, HBL.FNL_WH_CD			
+			 , HBL.ORG_BL_RCVD_FLG	, HBL.ROR_FLG			, HBL.RLSD_FLG		 	, HBL.RLSD_USRID		, HBL.TE_DT_TM			, HBL.AMS_NO			, HBL.ISF_NO			, HBL.CARR_TRDP_CD1		, HBL.CY_TRDP_CD		, HBL.CFS_TRDP_CD		
+			 , HBL.RT_TRDP_CD		, HBL.IMP_REF_NO		, HBL.CUST_REF_NO	 	, HBL.AGENT_GRS_WGT		, HBL.AGENT_GRS_WGT1	, HBL.AGENT_CHG_WGT		, HBL.AGENT_CHG_WGT1	, HBL.PRNR_REF_NO		, HBL.LC_NO				, HBL.INV_NO			
+			 , HBL.DISP_NTFY_FLG	, HBL.CHG_WGT1			, HBL.BL_DT_TM		 	, HBL.WGT_DISP_CD		, HBL.VOL_WGT			, HBL.VOL_MEAS			, HBL.SPOT_NO			, HBL.IATA_CD			, HBL.IT_CLASS			, HBL.STO_START_DT		
+			 , HBL.FOREIGN_DEST		, HBL.WH_ARRV_DT_TM		, HBL.DOC_PKUP_ON_DT_TM , HBL.DOC_PKUP_BY		, HBL.CGO_RLSD_ON_DT_TM	, HBL.CGO_RLSD_TO		, HBL.MANIFEST_TO		, HBL.FIRST_PORT_CD		, HBL.LAST_PORT_CD		, HBL.FRT_LOC_CD		
+			 , HBL.SVC_SCOPE		, HBL.ATT_MK_TXT		, HBL.ATT_DESC_TXT	 	, HBL.BL_GRS_WGT		, HBL.BL_CHG_WGT		, HBL.BL_GRS_WGT1		, HBL.BL_CHG_WGT1		, HBL.AGENT_UNIT_CHK	, HBL.CUSTOMER_UNIT_CHK	, HBL.DESC_TXT1			
+			 , HBL.AN_INV_NO		, HBL.AN_DUE_DT			, HBL.AN_CURR_CD	 	, HBL.CNTR_INFO			, HBL.RT_CLSS_CD		, HBL.DOC_RECPT_NO		, HBL.RESERVE_FIELD01	, HBL.RESERVE_FIELD02	, HBL.RESERVE_FIELD03	, HBL.RESERVE_FIELD04	
+			 , HBL.RESERVE_FIELD05	, HBL.RESERVE_FIELD06	, HBL.RESERVE_FIELD11 	, HBL.LANE_CD			, HBL.WH_CUT_OFF_DT		, HBL.DOC_CUT_OFF_DT	, HBL.PU_TRDP_CD		, HBL.CUT_OFF_DT		, HBL.RAIL_CUT_OFF_DT	, HBL.ETA_FPOE_TM		
+			 , HBL.ETD_POR_TM		, HBL.SHIP_WIN_TITLE	, HBL.SHIP_WIN_DESC	 	, HBL.AMS_ID			, HBL.CCN_NO			, HBL.PRE_CCN_NO		, HBL.MNF_FR_LOC		, HBL.MNF_TO_LOC		, HBL.CCN_DT
+			 , #proc_usrid# 	AS PROC_USRID
+			 , #proc_ofccd# 	AS PROC_OFCCD	
+		  FROM TB_INTG_BL MBL
+			LEFT OUTER JOIN TB_INTG_BL_RLT RLT
+		    	ON  MBL.INTG_BL_SEQ = RLT.RLT_INTG_BL_SEQ 
+		    	AND RLT.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_INTG_BL HBL
+		    	ON  RLT.INTG_BL_SEQ = HBL.INTG_BL_SEQ 
+		    	AND HBL.BIZ_CLSS_CD = 'H' 
+		    	AND HBL.DELT_FLG = 'N'
+		WHERE ISNULL(MBL.DELT_FLG, 'N')    = 'N'  
+		  AND MBL.BIZ_CLSS_CD = 'M'
+		  AND MBL.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<select id="selectBlPrnrInfo" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.BlPrnrVO">
+		/* selectBlPrnrInfo */
+		SELECT 
+			  INTG_BL_SEQ
+			, BL_TRDP_TP_CD
+			, TRDP_CD
+			, TRDP_NM
+			, TRDP_PIC
+			, TRDP_PHN
+			, TRDP_FAX
+			, TRDP_EML
+			, TRDP_ADDR
+			, DELT_FLG
+			, TRDP_PIC_USR_ID 
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		 FROM TB_BL_PRNR
+		WHERE INTG_BL_SEQ   = cast(#intg_bl_seq# as varchar)
+		  AND BL_TRDP_TP_CD = #bl_trdp_tp_cd#
+		  AND ISNULL(DELT_FLG, 'N') 		= 'N' 
+	</select>
+	
+	<select id="selectRcpList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.aie.bmd.housebl.dto.CgoRtVO">
+		/* selectRcpList */		
+		SELECT 
+			  INTG_BL_SEQ
+			, CGO_RT_SEQ
+			, FLG
+			, PCE_QTY
+			, GRS_WGT_BAK
+			, GRS_WGT_UT_CD
+			, RT_CLSS_CD
+			, CMDT_CD
+			, HS_GRP_CD
+			, CHG_WGT_MEAS
+			, RU
+			, AMT
+			, DELT_FLG
+			, AMT_PRN_FLG
+			, GRS_WGT
+			, GRS_WGT1
+			, CHG_WGT
+			, CHG_WGT1 
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		 FROM TB_CGO_RT1
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) 
+		  AND ISNULL(DELT_FLG, 'N') = 'N'
+	</select>
+	
+	<!--RCP 정보를 입력함  -->
+    <insert id="insertCGO_RT_Copy" parameterClass="com.clt.apps.fis.aie.bmd.housebl.dto.CgoRtVO">
+		INSERT INTO tb_cgo_rt1(  
+			  INTG_BL_SEQ	, CGO_RT_SEQ	, FLG			, PCE_QTY		, GRS_WGT_BAK	
+			, GRS_WGT_UT_CD	, RT_CLSS_CD	, CMDT_CD		, HS_GRP_CD		, CHG_WGT_MEAS	
+			, RU			, AMT			, AMT_PRN_FLG	, GRS_WGT		, GRS_WGT1		
+			, CHG_WGT		, CHG_WGT1
+			
+			, RGST_USRID	, RGST_OFC_CD	, RGST_TMS
+			, MODI_USRID	, MODI_OFC_CD	, MODI_TMS         
+			, DELT_FLG
+		)VALUES(
+			  #intg_bl_seq#		, #cgo_rt_seq#	, #flg#			, #pce_qty#		, #grs_wgt_bak#
+			, #grs_wgt_ut_cd#	, #rt_clss_cd#	, #cmdt_cd#		, #hs_grp_cd#	, #chg_wgt_meas#
+			, #ru#				, #amt#			, #amt_prn_flg#	, #grs_wgt#		, #grs_wgt1#
+			, #chg_wgt#			, #chg_wgt1#	
+			, #proc_usrid#	, #proc_ofccd#	, getdate()
+			, #proc_usrid#	, #proc_ofccd#	, GETUTCDATE()
+			, 'N'
+		)
+	</insert>
+	
+	<select id="selectDimentionList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.aie.bmd.housebl.dto.DimVO">
+		/* selectDimentionList */		
+		SELECT 
+			  INTG_BL_SEQ
+			, DIM_SEQ
+			, WDT_DIM
+			, LEN_DIM
+			, HGT_DIM
+			, PCE_QTY
+			, PCK_UT_CD
+			, DELT_FLG
+			, ACT_DIM
+			, CHG_WGT
+			, CHG_WGT1
+			, MEAS
+			, MEAS1
+			, WH_RECP_NO
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		 FROM TB_DIM
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) 
+		  AND ISNULL(DELT_FLG, 'N') = 'N'
+	</select>
+	
+	<!-- Dimension을 입력함  -->
+	<insert id="insertDIM_Copy" parameterClass="com.clt.apps.fis.aie.bmd.housebl.dto.DimVO">
+	/*AirBlSQL.xml > insertDIM*/
+		INSERT INTO tb_dim(
+			  INTG_BL_SEQ	, DIM_SEQ	, WDT_DIM		, LEN_DIM	, HGT_DIM
+			, ACT_DIM		, PCE_QTY	, PCK_UT_CD		, CHG_WGT	, CHG_WGT1
+			, MEAS			, MEAS1		, WH_RECP_NO
+		
+		    , RGST_USRID	, RGST_OFC_CD	, RGST_TMS
+		    , MODI_USRID	, MODI_OFC_CD	, MODI_TMS
+		    , DELT_FLG
+		)VALUES(
+              #intg_bl_seq#	, #dim_seq#	, #wdt_dim#		, #len_dim#	, #hgt_dim#
+            , #act_dim#		, #pce_qty#	, #pck_ut_cd#	, #chg_wgt#	, #chg_wgt1#
+            , #meas#		, #meas1#	, #wh_recp_no#
+            
+            , #proc_usrid#	, #proc_ofccd#	, getdate()
+            , #proc_usrid#	, #proc_ofccd#	, GETUTCDATE()
+            , 'N'
+		)
+    </insert>
+    
+	<select id="selectHblItemList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.HblItemVO">
+		/* selectHblItemList */		
+		SELECT 
+			  INTG_BL_SEQ   AS INTG_BL_SEQ  
+			, SHP_CMDT_SEQ  AS ITEM_SHP_CMDT_SEQ 
+			, SHP_CMDT_CD   AS ITEM_SHP_CMDT_CD  
+			, HS_GRP_CD     AS ITEM_HS_GRP_CD    
+			, PCK_QTY       AS ITEM_PCK_QTY      
+			, PCK_UT_CD     AS ITEM_PCK_UT_CD    
+			, WGT           AS ITEM_WGT          
+			, MEAS          AS ITEM_MEAS         
+			, CNTR_LIST_SEQ AS ITEM_CNTR_LIST_SEQ
+			, RMK           AS ITEM_RMK          
+			, RGST_USRID    AS ITEM_RGST_USRID   
+			, RGST_OFC_CD   AS ITEM_RGST_OFC_CD  
+			, RGST_TMS      AS ITEM_RGST_TMS     
+			, MODI_USRID    AS ITEM_MODI_USRID   
+			, MODI_OFC_CD   AS ITEM_MODI_OFC_CD  
+			, MODI_TMS      AS ITEM_MODI_TMS     
+			, SHP_CMDT_NM   AS ITEM_SHP_CMDT_NM  
+			, DG_CD_TP      AS ITEM_DG_CD_TP     
+			, DG_CD         AS ITEM_DG_CD        
+			, DG_CNTC_NM    AS ITEM_DG_CNTC_NM
+			, CMDT_CD       AS ITEM_CMDT_CD      
+			, PO_CMDT_SEQ   AS ITEM_PO_CMDT_SEQ  
+			, PO_SYS_NO     AS ITEM_PO_SYS_NO    
+			, PCK_INR_QTY   AS ITEM_PCK_INR_QTY  
+			, EA_CNT        AS ITEM_EA_CNT       
+			, TTL_QTY       AS ITEM_TTL_QTY      
+			, LBS_WGT       AS ITEM_LBS_WGT      
+			, CFT_MEAS      AS ITEM_CFT_MEAS     
+			, DELT_FLG      AS DELT_FLG     
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		 FROM TB_SHP_CMDT
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) 
+		  AND ISNULL(DELT_FLG, 'N') = 'N'
+	</select>
+	
+	<!-- Item등록  -->
+    <insert id="insertSHP_CMDT_Copy" parameterClass="com.clt.apps.fis.see.bmd.housebl.dto.HblItemVO">
+        INSERT INTO tb_shp_cmdt(
+        	  INTG_BL_SEQ  	, SHP_CMDT_SEQ	, SHP_CMDT_CD	, HS_GRP_CD			, PCK_QTY      
+			, PCK_UT_CD    	, WGT			, MEAS			, CNTR_LIST_SEQ		, RMK          
+			, SHP_CMDT_NM	, DG_CD_TP		, DG_CD			, CMDT_CD			, PO_CMDT_SEQ  
+			, PO_SYS_NO    	, PCK_INR_QTY	, EA_CNT		, TTL_QTY			, LBS_WGT      
+			, CFT_MEAS     
+
+			, RGST_USRID   	, RGST_OFC_CD	, RGST_TMS     
+			, MODI_USRID	, MODI_OFC_CD	, MODI_TMS
+			, DELT_FLG
+        )VALUES(
+             #intg_bl_seq#		, #item_shp_cmdt_seq#	, #item_shp_cmdt_cd#	, #item_hs_grp_cd#		, #item_pck_qty#
+		   , #item_pck_ut_cd#	, #item_wgt#			, #item_meas#			, #item_cntr_list_seq# 	, #item_rmk#   
+           , #item_shp_cmdt_nm#	, #item_dg_cd_tp#		, #item_dg_cd#			, #item_cmdt_cd#		, #item_po_cmdt_seq#    
+		   , #item_po_sys_no#	, #item_pck_inr_qty#	, #item_ea_cnt#			, #item_ttl_qty#		, #item_lbs_wgt#
+		   , #item_cft_meas#
+                 
+           , #proc_usrid#		, #proc_ofccd#			, getdate()
+           , #proc_usrid#		, #proc_ofccd#			, GETUTCDATE()    
+           , 'N'
+        )    
+    </insert>
+    
+	<select id="selectAirFrtCdList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.aie.bmd.masterbl.dto.AirFrtCdVO">
+		/* selectAirFrtCdList */		
+		SELECT 
+			  INTG_BL_SEQ
+			, AIR_FRT_SEQ
+			, AIR_PCE_QTY
+			, AIR_GRS_WGT
+			, AIR_CHG_WGT
+			, AIR_R_CLASS
+			, AIR_CMDT_CD
+			, AIR_FRT_TERM_CD
+			, AIR_APLY_UT_CD
+			, AIR_RU
+			, AIR_AMT
+			, DELT_FLG 
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		 FROM TB_AIR_FRT_CD
+		WHERE ISNULL(DELT_FLG, 'N') = 'N'
+		  AND INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<insert id="insertAirFrtCd_Copy" parameterClass="com.clt.apps.fis.aie.bmd.masterbl.dto.AirFrtCdVO">
+    	INSERT INTO TB_AIR_FRT_CD(
+			  INTG_BL_SEQ	, AIR_FRT_SEQ	, AIR_PCE_QTY		, AIR_GRS_WGT		, AIR_CHG_WGT
+			, AIR_R_CLASS	, AIR_CMDT_CD	, AIR_FRT_TERM_CD	, AIR_APLY_UT_CD	, AIR_RU
+			, AIR_AMT
+		
+			, RGST_USRID	, RGST_OFC_CD	, RGST_TMS
+			, MODI_USRID	, MODI_OFC_CD	, MODI_TMS
+			, DELT_FLG
+		) VALUES (
+			  #intg_bl_seq# , #air_frt_seq# , #air_pce_qty#		, #air_grs_wgt#		, #air_chg_wgt#
+			, #air_r_class# , #air_cmdt_cd# , #air_frt_term_cd# , #air_aply_ut_cd#  , #air_ru#
+			, #air_amt#
+			
+			, #proc_usrid#	, #proc_ofccd#	, GETDATE()
+			, #proc_usrid#  , #proc_ofccd#	, GETUTCDATE()
+			, 'N'
+		)
+    </insert>
+    
+	<select id="selectAirOthCdList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.aie.bmd.masterbl.dto.AirOthCdVO">
+		/* selectAirOthCdList */		
+		SELECT 
+			  INTG_BL_SEQ
+			, OTH_FRT_SEQ
+			, OTH_FRT_CD
+			, OTH_DISP_ORD
+			, OTH_FRT_TERM_CD
+			, OTH_CURR_CD
+			, OTH_XCRT
+			, OTH_APLY_UT_CD
+			, OTH_PCK_QTY
+			, OTH_RU,OTH_AMT
+			, DELT_FLG
+			, OTH_CHG_WGT 
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		 FROM TB_AIR_OTH_CD
+		WHERE ISNULL(DELT_FLG, 'N') = 'N'
+		  AND INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<insert id="insertAirOthCd_Copy" parameterClass="com.clt.apps.fis.aie.bmd.masterbl.dto.AirOthCdVO">
+		INSERT INTO tb_air_oth_cd(
+			  INTG_BL_SEQ	, OTH_FRT_SEQ	, OTH_FRT_CD		, OTH_DISP_ORD	, OTH_FRT_TERM_CD
+			, OTH_CURR_CD	, OTH_XCRT		, OTH_APLY_UT_CD	, OTH_PCK_QTY	, OTH_RU
+			, OTH_AMT		, OTH_CHG_WGT 
+			
+			, RGST_USRID	, RGST_OFC_CD	, RGST_TMS
+			, MODI_USRID	, MODI_OFC_CD	, MODI_TMS
+			, DELT_FLG
+		) VALUES (
+			  #intg_bl_seq#	, #oth_frt_seq#	, #oth_frt_cd#		, #oth_disp_ord#	, #oth_frt_term_cd#
+			, #oth_curr_cd# , #oth_xcrt# 	, #oth_aply_ut_cd#	, #oth_pck_qty#		, #oth_ru#
+			, #oth_amt#		, #oth_chg_wgt#
+			
+			, #proc_usrid#	, #proc_ofccd#	, GETDATE()
+			, #proc_usrid#	, #proc_ofccd#	, GETUTCDATE()
+			, 'N'
+		)
+	</insert>
+	
+	<select id="selectEdiInfoList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.EdiXptInfoVO">
+		/* selectEdiInfoList */		
+		SELECT 
+			  INTG_BL_SEQ    AS INTG_BL_SEQ   
+			, EDI_XPT_SEQ    AS EDI_XPT_SEQ   
+			, MBL_NO         AS MBL_NO        
+			, XPT_NO         AS XPT_NO        
+			, EDI_SND_STS_CD AS EDI_SND_STS_CD
+			, PCK_QTY		 AS EDI_PCK_QTY		 
+			, PCK_UT_CD      AS EDI_PCK_UT_CD     
+			, EDI_GRS_WT     AS EDI_GRS_WT    
+			, SPRT_FLG       AS SPRT_FLG      
+			, SPRT_SEQ       AS SPRT_SEQ      
+			, SAM_PCK_TP     AS SAM_PCK_TP    
+			, SAM_PCK_QTY    AS SAM_PCK_QTY   
+			, SAM_PCK_UT_CD  AS SAM_PCK_UT_CD 
+			, DELT_FLG       AS DELT_FLG      
+			, #proc_usrid# 	 AS PROC_USRID
+			, #proc_ofccd# 	 AS PROC_OFCCD
+		 FROM TB_EDI_INFO
+		WHERE ISNULL(DELT_FLG, 'N') = 'N'
+		  AND INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<!-- 수출신고 번호 등록   -->
+    <insert id="insertEDI_INFO_Copy" parameterClass="com.clt.apps.fis.see.bmd.housebl.dto.EdiXptInfoVO">
+        INSERT INTO TB_EDI_INFO(
+        	  INTG_BL_SEQ	, EDI_XPT_SEQ	, MBL_NO		, XPT_NO	, EDI_SND_STS_CD
+			, PCK_QTY		, PCK_UT_CD		, EDI_GRS_WT    , SPRT_FLG	, SPRT_SEQ      
+			, SAM_PCK_TP    , SAM_PCK_QTY	, SAM_PCK_UT_CD 
+        
+            , RGST_USRID	, RGST_OFC_CD	, RGST_TMS
+            , MODI_USRID	, MODI_OFC_CD	, MODI_TMS
+            , DELT_FLG
+        )VALUES(
+             #intg_bl_seq#	, #edi_xpt_seq#		, #mbl_no#		, #xpt_no#		, #edi_snd_sts_cd#
+           , #edi_pck_qty#	, #edi_pck_ut_cd#	, #edi_grs_wt#	, #sprt_flg#	, #sprt_seq#
+           , #sam_pck_tp#	, #sam_pck_qty#		, #sam_pck_ut_cd#
+        
+           , #proc_usrid#	, #proc_ofccd#		, getdate()
+           , #proc_usrid#	, #proc_ofccd#		, GETUTCDATE()
+           , 'N'        
+        )
+    </insert>
+    
+	<select id="selectFreightList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+		/* selectFreightList */		
+		SELECT 
+			  FRT_SEQ
+			, INTG_BL_SEQ
+			, INV_SEQ
+			, MBL_NO
+			, HBL_NO
+			, BKG_NO
+			, WO_NO
+			, FRT_CD
+			, AIR_SEA_CLSS_CD
+			, BND_CLSS_CD
+			, SELL_BUY_TP_CD
+			, TRDP_CD
+			, RAT_CURR_CD
+			, APLY_UT_CD
+			, CNTR_TPSZ_CD
+			, QTY
+			, SCG_INCL_FLG
+			, FRT_TERM_CD
+			, RU
+			, VAT_RT
+			, VAT_AMT
+			, INV_CURR_CD
+			, INV_XCRT
+			, INV_AMT
+			, INV_VAT_AMT
+			, PERF_CURR_CD
+			, PERF_XCRT
+			, PERF_AMT
+			, PERF_VAT_AMT
+			, LOCL_CURR_CD
+			, LOCL_XCRT
+			, LOCL_AMT
+			, LOCL_VAT_AMT
+			, FRT_ASK_CLSS_CD
+			, FRT_BIZ_CLSS_CD
+			, INV_STS_CD
+			, CFM_FLG
+			, INV_ISS_FLG
+			, FRT_DIVD_FLG
+			, FINC_OFC_CD
+			, SLS_OFC_CD
+			, AUTO_TRF_FLG
+			, TRF_CTRT_NO
+			, TRF_DTL_SEQ
+			, RGST_USRID
+			, RGST_OFC_CD
+			, RGST_TMS
+			, MODI_USRID
+			, MODI_OFC_CD
+			, MODI_TMS
+			, DELT_FLG
+			, DFLT_FLG
+			, INV_SUM_AMT
+			, TRF_CUR_SUM_AMT
+			, PAY_AMT
+			, SPLS_AMT
+			, INV_XCRT_DT
+			, REF_NO
+			, INV_POST_DT
+			, AGENT_RU
+			, AGENT_AMT
+			, FRT_CD_NM
+			, OTH_SEQ
+			, CR_AMT
+			, INTG_BL_SEQ_2
+			, RESERVE_FIELD01
+			, RESERVE_FIELD02
+			, RESERVE_FIELD03
+			, RESERVE_FIELD04
+			, RESERVE_FIELD05
+			, RESERVE_FIELD06
+			, RESERVE_FIELD07
+			, WMS_SEQ
+			, WHLD_VAT_RT
+			, VAT_RT_CD 
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		 FROM TB_FRT
+		WHERE ISNULL(DELT_FLG, 'N') = 'N'
+		  AND INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<!-- Freight Table 입력   -->
+	<insert id="insertFRT_Copy" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+		/*  insertFRT_Copy */
+		INSERT INTO tb_frt(
+			  INTG_BL_SEQ	    , INV_SEQ		    , MBL_NO			, HBL_NO			, BKG_NO			
+			, WO_NO			    , FRT_CD		    , AIR_SEA_CLSS_CD	, BND_CLSS_CD		, SELL_BUY_TP_CD	
+			, TRDP_CD		    , RAT_CURR_CD	    , APLY_UT_CD		, CNTR_TPSZ_CD		, QTY				
+			, SCG_INCL_FLG	    , FRT_TERM_CD	    , RU				, VAT_RT			, VAT_AMT			
+			, INV_CURR_CD	    , INV_XCRT		    , INV_AMT			, INV_VAT_AMT		, PERF_CURR_CD		
+			, PERF_XCRT		    , PERF_AMT		    , PERF_VAT_AMT		, LOCL_CURR_CD		, LOCL_XCRT			
+			, LOCL_AMT		    , LOCL_VAT_AMT	    , FRT_ASK_CLSS_CD	, FRT_BIZ_CLSS_CD	, INV_STS_CD		
+			, CFM_FLG		    , INV_ISS_FLG		, FRT_DIVD_FLG		, FINC_OFC_CD		, SLS_OFC_CD		
+			, AUTO_TRF_FLG	    , TRF_CTRT_NO		, TRF_DTL_SEQ		, DFLT_FLG			, INV_SUM_AMT		
+			, TRF_CUR_SUM_AMT	, PAY_AMT			, SPLS_AMT			, INV_XCRT_DT		, REF_NO			
+			, INV_POST_DT		, AGENT_RU			, AGENT_AMT			, FRT_CD_NM			, OTH_SEQ			
+			, CR_AMT			, INTG_BL_SEQ_2		, RESERVE_FIELD01	, RESERVE_FIELD02	, RESERVE_FIELD03	
+			, RESERVE_FIELD04	, RESERVE_FIELD05	, RESERVE_FIELD06	, RESERVE_FIELD07	, WMS_SEQ			
+			, WHLD_VAT_RT		, VAT_RT_CD			 
+		
+			, RGST_USRID		, RGST_OFC_CD		, RGST_TMS
+			, MODI_USRID		, MODI_OFC_CD		, MODI_TMS
+			, DELT_FLG
+
+		)VALUES(
+              #intg_bl_seq#		, #inv_seq#			, #mbl_no#			, #hbl_no#          , #bkg_no#			
+            , #wo_no#			, #frt_cd#			, #air_sea_clss_cd# , #bnd_clss_cd#     , #sell_buy_tp_cd#	
+            , #trdp_cd#			, #rat_curr_cd#		, #aply_ut_cd#		, #cntr_tpsz_cd#    , #qty#				
+            , #scg_incl_flg#	, #frt_term_cd#		, #ru#				, #vat_rt#			, #vat_amt#			
+            , #inv_curr_cd#		, #inv_xcrt#		, #inv_amt#			, #inv_vat_amt#     , #perf_curr_cd#	
+            , #perf_xcrt#		, #perf_amt#		, #perf_vat_amt#	, #locl_curr_cd# 	, #locl_xcrt#		
+            , #locl_amt#	    , #locl_vat_amt#    , #frt_ask_clss_cd# , #frt_biz_clss_cd#	, #inv_sts_cd#		
+            , #cfm_flg#		    , #inv_iss_flg#		, #frt_divd_flg#	, #finc_ofc_cd#		, #sls_ofc_cd#		
+            , #auto_trf_flg#    , #trf_ctrt_no#		, #trf_dtl_seq#		, #dflt_flg#		, #inv_sum_amt#		
+            , #trf_cur_sum_amt# , #pay_amt#			, #spls_amt#		, #inv_xcrt_dt#		, #ref_no#			
+            , #inv_post_dt#		, #agent_ru#		, #agent_amt#		, #frt_cd_nm#		, #oth_seq#			
+            , #cr_amt#			, #intg_bl_seq_2#	, #reserve_field01#	, #reserve_field02#	, #reserve_field03#	
+            , #reserve_field04#	, #reserve_field05#	, #reserve_field06#	, #reserve_field07#	, #wms_seq#			
+            , #whld_vat_rt#		, #vat_rt_cd#			 
+            			
+            , #proc_usrid#		, #proc_ofccd#		, getdate()
+            , #proc_usrid#		, #proc_ofccd#		, GETUTCDATE()
+            , 'N'
+		)
+    </insert>
+    
+	<select id="selectHwiFrtList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.HwiFrtVO">
+		/* selectHwiFrtList */		
+		SELECT 
+			  FRT_SEQ
+			, INTG_BL_SEQ
+			, FRT_NM
+			, RU
+			, GRS_WGT1
+			, MEAS1
+			, COD_AMT
+			, ADV_AMT
+			, INV_AMT
+			, DELT_FLG
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		FROM TB_HWI_FRT
+		WHERE ISNULL(DELT_FLG, 'N') = 'N'
+		  AND INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<insert id="insertHwiFrt_Copy" parameterClass="com.clt.apps.fis.see.bmd.housebl.dto.HwiFrtVO">
+		/*	insertHwiFrt_Copy */
+		INSERT INTO TB_HWI_FRT(
+           	  FRT_SEQ	, INTG_BL_SEQ	, FRT_NM	, RU		, GRS_WGT1
+			, MEAS1		, COD_AMT		, ADV_AMT	, INV_AMT	
+			         
+           , RGST_USRID , RGST_OFC_CD	, RGST_TMS  
+           , MODI_USRID	, MODI_OFC_CD	, MODI_TMS
+           , DELT_FLG
+         ) VALUES (
+           	 #frt_seq#	, #intg_bl_seq#	, #frt_nm#	, #ru#		, #grs_wgt1#
+           , #meas1#	, #cod_amt#		, #adv_amt#	, #inv_amt#
+           
+           ,#proc_usrid#	,#proc_ofccd#	,GETDATE()
+           ,#proc_usrid#    ,#proc_ofccd#   ,GETUTCDATE()
+           ,'N'
+         )
+	</insert> 
+	
+	<insert id="insertINTG_BL_COPY" parameterClass="com.clt.apps.fis.mgt.alt.altmgt.dto.MgtItfIntgVo">
+		INSERT  tb_intg_bl(
+			   INTG_BL_SEQ		, BIZ_CLSS_CD		, BL_NO				, FRT_TERM_CD		, REP_CMDT_CD		, REP_CMDT_NM		, PCK_UT_CD			, PCK_QTY			, GRS_WGT_UT_CD		, GRS_WGT
+			 , MEAS_UT_CD		, MEAS,POR_CD		, POR_NM			, POL_CD			, POL_NOD_CD		, POL_NM			, POD_CD			, POD_NOD_CD		, POD_NM ,DEL_CD		, DEL_NM
+			 , ISS_LOC_CD		, PAY_LOC_CD		, OBRD_DT_TM		, FT_DT				, CURR_CD			, ETD_DT_TM			, ETA_DT_TM			, LNR_RMK			, SHP_MOD_CD		, FM_SVC_TERM_CD
+			 , TO_SVC_TERM_CD	, TRNK_VSL_CD		, TRNK_VOY			, PRE_VSL_CD		, PRE_VOY			, FLT_NO			, CGO_CLZ_DT_TM		, CARGO_TP_CD		, OTR_CHG_TERM_CD	, CHG_WGT_UT_CD
+			 , CHG_WGT			, FNL_DEST_LOC_CD	, FNL_DEST_LOC_NM	, DECL_CRR_VAL		, DECL_CSTMS_VAL	, AMT_INSUR_VAL		, HNDL_INFO_TXT		, ACCTG_INFO_TXT	, BKG_NO ,PO_NO		, BKG_DT_TM
+			 , LNR_BKG_NO		, HBL_TP_CD			, INCO_CD			, MK_TXT			, DESC_TXT			, AIR_SEA_CLSS_CD	, ACT_WGT_UT_CD		, ACT_WGT			, CGO_RCV_DT_TM		, CFS_LOC_CD
+			 , CFS_NOD_CD		, DE_DUE_DT			, LNR_SKD_SEQ		, CA_STS_CD			, ORG_BL_QTY		, TTL_BL_QTY		, SAD_TXT			, SAY_TXT			, BL_KND_CD  		, BL_ISS_DT		
+			 , RMK				, BL_STS_CD			, BKG_SEQ			, HBL_SEQ			, HBL_CRE_DT		, MM_TXT			, SHP_TP_CD			, TRNK_VSL_NM		, PRE_VSL_NM 		, SRD_FLG			
+			 , ACT_SHP_INFO		, NOMI_FLG			, TS1_PORT_CD		, TS1_FLT_NO		, TS2_PORT_CD		, TS2_FLT_NO		, TS3_PORT_CD		, TS3_FLT_NO	    , CFS_LOC_NM		, BL_SER_NO			
+			 , CSTS_CLR_TP		, ISS_LOC_NM		, PAY_LOC_NM		, REF_NO			, SUB_BL_NO			, MBL_REF_NO		, POST_DT			, SUB_MBL_FLG       , STATE_CD			, GRS_WGT1			
+			 , ACT_WGT1			, MEAS1				, SIZE_UT_CD		, AGENT_RT			, AGENT_AMT			, AGENT_CURR_CD		, CUST_RT			, CUST_AMT			, CUST_CURR_CD		, PROFIT_SHARE		
+			 , EXPRESS_TP_CD	, ISS_LOC_CD1		, ISS_LOC_NM1		, TRANS_SHIPMENT	, ITN_NO			, ONWARD_ROUT		, CLEAN_ON_BOARD	, FRT_TERM_C_CD		, FRT_TERM_A_CD		, OBRD_DT_TM1		
+			 , REF_OFC_CD		, EXP_REF_NO		, OBL_TP_CD			, BROKER_RT			, RCV_WH_CD			, SC_NO				, CNT_CD			, MK_GRS_WGT		, MK_GRS_WGT1		, MK_MEAS			
+			 , MK_MEAS1			, F_ETA_DT_TM		, D_ETA_DT_TM		, AVAIL_DT_TM		, LFD_DT_TM			, GO_DT_TM			, RCVD_DT_TM		, RLSD_DT_TM		, TE				, IT_NO				
+			 , IT_LOC			, BOND_CARR_CD		, BOND_NO			, GOODS_AT			, GOODS_VALUE		, DOOR_LOC_CD		, FNL_WH_CD			, ORG_BL_RCVD_FLG	, ROR_FLG			, RLSD_FLG			
+			 , RLSD_USRID		, TE_DT_TM			, AMS_NO			, ISF_NO			, CARR_TRDP_CD1		, CY_TRDP_CD		, CFS_TRDP_CD		, RT_TRDP_CD		, IMP_REF_NO		, CUST_REF_NO		
+			 , AGENT_GRS_WGT	, AGENT_GRS_WGT1	, AGENT_CHG_WGT		, AGENT_CHG_WGT1	, PRNR_REF_NO		, LC_NO				, INV_NO			, DISP_NTFY_FLG		, CHG_WGT1			, BL_DT_TM			
+			 , WGT_DISP_CD		, VOL_WGT			, VOL_MEAS			, SPOT_NO			, IATA_CD			, IT_CLASS			, STO_START_DT		, FOREIGN_DEST		, WH_ARRV_DT_TM		, DOC_PKUP_ON_DT_TM	
+			 , DOC_PKUP_BY		, CGO_RLSD_ON_DT_TM	, CGO_RLSD_TO		, MANIFEST_TO		, FIRST_PORT_CD		, LAST_PORT_CD		, FRT_LOC_CD		, SVC_SCOPE			, ATT_MK_TXT		, ATT_DESC_TXT		
+			 , BL_GRS_WGT		, BL_CHG_WGT		, BL_GRS_WGT1		, BL_CHG_WGT1		, AGENT_UNIT_CHK	, CUSTOMER_UNIT_CHK	, DESC_TXT1			, AN_INV_NO			, AN_DUE_DT			, AN_CURR_CD		
+			 , CNTR_INFO		, RT_CLSS_CD		, DOC_RECPT_NO		, RESERVE_FIELD01	, RESERVE_FIELD02	, RESERVE_FIELD03	, RESERVE_FIELD04	, RESERVE_FIELD05	, RESERVE_FIELD06	, RESERVE_FIELD11	
+			 , LANE_CD			, WH_CUT_OFF_DT		, DOC_CUT_OFF_DT	, PU_TRDP_CD		, CUT_OFF_DT		, RAIL_CUT_OFF_DT	, ETA_FPOE_TM		, ETD_POR_TM		, SHIP_WIN_TITLE	, SHIP_WIN_DESC		
+			 , AMS_ID			, CCN_NO			, PRE_CCN_NO		, MNF_FR_LOC		, MNF_TO_LOC		, CCN_DT
+			 , SR_NO			, SR_SEQ			, SR_CRE_DT
+			 , RGST_USRID		, RGST_OFC_CD		, RGST_TMS
+			 , MODI_USRID		, MODI_OFC_CD		, MODI_TMS			, DEPT_CD			, MODI_USR_NM		, DELT_FLG
+		)VALUES(
+			   #intg_bl_seq#	, #biz_clss_cd#		    , #bl_no#			, #frt_term_cd#		, #rep_cmdt_cd#		, #rep_cmdt_nm#		    , #pck_ut_cd#		, #pck_qty#			, #grs_wgt_ut_cd#	, #grs_wgt#
+			 , #meas_ut_cd#		, #meas#,#por_cd#		    , #por_nm#			, #pol_cd#			, #pol_nod_cd#		, #pol_nm#			    , #pod_cd#			, #pod_nod_cd#		, #pod_nm#,#del_cd#	, #del_nm#
+			 , #iss_loc_cd#		, #pay_loc_cd#		    , #obrd_dt_tm#		, #ft_dt#			, #curr_cd#			, #etd_dt_tm#		    , #eta_dt_tm#		, #lnr_rmk#			, #shp_mod_cd#		, #fm_svc_term_cd#
+			 , #to_svc_term_cd#	, #trnk_vsl_cd#		    , #trnk_voy#		, #pre_vsl_cd#		, #pre_voy#			, #flt_no#			    , #cgo_clz_dt_tm#	, #cargo_tp_cd#		, #otr_chg_term_cd#	, #chg_wgt_ut_cd#
+			 , #chg_wgt#		, #fnl_dest_loc_cd#	    , #fnl_dest_loc_nm#	, #decl_crr_val#	, #decl_cstms_val#	, #amt_insur_val#	    , #hndl_info_txt#	, #acctg_info_txt#	, #bkg_no#,#po_no#	, #bkg_dt_tm#
+			 , #lnr_bkg_no#		, #hbl_tp_cd#		    , #inco_cd#			, #mk_txt#			, #desc_txt#		, #air_sea_clss_cd#	    , #act_wgt_ut_cd#	, #act_wgt#			, #cgo_rcv_dt_tm#	, #cfs_loc_cd#
+			 , #cfs_nod_cd#		, #de_due_dt#		    , #lnr_skd_seq#		, #ca_sts_cd#		, #org_bl_qty#		, #ttl_bl_qty#		    , #sad_txt#			, #say_txt#			, #bl_knd_cd#  		, #bl_iss_dt#		
+			 , #rmk#			, #bl_sts_cd#		    , #bkg_seq#			, #hbl_seq#			, #hbl_cre_dt#		, #mm_txt#			    , #shp_tp_cd#		, #trnk_vsl_nm#		, #pre_vsl_nm# 		, #srd_flg#			
+			 , #act_shp_info#	, #nomi_flg#		    , #ts1_port_cd#		, #ts1_flt_no#		, #ts2_port_cd#		, #ts2_flt_no#		    , #ts3_port_cd#		, #ts3_flt_no#	    , #cfs_loc_nm#		, #bl_ser_no#			
+			 , #csts_clr_tp#	, #iss_loc_nm#		    , #pay_loc_nm#		, #ref_no#			, #sub_bl_no#		, #mbl_ref_no#		    , #post_dt#			, #sub_mbl_flg#     , #state_cd#		, #grs_wgt1#			
+			 , #act_wgt1#		, #meas1#			    , #size_ut_cd#		, #agent_rt#		, #agent_amt#		, #agent_curr_cd#	    , #cust_rt#			, #cust_amt#		, #cust_curr_cd#	, #profit_share#		
+			 , #express_tp_cd#	, #iss_loc_cd1#		    , #iss_loc_nm1#		, #trans_shipment#	, #itn_no#			, #onward_rout#		    , #clean_on_board#	, #frt_term_c_cd#	, #frt_term_a_cd#	, #obrd_dt_tm1#		
+			 , #ref_ofc_cd#		, #exp_ref_no#		    , #obl_tp_cd#		, #broker_rt#		, #rcv_wh_cd#		, #sc_no#			    , #cnt_cd#			, #mk_grs_wgt#		, #mk_grs_wgt1#		, #mk_meas#			
+			 , #mk_meas1#		, #f_eta_dt_tm#		    , #d_eta_dt_tm#		, #avail_dt_tm#		, #lfd_dt_tm#		, #go_dt_tm#		    , #rcvd_dt_tm#		, #rlsd_dt_tm#		, #te#				, #it_no#				
+			 , #it_loc#			, #bond_carr_cd#	    , #bond_no#			, #goods_at#		, #goods_value#		, #door_loc_cd#		    , #fnl_wh_cd#		, #org_bl_rcvd_flg#	, #ror_flg#			, #rlsd_flg#			
+			 , #rlsd_usrid#		, #te_dt_tm#		    , #ams_no#			, #isf_no#			, #carr_trdp_cd1#	, #cy_trdp_cd#		    , #cfs_trdp_cd#		, #rt_trdp_cd#		, #imp_ref_no#		, #cust_ref_no#		
+			 , #agent_grs_wgt#	, #agent_grs_wgt1#	    , #agent_chg_wgt#	, #agent_chg_wgt1#	, #prnr_ref_no#		, #lc_no#			    , #inv_no#			, #disp_ntfy_flg#	, #chg_wgt1#		, #bl_dt_tm#			
+			 , #wgt_disp_cd#	, #vol_wgt#				, #vol_meas#		, #spot_no#			, #iata_cd#			, #it_class#			, #sto_start_dt#	, #foreign_dest#	, #wh_arrv_dt_tm#	, #doc_pkup_on_dt_tm#	
+			 , #doc_pkup_by#	, #cgo_rlsd_on_dt_tm#	, #cgo_rlsd_to#		, #manifest_to#		, #first_port_cd#	, #last_port_cd#		, #frt_loc_cd#		, #svc_scope#		, #att_mk_txt#		, #att_desc_txt#		
+			 , #bl_grs_wgt#		, #bl_chg_wgt#			, #bl_grs_wgt1#		, #bl_chg_wgt1#		, #agent_unit_chk#	, #customer_unit_chk#	, #desc_txt1#		, #an_inv_no#		, #an_due_dt#		, #an_curr_cd#		
+			 , #cntr_info#		, #rt_clss_cd#		    , #doc_recpt_no#	, #reserve_field01#	, #reserve_field02#	, #reserve_field03#		, #reserve_field04#	, #reserve_field05#	, #reserve_field06#	, #reserve_field11#	
+			 , #lane_cd#		, #wh_cut_off_dt#	    , #doc_cut_off_dt#	, #pu_trdp_cd#		, #cut_off_dt#		, #rail_cut_off_dt#		, #eta_fpoe_tm#		, #etd_por_tm#		, #ship_win_title#	, #ship_win_desc#		
+			 , #ams_id#			, #ccn_no#			    , #pre_ccn_no#		, #mnf_fr_loc#		, #mnf_to_loc#		, #ccn_dt#
+			 , #sr_no#			, #sr_seq#			    , getdate()
+			 , #proc_usrid#		, #proc_ofccd#		    , getdate()
+			 , #proc_usrid#		, #proc_ofccd#		    , GETUTCDATE()		, #proc_dept_cd#	, #proc_usrnm#		, 'N'
+		)	 
+    </insert>
+    
+    <!-- BL PARTNER 등록  -->
+    <insert id="insertBL_PRNR_COPY" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.BlPrnrVO">
+    	INSERT INTO TB_BL_PRNR(
+    		  INTG_BL_SEQ, BL_TRDP_TP_CD, TRDP_CD, TRDP_NM, TRDP_PIC, TRDP_PHN, TRDP_FAX, TRDP_EML, TRDP_ADDR, TRDP_PIC_USR_ID
+    		, RGST_USRID,RGST_OFC_CD,RGST_TMS,MODI_USRID,MODI_OFC_CD,MODI_TMS,DELT_FLG	
+    	) VALUES (
+    		  #intg_bl_seq#, #bl_trdp_tp_cd#, #trdp_cd#, #trdp_nm#, #trdp_pic#, #trdp_phn#, #trdp_fax#, #trdp_eml#, #trdp_addr#, #trdp_pic_usr_id#
+    		, #proc_usrid#, #proc_ofccd#, getdate(), #proc_usrid#, #proc_ofccd#, GETUTCDATE(), 'N'
+    	)
+    </insert>
+    
+    <update id="updateBLVslInfo" parameterClass="java.util.HashMap">
+    	/*	"updateBLVslInfo" */
+    	UPDATE TB_INTG_BL 
+		SET
+		    TB_INTG_BL.TRNK_VSL_NM = BL_EDI.TRNK_VSL_NM,
+		    TB_INTG_BL.TRNK_VOY = BL_EDI.TRNK_VOY
+		FROM
+		    TB_INTG_BL_EDI_TEMP AS BL_EDI
+		WHERE BL_EDI.BL_NO = #mbl_no#
+		  AND BL_EDI.BIZ_CLSS_CD = 'M'
+		  AND TB_INTG_BL.REF_NO IN ( SELECT REF_NO FROM TB_INTG_BL WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) )
+		  AND TB_INTG_BL.DELT_FLG = 'N'
+    </update>
+    
+    <!-- CONTAINER SUMMARY 조회  -->
+    <select id="selectCntrSmryList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.BkgCntrVO">
+		/* selectCntrSmryList */		
+		SELECT 
+			  INTG_BL_SEQ
+			, CNTR_SMRY_SEQ
+			, CNTR_TPSZ_CD
+			, CNTR_QTY
+			, DELT_FLG
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		FROM TB_CNTR_SMRY
+		WHERE ISNULL(DELT_FLG, 'N') = 'N'		
+		  AND INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+    <!-- CONTAINER SUMMARY 등록  -->
+    <insert id="insertCNTR_SMRY_COPY" parameterClass="com.clt.apps.fis.see.bmd.housebl.dto.BkgCntrVO">
+    	/* insertCNTR_SMRY_COPY */	
+        INSERT INTO tb_cntr_smry(
+                    intg_bl_seq,        cntr_smry_seq,      cntr_tpsz_cd,          cntr_qty,
+                    rgst_usrid,         rgst_ofc_cd,        rgst_tms,          
+                    modi_usrid,         modi_ofc_cd,        modi_tms,              delt_flg
+                    
+            )VALUES(
+                    #intg_bl_seq#,      #cntr_smry_seq#,    #smry_cntr_tpsz_cd#,   #smry_cntr_qty#,
+                    #proc_usrid#,       #proc_ofccd#,       getdate(),
+                    #proc_usrid#,       #proc_ofccd#,       GETUTCDATE(),         'N'
+            )    
+    </insert>
+    
+    <!-- Container 목록 조회  -->
+    <select id="selectCntrList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.CntrListVO">
+		/* selectCntrList */		
+		SELECT 
+			  INTG_BL_SEQ
+			, CNTR_LIST_SEQ
+			, RGST_CNTR_YN
+			, CNTR_NO
+			, CNTR_TPSZ_CD
+			, CGO_PCK_QTY
+			, CGO_PCK_UT
+			, CGO_WGT
+			, CGO_MEAS
+			, VOL_MEAS
+			, SOC_FLG
+			, DG_GDS_FLG
+			, CNTR_RMK
+			, SEAL_NO1
+			, SEAL_NO2
+			, SEAL_NO3
+			, CNTR_SPRL_TRDP_CD			  
+			, CGO_WGT1
+			, CGO_MEAS1
+			, PICKUP_NUMBER
+			, LFD, CNTR_GO_DATE
+			, TEMP_CD
+			, VENT_CD
+			, CFS_IN_DT
+			, DEVAN_DT
+			, ORG_PKUP_DT 			
+			, FNL_DEST_ETA_DT 	
+			, APNT_DT 			
+			, DE_DT 			
+			, FREE_DET_DT 
+			, EMTY_RT_DT
+			, TEMP_VAL
+			, SEAL_TP1		
+			, SEAL_TP2		
+			, VGM_CGO_WGT		
+			, VGM_CGO_WGT_TP		
+			, VGM_DT		
+			, VGM_TM		
+			, VGM_METHOD	
+			, VGM_CNTR_TP
+			, VGM_AM_TRDP_CD	
+			, VGM_AM_TRDP_NM	
+			, VGM_AM_TRDP_PIC	
+			, VGM_SPC_TRDP_CD	
+			, VGM_SPC_TRDP_NM	
+			, VGM_SPC_TRDP_PIC	
+			, VGM_SEQ
+			, CNTR_REF_NO
+			, DELT_FLG
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		FROM TB_CNTR_LIST
+		WHERE ISNULL(DELT_FLG, 'N') = 'N'		
+		  AND INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+    <!--Container목록에 저장  -->
+    <!-- #20417 : [BINEX] MLB/IPI 건들 Pickup and LFD 추가 - jsjang 2013.9.6 -->
+    <insert id="insertCNTR_LIST_COPY" parameterClass="com.clt.apps.fis.see.bmd.housebl.dto.CntrListVO">
+        INSERT INTO tb_cntr_list(
+            intg_bl_seq,        cntr_list_seq,       rgst_cntr_yn,
+            cntr_no,            cntr_tpsz_cd,
+            cgo_pck_qty,        cgo_pck_ut,          cgo_wgt,           cgo_meas,         vol_meas,
+            soc_flg,            dg_gds_flg,          cntr_rmk,
+            seal_no1,           seal_no2,            seal_no3, 
+            cntr_sprl_trdp_cd,
+            rgst_usrid,         rgst_ofc_cd,         rgst_tms,
+            modi_usrid,         modi_ofc_cd,         modi_tms,          delt_flg,
+            cgo_wgt1, cgo_meas1
+            ,pickup_number, lfd, cntr_go_date, temp_cd, vent_cd, cfs_in_dt, devan_dt
+            ,org_pkup_dt 			,fnl_dest_eta_dt 	,apnt_dt 			,de_dt 			,free_det_dt , emty_rt_dt
+            ,temp_val
+            ,SEAL_TP1		,SEAL_TP2		,VGM_CGO_WGT		,VGM_CGO_WGT_TP		,VGM_DT		,VGM_TM		,VGM_METHOD	,VGM_CNTR_TP
+			,VGM_AM_TRDP_CD	,VGM_AM_TRDP_NM	,VGM_AM_TRDP_PIC	,VGM_SPC_TRDP_CD	,VGM_SPC_TRDP_NM	,VGM_SPC_TRDP_PIC	
+			,VGM_SEQ
+			,cntr_ref_no
+        )VALUES(
+            #intg_bl_seq#,       #cntr_list_seq#,    #rgst_cntr_yn#, 
+            #cntr_no#,           #cntr_tpsz_cd#, 
+            #cgo_pck_qty#,       #cgo_pck_ut#,       #cgo_wgt#,          #cgo_meas#,        #vol_meas#, 
+            #soc_flg#,           #dg_gds_flg#,       #cntr_rmk#, 
+            #seal_no1#,          #seal_no2#,         #seal_no3#, 
+            #cntr_sprl_trdp_cd#, 
+            #proc_usrid#,        #proc_ofccd#,       getdate(),
+            #proc_usrid#,        #proc_ofccd#,       GETUTCDATE(),         'N',
+            #cgo_wgt1#, #cgo_meas1#
+            ,#pickup_number#, #lfd#, #cntr_go_date#, #temp_cd#, #vent_cd#, #cfs_in_dt#, #devan_dt#
+            ,#org_pkup_dt# 		,#fnl_dest_eta_dt# 	,#apnt_dt# 		,#de_dt# 		,#free_det_dt# , #emty_rt_dt#
+            ,#temp_val#
+            ,#seal_tp1#		,#seal_tp2#		,#vgm_cgo_wgt#		,#vgm_cgo_wgt_tp#		,#vgm_dt#		,#vgm_tm#		,#vgm_method#	,#vgm_cntr_tp#
+			,#vgm_am_trdp_cd#	,#vgm_am_trdp_nm#	,#vgm_am_trdp_pic#	,#vgm_spc_trdp_cd#	,#vgm_spc_trdp_nm#	,#vgm_spc_trdp_pic#	
+			,CONVERT(varchar,#cntr_list_seq#)+CONVERT(varchar,#intg_bl_seq#)
+			,#cntr_ref_no#
+        )
+    </insert>
+    
+    <!-- User Defined Field 조회  -->
+    <select id="selectBlUdfList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.BlUdfVO">
+		/* selectBlUdfList */		
+		SELECT 
+			  INTG_BL_SEQ
+			, UDF_CD
+			, UDF_VAL
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		FROM TB_BL_UDF		
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<!-- User Defined Field 목록에 저장  -->
+    <insert id="insertBlUdf_COPY" parameterClass="com.clt.apps.fis.see.bmd.housebl.dto.BlUdfVO">
+	    INSERT INTO TB_BL_UDF
+	           (INTG_BL_SEQ
+	           ,UDF_CD
+	           ,UDF_VAL
+	           ,RGST_USRID
+	           ,RGST_OFC_CD
+	           ,RGST_TMS
+	           ,MODI_USRID
+	           ,MODI_OFC_CD
+	           ,MODI_TMS)
+	     VALUES
+	           (#intg_bl_seq#
+	           ,#udf_cd#
+	           ,#udf_val#
+	           ,#proc_usrid#
+	           ,#proc_ofccd#
+	           ,GETDATE()
+	           ,#proc_usrid#
+	           ,#proc_ofccd#
+	           ,GETUTCDATE())
+	</insert>    
+	
+	<!-- Arrival Notice 조회  -->
+    <select id="selectAnList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.AnListVO">
+		/* selectAnList */		
+		SELECT 
+			  AN_SEQ
+			, INTG_BL_SEQ
+			, FRT_CD
+			, FRT_CD_NM
+			, DESCR
+			, FRT_TERM_CD
+			, AMT
+			, DELT_FLG
+			, #proc_usrid# 		AS PROC_USRID
+			, #proc_ofccd# 		AS PROC_OFCCD
+		FROM TB_AN_LIST	
+		WHERE ISNULL(DELT_FLG, 'N') = 'N'
+		  AND INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<!-- Arrival Notice 목록에 저장  -->
+	<insert id="insertANLIST_COPY" parameterClass="com.clt.apps.fis.see.bmd.housebl.dto.AnListVO">
+		INSERT INTO TB_AN_LIST
+		(
+			an_seq, intg_bl_seq, frt_cd, frt_cd_nm,
+			descr, frt_term_cd, amt,
+			rgst_usrid, rgst_ofc_cd, rgst_tms,
+			modi_usrid, modi_ofc_cd, modi_tms,
+			delt_flg
+		) VALUES
+		(
+			#an_seq#, #intg_bl_seq#, #frt_cd#, #frt_cd_nm#,
+			#descr#, #an_frt_term_cd#, #amt#,
+			#rgst_usrid#, #rgst_ofc_cd#, GETDATE(),
+			#modi_usrid#, #modi_ofc_cd#, GETUTCDATE(),
+			#delt_flg#
+		)
+	</insert>
+	<select id="selectFrtSeqTemp"  parameterClass="EdiSmtAmsRcvVO" resultClass="String">
+		/*selectFrtSeqTemp*/
+		SELECT ISNULL(MAX(FRT_LIST_SEQ),0) + 1
+		  FROM TB_FRT_EDI_TEMP
+		 WHERE 1 = 1
+		   AND BL_SEQ       = #bl_key# 
+		   AND BL_NO        = #mbl_no#
+	</select>	
+	<select id="selectFrtSeqTemp_Hbl"  parameterClass="EdiSmtAmsRcvVO" resultClass="String">
+		/*selectFrtSeqTemp_Hbl*/
+		SELECT ISNULL(MAX(FRT_LIST_SEQ),0) + 1
+		  FROM TB_FRT_EDI_TEMP
+		 WHERE 1 = 1
+		   AND BL_SEQ       = #bl_key# 
+		   AND BL_NO        = #hbl_no#
+	</select>	
+	<update id="mergeEdiFrtTemp" parameterClass="EdiSmtAmsRcvVO">
+	/*mergeEdiFrtTemp*/
+	   MERGE INTO TB_FRT_EDI_TEMP X1
+	   USING
+	   (
+		  SELECT #bl_key# BL_SEQ,
+			    #frt_key# FRT_LIST_SEQ,
+			    #mbl_no# BL_NO,
+			    #frt_cd# FRT_CD,
+			    #frt_cd_nm# FRT_CD_NM,
+			    #inv_sum_amt# INV_SUM_AMT,
+			    #inv_curr_cd# inv_curr_cd,
+			    #sell_buy_tp_cd# sell_buy_tp_cd,
+			    #biz_clss_cd#      BIZ_CLSS_CD,
+			    #rat_curr_cd# rat_curr_cd,
+			    #aply_ut_cd# aply_ut_cd,
+			    #frt_term_cd# frt_term_cd,
+			    #inv_xcrt_dt# inv_xcrt_dt,
+			    #intg_bl_seq# intg_bl_seq,
+			    #ru# ru,
+			    #qty# qty,
+			    #inv_seq# inv_seq,
+			    #trf_cur_sum_amt# trf_cur_sum_amt,
+                #inv_xcrt# inv_xcrt,
+                #frt_cntr_tpsz_cd# cntr_tpsz_cd,
+                #agent_amt# agent_amt,
+                #debit_amt# inv_amt,
+                #credit_amt# cr_amt,
+			    #usr_id# USR_ID,
+			    #usr_ofc_cd# USR_OFC_CD
+	   ) X2
+	   ON(X1.BL_SEQ = X2.BL_SEQ
+		 AND X1.BL_NO = X2.BL_NO
+		 AND X1.FRT_LIST_SEQ = X2.FRT_LIST_SEQ
+		 )
+		  WHEN MATCHED
+		  THEN UPDATE SET
+					   X1.FRT_CD = X2.FRT_CD,
+					   X1.FRT_CD_NM = X2.FRT_CD_NM,
+					   X1.INV_SUM_AMT = X2.INV_SUM_AMT,
+					   X1.inv_curr_cd = X2.inv_curr_cd,
+					   X1.sell_buy_tp_cd = X2.sell_buy_tp_cd,
+					   X1.biz_clss_cd= X2.BIZ_CLSS_CD,
+					   X1.rat_curr_cd = X2.rat_curr_cd,
+					   X1.aply_ut_cd = X2.aply_ut_cd,
+					   X1.frt_term_cd = X2.frt_term_cd,
+					   X1.inv_xcrt_dt = X2.inv_xcrt_dt,
+					   X1.intg_bl_seq = X2.intg_bl_seq,
+					   X1.ru = X2.ru,
+					   X1.qty = X2.qty,
+					   X1.inv_seq = X2.inv_seq,
+					   X1.trf_cur_sum_amt = X2.trf_cur_sum_amt,
+					   X1.inv_xcrt = X2.inv_xcrt,
+					   X1.cntr_tpsz_cd = X2.cntr_tpsz_cd,
+					   X1.agent_amt = X2.agent_amt,
+					   X1.inv_amt = X2.inv_amt,
+					   X1.cr_amt = X2.cr_amt,
+					   
+					   X1.MODI_USRID = X2.USR_ID,
+					   X1.MODI_TMS = GETUTCDATE()
+		  WHEN NOT MATCHED
+		  THEN
+		    INSERT
+			    (BL_SEQ                         
+			    ,BL_NO                          
+			    ,FRT_LIST_SEQ 
+			    ,BIZ_CLSS_CD                  
+			    ,FRT_CD                         
+			    ,FRT_CD_NM                      
+			    ,INV_SUM_AMT                    
+			    ,INV_CURR_CD                    
+			    ,SELL_BUY_TP_CD                 
+			    ,RAT_CURR_CD                    
+			    ,APLY_UT_CD                     
+			    ,FRT_TERM_CD                    
+			    ,INV_XCRT_DT                    
+			    ,INTG_BL_SEQ                    
+			    ,RU                             
+			    ,QTY                            
+			    ,TRF_CUR_SUM_AMT                
+			    ,INV_XCRT
+			    ,cntr_tpsz_cd
+			    ,agent_amt
+			    ,inv_amt
+			    ,cr_amt
+			    ,RGST_USRID                     
+			    ,RGST_TMS                       
+			    ,MODI_USRID                     
+			    ,MODI_TMS
+			    ,DELT_FLG
+			    
+			    )  
+		    VALUES
+				(X2.BL_SEQ,
+				 X2.BL_NO,
+				 X2.FRT_LIST_SEQ,
+				 X2.BIZ_CLSS_CD,
+				 X2.FRT_CD,
+				 X2.FRT_CD_NM,
+				 X2.INV_SUM_AMT,
+				 X2.INV_CURR_CD,
+				 X2.SELL_BUY_TP_CD,
+				 X2.RAT_CURR_CD,
+				 X2.APLY_UT_CD,
+				 X2.FRT_TERM_CD,
+			      X2.INV_XCRT_DT,                    
+			      X2.INTG_BL_SEQ,                  
+			      X2.RU,                             
+			      X2.QTY,                            
+			      X2.TRF_CUR_SUM_AMT,
+			      X2.inv_xcrt,
+			      X2.cntr_tpsz_cd,
+			      X2.agent_amt,
+			      X2.inv_amt,
+			      X2.cr_amt,
+			      
+				 X2.USR_ID,
+				 GETUTCDATE(),
+				 X2.USR_ID,
+				 GETUTCDATE()
+				 ,'N'
+				);
+    </update>	
+	<update id="mergeEdiFrtTemp_Hbl" parameterClass="EdiSmtAmsRcvVO">
+	/*mergeEdiFrtTemp_Hbl*/
+	   MERGE INTO TB_FRT_EDI_TEMP X1
+	   USING
+	   (
+		  SELECT #bl_key# BL_SEQ,
+			    #frt_key# FRT_LIST_SEQ,
+			    #hbl_no# BL_NO,
+			    #frt_cd# FRT_CD,
+			    #frt_cd_nm# FRT_CD_NM,
+			    #inv_sum_amt# INV_SUM_AMT,
+			    #inv_curr_cd# inv_curr_cd,
+			    #sell_buy_tp_cd# sell_buy_tp_cd,
+			    #biz_clss_cd#      BIZ_CLSS_CD,
+			    #rat_curr_cd# rat_curr_cd,
+			    #aply_ut_cd# aply_ut_cd,
+			    #frt_term_cd# frt_term_cd,
+			    #inv_xcrt_dt# inv_xcrt_dt,
+			    #intg_bl_seq# intg_bl_seq,
+			    #ru# ru,
+			    #qty# qty,
+			    #inv_seq# inv_seq,
+			    #trf_cur_sum_amt# trf_cur_sum_amt,
+                #inv_xcrt# inv_xcrt,
+                #frt_cntr_tpsz_cd# cntr_tpsz_cd,
+                #agent_amt# agent_amt,
+                #debit_amt# inv_amt,
+                #credit_amt# cr_amt,
+			    #usr_id# USR_ID,
+			    #usr_ofc_cd# USR_OFC_CD
+	   ) X2
+	   ON(X1.BL_SEQ = X2.BL_SEQ
+		 AND X1.BL_NO = X2.BL_NO
+		 AND X1.FRT_LIST_SEQ = X2.FRT_LIST_SEQ
+		 )
+		  WHEN MATCHED
+		  THEN UPDATE SET
+					   X1.FRT_CD = X2.FRT_CD,
+					   X1.FRT_CD_NM = X2.FRT_CD_NM,
+					   X1.INV_SUM_AMT = X2.INV_SUM_AMT,
+					   X1.inv_curr_cd = X2.inv_curr_cd,
+					   X1.sell_buy_tp_cd = X2.sell_buy_tp_cd,
+					   X1.biz_clss_cd= X2.BIZ_CLSS_CD,
+					   X1.rat_curr_cd = X2.rat_curr_cd,
+					   X1.aply_ut_cd = X2.aply_ut_cd,
+					   X1.frt_term_cd = X2.frt_term_cd,
+					   X1.inv_xcrt_dt = X2.inv_xcrt_dt,
+					   X1.intg_bl_seq = X2.intg_bl_seq,
+					   X1.ru = X2.ru,
+					   X1.qty = X2.qty,
+					   X1.inv_seq = X2.inv_seq,
+					   X1.trf_cur_sum_amt = X2.trf_cur_sum_amt,
+					   X1.inv_xcrt = X2.inv_xcrt,
+					   X1.cntr_tpsz_cd = X2.cntr_tpsz_cd,
+					   X1.agent_amt = X2.agent_amt,
+					   X1.inv_amt = X2.inv_amt,
+					   X1.cr_amt = X2.cr_amt,
+					   
+					   X1.MODI_USRID = X2.USR_ID,
+					   X1.MODI_TMS = GETUTCDATE()
+		  WHEN NOT MATCHED
+		  THEN
+		    INSERT
+			    (BL_SEQ                         
+			    ,BL_NO                          
+			    ,FRT_LIST_SEQ 
+			    ,BIZ_CLSS_CD                  
+			    ,FRT_CD                         
+			    ,FRT_CD_NM                      
+			    ,INV_SUM_AMT                    
+			    ,INV_CURR_CD                    
+			    ,SELL_BUY_TP_CD                 
+			    ,RAT_CURR_CD                    
+			    ,APLY_UT_CD                     
+			    ,FRT_TERM_CD                    
+			    ,INV_XCRT_DT                    
+			    ,INTG_BL_SEQ                    
+			    ,RU                             
+			    ,QTY                            
+			    ,TRF_CUR_SUM_AMT                
+			    ,INV_XCRT
+			    ,cntr_tpsz_cd
+			    ,agent_amt
+			    ,inv_amt
+			    ,cr_amt
+			    ,RGST_USRID                     
+			    ,RGST_TMS                       
+			    ,MODI_USRID                     
+			    ,MODI_TMS
+			    ,DELT_FLG
+			    
+			    )  
+		    VALUES
+				(X2.BL_SEQ,
+				 X2.BL_NO,
+				 X2.FRT_LIST_SEQ,
+				 X2.BIZ_CLSS_CD,
+				 X2.FRT_CD,
+				 X2.FRT_CD_NM,
+				 X2.INV_SUM_AMT,
+				 X2.INV_CURR_CD,
+				 X2.SELL_BUY_TP_CD,
+				 X2.RAT_CURR_CD,
+				 X2.APLY_UT_CD,
+				 X2.FRT_TERM_CD,
+			      X2.INV_XCRT_DT,                    
+			      X2.INTG_BL_SEQ,                  
+			      X2.RU,                             
+			      X2.QTY,                            
+			      X2.TRF_CUR_SUM_AMT,
+			      X2.inv_xcrt,
+			      X2.cntr_tpsz_cd,
+			      X2.agent_amt,
+			      X2.inv_amt,
+			      X2.cr_amt,
+			      
+				 X2.USR_ID,
+				 GETUTCDATE(),
+				 X2.USR_ID,
+				 GETUTCDATE()
+				 ,'N'
+				);
+    </update>	    
+    <insert id="insertFrtTable_Mbl" parameterClass="MgtItfMgtVO">
+    /*insertFrtTable_Mbl*/
+    INSERT INTO TB_FRT( 
+		  INTG_BL_SEQ 
+		  ,FRT_CD
+		  ,FRT_CD_NM
+		  ,RAT_CURR_CD
+		  ,RU
+		  ,QTY
+		  ,TRF_CUR_SUM_AMT
+		  ,INV_CURR_CD
+		  ,INV_XCRT
+		  ,INV_XCRT_DT
+		  ,INV_SUM_AMT
+		  ,FRT_TERM_CD
+		  ,SELL_BUY_TP_CD
+		  ,DELT_FLG
+		  ,RGST_USRID
+		  ,RGST_OFC_CD
+		  ,RGST_TMS
+		  ,MODI_USRID
+		  ,MODI_OFC_CD
+		  ,MODI_TMS
+		  ,INV_STS_CD
+		  ,FRT_DIVD_FLG
+		  ,AUTO_TRF_FLG
+
+		  ,CNTR_TPSZ_CD  
+		  ,AGENT_AMT  
+		  ,INV_AMT 
+		  ,CR_AMT  
+		  ,trdp_cd
+		  ,APLY_UT_CD
+		  ,AGENT_RU
+		  ,AIR_SEA_CLSS_CD
+		  ,BND_CLSS_CD		  
+		   )
+    SELECT  
+		  #intg_bl_seq#
+		 <!-- ,map_frt_cd null 일 경우 mapping table data input-->
+  	     ,isnull( F.MAP_FRT_CD ,(
+						        SELECT TOP 1 MP_CD
+						        FROM TB_EDI_DATA_MP
+						        WHERE MP_VAL = F.FRT_CD_NM
+						          AND MP_TP = 'FRT'
+								  AND EDI_TP =#edi_tp#))
+		  ,frt_cd_nm
+		  , case when  (select VALUE from TB_SYS_PROP  where [key] = 'MULTI_CURR_FLAG') != 'Y' AND RAT_CURR_CD != INV_CURR_CD then INV_CURR_CD else RAT_CURR_CD end  as RAT_CURR_CD	  
+		  ,case when  (select VALUE from TB_SYS_PROP  where [key] = 'MULTI_CURR_FLAG') != 'Y' AND RAT_CURR_CD != INV_CURR_CD then (AGENT_AMT/QTY) else RU end  as RU
+		  ,QTY
+		  ,case when  (select VALUE from TB_SYS_PROP  where [key] = 'MULTI_CURR_FLAG') != 'Y' AND RAT_CURR_CD != INV_CURR_CD then AGENT_AMT else TRF_CUR_SUM_AMT end  as TRF_CUR_SUM_AMT	
+		  ,INV_CURR_CD
+		  ,case when  (select VALUE from TB_SYS_PROP  where [key] = 'MULTI_CURR_FLAG') != 'Y' AND RAT_CURR_CD != INV_CURR_CD then 1 else INV_XCRT end  as INV_XCRT
+		  ,#post_dt# 
+		  <!-- Agent EDI Spec 추가 사항 2018.12.10-전송시 D/C 와 동일하게 Debit/Credit Amt 변경 후 전송 -->
+		  <!-- ,case when FRT_TERM_CD='CC' then CR_AMT else  INV_SUM_AMT end INV_SUM_AMT -->
+		  <!-- #5083 [CLA] BL EDI Improvement Requests 
+		  		4) INV_SUM_AMT : 
+  				- 수신 측 FRT 기준 : Collect 이면서 Credit인 경우, INV_SUM_AMT = 0 처리 필요 ( Credit Amout - CR_AMT 컬럼 사용 )
+		  ,case when SELL_BUY_TP_CD='D' then INV_AMT else CR_AMT end INV_SUM_AMT -->
+		  ,case when FRT_TERM_CD='CC' and SELL_BUY_TP_CD='C' then 0
+		  	    when SELL_BUY_TP_CD='D' then INV_AMT
+		  	    else CR_AMT 
+		  end INV_SUM_AMT
+		  ,FRT_TERM_CD
+		  ,SELL_BUY_TP_CD
+		  ,'N'
+		  ,RGST_USRID
+		  ,#rgst_ofc_cd#
+		  ,RGST_TMS
+		  ,MODI_USRID
+		  ,#modi_ofc_cd#
+		  ,MODI_TMS
+		  ,'FI'
+		  ,'N' 
+		  ,'N' 
+ 
+		  ,CNTR_TPSZ_CD  
+		  ,AGENT_AMT  
+		  <!-- Agent EDI Spec 추가 사항 2018.12.10-전송시 D/C 와 동일하게 Debit/Credit Amt 변경 후 전송 -->
+		  <!-- ,case when FRT_TERM_CD='CC' then CR_AMT else  INV_AMT end INV_AMT 
+		  ,case when FRT_TERM_CD='CC' then INV_AMT else  CR_AMT end CR_AMT --> 
+		  ,INV_AMT 
+		  ,CR_AMT 
+		  ,(SELECT TOP 1 TRDP_CD FROM TB_TRDP WHERE AGT_EDI_CD =#edi_tp#)
+		  ,APLY_UT_CD
+		  <!-- Agent EDI Spec 추가 사항 2018.12.10-전송시 D/C 와 동일하게 Debit/Credit Amt 변경 후 전송 -->
+		  <!-- ,CASE WHEN sell_buy_tp_cd = 'C' THEN ru ELSE 0 END AS AGENT_RU -->
+		  ,case when  (select VALUE from TB_SYS_PROP  where [key] = 'MULTI_CURR_FLAG') != 'Y' AND RAT_CURR_CD != INV_CURR_CD AND  SELL_BUY_TP_CD ='C'  then (AGENT_AMT/QTY) else RU end  as AGENT_RU
+		  ,'S' AS AIR_SEA_CLSS_CD
+		  ,'I' AS BND_CLSS_CD
+	  FROM TB_FRT_EDI_TEMP F
+	 WHERE BL_SEQ = #bl_seq#
+	   AND BIZ_CLSS_CD = #biz_clss_cd#
+	   AND DELT_FLG = 'N'
+    </insert>
+    <insert id="insertFrtTable_Hbl" parameterClass="MgtItfMgtVO">
+    /*insertFrtTable_Hbl*/
+    INSERT INTO TB_FRT( 
+		  INTG_BL_SEQ 
+		  ,FRT_CD
+		  ,FRT_CD_NM
+		  ,RAT_CURR_CD
+		  ,RU
+		  ,QTY
+		  ,TRF_CUR_SUM_AMT
+		  ,INV_CURR_CD
+		  ,INV_XCRT
+		  ,INV_XCRT_DT
+		  ,INV_SUM_AMT
+		  ,FRT_TERM_CD
+		  ,SELL_BUY_TP_CD
+		  ,DELT_FLG
+		  ,RGST_USRID
+		  ,RGST_OFC_CD
+		  ,RGST_TMS
+		  ,MODI_USRID
+		  ,MODI_OFC_CD
+		  ,MODI_TMS
+		  ,INV_STS_CD
+		  ,FRT_DIVD_FLG
+		  ,AUTO_TRF_FLG
+		     
+		  ,CNTR_TPSZ_CD   
+		  ,AGENT_AMT 
+		  ,INV_AMT 
+		  ,CR_AMT 
+		  ,trdp_cd
+		  ,APLY_UT_CD
+		  ,AGENT_RU
+		  ,AIR_SEA_CLSS_CD
+		  ,BND_CLSS_CD
+		   )
+    SELECT  
+		  #intg_bl_seq#
+ 		  <!--,map_frt_cd null 일 경우 mapping table data input-->
+  	     ,isnull( F.MAP_FRT_CD ,(
+						        SELECT TOP 1 MP_CD
+						        FROM TB_EDI_DATA_MP
+						        WHERE MP_VAL = F.FRT_CD_NM
+						          AND MP_TP = 'FRT'
+								  AND EDI_TP =#edi_tp#))
+		  ,frt_cd_nm
+		  , case when  (select VALUE from TB_SYS_PROP  where [key] = 'MULTI_CURR_FLAG') != 'Y'  AND RAT_CURR_CD != INV_CURR_CD then INV_CURR_CD else RAT_CURR_CD end  as RAT_CURR_CD	  
+		  ,case when  (select VALUE from TB_SYS_PROP  where [key] = 'MULTI_CURR_FLAG') != 'Y'  AND RAT_CURR_CD != INV_CURR_CD then (AGENT_AMT/QTY) else RU end  as RU
+		  ,QTY
+		  ,case when  (select VALUE from TB_SYS_PROP  where [key] = 'MULTI_CURR_FLAG') != 'Y'  AND RAT_CURR_CD != INV_CURR_CD then AGENT_AMT else TRF_CUR_SUM_AMT end  as TRF_CUR_SUM_AMT	
+		  ,INV_CURR_CD
+		  ,case when  (select VALUE from TB_SYS_PROP  where [key] = 'MULTI_CURR_FLAG') != 'Y'  AND RAT_CURR_CD != INV_CURR_CD then 1 else INV_XCRT end  as INV_XCRT
+		  ,#post_dt#
+		  <!-- Agent EDI Spec 추가 사항 2018.12.10-전송시 D/C 와 동일하게 Debit/Credit Amt 변경 후 전송 -->
+		  <!-- ,case when FRT_TERM_CD='CC' then CR_AMT else  INV_SUM_AMT end INV_SUM_AMT -->
+		  <!-- #5083 [CLA] BL EDI Improvement Requests 
+		  		4) INV_SUM_AMT : 
+  				- 수신 측 FRT 기준 : Collect 이면서 Credit인 경우, INV_SUM_AMT = 0 처리 필요 ( Credit Amout - CR_AMT 컬럼 사용 )
+		  ,case when SELL_BUY_TP_CD='D' then INV_AMT else CR_AMT end INV_SUM_AMT -->
+		  ,case when FRT_TERM_CD='CC' and SELL_BUY_TP_CD='C' then 0
+		  	    when SELL_BUY_TP_CD='D' then INV_AMT
+		  	    else CR_AMT 
+		  end INV_SUM_AMT
+		  ,FRT_TERM_CD
+		  ,SELL_BUY_TP_CD
+		  ,'N'
+		  ,RGST_USRID
+		  ,#rgst_ofc_cd#
+		  ,RGST_TMS
+		  ,MODI_USRID
+		  ,#modi_ofc_cd#
+		  ,MODI_TMS
+		  ,'FI'
+		  ,'N' 
+		  ,'N' 
+		     
+		  ,CNTR_TPSZ_CD   
+		  ,AGENT_AMT 
+		  <!-- Agent EDI Spec 추가 사항 2018.12.10-전송시 D/C 와 동일하게 Debit/Credit Amt 변경 후 전송 -->
+		  <!-- ,case when FRT_TERM_CD='CC' then CR_AMT else  INV_AMT end INV_AMT 
+		  ,case when FRT_TERM_CD='CC' then INV_AMT else  CR_AMT end CR_AMT --> 
+		  ,INV_AMT 
+		  ,CR_AMT 
+		  ,(SELECT TOP 1 TRDP_CD FROM TB_TRDP WHERE AGT_EDI_CD =#edi_tp#)	
+		  ,APLY_UT_CD	
+		  <!-- Agent EDI Spec 추가 사항 2018.12.10-전송시 D/C 와 동일하게 Debit/Credit Amt 변경 후 전송 -->  
+		  <!-- ,CASE WHEN sell_buy_tp_cd = 'C' THEN ru ELSE 0 END AS AGENT_RU -->
+		  ,case when  (select VALUE from TB_SYS_PROP  where [key] = 'MULTI_CURR_FLAG') != 'Y'  AND RAT_CURR_CD != INV_CURR_CD and  SELL_BUY_TP_CD ='C'  then (AGENT_AMT/QTY) else RU end  as AGENT_RU
+		  ,'S' AS AIR_SEA_CLSS_CD
+		  ,'I' AS BND_CLSS_CD
+	  FROM TB_FRT_EDI_TEMP F
+	 WHERE BL_SEQ = #bl_seq#
+	   AND BIZ_CLSS_CD = #biz_clss_cd#
+	   AND DELT_FLG = 'N'
+	   AND BL_NO = #hbl_no#
+    </insert>
+    
+	<select id="selectFrtTempList" parameterClass="java.util.HashMap" resultClass="FrtEdiTempVO">
+		/* MgtAltMgtSQL.xml --> selectFrtTempList */
+	 SELECT F.BL_NO, F.FRT_CD, F.FRT_CD_NM, 
+	    isnull( F.MAP_FRT_CD ,(
+						        SELECT TOP 1 MP_CD
+						        FROM TB_EDI_DATA_MP
+						        WHERE MP_VAL = f.FRT_CD_NM
+						              AND MP_TP = 'FRT'
+								    and EDI_TP =#edi_tp#
+	           ) )AS map_frt_cd 
+	   , F.SELL_BUY_TP_CD, F.FRT_TERM_CD, F.APLY_UT_CD, F.CNTR_TPSZ_CD, F.RAT_CURR_CD, F.RU, F.QTY, 
+	   <!-- 4096 (GLI) 리허설 서버 반영 테스트 결과 49 -->
+	   F.TRF_CUR_SUM_AMT,
+	   F.INV_CURR_CD, F.INV_XCRT_DT, F.INV_XCRT, F.AGENT_AMT, F.INV_AMT, F.CR_AMT
+       ,F.BL_SEQ, F.FRT_LIST_SEQ, F.BIZ_CLSS_CD, B.EDI_TP
+	  FROM TB_FRT_EDI_TEMP F 
+	  join TB_INTG_BL_EDI_TEMP B ON F.BL_SEQ = B.BL_SEQ   AND B.BIZ_CLSS_CD ='M'  
+	 WHERE f.BL_SEQ = #bl_seq#
+	   AND f.DELT_FLG = 'N'
+	   order by f.bl_no, f.frt_list_seq
+	</select>
+
+    <update id="updateFrtCdFrtEdiTemp" parameterClass="java.util.HashMap">
+    	/*	"updateFrtCdFrtEdiTemp" */
+    	UPDATE TB_FRT_EDI_TEMP 
+		SET
+		    MAP_FRT_CD = #mp_cd#
+	 WHERE BL_SEQ = #bl_seq#
+	   AND DELT_FLG = 'N'
+	   AND BL_NO = #bl_no#
+	   AND FRT_LIST_SEQ = #frt_list_seq#
+    </update>     
+    <insert id="insertPrnrTable_P01" parameterClass="MgtItfMgtVO">
+    /*insertPrnrTable_P01*/
+	 INSERT INTO TB_BL_PRNR(
+		       INTG_BL_SEQ,
+			   BL_TRDP_TP_CD,
+			   TRDP_CD,
+			   TRDP_NM,
+			   TRDP_PIC,
+			   TRDP_PHN,
+			   TRDP_FAX,
+			   TRDP_EML,
+			   TRDP_ADDR,
+			   RGST_USRID,
+			   RGST_OFC_CD,
+			   RGST_TMS,
+			   MODI_USRID,
+			   MODI_OFC_CD,
+			   MODI_TMS,
+			   DELT_FLG)
+		SELECT top 1 #intg_bl_seq#,
+			   'P01',
+			   tr.TRDP_CD,
+			   tr.ENG_NM,
+			   '',
+			   '',
+			   '',
+			   '',
+			   tr.ENG_ADDR,
+			    #rgst_usrid#,
+			    #rgst_ofc_cd#,
+			   GETUTCDATE(),
+			    #modi_usrid# ,
+			    #modi_ofc_cd# ,
+			   GETUTCDATE(),
+			   'N'
+		  FROM TB_INTG_BL_EDI_TEMP bl 
+			  join  TB_TRDP tr on tr.AGT_EDI_CD = bl.EDI_TP
+		 WHERE 1 = 1
+		   AND bl.BL_SEQ =  #bl_seq#
+		   AND bl.BIZ_CLSS_CD =  #biz_clss_cd#
+		   AND bl.DELT_FLG = 'N'
+	   
+    </insert>  
+    <insert id="insertPrnrTable_Hbl_P01" parameterClass="MgtItfMgtVO">
+    <!-- #5476 [Binex] BL EDI improvement request 2 : Master의 Shipper 값이 House B/L의 Partner와 동일한 값으로 들어오도록 수정
+    /*insertPrnrTable_P01*/
+	 INSERT INTO TB_BL_PRNR(
+		       INTG_BL_SEQ,
+			   BL_TRDP_TP_CD,
+			   TRDP_CD,
+			   TRDP_NM,
+			   TRDP_PIC,
+			   TRDP_PHN,
+			   TRDP_FAX,
+			   TRDP_EML,
+			   TRDP_ADDR,
+			   RGST_USRID,
+			   RGST_OFC_CD,
+			   RGST_TMS,
+			   MODI_USRID,
+			   MODI_OFC_CD,
+			   MODI_TMS,
+			   DELT_FLG)
+		SELECT top 1 #intg_bl_seq#,
+			   'P01',
+			   tr.TRDP_CD,
+			   tr.ENG_NM,
+			   '',
+			   '',
+			   '',
+			   '',
+			   tr.ENG_ADDR,
+			    #rgst_usrid#,
+			    #rgst_ofc_cd#,
+			   GETUTCDATE(),
+			    #modi_usrid# ,
+			    #modi_ofc_cd# ,
+			   GETUTCDATE(),
+			   'N'
+		  FROM TB_INTG_BL_EDI_TEMP bl 
+			  join  TB_TRDP tr on tr.AGT_EDI_CD = bl.EDI_TP
+		 WHERE 1 = 1
+		   AND bl.BL_SEQ = #bl_seq#
+		   AND bl.BIZ_CLSS_CD = #biz_clss_cd#
+		   AND bl.BL_NO = #hbl_no#
+	 -->  
+	 /* MgtAltMgt.xml > insertPrnrTable_P01*/
+	 INSERT INTO TB_BL_PRNR(
+		       INTG_BL_SEQ,
+			   BL_TRDP_TP_CD,
+			   TRDP_CD,
+			   TRDP_NM,
+			   TRDP_PIC,
+			   TRDP_PHN,
+			   TRDP_FAX,
+			   TRDP_EML,
+			   TRDP_ADDR,
+			   RGST_USRID,
+			   RGST_OFC_CD,
+			   RGST_TMS,
+			   MODI_USRID,
+			   MODI_OFC_CD,
+			   MODI_TMS,
+			   DELT_FLG)
+		SELECT top 1 #intg_bl_seq#,
+			   'P01',
+			   PRNR.TRDP_CD,
+			   PRNR.TRDP_NM,
+			   '',
+			   '',
+			   '',
+			   '',
+			   PRNR.TRDP_ADDR,
+			    #rgst_usrid#,
+			    #rgst_ofc_cd#,
+			   GETUTCDATE(),
+			    #modi_usrid# ,
+			    #modi_ofc_cd# ,
+			   GETUTCDATE(),
+			   'N'
+		  FROM TB_BL_PRNR PRNR
+		 WHERE 1 = 1
+		   AND PRNR.intg_bl_seq =#rlt_intg_bl_seq#
+		   AND PRNR.bl_trdp_tp_cd = 'S01'
+		   AND PRNR.delt_flg = 'N' 	   
+    </insert> 
+    
+    <!-- #5476 [Binex] BL EDI improvement request 2 : House의 Delivery Location이 Customer 와 동일한 값으로 들어오도록 수정 -->
+    <update id="updateBlDoorInfo" parameterClass="java.util.HashMap">
+	/* MgtAltMgt.xml > updateBlDoorInfo*/	
+	    UPDATE TB_INTG_BL 
+		   SET DOOR_LOC_CD = (
+		   		SELECT TOP 1 ISNULL(MAX(CB.CB_TRDP_CD), (SELECT TRDP_CD FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD ='C01' AND DELT_FLG='N')) CB_TRDP_CD          
+					FROM
+						TB_TRDP_CB CB         
+					LEFT JOIN
+						TB_TRDP TP 
+					  ON CB.CB_TRDP_CD = TP.TRDP_CD        
+					WHERE
+						CB.TRDP_CD = (SELECT TRDP_CD FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD ='C01' AND DELT_FLG='N')   
+						AND CB.RLT_PRNR_TP_CD = 'DO'           
+						AND CB.DELT_FLG = 'N'          
+						AND TP.DELT_FLG = 'N'
+		   )
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)      
+    </update>
+    
+    <!-- #5385 [GREATLUCK] BL EDI SALES PERSON LOGIC CHANGE -->
+    <update id="updateBlSalesInfo" parameterClass="java.util.HashMap">
+    	/* MgtAltMgt.xml > updateBlSalesInfo*/	
+    	UPDATE tb_add_info_bnd 
+    	   SET tb_add_info_bnd.sls_ofc_cd=b.sls_ofc_cd, tb_add_info_bnd.sls_usrid = b.sls_usrid
+		 FROM tb_add_info_bnd a, 
+			(
+				SELECT #intg_bl_seq# as intg_bl_seq,
+					CASE WHEN ISNULL(MAX(sls_ofc_cd),'') = '' THEN #usr_ofc_cd#
+					     ELSE ISNULL(MAX(sls_ofc_cd),'')
+					END AS sls_ofc_cd,
+					CASE WHEN ISNULL(MAX(sls_usrid),'') = '' THEN #usr_id#
+					     ELSE ISNULL(MAX(sls_usrid),'')
+					END AS sls_usrid
+				 FROM TB_TRDP WHERE TRDP_CD = (SELECT ISNULL(MAX(TRDP_CD),'') FROM TB_BL_PRNR WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND BL_TRDP_TP_CD='C01' AND DELT_FLG='N')
+			) b
+		WHERE a.intg_bl_seq = b.intg_bl_seq
+		  AND a.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </update>       
+    <!-- #5520 [Binex] BL EDI Issues 오리엔탈 BL EDI로 들어오는 D/C Note의 Agent가 MNCL 로 입력되는 오류 --> 
+    <select id="selectAgtEdiInfo" parameterClass="EdiSmtAmsRcvVO" resultClass="String">
+		/*MgtAltMgt.xml > selectAgtEdiInfo*/
+		SELECT ISNULL(MAX(AGT_EDI_CD),'') AS AGT_EDI_CD FROM TB_TRDP WHERE DELT_FLG='N' AND AGT_EDI_MSG_TP_CD='BIL' AND SMT_ID = #sndr_agn_id#
+	</select>    
+	<!--     #5608 [Binex] BL EDI improvement request  Customs Broker           -->
+      <insert id="insertPrnrTable_Hbl_C03" parameterClass="MgtItfMgtVO">
+	 /* MgtAltMgt.xml > insertPrnrTable_C03*/
+	 INSERT INTO TB_BL_PRNR(
+		       INTG_BL_SEQ,
+			   BL_TRDP_TP_CD,
+			   TRDP_CD,
+			   TRDP_NM,
+			   TRDP_PIC,
+			   TRDP_PHN,
+			   TRDP_FAX,
+			   TRDP_EML,
+			   TRDP_ADDR,
+			   RGST_USRID,
+			   RGST_OFC_CD,
+			   RGST_TMS,
+			   MODI_USRID,
+			   MODI_OFC_CD,
+			   MODI_TMS,
+			   DELT_FLG)
+			SELECT top 1  #intg_bl_seq#,
+			   'C03',
+			   TP.TRDP_CD,
+			   TP.ENG_NM,
+			   '',
+			   '',
+			   '',
+			   '',
+			   TP.ENG_ADDR,
+			     #rgst_usrid#,
+			    #rgst_ofc_cd#,
+			   GETUTCDATE(),
+			     #modi_usrid# ,
+			    #modi_ofc_cd# ,
+			   GETUTCDATE(),
+			   'N'
+		 FROM TB_BL_PRNR PRNR
+		  INNER JOIN TB_TRDP_CB CB ON PRNR.TRDP_CD = CB.TRDP_CD
+		  LEFT JOIN TB_TRDP TP ON CB.CB_TRDP_CD = TP.TRDP_CD
+		 WHERE 1 = 1
+		   AND PRNR.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		   AND PRNR.bl_trdp_tp_cd = 'C01'
+		   AND PRNR.delt_flg = 'N'	    
+		   AND CB.RLT_PRNR_TP_CD = 'CB'			  
+		   AND CB.DELT_FLG = 'N'          
+		   AND TP.DELT_FLG = 'N'
+	       AND	 (SELECT COUNT(*) FROM TB_TRDP_CB T WHERE T.TRDP_CD = CB.TRDP_CD AND T.RLT_PRNR_TP_CD ='CB'  AND T.DELT_FLG ='N') <![CDATA[  < 2  ]]>	
+    </insert> 
+    
+    <select id="selectCntrTmpCnt" parameterClass="MgtItfMgtVO" resultClass="String">
+    SELECT COUNT(*) AS CNT
+      FROM TB_CNTR_LIST_EDI_TEMP
+	 WHERE BL_SEQ = #bl_seq#
+	   AND BIZ_CLSS_CD = #biz_clss_cd#
+	   AND DELT_FLG = 'N'
+    </select>
+</sqlMap>

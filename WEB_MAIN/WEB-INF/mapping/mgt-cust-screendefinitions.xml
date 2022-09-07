@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--####   ####  -->
+    <screen name="MGT_MGN_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/cust/ctrbmgn/jsp/MGT_MGN_0010.jsp"/>
+    </screen>
+    <screen name="MGT_MGN_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/cust/ctrbmgn/jsp/MGT_MGN_0010GS.jsp"/>
+    </screen>
+
+    <!--#### ####  -->
+</screen-definitions>

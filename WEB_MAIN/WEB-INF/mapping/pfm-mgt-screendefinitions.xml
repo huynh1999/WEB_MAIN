@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### Management Report ####  -->
+    <!-- Volume Report   -->
+    <screen name="PFM_MGT_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0020.jsp" />
+    </screen>
+
+    <!-- Volume Report 그리드  -->
+    <screen name="PFM_MGT_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0020GS.jsp" />
+    </screen>
+
+    <!-- Profit Report   -->
+    <screen name="PFM_MGT_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0030.jsp" />
+    </screen>
+
+    <!-- Profit Report 그리드  -->
+    <screen name="PFM_MGT_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0030GS.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0030_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0030_1GS.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0030_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0030_2GS.jsp" />
+    </screen>
+    
+    <!-- Batch Profit Report   -->
+    <screen name="PFM_MGT_0031">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0031.jsp" />
+    </screen>
+
+    <!-- Batch Profit Report 洹몃━�� -->
+    <screen name="PFM_MGT_0031GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0031GS.jsp" />
+    </screen>
+
+    <!-- Sales Profit Report   -->
+    <screen name="PFM_MGT_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0040.jsp" />
+    </screen>
+
+    <!-- Sales Profit Report 그리드  -->
+    <screen name="PFM_MGT_0040GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0040GS.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0040_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0040_1GS.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0040_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0040_2GS.jsp" />
+    </screen>
+
+    <!-- Sales Volume Report   -->
+    <screen name="PFM_MGT_0050">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0050.jsp" />
+    </screen>
+
+    <!-- Sales Volume Report 그리드  -->
+    <screen name="PFM_MGT_0050GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0050GS.jsp" />
+    </screen>
+
+    <!-- Total Profit Report (A)   -->
+    <screen name="PFM_MGT_0060">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0060.jsp" />
+    </screen>
+
+    <!-- Total Profit Report (A)  그리드  -->
+    <screen name="PFM_MGT_0060_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0060_1GS.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0060_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0060_2GS.jsp" />
+    </screen>
+
+    <!-- Total Profit Report (B)   -->
+    <screen name="PFM_MGT_0070">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0070.jsp" />
+    </screen>
+
+    <!-- Total Profit Report (B)  그리드  -->
+    <screen name="PFM_MGT_0070_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0070_1GS.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0070_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0070_2GS.jsp" />
+    </screen>
+
+    <!-- G/L Report   -->
+    <screen name="PFM_MGT_0090">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0090.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0090GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0090GS.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0090_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0090_1GS.jsp" />
+    </screen>
+
+    <!-- G/L Report 2   -->
+    <screen name="PFM_MGT_0091">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0091.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0091GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0091GS.jsp" />
+    </screen>
+
+    <!-- Balance Sheet   -->
+    <screen name="PFM_MGT_0100">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0100.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0100GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0100GS.jsp" />
+    </screen>
+    
+    <screen name="PFM_MGT_0100_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0100_1GS.jsp" />
+    </screen>
+    
+    <!-- Trial Balance Report  -->
+    <screen name="PFM_MGT_0180">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0180.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0180GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0180GS.jsp" />
+    </screen>
+    
+    <!-- Trial Balance Report  -->
+    <screen name="PFM_MGT_0190">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0190.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0190GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0190GS.jsp" />
+    </screen>
+
+    <!-- Customized Report   -->
+    <screen name="PFM_MGT_0110">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0110.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0110GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0110GS.jsp" />
+    </screen>
+
+    <!-- Customer Performance Report   -->
+    <screen name="PFM_MGT_0120">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0120.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0120GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0120GS.jsp" />
+    </screen>
+
+    <!-- Performance Trend By Customer   -->
+    <screen name="PFM_MGT_0130">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0130.jsp" />
+    </screen>
+
+    <!-- Vendor Performance Report   -->
+    <screen name="PFM_MGT_0140">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0140.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0140GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0140GS.jsp" />
+    </screen>
+
+    <!-- Agent Performance Report   -->
+    <screen name="PFM_MGT_0150">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0150.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0150GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0150GS.jsp" />
+    </screen>
+    
+    <!-- Volume & Profit Report -->
+    <screen name="PFM_MGT_0160">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0160.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0160GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0160GS.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0161GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0161GS.jsp" />
+    </screen>    
+    
+    <!-- Total Volume & Profit by Month -->
+    <screen name="PFM_MGT_0170">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0170.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0170GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0170GS.jsp" />
+    </screen>
+	<screen name="PFM_MGT_0171GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0171GS.jsp" />
+    </screen>
+    
+    <!-- Tax Report   -->
+    <screen name="PFM_MGT_0200">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0200.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0200GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0200GS.jsp" />
+    </screen>
+    <screen name="PFM_MGT_0200_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/pfm/mgt/management/jsp/PFM_MGT_0200_1GS.jsp" />
+    </screen>
+    
+</screen-definitions>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### ACC Invoice 관련 프로그램  Start ####  -->
+    <url-mapping url="ADV_CST_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.customize.advanced.pfm.mgt.management.event.PFM_MGT_1030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ADV_CST_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ADV_CST_0010GS.clt" screen="ADV_CST_0010GS.screen">
+        <web-action-class>com.clt.apps.customize.advanced.pfm.mgt.management.event.PFM_MGT_1030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.customize.advanced.pfm.mgt.management.event.MgtMgmtEvent</event-class>
+        <service-action-class>com.clt.apps.customize.advanced.pfm.mgt.management.MgtMgmtSC</service-action-class>
+    </event-mapping>
+</mappings>

@@ -1,0 +1,824 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--1. 첫화면 URL 설정 및 표시할 화면정보를 기술   -->
+    <url-mapping url="Index.usr" screen="Index.screen" >
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="Index.screen"/>
+          <handler-result result="FAIL"    screen="Index.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- #65: #52672 - [CLA] Security Management / OPUS Forwarding 보안 문제  -->
+    <!-- Action 중복으로 인하여 Login 실패시 2번 실행하게 되어 InitLoginHTMLAction 추가  -->
+    <url-mapping url="Login.usr" screen="Login.screen" >
+        <web-action-class>com.clt.apps.opusbase.login.event.InitLoginHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="Login.usr"/>
+          <handler-result result="FAIL"    screen="Login.usr"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="Main.clt" screen="Main.screen" >
+    </url-mapping>
+
+	<url-mapping url="Change_Pwd.usr" screen="Change_Pwd.screen">
+		<web-action-class>com.clt.apps.opusbase.login.event.LoginHTMLAction</web-action-class>
+	</url-mapping>
+	
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.login.event.LoginEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.login.LoginSC</service-action-class>
+    </event-mapping>
+
+    <!--2. 로그인 처리. 성공 실패에 따른 화면 Redirection 처리   -->    
+    <url-mapping url="UserLogin.usr" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.login.event.LoginHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="Main.clt"/>
+          <handler-result result="CHG_PWD" screen="ChgPwd.clt"/>
+          <handler-result result="FAIL"    screen="Login.usr"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ChgPwd.clt" screen="ChgPwd.screen" >
+    </url-mapping>
+    <!-- 메뉴를 표시하는 Mid Frame을 호출   -->
+    <url-mapping url="MidFrame.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.main.event.MidFrameHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="MidFrame.screen"/>
+          <handler-result result="FAIL"    screen="Index.screen"/>
+        </flow-handler>
+    </url-mapping>
+        
+    <!-- Logout시 사용되는 Action Class임   -->
+    <url-mapping url="LogOut.usr" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.login.event.LogoutHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="init.screen"/>
+          <handler-result result="FAIL"    screen="init.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- 최상위 메뉴 조회시 사용됨   -->
+    <url-mapping url="TopMenu.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.main.event.MenuDispHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="TopMenu.screen"/>
+          <handler-result result="FAIL"    screen="error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- New Main 의 Menu 조회시 사용됨   -->
+    <url-mapping url="NewMain.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.main.event.MenuDispHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="NewMain.screen"/>
+          <handler-result result="FAIL"    screen="error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="XmlMenu.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.main.event.MenuDispHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="XmlMenu.screen"/>
+          <handler-result result="FAIL"    screen="error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- 메인화면 조회시 사용됨   -->
+    <url-mapping url="MainOld.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.main.event.MainHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="MainOld.screen"/>
+          <handler-result result="FAIL"    screen="error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- 메인화면 달력을 조회함   -->    
+    <url-mapping url="MainCalendar.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.main.event.MainCalendarHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="MainCalendar.screen"/>
+          <handler-result result="FAIL"    screen="error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!--#### Notice Management Start ####  -->
+    <!-- 게시판 목록화면 조회. Jung-Gu, Kang(2009.02.05)  -->
+    <url-mapping url="NoticeList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.service.notice.event.NoticeListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="NoticeList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- 게시판 목록화면 데이터조회. Jung-Gu, Kang(2009.02.05)  -->
+    <url-mapping url="NoticeListGS.clt" screen="NoticeListGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.service.notice.event.NoticeListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- 게시물 등록   -->
+    <url-mapping url="NoticeMngRead.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.service.notice.event.NoticeMngReadHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS"   screen="NoticeMngRead.screen"/>
+            <handler-result result="DELOKPAGE" screen="NoticeList.clt"/>
+            <handler-result result="ERROR"     screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!--게시물 내용확인  -->
+    <url-mapping url="NoticeRead.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.service.notice.event.NoticeReadHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS"    screen="NoticeRead.screen"/><!--게시물 내용확인   -->
+            <handler-result result="MODIFYPAGE" screen="NoticeMngRead.screen"/><!--게시물 수정화면   -->
+            <handler-result result="MAINPOPUP"  screen="NoticePopRead.screen"/><!--메인화면에서 팝업 으로 게시물 확인  -->
+            <handler-result result="ERROR"      screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>  
+    
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.service.notice.event.NoticeEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.service.notice.NoticeSC</service-action-class>
+    </event-mapping>
+    
+    <!--#### Notice Management End ####  -->
+    
+    <!--#### Mbrd Management Start ####  -->
+    <!-- 게시판 목록화면 조회. Ji-Seok, Jang(2013.12.24)  -->
+    <url-mapping url="MbrdList.usr" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.service.mbrd.event.MbrdListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MbrdList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Mbrd 게시판 목록화면 데이터조회. Jung-Gu, Kang(2009.02.05)  -->
+    <url-mapping url="MbrdListGS.usr" screen="MbrdListGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.service.mbrd.event.MbrdListHTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <!-- Mbrd 게시물 등록   -->
+    <url-mapping url="MbrdMngRead.usr" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.service.mbrd.event.MbrdMngReadHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS"   screen="MbrdMngRead.screen"/>
+            <handler-result result="DELOKPAGE" screen="MbrdList.usr"/>
+            <handler-result result="ERROR"     screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!--게시물 내용확인  -->
+    <url-mapping url="MbrdRead.usr" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.service.mbrd.event.MbrdReadHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS"    screen="MbrdRead.screen"/><!--게시물 내용확인   -->
+            <handler-result result="MODIFYPAGE" screen="MbrdMngRead.screen"/><!--게시물 수정화면   -->
+            <handler-result result="ERROR"      screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>  
+    
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.service.mbrd.event.MbrdEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.service.mbrd.MbrdSC</service-action-class>
+    </event-mapping>
+    
+    <!--#### Mbrd Management End ####  -->    
+	
+    <!--#### 스케줄관리 ####  -->
+    <!-- 스케줄관리화면 조회. Jung-Gu, Kang(2009.02.10)  -->
+    <url-mapping url="MySchedule.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.user.event.MyScheduleHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MySchedule.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- 스케줄 정보 표시  -->
+    <url-mapping url="MyScheduleSub.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.user.event.MyScheduleSubHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MyScheduleSub.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.main.event.MainEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.main.MainSC</service-action-class>
+    </event-mapping>
+<!--#### 스케줄관리 End ####  -->
+	
+<!--#### 메뉴관리 Start ####  -->
+
+    <!-- 최상위 메뉴 화면 조회. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="TopMenuMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.TopMenuMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="TopMenuMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- 최상위 메뉴 화면 데이터 조회. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="TopMenuMngGS.clt" screen="TopMenuMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.TopMenuMngHTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- 메뉴 화면 조회. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="MenuMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.MenuMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MenuMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- 메뉴 화면 데이터 조회. Jung-Gu, Kang(2008.12.22)  -->   
+    <url-mapping url="MenuMngGS.clt" screen="MenuMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.MenuMngHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- 메뉴 화면 조회 좌측 메뉴트리 조회. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="MenuMngSub.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.MenuMngSubHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MenuMngSub.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    
+    <!-- 2016.12.13 MenuMngSub_popup top메뉴 변경  -->   
+    <url-mapping url="MenuMngSub_popup.clt" screen="MenuMngSub_popup.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.MenuMngSubPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- 2016.12.13 MenuMngSub_popup top메뉴 변경  데이터셋 (그리드) -->   
+    <url-mapping url="MenuMngSub_popupGS.clt" screen="MenuMngSub_popupGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.MenuMngSubPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.system.menu.event.MenuEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.system.menu.MenuSC</service-action-class>
+    </event-mapping>
+
+    
+    <!-- 프로그램 관리화면 조회. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="ProgramMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ProgramMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <!-- 프로그램 관리화면 데이터 조회. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="ProgramMngGS.clt" screen="ProgramMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramMngHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- 프로그램 관리화면 데이터 조회. Changh-Hwa, Suk(2016.12.13)  -->
+    <url-mapping url="ProgramButtonRoleMngGS.clt" screen="ProgramButtonRoleMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramButtonRoleMngHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- 프로그램 관리화면 데이터 조회. Changh-Hwa, Suk(2016.12.13)  -->
+    <url-mapping url="ProgramButtonRoleMng.clt" screen="ProgramButtonRoleMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramButtonRoleMngHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- 프로그램 관리화면 좌측 메뉴트리 조회. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="ProgramMngSub.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramMngSubHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ProgramMngSub.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    
+    <!-- 프로그램 목록 조회  -->
+    <url-mapping url="ProgramPopList.usr" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramPopHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ProgramPopList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- 프로그램 목록 조회  -->
+    <url-mapping url="ProgramPopListGS.usr" screen="ProgramPopListGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramPopHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- 2016.12.16 ProgramMngSub_popup top메뉴 변경  -->   
+    <url-mapping url="ProgramMngSub_popup.clt" screen="ProgramMngSub_popup.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramMngSubPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- 2016.12.16 ProgramMngSub_popup top메뉴 변경  데이터셋 (그리드) -->   
+    <url-mapping url="ProgramMngSub_popupGS.clt" screen="ProgramMngSub_popupGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramMngSubPopupHTMLAction</web-action-class>
+    </url-mapping>
+    
+   
+    <!-- Language Properties 화면 조회 -->
+    <url-mapping url="MsgLngMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.MsgLngMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MsgLngMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Language Properties 데이터셋 화면 조회  -->
+    <url-mapping url="MsgLngMngGS.clt" screen="MsgLngMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.MsgLngMngHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Create Properties File List 팝업 화면 조회 -->
+    <url-mapping url="CreatePropList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.CreatePropListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CreatePropList.screen"/>
+            <handler-result result="FAIL"   screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Create Properties File List 팝업 화면 데이터셋 화면 조회  -->
+    <url-mapping url="CreatePropListGS.clt" screen="CreatePropListGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.CreatePropListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.system.menu.event.ProgramEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.system.menu.ProgramSC</service-action-class>
+    </event-mapping>
+        
+<!--#### 메뉴관리 End ####  -->
+    
+<!--#### 롤관리 Start ####  -->
+
+    <!-- 롤 관리팝업 호출. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="RoleMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RoleMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="RoleMngPop.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RoleMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- 롤 관리팝업 데이터 조회. Jung-Gu, Kang(2008.12.22)  -->   
+    <url-mapping url="RoleMngGS.clt" screen="RoleMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleMngHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- [20130909 OJG]  -->   
+    <url-mapping url="RoleFncGS.clt" screen="RoleFncGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleMngHTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- 롤 Mapping 화면호출. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="RoleAssign.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleAssignHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RoleAssign.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- 롤 Button Mapping 화면호출. Kim,Jin-Hyuk(2011.10.11)  -->
+    <url-mapping url="RoleBtnAssign.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleBtnAssignHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="RoleBtnAssign.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+     
+    <!-- 롤 Button Mapping 화면호출. Kim,Jin-Hyuk(2011.10.11)  -->   
+    <url-mapping url="RoleBtnAssignGS.clt" screen="RoleBtnAssignGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleBtnAssignHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- 롤 Button Mapping 화면호출. Kim,Jin-Hyuk(2016.12.26)  -->
+    <url-mapping url="NewRoleBtnAssign.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleBtnAssignHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="NewRoleBtnAssign.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- 롤 Button Mapping 화면호출. Kim,Jin-Hyuk(2011.10.11)  -->   
+    <url-mapping url="NewRoleBtnAssignGS.clt" screen="NewRoleBtnAssignGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.role.event.RoleBtnAssignHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.system.role.event.RoleEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.system.role.RoleSC</service-action-class>
+    </event-mapping>
+    
+    <!--#### 롤관리 End ####  -->
+    
+    <!--#### 사용자관리 Start ####  -->
+    <!-- 사용자관리 화면. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="UserMngList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.user.event.UserMngListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="UserMngList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- 사용자관리 화면 데이터. Jung-Gu, Kang(2008.12.22)  -->
+    <url-mapping url="UserMngListGS.clt" screen="UserMngListGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.user.event.UserMngListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- 사용자관리 화면 데이터. Kim,Jin-Hyuk(2011.10.07)  -->
+    <url-mapping url="UserMngList_1GS.clt" screen="UserMngList_1GS.screen" >
+        <web-action-class>com.clt.apps.opusbase.user.event.UserMngListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- 사용자관리 화면 데이터. #65: #52672 - [CLA] Security Management / OPUS Forwarding 보안 문제  -->
+    <url-mapping url="UserMngList_2GS.clt" screen="UserMngList_2GS.screen" >
+        <web-action-class>com.clt.apps.opusbase.user.event.UserMngListHTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- 개인정보 관리화면. Jung-Gu, Kang(2009.01.23)  -->
+    <url-mapping url="UserInfoMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.user.event.UserInfoMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="UserInfoMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+     <!-- 개인정보 관리화면 정렬순서. cej 2016.03  -->
+    <url-mapping url="UserInfoMngGS.clt" screen="UserInfoMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.user.event.UserInfoMngHTMLAction</web-action-class>
+    </url-mapping>    
+    
+    <!-- 패스워드 변경. Jung-Gu, Kang(2009.01.23)  -->
+    <url-mapping url="UserPwdMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.user.event.UserPwdMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="UserPwdMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	<!-- OFVFOUR-7227 [KING FREIGHT NY] APPLYING LINK TO PROFILE EMAIL BODY  -->
+    <url-mapping url="EmlCtntGS.clt" screen="EmlCtntGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.user.event.UserInfoMngHTMLAction</web-action-class>
+    </url-mapping>
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.user.event.UserEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.user.UserSC</service-action-class>
+    </event-mapping>
+<!--#### 롤관리 End ####  -->
+	
+<!--#### 코드등록 Start ####  -->
+    <!-- 마스터 코드 화면  -->
+    <url-mapping url="TopCodeMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.systemcode.event.TopCodeMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="TopCodeMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- 마스터 코드 DataSheet  -->
+    <url-mapping url="TopCodeMngGS.clt" screen="TopCodeMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.systemcode.event.TopCodeMngHTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- 서브코드 코드 화면  -->    
+    <url-mapping url="SubCodeMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.systemcode.event.SubCodeMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SubCodeMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- 서브코드 코드 DataSheet  -->    
+     <url-mapping url="SubCodeMngGS.clt" screen="SubCodeMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.systemcode.event.SubCodeMngHTMLAction</web-action-class>
+    </url-mapping>    
+
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.system.systemcode.event.SystemCodeEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.system.systemcode.SystemCodeSC</service-action-class>
+    </event-mapping>
+<!--#### 코드등록 End ####  -->
+
+<!--#### Modal Calendar Start ####  -->	
+    <url-mapping url="Calendar.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.calendar.event.CalendarHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="Calendar.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.calendar.event.CalendarEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.calendar.CalendarSC</service-action-class>
+    </event-mapping>    
+<!--#### Modal Calendar End ####  -->
+
+
+	<!-- E-Petition   -->
+	<url-mapping url="UserPetitionList.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.user.event.UserPetitionListHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="UserPetitionList.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+	<event-mapping>
+        <event-class>com.clt.apps.opusbase.user.event.UserPetitionListEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.user.UserSC</service-action-class>
+    </event-mapping>
+     
+    <url-mapping url="UserPetitionListGS.clt" screen="UserPetitionListGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.user.event.UserPetitionListHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="UserPetition.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.user.event.UserPetitionHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS"   screen="UserPetition.screen"/>
+            <handler-result result="ERROR"     screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- My Favorites Menu 20121204 OJG   -->
+    <url-mapping url="MyPgm.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.user.event.MyPgmHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MyPgm.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="version.txt"  useFlowHandler="true">
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="version.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="activeX.donwload"  useFlowHandler="true">
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="version.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Favorites 20141008 YJW   -->
+    
+    <url-mapping url="viewBookmarkGS.clt" screen="viewBookmarkGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.bookmark.event.BookmarkManagementHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="viewBookmark.clt" useFlowHandler="true" >
+        <web-action-class>com.clt.apps.opusbase.system.bookmark.event.BookmarkManagementHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="viewBookmark.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.system.bookmark.event.BookmarkManagementEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.system.bookmark.BookmarkManagementSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="template.clt" screen="template.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.bookmark.event.BookmarkManagementHTMLAction</web-action-class>
+    </url-mapping>
+    
+     <!-- Vinh Vo 2015/1/13 (S)  -->
+     
+      <url-mapping url="MGT_OPT_0001.clt" useFlowHandler="true" >
+        <web-action-class>com.clt.apps.opusbase.system.optconf.event.MGT_OPT_POP_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_OPT_0001.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="MGT_OPT_0001GS.clt" screen="MGT_OPT_0001GS.screen">
+        <web-action-class>com.clt.apps.opusbase.system.optconf.event.OptionConfigHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MGT_OPT_0001_01GS.clt" screen="MGT_OPT_0001_01GS.screen">
+        <web-action-class>com.clt.apps.opusbase.system.optconf.event.OptionConfigHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MGT_OPT_0001_02GS.clt" screen="MGT_OPT_0001_02GS.screen">
+        <web-action-class>com.clt.apps.opusbase.system.optconf.event.OptionConfigHTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MGT_OPT_SUB_0001.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.optconf.event.OptionConfigSubHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_OPT_SUB_0001.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    
+    <url-mapping url="MGT_OPT_0010.clt" useFlowHandler="true" >
+    	<web-action-class>com.clt.apps.opusbase.system.optconf.event.MGT_OPT_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_OPT_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="MGT_OPT_0011.clt" useFlowHandler="true" >
+    	<web-action-class>com.clt.apps.opusbase.system.optconf.event.MGT_OPT_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_OPT_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>    
+    
+    <url-mapping url="MGT_OPT_0010GS.clt" screen="MGT_OPT_0010GS.screen">
+        <web-action-class>com.clt.apps.opusbase.system.optconf.event.MGT_OPT_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MGT_OPT_0011GS.clt" screen="MGT_OPT_0011GS.screen">
+        <web-action-class>com.clt.apps.opusbase.system.optconf.event.MGT_OPT_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="MGT_OPT_0012GS.clt" screen="MGT_OPT_0012GS.screen">
+        <web-action-class>com.clt.apps.opusbase.system.optconf.event.MGT_OPT_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.system.optconf.event.OptionConfigEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.system.optconf.OptionConfigSC</service-action-class>
+    </event-mapping>
+    
+     <!-- Popup  -->
+    <url-mapping url="MGT_OPT_POP_0001.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.optconf.event.MGT_OPT_POP_0001HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_OPT_POP_0001.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="MGT_OPT_POP_0001GS.clt" screen="MGT_OPT_POP_0001GS.screen">
+        <web-action-class>com.clt.apps.opusbase.system.optconf.event.MGT_OPT_POP_0001HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    
+    
+    
+    <!-- Popup  -->
+    
+    
+    
+    
+    <url-mapping url="DirectDown2Excel.clt" screen="DirectDown2Excel.screen">
+    </url-mapping>
+    
+    <!-- Vinh Vo 2015/1/13 (E)  -->
+    
+    <!-- Edi Config Settings  -->
+    <url-mapping url="EdiCnfg.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.edicnfg.event.EdiCnfgHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EdiCnfg.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="EdiCnfgGS.clt" screen="EdiCnfgGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.edicnfg.event.EdiCnfgHTMLAction</web-action-class>
+    </url-mapping>		
+    
+    <event-mapping>
+        <event-class>com.clt.apps.opusbase.system.edicnfg.event.EdiCnfgEvent</event-class>
+        <service-action-class>com.clt.apps.opusbase.system.edicnfg.EdiCnfgSC</service-action-class>
+    </event-mapping>
+    <!-- Edi Config Settings  -->
+    
+    <url-mapping url="ReportMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.report.event.ReportMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ReportMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <event-mapping>
+		<event-class>com.clt.apps.opusbase.system.report.event.ReportMngEvent</event-class>
+		<service-action-class>com.clt.apps.opusbase.system.report.ReportMngSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="ReportMngGS.clt" screen="ReportMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.report.event.ReportMngHTMLAction</web-action-class>
+    </url-mapping>	
+
+    <url-mapping url="ProfitGLBatch.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.batch.event.ProfitGLBatchHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ProfitGLBatch.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ProfitGLBatchGS.clt" screen="ProfitGLBatchGS.screen">
+        <web-action-class>com.clt.apps.opusbase.system.batch.event.ProfitGLBatchHTMLAction</web-action-class>
+    </url-mapping>    
+    <event-mapping>
+		<event-class>com.clt.apps.opusbase.system.batch.event.BatchEvent</event-class>
+		<service-action-class>com.clt.apps.opusbase.system.batch.BatchSC</service-action-class>
+    </event-mapping>  
+    
+    <!--Report Set Management - Start -->
+    <url-mapping url="ReportSetMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.report.event.ReportSetMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ReportSetMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <event-mapping>
+		<event-class>com.clt.apps.opusbase.system.report.event.ReportMngEvent</event-class>
+		<service-action-class>com.clt.apps.opusbase.system.report.ReportMngSC</service-action-class>
+    </event-mapping>
+    <url-mapping url="ReportSetMngGS.clt" screen="ReportSetMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.report.event.ReportSetMngHTMLAction</web-action-class>
+    </url-mapping>
+    <!--Report Set Management - End -->
+    
+     <!-- Program Configuration Management, Thoa.Dien (2017.12.04) (S) -->
+    <url-mapping url="ProgramConfigMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramConfigMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ProgramConfigMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <event-mapping>
+		<event-class>com.clt.apps.opusbase.system.menu.event.ProgramConfigMngEvent</event-class>
+		<service-action-class>com.clt.apps.opusbase.system.menu.MenuSC</service-action-class>
+    </event-mapping>
+    
+    <url-mapping url="ProgramConfigMngGS.clt" screen="ProgramConfigMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.menu.event.ProgramConfigMngHTMLAction</web-action-class>
+    </url-mapping>
+    <!-- Program Configuration Management, Thoa.Dien (2017.12.04) (E) -->
+    <!-- Duc Nguyen 2017/12/04 (S) -->
+    <url-mapping url="NewReportMng.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.report.event.NewReportMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="NewReportMng.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="NewReportMng_Pop.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.report.event.NewReportMngHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="NewReportMng_Pop.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>    
+    <url-mapping url="NewReportMngGS.clt" screen="NewReportMngGS.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.report.event.NewReportMngHTMLAction</web-action-class>
+    </url-mapping>	
+    <url-mapping url="NewReportMngQuery.clt" screen="NewReportMngQuery.screen" >
+    </url-mapping>	
+    <url-mapping url="NewReportMngUpload.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.opusbase.system.report.event.NewReportMngUploadHTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="NewReportMngUpload.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>    
+    <url-mapping url="NewReportMngUploadAJ.clt" screen="NewReportMngUploadAJ.screen" >
+        <web-action-class>com.clt.apps.opusbase.system.report.event.NewReportMngUploadHTMLAction</web-action-class>
+    </url-mapping>	
+    <!-- Duc Nguyen 2017/12/04 (E) -->
+</mappings>

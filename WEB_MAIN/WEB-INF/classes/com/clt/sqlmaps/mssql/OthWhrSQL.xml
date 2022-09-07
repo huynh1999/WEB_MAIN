@@ -1,0 +1,715 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+
+
+
+
+
+<sqlMap namespace="oth.whr.all">
+
+	<!-- Warehouse Receipt List    -->
+    <select id="selectOthWhrList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+/* OthWhrSQL > selectOthWhrList */    
+SELECT a1.wh_recp_no
+      ,wh_cd
+      ,wh_nm
+      ,a1.rgst_ofc_cd
+      ,(SELECT ofc_eng_nm
+          FROM tb_ofc
+         WHERE delt_flg = 'N'
+           AND ofc_cd = a1.rgst_ofc_cd) ofc_eng_nm
+      ,substring(recp_dt_tm,1,8) recp_dt_tm
+      ,trk_bl_no
+      ,po_no
+      ,maker_cd
+      ,maker_nm
+      ,shpr_cd
+      ,shpr_nm
+      ,cnee_cd
+      ,cnee_nm
+      ,a1.rgst_usrid
+      ,CASE WHEN len(a2.bl_no) > 0 THEN 'C' 
+               WHEN len(a2.bl_no) = 0 AND (DATEDIFF("D", CONVERT(VARCHAR(8),a1.recp_dt_tm, 112), CONVERT(VARCHAR(8),getdate(), 112)) > 10) THEN 'P'   
+       ELSE 'R' END  AS status
+      ,a2.bl_no
+      ,a1.rmk
+      ,usr.eng_usr_nm AS op_use_nm
+      <!-- OFVFOUR-7351 [UTS CARGO] ADDING COLUMN AND TOTAL TO WH RECEIPT ENTRY AND LIST SCREEN -->
+      ,pck_qty as pck_qty
+      ,a2.wgt_k as wgt_k
+      ,a2.wgt_l as wgt_l
+      ,a2.meas as meas
+      ,a2.act_wgt as act_wgt
+  FROM tb_wh_recp a1
+  LEFT OUTER JOIN (SELECT wh_recp_no, max(bl_no) as bl_no, sum(pck_qty) as pck_qty, sum(wgt_k) as wgt_k, sum(wgt_l) as wgt_l, sum(meas) as meas, sum(act_wgt) as act_wgt FROM tb_wh_recp_itm GROUP BY wh_recp_no) a2 ON a1.wh_recp_no = a2.wh_recp_no
+  LEFT OUTER JOIN tb_usr usr on a1.op_useid = usr.usrid
+  where 1=1 
+    and a1.delt_flg = 'N'
+		<isNotNull prepend="AND" property="f_rept_fmdt">
+			recp_dt_tm between #f_rept_fmdt#+'0000' and #f_rept_todt#+'9999' 
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_maker_cd">
+			maker_cd = #f_maker_cd#
+		</isNotNull>
+        <isNotNull prepend="AND" property="f_maker_nm">
+            maker_nm LIKE #f_maker_nm#+'%'
+        </isNotNull>		
+        
+		<isNotNull prepend="AND" property="f_rgst_ofc_cd">
+			a1.rgst_ofc_cd = #f_rgst_ofc_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_wh_recp_no">
+			a1.wh_recp_no LIKE #f_wh_recp_no#
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_shpr_cd">
+			shpr_cd = #f_shpr_cd#
+		</isNotNull>
+        <isNotNull prepend="AND" property="f_shpr_nm">
+            shpr_nm LIKE #f_shpr_nm#+'%'
+        </isNotNull>
+		
+		<isNotNull prepend="AND" property="f_cnee_cd">
+			cnee_cd = #f_cnee_cd#
+		</isNotNull>
+        <isNotNull prepend="AND" property="f_cnee_nm">
+            cnee_nm LIKE #f_cnee_nm#+'%'
+        </isNotNull>
+
+        <isNotNull prepend="AND" property="f_wh_cd">
+            wh_cd = #f_wh_cd#
+        </isNotNull>
+        <isNotNull prepend="AND" property="f_wh_nm">
+            wh_nm LIKE #f_wh_nm#+'%'
+        </isNotNull> 
+        <isNotNull prepend="AND" property="f_status">
+			(CASE WHEN len(a2.bl_no) > 0 THEN 'C' 
+               WHEN len(a2.bl_no) = 0 AND (DATEDIFF("D", CONVERT(VARCHAR(8),a1.recp_dt_tm, 112), CONVERT(VARCHAR(8),getdate(), 112)) > 10) THEN 'P'   
+       ELSE 'R' END) = #f_status#
+		</isNotNull>       		
+		<isNotNull prepend="AND" property="f_op_useid">
+			op_useid = #f_op_useid#
+		</isNotNull>
+        <isNotNull prepend="AND" property="f_op_usenm">
+            (usr.eng_usr_nm LIKE #f_op_usenm#+'%' OR locl_usr_nm LIKE #f_op_usenm#+'%')
+        </isNotNull>
+        <isNotNull prepend="AND" property="f_rmk">
+            rmk LIKE #f_rmk#+'%'
+        </isNotNull>
+        ORDER BY  recp_dt_tm Desc 
+	</select>
+	
+    <!-- Warehouse Receipt Details    -->
+    <select id="typeOthWhrDetails" resultClass="java.util.HashMap">
+		SELECT	oth_tp,			oth_prfx,		rmk
+		  FROM	TB_OTH_CD
+	  ORDER BY  oth_tp ASC
+	</select>
+	
+	
+    <!-- Warehouse Receipt No dup check    -->
+    <select id="oth.whr.details.checkWHReceiptNoDup" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT WH_RECP_NO
+		  FROM tb_wh_recp
+		 WHERE WH_RECP_NO = #recp_no#		   
+    </select>
+		
+	 <select id="checkWhRecpNoDup"  parameterClass="String"  resultClass="java.lang.Integer">
+	 	/*	checkWhRecpNoDup */
+    	SELECT COUNT(WH_RECP_NO)
+		  FROM tb_wh_recp
+		 WHERE WH_RECP_NO = #recp_no#
+    </select>
+    
+    <select id="selectOthWhrDetails" resultClass="java.util.HashMap">
+/* OthWhrSQL > selectOthWhrDetails */     
+SELECT wh_recp_no
+      ,wh_cd
+      ,wh_nm
+      ,sts_cd
+      ,case when(delt_flg = 'Y')  then 'Delete' else 'Create' end sts_nm
+      ,rgst_ofc_cd
+      ,substring(recp_dt_tm,5,4)+substring(recp_dt_tm,1,4) recp_dt
+      ,substring(recp_dt_tm,9,4) recp_tm
+      ,recp_usrid
+      ,(select eng_usr_nm from tb_usr where usr_tp = 'I' and delt_flg = 'N' and usrid = a1.RECP_USRID) recp_usrnm
+      ,trk_bl_no
+      ,loc_nm
+      ,maker_cd
+      ,maker_nm
+      ,shpr_cd
+      ,shpr_nm
+      ,cnee_cd
+      ,cnee_nm
+      ,del_carrier
+      ,del_by
+      ,LTRIM(STR(ROUND(ttl_amt, 2), 16, 2)) AS ttl_amt
+      ,curr_cd
+      ,check_no
+      ,po_no
+      ,cmdt_cd
+      ,cmdt_nm
+      ,hz_good
+      ,op_useid
+      ,(select eng_usr_nm from tb_usr where usr_tp = 'I' and delt_flg = 'N' and usrid = a1.op_useid) op_usenm
+      ,rmk
+      ,len_ut_cd
+      ,bl_no
+  FROM tb_wh_recp a1
+  WHERE 1=1
+		<isNotEmpty prepend="AND" property="f_wh_recp_no">
+			wh_recp_no = #f_wh_recp_no#
+		</isNotEmpty>
+		  
+		<isEmpty prepend="AND" property="f_wh_recp_no">
+			wh_recp_no = (select MAX(wh_recp_no) from tb_wh_recp where delt_flg = 'N')
+		</isEmpty>
+		
+		<isNotEmpty prepend="AND" property="f_rgst_ofc_cd">
+			rgst_ofc_cd = #f_rgst_ofc_cd#
+		</isNotEmpty>
+		
+      AND delt_flg = 'N'
+	</select>
+	
+	
+	<select id="searchOthWhrDetailInfo" resultClass="java.util.HashMap">
+		SELECT wh_recp_no
+		  FROM tb_wh_recp
+	     WHERE wh_recp_no = #f_wh_recp_no#
+	</select>
+	
+
+	
+	<insert id="insertOthWhrDetails" parameterClass="java.util.HashMap">
+/* OthWhrSQL > insertOthWhrDetails */     
+INSERT INTO tb_wh_recp
+            (wh_recp_no
+            ,wh_cd
+            ,wh_nm
+            ,recp_dt_tm
+            ,recp_usrid
+            ,sts_cd
+            ,trk_bl_no
+            ,loc_nm
+            ,maker_cd
+            ,maker_nm
+            ,shpr_cd
+            ,shpr_nm
+            ,cnee_cd
+            ,cnee_nm
+            ,del_carrier
+            ,del_by
+            ,ttl_amt
+            ,curr_cd
+            ,check_no
+            ,po_no
+            ,cmdt_cd
+            ,cmdt_nm
+            ,hz_good
+            ,rmk
+            ,op_useid
+            ,len_ut_cd
+            ,rgst_usrid
+            ,rgst_ofc_cd
+            ,rgst_tms
+            ,modi_usrid
+            ,modi_ofc_cd
+            ,modi_tms
+            ,delt_flg
+            ,bl_no
+            )
+     VALUES (#f_wh_recp_no#
+            ,#f_wh_cd#
+            ,#f_wh_nm#
+            ,#f_recp_dt#+#f_recp_tm#
+            ,#f_recp_usrid#
+            ,'C'
+            ,#f_trk_bl_no#
+            ,#f_loc_nm#
+            ,#f_maker_cd#
+            ,#f_maker_nm#
+            ,#f_shpr_cd#
+            ,#f_shpr_nm#
+            ,#f_cnee_cd#
+            ,#f_cnee_nm#
+            ,#f_del_carrier#
+            ,#f_del_by#
+            ,#f_ttl_amt#
+            ,#f_curr_cd#
+            ,#f_check_no#
+            ,#f_po_no#
+            ,#f_cmdt_cd#
+            ,#f_cmdt_nm#
+            ,#f_hz_good#
+            ,#f_rmk#
+            ,#f_op_useid#
+            ,#f_len_ut_cd#
+            ,#proc_usrid#
+            ,#proc_ofccd#
+            ,getdate()
+            ,#proc_usrid#
+            ,#proc_ofccd#
+            ,GETUTCDATE()
+            ,'N' 
+            ,#f_bl_no#
+            )
+ 	</insert>
+	
+	<update id="updateOthWhrDetails" parameterClass="java.util.HashMap">
+UPDATE tb_wh_recp
+   SET recp_dt_tm = #f_recp_dt# + #f_recp_tm#
+      ,wh_cd = #f_wh_cd#
+      ,wh_nm = #f_wh_nm#
+      ,recp_usrid = #f_recp_usrid#
+      ,sts_cd = 'C'
+      ,trk_bl_no = #f_trk_bl_no#
+      ,loc_nm = #f_loc_nm#
+      ,maker_cd = #f_maker_cd#
+      ,maker_nm = #f_maker_nm#
+      ,shpr_cd = #f_shpr_cd#
+      ,shpr_nm = #f_shpr_nm#
+      ,cnee_cd = #f_cnee_cd#
+      ,cnee_nm = #f_cnee_nm#
+      ,del_carrier = #f_del_carrier#
+      ,del_by = #f_del_by#
+      ,ttl_amt = #f_ttl_amt#
+      ,curr_cd = #f_curr_cd#
+      ,check_no = #f_check_no#
+      ,po_no = #f_po_no#
+      ,cmdt_cd = #f_cmdt_cd#
+      ,cmdt_nm = #f_cmdt_nm#
+      ,hz_good = #f_hz_good#
+      ,rmk = #f_rmk#
+      ,op_useid = #f_op_useid#
+      ,len_ut_cd = #f_len_ut_cd#
+      ,modi_usrid = #proc_usrid#
+      ,modi_ofc_cd = #proc_ofccd#
+      ,modi_tms = GETUTCDATE()
+      ,bl_no = #f_bl_no#
+ WHERE wh_recp_no = #f_wh_recp_no#
+	</update>
+	
+	
+	
+	
+	<update id="removeTbWhRecp" parameterClass="java.util.HashMap">
+		UPDATE	tb_wh_recp
+		   SET	delt_flg = 'Y'
+		      ,modi_usrid = #proc_usrid#
+		      ,modi_ofc_cd = #proc_ofccd#
+		      ,modi_tms = GETUTCDATE()
+		 WHERE	wh_recp_no = #f_wh_recp_no#
+	</update>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	<select id="selectOthWhrDetailsList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+/* OthWhrSQL > selectOthWhrDetailsList */     
+SELECT wh_recp_no
+      ,itm_seq
+      ,length
+      ,width
+      ,height
+      ,pck_qty
+      ,pck_ut_cd
+      ,wgt_k
+      ,wgt_l
+      ,meas
+      ,act_wgt
+      ,act_wgt_l
+      ,shpd
+      ,itm_dt
+      ,bl_no
+  FROM tb_wh_recp_itm
+ WHERE wh_recp_no = #f_wh_recp_no#
+ ORDER BY CONVERT(numeric, itm_seq)
+	</select>
+
+
+	
+	<insert id="insertTbWhRecpItm" parameterClass="com.clt.apps.fis.oth.whr.details.dto.WhRecpItmVO">
+/* OthWhrSQL > insertTbWhRecpItm */     
+INSERT INTO tb_wh_recp_itm
+            (wh_recp_no
+            ,itm_seq
+            ,length
+            ,width
+            ,height
+            ,pck_qty
+            ,pck_ut_cd
+            ,wgt_k
+            ,wgt_l
+            ,meas
+            ,act_wgt
+            ,act_wgt_l
+            ,shpd
+            ,itm_dt
+            ,bl_no
+            ,rgst_usrid
+            ,rgst_ofc_cd
+            ,rgst_tms
+            ,modi_usrid
+            ,modi_ofc_cd
+            ,modi_tms
+            )
+     VALUES (#wh_recp_no#
+            ,#itm_seq#
+            ,#length#
+            ,#width#
+            ,#height#
+            ,#pck_qty#
+            ,#pck_ut_cd#
+            ,#wgt_k#
+            ,#wgt_l#
+            ,#meas#
+            ,#act_wgt#
+            ,#act_wgt_l#
+            ,#shpd#
+            ,#itm_dt#
+            ,#bl_no#
+            ,#proc_usrid#
+            ,#proc_ofccd#
+            ,getdate()
+            ,#proc_usrid#
+            ,#proc_ofccd#
+            ,GETUTCDATE()
+            )   
+	</insert>
+	
+	
+	<update id="updateTbWhRecpItm" parameterClass="com.clt.apps.fis.oth.whr.details.dto.WhRecpItmVO">
+/* OthWhrSQL > updateTbWhRecpItm */     
+UPDATE tb_wh_recp_itm
+   SET length 		= #length#
+      ,width 		= #width#
+      ,height 		= #height#
+      ,pck_qty 		= #pck_qty#
+      ,pck_ut_cd 	= #pck_ut_cd#
+      ,wgt_k 		= #wgt_k#
+      ,wgt_l 		= #wgt_l#
+      ,meas 		= #meas#
+      ,act_wgt 		= #act_wgt#
+      ,act_wgt_l 		= #act_wgt_l#
+      ,shpd 		= #shpd#
+      ,itm_dt 		= #itm_dt#
+      ,bl_no 		= #bl_no#
+      ,modi_usrid = #proc_usrid#
+      ,modi_ofc_cd = #proc_ofccd#
+      ,modi_tms = GETUTCDATE()
+ WHERE wh_recp_no = #wh_recp_no#
+   and itm_seq 		= #itm_seq#
+	</update>
+	
+<update id="deleteTbWhRecpItm" parameterClass="com.clt.apps.fis.oth.whr.details.dto.WhRecpItmVO">
+DELETE tb_wh_recp_itm
+ WHERE wh_recp_no = #wh_recp_no#
+   AND itm_seq 	= #itm_seq#
+	</update>		
+	
+	
+	<select id="selectWhrRcptList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.whr.list.dto.WhrRcptVO">
+		/* OthWhrSQL > selectWhrRcptList */
+		<isNotEmpty property="wh_recp_no_exists">
+			SELECT  a.wh_recp_no
+		       ,MAX(a.wh_nm) AS wh_nm
+		       ,CONVERT(varchar(8), MAX(A.recp_dt_tm), 120) AS recp_dt_tm
+		       ,CASE WHEN len(MAX(b.bl_no)) > 0 THEN 'C'                 
+				WHEN len(MAX(b.bl_no)) = 0 AND (DATEDIFF("D", CONVERT(VARCHAR(8),a.recp_dt_tm, 112), CONVERT(VARCHAR(8),getdate(), 112)) > 10) THEN 'P'           
+				ELSE 'R' END  AS status          
+		       ,MAX(a.maker_nm) AS maker_nm
+		       ,MAX(a.shpr_nm)	AS shpr_nm
+		       ,MAX(a.cnee_nm)	AS cnee_nm 
+		       ,usr.eng_usr_nm AS op_use_nm        
+		       ,MAX(a.po_no)	AS po_no
+		       ,SUM(b.pck_qty)	AS pck_qty
+		       ,SUM(b.length)	AS length
+		       ,SUM(b.width)	AS width
+		       ,SUM(b.height)	AS height
+		       ,SUM(b.wgt_k)	AS wgt_k
+		       ,SUM(b.wgt_l)	AS wgt_l
+		       ,SUM(b.act_wgt)	AS act_wgt_k
+		       ,SUM(b.act_wgt_l) AS act_wgt_l
+		       ,SUM(b.meas)		AS meas
+		       ,MAX(a.wh_cd)	AS wh_cd          
+		       ,MAX(a.maker_cd) AS maker_cd         
+		       ,MAX(a.shpr_cd)	AS shpr_cd         
+		       ,MAX(a.cnee_cd)	AS cnee_cd   
+		       ,(SELECT eng_addr FROM tb_trdp WHERE trdp_cd = MAX(a.maker_cd)) AS maker_eng_addr       
+		       ,(SELECT eng_addr FROM tb_trdp WHERE trdp_cd = MAX(a.shpr_cd))  AS shpr_eng_addr          
+		       ,(SELECT eng_addr FROM tb_trdp WHERE trdp_cd = MAX(a.cnee_cd))  AS cnee_eng_addr 
+		       ,MAX(b.shpd) AS shpd
+		       ,'Y' AS exist_flg
+		  FROM tb_wh_recp a
+		  INNER JOIN tb_wh_recp_itm b on a.wh_recp_no = b.wh_recp_no 
+		  LEFT OUTER JOIN tb_usr usr on a.op_useid = usr.usrid 
+		  WHERE 1 = 1    		  	
+		    AND a.delt_flg = 'N'
+		    AND b.shpd = '1'
+		    AND a.wh_recp_no IN ($wh_recp_no_exists$)
+		  GROUP BY A.wh_recp_no, usr.eng_usr_nm, recp_dt_tm
+		  UNION ALL
+		</isNotEmpty>
+		SELECT  a.wh_recp_no
+		       ,MAX(a.wh_nm) AS wh_nm
+		       ,CONVERT(varchar(8), MAX(A.recp_dt_tm), 120) AS recp_dt_tm
+		       ,CASE WHEN len(MAX(b.bl_no)) > 0 THEN 'C'                 
+				WHEN len(MAX(b.bl_no)) = 0 AND (DATEDIFF("D", CONVERT(VARCHAR(8),a.recp_dt_tm, 112), CONVERT(VARCHAR(8),getdate(), 112)) > 10) THEN 'P'           
+				ELSE 'R' END  AS status          
+		       ,MAX(a.maker_nm) AS maker_nm
+		       ,MAX(a.shpr_nm)	AS shpr_nm
+		       ,MAX(a.cnee_nm)	AS cnee_nm 
+		       ,usr.eng_usr_nm AS op_use_nm        
+		       ,MAX(a.po_no)	AS po_no
+		       ,SUM(b.pck_qty)	AS pck_qty
+		       ,SUM(b.length)	AS length
+		       ,SUM(b.width)	AS width
+		       ,SUM(b.height)	AS height
+		       ,SUM(b.wgt_k)	AS wgt_k
+		       ,SUM(b.wgt_l)	AS wgt_l
+		       ,SUM(b.act_wgt)	AS act_wgt_k
+		       ,SUM(b.act_wgt_l) AS act_wgt_l
+		       ,SUM(b.meas)		AS meas
+		       ,MAX(a.wh_cd)	AS wh_cd          
+		       ,MAX(a.maker_cd) AS maker_cd         
+		       ,MAX(a.shpr_cd)	AS shpr_cd         
+		       ,MAX(a.cnee_cd)	AS cnee_cd   
+		       ,(SELECT eng_addr FROM tb_trdp WHERE trdp_cd = MAX(a.maker_cd)) AS maker_eng_addr       
+		       ,(SELECT eng_addr FROM tb_trdp WHERE trdp_cd = MAX(a.shpr_cd))  AS shpr_eng_addr          
+		       ,(SELECT eng_addr FROM tb_trdp WHERE trdp_cd = MAX(a.cnee_cd))  AS cnee_eng_addr 
+		       ,MAX(b.shpd) AS shpd
+		       ,'N' AS exist_flg
+		  FROM tb_wh_recp a
+		  INNER JOIN tb_wh_recp_itm b on a.wh_recp_no = b.wh_recp_no 
+		  LEFT OUTER JOIN tb_usr usr on a.op_useid = usr.usrid 
+		  WHERE 1 = 1    		  	
+		    AND a.delt_flg = 'N'
+		<isNotNull prepend="AND" property="f_rept_fmdt">
+			a.recp_dt_tm BETWEEN #f_rept_fmdt#+'0000' AND #f_rept_todt#+'9999' 
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_maker_cd">
+			a.maker_cd = #f_maker_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_po_no">
+			a.po_no = #f_po_no#
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_wh_recp_no">
+			a.wh_recp_no = #f_wh_recp_no#
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_shpr_cd">
+			a.shpr_cd = #f_shpr_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_cnee_cd">
+			a.cnee_cd = #f_cnee_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_wh_cd">
+			a.wh_cd = #f_wh_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_shpd">
+			b.shpd = #f_shpd#
+		</isNotNull>
+		<isNotEmpty prepend="AND" property="wh_recp_no_exists">
+			a.wh_recp_no NOT IN ($wh_recp_no_exists$)
+		</isNotEmpty>
+		GROUP BY A.wh_recp_no, usr.eng_usr_nm, recp_dt_tm
+	</select>
+	
+	<select id="selectWhrRcptDimList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.whr.list.dto.WhrRcptVO">
+		/* OthWhrSQL > selectWhrRcptDimList */    
+		SELECT  a.wh_recp_no AS wh_recp_no
+		       ,a.wh_nm 	AS wh_nm
+		       ,CONVERT(varchar(8), A.recp_dt_tm, 120) AS recp_dt_tm          
+		       ,a.maker_nm 	AS maker_nm
+		       ,a.shpr_nm	AS shpr_nm
+		       ,a.cnee_nm	AS cnee_nm        
+		       ,a.po_no		AS po_no
+		       ,b.pck_qty	AS pck_qty
+		       ,b.length	AS length
+		       ,b.width		AS width
+		       ,b.height	AS height
+		       ,b.wgt_k		AS wgt_k
+		       ,b.wgt_l		AS wgt_l
+		       ,b.meas		AS meas        
+		       ,a.wh_cd		AS wh_cd          
+		       ,a.maker_cd 	AS maker_cd         
+		       ,a.shpr_cd	AS shpr_cd         
+		       ,a.cnee_cd	AS cnee_cd   
+		       ,(SELECT eng_addr FROM tb_trdp WHERE trdp_cd = a.maker_cd) AS maker_eng_addr       
+		       ,(SELECT eng_addr FROM tb_trdp WHERE trdp_cd = a.shpr_cd)  AS shpr_eng_addr          
+		       ,(SELECT eng_addr FROM tb_trdp WHERE trdp_cd = a.cnee_cd)  AS cnee_eng_addr 
+		       ,b.shpd AS shpd
+		       ,b.rgst_ofc_cd
+		       ,b.itm_seq
+		  FROM tb_wh_recp a, tb_wh_recp_itm b
+		 WHERE a.wh_recp_no = b.wh_recp_no
+		    AND a.delt_flg = 'N'
+		<isNotNull prepend="AND" property="f_wh_recp_no">
+			a.wh_recp_no IN ($f_wh_recp_no$)
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_shpd">
+			b.shpd = #f_shpd#
+		</isNotNull>
+	</select>
+	
+	<update id="updateTbWhRecpItmBLnoByHbl" parameterClass="com.clt.apps.fis.oth.whr.details.dto.WhRecpItmVO">
+		/* OthWhrSQL > updateTbWhRecpItmBLnoByHbl */     
+		UPDATE tb_wh_recp_itm
+		   SET bl_no 		= null
+		      ,modi_usrid = #proc_usrid#
+		      ,modi_ofc_cd = #proc_ofccd#
+		      ,modi_tms = GETUTCDATE()
+		 WHERE bl_no 		= #bl_no#
+	</update>
+	
+	<update id="updateTbWhRecpItmByHbl" parameterClass="com.clt.apps.fis.oth.whr.details.dto.WhRecpItmVO">
+		/* OthWhrSQL > updateTbWhRecpItmByHbl */     
+		UPDATE tb_wh_recp_itm
+		   SET shpd 		= #shpd#
+		      ,bl_no 		= #bl_no#
+		      ,modi_usrid = #proc_usrid#
+		      ,modi_ofc_cd = #proc_ofccd#
+		      ,modi_tms = GETUTCDATE()
+		 WHERE wh_recp_no = #wh_recp_no#
+	</update>
+	
+	<!-- #5541 [Impex] Report Customization Warehouse Receipt Label -->
+	<select id="searchWhrItmChk" parameterClass="HashMap" resultClass="String">
+    	SELECT  CASE WHEN COUNT(*) > 0 THEN 'Y' ELSE 'N' END AS CHKFLG
+           FROM  TB_WH_RECP_ITM ITM 
+           WHERE  1=1            
+            AND  ITM.WH_RECP_NO = #wh_recp_no#
+    </select>
+    
+<!--     [#5547] [Impex] Copy Warehouse Receipt List -->
+	<select id="selectOthWhrDetailsCopy" resultClass="java.util.HashMap">
+		/* OthWhrSQL > selectOthWhrDetailsCopy */
+		SELECT
+		wh_cd
+		,wh_nm
+		,recp_usrid
+		,(select eng_usr_nm from tb_usr where usr_tp = 'I' and delt_flg = 'N' and
+		usrid = a1.RECP_USRID) recp_usrnm
+		,loc_nm
+		,maker_cd
+		,maker_nm
+		,shpr_cd
+		,shpr_nm
+		,cnee_cd
+		,cnee_nm
+		,cmdt_cd
+		,cmdt_nm
+		,op_useid
+		,(select eng_usr_nm from tb_usr where usr_tp = 'I' and delt_flg = 'N' and
+		usrid = a1.op_useid) op_usenm
+		FROM tb_wh_recp a1
+		WHERE 1=1
+		<isNotEmpty prepend="AND" property="f_wh_recp_no">
+			wh_recp_no =
+			#f_wh_recp_no#
+		</isNotEmpty>
+
+		<isEmpty prepend="AND" property="f_wh_recp_no">
+			wh_recp_no = (select
+			MAX(wh_recp_no) from tb_wh_recp where delt_flg = 'N')
+		</isEmpty>
+
+		<isNotEmpty prepend="AND" property="f_rgst_ofc_cd">
+			rgst_ofc_cd =
+			#f_rgst_ofc_cd#
+		</isNotEmpty>
+
+		AND delt_flg = 'N'
+	</select>
+	<!-- OFVFOUR-7351 [UTS CARGO] ADDING COLUMN AND TOTAL TO WH RECEIPT ENTRY AND LIST SCREEN -->
+	<select id="searchOthWhrListExcel" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+/* OthWhrSQL > searchOthWhrListExcel */    
+SELECT a1.wh_recp_no
+      ,wh_cd
+      ,wh_nm
+      ,a1.rgst_ofc_cd
+      ,(SELECT ofc_eng_nm
+          FROM tb_ofc
+         WHERE delt_flg = 'N'
+           AND ofc_cd = a1.rgst_ofc_cd) ofc_eng_nm
+      ,CASE
+      		WHEN len(recp_dt_tm) >= 8 THEN (SUBSTRING(recp_dt_tm, 5, 2)+'-'+SUBSTRING(recp_dt_tm, 7, 2)+'-'+SUBSTRING(recp_dt_tm, 1, 4))
+        	ELSE ''
+       END AS recp_dt_tm
+      ,trk_bl_no
+      ,po_no
+      ,maker_cd
+      ,maker_nm
+      ,shpr_cd
+      ,shpr_nm
+      ,cnee_cd
+      ,cnee_nm
+      ,a1.rgst_usrid
+      ,CASE WHEN len(a2.bl_no) > 0 THEN 'C' 
+               WHEN len(a2.bl_no) = 0 AND (DATEDIFF("D", CONVERT(VARCHAR(8),a1.recp_dt_tm, 112), CONVERT(VARCHAR(8),getdate(), 112)) > 10) THEN 'P'   
+       ELSE 'R' END  AS status
+      ,a2.bl_no
+      ,a1.rmk
+      ,usr.eng_usr_nm AS op_use_nm
+      <!-- OFVFOUR-7351 [UTS CARGO] ADDING COLUMN AND TOTAL TO WH RECEIPT ENTRY AND LIST SCREEN -->
+      ,ISNULL(pck_qty, 0) as pck_qty
+      ,ISNULL(a2.wgt_k, 0) as wgt_k
+      ,ISNULL(a2.wgt_l, 0) as wgt_l
+      ,ISNULL(a2.meas, 0) as meas
+      ,ISNULL(a2.act_wgt, 0) as act_wgt
+      ,'N' as check_flag
+  FROM tb_wh_recp a1
+  LEFT OUTER JOIN (SELECT wh_recp_no, max(bl_no) as bl_no, sum(pck_qty) as pck_qty, sum(wgt_k) as wgt_k, sum(wgt_l) as wgt_l, sum(meas) as meas, sum(act_wgt) as act_wgt FROM tb_wh_recp_itm GROUP BY wh_recp_no) a2 ON a1.wh_recp_no = a2.wh_recp_no
+  LEFT OUTER JOIN tb_usr usr on a1.op_useid = usr.usrid
+  where 1=1 
+    and a1.delt_flg = 'N'
+        ORDER BY  a1.recp_dt_tm Desc 
+	</select>
+	<!-- OFVFOUR-6866 - [BNX-LA] Selecting multi-Warehouse Receipt from B/L Entry screen (Zen#3533) -->
+	<update id="updateMultiWhRecpNo" parameterClass="java.util.HashMap">
+		/* OthWhrSQL > updateMultiWhRecpNo */     
+		UPDATE tb_intg_bl
+		   SET multi_wh_recp_no 		= #multi_wh_recp_no#
+		 WHERE intg_bl_seq = #intg_bl_seq#
+	</update>
+	<select id="searchBLListSameWH" parameterClass="com.clt.apps.fis.oth.whr.details.dto.WhRecpItmVO" resultClass="java.util.HashMap">
+	/* OthWhrSQL > searchBLListSameWH */    
+	SELECT intg_bl_seq,MULTI_WH_RECP_NO
+  	FROM TB_INTG_BL
+	where MULTI_WH_RECP_NO LIKE '%'+ #wh_recp_no# +'%'
+	</select>
+	<update id="updateBlNo" parameterClass="java.util.HashMap">
+		/* OthWhrSQL > updateBlNo */     
+		UPDATE tb_wh_recp_itm
+		   SET bl_no 		= #bl_no#
+		      ,modi_usrid = #proc_usrid#
+		      ,modi_ofc_cd = #proc_ofccd#
+		      ,modi_tms = GETUTCDATE()
+		 WHERE bl_no 		= (SELECT bl.bl_no FROM TB_INTG_BL bl where bl.intg_bl_seq=#f_intg_bl_seq# AND bl.delt_flg='N')
+		 	AND (
+		 		SELECT TOP 1 ISNULL(dim.INTG_BL_SEQ,#f_intg_bl_seq#) 
+		 		FROM TB_DIM dim 
+		 			JOIN TB_INTG_BL bl ON dim.intg_bl_seq=bl.intg_bl_seq AND dim.delt_flg='N'
+		 		WHERE dim.wh_recp_no = tb_wh_recp_itm.wh_recp_no AND bl.bl_no = (SELECT bl1.bl_no FROM TB_INTG_BL bl1 where bl1.intg_bl_seq=#f_intg_bl_seq# AND bl1.delt_flg='N')
+		 		ORDER BY dim.rgst_tms desc 
+		 		)=#f_intg_bl_seq#
+	</update>
+</sqlMap>

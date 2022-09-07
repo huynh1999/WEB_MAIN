@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="WHList">
+<!-- Warehouse List 조회 -->
+	<typeAlias alias="Grd01WHListVO" 	type="com.clt.apps.fis.wms.whloc.dto.Grd01WHListVO"/>
+	<select id="searchWHList" parameterClass="Grd01WHListVO" resultClass="Grd01WHListVO">
+	    /*WHList.searchWHList*/
+	    <!-- 
+	    SELECT L.LOC_CD
+		      ,L.LOC_NM
+		      ,L.SUB_LOC_CD
+		      ,L.SUB_LOC_NM
+		      ,L.BRANCH
+		      ,L.CUST_CD AS PROV_CD
+		      ,dbo.TL_GET_CUST_NM(L.CUST_CD) AS PROV_NM
+		      ,'' AS CUSTOMS_EDI_ID
+		      ,ISNULL(L.USE_YN, 'N') AS USE_YN
+		  FROM TL_LOC L
+		 WHERE 1=1
+		   AND L.TYPE = 'W'
+		   AND L.WH_YN = 'Y'
+		<isNotEmpty property="wh_cd">	
+				   AND L.LOC_CD = #wh_cd#
+		</isNotEmpty> 
+		<isNotEmpty property="sub_loc_cd">	
+				   AND L.SUB_LOC_CD = #sub_loc_cd#
+		</isNotEmpty> 
+		<isNotEmpty property="sales_ofc_cd">	
+				   AND L.BRANCH = #sales_ofc_cd#
+		</isNotEmpty> 
+		<isNotEmpty property="use_yn">	
+				   AND ISNULL(L.USE_YN, 'N') = #use_yn#
+		</isNotEmpty> 
+				   ORDER BY L.LOC_CD ASC -->
+				   
+		 SELECT L.WH_CD LOC_CD
+		      ,L.WH_NM LOC_NM
+		      ,UPPER(L.WH_CTY_NM) AS SUB_LOC_CD
+<!-- 		      ,L.SUB_LOC_NM -->
+<!-- 		      ,L.BRANCH -->
+<!-- 		      ,L.CUST_CD AS PROV_CD -->
+<!-- 		      ,dbo.TL_GET_CUST_NM(L.CUST_CD) AS PROV_NM -->
+<!-- 		      ,'' AS CUSTOMS_EDI_ID -->
+		      ,ISNULL(L.USE_FLG, 'N') AS USE_YN
+		 FROM TL_WH L
+		 WHERE 1 = 1
+		 	<isNotEmpty property="wh_cd">	
+				AND L.WH_CD = #wh_cd#
+			</isNotEmpty> 
+		 	<isNotEmpty property="sub_loc_cd">	
+			   AND L.WH_CTY_NM like '%' + #sub_loc_cd# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="use_yn">	
+			   AND ISNULL(L.USE_FLG, 'N') = #use_yn#
+			</isNotEmpty>  
+	</select>
+	
+	<!-- Contract List 조회 -->
+	<typeAlias alias="Grd02WHContractListVO" 	type="com.clt.apps.fis.wms.whloc.dto.Grd02WHContractListVO"/>
+	<select id="searchWHContractList" parameterClass="Grd02WHContractListVO" resultClass="Grd02WHContractListVO">
+	    /*WHList.searchWHContractList*/
+		SELECT T.CTRT_NO
+		      ,C.CTRT_NM
+		      ,C.SALES_OFC_CD
+		      ,C.SALES_PIC_ID
+		  FROM TL_CTRT_WH_LOC T
+		      ,TL_CTRT C
+		 WHERE T.CTRT_NO = C.CTRT_NO
+		   AND T.LOC_CD = #loc_cd#
+	</select>
+</sqlMap>

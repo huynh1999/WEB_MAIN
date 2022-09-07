@@ -1,0 +1,1146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sec.frt.cainfo">
+	<typeAlias alias="SecCAVO" 	type="com.clt.apps.fis.sec.frt.cainfo.dto.SecCAVO"/>
+	<typeAlias alias="SecMBLCAVO" 	type="com.clt.apps.fis.sec.frt.cainfo.dto.SecMBLCAVO"/>
+	<typeAlias alias="HBLInfoVO"       type="com.clt.apps.fis.see.bmd.housebl.dto.SeeHouseBLVO"/><!-- Ocean House BL 등록 및 조회 정보   -->
+	
+	<!--BL_PRNR_INFO select     -->
+    <select id="selectBL_PRNR_INFO" parameterClass="java.util.HashMap" resultClass="SecCAVO">
+     	 /** SecFrtCorrectionAdviceSQL.xml > selectBL_PRNR_INFO **/
+		 SELECT  bl.bl_no AS house_bl_no, 			mbl.bl_no AS master_bl_no, 
+                 ashp.trdp_cd AS ntc_trdp_cd,		trdp.locl_nm AS ntc_trdp_full_nm, 
+                 pson.pic_nm AS ntc_trdp_pic,		pson.pic_phn AS ntc_trdp_pic_phn, 
+                 pson.pic_fax AS ntc_trdp_pic_fax,	pson.pic_eml AS ntc_trdp_pic_eml,
+                 bl.intg_bl_seq, bl.biz_clss_cd, bl.ca_sts_cd, bl.bkg_no, ashp.bl_trdp_tp_cd, trdp.lgl_addr 
+           FROM  tb_intg_bl bl
+LEFT OUTER JOIN  tb_bl_prnr ashp
+             ON  bl.intg_bl_seq = ashp.intg_bl_seq AND ashp.bl_trdp_tp_cd = 'P01' AND ashp.delt_flg = 'N'
+LEFT OUTER JOIN  tb_trdp trdp
+             ON  ashp.trdp_cd = trdp.trdp_cd AND trdp.delt_flg = 'N'
+LEFT OUTER JOIN  tb_trdp_cntc_pson pson
+             ON  trdp.trdp_cd = pson.trdp_cd AND pson.delt_flg = 'N' 
+            AND  pson.cntc_pson_seq = (SELECT CNTC_PSON_SEQ
+		                                 FROM tb_trdp_cntc_pson 
+                                        WHERE delt_flg = 'N' AND trdp_cd = ashp.trdp_cd AND rep_flg = 'Y')
+LEFT OUTER JOIN  (SELECT mbl.bl_no, rlt.intg_bl_seq
+                    FROM tb_intg_bl mbl, tb_intg_bl_rlt rlt
+                   WHERE mbl.intg_bl_seq = rlt.rlt_intg_bl_seq) AS mbl ON bl.intg_bl_seq = mbl.INTG_BL_SEQ 
+          WHERE  bl.delt_flg = 'N'
+            AND  bl.air_sea_clss_cd = #air_sea_clss_cd#
+            AND  bl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </select>
+    
+    <select id="selectMBL_PRNR_INFO" parameterClass="java.util.HashMap" resultClass="SecCAVO">
+   		 /** SecFrtCorrectionAdviceSQL.xml > selectMBL_PRNR_INFO **/
+		 SELECT  TOP 1
+		 		 mbl.bl_no AS master_bl_no, 
+                 lnr.trdp_cd AS ntc_trdp_cd, 		trdp.locl_nm AS ntc_trdp_full_nm, 
+                 psn.pic_nm AS ntc_trdp_pic, 		psn.pic_phn AS ntc_trdp_pic_phn, 
+                 psn.pic_fax AS ntc_trdp_pic_fax, 	psn.pic_eml AS ntc_trdp_pic_eml, 
+                 mbl.intg_bl_seq AS intg_bl_seq,    mbl.biz_clss_cd, 
+                 mbl.ca_sts_cd,                     mbl.bkg_no, 
+                 lnr.bl_trdp_tp_cd,                 trdp.lgl_addr
+           FROM  tb_intg_bl mbl
+LEFT OUTER JOIN  tb_bl_prnr lnr
+             ON  mbl.INTG_BL_SEQ = lnr.INTG_BL_SEQ AND  lnr.bl_trdp_tp_cd = #bl_trdp_tp_cd# AND lnr.delt_flg = 'N'
+LEFT OUTER JOIN  TB_TRDP trdp
+             ON  lnr.TRDP_CD = trdp.TRDP_CD 
+LEFT OUTER JOIN  tb_trdp_cntc_pson psn
+             ON  lnr.TRDP_CD = psn.trdp_cd AND lnr.trdp_pic_usr_id = psn.cntc_pson_seq
+		  WHERE  mbl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </select>
+		
+	<!-- Master B/L select    -->
+    <select id="selectMASTERBL_PRNR_INFO" parameterClass="SecCAVO" resultClass="SecMBLCAVO">
+   		/** SecFrtCorrectionAdviceSQL.xml > selectMASTERBL_PRNR_INFO **/
+		SELECT  b.intg_bl_seq AS master_bl_seq,
+       		    b.bl_no AS master_bl_no, 
+       		    b.ca_sts_cd AS master_ca_sts_cd
+       	  FROM  tb_intg_bl b
+		 WHERE  b.delt_flg = 'N' AND  b.biz_clss_cd ='M'
+		   AND  b.intg_bl_seq =(SELECT c.rlt_intg_bl_seq FROM tb_intg_bl_rlt c WHERE c.delt_flg = 'N' AND  c.intg_bl_seq = cast(#intg_bl_seq# as varchar) )
+	</select>
+	
+	<!-- close 여부 체크     -->
+    <select id="selectCLS_FLG" parameterClass="java.util.HashMap" resultClass="String">
+    	/** SecFrtCorrectionAdviceSQL.xml > selectCLS_FLG **/
+       	SELECT  clz_flg
+		  FROM  tb_add_info_bnd
+		 WHERE  delt_flg = 'N'
+		   AND  intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		   AND  bnd_clss_cd = #s_bnd_clss_cd#
+	</select>
+    
+    <!-- CA가 생성되어져 있는지 여부 조회.   -->
+    <select id="selectCANO" parameterClass="java.util.HashMap" resultClass="String">
+   	 	/* SecFrtCorrectionAdviceSQL.xml > selectCANO */
+       SELECT  MAX(a.ca_no) 
+         FROM  tb_ca a,
+       		   tb_intg_bl b
+        WHERE  a.delt_flg = 'N' AND   b.delt_flg = 'N'
+          AND  b.air_sea_clss_cd = #air_sea_clss_cd#
+          AND  a.intg_bl_seq = b.intg_bl_seq
+          AND  b.ca_sts_cd ='I'
+          AND  a.intg_bl_seq = cast(#intg_bl_seq# as varchar) 
+    </select>
+    
+	<!-- CA PK를 생성함   -->
+	<select id="selectCA_PK" resultClass="Integer">
+		/* SecFrtCorrectionAdviceSQL.xml > selectCA_PK */
+        SELECT  ISNULL(MAX(ca_no) , 1)
+          FROM  tb_ca
+	</select>
+	
+    <!-- BL_CA_INFO select    -->
+    <select id="selectBL_CA_INFO" parameterClass="java.util.HashMap" resultClass="SecCAVO">
+    	/** SecFrtCorrectionAdviceSQL.xml > selectBL_CA_INFO **/
+		SELECT  a.bl_no AS house_bl_no,	a.ca_sts_cd,		a.bkg_no,				a.intg_bl_seq,
+			    b.ca_seq,       	b.ca_no,       			b.ntc_trdp_cd,
+			    b.ntc_trdp_pic,    	b.ntc_trdp_pic_phn,   	b.ntc_trdp_pic_fax,  	b.ntc_trdp_pic_eml,
+			    b.grs_wgt_flg,     	b.cbm_flg,       		b.mk_desc_flg,       	b.vsl_flg,
+			    b.cntr_flg,        	b.frt_term_flg,       	b.shpr_pty_flg,      	b.cnee_pty_flg,
+			    b.ntfy_pty_flg,    	b.cmdt_flg,       		b.rout_flg,       		b.trf_inv_amt_flg,
+			    b.otr_flg,         	b.pre_info_txt,       	b.corr_info_txt,
+		        b.iss_dt_tm,        b.cfm_dt_tm,
+                b.rgst_usrid,       b.rgst_ofc_cd,        b.rgst_tms,
+
+			    (SELECT eng_usr_nm FROM tb_usr WHERE usr_tp = 'I' AND usrid = b.iss_usrid ) AS iss_usrid,       
+			    (SELECT ofc_eng_nm FROM tb_ofc WHERE ofc_cd = b.iss_ofc_cd ) AS iss_ofc_cd,       	
+			
+			    (SELECT eng_usr_nm FROM tb_usr WHERE usr_tp = 'I' AND usrid = b.cfm_usrid ) AS cfm_usrid,       
+			    (SELECT ofc_eng_nm FROM tb_ofc WHERE ofc_cd = b.cfm_ofc_cd ) AS cfm_ofc_cd,       	
+			 
+		        CASE WHEN ISNULL(b.ntc_trdp_cd,'') ='' THEN ''
+				ELSE (SELECT c.shrt_nm FROM tb_trdp c WHERE c.trdp_cd = b.ntc_trdp_cd  ) END ntc_trdp_short_nm,
+			
+		        CASE WHEN ISNULL(b.ntc_trdp_cd,'') ='' THEN ''
+				ELSE (SELECT d.full_nm FROM tb_trdp d WHERE d.trdp_cd = b.ntc_trdp_cd  ) END ntc_trdp_full_nm
+		  FROM  tb_intg_bl a 
+LEFT OUTER JOIN (SELECT * FROM tb_ca WHERE delt_flg = 'N'
+					AND  ca_no = (SELECT MAX(a.ca_no)  FROM  tb_ca a  where  a.intg_bl_seq =  cast(#intg_bl_seq# as varchar)  )
+					) b ON a.intg_bl_seq = b.intg_bl_seq 
+		 WHERE  a.delt_flg = 'N'		
+		   AND  a.air_sea_clss_cd = #air_sea_clss_cd#
+		   AND  a.intg_bl_seq =  cast(#intg_bl_seq# as varchar)     	
+    </select>
+
+	<!-- CA select    -->
+    <select id="selectSEE_FRT_0030" parameterClass="java.util.HashMap" resultClass="SecCAVO">
+    	/* SecFrtCorrectionAdviceSQL.xml > selectSEE_FRT_0030 */
+		SELECT  a.ca_seq,          a.ca_no,       		 a.intg_bl_seq,		    a.ntc_trdp_cd,
+			    c.bl_no AS house_bl_no,				     a.ca_sts_cd,		    c.bkg_no,
+	            a.ntc_trdp_pic,    a.ntc_trdp_pic_phn,   a.ntc_trdp_pic_fax,  	a.ntc_trdp_pic_eml,
+	            a.grs_wgt_flg,     a.cbm_flg,       	 a.mk_desc_flg,       	a.vsl_flg,
+	            a.cntr_flg,        a.frt_term_flg,       a.shpr_pty_flg,      	a.cnee_pty_flg,
+	            a.ntfy_pty_flg,    a.cmdt_flg,       	 a.rout_flg,       		a.trf_inv_amt_flg,
+	            a.otr_flg,         a.pre_info_txt,       a.corr_info_txt,
+	           (SELECT eng_usr_nm FROM tb_usr WHERE usr_tp = 'I' AND usrid = a.iss_usrid ) AS iss_usrid,       
+	           (SELECT ofc_eng_nm FROM tb_ofc WHERE ofc_cd = a.iss_ofc_cd ) AS iss_ofc_cd,       	
+	            a.iss_dt_tm,
+	           (SELECT eng_usr_nm FROM tb_usr WHERE usr_tp = 'I' AND usrid = a.cfm_usrid ) AS cfm_usrid,       
+	           (SELECT ofc_eng_nm FROM tb_ofc WHERE ofc_cd = a.cfm_ofc_cd ) AS cfm_ofc_cd,       	
+	            a.cfm_dt_tm,
+	            a.rgst_usrid,      a.rgst_ofc_cd,        a.rgst_tms,
+	            b.shrt_nm AS	ntc_trdp_short_nm,			b.locl_nm AS  ntc_trdp_full_nm,
+				(select bl.bl_no from tb_intg_bl bl where bl.intg_bl_seq = rlt.rlt_intg_bl_seq) AS master_bl_no,
+				c.air_sea_clss_cd
+		 FROM  tb_ca a 
+		 	   LEFT OUTER JOIN tb_intg_bl_rlt rlt 								
+                ON rlt.intg_bl_seq = a.intg_bl_seq
+                LEFT OUTER JOIN tb_trdp b 
+                 ON a.ntc_trdp_cd = b.trdp_cd
+                 AND b.delt_flg = 'N'
+			  ,tb_intg_bl c
+			  ,tb_add_info_bnd d			   
+		WHERE  a.intg_bl_seq = c.intg_bl_seq
+		  AND  a.intg_bl_seq = d.intg_bl_seq
+		  AND  a.bnd_clss_cd = d.bnd_clss_cd
+		  AND  a.delt_flg = 'N'		
+		  AND  c.delt_flg = 'N'		AND   d.delt_flg = 'N'
+		  AND  a.ca_no = #ca_no#
+    </select>
+    
+    <select id="selectSEE_FRT_0030_M" parameterClass="java.util.HashMap" resultClass="SecCAVO">
+       /* SecFrtCorrectionAdviceSQL.xml > selectSEE_FRT_0030_M */
+       SELECT  ca.ca_seq, ca.ca_no, mbl.intg_bl_seq, ca.ntc_trdp_cd, ca.ca_sts_cd, ca.ntc_trdp_pic, ca.ntc_trdp_pic_phn, ca.ntc_trdp_pic_fax, ca.ntc_trdp_pic_eml, ca.grs_wgt_flg, 
+               ca.cbm_flg, ca.mk_desc_flg, ca.vsl_flg, ca.cntr_flg, ca.frt_term_flg, ca.shpr_pty_flg, ca.cnee_pty_flg, ca.ntfy_pty_flg, 
+               ca.cmdt_flg, ca.rout_flg, ca.trf_inv_amt_flg, ca.otr_flg, ca.pre_info_txt, ca.corr_info_txt, (SELECT eng_usr_nm FROM tb_usr WHERE usr_tp = 'I' AND usrid = ca.iss_usrid ) AS iss_usrid,       
+	          (SELECT ofc_eng_nm FROM tb_ofc WHERE ofc_cd = ca.iss_ofc_cd ) AS iss_ofc_cd,       	
+	           ca.iss_dt_tm,
+	          (SELECT eng_usr_nm FROM tb_usr WHERE usr_tp = 'I' AND usrid = ca.cfm_usrid ) AS cfm_usrid,       
+	          (SELECT ofc_eng_nm FROM tb_ofc WHERE ofc_cd = ca.cfm_ofc_cd ) AS cfm_ofc_cd,       	
+	           ca.cfm_dt_tm,
+	           ca.rgst_usrid,      ca.rgst_ofc_cd,        ca.rgst_tms,
+	           trdp.shrt_nm AS	ntc_trdp_short_nm,			trdp.locl_nm AS  ntc_trdp_full_nm, 
+	           mbl.bl_no AS master_bl_no,
+	           mbl.air_sea_clss_cd
+         FROM  tb_ca ca
+				LEFT OUTER JOIN   tb_trdp trdp 
+				 ON ca.ntc_trdp_cd = trdp.trdp_cd 
+             , tb_intg_bl mbl
+        WHERE  ca.delt_flg = 'N'
+          AND  ca.intg_bl_seq = mbl.intg_bl_seq
+          AND  ca.ca_no = #ca_no#
+	</select>
+    
+    <!--ca_seq를 CREATE한다.   -->
+    <select id="selectCA_MkPK" parameterClass="HashMap" resultClass="java.util.HashMap">
+      /* SecFrtCorrectionAdviceSQL.xml > selectCA_MkPK */
+		SELECT  ISNULL(MAX(ca_seq),0) +1 AS caSeq,
+		        convert(varchar(4), getdate(), 12)  AS caDt
+		  FROM  tb_ca
+		 WHERE  convert(varchar(6), rgst_tms, 112) = convert(varchar(6), getdate(), 112)
+		   AND  rgst_ofc_cd = #proc_ofccd#
+    </select>
+    
+    <insert id="insertSEE_FRT_0030" parameterClass="java.util.HashMap">
+    	/* SecFrtCorrectionAdviceSQL.xml > insertSEE_FRT_0030 */
+    	INSERT INTO tb_ca
+		(
+			ca_seq,          ca_no,          		intg_bl_seq,        ntc_trdp_cd,
+			ntc_trdp_pic,    ntc_trdp_pic_phn,    	ntc_trdp_pic_fax,   ntc_trdp_pic_eml,
+			grs_wgt_flg,     cbm_flg,          		mk_desc_flg,        vsl_flg,
+			cntr_flg,        frt_term_flg,        	shpr_pty_flg,       cnee_pty_flg,
+			ntfy_pty_flg,    cmdt_flg,          	rout_flg,          	trf_inv_amt_flg,
+			otr_flg,         pre_info_txt,        	corr_info_txt,		bnd_clss_cd,
+			iss_usrid,       iss_ofc_cd,          	iss_dt_tm,			
+		    ca_sts_cd,		 biz_clss_cd, 
+			rgst_usrid,      rgst_ofc_cd,         	rgst_tms,
+			modi_usrid,      modi_ofc_cd,         	modi_tms, delt_flg
+		)
+		VALUES (
+			#ca_seq#,          #ca_no#,          	#intg_bl_seq#,          #ntc_trdp_cd#,
+			#ntc_trdp_pic#,    #ntc_trdp_pic_phn#,  #ntc_trdp_pic_fax#, 	#ntc_trdp_pic_eml#,
+			#grs_wgt_flg#,     #cbm_flg#,          	#mk_desc_flg#,          #vsl_flg#,
+			#cntr_flg#,        #frt_term_flg#,      #shpr_pty_flg#,         #cnee_pty_flg#,
+			#ntfy_pty_flg#,    #cmdt_flg#,          #rout_flg#,          	#trf_inv_amt_flg#,
+			#otr_flg#,         #pre_info_txt#,      #corr_info_txt#,		#bnd_clss_cd#,
+			#proc_usrid#,      #proc_ofccd#,        convert(varchar(8), getdate(), 112)+ replace(convert(varchar(5), getdate(), 108), ':', ''),	
+		    <!-- #ca_sts_cd#,	   #blFlg#, jsjang 2013.8.14 #19337 --> 
+		    #ca_sts_cd#,	   #biz_clss_cd#, 
+			#proc_usrid#,      #proc_ofccd#,        getdate(),
+			#proc_usrid#,      #proc_ofccd#,        GETUTCDATE(), 'N'
+		)
+    	
+    </insert>
+    
+    <update id ="updateSEE_FRT_0030" parameterClass="java.util.HashMap">
+     	/* SecFrtCorrectionAdviceSQL.xml > updateSEE_FRT_0030 */
+    	UPDATE tb_ca 
+		SET ca_no = #ca_no#,						intg_bl_seq = #intg_bl_seq#,
+			ntc_trdp_cd = #ntc_trdp_cd#,			ntc_trdp_pic = #ntc_trdp_pic#,
+			ntc_trdp_pic_phn = #ntc_trdp_pic_phn#,	ntc_trdp_pic_fax = #ntc_trdp_pic_fax#,
+			ntc_trdp_pic_eml = #ntc_trdp_pic_eml#,	grs_wgt_flg = #grs_wgt_flg#,
+			cbm_flg = #cbm_flg#,					mk_desc_flg = #mk_desc_flg#,
+			vsl_flg = #vsl_flg#,					cntr_flg = #cntr_flg#,
+			frt_term_flg = #frt_term_flg#,			shpr_pty_flg = #shpr_pty_flg#,
+			cnee_pty_flg = #cnee_pty_flg#,			ntfy_pty_flg = #ntfy_pty_flg#,
+			cmdt_flg = #cmdt_flg#,					rout_flg = #rout_flg#,
+			trf_inv_amt_flg = #trf_inv_amt_flg#,	otr_flg = #otr_flg#,
+			pre_info_txt = #pre_info_txt#,			corr_info_txt = #corr_info_txt#,  	
+			bnd_clss_cd = #bnd_clss_cd#,			ca_sts_cd =#ca_sts_cd#,
+			iss_usrid = #proc_usrid#,				iss_ofc_cd = #proc_ofccd#,			iss_dt_tm = convert(varchar(8), getdate(), 112)+ replace(convert(varchar(5), getdate(), 108), ':', ''),
+			modi_usrid = #proc_usrid#,				modi_ofc_cd = #proc_ofccd#,			modi_tms = GETUTCDATE()
+		WHERE ca_seq = #ca_seq#    
+    </update>
+    
+    <update id ="updateSEE_FRT_0030_Confirm" parameterClass="java.util.HashMap"> 
+    	/* SecFrtCorrectionAdviceSQL.xml > updateSEE_FRT_0030_Confirm */  
+    	UPDATE tb_ca 
+		   SET ca_sts_cd = #ca_sts_cd#,
+		  	   cfm_usrid = #proc_usrid#,			cfm_ofc_cd = #proc_ofccd#,		cfm_dt_tm = convert(varchar(8), getdate(), 112)+ replace(convert(varchar(5), getdate(), 108), ':', ''),
+			   modi_usrid= #proc_usrid#,			modi_ofc_cd= #proc_ofccd#,		modi_tms  = GETUTCDATE()
+		WHERE  ca_seq = #ca_seq#    
+    </update>
+    
+	<!--CA삭제  -->
+    <update id ="deleteCA" parameterClass="java.util.HashMap"> 
+     	/** SecFrtCorrectionAdviceSQL.xml > deleteCA **/     
+        UPDATE  tb_ca 
+           SET  delt_flg  = #delt_flg#,
+                modi_usrid= #proc_usrid#,    modi_ofc_cd= #proc_ofccd#,      modi_tms  = GETUTCDATE()
+         WHERE  ca_seq    = #ca_seq#    
+    </update>
+	
+    <update id ="updateIntgCA_STS_CD" parameterClass="java.util.HashMap">
+      /** SecFrtCorrectionAdviceSQL.xml > updateIntgCA_STS_CD **/
+		UPDATE  tb_intg_bl
+		   SET 	ca_sts_cd   =#ca_sts_cd#,		modi_usrid = #proc_usrid#,
+			    modi_ofc_cd = #proc_ofccd#,		modi_tms   = GETUTCDATE()
+		 WHERE  intg_bl_seq = cast(#intg_bl_seq# as varchar)		
+	</update>
+	
+	<update id ="updateMasterIntgCA_STS_CD" parameterClass="java.util.HashMap">
+	 /** SecFrtCorrectionAdviceSQL.xml > updateMasterIntgCA_STS_CD **/      
+		UPDATE  tb_intg_bl
+		   SET  ca_sts_cd =#ca_sts_cd#,			modi_usrid = #proc_usrid#,			
+			    modi_ofc_cd = #proc_ofccd#,		modi_tms = GETUTCDATE()
+		WHERE  intg_bl_seq = #master_bl_seq#		
+	</update>
+    
+    <!-- CA List select    -->
+    <select id="selectSEE_FRT_0040_LIST" parameterClass="java.util.HashMap" resultClass="SecCAVO">
+     	/** SecFrtCorrectionAdviceSQL.xml > selectSEE_FRT_0040_LIST **/    
+		 SELECT  ca.ca_no,           ca.biz_clss_cd, 
+                 bl.bl_no,           substring(ca.iss_dt_tm, 1, 8) as iss_dt_tm,
+                 ca.ca_sts_cd,       substring(ca.cfm_dt_tm, 1, 8) as cfm_dt_tm, 
+                 (SELECT cd_nm	FROM tb_com_cd_dtl WHERE delt_flg = 'N'	AND com_cd = 'C042'	AND cd_val = ca.ca_sts_cd ) AS ca_sts_cd_nm, 
+                 trdp.locl_nm AS ntc_trdp_full_nm, 
+                 ca.intg_bl_seq
+           FROM  tb_ca ca
+LEFT OUTER JOIN  tb_intg_bl bl
+             ON  ca.intg_bl_seq = bl.intg_bl_seq AND bl.delt_flg = 'N'
+LEFT OUTER JOIN  tb_trdp trdp
+             ON  ca.ntc_trdp_cd = trdp.trdp_cd AND trdp.delt_flg = 'N'
+                ,tb_add_info_bnd bnd
+          WHERE  1=1
+            AND  ca.intg_bl_seq = bnd.intg_bl_seq
+            AND  ca.delt_flg = 'N'     
+            AND  bnd.bnd_clss_cd = #bnd_clss_cd#  
+            AND  bl.air_sea_clss_cd = #air_sea_clss_cd#
+            AND  bl.biz_clss_cd = #biz_clss_cd#            
+		<isNotNull property="s_bl_no">
+            AND  bl.bl_no like '%' + #s_bl_no# + '%'
+        </isNotNull>
+        <isNotNull property="f_ofc_cd">
+            AND  ca.rgst_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+		<isNotNull property="s_status">
+		    AND  ca.ca_sts_cd = #s_status#
+		</isNotNull>
+		<isNotNull property="s_rgst_strdt">
+		    AND  ca.rgst_tms BETWEEN #s_rgst_strdt# AND DATEADD(DAY , 1, CONVERT(DATETIME, #s_rgst_enddt#))
+		</isNotNull>
+		<isNotNull property="s_trdp_cd">	
+		    AND  ca.ntc_trdp_cd = #s_trdp_cd#
+		</isNotNull>
+       ORDER BY  ca.ca_no DESC
+    </select>
+    
+    <!-- CA List Count select    -->
+    <select id="selectSEE_FRT_0040_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+     	/** SecFrtCorrectionAdviceSQL.xml > selectSEE_FRT_0040_CNT **/   
+		 SELECT  count(ca.intg_bl_seq)
+           FROM  tb_ca ca
+LEFT OUTER JOIN  tb_intg_bl bl
+             ON  ca.intg_bl_seq = bl.intg_bl_seq AND bl.delt_flg = 'N'
+LEFT OUTER JOIN  tb_trdp trdp
+             ON  ca.ntc_trdp_cd = trdp.trdp_cd AND trdp.delt_flg = 'N'
+                ,tb_add_info_bnd bnd
+          WHERE  1=1
+            AND  ca.delt_flg = 'N'
+            AND  ca.intg_bl_seq = bnd.intg_bl_seq         
+            AND  bnd.bnd_clss_cd = #bnd_clss_cd#
+            AND  bl.air_sea_clss_cd = #air_sea_clss_cd#  
+            AND  bl.biz_clss_cd = #biz_clss_cd#    
+		<isNotNull property="s_bl_no">
+            AND  bl.bl_no like '%' + #s_bl_no# + '%'
+        </isNotNull>
+        <isNotNull property="f_ofc_cd">
+            AND  ca.rgst_ofc_cd = #f_ofc_cd#
+        </isNotNull>
+		<isNotNull property="s_status">
+		    AND  ca.ca_sts_cd = #s_status#
+		</isNotNull>
+		<isNotNull property="s_rgst_strdt">
+		    AND  ca.rgst_tms BETWEEN #s_rgst_strdt# AND DATEADD(DAY , 1, CONVERT(DATETIME, #s_rgst_enddt#))
+		</isNotNull>
+		<isNotNull property="s_trdp_cd">	
+		    AND  ca.ntc_trdp_cd = #s_trdp_cd#
+		</isNotNull>
+    </select>
+	
+	
+   <!--liner수를 조회  -->
+    <select id="selectLINERSCHEDULE_CNT" resultClass="Integer">
+       /** SecFrtCorrectionAdviceSQL.xml > selectLINERSCHEDULE_CNT **/   
+        SELECT count(a.etd_dt)
+        FROM  tb_lnr_skd a,
+            tb_trdp b
+        WHERE a.lnr_trdp_cd = b.trdp_cd
+        AND a.delt_flg = 'N'
+        <isNotNull prepend="AND" property="etd_strdt">
+            <![CDATA[a.etd_dt >= #etd_strdt# ]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="etd_enddt">
+            <![CDATA[a.etd_dt <= #etd_enddt# ]]>
+        </isNotNull>
+        
+        <isNotNull prepend="AND" property="eta_strdt">
+            <![CDATA[a.eta_dt >= #eta_strdt# ]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="eta_enddt">
+            <![CDATA[a.eta_dt <= #eta_enddt# ]]>
+        </isNotNull>
+        
+        <isNotNull prepend="AND" property="s_liner_code">
+            a.lnr_trdp_cd = #s_liner_code#
+        </isNotNull>
+        <isNotNull prepend="AND" property="s_port_code">
+            a.port_loc_cd = #s_port_code#
+        </isNotNull>
+    </select>
+
+    <!--liner 조회  -->
+    <select id="selectLINERSCHEDULE_LIST" resultClass="com.clt.apps.fis.sec.bmd.linerinfo.dto.LnrSkdVO">
+    	/** SecFrtCorrectionAdviceSQL.xml > selectLINERSCHEDULE_LIST **/
+		SELECT TOP $topCnt$
+		       a.lnr_skd_seq AS seqno,
+               a.lnr_trdp_cd AS liner_code,     
+		       b.shrt_nm     AS liner_abbr,        eng_nm AS liner_name,
+		       a.vsl_cd      AS vessel_code,
+		
+		       a.voy AS voyage,       a.eta_dt AS eta,      a.etd_dt AS etd,
+               a.rmk AS remark,            
+		       
+		       a.port_loc_cd AS port_code,   a.port_nod_cd AS node_code,
+		       
+	           (SELECT x.loc_nm FROM tb_loc x
+               WHERE x.loc_cd = a.port_loc_cd) port_name,
+            
+              (SELECT y.vsl_nm FROM tb_vsl y
+                WHERE y.vsl_cd = a.vsl_cd) vessel_name,     
+
+              (SELECT z.ofc_eng_nm FROM tb_ofc z
+                WHERE z.ofc_cd = a.rgst_ofc_cd) branch, 
+		
+               a.rgst_usrid AS created_by,       
+               <!-- CONVERT(VARCHAR(10),a.rgst_tms ,110)+' '+CONVERT(VARCHAR(10),a.rgst_tms ,108) AS created_dt, --> 
+               a.rgst_tms AS created_dt,   
+               a.modi_usrid AS modified_by,      
+                  
+               <!-- CONVERT(VARCHAR(10),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),a.MODI_TMS ),110)+' '+
+               CONVERT(VARCHAR(10),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),a.MODI_TMS ),108) AS modified_dt -->
+               DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),a.MODI_TMS ) AS modified_dt
+		       
+	    FROM
+	        TB_LNR_SKD A JOIN
+	        TB_TRDP B        
+	    ON A.LNR_TRDP_CD = B.TRDP_CD                                       
+	    LEFT OUTER JOIN
+	        TB_OFC TOF                                 
+	            ON A.RGST_OFC_CD = TOF.OFC_CD                         
+	    LEFT OUTER JOIN
+	        TB_COM_CD_DTL CCD                                  
+	            ON CCD.COM_CD = 'TIMEZN'                                  
+	            AND TOF.TIME_ZONE = CCD.CD_VAL                           
+	    WHERE A.DELT_FLG = 'N'      
+            
+        <isNotNull prepend="AND" property="etd_strdt">
+            <![CDATA[a.etd_dt >= #etd_strdt# ]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="etd_enddt">
+            <![CDATA[a.etd_dt <= #etd_enddt# ]]>
+        </isNotNull>
+        
+        <isNotNull prepend="AND" property="eta_strdt">
+            <![CDATA[a.eta_dt >= #eta_strdt# ]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="eta_enddt">
+            <![CDATA[a.eta_dt <= #eta_enddt# ]]>
+        </isNotNull>
+        
+        <isNotNull prepend="AND" property="s_liner_code">
+            a.lnr_trdp_cd = #s_liner_code#
+        </isNotNull>
+        <isNotNull prepend="AND" property="s_port_code">
+            a.port_loc_cd = #s_port_code#
+        </isNotNull>
+        ORDER  BY  a.lnr_skd_seq ASC 
+    </select>
+    
+    
+    <!-- PK생성  -->
+    <select id="selectLINERSCHEDULE_MkPK" resultClass="String">
+    	/** SecFrtCorrectionAdviceSQL.xml > selectLINERSCHEDULE_MkPK **/
+        SELECT ISNULL(MAX(lnr_skd_seq),0)+1
+        FROM   tb_lnr_skd
+    </select>
+    
+    <!--  등록   -->
+    <insert id="insertLINERSCHEDULE" parameterClass="com.clt.apps.fis.sec.bmd.linerinfo.dto.LnrSkdVO">
+       /** SecFrtCorrectionAdviceSQL.xml > insertLINERSCHEDULE **/
+        INSERT INTO tb_lnr_skd(
+		 vsl_cd,            port_loc_cd,        port_nod_cd,
+		 eta_dt,            etd_dt,             voy,
+		 lnr_trdp_cd,       rmk,                lnr_skd_seq, 
+         rgst_usrid,        rgst_ofc_cd,        rgst_tms,
+         modi_usrid,        modi_ofc_cd,        modi_tms, delt_flg     
+        )VALUES(
+		 #vessel_code#,     #port_code#,        #node_code#, 
+         #eta#,             #etd#,              #voyage#, 
+         #liner_code#,      #remark#,           #seqno#, 
+         #proc_usrid#,      #proc_ofccd#,       getdate(),
+         #proc_usrid#,      #proc_ofccd#,       GETUTCDATE(), 'N'
+        )
+    </insert>
+    
+    <!-- 수정   -->
+    <update id="updateLINERSCHEDULE" parameterClass="com.clt.apps.fis.sec.bmd.linerinfo.dto.LnrSkdVO">
+     /** SecFrtCorrectionAdviceSQL.xml > updateLINERSCHEDULE **/
+		UPDATE  tb_lnr_skd 
+           SET  vsl_cd      = #vessel_code#,      
+		        port_loc_cd = #port_code#,      port_nod_cd = #node_code#,
+		        eta_dt      = #eta#,            etd_dt      = #etd#,
+		        voy         = #voyage#,         lnr_trdp_cd = #liner_code#,     rmk = #remark#,
+		        modi_ofc_cd = #proc_usrid#,     modi_usrid  = #proc_ofccd#,     modi_tms = GETUTCDATE()
+         WHERE  lnr_skd_seq = #seqno#
+    </update>
+    
+    <!-- 삭제  -->
+    <update id="deleteLINERSCHEDULE" parameterClass="com.clt.apps.fis.sec.bmd.linerinfo.dto.LnrSkdVO">
+     	/** SecFrtCorrectionAdviceSQL.xml > deleteLINERSCHEDULE **/
+       UPDATE  TB_LNR_SKD 
+          SET  delt_flg = 'Y',
+		       modi_ofc_cd = #proc_usrid#, modi_usrid = #proc_ofccd#, modi_tms = GETUTCDATE()
+        WHERE  lnr_skd_seq = #seqno#           
+    </update>
+    
+    <select id="selectCa_BL_Seq" parameterClass="java.util.HashMap" resultClass="String">
+    	/** SecFrtCorrectionAdviceSQL.xml > selectCa_BL_Seq **/
+		SELECT  bl.intg_bl_seq
+		  FROM  tb_intg_bl bl, tb_add_info_bnd bnd
+          WHERE 1=1
+           AND  bl.intg_bl_seq = bnd.intg_bl_seq
+           AND  bl.delt_flg = 'N'     
+           AND  bnd.bnd_clss_cd = #bnd_clss_cd#  
+           AND  bl.air_sea_clss_cd = #air_sea_clss_cd#
+           AND  bl.biz_clss_cd = #biz_clss_cd#        
+		   AND  bl.intg_bl_seq = (select intg_bl_seq from tb_ca where ca_no = #ca_no#)
+    </select>
+    
+    <select id="selectBL_FLG" parameterClass="java.util.HashMap" resultClass="String">
+    	/** SecFrtCorrectionAdviceSQL.xml > selectBL_FLG **/
+		SELECT  bl.biz_clss_cd
+		  FROM  tb_intg_bl bl, tb_add_info_bnd bnd
+          WHERE 1=1
+           AND  bl.intg_bl_seq = bnd.intg_bl_seq
+           AND  bl.delt_flg = 'N'     
+           AND  bnd.bnd_clss_cd = #bnd_clss_cd#  
+           AND  bl.air_sea_clss_cd = #air_sea_clss_cd#
+           AND  bl.biz_clss_cd = #biz_clss_cd#       	
+		   AND  bl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </select>
+    
+    
+    <!--ㅡMbl  info 조회  -->
+    <select id="selectMblinfo_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.masterbl.dto.SeeMasterBLVO">
+    	/** SecFrtCorrectionAdviceSQL.xml > selectMblinfo_LIST **/
+    	SELECT
+	            A.*      
+	        FROM
+	            (
+		SELECT
+			   ROW_NUMBER() OVER (ORDER BY  bl.POST_DT DESC, bl.MODI_TMS DESC) AS rownum,	    
+			   bnd.bnd_clss_cd , 
+               bl.intg_bl_seq as rlt_intg_bl_seq , 
+               bl.bl_no as mbl_no, 
+               bl.shp_mod_cd, 
+               bl.ref_ofc_cd , 
+               bl.ref_no ,
+               bl.lnr_bkg_no,
+               bl.trnk_vsl_nm , 
+               bl.trnk_voy ,
+               bl.pol_cd ,
+               bl.pol_nm ,
+               bl.pod_cd ,
+               bl.pod_nm ,               
+               bl.etd_dt_tm , 
+               bl.eta_dt_tm  ,
+               bl.post_dt  ,
+               ptn2.trdp_nm  , 
+				(SELECT
+            		MAX(X.CNTR_NO) 
+        			FROM
+            		TB_CNTR_LIST X 
+        		WHERE
+            		X.INTG_BL_SEQ = BL.INTG_BL_SEQ 
+            		AND X.DELT_FLG = 'N') AS CNTR_NO,
+				(  SELECT
+                	COUNT(*) 
+            		FROM TB_INTG_BL_RLT RLT 
+            		WHERE
+                	RLT.RLT_INTG_BL_SEQ = bl.INTG_BL_SEQ 
+                	AND RLT.DELT_FLG = 'N') AS HBL_CNT,
+				bl.modi_tms
+		 	FROM  tb_intg_bl bl   
+		 	JOIN  tb_add_info_bnd bnd
+			ON  bl.intg_bl_seq = bnd.intg_bl_seq            
+			LEFT OUTER JOIN
+				  tb_bl_prnr ptn2            
+            ON   bl.intg_bl_seq = ptn2.intg_bl_seq
+            AND ptn2.bl_trdp_tp_cd = 'P03' 
+            AND ptn2.delt_flg = 'N'  
+            LEFT OUTER JOIN
+                (
+                    SELECT
+                        INTG_BL_SEQ AS INTG_BL_SEQ1,
+                        BL_STS_CD AS BL_STS_CD1 
+                    FROM
+                        TB_INTG_BL_BLCK
+                ) BLCK            
+                    ON BL.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1                        
+		WHERE   bl.delt_flg = 'N'          
+		AND biz_clss_cd ='M'
+		AND  air_sea_clss_cd ='S' 
+		AND <![CDATA[ISNULL(BLCK.BL_STS_CD1,BL.BL_STS_CD) <> 'HF']]>  
+        <isNotNull prepend="AND" property="etd_strdt">
+            <![CDATA[bl.etd_dt_tm >= #etd_strdt# ]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="etd_enddt">
+            <![CDATA[bl.etd_dt_tm <= #etd_enddt# ]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="pol_cd">
+            bl.pol_cd = #pol_cd#
+        </isNotNull>          
+        <isNotNull prepend="AND" property="pol_nm">
+            bl.pol_nm  like '%' + #pol_nm# + '%'            
+        </isNotNull>
+        <isNotNull prepend="AND" property="vsl_cd">
+            bl.trnk_vsl_cd = #vsl_cd#
+        </isNotNull>
+        <isNotNull prepend="AND" property="voy">
+            bl.trnk_voy = #voy#
+        </isNotNull>        
+        <isNotNull prepend="AND" property="ref_no">
+            bl.ref_no = #ref_no#
+        </isNotNull>        
+        <isNotNull prepend="AND" property="office">
+            bl.ref_ofc_cd = #office#
+        </isNotNull>
+        	) A	 
+		<![CDATA[ where A.ROWNUM > #beginIdx# AND A.ROWNUM <= #topCnt#	]]>		
+    </select>
+    
+    
+    <!--ㅡMbl  info Count 조회  -->
+    <select id="selectMblinfo_LIST_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    	/** SecFrtCorrectionAdviceSQL.xml > selectMblinfo_LIST_CNT **/
+		SELECT COUNT(*)
+		 FROM  tb_intg_bl bl               
+        		LEFT OUTER JOIN
+        		tb_bl_prnr ptn2            
+            ON   bl.intg_bl_seq = ptn2.intg_bl_seq
+            AND ptn2.bl_trdp_tp_cd = 'P03' 
+            AND ptn2.delt_flg = 'N'  
+            LEFT OUTER JOIN
+                (
+                    SELECT
+                        INTG_BL_SEQ AS INTG_BL_SEQ1,
+                        BL_STS_CD AS BL_STS_CD1 
+                    FROM
+                        TB_INTG_BL_BLCK
+                ) BLCK            
+                    ON BL.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1                        
+		WHERE   bl.delt_flg = 'N'          
+		AND biz_clss_cd ='M'
+		AND  air_sea_clss_cd ='S' 
+		AND <![CDATA[ISNULL(BLCK.BL_STS_CD1,BL.BL_STS_CD) <> 'HF']]>  
+        <isNotNull prepend="AND" property="etd_strdt">
+            <![CDATA[bl.etd_dt_tm >= #etd_strdt# ]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="etd_enddt">
+            <![CDATA[bl.etd_dt_tm <= #etd_enddt# ]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="pol_cd">
+            bl.pol_cd = #pol_cd#
+        </isNotNull>          
+        <isNotNull prepend="AND" property="vsl_cd">
+            bl.trnk_vsl_cd = #vsl_cd#
+        </isNotNull>
+        <isNotNull prepend="AND" property="voy">
+            bl.trnk_voy = #voy#
+        </isNotNull>        
+        <isNotNull prepend="AND" property="ref_no">
+            bl.ref_no = #ref_no#
+        </isNotNull>        
+        <isNotNull prepend="AND" property="office">
+            bl.ref_ofc_cd = #office#
+        </isNotNull> 
+    </select>
+    
+    
+    <select id="selectMBL_ORGINFO_READ" parameterClass="String" resultClass="com.clt.apps.fis.see.bmd.masterbl.dto.SeeMasterBLVO">	
+    /** SecFrtCorrectionAdviceSQL.xml > selectMBL_ORGINFO_READ **/
+		SELECT  bl.biz_clss_cd,  bl.air_sea_clss_cd, 
+				bl.pol_cd,		 bl.pol_nm,
+				bl.pod_cd,		 bl.pod_nm,       
+				bl.trnk_vsl_cd,
+				bl.trnk_vsl_nm,
+				bl.trnk_voy,   
+				bl.etd_dt_tm,        bl.eta_dt_tm
+	      FROM  tb_intg_bl bl
+LEFT OUTER JOIN tb_bl_prnr shp
+	        ON  shp.intg_bl_seq = bl.intg_bl_seq AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+		 
+LEFT OUTER JOIN tb_bl_prnr cne
+	        ON  cne.intg_bl_seq = bl.intg_bl_seq AND cne.bl_trdp_tp_cd = 'C01' AND shp.delt_flg = 'N'
+		 WHERE  bl.intg_bl_seq  = #value#
+	</select>
+    
+    
+    <update id="updateMBLInfo" parameterClass="com.clt.apps.fis.see.bmd.masterbl.dto.SeeMasterBLVO">
+     /** SecFrtCorrectionAdviceSQL.xml > updateMBLInfo **/
+		UPDATE  tb_intg_bl 
+           SET  
+           		<dynamic>
+        			<isNotEmpty property="trnk_vsl_cd">
+           			trnk_vsl_cd     = #trnk_vsl_cd#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="trnk_vsl_nm">
+           			trnk_vsl_nm     = #trnk_vsl_nm#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="trnk_voy">
+           			trnk_voy     = #trnk_voy#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="pol_cd">
+           			pol_cd     = #pol_cd#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="pol_nm">
+           			pol_nm     = #pol_nm#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="pod_cd">
+           			pod_cd     = #pod_cd#,   
+           			</isNotEmpty>
+           		</dynamic>           		
+           		<dynamic>
+        			<isNotEmpty property="pod_nm">
+           			pod_nm     = #pod_nm#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+				<isNotEmpty property="etd_dt_tm">
+           			etd_dt_tm     = #etd_dt_tm#,  
+           			<isEqual property="bnd_clss_cd" compareValue="O">
+      					obrd_dt_tm	= #etd_dt_tm#,
+      				</isEqual> 
+           		</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="eta_dt_tm">
+           			eta_dt_tm     = #eta_dt_tm#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isEqual property="post_dt_sync_flg" compareValue="ETA">
+      					<isNotEmpty property="eta_dt_tm">
+      						post_dt     = #eta_dt_tm#,
+      					</isNotEmpty>
+					</isEqual>
+					<isEqual property="post_dt_sync_flg" compareValue="ETD">
+      					<isNotEmpty property="etd_dt_tm">
+      						post_dt     = #etd_dt_tm#,
+      					</isNotEmpty>
+					</isEqual>
+					<isEqual property="f_eta_dt_tm" compareValue="Y">
+      					<isNotEmpty property="eta_dt_tm">
+      						f_eta_dt_tm     = #eta_dt_tm#,
+      					</isNotEmpty>
+					</isEqual>
+           		</dynamic>
+		        modi_ofc_cd 	= #proc_ofccd#,     
+		        modi_usrid  	= #proc_usrid#,     
+		        modi_tms 		= GETUTCDATE()
+         WHERE  intg_bl_seq = #rlt_intg_bl_seq#
+         AND biz_clss_cd ='M'
+		 AND  air_sea_clss_cd ='S' 
+    </update> 
+    
+    <update id="updateHBLInfo" parameterClass="com.clt.apps.fis.see.bmd.housebl.dto.SeeHouseBLVO">
+     /** SecFrtCorrectionAdviceSQL.xml > updateHBLInfo **/
+		UPDATE  tb_intg_bl 
+           SET  
+           		<dynamic>
+        			<isNotEmpty property="trnk_vsl_cd">
+           			trnk_vsl_cd     = #trnk_vsl_cd#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="trnk_vsl_nm">
+           			trnk_vsl_nm     = #trnk_vsl_nm#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="trnk_voy">
+           			trnk_voy     = #trnk_voy#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="pol_cd">
+           			pol_cd     = #pol_cd#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="pod_cd">
+           			pod_cd     = #pod_cd#,   
+           			</isNotEmpty>
+           		</dynamic>           		
+           		<dynamic>
+        			<isNotEmpty property="etd_dt_tm">
+           			etd_dt_tm     = #etd_dt_tm#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isNotEmpty property="eta_dt_tm">
+           			eta_dt_tm     = #eta_dt_tm#,   
+           			</isNotEmpty>
+           		</dynamic>
+           		<!-- #638 [Binex] Onboard is not updated (HB/L) after updating vessel schedule update -->
+           		<dynamic>
+        			<isNotEmpty property="obrd_dt_tm">
+           			obrd_dt_tm     = #obrd_dt_tm#,
+           			obrd_dt_tm1    = #obrd_dt_tm#,
+           			clean_on_board = #clean_on_board#,
+           			</isNotEmpty>
+           		</dynamic>
+           		<dynamic>
+        			<isEqual property="post_dt_sync_flg" compareValue="ETA">
+      					<isNotEmpty property="eta_dt_tm">
+      						post_dt     = #eta_dt_tm#,
+      					</isNotEmpty>
+					</isEqual>
+					<isEqual property="post_dt_sync_flg" compareValue="ETD">
+      					<isNotEmpty property="etd_dt_tm">
+      						post_dt     = #etd_dt_tm#,
+      					</isNotEmpty>
+					</isEqual>
+					<isEqual property="f_eta_dt_tm" compareValue="Y">
+      					<isNotEmpty property="eta_dt_tm">
+      						d_eta_dt_tm     = #eta_dt_tm#,
+      					</isNotEmpty>
+					</isEqual>
+           		</dynamic>
+		        modi_ofc_cd 	= #proc_ofccd#,     
+		        modi_usrid  	= #proc_usrid#,     
+		        modi_tms 		= GETUTCDATE()
+         WHERE  intg_bl_seq = cast(#intg_bl_seq# as varchar)			
+         AND biz_clss_cd ='H'
+		 AND air_sea_clss_cd ='S'
+    </update> 
+    
+    <select id="selecthbl_LIST" parameterClass="String" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.SeeHouseBLVO">
+    	/** SecFrtCorrectionAdviceSQL.xml > selecthbl_LIST **/
+		SELECT
+            intg_bl_seq 
+        FROM
+            TB_INTG_BL_RLT RLT                
+        WHERE
+            RLT.RLT_INTG_BL_SEQ = #rlt_intg_bl_seq#
+            AND RLT.DELT_FLG = 'N'
+    </select>
+
+   <select id="selectCntrMovementEvent" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sec.bmd.linerinfo.dto.CntrMvmtEvntVO">
+    
+		SELECT CD_VAL, CD_NM ,SRT_SEQ, '' EVENT_DATE,'' EVENT_LOC_CD,'' EVENT_LOC_NM
+		FROM TB_COM_CD_DTL
+		WHERE COM_CD = 'E019' AND DELT_FLG ='N' AND USE_FLG='Y' ORDER BY SRT_SEQ
+    </select>
+    
+  <!--  <select id="select_MBL_List" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sec.bmd.linerinfo.dto.MblListVO">
+		SELECT A1.*
+		FROM
+		(
+		    SELECT ROW_NUMBER() OVER(ORDER BY BL.POST_DT DESC,
+		                                      BL.MODI_TMS DESC) AS ROWNUM,
+		           COUNT(*) OVER(PARTITION BY 1) AS TOTAL_ROWS_CNT,
+		           BL.INTG_BL_SEQ,
+		           BL.BL_NO,   
+		           BL.REF_NO,   
+		           
+		           BL.POL_CD,
+		           BL.POL_NM,
+		           CNTR.CNTR_NO  ,
+		           CNTR.CNTR_TPSZ_CD,
+		           BL.TRNK_VSL_CD,
+		           BL.TRNK_VSL_NM,
+		           BL.TRNK_VOY, 
+		           VSL.LLOYD_NO,
+		           BND.INTG_BKG_SEQ
+		    FROM TB_INTG_BL BL WITH (INDEX(IDX_ETD_DT_TM), NOLOCK)
+		         JOIN TB_ADD_INFO_BND BND ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ
+		                                     AND BND.BND_CLSS_CD = 'O'  
+		                                     AND BND.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR PRNR2 ON BL.INTG_BL_SEQ = PRNR2.INTG_BL_SEQ
+		                                             AND PRNR2.BL_TRDP_TP_CD = 'P03'
+		                                             AND PRNR2.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR PRNR ON BL.INTG_BL_SEQ = PRNR.INTG_BL_SEQ
+		                                            AND PRNR.BL_TRDP_TP_CD = 'P01'
+		                                            AND PRNR.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR AGENT ON BL.INTG_BL_SEQ = AGENT.INTG_BL_SEQ
+		                                             AND AGENT.BL_TRDP_TP_CD = 'A01'
+		                                             AND AGENT.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR SHPR ON BL.INTG_BL_SEQ = SHPR.INTG_BL_SEQ
+		                                            AND SHPR.BL_TRDP_TP_CD = 'S01'
+		                                            AND SHPR.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR CNEE ON BL.INTG_BL_SEQ = CNEE.INTG_BL_SEQ
+		                                            AND CNEE.BL_TRDP_TP_CD = 'C01'
+		                                            AND CNEE.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR CARR ON BL.INTG_BL_SEQ = CARR.INTG_BL_SEQ
+		                                            AND CARR.BL_TRDP_TP_CD = 'B01'
+		                                            AND CARR.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR LNR ON BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ
+		                                           AND LNR.BL_TRDP_TP_CD = 'L01'
+		                                           AND LNR.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_TRDP CY ON BL.CY_TRDP_CD = CY.TRDP_CD
+		                                       AND CY.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_TRDP CFS ON BL.CFS_TRDP_CD = CFS.TRDP_CD
+		                                        AND CFS.DELT_FLG = 'N'
+		         LEFT OUTER JOIN
+		    (
+		        SELECT INTG_BL_SEQ AS INTG_BL_SEQ1,
+		               BL_STS_CD AS BL_STS_CD1
+		        FROM TB_INTG_BL_BLCK
+		    ) BLCK ON BL.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1
+		    LEFT OUTER JOIN TB_VSL VSL ON BL.TRNK_VSL_CD = VSL.VSL_CD
+		    JOIN TB_CNTR_LIST CNTR ON CNTR.INTG_BL_SEQ = BL.INTG_BL_SEQ
+		              AND CNTR.DELT_FLG = 'N' AND  LEN(CNTR.CNTR_NO) > 0
+		          <isNotNull property="f_cntr_no">                                                                                                                                                                                                       
+		              AND CNTR.CNTR_NO = #f_cntr_no#
+		          </isNotNull>
+		    WHERE BL.DELT_FLG = 'N'
+		          AND BL.AIR_SEA_CLSS_CD = 'S'          
+		          AND BL.BIZ_CLSS_CD = 'M'  
+		          <isNotNull property="f_mbl_no">
+				  AND  BL.BL_NO LIKE #f_mbl_no# + '%'
+				  </isNotNull>
+		          <isNotNull property="f_trnk_vsl_nm">                                                                                                                                                                                                       
+		          AND BL.TRNK_VSL_NM LIKE #f_trnk_vsl_nm# + '%'  
+		          </isNotNull>
+		          <isNotNull property="f_trnk_vsl_cd">                                                                                                                                                                                                       
+				  AND BL.TRNK_VSL_CD LIKE  #f_trnk_vsl_cd# +'%'
+				  </isNotNull>
+		          <isNotNull property="f_trnk_voy_no">                                                                                                                                                                                                       
+		          AND BL.TRNK_VOY LIKE  #f_trnk_voy_no# +'%'
+		          </isNotNull>
+				  <isNotNull property="f_pol_cd">
+				  AND  BL.POL_CD = #f_pol_cd#
+				  </isNotNull>
+				  <isNotNull property="f_pol_nm">
+				  AND  BL.POL_NM LIKE  #f_pol_nm# + '%'
+				  </isNotNull>	          
+		) A1   
+    </select> -->
+    
+    <!-- #3764 [BINEX] CONTAINER MOVEMENT EVENT UPDATE TO SHOW 315 HISTORY -->
+       <select id="select_MBL_List" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sec.bmd.linerinfo.dto.MblListVO">
+		SELECT 
+		/* 변경 부분 ( Carrier Bkg - Post Date 미존재 ) */
+		ROW_NUMBER() OVER(ORDER BY A1.ORDER_TMS DESC) AS ROWNUM,
+		           COUNT(*) OVER(PARTITION BY 1) AS TOTAL_ROWS_CNT
+		,A1.*
+		FROM (
+			/* BL Step CNTR */
+		    (SELECT 
+		           BL.INTG_BL_SEQ,
+		           BL.BL_NO,   
+		           BL.REF_NO,   
+		           
+		           BL.POL_CD,
+		           BL.POL_NM,
+		           CNTR.CNTR_NO  ,
+		           CNTR.CNTR_TPSZ_CD,
+		           BL.TRNK_VSL_CD,
+		           BL.TRNK_VSL_NM,
+		           BL.TRNK_VOY, 
+		           VSL.LLOYD_NO,
+		           BND.INTG_BKG_SEQ
+
+		           	/* 추가 부분  */
+		           ,BL.LNR_BKG_NO
+				   ,BL.POST_DT AS ORDER_TMS  
+		    FROM TB_INTG_BL BL WITH (INDEX(IDX_ETD_DT_TM), NOLOCK)
+		         JOIN TB_ADD_INFO_BND BND ON BL.INTG_BL_SEQ = BND.INTG_BL_SEQ
+		                                     AND BND.BND_CLSS_CD = 'O'  
+		                                     AND BND.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR PRNR2 ON BL.INTG_BL_SEQ = PRNR2.INTG_BL_SEQ
+		                                             AND PRNR2.BL_TRDP_TP_CD = 'P03'
+		                                             AND PRNR2.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR PRNR ON BL.INTG_BL_SEQ = PRNR.INTG_BL_SEQ
+		                                            AND PRNR.BL_TRDP_TP_CD = 'P01'
+		                                            AND PRNR.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR AGENT ON BL.INTG_BL_SEQ = AGENT.INTG_BL_SEQ
+		                                             AND AGENT.BL_TRDP_TP_CD = 'A01'
+		                                             AND AGENT.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR SHPR ON BL.INTG_BL_SEQ = SHPR.INTG_BL_SEQ
+		                                            AND SHPR.BL_TRDP_TP_CD = 'S01'
+		                                            AND SHPR.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR CNEE ON BL.INTG_BL_SEQ = CNEE.INTG_BL_SEQ
+		                                            AND CNEE.BL_TRDP_TP_CD = 'C01'
+		                                            AND CNEE.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR CARR ON BL.INTG_BL_SEQ = CARR.INTG_BL_SEQ
+		                                            AND CARR.BL_TRDP_TP_CD = 'B01'
+		                                            AND CARR.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_BL_PRNR LNR ON BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ
+		                                           AND LNR.BL_TRDP_TP_CD = 'L01'
+		                                           AND LNR.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_TRDP CY ON BL.CY_TRDP_CD = CY.TRDP_CD
+		                                       AND CY.DELT_FLG = 'N'
+		         LEFT OUTER JOIN TB_TRDP CFS ON BL.CFS_TRDP_CD = CFS.TRDP_CD
+		                                        AND CFS.DELT_FLG = 'N'
+		         LEFT OUTER JOIN
+		    (
+		        SELECT INTG_BL_SEQ AS INTG_BL_SEQ1,
+		               BL_STS_CD AS BL_STS_CD1
+		        FROM TB_INTG_BL_BLCK
+		    ) BLCK ON BL.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1
+		    LEFT OUTER JOIN TB_VSL VSL ON BL.TRNK_VSL_CD = VSL.VSL_CD
+		    JOIN TB_CNTR_LIST CNTR ON CNTR.INTG_BL_SEQ = BL.INTG_BL_SEQ
+		              AND CNTR.DELT_FLG = 'N' AND  LEN(CNTR.CNTR_NO) > 0
+		    WHERE BL.DELT_FLG = 'N'
+		          AND BL.AIR_SEA_CLSS_CD = 'S'          
+		          AND BL.BIZ_CLSS_CD = 'M'  
+			) 
+
+		UNION ALL
+			/* Carrier Booking Step CNTR */
+			( SELECT
+	            BKG.INTG_BL_SEQ,
+	            BKG.BL_NO,
+	            BKG.CUST_REF_NO AS REF_NO,
+	            BKG.POL_CD,
+	            BKG.POL_NM,
+	            BKG_CNTR.CNTR_NO  ,
+	            BKG_CNTR.CNTR_TPSZ_CD,
+	            BKG.TRNK_VSL_CD,
+	            BKG.TRNK_VSL_NM,
+	            BKG.TRNK_VOY,
+				VSL.LLOYD_NO,
+				BKG.BKG_SEQ
+	
+				,BKG.LNR_BKG_NO
+				,BKG.MODI_TMS AS ORDER_TMS
+			  FROM TB_BKG BKG
+			  	JOIN TB_BKG_CNTR_LIST BKG_CNTR ON BKG_CNTR.BKG_SEQ = BKG.BKG_SEQ
+				LEFT OUTER JOIN TB_VSL VSL ON BKG.TRNK_VSL_CD = VSL.VSL_CD 
+			  WHERE BKG.DELT_FLG = 'N'                 
+				AND BKG_CNTR.DELT_FLG = 'N' AND  LEN(BKG_CNTR.CNTR_NO) > 0
+	            AND BKG.BIZ_CLSS_CD = 'M'
+				AND BKG.BKG_STS_CD NOT IN ( 'BL', 'CN', 'RJ' )           			
+			) 
+	) A1	 
+	WHERE 1=1			
+		  <isNotNull property="f_mbl_no">
+		  AND  BL_NO LIKE #f_mbl_no# + '%'
+		  </isNotNull>
+          <isNotNull property="f_trnk_vsl_nm">                                                                                                                                                                                                       
+          AND TRNK_VSL_NM LIKE #f_trnk_vsl_nm# + '%'  
+          </isNotNull>
+          <isNotNull property="f_trnk_vsl_cd">                                                                                                                                                                                                       
+		  AND TRNK_VSL_CD LIKE  #f_trnk_vsl_cd# +'%'
+		  </isNotNull>
+          <isNotNull property="f_trnk_voy_no">                                                                                                                                                                                                       
+          AND TRNK_VOY LIKE  #f_trnk_voy_no# +'%'
+          </isNotNull>
+		  <isNotNull property="f_pol_cd">
+		  AND  POL_CD = #f_pol_cd#
+		  </isNotNull>
+		  <isNotNull property="f_pol_nm">
+		  AND  POL_NM LIKE  #f_pol_nm# + '%'
+		  </isNotNull>	  
+		  <isNotNull property="f_lnr_bkg_no">                                                                                                                                                                                                       
+          AND LNR_BKG_NO = #f_lnr_bkg_no#
+    	  </isNotNull>
+		  <isNotNull property="f_cntr_no">                                                                                                                                                                                                       
+          AND CNTR_NO = #f_cntr_no#
+    	  </isNotNull>
+    </select>
+
+
+   <insert id="insertCntrMvmtEvent" parameterClass="java.util.HashMap">
+    	/* SecFrtCorrectionAdviceSQL.xml > insertCntrMvmtEvent */
+		INSERT INTO tb_edi_315(																	                 
+			carrier_nm,		event_status,	event_date,		 
+			event_loc_cd,	event_loc_nm,		cntr_no,		cntr_tp, 	   
+			voyage_no,		vsl_carr,			vsl_lloyd_cd,	vsl_nm,			lnr_bkg_no,		   
+			mbl_no,			por_loc_cd,		    por_loc_cd_tp,	por_loc_nm,
+			pol_loc_cd,		pol_loc_cd_tp,	    pol_loc_nm,
+			pod_loc_cd,		pod_loc_cd_tp,	    pod_loc_nm,		
+			del_loc_cd,		del_loc_cd_tp,	    del_loc_nm,		
+			rgst_tms,			proc_flg					                           		
+		)VALUES(																			                           
+			#carrier_nm#,	#event_status#,	#event_date#,
+			#event_loc_cd#,	#event_loc_nm#, #cntr_no#,	     #cntr_tp#, 					 
+			#voyage_no#,	#vsl_carr#,	    #vsl_lloyd_cd#,	 #vsl_nm#,	 #lnr_bkg_no#,					 
+			#mbl_no#,	    #por_loc_cd#,	#por_loc_cd_tp#, #por_loc_nm#,	
+			#pol_loc_cd#,   #pol_loc_cd_tp#,	   #pol_loc_nm#,
+			#pod_loc_cd#,	#pod_loc_cd_tp#,	   #pod_loc_nm#,		
+			#del_loc_cd#,	#del_loc_cd_tp#,	   #del_loc_nm#,				 
+			GETDATE(),   'Y' )
+    </insert>
+    
+    <update id ="updateMvntEvntTb_bkg_cntr_list" parameterClass="java.util.HashMap">
+	 /** SecFrtCorrectionAdviceSQL.xml > updateTb_bkg_cntr_list **/      
+        UPDATE  TB_BKG_CNTR_LIST 
+           SET  
+            <dynamic>
+        	<isNotEmpty property="mty_out_dt_tm">
+                MTY_OUT_DT_TM 	= #mty_out_dt_tm#, 
+            </isNotEmpty>
+            </dynamic>
+            <dynamic>
+        	<isNotEmpty property="full_rtn_dt_tm">
+			    FULL_RTN_DT_TM 	= #full_rtn_dt_tm#,
+		    </isNotEmpty>
+            </dynamic>	     
+                MODI_USRID 		= #proc_usrid#,    
+		        MODI_OFC_CD 	= #proc_ofccd#,   
+		        MODI_TMS		= GETUTCDATE() 
+		 WHERE  BKG_SEQ         = #bkg_seq#  
+		   AND  CNTR_NO 		= #cntr_no# 	
+	</update>
+	<select id="selectTB_EDI_315" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT COUNT(*) 
+		FROM TB_EDI_315
+		WHERE 1=1
+		
+		<isNotEmpty property="mbl_no">
+		AND MBL_NO = #mbl_no#
+		</isNotEmpty>
+		
+		<isNotEmpty property="cntr_no">		
+		AND CNTR_NO =  #cntr_no#
+		</isNotEmpty>
+
+		<isNotEmpty property="lnr_bkg_no">		
+		AND LNR_BKG_NO =  #lnr_bkg_no#
+		</isNotEmpty>		
+		
+		AND EVENT_STATUS = #event_status#	
+	</select>
+	<select id="selectTB_EDI_315_HISTORY" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sec.bmd.linerinfo.dto.TbEdi315VO">
+		SELECT CASE 
+				   WHEN FILE_NM IS NULL     THEN 'MANUAL'
+				   WHEN FILE_NM IS NOT NULL THEN 'EDI'
+			   END AS SRC,
+			   T3.MBL_NO,T3.LNR_BKG_NO, T3.EVENT_STATUS,T3.EVENT_DATE,T3.EVENT_LOC_NM,T3.CNTR_NO, T3.CNTR_TP, T3.VOYAGE_NO, T3.VSL_NM, 
+		       T3.POR_LOC_NM, T3.POL_LOC_NM, T3.POD_LOC_NM, T3.DEL_LOC_NM,T3.RGST_TMS    
+		FROM TB_EDI_315 T3
+		WHERE 1=1
+		
+		<isNotEmpty property="f_h_mbl_no">		
+		AND MBL_NO = #f_h_mbl_no#
+		</isNotEmpty>
+		
+		<isNotEmpty property="f_h_cntr_no">	
+		AND CNTR_NO =  #f_h_cntr_no#	
+		</isNotEmpty>
+		
+		<isNotEmpty property="f_h_lnr_bkg_no">	
+		AND LNR_BKG_NO =  #f_h_lnr_bkg_no#	
+		</isNotEmpty>
+		
+		ORDER BY T3.EVENT_DATE DESC
+	</select>
+	
+</sqlMap>    

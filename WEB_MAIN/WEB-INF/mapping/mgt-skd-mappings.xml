@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### Mac Address Management ####  -->
+    <url-mapping url="MGT_SKD_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.skd.mod.event.MGT_SKD_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_SKD_0010.screen"/>
+            <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_SKD_0010GS.clt" screen="MGT_SKD_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.skd.mod.event.MGT_SKD_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mgt.skd.mod.event.MgtSkdModEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mgt.skd.mod.MgtSkdModSC</service-action-class>
+    </event-mapping>
+       
+</mappings>

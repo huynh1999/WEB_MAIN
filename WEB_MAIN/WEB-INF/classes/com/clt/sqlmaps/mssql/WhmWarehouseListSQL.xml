@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="whm.warehouse.list">
+	<typeAlias alias="HashMap" type="java.util.HashMap"/>
+	<typeAlias alias="WhLstVO" type="com.clt.apps.fis.whm.warehouse.list.dto.WhLstVO"/>
+	<select id = "searchWarehouseListRSQL" parameterClass="HashMap" resultClass="WhLstVO">
+		/* WhmWarehouseListSQL.xml > searchWarehouseListRSQL */
+		SELECT 
+		   WH_CD,
+		   WH_NM,
+		   WH_ALS_NM,
+		   WH_ADDR,
+		   WH_CTY_NM,
+		   WH_STE_CD,
+		   WH_PHN_NO,
+		   WH_FAX_NO
+		FROM WHM_WH 
+		WHERE 1=1
+			AND USE_FLG = #use_flg#
+		<isNotEmpty property="wh_cd">
+			AND	WH_CD LIKE '%' + UPPER(#wh_cd#) + '%'
+		</isNotEmpty>
+		<isNotEmpty property="wh_nm">
+			AND	WH_NM LIKE '%' + UPPER(#wh_nm#) + '%'
+		</isNotEmpty>
+		<isNotEmpty property="wh_als_nm">
+			AND	WH_ALS_NM LIKE '%' + UPPER(#wh_als_nm#) + '%'
+		</isNotEmpty>
+	</select>
+</sqlMap>

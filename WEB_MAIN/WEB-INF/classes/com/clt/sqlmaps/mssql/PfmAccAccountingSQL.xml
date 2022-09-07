@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pfm.acc.accounting">
+	
+	<typeAlias alias="agtStmtVO" 	type="com.clt.apps.fis.pfm.acc.accounting.dto.AgentStatementVO"/>
+	<typeAlias alias="locStmtVO" 	type="com.clt.apps.fis.pfm.acc.accounting.dto.LocalStatementVO"/>
+	<typeAlias alias="incStmtVO" 	type="com.clt.apps.fis.pfm.acc.accounting.dto.IncomeStatementVO"/>
+	
+	<!-- 현재 사용중인 시스템(서버)의 Office 의 정보를 조회   -->
+	<!-- #2627 - [CLT] ACCT REPORT - ONE CURRENCY OPTION CURRENCY SETUP - item 2 by thoa.dien 170828 -->
+    <select id="getCurSysOfcInfo" resultClass="agtStmtVO">
+    /* PfmAccAccountingSQL.xml > pfm.acc.accounting.getCurSysOfcInfo */
+		SELECT	ofc_cd,			trf_cur_cd,			agent_stmt_rmk,			locl_stmt_rmk,     locl_curr_cd
+		  FROM	tb_ofc
+		 WHERE	ofc_cd = (SELECT pre_fix FROM tb_seq WHERE seq_type = 'SYS_OFC_CD')
+    </select>
+	
+    <!-- Deposit InvoiceList 조회  -->
+    <!-- #20641 : [BINEX]Agent Statement jsjang 2013.9.9 imp_ref_no add -->
+    <!-- #27472 [AIF] Addition of Filing No. on Agent leesy 2014.05.09 bl.ref_no add -->
+    <select id="searchAgentCrDbList" parameterClass="java.util.HashMap" resultClass="agtStmtVO">
+    	/* PfmAccAccountingSQL.xml > searchAgentCrDbList */
+		SELECT	inv.inv_seq,			
+				<!-- #2515 [PERFECT] Agent Statement "Attached CR/DR Note(s) & Invoice(s)" option  -->
+		        CASE 
+		            WHEN inv.sell_buy_tp_cd = 'B' THEN idt.buy_inv_no
+		            ELSE idt.inv_no
+		        END AS inv_no,  				
+				CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.ref_no ELSE bl.ref_no end as ref_no,
+				CASE WHEN inv.sell_buy_tp_cd = 'C' THEN idt.bal_amt * -1 ELSE idt.bal_amt END AS bal_amt,
+				CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.hbl_no ELSE bl.bl_no end as bl_no,		
+				SUBSTRING(CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.etd_dt_tm ELSE bl.etd_dt_tm end,1,8) AS etd_dt_tm,
+        		SUBSTRING(CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.eta_dt_tm ELSE bl.eta_dt_tm end,1,8) AS eta_dt_tm
+				, bl.imp_ref_no				
+		  FROM	tb_inv inv			
+			JOIN tb_inv_dtl idt
+			ON idt.inv_seq = inv.inv_seq
+			AND idt.delt_flg = 'N'			
+			JOIN tb_trdp agt
+			ON agt.trdp_cd = inv.trdp_cd			
+			LEFT OUTER JOIN tb_frt frt
+			 ON frt.inv_seq = idt.inv_seq
+			AND frt.delt_flg = 'N'
+			LEFT OUTER JOIN tb_intg_bl bl			
+			 ON bl.intg_bl_seq = frt.intg_bl_seq
+			AND bl.delt_flg = 'N'
+			LEFT OUTER JOIN tb_oth_sales ots
+			ON ots.oth_seq = frt.oth_seq
+			
+		 WHERE	inv.inv_seq = idt.inv_seq
+		   AND	inv.trdp_cd = #trdp_cd#
+		   AND	inv.sell_buy_tp_cd IN ($sell_buy_tp$) <!-- #433 [LOGIFOCUS] AGENT STATEMENT SEARCH DOESN'T SHOW OTHER FILE'S INVOICES -->
+		   AND	inv.delt_flg = 'N'
+		   AND	idt.delt_flg = 'N'	 
+		   AND	inv.inv_dept_cd IN ($dpt_tp$)
+			   
+		   <isNotEqual property="curr_cd" compareValue="">
+		   AND idt.inv_aply_curr_cd = #curr_cd#
+		   </isNotEqual>
+		   <isNotEqual property="ofc_cd" compareValue="">
+		   	AND	CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.ofc_cd ELSE bl.ref_ofc_cd END = #ofc_cd#
+		   </isNotEqual>
+		   <isEqual property="agt_flg" compareValue="Y">
+			   <isNotEqual property="trdp_cd" compareValue="">
+			   	AND agt.trdp_cd = #trdp_cd#
+			   </isNotEqual>
+		   </isEqual>
+		   <isEqual property="agt_flg" compareValue="">
+			   	AND dbo.FC_ISNULL(agt.acct_cd,'') != ''
+		   	   <isNotEqual property="acct_cd" compareValue="">
+			   	AND agt.acct_cd = #acct_cd#
+		   	   </isNotEqual>
+		   </isEqual>
+		   <isEqual property="paid_flg" compareValue="O">
+		   	<![CDATA[ AND idt.bal_amt != 0 ]]>
+		   </isEqual>
+		   <isEqual property="paid_flg" compareValue="P">
+		   	AND idt.bal_amt = 0
+		   </isEqual>
+		   <isEqual property="date_tp" compareValue="post">
+		   	AND	idt.inv_post_dt BETWEEN #per_strdt# AND #per_enddt#
+		   </isEqual>
+		   <isEqual property="date_tp" compareValue="etd">
+		   	AND	CASE WHEN inv.inv_dept_cd = 'OTH' THEN DBO.FC_ISNULL(ots.etd_dt_tm,idt.inv_post_dt)
+		   			 ELSE DBO.FC_ISNULL(SUBSTRING(bl.etd_dt_tm,1,8),idt.inv_post_dt) END
+		   			 BETWEEN #per_strdt# AND #per_enddt#
+		   </isEqual>
+		   <isEqual property="date_tp" compareValue="inv">
+		   	AND	idt.inv_dt BETWEEN #per_strdt# AND #per_enddt#
+		   </isEqual>
+		   <isEqual property="date_tp" compareValue="eta">
+		    AND	CASE WHEN inv.inv_dept_cd = 'OTH' THEN DBO.FC_ISNULL(ots.eta_dt_tm,idt.inv_post_dt)
+		   			 ELSE DBO.FC_ISNULL(SUBSTRING(bl.eta_dt_tm,1,8),idt.inv_post_dt) END
+		   			 BETWEEN #per_strdt# AND #per_enddt#
+		   </isEqual>
+		   
+		GROUP BY inv.inv_seq, idt.inv_no, idt.buy_inv_no<!-- #2515 -->,inv.inv_dept_cd, bl.ref_no, ots.ref_no, inv.sell_buy_tp_cd, idt.bal_amt, bl.bl_no, ots.hbl_no, bl.etd_dt_tm, ots.etd_dt_tm, bl.eta_dt_tm, ots.eta_dt_tm, bl.imp_ref_no   
+		ORDER BY idt.inv_no ASC
+    </select>
+    
+    <!-- Agent Statement Print List 조회     -->
+    <!-- #20641 : [BINEX]Agent Statement -   add sell_buy_tp_cd , jsjang 2013.9.16   -->
+    <select id="searchAgentStatementPrtList" parameterClass="java.util.HashMap" resultClass="agtStmtVO">
+    	/* PfmAccAccountingSQL.xml > searchAgentStatementPrtList */
+		SELECT	inval.trdp_cd,		inval.inv_seq,		inval.curr_cd,		inval.acct_cd
+			, inval.sell_buy_tp_cd, 	inval.intg_bl_seq, 		inval.oth_seq
+			
+		 FROM(
+
+			SELECT	
+					<isEqual property="agt_flg" compareValue="Y">
+						agt.trdp_cd,
+						MAX(agt.locl_nm) AS locl_nm,
+					</isEqual>
+					<isEqual property="agt_flg" compareValue="">
+						agt.acct_cd AS trdp_cd,
+						'' AS locl_nm,
+					</isEqual>					
+					idt.inv_seq, idt.inv_aply_curr_cd AS curr_cd,
+					agt.acct_cd,
+			
+					CASE WHEN inv.sell_buy_tp_cd = 'C' AND inv.inv_dept_cd NOT IN ('OTH') AND
+					(SELECT COUNT(xinv.inv_seq) FROM tb_frt xfrt, tb_inv_dtl xidt, tb_inv xinv
+					WHERE xfrt.intg_bl_seq = bl.intg_bl_seq
+					AND xfrt.inv_seq = xidt.inv_seq AND xidt.inv_seq = xinv.inv_seq
+					AND xinv.sell_buy_tp_cd = 'S' AND xidt.bal_amt != 0) != 0
+					THEN 'N'
+					WHEN inv.sell_buy_tp_cd = 'C' AND inv.inv_dept_cd IN ('OTH') AND
+					(SELECT COUNT(xinv.inv_seq) FROM tb_frt xfrt, tb_inv_dtl xidt, tb_inv xinv
+					WHERE xfrt.oth_seq = ots.oth_seq
+					AND xfrt.inv_seq = xidt.inv_seq AND xidt.inv_seq = xinv.inv_seq
+					AND xinv.sell_buy_tp_cd = 'S' AND xidt.bal_amt != 0) != 0
+					THEN 'N'
+					ELSE 'Y' END AS chk_flg,
+					
+					CASE WHEN inv.inv_dept_cd IN ('AIM','AIH') THEN 1 WHEN inv.inv_dept_cd IN ('AOM','AOH') THEN 2
+					WHEN inv.inv_dept_cd IN ('SIM','SIH') THEN 3 WHEN inv.inv_dept_cd IN ('SOM','SOH') THEN 4
+					WHEN inv.inv_dept_cd IN ('OTH') THEN 5 ELSE 9 END AS rank_no
+					
+					, inv.sell_buy_tp_cd
+					, bl.intg_bl_seq
+					, ots.oth_seq
+					
+			  FROM	tb_inv inv
+			
+			JOIN tb_inv_dtl idt
+			ON idt.inv_seq = inv.inv_seq
+			AND idt.delt_flg = 'N'
+			
+			JOIN tb_trdp agt
+			ON agt.trdp_cd = inv.trdp_cd
+			
+			LEFT OUTER JOIN tb_frt frt
+			ON frt.inv_seq = inv.inv_seq
+			AND frt.delt_flg = 'N'
+			
+			LEFT OUTER JOIN tb_intg_bl bl
+			ON bl.intg_bl_seq = frt.intg_bl_seq
+			
+			LEFT OUTER JOIN tb_oth_sales ots
+			ON ots.oth_seq = frt.oth_seq
+			
+			 WHERE	inv.delt_flg = 'N'
+			   AND	inv.sell_buy_tp_cd IN ('D','C')
+			   AND	inv.inv_dept_cd IN ($dpt_tp$)
+			   
+			   <isNotEqual property="curr_cd" compareValue="">
+			   AND idt.inv_aply_curr_cd = #curr_cd#
+			   </isNotEqual>
+			   <isNotEqual property="ofc_cd" compareValue="">
+			   	AND	CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.ofc_cd ELSE bl.ref_ofc_cd END = #ofc_cd#
+			   </isNotEqual>
+			   <isEqual property="agt_flg" compareValue="Y">
+				   <isNotEqual property="trdp_cd" compareValue="">
+				   	AND agt.trdp_cd = #trdp_cd#
+				   </isNotEqual>
+			   </isEqual>
+			   <isEqual property="agt_flg" compareValue="">
+				   	AND dbo.FC_ISNULL(agt.acct_cd,'') != ''
+			   	   <isNotEqual property="acct_cd" compareValue="">
+				   	AND agt.acct_cd = #acct_cd#
+			   	   </isNotEqual>
+			   </isEqual>
+			   <isEqual property="paid_flg" compareValue="O">
+			   	<![CDATA[ AND idt.bal_amt != 0 ]]>
+			   </isEqual>
+			   <isEqual property="paid_flg" compareValue="P">
+			   	AND idt.bal_amt = 0
+			   </isEqual>
+			   <isEqual property="date_tp" compareValue="post">
+			   	AND	idt.inv_post_dt BETWEEN #per_strdt# AND #per_enddt#
+			   </isEqual>
+			   <isEqual property="date_tp" compareValue="etd">
+			   	AND	CASE WHEN inv.inv_dept_cd = 'OTH' THEN DBO.FC_ISNULL(ots.etd_dt_tm,idt.inv_post_dt)
+			   			 ELSE DBO.FC_ISNULL(SUBSTRING(bl.etd_dt_tm,1,8),idt.inv_post_dt) END
+			   			 BETWEEN #per_strdt# AND #per_enddt#
+			   </isEqual>
+			   <isEqual property="date_tp" compareValue="inv">
+			   	AND	idt.inv_dt BETWEEN #per_strdt# AND #per_enddt#
+			   </isEqual>
+			   <isEqual property="date_tp" compareValue="eta">
+			    AND	CASE WHEN inv.inv_dept_cd = 'OTH' THEN DBO.FC_ISNULL(ots.eta_dt_tm,idt.inv_post_dt)
+			   			 ELSE DBO.FC_ISNULL(SUBSTRING(bl.eta_dt_tm,1,8),idt.inv_post_dt) END
+			   			 BETWEEN #per_strdt# AND #per_enddt#
+			   </isEqual>
+			
+			GROUP BY 
+				<isEqual property="agt_flg" compareValue="Y">
+					agt.trdp_cd, agt.acct_cd,
+				</isEqual>
+				<isEqual property="agt_flg" compareValue="">
+					agt.acct_cd, 
+				</isEqual>
+					idt.inv_seq, idt.inv_aply_curr_cd, inv.inv_dept_cd,
+					 bl.intg_bl_seq, ots.oth_seq, inv.sell_buy_tp_cd, idt.bal_amt
+					,bl.intg_bl_seq
+					,ots.oth_seq
+			<isEqual property="agt_flg" compareValue="">
+			<isEqual property="acct_cd" compareValue="">
+			UNION ALL
+			
+			SELECT	
+					agt.trdp_cd,
+					MAX(agt.locl_nm) AS locl_nm,
+					idt.inv_seq, idt.inv_aply_curr_cd AS curr_cd,
+					'' AS acct_cd,
+			
+					CASE WHEN inv.sell_buy_tp_cd = 'C' AND inv.inv_dept_cd NOT IN ('OTH') AND
+					(SELECT COUNT(xinv.inv_seq) FROM tb_frt xfrt, tb_inv_dtl xidt, tb_inv xinv
+					WHERE xfrt.intg_bl_seq = bl.intg_bl_seq
+					AND xfrt.inv_seq = xidt.inv_seq AND xidt.inv_seq = xinv.inv_seq
+					AND xinv.sell_buy_tp_cd = 'S' AND xidt.bal_amt != 0) != 0
+					THEN 'N'
+					WHEN inv.sell_buy_tp_cd = 'C' AND inv.inv_dept_cd IN ('OTH') AND
+					(SELECT COUNT(xinv.inv_seq) FROM tb_frt xfrt, tb_inv_dtl xidt, tb_inv xinv
+					WHERE xfrt.oth_seq = ots.oth_seq
+					AND xfrt.inv_seq = xidt.inv_seq AND xidt.inv_seq = xinv.inv_seq
+					AND xinv.sell_buy_tp_cd = 'S' AND xidt.bal_amt != 0) != 0
+					THEN 'N'
+					ELSE 'Y' END AS chk_flg,
+					
+					CASE WHEN inv.inv_dept_cd IN ('AIM','AIH') THEN 1 WHEN inv.inv_dept_cd IN ('AOM','AOH') THEN 2
+					WHEN inv.inv_dept_cd IN ('SIM','SIH') THEN 3 WHEN inv.inv_dept_cd IN ('SOM','SOH') THEN 4
+					WHEN inv.inv_dept_cd IN ('OTH') THEN 5 ELSE 9 END AS rank_no
+					
+					, inv.sell_buy_tp_cd
+					, bl.intg_bl_seq
+					, ots.oth_seq
+					
+			  FROM	tb_inv inv
+			
+			JOIN tb_inv_dtl idt
+			ON idt.inv_seq = inv.inv_seq
+			AND idt.delt_flg = 'N'
+			
+			JOIN tb_trdp agt
+			ON agt.trdp_cd = inv.trdp_cd
+			
+			LEFT OUTER JOIN tb_frt frt
+			ON frt.inv_seq = inv.inv_seq
+			AND frt.delt_flg = 'N'
+			
+			LEFT OUTER JOIN tb_intg_bl bl
+			ON bl.intg_bl_seq = frt.intg_bl_seq
+			
+			LEFT OUTER JOIN tb_oth_sales ots
+			ON ots.oth_seq = frt.oth_seq
+			
+			 WHERE	inv.delt_flg = 'N'
+			   AND	inv.sell_buy_tp_cd IN ('D','C')
+			   AND	inv.inv_dept_cd IN ($dpt_tp$)
+			   AND	agt.acct_cd IS NULL
+			   
+			   <isNotEqual property="curr_cd" compareValue="">
+			   AND idt.inv_aply_curr_cd = #curr_cd#
+			   </isNotEqual>
+			   <isNotEqual property="ofc_cd" compareValue="">
+			   	AND	CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.ofc_cd ELSE bl.ref_ofc_cd END = #ofc_cd#
+			   </isNotEqual>
+			   <isEqual property="paid_flg" compareValue="O">
+			   	<![CDATA[ AND idt.bal_amt != 0 ]]>
+			   </isEqual>
+			   <isEqual property="paid_flg" compareValue="P">
+			   	AND idt.bal_amt = 0
+			   </isEqual>
+			   <isEqual property="date_tp" compareValue="post">
+			   	AND	idt.inv_post_dt BETWEEN #per_strdt# AND #per_enddt#
+			   </isEqual>
+			   <isEqual property="date_tp" compareValue="etd">
+			   	AND	CASE WHEN inv.inv_dept_cd = 'OTH' THEN DBO.FC_ISNULL(ots.etd_dt_tm,idt.inv_post_dt)
+			   			 ELSE DBO.FC_ISNULL(SUBSTRING(bl.etd_dt_tm,1,8),idt.inv_post_dt) END
+			   			 BETWEEN #per_strdt# AND #per_enddt#
+			   </isEqual>
+			   <isEqual property="date_tp" compareValue="inv">
+			   	AND	idt.inv_dt BETWEEN #per_strdt# AND #per_enddt#
+			   </isEqual>
+			   <isEqual property="date_tp" compareValue="eta">
+			    AND	CASE WHEN inv.inv_dept_cd = 'OTH' THEN DBO.FC_ISNULL(ots.eta_dt_tm,idt.inv_post_dt)
+			   			 ELSE DBO.FC_ISNULL(SUBSTRING(bl.eta_dt_tm,1,8),idt.inv_post_dt) END
+			   			 BETWEEN #per_strdt# AND #per_enddt#
+			   </isEqual>
+			
+			GROUP BY agt.trdp_cd,
+					 idt.inv_seq, idt.inv_aply_curr_cd, inv.inv_dept_cd,
+					 bl.intg_bl_seq, ots.oth_seq, inv.sell_buy_tp_cd, idt.bal_amt
+					 , bl.intg_bl_seq
+					 , ots.oth_seq
+			</isEqual>
+			</isEqual>
+		)inval
+		<isEqual property="locl_rcv_flg" compareValue="Y">
+	 	 WHERE	inval.chk_flg = #locl_rcv_flg#
+	 	 </isEqual>
+		<isEqual property="agt_flg" compareValue="Y">
+			ORDER BY inval.locl_nm, inval.trdp_cd, inval.curr_cd, inval.rank_no
+		</isEqual>
+		<isEqual property="agt_flg" compareValue="">
+			ORDER BY inval.acct_cd, inval.locl_nm, inval.trdp_cd, inval.curr_cd, inval.rank_no
+		</isEqual>
+	</select>
+    
+    <!-- Local Statement Print List 조회     -->
+    <select id="searchLocalStatementPrtList" parameterClass="java.util.HashMap" resultClass="locStmtVO">
+    	/* PfmAccAccountingSQL.xml > searchLocalStatementPrtList */
+		SELECT	cust.trdp_cd, cust.trdp_cd+'^^'+idt.inv_aply_curr_cd AS curr_cd,
+				CASE WHEN inv.sell_buy_tp_cd = 'S' THEN idt.inv_seq ELSE '' END AS inv_seq
+				,bl.intg_bl_seq
+				,ots.oth_seq
+				,wms.wm_doc_seq			
+		  FROM	tb_inv inv
+			
+		  JOIN	tb_inv_dtl idt
+			ON	idt.inv_seq = inv.inv_seq
+		   AND	idt.delt_flg = 'N'
+			
+		  JOIN	tb_trdp cust
+			ON	cust.trdp_cd = inv.trdp_cd
+			
+LEFT OUTER JOIN tb_frt frt
+			ON	frt.inv_seq = inv.inv_seq
+		   AND	frt.delt_flg = 'N'
+			
+LEFT OUTER JOIN tb_intg_bl bl
+			ON	bl.intg_bl_seq = frt.intg_bl_seq
+			
+LEFT OUTER JOIN tb_oth_sales ots
+			ON	ots.oth_seq = frt.oth_seq
+LEFT OUTER JOIN tb_wm_doc_mst wms
+			ON	wms.wm_doc_seq = frt.wms_seq			
+		 WHERE	inv.delt_flg = 'N'
+		<isNotEqual property="curr_cd" compareValue="">
+		   AND	idt.inv_aply_curr_cd = #curr_cd#
+		</isNotEqual>
+		   AND	inv.inv_dept_cd IN ($dpt_tp$)
+		<isNotEqual property="trdp_cd" compareValue="">
+			AND	inv.trdp_cd = #trdp_cd#
+		</isNotEqual>
+		<isNotEqual property="ofc_cd" compareValue="">
+			AND CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.ofc_cd ELSE bl.ref_ofc_cd END = #ofc_cd#
+		</isNotEqual>
+		<isEqual property="per_tp1" compareValue="A">
+			<isEqual property="per_tp2" compareValue="P">
+				<![CDATA[ AND idt.inv_post_dt <= #per_dt# ]]>
+			</isEqual>
+			<isEqual property="per_tp2" compareValue="D">
+				<![CDATA[ AND idt.inv_due_dt <= #per_dt# ]]>
+			</isEqual>
+			<isEqual property="per_tp2" compareValue="I">
+				<![CDATA[ AND idt.inv_dt <= #per_dt# ]]>
+			</isEqual>
+		</isEqual>
+		<isEqual property="per_tp1" compareValue="P">
+			<isEqual property="per_tp2" compareValue="P">
+				AND idt.inv_post_dt BETWEEN #per_strdt# AND #per_enddt#
+			</isEqual>
+			<isEqual property="per_tp2" compareValue="D">
+				AND idt.inv_due_dt BETWEEN #per_strdt# AND #per_enddt#
+			</isEqual>
+			<isEqual property="per_tp2" compareValue="I">
+				AND idt.inv_dt BETWEEN #per_strdt# AND #per_enddt#
+			</isEqual>
+		</isEqual>
+		<isEqual property="rpt_tp" compareValue="ALL">
+			AND (
+				inv.sell_buy_tp_cd = 'S'
+				OR
+				(inv.sell_buy_tp_cd = 'B' AND inv.air_sea_clss_cd != 'G')
+				)
+		</isEqual>
+		<isEqual property="rpt_tp" compareValue="L">
+			AND	inv.sell_buy_tp_cd = 'S'
+		</isEqual>
+		<isEqual property="rpt_tp" compareValue="A">
+			AND inv.sell_buy_tp_cd = 'B' AND inv.air_sea_clss_cd != 'G'
+		</isEqual>
+		<isEqual property="all_tp" compareValue="O">
+			AND idt.bal_amt != 0
+		</isEqual>
+		<isEqual property="inv_rcvd_flg" compareValue="Y">
+			AND CASE WHEN inv.sell_buy_tp_cd = 'S' THEN 'Y' ELSE idt.buy_inv_rcv END = 'Y'
+		</isEqual>
+		
+		GROUP BY cust.trdp_cd, cust.locl_nm, idt.inv_seq, inv.sell_buy_tp_cd, idt.inv_aply_curr_cd
+				,bl.intg_bl_seq
+				,ots.oth_seq
+				,wms.wm_doc_seq
+		ORDER BY cust.locl_nm, cust.trdp_cd,  idt.inv_aply_curr_cd, inv_seq
+	</select>
+	
+	 <!-- Income Statement One Currency 대상 조회   -->
+    <select id="searchIncomeStatementOneCurrList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.pfm.mgt.management.dto.ProfitReportVO">
+		SELECT	slp.curr_cd as curr_cd
+	           ,slp.inv_post_mm as aply_fm_dt
+        	   ,0 as rate
+		  FROM	(
+				SELECT	inval.inv_curr_cd AS curr_cd
+					   ,substring(inval.inv_post_dt,1,6)  as inv_post_mm
+            	 	   ,inval.inv_post_dt as inv_post_dt
+				  FROM	(
+						SELECT	frt.inv_curr_cd,
+						        frt.inv_post_dt,
+								(CASE
+									WHEN gcd.gl_type IN ('IN','OI') THEN frt.credit - frt.debit
+									ELSE frt.debit - frt.credit
+								END) AS amt
+						  FROM	(
+								SELECT	frt.inv_curr_cd,
+								        frt.inv_post_dt,
+										(CASE
+											WHEN frt.sell_buy_tp_cd = 'S' THEN (SELECT gl_cd_rev FROM tb_frt_cd WHERE frt_cd = frt.frt_cd)
+											WHEN frt.sell_buy_tp_cd = 'B' THEN (SELECT gl_cd_cost FROM tb_frt_cd WHERE frt_cd = frt.frt_cd)
+											WHEN frt.sell_buy_tp_cd IN ('D','C') THEN (SELECT gl_cd_prnr FROM tb_frt_cd WHERE frt_cd = frt.frt_cd)
+										END) AS gl_cd,
+										(CASE
+											WHEN frt.SELL_BUY_TP_CD = 'B' THEN frt.inv_amt
+											WHEN frt.SELL_BUY_TP_CD = 'C' THEN frt.cr_amt
+											ELSE 0
+										END) AS debit,
+										(CASE
+											WHEN frt.sell_buy_tp_cd IN ('S','D') THEN frt.inv_amt
+											ELSE 0
+										END) AS credit
+								  FROM	tb_frt frt
+								 WHERE	1=1
+								   AND	frt.inv_post_dt BETWEEN #per_strdt# AND #per_enddt#
+								<isNotEmpty property="ofc_cd">
+								   AND	frt.rgst_ofc_cd in (SELECT VALUE FROM FN_SPLIT('$s_ofc_cd$',','))
+								</isNotEmpty>
+								   AND	ISNULL(frt.delt_flg, 'N') != 'Y'
+								   AND	ISNULL(frt.inv_seq, '') != '' 
+								) frt, tb_gl_cd gcd
+						 WHERE	frt.gl_cd = gcd.gl_cd
+						   AND	gcd.gl_type IN ('IN','CO','EX','OI','OE','IT')
+						) inval
+				 WHERE	inval.amt != 0
+				GROUP BY inval.inv_curr_cd,
+				         inval.inv_post_dt
+				) slp
+		LEFT OUTER JOIN
+			    tb_finc_perf_xcrt fixc_mm              
+			        ON  fixc_mm.fm_curr_cd = slp.curr_cd    
+			        AND fixc_mm.dt_clss_cd = 'M' 
+			        AND substring(fixc_mm.aply_fm_dt,1,6) = slp.inv_post_mm
+			        AND fixc_mm.delt_flg = 'N'                                                       
+			        AND fixc_mm.to_curr_cd = '$curr_cd$'   
+			   LEFT OUTER JOIN
+			    tb_finc_perf_xcrt fixc_dd              
+			        ON  fixc_dd.fm_curr_cd = slp.curr_cd    
+			        AND fixc_dd.dt_clss_cd = 'D' 
+			        AND fixc_dd.aply_fm_dt = slp.inv_post_dt
+			        AND fixc_dd.delt_flg = 'N'                                                       
+			        AND fixc_dd.to_curr_cd = '$curr_cd$'
+		WHERE ISNULL(fixc_dd.xch_rt_ut,fixc_mm.xch_rt_ut) IS NULL
+		  AND slp.curr_cd != '$curr_cd$'   
+		GROUP BY
+		    slp.curr_cd,
+		    slp.inv_post_mm 
+		ORDER BY slp.curr_cd, 
+		         slp.inv_post_mm    
+    </select>
+    <!-- OFVFOUR-7394: [Webtrans] Adding grid for Invoice list by customer -->
+    <select id="searchCustomerCrDbList" parameterClass="java.util.HashMap" resultClass="locStmtVO">
+    	/* PfmAccAccountingSQL.xml > searchCustomerCrDbList */
+		SELECT	inv.inv_seq,
+		        idt.buy_inv_no AS buy_inv_no,
+		        CASE 
+		            WHEN inv.sell_buy_tp_cd = 'B' THEN idt.buy_inv_no
+		            ELSE idt.inv_no
+		        END AS inv_no,  				
+				CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.ref_no
+					 WHEN inv.inv_dept_cd = 'WMS' THEN wms.DOC_REF_NO ELSE bl.ref_no end as ref_no,
+					 
+				CASE WHEN inv.sell_buy_tp_cd = 'C' THEN idt.bal_amt * -1 ELSE idt.bal_amt END AS bal_amt,
+				
+				CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.hbl_no 
+					 WHEN inv.inv_dept_cd = 'WMS' THEN wms.hbl_no ELSE bl.bl_no end as bl_no,
+					 		
+				SUBSTRING(CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.etd_dt_tm ELSE bl.etd_dt_tm end,1,8) AS etd_dt_tm,
+							   
+        		SUBSTRING(CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.eta_dt_tm ELSE bl.eta_dt_tm end,1,8) AS eta_dt_tm,
+				CASE WHEN isnull(idt.cust_ref_no,'') !='' THEN idt.cust_ref_no
+					 WHEN inv.inv_dept_cd = 'OTH' THEN ots.cust_ref_no 
+					 WHEN inv.inv_dept_cd = 'WMS' THEN wms.cust_ref_no ELSE bl.cust_ref_no end as cust_ref_no,
+				MAX(idt.inv_due_dt) as inv_due_dt,
+				MAX(idt.inv_sum_amt) as inv_sum_amt	
+		  FROM	tb_inv inv			
+			JOIN tb_inv_dtl idt
+			ON idt.inv_seq = inv.inv_seq
+			AND idt.delt_flg = 'N'			
+			JOIN tb_trdp cust
+			ON cust.trdp_cd = inv.trdp_cd			
+			LEFT OUTER JOIN tb_frt frt
+			 ON frt.inv_seq = idt.inv_seq
+			AND frt.delt_flg = 'N'
+			LEFT OUTER JOIN tb_intg_bl bl			
+			 ON bl.intg_bl_seq = frt.intg_bl_seq
+			AND bl.delt_flg = 'N'
+			LEFT OUTER JOIN tb_oth_sales ots
+			ON ots.oth_seq = frt.oth_seq
+			LEFT OUTER JOIN tb_wm_doc_mst wms 
+			ON wms.wm_doc_seq = frt.wms_seq
+		 WHERE	inv.inv_seq = idt.inv_seq
+		   <isNotEqual property="curr_cd" compareValue="">
+		   AND	idt.inv_aply_curr_cd = #curr_cd#
+		</isNotEqual>
+		   AND	inv.inv_dept_cd IN ($dpt_tp$)
+		<isNotEqual property="trdp_cd" compareValue="">
+			AND	inv.trdp_cd = #trdp_cd#
+		</isNotEqual>
+		<isNotEqual property="ofc_cd" compareValue="">
+			AND CASE WHEN inv.inv_dept_cd = 'OTH' THEN ots.ofc_cd
+					 WHEN inv.inv_dept_cd = 'WMS' THEN wms.ofc_cd ELSE bl.ref_ofc_cd END = #ofc_cd#
+		</isNotEqual>
+		<isEqual property="per_tp1" compareValue="A">
+			<isEqual property="per_tp2" compareValue="P">
+				<![CDATA[ AND idt.inv_post_dt <= #per_dt# ]]>
+			</isEqual>
+			<isEqual property="per_tp2" compareValue="D">
+				<![CDATA[ AND idt.inv_due_dt <= #per_dt# ]]>
+			</isEqual>
+			<isEqual property="per_tp2" compareValue="I">
+				<![CDATA[ AND idt.inv_dt <= #per_dt# ]]>
+			</isEqual>
+		</isEqual>
+		<isEqual property="per_tp1" compareValue="P">
+			<isEqual property="per_tp2" compareValue="P">
+				AND idt.inv_post_dt BETWEEN #per_strdt# AND #per_enddt#
+			</isEqual>
+			<isEqual property="per_tp2" compareValue="D">
+				AND idt.inv_due_dt BETWEEN #per_strdt# AND #per_enddt#
+			</isEqual>
+			<isEqual property="per_tp2" compareValue="I">
+				AND idt.inv_dt BETWEEN #per_strdt# AND #per_enddt#
+			</isEqual>
+		</isEqual>
+		<isEqual property="rpt_tp" compareValue="ALL">
+			AND (
+				inv.sell_buy_tp_cd = 'S'
+				OR
+				(inv.sell_buy_tp_cd = 'B')
+				)
+		</isEqual>
+		<isEqual property="rpt_tp" compareValue="L">
+			AND	inv.sell_buy_tp_cd = 'S'
+		</isEqual>
+		<isEqual property="rpt_tp" compareValue="A">
+			AND inv.sell_buy_tp_cd = 'B'
+		</isEqual>
+		<isEqual property="all_tp" compareValue="O">
+			AND idt.bal_amt != 0
+		</isEqual>
+		<isEqual property="inv_rcvd_flg" compareValue="Y">
+			AND CASE WHEN inv.sell_buy_tp_cd = 'S' THEN 'Y' ELSE idt.buy_inv_rcv END = 'Y'
+		</isEqual>
+			   
+		   
+		GROUP BY inv.inv_seq, idt.inv_no, idt.buy_inv_no,inv.inv_dept_cd, bl.ref_no, ots.ref_no,wms.DOC_REF_NO, inv.sell_buy_tp_cd, idt.bal_amt, bl.bl_no, ots.hbl_no, wms.hbl_no,
+				 bl.etd_dt_tm, ots.etd_dt_tm , bl.eta_dt_tm, ots.eta_dt_tm, bl.cust_ref_no, ots.cust_ref_no, wms.cust_ref_no ,idt.cust_ref_no
+		ORDER BY idt.inv_no ASC
+    </select>
+    
+    
+</sqlMap>

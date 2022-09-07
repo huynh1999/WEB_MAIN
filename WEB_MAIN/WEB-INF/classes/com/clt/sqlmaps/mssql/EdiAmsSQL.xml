@@ -1,0 +1,2839 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="edi.ams">
+	
+	<typeAlias alias="EdiAmsAirMAWBVO"  type="com.clt.apps.fis.edi.ams.air.dto.EdiAmsAirMAWBVO"/>
+	<typeAlias alias="EdiAmsAirHAWBVO"  type="com.clt.apps.fis.edi.ams.air.dto.EdiAmsAirHAWBVO"/>
+	<typeAlias alias="EdiAmsSendVO"  	type="com.clt.apps.fis.edi.ams.air.dto.EdiAmsSendVO"/>
+	<typeAlias alias="SeeAmsVO"  type="com.clt.apps.fis.see.bmd.ams.dto.SeeAmsVO"/>
+	<typeAlias alias="AieAmsVO"  type="com.clt.apps.fis.aie.bmd.ams.dto.AieAmsVO"/>
+	<typeAlias alias="SeeAmsVO"  type="com.clt.apps.fis.see.bmd.ams.dto.SeeAmsVO"/>
+	
+	<select id="selectEDI_AMS_AIR_MasterList" parameterClass="HashMap" resultClass="EdiAmsAirMAWBVO">
+		/* selectEDI_AMS_AIR_MasterList */
+		SELECT  BL.BL_NO AS BL_NO
+			  , BL.INTG_BL_SEQ AS INTG_BL_SEQ
+			  , MST.STATUS AS STATUS
+			  , X.CNT AS HBL_CNT
+			  , MST.MSG_NO AS MSG_NO
+			  , SUBSTRING(BL.ETD_DT_TM,   1, 8) AS ETD_DT_TM
+			  , BL.MODI_USRID AS MODI_USRID
+		  FROM  TB_INTG_BL BL
+		  JOIN  TB_ADD_INFO_BND BND ON 
+		  BL.INTG_BL_SEQ = BND.INTG_BL_SEQ
+		  
+		  <!-- 51589 [BNX, COMMON] KAMS MAWB 조회 조건 추가 -->
+		  <isEqual property="kmo_flag" compareValue="Y">
+		  AND (   BL.TS1_PORT_CD IN (SELECT LOC_CD FROM TB_LOC WHERE CNT_CD = 'KR')
+           OR BL.TS2_PORT_CD IN (SELECT LOC_CD FROM TB_LOC WHERE CNT_CD = 'KR')
+           OR BL.TS3_PORT_CD IN (SELECT LOC_CD FROM TB_LOC WHERE CNT_CD = 'KR')
+           OR BL.POD_CD IN (SELECT LOC_CD FROM TB_LOC WHERE CNT_CD = 'KR') 
+            ) 
+		  </isEqual>
+		  JOIN  TB_BL_PRNR CNE_BL    
+            ON  BL.INTG_BL_SEQ = CNE_BL.INTG_BL_SEQ 
+            AND CNE_BL.BL_TRDP_TP_CD = 'C01'     
+    	  JOIN  TB_TRDP CNE_BL_TRDP       
+            ON  CNE_BL.TRDP_CD = CNE_BL_TRDP.TRDP_CD 
+		  JOIN (
+			SELECT  COUNT(*) AS CNT, RLT.RLT_INTG_BL_SEQ
+			  FROM  TB_INTG_BL_RLT RLT
+			  JOIN  TB_INTG_BL BL 
+			    ON  RLT.INTG_BL_SEQ = BL.INTG_BL_SEQ AND BL.DELT_FLG = 'N'
+		  GROUP BY  RLT.RLT_INTG_BL_SEQ
+		  ) X ON X.RLT_INTG_BL_SEQ = BL.INTG_BL_SEQ
+LEFT OUTER JOIN TB_EDI_KAMS_AIR_MST MST
+			 ON MST.INTG_BL_SEQ = BL.INTG_BL_SEQ
+		 WHERE  BL.DELT_FLG = 'N'
+		   AND  BL.AIR_SEA_CLSS_CD = 'A'
+		   AND  BL.BIZ_CLSS_CD = 'M'
+		   AND  isnull(BL.BL_NO, '') != ''
+		   AND  BND.BND_CLSS_CD = 'O'
+        <isNotEmpty property="bl_no">
+		   AND  BL.BL_NO LIKE #bl_no# + '%'
+        </isNotEmpty>
+        <isNotEmpty property="ofc_cd">
+           AND  bl.ref_ofc_cd = #ofc_cd#
+        </isNotEmpty>
+        <isNotEmpty property="status">
+           AND  mst.status = #status#
+        </isNotEmpty>
+        <isNotEmpty property="etd_strdt">
+		   AND  BL.ETD_DT_TM BETWEEN ISNULL(#etd_strdt#, '00000101') + '0000' AND ISNULL(#etd_enddt#, '99991231') + '2329'
+		</isNotEmpty>
+	  ORDER BY  BL.ETD_DT_TM DESC
+	</select>
+
+	<select id="selectEDI_AMS_AIR_HouseList" parameterClass="HashMap" resultClass="EdiAmsAirHAWBVO">
+		/* selectEDI_AMS_AIR_HouseList */
+		<!-- #2749 [BNX] KAMS HBL Party 정보 -->
+		SELECT  
+		        CASE WHEN SHP.TRDP_NM = SHP_TRDP.ENG_NM THEN SHP_TRDP.ENG_NM ELSE SHP.TRDP_NM END   AS SHP_NM
+		      , CASE WHEN SHP.TRDP_NM = SHP_TRDP.ENG_NM THEN SHP_TRDP.LGL_ADDR ELSE SHP.TRDP_ADDR END   AS SHP_ADDR
+		      , CASE WHEN SHP.TRDP_NM = SHP_TRDP.ENG_NM THEN SHP_TRDP.CITY_NM ELSE '' END  AS SHP_CITY
+		      , CASE WHEN SHP.TRDP_NM = SHP_TRDP.ENG_NM THEN SHP_TRDP.STATE_CD ELSE '' END  AS SHP_STATE
+		      , CASE WHEN SHP.TRDP_NM = SHP_TRDP.ENG_NM THEN SHP_TRDP.CNT_CD ELSE '' END  AS SHP_CNTRY
+		      , CASE WHEN SHP.TRDP_NM = SHP_TRDP.ENG_NM THEN SHP_TRDP.REP_ZIP ELSE '' END  AS SHP_ZIP_CD
+		      , CASE WHEN SHP.TRDP_NM = SHP_TRDP.ENG_NM THEN SHP_CNTC_PSON.PIC_PHN ELSE SHP.TRDP_PHN END AS SHP_TEL_NO
+		      , CASE WHEN SHP.TRDP_NM = SHP_TRDP.ENG_NM THEN SHP_CNTC_PSON.PIC_FAX ELSE SHP.TRDP_FAX END AS SHP_FAX_NO
+		      , ''       AS SHP_TLX_NO
+		      , CASE WHEN CNE.TRDP_NM = CNE_TRDP.ENG_NM THEN CNE_TRDP.ENG_NM ELSE CNE.TRDP_NM END   AS CNE_NM
+		      , CASE WHEN CNE.TRDP_NM = CNE_TRDP.ENG_NM THEN CNE_TRDP.LGL_ADDR ELSE CNE.TRDP_ADDR END  AS CNE_ADDR
+		      , CASE WHEN CNE.TRDP_NM = CNE_TRDP.ENG_NM THEN CNE_TRDP.CITY_NM ELSE '' END AS CNE_CITY
+		      , CASE WHEN CNE.TRDP_NM = CNE_TRDP.ENG_NM THEN CNE_TRDP.STATE_CD ELSE '' END AS CNE_STATE
+		      , CASE WHEN CNE.TRDP_NM = CNE_TRDP.ENG_NM THEN CNE_TRDP.CNT_CD ELSE '' END AS CNE_CNTRY
+		      , CASE WHEN CNE.TRDP_NM = CNE_TRDP.ENG_NM THEN CNE_TRDP.REP_ZIP ELSE '' END AS CNE_ZIP_CD
+		      , CASE WHEN CNE.TRDP_NM = CNE_TRDP.ENG_NM THEN CNE_CNTC_PSON.PIC_PHN ELSE CNE.TRDP_PHN END AS CNE_TEL_NO
+		      , CASE WHEN CNE.TRDP_NM = CNE_TRDP.ENG_NM THEN CNE_CNTC_PSON.PIC_FAX ELSE CNE.TRDP_FAX END AS CNE_FAX_NO
+			  , BL.CUST_CURR_CD AS CVD_ISO_CURR_CD
+			  , BL.FRT_TERM_CD AS CVD_PC_TERM
+			  , REPLACE(BL.DECL_CRR_VAL,'.','') AS CVD_VAL_CARR
+			  , 'NCV' AS CVD_VAL_CUST
+			  , 'XXX' AS CVD_VAL_INSU
+			  , 'KR' AS OCI_CNTRY_CD
+			  , 'IMP' AS OCI_INFO_ID
+			  , 'M' AS OCI_CUS_INFO_ID
+			  , 'I' AS OCI_SUPP_CUS_INFO
+			  , BL.BL_SER_NO AS HSN_NO
+			  , SUBSTRING(REPLACE(MBL.BL_NO, '-', ''),1,3) AS MBI_AIR_PFX
+			  , SUBSTRING(REPLACE(MBL.BL_NO, '-', ''),4,8) AS MBI_AWBL_NO
+			  , MBL.POL_CD AS MBI_ORG_PORT
+			  , MBL.POD_CD AS MBI_DEST_PORT
+			  , 'T' AS MBI_SHIP_DESC_CD
+			  , MBL.PCK_QTY AS MBI_NO_OF_PCS
+			  , 'K' AS MBI_WGT_CD
+			  , MBL.GRS_WGT AS MBI_WGT
+			
+			  , REPLACE(BL.BL_NO, '-', '') AS HBS_HAWBL_NO
+			  , BL.POL_CD AS HBS_ORG_PORT
+			  , (SELECT TOP 1 CNT_CD FROM TB_LOC WHERE LOC_CD = BL.POL_CD) AS HBS_ORG_CNTRY
+			  , BL.POD_CD AS HBS_DEST_PORT
+			  , BL.PCK_QTY AS HBS_NO_OF_PCS
+			  , 'K' AS HBS_WGT_CD
+			  , BL.GRS_WGT AS HBS_WGT
+			  , '' AS HBS_SLAC
+			  , BL.REP_CMDT_NM AS HBS_GDS_DESC
+			  , '' AS HBS_HANDLE_CD_1
+			  , '' AS HBS_HANDLE_CD_2
+			
+			  , SUBSTRING(BL.ETA_DT_TM, 1, 8) AS ETA_DT_TM
+			  , REPLACE(BL.FLT_NO, '-', '') AS FLT_NO
+			  , CASE WHEN ISNULL(CNE_MBL_TRDP.DCNSL_CD, '') = ''
+			  		 THEN 'XXXX' 
+			         ELSE CNE_MBL_TRDP.DCNSL_CD 
+			    END AS MBL_CNE_CD
+			  , CNE_MBL.TRDP_NM AS MBL_CNE_NM
+			  , (SELECT MAX(IATA_CD) FROM TB_TRDP where PREFIX =SUBSTRING(REPLACE(MBL.BL_NO, '-', ''),1,3) ) AS LNR_IATA_CD
+		  FROM  TB_INTG_BL_RLT RLT
+		  JOIN  TB_INTG_BL MBL 
+			ON  RLT.RLT_INTG_BL_SEQ = MBL.INTG_BL_SEQ AND MBL.DELT_FLG = 'N'
+LEFT OUTER JOIN  TB_BL_PRNR CNE_MBL
+			ON  MBL.INTG_BL_SEQ = CNE_MBL.INTG_BL_SEQ AND CNE_MBL.BL_TRDP_TP_CD = 'C01'
+LEFT OUTER JOIN  TB_TRDP CNE_MBL_TRDP
+		    ON  CNE_MBL.TRDP_CD = CNE_MBL_TRDP.TRDP_CD
+		  JOIN  TB_INTG_BL BL
+			ON  RLT.INTG_BL_SEQ = BL.INTG_BL_SEQ AND BL.DELT_FLG = 'N'
+LEFT OUTER JOIN  TB_BL_PRNR SHP
+			ON  BL.INTG_BL_SEQ = SHP.INTG_BL_SEQ AND SHP.BL_TRDP_TP_CD = 'S01'
+LEFT OUTER JOIN  TB_TRDP SHP_TRDP
+			ON  SHP.TRDP_CD = SHP_TRDP.TRDP_CD
+LEFT OUTER JOIN TB_TRDP_CNTC_PSON SHP_CNTC_PSON
+			ON  SHP_TRDP.TRDP_CD = SHP_CNTC_PSON.TRDP_CD AND SHP_CNTC_PSON.REP_FLG = 'Y' AND SHP_CNTC_PSON.DELT_FLG = 'N'
+LEFT OUTER JOIN  TB_BL_PRNR CNE
+			ON  BL.INTG_BL_SEQ = CNE.INTG_BL_SEQ AND CNE.BL_TRDP_TP_CD = 'C01'
+LEFT OUTER JOIN  TB_TRDP CNE_TRDP
+			ON  CNE.TRDP_CD = CNE_TRDP.TRDP_CD
+LEFT OUTER JOIN TB_TRDP_CNTC_PSON CNE_CNTC_PSON
+			ON  CNE_TRDP.TRDP_CD = CNE_CNTC_PSON.TRDP_CD AND CNE_CNTC_PSON.REP_FLG = 'Y' AND CNE_CNTC_PSON.DELT_FLG = 'N'
+LEFT OUTER JOIN  TB_BL_PRNR LNR
+			ON  BL.INTG_BL_SEQ = LNR.INTG_BL_SEQ AND LNR.BL_TRDP_TP_CD = 'L01'
+LEFT OUTER  JOIN  TB_TRDP LNR_TRDP
+			ON  LNR.TRDP_CD = LNR_TRDP.TRDP_CD
+		 WHERE  RLT.RLT_INTG_BL_SEQ = #rlt_intg_bl_seq#
+
+	</select>
+	
+	<select id="selectEDI_AMS_AIR_HouseList2" parameterClass="HashMap" resultClass="EdiAmsAirHAWBVO">
+		/* selectEDI_AMS_AIR_HouseList2 */
+		SELECT  SHP_NM
+			  , SHP_ADDR
+			  , SHP_CITY
+			  , SHP_STATE
+			  , SHP_CNTRY
+			  , SHP_ZIP_CD
+			  , SHP_TEL_NO
+			  , SHP_FAX_NO
+			  , SHP_TLX_NO
+			
+			  , CNE_NM
+			  , CNE_ADDR
+			  , CNE_CITY
+			  , CNE_STATE
+			  , CNE_CNTRY
+			  , CNE_ZIP_CD
+			  , CNE_TEL_NO
+			  , CNE_FAX_NO
+			  , CNE_TLX_NO
+			
+			  , CVD_ISO_CURR_CD
+			  , CVD_PC_TERM
+			  , CVD_VAL_CARR
+			  , CVD_VAL_CUST
+			  , CVD_VAL_INSU
+			
+			  , OCI_CNTRY_CD
+			  , OCI_INFO_ID
+			  , OCI_CUS_INFO_ID
+			  , OCI_SUPP_CUS_INFO
+			  , OCI_SUPP_CUS_INFO2
+			  , OCI_EXP_DATE
+			  , HSN_NO
+			
+			  , MBI_AIR_PFX
+			  , MBI_AWBL_NO
+			  , MBI_ORG_PORT
+			  , MBI_DEST_PORT
+			  , MBI_SHIP_DESC_CD
+			  , MBI_NO_OF_PCS
+			  , MBI_WGT_CD
+			  , MBI_WGT
+			
+			  , HBS_HAWBL_NO
+			  , HBS_ORG_PORT
+			  , (SELECT TOP 1 CNT_CD FROM TB_LOC WHERE LOC_CD = DTL.HBS_ORG_PORT) AS HBS_ORG_CNTRY
+			  , HBS_DEST_PORT
+			  , HBS_NO_OF_PCS
+			  , HBS_WGT_CD
+			  , HBS_WGT
+			  , HBS_SLAC
+			  , HBS_GDS_DESC
+			  , HBS_HANDLE_CD_1
+			  , HBS_HANDLE_CD_2
+			
+			  , ETA_DT_TM
+			  , FLT_NO
+			  , MBL_CNE_CD
+			  , MBL_CNE_NM
+			  , LNR_IATA_CD
+			  
+			  , MSG_NO
+			  , SEQ
+			  
+			  , RGST_OFC_CD
+			  , RGST_USRID
+			
+		  FROM  TB_EDI_KAMS_AIR_DTL DTL
+		 WHERE  DTL.MSG_NO = #msg_no#
+	  ORDER BY  DTL.SEQ
+
+	</select>
+
+	<insert id="insertEDI_AMS_AIR_MST" parameterClass="EdiAmsAirMAWBVO">
+   INSERT INTO  TB_EDI_KAMS_AIR_MST(MSG_NO
+													 	,INTG_BL_SEQ
+														,RGST_TMS
+														,RGST_USRID
+														,RGST_OFC_CD
+														,MODI_TMS
+														,MODI_USRID
+														,MODI_OFC_CD
+														,STATUS)
+		VALUES
+			(#msg_no#,#intg_bl_seq#,GETDATE(),#rgst_usrid#,#rgst_ofc_cd#,GETUTCDATE(),#modi_usrid#,#modi_ofc_cd#,#status#)
+	</insert>
+	
+	<update id="updateEDI_AMS_AIR_MST" parameterClass="EdiAmsAirMAWBVO">
+		UPDATE  TB_EDI_KAMS_AIR_MST
+		   SET  MODI_TMS = GETUTCDATE()
+		      , MODI_USRID = #modi_usrid#
+		      , MODI_OFC_CD = #modi_ofc_cd#
+		      , STATUS = #status#
+		 WHERE  MSG_NO = #msg_no#
+	</update>
+	
+	<insert id="insertEDI_AMS_AIR_DTL" parameterClass="EdiAmsAirHAWBVO">
+   INSERT INTO  TB_EDI_KAMS_AIR_DTL(
+   														MSG_NO
+														,SEQ
+														,RGST_TMS
+														,RGST_USRID
+														,RGST_OFC_CD
+														,MODI_TMS
+														,MODI_USRID
+														,MODI_OFC_CD
+														,SHP_NM
+														,SHP_ADDR
+														,SHP_CITY
+														,SHP_STATE
+														,SHP_CNTRY
+														,SHP_ZIP_CD
+														,SHP_TEL_NO
+														,SHP_FAX_NO
+														,SHP_TLX_NO
+														,CNE_NM
+														,CNE_ADDR
+														,CNE_CITY
+														,CNE_STATE
+														,CNE_CNTRY
+														,CNE_ZIP_CD
+														,CNE_TEL_NO
+														,CNE_FAX_NO
+														,CNE_TLX_NO
+														,CVD_ISO_CURR_CD
+														,CVD_PC_TERM
+														,CVD_VAL_CARR
+														,CVD_VAL_CUST
+														,CVD_VAL_INSU
+														,OCI_CNTRY_CD
+														,OCI_INFO_ID
+														,OCI_CUS_INFO_ID
+														,OCI_SUPP_CUS_INFO
+														,OCI_SUPP_CUS_INFO2
+														,OCI_EXP_DATE
+														,HSN_NO
+														,MBI_AIR_PFX
+														,MBI_AWBL_NO
+														,MBI_ORG_PORT
+														,MBI_DEST_PORT
+														,MBI_SHIP_DESC_CD
+														,MBI_NO_OF_PCS
+														,MBI_WGT_CD
+														,MBI_WGT
+														,HBS_HAWBL_NO
+														,HBS_ORG_PORT
+														,HBS_DEST_PORT
+														,HBS_NO_OF_PCS
+														,HBS_WGT_CD
+														,HBS_WGT
+														,HBS_SLAC
+														,HBS_GDS_DESC
+														,HBS_HANDLE_CD_1
+														,HBS_HANDLE_CD_2
+														,ETA_DT_TM
+														,FLT_NO
+														,LNR_IATA_CD
+														,PLACE
+														,CARRY_PLACE
+														,MBL_CNE_CD
+														,MBL_CNE_NM
+														)
+   		VALUES
+   			(#msg_no#,#seq#,GETDATE(),#rgst_usrid#,#rgst_ofc_cd#,
+			 GETUTCDATE(),#modi_usrid#,#modi_ofc_cd#,
+			 #shp_nm#,#shp_addr#,#shp_city#,#shp_state#,#shp_cntry#,
+			 #shp_zip_cd#,#shp_tel_no#,#shp_fax_no#,#shp_tlx_no#,
+			 #cne_nm#,#cne_addr#,#cne_city#,#cne_state#,#cne_cntry#,
+			 #cne_zip_cd#,#cne_tel_no#,#cne_fax_no#,#cne_tlx_no#,
+			 #cvd_iso_curr_cd#,#cvd_pc_term#,#cvd_val_carr#,
+			 #cvd_val_cust#,#cvd_val_insu#,
+			 #oci_cntry_cd#,#oci_info_id#,
+			 #oci_cus_info_id#,#oci_supp_cus_info#,
+			 #oci_supp_cus_info2#,#oci_exp_date#,#hsn_no#,
+			 #mbi_air_pfx#,#mbi_awbl_no#,
+			 #mbi_org_port#,#mbi_dest_port#,
+			 #mbi_ship_desc_cd#,#mbi_no_of_pcs#,#mbi_wgt_cd#,#mbi_wgt#,
+			 #hbs_hawbl_no#,#hbs_org_port#,#hbs_dest_port#,
+			 #hbs_no_of_pcs#,#hbs_wgt_cd#,#hbs_wgt#,
+			 #hbs_slac#,#hbs_gds_desc#,#hbs_handle_cd_1#,#hbs_handle_cd_2#,
+			 #eta_dt_tm#,#flt_no#,#lnr_iata_cd#,#place#,#carry_place#,#mbl_cne_cd#,#mbl_cne_nm#)
+	</insert>
+	
+	<update id="updateEDI_AMS_AIR_DTL" parameterClass="EdiAmsAirHAWBVO">
+		UPDATE  TB_EDI_KAMS_AIR_DTL
+		   SET  modi_tms = GETUTCDATE()
+			  , modi_usrid = #modi_usrid#
+			  , modi_ofc_cd = #modi_ofc_cd#
+			  , shp_nm = #shp_nm#
+			  , shp_addr = #shp_addr#
+			  , shp_city = #shp_city#
+			  , shp_state = #shp_state#
+			  , shp_cntry = #shp_cntry#
+			  , shp_zip_cd = #shp_zip_cd#
+			  , shp_tel_no = #shp_tel_no#
+			  , shp_fax_no = #shp_fax_no#
+			  , shp_tlx_no = #shp_tlx_no#
+			  , cne_nm = #cne_nm#
+			  , cne_addr = #cne_addr#
+			  , cne_city = #cne_city#
+			  , cne_state = #cne_state#
+			  , cne_cntry = #cne_cntry#
+			  , cne_zip_cd = #cne_zip_cd#
+			  , cne_tel_no = #cne_tel_no#
+			  , cne_fax_no = #cne_fax_no#
+			  , cne_tlx_no = #cne_tlx_no#
+			  , cvd_iso_curr_cd = #cvd_iso_curr_cd#
+			  , cvd_pc_term = #cvd_pc_term#
+			  , cvd_val_carr = #cvd_val_carr#
+			  , cvd_val_cust = #cvd_val_cust#
+			  , cvd_val_insu = #cvd_val_insu#
+			  , oci_cntry_cd = #oci_cntry_cd#
+			  , oci_info_id = #oci_info_id#
+			  , oci_cus_info_id = #oci_cus_info_id#
+			  , oci_supp_cus_info = #oci_supp_cus_info#
+			  , hsn_no = #hsn_no#
+			  , mbi_air_pfx = #mbi_air_pfx#
+			  , mbi_awbl_no = #mbi_awbl_no#
+			  , mbi_org_port = #mbi_org_port#
+			  , mbi_dest_port = #mbi_dest_port#
+			  , mbi_ship_desc_cd = #mbi_ship_desc_cd#
+			  , mbi_no_of_pcs = #mbi_no_of_pcs#
+			  , mbi_wgt_cd = #mbi_wgt_cd#
+			  , mbi_wgt = #mbi_wgt#
+			  , hbs_hawbl_no = #hbs_hawbl_no#
+			  , hbs_org_port = #hbs_org_port#
+			  , hbs_dest_port = #hbs_dest_port#
+			  , hbs_no_of_pcs = #hbs_no_of_pcs#
+			  , hbs_wgt_cd = #hbs_wgt_cd#
+			  , hbs_wgt = #hbs_wgt#
+			  , hbs_slac = #hbs_slac#
+			  , hbs_gds_desc = #hbs_gds_desc#
+			  , hbs_handle_cd_1 = #hbs_handle_cd_1#
+			  , hbs_handle_cd_2 = #hbs_handle_cd_2#
+			  , eta_dt_tm = #eta_dt_tm#
+			  , flt_no = #flt_no#
+			  , lnr_iata_cd = #lnr_iata_cd#
+			  , place = #place#
+			  , carry_place = #carry_place#
+			  , mbl_cne_cd = #mbl_cne_cd#
+			  , mbl_cne_nm = #mbl_cne_nm#
+		 WHERE  msg_no = #msg_no#
+		   AND  seq = #seq#
+	</update>
+	
+	<delete id="deleteEDI_AMS_AIR_MST" parameterClass="EdiAmsAirMAWBVO">
+		DELETE  
+		  FROM  TB_EDI_KAMS_AIR_MST
+		 WHERE  MSG_NO = #msg_no#
+	</delete>
+
+	<delete id="deleteEDI_AMS_AIR_DTL" parameterClass="EdiAmsAirMAWBVO">
+		DELETE  
+		  FROM  TB_EDI_KAMS_AIR_DTL
+		 WHERE  MSG_NO = #msg_no#
+	</delete>
+	
+	<select id="selectEDI_AMS_AIR_DTL_SEQ" parameterClass="EdiAmsAirHAWBVO" resultClass="Integer">
+		SELECT  ISNULL(MAX(SEQ), 0) + 1
+		  FROM  TB_EDI_KAMS_AIR_DTL
+		 WHERE  SUBSTRING(CONVERT(VARCHAR(10), RGST_TMS, 112), 3, 8) = SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8)
+		   AND  LNR_IATA_CD = #lnr_iata_cd#
+		   AND  RGST_OFC_CD = #rgst_ofc_cd#
+	</select>
+	
+	<select id="selectEDI_AMS_SEND_SEQ" parameterClass="EdiAmsAirHAWBVO" resultClass="Integer">
+		SELECT  ISNULL(COUNT(SEQ), 0) + 1
+		  FROM  TB_EDI_KAMS_SEND
+		 WHERE  1=1
+		   AND  SUBSTRING(REF_MSG_NO, 6, 6) = SUBSTRING(CONVERT(VARCHAR(8), GETDATE(), 112), 3, 6)
+		   AND  SUBSTRING(REF_MSG_NO, 1, 3) = #rgst_ofc_cd#
+		   AND  SUBSTRING(REF_MSG_NO, 4, 2) = #lnr_iata_cd#
+	</select>
+	
+	<insert id="insertEDI_AMS_SEND" parameterClass="EdiAmsSendVO">
+		INSERT  INTO TB_EDI_KAMS_SEND 
+		(
+			MSG_NO, SEQ, REF_MSG_NO,
+			FILE_NM, MSG_TXT, RCV_MSG_TXT,
+			RGST_TMS, RGST_USRID, RGST_OFC_CD,
+			MODI_TMS, MODI_USRID, MODI_OFC_CD, STATUS
+		)
+		VALUES
+		(
+			#msg_no#, #seq#, #ref_msg_no#,
+			#file_nm#, #msg_txt#, #rcv_msg_txt#, 
+			GETDATE(), #rgst_usrid#, #rgst_ofc_cd#, 
+			GETUTCDATE(), #modi_usrid#, #modi_ofc_cd#, #status#
+		)
+	</insert>
+	
+	<select id="selectEDI_AMS_AIR_HistoryList" parameterClass="HashMap" resultClass="EdiAmsSendVO">
+		SELECT  REF_MSG_NO
+			  , FILE_NM
+			  , MSG_TXT
+			  , RCV_MSG_TXT
+			  , STATUS
+			  , MSG_NO
+			  , SEQ
+		  FROM  TB_EDI_KAMS_SEND
+		 WHERE  MSG_NO = #msg_no#
+	  ORDER BY  RGST_TMS ASC
+
+	</select>
+	
+	<!-- SEE AMS SEARCH   -->
+	<select id="selectSeeAmsLIST" parameterClass="HashMap" resultClass="SeeAmsVO">
+		/*selectSeeAmsLIST*/
+		SELECT  
+		<!-- #3685 [JAPT] AMS EDI - Transshipment AMS 전송 기능 보완 -->
+				CASE WHEN ISNULL(BL.PRE_VSL_NM,'')='' 
+					THEN bl.trnk_vsl_nm
+					ELSE BL.PRE_VSL_NM
+					END AS trnk_vsl_nm
+		
+				,CASE WHEN ISNULL(BL.PRE_VOY,'')='' 
+					THEN bl.trnk_voy
+					ELSE BL.PRE_VOY
+					END AS trnk_voy
+		        ,bl.trnk_vsl_nm trnk_vsl_nm_bl     
+		        ,bl.pre_vsl_nm pre_vsl_nm_shp     
+		        ,bl.trnk_voy trnk_voy_bl     
+		        ,bl.pre_voy pre_voy_shp  
+		<!-- #3798 JAPT AMS EDI location code 저장 , address null 처리 -->		                                 
+			    ,case 
+		            when isnull((select top 1 POL_AMS from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc),'') != ''
+					then (select top 1 POL_AMS from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc)
+					else 
+			               case 
+								when ISNULL(BL.PRE_VSL_NM,'')!=''         
+								then (select AMS_LOC_VAL from tb_loc where loc_cd = bnd.TS1_PORT_CD)         
+								else (select AMS_LOC_VAL from tb_loc where loc_cd = bl.pol_cd) 
+							end           
+		        end as pol_cd   
+		        ,case 
+		            when isnull((select top 1 POL_CD from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc),'') != ''
+					then 
+						(select
+							top 1 loc_nm 
+						from
+							tb_loc tl 
+						where
+							tl.LOC_CD = (select top 1 POL_CD from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc)
+							and tl.delt_flg = 'N' 
+							and tl.use_flg = 'Y')         
+		            else      
+						case 
+							when ISNULL(BL.PRE_VSL_NM,'')!=''         
+							then bnd.TS1_PORT_NM         
+							else bl.pol_nm        
+						end        
+		        end as pol_nm    								
+
+			,isnull(amshdr.pod_ams,(select AMS_LOC_VAL from tb_loc where loc_cd = bl.pod_cd)) as pod_cd
+		    ,isnull(amshdr.pod_ams_nm,bl.pod_nm)   as pod_nm
+			
+		       ,SUBSTRING(bl.eta_dt_tm ,1,8) AS eta_dt_tm
+		<!-- #3866 [JAPT] AMS - T/S VOY, ETD 매핑 문제 -->
+<!-- 		        ,case 
+		            when isnull((select top 1 etd_dt from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc),'') != ''
+		            then (select top 1 etd_dt from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc)
+		            else
+					     case 
+			           		when ISNULL(BL.PRE_VSL_NM,'')!=''         
+			                then bnd.ts1_etd_dt_tm       
+			                else bl.etd_dt_tm       
+		           		 end		            
+		            end	as etd_dt_tm	 -->		
+		     	,case 
+	           		when ISNULL(BL.PRE_VSL_NM,'')!=''         
+	                then bnd.ts1_etd_dt_tm       
+	                else bl.etd_dt_tm       
+	            end	as etd_dt_tm
+		       ,mbl.bl_no AS mbl_no
+		       ,bl.bl_no  AS hbl_no
+		       ,isnull(blsts.CSTMS_RGST_FLG,'N') AS cstms_rgst_flg
+		       ,isnull(blsts.dspo_cd,'') 	as dspo_cd
+		       ,isnull(blsts.rsk_ass_cd,'') as hold_cd
+		       ,(select top 1 msg_no from tb_edi_ams_bl where BLNBR= bl.bl_no and msg_no like 'AMS%'  order by modi_tms desc) AS ams_file_no
+		       <!-- ,CONVERT(VARCHAR,amshdr.SND_TMS,110) + ' ' + CONVERT(VARCHAR,amshdr.SND_TMS,108) AS send_dt -->
+		       ,(select top 1 rgst_tms from tb_edi_ams_bl where BLNBR= bl.bl_no and msg_no like 'AMS%'  order by modi_tms desc) AS send_dt
+		       ,CASE  
+				  (select top 1 MSG_STS from tb_edi_ams_bl where BLNBR= bl.bl_no and msg_no like 'AMS%'  order by modi_tms desc)
+				  WHEN 'A' THEN 'Orginal'
+		          WHEN 'B' THEN'Amendment' 
+				  WHEN 'D' THEN'Amendment'
+			    END AS send_msg
+       		   ,(SELECT cd_nm FROM TB_COM_CD_DTL WHERE CD_VAL = bl.hbl_tp_cd AND com_cd = 'C016' AND USE_FLG = 'Y') AS hbl_tp
+		       ,bl.pol_nm
+		       
+		       ,lnr.trdp_cd AS lnr_trdp_cd
+		       ,lnr.trdp_nm AS lnr_trdp_nm
+		       ,bl.intg_bl_seq
+		       ,blsts.msg_sts_cd
+		       ,(SELECT cd_nm FROM TB_COM_CD_DTL WHERE CD_VAL = blsts.msg_sts_cd AND com_cd = 'E018' AND USE_FLG = 'Y') AS msg_sts_nm
+		  FROM TB_INTG_BL bl
+		 JOIN tb_add_info_bnd bnd
+		    ON bl.intg_bl_seq = bnd.intg_bl_seq AND bnd.bnd_clss_cd = 'O' AND bnd.delt_flg = 'N'   
+		 LEFT OUTER JOIN tb_bl_prnr lnr
+		    ON bl.intg_bl_seq = lnr.intg_bl_seq  AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+		 LEFT OUTER JOIN tb_intg_bl_rlt rlt
+		    ON bl.intg_bl_seq = rlt.intg_bl_seq AND rlt.delt_flg = 'N'
+		 LEFT OUTER JOIN tb_intg_bl mbl
+		    ON rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND mbl.biz_clss_cd = 'M' AND mbl.delt_flg = 'N'    
+		 LEFT OUTER JOIN TB_EDI_BL_STS blsts       
+            ON bl.bl_no = blsts.bl_no  AND blsts.msg_tp_cd = 'AMS' 
+         LEFT OUTER JOIN TB_EDI_AMS_HDR amshdr       
+            ON blsts.msg_no = amshdr.msg_no 
+         /*
+         LEFT OUTER JOIN TB_LOC pod                    
+            ON bl.pod_cd  = pod.loc_cd AND len(pod.ams_loc_val) = 4    
+         */
+		 WHERE bl.delt_flg = 'N'
+		   AND bl.air_sea_clss_cd = 'S'
+		   AND bl.bl_no != ''
+		   AND mbl.bl_no != ''
+		   AND bl.trnk_vsl_nm != ''
+		   AND bl.trnk_voy != ''
+		   AND bl.pol_cd != ''
+		   AND bl.pod_cd != ''
+		 <isEqual property="ams_flag" compareValue="Y">
+		 	AND SUBSTRING(bl.pod_cd, 1, 2) = 'US'
+       	 </isEqual>   
+		 <isNotEmpty property="etd_strdt">
+		 	AND CASE WHEN ISNULL(bnd.ts1_etd_dt_tm,'') ='' 
+		 	then  SUBSTRING(bl.etd_dt_tm,1,8)
+			else  SUBSTRING(bnd.ts1_etd_dt_tm,1,8) end BETWEEN #etd_strdt# AND #etd_enddt#
+		 </isNotEmpty>
+		 <isNotEmpty property="eta_strdt">
+		 	AND SUBSTRING(bl.eta_dt_tm, 1,8) BETWEEN #eta_strdt# AND #eta_enddt#
+		 </isNotEmpty>
+		 <!-- #3685 [JAPT] AMS EDI - Transshipment AMS 전송 기능 보완 -->
+		 <isNotEmpty property="f_trnk_vsl_nm">
+		 	AND (
+		 		bl.trnk_vsl_nm LIKE '%' + #f_trnk_vsl_nm# + '%'
+		 		OR
+		 		bl.PRE_VSL_NM LIKE '%' + #f_trnk_vsl_nm# + '%'
+		 		)
+		 </isNotEmpty>
+		 <!-- #3685 [JAPT] AMS EDI - Transshipment AMS 전송 기능 보완 -->
+		 <isNotEmpty property="f_trnk_voy_no">
+		 	AND (
+		 		bl.trnk_voy LIKE '%' + #f_trnk_voy_no# + '%'
+		 		OR
+		 		bl.PRE_VOY LIKE '%' + #f_trnk_voy_no# + '%'
+		 		)
+		 </isNotEmpty>
+		 <isNotEmpty property="f_pod_cd">
+		 	AND bl.pod_cd = #f_pod_cd#
+		 </isNotEmpty>
+		 <isNotEmpty property="f_mbl_no">
+		 	AND mbl.bl_no = #f_mbl_no#
+		 </isNotEmpty>
+		 <isNotEmpty property="f_hbl_no">
+		 	AND bl.bl_no = #f_hbl_no#
+		 </isNotEmpty>
+		 <isNotEmpty property="f_bl_type">
+		 	AND bl.hbl_tp_cd = #f_bl_type#
+		 </isNotEmpty>
+		 <isNotEmpty property="f_ams_no">
+		 	AND blsts.msg_no = #f_ams_no#
+		 </isNotEmpty>
+         <isNotEmpty property="f_pod_nm">
+            AND bl.pod_nm LIKE #f_pod_nm#+'%' 
+         </isNotEmpty>
+         <isNotEmpty property="f_msg_sts_cd">
+           	<isEqual property="f_msg_sts_cd" compareValue="N">
+           		AND ( blsts.msg_sts_cd IS NULL OR blsts.msg_sts_cd = '' )
+           	</isEqual>
+         	
+         	<isNotEqual property="f_msg_sts_cd" compareValue="N">
+         		AND blsts.msg_sts_cd = #f_msg_sts_cd#
+         	</isNotEqual>
+         </isNotEmpty>
+         
+	</select>
+	
+	
+	
+	
+	<!-- AIE AMS SEARCH   -->
+	<select id="selectAieAmsLIST" parameterClass="HashMap" resultClass="AieAmsVO">
+		SELECT  bl.obrd_dt_tm
+			   ,bl.pol_cd
+		       ,bl.pod_cd
+		       ,bl.pol_nm
+		       ,bl.pod_nm
+		       ,mbl.bl_no AS mbl_no
+		       ,bl.bl_no  AS hbl_no
+		       ,bl.flt_no
+		       ,'' AS send_dt
+		       ,'' AS send_sts
+       		   ,bl.intg_bl_seq
+       		   ,mbl.intg_bl_seq AS mbl_intg_bl_seq
+		  FROM TB_INTG_BL bl
+		 JOIN tb_add_info_bnd bnd
+		    ON bl.intg_bl_seq = bnd.intg_bl_seq AND bnd.bnd_clss_cd = 'O'  AND bnd.delt_flg = 'N'   
+		 LEFT OUTER JOIN tb_intg_bl_rlt rlt
+		    ON bl.intg_bl_seq = rlt.intg_bl_seq AND rlt.delt_flg = 'N'
+		 LEFT OUTER JOIN tb_intg_bl mbl
+		    ON rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND mbl.biz_clss_cd = 'M' AND mbl.delt_flg = 'N'    
+		 WHERE bl.delt_flg = 'N'
+		   AND bl.air_sea_clss_cd = 'A'
+		 <isNotEmpty property="dept_strdt">
+		 	AND SUBSTRING(bl.obrd_dt_tm, 1,8) BETWEEN #dept_strdt# AND #dept_enddt#
+		 </isNotEmpty>
+		 <isNotEmpty property="f_mbl_no">
+		 	AND mbl.bl_no = #f_mbl_no#
+		 </isNotEmpty>
+	</select>
+	
+	
+	<!-- AIE AMS SEARCH   -->
+	<select id="selectAieAmsInfo" parameterClass="HashMap" resultClass="AieAmsVO">
+		SELECT bl.intg_bl_seq
+		      ,bl.bl_no 						AS mbl_no
+		      ,bl.pol_cd
+		      ,bl.pol_nm
+		      ,bl.pod_cd
+		      ,bl.pod_nm
+		      ,bl.PCK_QTY 						AS qty
+		      ,bl.GRS_WGT 						AS wgt
+		      ,shp.TRDP_CD 						AS shp_cd
+		      ,shp.TRDP_NM 						AS shp_nm
+		      ,substring(shp.TRDP_ADDR,1,35) 	AS shp_addr
+		      ,(SELECT REP_ZIP FROM TB_TRDP WHERE TRDP_CD = shp.TRDP_CD AND DELT_FLG = 'N')  AS shp_ziq
+		      ,(SELECT CNT_CD  FROM TB_TRDP WHERE TRDP_CD = shp.TRDP_CD AND DELT_FLG = 'N')  AS shp_cnt
+		      ,cne.TRDP_CD 						AS cne_cd
+		      ,cne.TRDP_NM 						AS cne_nm
+		      ,substring(cne.TRDP_ADDR,1,35) 	AS cne_addr
+		      ,(SELECT REP_ZIP FROM TB_TRDP WHERE TRDP_CD = cne.TRDP_CD AND DELT_FLG = 'N')  AS cne_ziq
+		      ,(SELECT CNT_CD  FROM TB_TRDP WHERE TRDP_CD = cne.TRDP_CD AND DELT_FLG = 'N')  AS cne_cnt
+		      ,bl.curr_cd
+		      ,bl.frt_term_cd
+		  FROM TB_INTG_BL bl
+		 LEFT OUTER JOIN tb_bl_prnr shp
+		    ON bl.intg_bl_seq = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+         LEFT OUTER JOIN tb_bl_prnr cne
+		    ON bl.intg_bl_seq = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+		 WHERE bl.delt_flg = 'N'
+		 <isNotEmpty property="f_intg_bl_seq">
+		 	AND bl.intg_bl_seq = #f_intg_bl_seq#
+		 </isNotEmpty>
+		 <isNotEmpty property="f_mbl_no">
+		 	AND bl.bl_no = #f_mbl_no#
+		 </isNotEmpty>
+	</select>
+	
+	<!-- AIE AMS SEARCH   -->
+	<select id="selectAieAmsHblList" parameterClass="HashMap" resultClass="AieAmsVO">
+		SELECT hbl.obrd_dt_tm	AS hbl_obrd_dt_tm
+		      ,hbl.bl_no 		AS hbl_no
+		      ,hbl.pol_cd		AS hbl_pol_cd
+		      ,hbl.pol_nm		AS hbl_pol_nm
+		      ,hbl.pod_cd		AS hbl_pod_cd
+		      ,hbl.pod_nm		AS hbl_pod_nm
+		      ,hbl.pck_qty		AS hbl_qty
+		      ,hbl.grs_wgt		AS hbl_wgt
+		      ,hbl.intg_bl_seq	AS hbl_intg_bl_seq
+		  FROM TB_INTG_BL mbl
+		 LEFT OUTER JOIN tb_intg_bl_rlt rlt
+		    ON mbl.intg_bl_seq = rlt.rlt_intg_bl_seq AND rlt.delt_flg = 'N'
+		 LEFT OUTER JOIN tb_intg_bl hbl
+		    ON rlt.intg_bl_seq = hbl.intg_bl_seq AND hbl.delt_flg = 'N'    
+		 WHERE mbl.DELT_FLG = 'N'
+		 <isNotEmpty property="f_intg_bl_seq">
+		 	AND mbl.intg_bl_seq = #f_intg_bl_seq#
+		 </isNotEmpty>
+		 <isNotEmpty property="f_mbl_no">
+		 	AND mbl.bl_no = #f_mbl_no#
+		 </isNotEmpty>
+	</select>
+	
+	
+	
+	
+	<!-- SEE AMS SEARCH   -->
+	<select id="selectSeeAmsInfo" parameterClass="HashMap" resultClass="SeeAmsVO">
+		/*	selectSeeAmsInfo */
+		SELECT
+			<!-- #3685 [JAPT] AMS EDI - Transshipment AMS 전송 기능 보완 -->
+	        		CASE WHEN ISNULL(BL.PRE_VSL_CD,'')='' 
+						THEN bl.trnk_vsl_cd
+						ELSE BL.PRE_VSL_CD
+						END AS trnk_vsl_cd,
+
+	        		CASE WHEN ISNULL(BL.PRE_VSL_NM,'')='' 
+						THEN bl.trnk_vsl_nm
+						ELSE BL.PRE_VSL_NM
+						END AS trnk_vsl_nm,
+			
+					CASE WHEN ISNULL(BL.PRE_VOY,'')='' 
+						THEN bl.trnk_voy
+						ELSE BL.PRE_VOY
+						END AS trnk_voy,		
+			        
+	                #trnk_vsl_nm_bl# trnk_vsl_nm_bl                ,
+			        #pre_vsl_nm_shp# pre_vsl_nm_shp                ,
+			        #trnk_voy_bl# trnk_voy_bl                ,
+			        #pre_voy_shp# pre_voy_shp                ,
+	
+			        bl.pol_cd         ,
+			        pol.ams_loc_val AS ams_pol_cd,
+			        bl.pol_nm         ,
+			        bl.pod_cd         ,
+			        pod.ams_loc_val AS ams_pod_cd,
+			        bl.pod_nm         ,
+			        bl.etd_dt_tm,
+			        bl.eta_dt_tm,
+			        CASE WHEN ISNULL(pre_vsl.cnt_cd,'')='' 
+						THEN vsl.cnt_cd
+						ELSE pre_vsl.cnt_cd
+						END AS cnt_cd,
+			        CASE WHEN ISNULL(pre_vsl.vsl_cd,'')='' 
+						THEN vsl.vsl_cd
+						ELSE pre_vsl.vsl_cd
+						END AS vsl_cd,
+			        bl.intg_bl_seq    ,  
+					lnr.trdp_cd AS lnr_trdp_cd,
+        			lnr.trdp_nm AS lnr_trdp_nm,
+        			lnr_trdp.scac_cd AS snp_cd                  
+	 	  FROM TB_INTG_BL bl
+			 LEFT OUTER JOIN tb_bl_prnr lnr                 
+		      ON  bl.intg_bl_seq = lnr.intg_bl_seq       
+		            AND lnr.bl_trdp_tp_cd = 'L01'      
+		            AND lnr.delt_flg = 'N'  
+			 LEFT OUTER JOIN  tb_trdp lnr_trdp                 
+		       ON  lnr_trdp.trdp_cd = lnr.trdp_cd       
+		            AND lnr_trdp.delt_flg = 'N'  
+	 	     LEFT OUTER JOIN TB_VSL vsl
+	 	       ON  bl.trnk_vsl_cd = vsl.vsl_cd
+	 	     LEFT OUTER JOIN TB_VSL pre_vsl
+	 	       ON  bl.pre_vsl_cd = pre_vsl.vsl_cd  
+	 	     LEFT OUTER JOIN TB_LOC pol ON pol_cd = pol.loc_cd  
+	 	     LEFT OUTER JOIN TB_LOC pod ON pod_cd = pod.loc_cd 
+		 WHERE 1=1
+		     AND bl.delt_flg = 'N'   
+		 	 AND bl.intg_bl_seq = #f_intg_bl_seq#
+	</select>
+	
+	
+	<!-- SEE AMS SEARCH   -->
+	<select id="selectSeeAmsInfoList" parameterClass="HashMap" resultClass="SeeAmsVO">
+		/*	selectSeeAmsInfoList	*/
+		SELECT mbl.bl_no		AS mbl_no
+				  <!-- #3798 [JAPT] AMS EDI location code 저장 & address null 처리 -->
+			        ,case 
+			            when isnull((select top 1 POL_CD from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc),'') != ''
+						then 
+							 (select top 1 POL_CD from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc)
+    
+			            else 
+			               case 
+								when ISNULL(BL.PRE_VSL_NM,'')!=''         
+								then bnd.TS1_PORT_CD         
+								else bl.pol_cd        
+							end   
+			        end as pol_cd    
+			        ,case 
+			            when isnull((select top 1 POL_CD from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc),'') != ''
+						then 
+							(select
+								top 1 loc_nm 
+							from
+								tb_loc tl 
+							where
+								tl.LOC_CD = (select top 1 POL_CD from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc)
+								and tl.delt_flg = 'N' 
+								and tl.use_flg = 'Y')         
+			            else      
+							case 
+								when ISNULL(BL.PRE_VSL_NM,'')!=''         
+								then bnd.TS1_PORT_NM         
+								else bl.pol_nm        
+							end             
+			        end as pol_nm    
+			        ,case 
+			            when isnull((select top 1 LAST_POL_CD from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc),'') != ''
+						then 
+							 (select top 1 LAST_POL_CD from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc)
+    
+			            else      
+							case 
+								when ISNULL(BL.PRE_VSL_NM,'')!=''        
+								then bnd.TS1_PORT_CD         
+								else bl.pol_cd        
+							end                 
+			        end as lst_pol_cd    
+			        ,case 
+			            when isnull((select top 1 LAST_POL_CD from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc),'') != ''
+						then 
+							(select
+								top 1 loc_nm 
+							from
+								tb_loc tl 
+							where
+								tl.LOC_CD = (select top 1 LAST_POL_CD from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc)
+								and tl.delt_flg = 'N' 
+								and tl.use_flg = 'Y')         
+			            else      
+							case 
+								when ISNULL(BL.PRE_VSL_NM,'')!=''         
+								then bnd.TS1_PORT_NM         
+								else bl.pol_nm        
+							end                 
+			        end as lst_pol_nm    
+
+		<!-- #3876 [JAPT] AMS EDI - CNTR Item modification, Qty sum and Mark&numbers. -->
+		,(SELECT sum(a.pck_qty) 
+		  FROM tb_shp_cmdt a, TB_CNTR_LIST b 
+		  WHERE a.intg_bl_seq =bl.intg_bl_seq 
+		    AND  a.cntr_list_seq = b.cntr_list_seq
+		    AND  a.delt_flg = 'N') as ttl_itm_pck_qty
+		    
+		,#trnk_vsl_nm_bl#                
+        ,#pre_vsl_nm_shp#                
+        ,#trnk_voy_bl#                
+        ,#pre_voy_shp#                
+		          ,mbl.ref_no		AS ref_no 
+		          ,mbl.intg_bl_seq		AS intg_mbl_seq 
+			      ,bl.bl_no			AS hbl_no
+				  ,(SELECT cd_nm FROM TB_COM_CD_DTL WHERE CD_VAL = bl.hbl_tp_cd AND com_cd = 'C016' AND USE_FLG = 'Y') AS hbl_tp
+				  ,''				AS sub_tp
+				  ,(select top 1 msg_no from tb_edi_ams_bl where BLNBR= bl.bl_no and msg_no like 'AMS%'  order by modi_tms desc) AS ams_file_no
+				<!-- #3866 [JAPT] AMS - T/S VOY, ETD 매핑 문제 -->
+<!-- 		        ,case 
+		            when isnull((select top 1 etd_dt from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc),'') != ''
+		            then (select top 1 etd_dt from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc)
+		            else
+					     case 
+			           		when ISNULL(BL.PRE_VSL_NM,'')!=''         
+			                then bnd.ts1_etd_dt_tm       
+			                else bl.etd_dt_tm       
+		           		 end		            
+		            end	as etd_dt_tm -->			  
+			    	 ,case 
+		           		when ISNULL(BL.PRE_VSL_NM,'')!=''         
+		                then bnd.ts1_etd_dt_tm       
+		                else bl.etd_dt_tm       
+		            end	as etd_dt_tm 				  
+				  ,bl.eta_dt_tm
+				  ,bl.por_cd
+				  ,bl.por_nm
+				  , (SELECT AMS_LOC_VAL FROM TB_LOC WHERE LOC_CD = bl.por_cd) AS ams_por_cd
+<!-- 				  #3798 [JAPT] AMS EDI location code 저장 & address null 처리 -->
+			       , case 
+			            when isnull((select top 1 POL_AMS from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc),'') != ''
+						then (select top 1 POL_AMS from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc)
+						else
+							case 
+				           		when ISNULL(BL.PRE_VSL_NM,'')!=''         
+				                then (select AMS_LOC_VAL  FROM TB_LOC tl  where  tl.loc_cd = bnd.TS1_PORT_CD)         
+				                else (select  AMS_LOC_VAL FROM TB_LOC tl  where tl.loc_cd = bl.pol_cd)       
+			           		 end  
+			        end as ams_pol_cd                                
+ 				  <!--,bl.pol_cd AS lst_pol_cd                                                                                   		/* check the defaul value of Last POL*/ -->
+ 				  <!--,bl.pol_nm AS lst_pol_nm                                                                                   	/* check the defaul value of Last POL*/ -->
+ 				  <!--,(SELECT AMS_LOC_VAL FROM TB_LOC WHERE LOC_CD = bl.pol_cd)	AS ams_lst_pol_cd -->
+			       , case 
+			            when isnull((select top 1 LAST_POL_AMS from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc),'') != ''
+						then 
+							(select top 1 LAST_POL_AMS from tb_edi_ams_bl where BLNBR=bl.bl_no order by modi_tms desc) 
+			            else        
+							case 
+				           		when ISNULL(BL.PRE_VSL_NM,'')!=''         
+				                then (select AMS_LOC_VAL  FROM TB_LOC tl  where  tl.loc_cd = bnd.TS1_PORT_CD)         
+				                else (select  AMS_LOC_VAL FROM TB_LOC tl  where tl.loc_cd = bl.pol_cd)       
+			           		 end        
+			        	end as ams_lst_pol_cd       
+				   ,isnull(amshdr.pod_ams,(SELECT AMS_LOC_VAL FROM TB_LOC WHERE LOC_CD = bl.pod_cd)) 		as ams_pod_cd
+			       ,isnull(amshdr.pod_ams_nm,bl.pod_nm)   		as pod_nm
+				  ,bl.del_cd
+				  , (SELECT AMS_LOC_VAL FROM TB_LOC WHERE LOC_CD = bl.del_cd) AS ams_del_cd
+				  , bl.pck_ut_cd as pck_ut_cd
+				  ,(SELECT ams_pck_cd_val FROM tb_pck_ut_cd WHERE PCK_UT_CD = bl.pck_ut_cd) AS ams_pck_ut_cd
+				  ,bl.pck_qty
+				  ,bl.cust_ref_no
+				  ,amsbl.last_usa_ams			AS ams_usa_cd
+				  ,amsbl.bond_id				AS bond_id
+				  ,amsbl.it_no					AS it_no
+				  ,amsbl.it_type					AS it_tp
+				  ,amsbl.hub_ams				AS hub_ams
+				  ,amsbl.msg_sts				AS msg_sts
+				  , CASE blsts.cstms_rgst_flg
+						WHEN 'Y' THEN 'B'
+						WHEN 'N' THEN  
+							CASE amsbl.msg_sts 
+								WHEN 'A' THEN 'A'                                   
+								WHEN 'B' THEN 'B'                                   
+								WHEN 'D' THEN 'A' 
+						END
+		        	END AS ams_snd
+				  ,bl.intg_bl_seq
+				  ,(SELECT sum(a.wgt) 
+					  FROM tb_shp_cmdt a, TB_CNTR_LIST b 
+					  WHERE a.intg_bl_seq =bl.intg_bl_seq 
+					    AND  a.cntr_list_seq = b.cntr_list_seq
+					    AND  a.delt_flg = 'N')	as grs_wgt 
+				  ,'KG' AS grs_wgt_ut_cd
+				  ,shp.trdp_cd AS shpr_cd
+				  
+				  
+<!-- 			      ,ISNULL(amsbl.shpr_nm1,shp.trdp_nm) as shpr_nm
+			      ,case when ISNULL(amsbl.shpr_nm2,'') + ISNULL(amsbl.shpr_add1,'') + ISNULL(amsbl.shpr_add2,'') + ISNULL(amsbl.shpr_add3,'') = ''
+				   then shp.trdp_addr
+				   else ISNULL(amsbl.shpr_nm2,'') + ISNULL(amsbl.shpr_add1,'') + ISNULL(amsbl.shpr_add2,'') + ISNULL(amsbl.shpr_add3,'')
+				   end as shpr_addr
+ 			      ,ISNULL(amsbl.shpr_nm2 + amsbl.shpr_add1 + amsbl.shpr_add2 + amsbl.shpr_add3 , shp.trdp_addr) as shpr_addr
+			      ,cne.trdp_cd as cnee_cd
+			      ,ISNULL(amsbl.cnee_nm1, cne.trdp_nm) as cnee_nm
+		          ,case when ISNULL(amsbl.cnee_nm2,'') + ISNULL(amsbl.cnee_add1,'') + ISNULL(amsbl.cnee_add2,'') + ISNULL(amsbl.cnee_add3,'') = ''
+				   then cne.trdp_addr
+				   else ISNULL(amsbl.cnee_nm2,'') + ISNULL(amsbl.cnee_add1,'') + ISNULL(amsbl.cnee_add2,'') + ISNULL(amsbl.cnee_add3,'')
+				   end as cnee_addr			      
+			      ,ISNULL(amsbl.cnee_nm2 + amsbl.cnee_add1 + amsbl.cnee_add2 + isnull(amsbl.cnee_add3,''), cne.trdp_addr) as cnee_addr
+			      ,ntf.trdp_cd as ntfy_cd
+			      ,ISNULL(amsbl.ntfy_nm1, ntf.trdp_nm) as ntfy_nm
+			      ,case when ISNULL(amsbl.ntfy_nm2,'') + ISNULL(amsbl.ntfy_add1,'') + ISNULL(amsbl.ntfy_add2,'') + ISNULL(amsbl.ntfy_add3,'') = ''
+				   then ntf.trdp_addr
+				   else ISNULL(amsbl.ntfy_nm2,'') + ISNULL(amsbl.ntfy_add1,'') + ISNULL(amsbl.ntfy_add2,'') + ISNULL(amsbl.ntfy_add3,'')
+				   end as ntfy_addr -->
+				   
+				
+				<!-- #3798 JAPT AMS EDI location code 저장 , address null 처리 -->
+				, case when isnull((select TOP 1 shpr_nm1 from tb_edi_ams_bl where BLNBR=BL.BL_NO ORDER BY MODI_TMS DESC),'') != ''
+					then (select TOP 1 shpr_nm1 from tb_edi_ams_bl where BLNBR=BL.BL_NO ORDER BY MODI_TMS DESC)
+					else ISNULL(amsbl.shpr_nm1, shp.trdp_nm) 
+				end as shpr_nm       	
+				
+				 , case when  isnull((select TOP 1 shpr_nm2 from tb_edi_ams_bl where BLNBR=BL.BL_NO ORDER BY MODI_TMS DESC),'') != ''
+						then (select TOP 1 ISNULL(shpr_nm2,'') + ISNULL(shpr_add1,'') + ISNULL(shpr_add2,'') + ISNULL(shpr_add3,'')    from  tb_edi_ams_bl where BLNBR=BL.BL_NO ORDER BY MODI_TMS DESC)
+						else
+							case 
+								when ISNULL(amsbl.shpr_nm2,'') + ISNULL(amsbl.shpr_add1,'') + ISNULL(amsbl.shpr_add2,'') + ISNULL(amsbl.shpr_add3,'') = ''        then shp.trdp_addr        
+								else ISNULL(amsbl.shpr_nm2,'') + ISNULL(amsbl.shpr_add1,'') + ISNULL(amsbl.shpr_add2,'') + ISNULL(amsbl.shpr_add3,'')        
+							end
+					end as shpr_addr
+
+				
+				,cne.trdp_cd as cnee_cd          
+				, case when isnull((select TOP 1 cnee_nm1 from tb_edi_ams_bl where BLNBR=BL.BL_NO ORDER BY MODI_TMS DESC),'') != ''
+					then (select TOP 1 cnee_nm1 from tb_edi_ams_bl where BLNBR=BL.BL_NO ORDER BY MODI_TMS DESC)
+					else ISNULL(amsbl.cnee_nm1, cne.trdp_nm) 
+				end as cnee_nm       	
+				
+				 , case when  isnull((select TOP 1 cnee_nm2 from tb_edi_ams_bl where BLNBR=BL.BL_NO),'') != ''
+						then (select  TOP 1 ISNULL(cnee_nm2,'') + ISNULL(cnee_add1,'') + ISNULL(cnee_add2,'') + ISNULL(cnee_add3,'')    from  tb_edi_ams_bl where BLNBR=BL.BL_NO  ORDER BY MODI_TMS DESC)
+						else
+							case 
+								when ISNULL(amsbl.cnee_nm2,'') + ISNULL(amsbl.cnee_add1,'') + ISNULL(amsbl.cnee_add2,'') + ISNULL(amsbl.cnee_add3,'') = ''        then cne.trdp_addr        
+								else ISNULL(amsbl.cnee_nm2,'') + ISNULL(amsbl.cnee_add1,'') + ISNULL(amsbl.cnee_add2,'') + ISNULL(amsbl.cnee_add3,'')        
+							end 
+					end as cnee_addr
+
+				,ntf.trdp_cd as ntfy_cd         
+				, case when isnull((select TOP 1 NTFY_NM1 from tb_edi_ams_bl where BLNBR=BL.BL_NO ORDER BY MODI_TMS DESC),'') != ''
+					then (select TOP 1 NTFY_NM1 from tb_edi_ams_bl where BLNBR=BL.BL_NO  ORDER BY MODI_TMS DESC)
+					else ISNULL(amsbl.ntfy_nm1, ntf.trdp_nm) 
+				end as ntfy_nm          
+				 , case when  isnull((select TOP 1 NTFY_NM2 from tb_edi_ams_bl where BLNBR=BL.BL_NO ORDER BY MODI_TMS DESC),'') != ''
+						then (select  TOP 1 ISNULL(ntfy_nm2,'') + ISNULL(ntfy_add1,'') + ISNULL(ntfy_add2,'') + ISNULL(ntfy_add3,'')    from  tb_edi_ams_bl where BLNBR=BL.BL_NO  ORDER BY MODI_TMS DESC)
+						else
+							 case 
+								when ISNULL(amsbl.ntfy_nm2,'') + ISNULL(amsbl.ntfy_add1,'') + ISNULL(amsbl.ntfy_add2,'') + ISNULL(amsbl.ntfy_add3,'') = ''       
+									then ntf.trdp_addr        
+								else ISNULL(amsbl.ntfy_nm2,'') + ISNULL(amsbl.ntfy_add1,'') + ISNULL(amsbl.ntfy_add2,'') + ISNULL(amsbl.ntfy_add3,'')        
+							end
+					end as ntfy_addr				   
+				   
+				   
+ 			      <!--,ISNULL(amsbl.ntfy_nm2 + amsbl.ntfy_add1 + amsbl.ntfy_add2 + isnull(amsbl.ntfy_add3,'') , ntf.trdp_addr) as ntfy_addr -->
+			      ,lnr_trdp.scac_cd AS snp_cd
+			      ,amsbl.bond_id
+        		  ,CASE  
+				  (select top 1 MSG_STS from tb_edi_ams_bl where BLNBR= bl.bl_no and msg_no like 'AMS%'  order by modi_tms desc)
+				  WHEN 'A' THEN 'Orginal'
+		          WHEN 'B' THEN'Amendment' 
+				  WHEN 'D' THEN'Amendment' 
+				  END AS ams_sts                 
+		          ,blsts.msg_sts_cd
+		          ,isnull(blsts.CSTMS_RGST_FLG,'N') AS cstms_rgst_flg
+		          ,isnull(blsts.dspo_cd,'') 	as dspo_cd
+		          ,isnull(blsts.rsk_ass_cd,'') as hold_cd
+		  FROM TB_INTG_BL bl
+		 JOIN  TB_ADD_INFO_BND bnd 
+		    ON bl.intg_bl_seq = bnd.intg_bl_seq AND bnd.bnd_clss_cd = 'O' AND bnd.delt_flg = 'N'    
+		 LEFT OUTER JOIN tb_intg_bl_rlt rlt
+		    ON bl.intg_bl_seq = rlt.intg_bl_seq AND rlt.delt_flg = 'N'
+		 LEFT OUTER JOIN tb_intg_bl mbl
+		    ON rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND mbl.biz_clss_cd = 'M' AND mbl.delt_flg = 'N'
+		 LEFT OUTER JOIN tb_bl_prnr shp            
+				ON   bl.intg_bl_seq = shp.intg_bl_seq  
+				AND shp.bl_trdp_tp_cd = 'S01' 
+				AND shp.delt_flg = 'N'           
+		 LEFT OUTER JOIN tb_bl_prnr cne            
+				ON   bl.intg_bl_seq = cne.intg_bl_seq  
+				AND cne.bl_trdp_tp_cd = 'C01' 
+				AND cne.delt_flg = 'N'  
+		 LEFT OUTER JOIN tb_bl_prnr ntf            
+				ON   bl.intg_bl_seq = ntf.intg_bl_seq  
+				AND ntf.bl_trdp_tp_cd = 'N01' 
+				AND ntf.delt_flg = 'N'
+		LEFT OUTER JOIN tb_bl_prnr lnr                 
+               ON  bl.intg_bl_seq = lnr.intg_bl_seq       
+               AND lnr.bl_trdp_tp_cd = 'L01'      
+               AND lnr.delt_flg = 'N'  
+		LEFT OUTER JOIN  tb_trdp lnr_trdp                 
+               ON  lnr_trdp.trdp_cd = lnr.trdp_cd       
+               AND lnr_trdp.delt_flg = 'N'  
+		LEFT OUTER JOIN TB_EDI_BL_STS blsts       
+            ON bl.bl_no = blsts.bl_no  
+            AND blsts.msg_tp_cd = 'AMS' 
+		LEFT OUTER JOIN TB_EDI_AMS_HDR amshdr
+		       ON blsts.msg_no = amshdr.msg_no 
+		LEFT OUTER JOIN TB_EDI_AMS_BL amsbl
+		       ON blsts.msg_no = amsbl.msg_no 
+		       AND blsts.bl_no = amsbl.blnbr
+		 WHERE bl.delt_flg = 'N'
+		     AND bl.air_sea_clss_cd=  'S'
+		     AND bl.biz_clss_cd=  'H'
+		     
+		  <isEqual property="chk_flg" compareValue="Y"> 
+			 AND  bl.bl_no IN ( 
+			<iterate property="chkHblNo" conjunction=",">	
+				#chkHblNo[]# 
+			</iterate>
+			)
+		  </isEqual>   
+			 <!-- #3685 [JAPT] AMS EDI - Transshipment AMS 전송 기능 보완 -->
+			 <isNotEmpty property="pre_vsl_nm_shp">
+			 	AND (
+			 		bl.PRE_VSL_NM = #f_vsl_nm#
+			 		OR
+			 		bl.TRNK_VSL_NM = #f_vsl_nm#
+			 		)
+			 </isNotEmpty>
+			 <isNotEmpty property="pre_voy_shp">
+			 	AND (
+			 		bl.PRE_VOY = #f_voy_cd#
+			 		OR
+			 		bl.TRNK_VOY = #f_voy_cd#
+			 		)
+			 </isNotEmpty>
+			 <isEmpty property="pre_vsl_nm_shp">
+<!-- 			 	AND bl.TRNK_VSL_NM = #f_vsl_nm#
+			 	AND ISNULL(bl.PRE_VSL_NM,'') = ''    -->
+			  AND		(
+							(
+							BL.PRE_VSL_NM = #f_vsl_nm#
+							AND
+							BL.TRNK_VSL_NM != #f_vsl_nm#
+							)
+							OR
+							(
+						 		bl.TRNK_VSL_NM = #f_vsl_nm#
+								AND
+			 					ISNULL(bl.PRE_VSL_NM,'') = ''  
+							)
+						)			 	
+			 </isEmpty>
+			 <isEmpty property="pre_voy_shp">
+<!-- 			 	AND bl.TRNK_VOY = #f_voy_cd#
+			 	AND ISNULL(bl.PRE_VOY,'') = '' -->
+			  AND		(
+							(
+							BL.PRE_VOY = #f_voy_cd#
+							AND
+							BL.TRNK_VOY != #f_voy_cd#
+							)
+							OR
+							(
+						 		bl.TRNK_VOY = #f_voy_cd#
+								AND
+			 					ISNULL(bl.PRE_VOY,'') = ''  
+							)
+						)				 	
+			 </isEmpty>
+			 
+			 <isNotEmpty property="ams_file_no">
+		 	 and blsts.msg_no = #ams_file_no#
+		 	 </isNotEmpty>
+			 <!-- AND bl.POL_CD = #f_pol_cd# -->
+			 <!-- #3798 JAPT AMS EDI location code 저장 , address null 처리 -->
+			 AND bl.POD_CD = #f_pod_cd#
+			 AND bl.TRNK_VSL_NM != ''
+			 AND bl.TRNK_VOY != ''
+			 AND bl.POL_CD != ''
+			 AND bl.POD_CD != ''
+			 and mbl.bl_no !='' 
+			 and bl.bl_no  !=''
+			 <isNotEmpty property="f_snp_cd">
+		 	 AND lnr_trdp.scac_cd =#f_snp_cd#
+		 	 </isNotEmpty>			 
+	</select>
+	
+	
+	<!-- SEE AMS SEARCH   -->
+	<select id="serachSeeAmsCntrList" parameterClass="HashMap" resultClass="SeeAmsVO">
+		/* serachSeeAmsCntrList */
+		SELECT a.cntr_no
+		      ,a.cntr_tpsz_cd
+		      ,a.seal_no1
+		      ,a.cgo_pck_qty
+		      ,a.cgo_pck_ut
+		      ,CAST(a.cgo_wgt AS FLOAT) AS cgo_wgt
+		      ,a.cntr_list_seq
+		      ,a.intg_bl_seq
+		      ,b.AMS_CNTR_CD
+		      ,(SELECT AMS_PCK_CD_VAL FROM TB_PCK_UT_CD C WHERE C.PCK_UT_CD = A.cgo_pck_ut) AS ams_cgo_pck_ut
+		  from tb_cntr_list a, TB_CNTR_TPSZ b
+		 WHERE a.delt_flg = 'N' 
+		   AND a.CNTR_TPSZ_CD = b.CNTR_TPSZ_CD
+		   AND intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	<!-- SEE AMS SEARCH   -->
+	<select id="serachSeeAmsShpCmdtList" parameterClass="HashMap" resultClass="SeeAmsVO">
+		/* serachSeeAmsShpCmdtList */
+		SELECT a.shp_cmdt_cd, a.shp_cmdt_nm, a.pck_qty, a.dg_cd_tp, a.dg_cd , a.dg_cntc_nm 
+ 			   , a.pck_ut_cd
+		          , CAST(a.wgt AS FLOAT) as shp_cmdt_wgt, CAST(a.meas AS FLOAT) as shp_cmdt_meas, a.rmk as item_rmk  
+		          , b.cntr_list_seq, a.shp_cmdt_seq
+		          ,(SELECT AMS_PCK_CD_VAL FROM TB_PCK_UT_CD C WHERE C.PCK_UT_CD = A.pck_ut_cd) AS ams_pck_ut_cd
+		  FROM tb_shp_cmdt a, TB_CNTR_LIST b
+		 WHERE a.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		 	<isNotEmpty property="cntr_list_seq">
+		 	AND a.cntr_list_seq = #cntr_list_seq#
+		 	</isNotEmpty>
+		    AND  a.cntr_list_seq = b.cntr_list_seq
+		    AND  a.delt_flg = 'N'
+	</select>
+	
+	<!-- SEE AMS SEARCH   -->
+	<select id="serachSeeAmsCntrDngr" parameterClass="HashMap" resultClass="SeeAmsVO">
+		/* serachSeeAmsCntrDngr */
+		SELECT dg_cd_tp, dg_cd,dg_cntc_nm 
+		    FROM tb_shp_cmdt
+		   WHERE intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		     AND CNTR_LIST_SEQ =#cntr_list_seq# /*'146'*/
+		     AND DG_CD_TP != ''
+		     AND  delt_flg = 'N'
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<insert id="insertEdiAmsHdr" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsHdrVO">
+		INSERT INTO TB_EDI_AMS_HDR
+           (MSG_NO
+           ,MSG_TYPE
+           ,SCAC
+           ,VSL_FULLNAME
+           ,VSL_VOYAGE
+           ,VSL_FLAG
+           ,BL_COUNT
+           ,H_POL_AMS
+           ,H_POL_ETD
+           ,POD_AMS
+           ,POD_AMS_NM
+           ,POD_ETA
+           ,REF_NO
+           ,CUST_ID
+           ,FILE_NM
+           ,TRNS_STS
+           ,SND_TMS
+           ,RCV_TMS
+           ,RGST_USRID
+           ,RGST_OFC_CD
+           ,RGST_TMS)
+     VALUES
+           (#msg_no#
+           ,#msg_type#
+           ,#scac#
+           ,#vsl_fullname#
+           ,#vsl_voyage#
+           ,#vsl_flag#
+           ,#bl_count#
+           ,#h_pol_ams#
+           ,#h_pol_etd#
+           ,#pod_ams#
+           ,#pod_ams_nm#
+           ,#pod_eta#
+           ,#ref_no#
+           ,#cust_id#
+           ,#file_nm#
+           ,#trns_sts#
+           ,GETDATE()
+           ,#rcv_tms#
+           ,#rgst_usrid#
+           ,#rgst_ofc_cd#
+           ,GETUTCDATE()
+           )
+	</insert>
+	
+	<insert id="insertEdiAmsBl" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsBlVO">
+		INSERT INTO TB_EDI_AMS_BL
+           (MSG_NO
+           ,BLNBR
+           ,REFNBR
+           ,MSG_STS
+           ,POR_FULLNAME
+           ,LAST_POL_AMS
+           ,POL_AMS
+           ,DEL_AMS
+           ,HUB_AMS
+           ,LAST_USA_AMS
+           ,BLPKG
+           ,BLPKGU
+           ,BLWGT
+           ,BLWGTU
+           ,SNP
+           ,IT_NO
+           ,IT_TYPE
+           ,BOND_ID
+           ,SHPR_NM1
+           ,SHPR_NM2
+           ,SHPR_ADD1
+           ,SHPR_ADD2
+           ,SHPR_ADD3
+           ,CNEE_NM1
+           ,CNEE_NM2
+           ,CNEE_ADD1
+           ,CNEE_ADD2
+           ,CNEE_ADD3
+           ,NTFY_NM1
+           ,NTFY_NM2
+           ,NTFY_ADD1
+           ,NTFY_ADD2
+           ,NTFY_ADD3
+           ,ERR_FLG
+<!--             #3798 [JAPT] AMS EDI location code 저장 & address null 처리 -->
+            ,por_cd
+			,pol_cd
+			,last_pol_cd
+			,pod_cd
+			,rgst_tms
+			,rgst_usrid
+			,modi_tms
+			,modi_usrid
+			,ETD_DT
+           )
+     VALUES
+           (#msg_no#
+           ,#blnbr#
+           ,#refnbr#
+           ,#msg_sts#
+           ,#por_fullname#
+           ,#last_pol_ams#
+           ,#pol_ams#
+           ,#del_ams#
+           ,#hub_ams#
+           ,#last_usa_ams#
+           ,#ttl_itm_pck_qty#
+           ,#blpkgu#
+           ,#blwgt#
+           ,#blwgtu#
+           ,#snp#
+           ,#it_no#
+           ,#it_type#
+           ,#bond_id#
+           ,#shpr_nm1#
+           ,#shpr_nm2#
+           ,#shpr_add1#
+           ,#shpr_add2#
+           ,#shpr_add3#
+           ,#cnee_nm1#
+           ,#cnee_nm2#
+           ,#cnee_add1#
+           ,#cnee_add2#
+           ,#cnee_add3#
+           ,#ntfy_nm1#
+           ,#ntfy_nm2#
+           ,#ntfy_add1#
+           ,#ntfy_add2#
+           ,#ntfy_add3#
+           ,#err_flg#
+<!--             #3798 [JAPT] AMS EDI location code 저장 & address null 처리 -->           
+            ,#por_cd#
+			,#pol_cd#
+			,#last_pol_cd#
+			,#pod_cd#
+			,GETUTCDATE()
+			,#rgst_usrid#
+			,GETUTCDATE()
+			,#modi_usrid#	
+			,#bl_etd_dt#		
+			)
+	</insert>
+	
+	<insert id="insertEdiAmsCntr" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsCntrVO">
+		INSERT INTO TB_EDI_AMS_CNTR
+           (MSG_NO
+           ,BLNBR
+           ,CNTRNBR
+           ,CNTRTYPE
+           ,SEALNBR
+           ,FM_IND)
+     VALUES
+           (#msg_no#
+           ,#blnbr#
+           ,#cntrnbr#
+           ,#cntrtype#
+           ,#sealnbr#
+           ,#fm_ind#)
+	</insert>
+	
+	<insert id="insertEdiAmsCntrDesc" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsCntrDescVO">
+		INSERT INTO TB_EDI_AMS_CNTR_DESC
+           (MSG_NO
+           ,BLNBR
+           ,CNTRNBR
+           ,SEQ
+           ,D_PKG
+           ,D_PUNIT
+           ,D_CMDT
+           ,D_DESC
+           ,D_MARK
+           ,D_WGT
+           ,D_WGTU
+           ,D_VOL
+           ,D_VOLU
+           )	
+     VALUES
+           (#msg_no#
+           ,#blnbr#
+           ,#cntrnbr#
+           ,#seq#
+           ,#d_pkg#
+           ,#d_punit#
+           ,#d_cmdt#
+           ,#d_desc#
+           ,#d_mark#
+           ,#d_wgt#
+           ,#d_wgtu#
+           ,#d_vol#
+           ,#d_volu#
+           )
+	</insert>
+	
+	<insert id="insertEdiAmsCntrDngr" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsCntrDngrVO">
+		INSERT INTO TB_EDI_AMS_CNTR_DNGR
+           (MSG_NO
+           ,BLNBR
+           ,CNTRNBR
+           ,SEQ
+           ,HAZ_CODE
+           ,HAZ_QUAL
+           ,HAZ_CONTACT)
+     VALUES
+           (#msg_no#
+           ,#blnbr#
+           ,#cntrnbr#
+           ,#seq#
+           ,#haz_code#
+           ,#haz_qual#
+           ,#haz_contact#)
+	</insert>
+	
+	<select id="selectEdiAmsMsgNo" resultClass="String">
+		/* selectEdiAmsMsgNo */
+		SELECT 'AMS' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + ISNULL(dbo.LPAD(MAX(SUBSTRING(MSG_NO, 10, 5))+1, 5, '0'), '00001') AS MSG_NO
+		  FROM TB_EDI_AMS_HDR
+		 WHERE MSG_NO LIKE 'AMS' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + '%'
+	</select>
+	<select id="selectEdiAmsRdyNo" resultClass="String">
+		/*selectEdiAmsRdyNo*/
+		SELECT 
+		'RDY' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + ISNULL(dbo.LPAD(MAX(SUBSTRING(MSG_NO, 10, 5))+1, 5, '0'), '00001') AS MSG_NO
+		  FROM TB_EDI_AMS_BL
+		 WHERE MSG_NO LIKE '%' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + '%'	
+	</select>
+	<select id="selectEdiAmsSendChk" resultClass="String">
+		 /* selectEdiAmsSendChk */
+		 SELECT TOP 1 TRNS_STS
+           FROM
+		            TB_EDI_AMS_HDR A,
+		            TB_EDI_AMS_BL B          
+          WHERE A.MSG_NO = B.MSG_NO           
+            AND SCAC =  #scac#  
+            AND VSL_FULLNAME =  #vsl_fullname#    
+            AND VSL_VOYAGE = #vsl_voyage#            
+            AND H_POL_AMS =  #h_pol_amd#         
+            AND POD_AMS =  #pod_ams#
+            AND A.TRNS_STS = 'S'     
+	</select>
+	
+	<select id="selectEdiAmsMsgType" resultClass="String">
+		/* selectEdiAmsMsgType */
+		 SELECT TOP 1 CSTMS_RGST_FLG
+		   FROM TB_EDI_BL_STS
+		  WHERE MSG_TP_CD = 'AMS'
+		    AND BL_NO = #blnbr#
+	</select>
+	
+	<!-- select id="selectEdiAmsMsgType" resultClass="String">
+	 /*
+		 SELECT MIN(CASE WHEN(AA.TRNS_STS = 'S') THEN '' 
+		             			  WHEN(AA.TRNS_STS = 'R') AND AA.BL_COUNT - err_cnt > 0 THEN 'AI'
+		             			  WHEN(AA.TRNS_STS = 'R') AND AA.BL_COUNT - err_cnt = 0 THEN 'MI'  
+		        		  END) AS MSG_TYPE     
+		   FROM (
+				 SELECT MIN(A.TRNS_STS) AS TRNS_STS
+						, MIN(A.BL_COUNT) AS BL_COUNT
+						, COUNT(case when(B.ERR_FLG='Y') then 1 else 0 end) as err_cnt
+				   FROM TB_EDI_AMS_HDR A, TB_EDI_AMS_BL B   
+				  WHERE A.MSG_NO = B.MSG_NO 
+				     AND SCAC = #scac# 
+		 		     AND VSL_FULLNAME = #vsl_fullname# 
+		 		     AND VSL_VOYAGE = #vsl_voyage# 
+		 		     AND H_POL_AMS = #h_pol_amd# 
+		 		     AND POD_AMS = #pod_ams#
+				  group by A.MSG_NO ) AA
+		*/
+	</select  -->
+		
+	<update id="updateAmsBlInfo" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsBlVO">
+		UPDATE  TB_INTG_BL
+		   SET  AMS_NO = #msg_no#
+		 WHERE  intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	</update>
+	
+	
+	<select id="serachSeeAmsRcvList" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsRcvVO">
+		/* serachSeeAmsRcvList */
+		SELECT MSG_NO, MSG_TYPE, MSG_SEQ, SND_TMS
+			       <!-- , CONVERT(VARCHAR,RCV_TMS,110) + ' ' + CONVERT(VARCHAR,RCV_TMS,108) AS RCV_TMS -->
+			       , RCV_TMS AS RCV_TMS
+			       , BL_NO
+			       , STS 
+			       , ERR_MSG AS rslt_msg
+			       , DISP_CD
+			 FROM 
+					(
+					SELECT B.MSG_NO, B.MSG_TYPE, B.MSG_SEQ, B.SND_TMS
+					       , B.RCV_TMS 
+					       , A.BLNBR AS BL_NO
+					       , CASE WHEN B.TRNS_STS = 'R' AND A.ERR_FLG = 'N' THEN 'OK'
+				                     WHEN B.TRNS_STS = 'R' AND A.ERR_FLG = 'Y' THEN 'ERROR'
+				             END AS STS
+                           ,   A.ERR_MSG 
+					       , '' AS DISP_CD
+					 FROM TB_EDI_AMS_BL A, TB_EDI_AMS_HDR B
+					WHERE A.MSG_NO = B.MSG_NO 
+					  AND A.BLNBR = #bl_no#
+					  AND B.MSG_TYPE !=''
+					UNION ALL
+					SELECT '' AS MSG_NO, MSG_TYPE, MSG_SEQ, '' AS SND_TMS
+					       , RCV_TMS 
+					       , BL_NO
+					       , 'OK' AS STS
+					       , REMARK AS ERR_MSG
+					       , DISP_CD
+					  FROM TB_EDI_AMS_BL_STS
+					 WHERE BL_NO = #bl_no#
+					 UNION ALL
+					   SELECT A.MSG_NO, A.MSG_TYPE, A.MSG_SEQ, '' AS SND_TMS
+					       , B.RCV_TMS 
+					       , A.BLNBR
+					       , 'ERROR' AS STS
+					       , A.ERR_MSG
+					       , '' AS DISP_CD
+					  FROM TB_EDI_AMS_RCV_ERR A, TB_EDI_AMS_HDR B, TB_EDI_AMS_BL C
+					 WHERE A.MSG_NO = B.MSG_NO
+					   AND C.MSG_NO = B.MSG_NO
+					    AND C.BLNBR = #bl_no#
+					 
+				   
+					) AA
+			ORDER BY RCV_TMS DESC, SND_TMS DESC
+	</select>
+	
+	<select id="serachSeeAmsSndHis" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsSndHisVO">
+		/* serachSeeAmsSndHis */
+		SELECT A.BLNBR, A.MSG_NO, B.MSG_TYPE, A.SNP, A.LAST_POL_AMS
+			       , CASE WHEN A.IT_TYPE='F' THEN 'Y' ELSE 'N' END FROB 
+			       <!-- , CONVERT(VARCHAR,B.SND_TMS,110) + ' ' + CONVERT(VARCHAR,B.SND_TMS,108) AS SND_TMS -->
+			       , B.SND_TMS AS SND_TMS
+			       , A.MSG_NO  
+			       ,CASE B.msg_type WHEN 'MI' THEN 'Orginal'
+		                                      WHEN 'AI' THEN 'Amendment' END AS ams_snd
+		           ,B.file_nm AS snd_file_nm                           
+		  FROM TB_EDI_AMS_BL A, TB_EDI_AMS_HDR B
+		 WHERE A.MSG_NO = B.MSG_NO
+			 AND A.BLNBR = #blnbr#
+			 AND B.MSG_TYPE !=''
+		  ORDER BY SND_TMS DESC
+	</select>
+	
+	<select id="serachEdiSmtAmsHdr" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsHdrVO">
+		/* serachEdiSmtAmsHdr */
+		SELECT REF_NO, MSG_NO, MSG_DATE
+		  FROM TB_EDI_SMTAMS_HDR
+		 WHERE 1=1
+		 	<isNotEmpty property="ref_no">
+		 	AND REF_NO = #ref_no#
+		 	</isNotEmpty>
+		 	<isNotEmpty property="msg_no">
+		 	AND MSG_NO = #msg_no#
+		 	</isNotEmpty>
+			 
+	</select>
+	
+	<insert id="insertEdiSmtAmsHdr" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsHdrVO">
+		INSERT INTO TB_EDI_SMTAMS_HDR
+											           (MSG_NO
+											           ,MSG_TYPE
+											           ,SCAC
+											           ,VSL_FULLNAME
+											           ,VSL_VOYAGE
+											           ,VSL_FLAG
+											           ,BL_COUNT
+											           ,H_POL_AMS
+											           ,H_POL_ETD
+											           ,POD_AMS
+											           ,POD_ETA
+											           ,REF_NO
+											           ,CUST_ID
+											           ,FILE_NM
+											           ,RGST_USRID
+											           ,RGST_OFC_CD
+											           ,RGST_TMS
+											           ,MSG_DATE
+											           ,DNLD_DATE)
+											     VALUES
+											           (#msg_no#
+											           ,#msg_type#
+											           ,#scac#
+											           ,#vsl_fullname#
+											           ,#vsl_voyage#
+											           ,#vsl_flag#
+											           ,#bl_count#
+											           ,#h_pol_ams#
+											           ,#h_pol_etd#
+											           ,#pod_ams#
+											           ,#pod_eta#
+											           ,#ref_no#
+											           ,#cust_id#
+											           ,#file_nm#
+											           ,#rgst_usrid#
+											           ,#rgst_ofc_cd#
+											           ,GETDATE()
+											           ,#msg_date#
+											           ,#dnld_date#)
+	</insert>
+	
+	<insert id="insertEdiSmtAmsBl" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsBlVO">
+		INSERT INTO TB_EDI_SMTAMS_BL
+										           (MSG_NO
+										           ,BLNBR
+										           ,REFNBR
+										           ,MSG_STS
+										           ,POR_FULLNAME
+										           ,LAST_POL_AMS
+										           ,POL_AMS
+										           ,DEL_AMS
+										           ,HUB_AMS
+										           ,LAST_USA_AMS
+										           ,BLPKG
+										           ,BLPKGU
+										           ,BLWGT
+										           ,BLWGTU
+										           ,SNP
+										           ,IT_NO
+										           ,IT_TYPE
+										           ,BOND_ID
+										           ,SHPR_NM1
+										           ,SHPR_NM2
+										           ,SHPR_ADD1
+										           ,SHPR_ADD2
+										           ,SHPR_ADD3
+										           ,CNEE_NM1
+										           ,CNEE_NM2
+										           ,CNEE_ADD1
+										           ,CNEE_ADD2
+										           ,CNEE_ADD3
+										           ,NTFY_NM1
+										           ,NTFY_NM2
+										           ,NTFY_ADD1
+										           ,NTFY_ADD2
+										           ,NTFY_ADD3
+										           ,DL_STS)
+										     VALUES
+										           (#msg_no#
+										           ,#blnbr#
+										           ,#refnbr#
+										           ,#msg_sts#
+										           ,#por_fullname#
+										           ,#last_pol_ams#
+										           ,#pol_ams#
+										           ,#del_ams#
+										           ,#hub_ams#
+										           ,#last_usa_ams#
+										           ,#blpkg#
+										           ,#blpkgu#
+										           ,#blwgt#
+										           ,#blwgtu#
+										           ,#snp#
+										           ,#it_no#
+										           ,#it_type#
+										           ,#bond_id#
+										           ,#shpr_nm1#
+										           ,#shpr_nm2#
+										           ,#shpr_add1#
+										           ,#shpr_add2#
+										           ,#shpr_add3#
+										           ,#cnee_nm1#
+										           ,#cnee_nm2#
+										           ,#cnee_add1#
+										           ,#cnee_add2#
+										           ,#cnee_add3#
+										           ,#ntfy_nm1#
+										           ,#ntfy_nm2#
+										           ,#ntfy_add1#
+										           ,#ntfy_add2#
+										           ,#ntfy_add3#
+										           ,#dl_sts#)
+	</insert>
+           
+	<insert id="insertEdiSmtAmsCntr" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsCntrVO">
+		INSERT INTO TB_EDI_SMTAMS_CNTR
+           (MSG_NO
+           ,BLNBR
+           ,CNTRNBR
+           ,CNTRTYPE
+           ,SEALNBR
+           ,FM_IND)
+     VALUES
+           (#msg_no#
+           ,#blnbr#
+           ,#cntrnbr#
+           ,#cntrtype#
+           ,#sealnbr#
+           ,#fm_ind#)
+	</insert>
+	
+	<insert id="insertEdiSmtAmsCntrDesc" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsCntrDescVO">
+		INSERT INTO TB_EDI_SMTAMS_CNTR_DESC
+           (MSG_NO
+           ,BLNBR
+           ,CNTRNBR
+           ,SEQ
+           ,D_PKG
+           ,D_PUNIT
+           ,D_CMDT
+           ,D_DESC
+           ,D_MARK)	
+     VALUES
+           (#msg_no#
+           ,#blnbr#
+           ,#cntrnbr#
+           ,#seq#
+           ,#d_pkg#
+           ,#d_punit#
+           ,#d_cmdt#
+           ,#d_desc#
+           ,#d_mark#)
+	</insert>
+	
+	<insert id="insertEdiSmtAmsCntrDngr" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsCntrDngrVO">
+		INSERT INTO TB_EDI_SMTAMS_CNTR_DNGR
+           (MSG_NO
+           ,BLNBR
+           ,CNTRNBR
+           ,SEQ
+           ,HAZ_CODE
+           ,HAZ_QUAL
+           ,HAZ_CONTACT)
+     VALUES
+           (#msg_no#
+           ,#blnbr#
+           ,#cntrnbr#
+           ,#seq#
+           ,#haz_code#
+           ,#haz_qual#
+           ,#haz_contact#)
+	</insert>
+	           
+	<select id="selectEdiSmtAmsMsgNo" resultClass="String">
+		SELECT 'OIB' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + ISNULL(dbo.LPAD(MAX(SUBSTRING(MSG_NO, 10, 5))+1, 5, '0'), '00001') AS MSG_NO
+		  FROM TB_EDI_SMTAMS_HDR
+		 WHERE MSG_NO LIKE 'OIB' + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + '%'
+	</select>	      
+	
+	<delete id="deleteEdiSmtAmsHdr" parameterClass="String">
+		DELETE  
+		  FROM  TB_EDI_SMTAMS_HDR
+		 WHERE  MSG_NO = #mgs_no#
+	</delete>
+	
+	<delete id="deleteEdiSmtAmsBl" parameterClass="String">
+		DELETE  
+		  FROM  TB_EDI_SMTAMS_BL
+		 WHERE  MSG_NO = #mgs_no#
+	</delete>
+	     
+	<delete id="deleteEdiSmtAmsCntr" parameterClass="String">
+		DELETE  
+		  FROM  TB_EDI_SMTAMS_CNTR
+		 WHERE  MSG_NO = #mgs_no#
+	</delete>
+	
+	<delete id="deleteEdiSmtAmsCntrDngr" parameterClass="String">
+		DELETE  
+		  FROM  TB_EDI_SMTAMS_CNTR_DNGR
+		 WHERE  MSG_NO = #mgs_no#
+	</delete>
+	
+	<delete id="deleteEdiSmtAmsCntrDesc" parameterClass="String">
+		DELETE  
+		  FROM  TB_EDI_SMTAMS_CNTR_DESC
+		 WHERE  MSG_NO = #mgs_no#
+	</delete>
+	
+	<!-- select id="serachEdiSmtAmsData" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiSmtAmsDataVO">
+		/* serachEdiSmtAmsData */
+		SELECT AA.* 
+		  FROM  (
+					SELECT A.MSG_NO, A.MSG_STS, A.MSG_DATE, A.VSL_FULLNAME, A.VSL_VOYAGE
+					           , A.SCAC
+							   , B.REFNBR, B.BLNBR, B.POL_AMS
+							   , CONVERT(VARCHAR(8), A.H_POL_ETD) AS H_POL_ETD
+							   , A.REF_NO, A.POD_AMS
+							   , CONVERT(VARCHAR(8), A.POD_ETA) AS POD_ETA
+							   , B.POR_FULLNAME, B.DEL_AMS, '' AS CARRIER, A.CUST_ID
+							   , B.SHPR_NM1 + B.SHPR_NM2 AS SHPR_NM
+							   , B.CNEE_NM1 + B.CNEE_NM2 AS CNEE_NM
+							   , B.NTFY_NM1 + B.NTFY_NM2 AS NTFY_NM
+							   , (SELECT COUNT(*) FROM TB_EDI_SMTAMS_CNTR WHERE MSG_NO = B.MSG_NO AND BLNBR = B.BLNBR) AS CNTR_QTY
+							   , B.BLPKG, B.BLPKGU, B.BLWGT, B.BLWGTU
+							   , B.DL_STS
+							   , A.DNLD_DATE
+						       , (SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD = 'AMSD' AND CD_VAL = B.DL_STS) AS DL_STS_NM
+						       , (SELECT MIN(TRDP_CD) FROM TB_TRDP WHERE SMT_ID = A.CUST_ID AND DELT_FLG = 'N') AS AGT_CD
+						       , (SELECT MIN(ENG_NM) FROM TB_TRDP WHERE SMT_ID = A.CUST_ID AND DELT_FLG = 'N') AS AGT_NM
+						       , (SELECT MIN(PCK_UT_CD) FROM TB_PCK_UT_CD WHERE AMS_PCK_CD_VAL = B.BLPKGU) AS PCK_UT_CD
+						       , CASE B.MSG_STS WHEN 'A' THEN 'New' 
+						                        WHEN 'B' THEN 'Amd' 
+						                        ELSE 'Del' END AS TYPE
+						       , RANK() OVER (PARTITION BY B.BLNBR ORDER BY B.MSG_NO, B.DL_STS) RNK              
+				     FROM TB_EDI_SMTAMS_HDR A, TB_EDI_SMTAMS_BL B
+				   WHERE A.MSG_NO = B.MSG_NO
+				       AND A.RGST_TMS BETWEEN  GETDATE()-31 AND GETDATE()
+					) AA
+	 	WHERE AA.RNK = 1		
+ 		<isNotEmpty property="dl_sts">
+		 	AND AA.DL_STS = #dl_sts#  
+		</isNotEmpty>
+		<isNotEmpty property="dnld_strdt">
+		 	AND AA.DNLD_DATE BETWEEN #dnld_strdt#  AND #dnld_enddt#
+		</isNotEmpty>
+		ORDER BY MSG_NO DESC
+	</select-->
+	
+	<!-- #25561 AMS List 에 Tracking 기능 추가 : AA.CNTR_NO ADD -->
+	<select id="serachEdiSmtAmsData" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiSmtAmsDataVO">
+		/* serachEdiSmtAmsData */
+		SELECT                         
+                     AA.VSL_FULLNAME, AA.VSL_VOYAGE
+				   , AA.REFNBR
+				   , AA.BLNBR
+				   , AA.POL_AMS
+				   , MAX(AA.SCAC) AS SCAC
+				   , MAX(AA.CUST_REF_NO) AS CUST_REF_NO
+				   , MAX(AA.MSG_NO) AS MSG_NO
+				   , MAX(AA.MSG_STS) AS MSG_STS
+				   , MAX(AA.MSG_DATE) AS MSG_DATE
+				   , MAX(AA.H_POL_ETD) AS H_POL_ETD
+				   , MAX(AA.REF_NO) AS REF_NO
+				   , MAX(AA.POD_AMS) AS POD_AMS
+				   , MAX(AA.POD_ETA) AS POD_ETA
+				   , MAX(AA.POR_FULLNAME) AS POR_FULLNAME
+				   , MAX(AA.DEL_AMS) AS DEL_AMS
+				   
+				   , MAX(AA.CARRIER) AS CARRIER
+				   
+				   <!-- #52744 [ZEN] OI AMS LIST에서 BL CREATE하면, CARRIER & PACKAGE 정보 자동 입력 안됨 CARRIER 만 적용  -->
+				   , MAX(AA.CARRIER) AS CARR_CD
+				   , MAX(AA.CARRIER) AS LNR_CD
+			       ,(SELECT LOCL_NM  FROM TB_TRDP TP WHERE TP.TRDP_CD = MAX(AA.CARRIER)) AS CARR_NM
+										   
+				   , MAX(AA.CUST_ID) AS CUST_ID
+				   , MAX(AA.SHPR_NM) AS SHPR_NM
+				   , MAX(AA.CNEE_NM) AS CNEE_NM
+				   , MAX(AA.NTFY_NM) AS NTFY_NM
+				   , MAX(AA.CNTR_QTY) AS CNTR_QTY
+				   , MAX(AA.BLPKG) AS BLPKG
+				   , MAX(AA.BLPKGU) AS BLPKGU
+				   , MAX(AA.BLWGT) AS BLWGT
+				   , MAX(AA.BLWGTU) AS BLWGTU
+				   , MAX(AA.DL_STS) AS DL_STS
+				   , MAX(AA.DNLD_DATE) AS DNLD_DATE
+			       , MAX(AA.DL_STS_NM) AS DL_STS_NM
+			       , MAX(AA.AGT_CD) AS AGT_CD
+			       , MAX(AA.AGT_NM) AS AGT_NM
+			       , MAX(AA.PCK_UT_CD) AS PCK_UT_CD 
+			       , MAX(AA.TYPE) AS TYPE
+			       , MAX(RNK) AS RNK
+				   , MAX(FILLING_NO) AS FILLING_NO
+				   , MAX(BLCK_FLG) AS BLCK_FLG
+				   , CASE WHEN MAX(ERR_FLG) = 'N' THEN 'Accepted' 
+				             WHEN MAX(ERR_FLG) = 'Y' THEN 'Error' 
+				             WHEN MAX(MSG_STS) = 'S' THEN 'Sent' 
+				             WHEN MAX(MSG_STS) = 'C' THEN 'Created' 
+				             ELSE '' END AS ERR_FLG
+				   , MAX(AA.DISP_CD) AS DISP_CD     
+				   , CASE WHEN MAX(AA.DISP_CD) = '1Y' THEN 'Load to OK(1Y)'
+				          WHEN MAX(AA.DISP_CD) = '54' THEN 'Deleted'
+				          WHEN MAX(AA.DISP_CD) = '55' THEN 'Amended'
+						  WHEN MAX(AA.DISP_CD) = '6H' THEN 'Do Not Load'
+						  WHEN MAX(AA.DISP_CD) IN ('1H','2H','3H','4H','5H','6H', '7H') THEN 'Hold'
+						  WHEN MAX(AA.DISP_CD) IS NULL AND MAX(ERR_FLG) = 'Y' THEN 'Rejected'
+						  WHEN MAX(AA.DISP_CD) IS NULL AND MAX(ERR_FLG) = 'N' THEN 'OK to Load'
+						  END AS BL_STS
+			      ,(SELECT SUM(CONVERT(FLOAT, ISNULL(D_VOL, 0))) FROM TB_EDI_SMTAMS_CNTR_DESC WHERE MSG_NO = MAX(AA.MSG_NO)  AND BLNBR = AA.BLNBR ) AS BLVOL
+			      ,AA.CNTR_NO
+			      ,AA.CNTR_CNT 
+			      ,AA.OFC_CD
+			      
+			       <!-- #52744 [ZEN] OI AMS LIST에서 BL CREATE하면, CARRIER & PACKAGE 정보 자동 입력 안됨 -->
+			      ,MAX(MBLPKG) AS MBLPKG         
+			      
+		  FROM  (
+					SELECT A.MSG_NO, A.MSG_STS
+					           , SUBSTRING(A.MSG_DATE, 0, 9) AS MSG_DATE
+					           , A.VSL_FULLNAME, A.VSL_VOYAGE
+					           , A.SCAC
+					           , A.CUST_REF_NO
+							   , B.REFNBR, B.BLNBR, B.POL_AMS
+							   , CONVERT(VARCHAR(8), A.H_POL_ETD) AS H_POL_ETD
+							   , A.REF_NO, A.POD_AMS
+							   , CONVERT(VARCHAR(8), A.POD_ETA) AS POD_ETA
+							   , B.POR_FULLNAME, B.DEL_AMS, B.SNP AS CARRIER, A.CUST_ID
+							   , B.SHPR_NM1 AS SHPR_NM
+							   , B.CNEE_NM1 AS CNEE_NM
+							   , B.NTFY_NM1 AS NTFY_NM
+							   , (SELECT COUNT(*) FROM TB_EDI_SMTAMS_CNTR WHERE MSG_NO = B.MSG_NO AND BLNBR = B.BLNBR) AS CNTR_QTY
+							   , B.BLPKG, B.BLPKGU, B.BLWGT, B.BLWGTU
+							   , B.DL_STS
+							   , A.DNLD_DATE
+							   
+							   <!-- #52744 [ZEN] OI AMS LIST에서 BL CREATE하면, CARRIER & PACKAGE 정보 자동 입력 안됨 -->
+							   ,(SELECT SUM(TESB.BLPKG) FROM TB_EDI_SMTAMS_BL TESB WHERE TESB.MSG_NO =  B.MSG_NO) MBLPKG
+            
+            
+						       , (SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD = 'AMSD' AND CD_VAL = B.DL_STS) AS DL_STS_NM
+						       , (SELECT MIN(TRDP_CD) FROM TB_TRDP WHERE SMT_ID = A.CUST_ID AND DELT_FLG = 'N') AS AGT_CD
+						       , (SELECT MIN(ENG_NM) FROM TB_TRDP WHERE SMT_ID = A.CUST_ID AND DELT_FLG = 'N') AS AGT_NM
+						       , (SELECT MIN(PCK_UT_CD) FROM TB_PCK_UT_CD WHERE AMS_PCK_CD_VAL = B.BLPKGU) AS PCK_UT_CD
+						       , CASE B.MSG_STS WHEN 'A' THEN 'New' 
+						                        WHEN 'B' THEN 'Amd' 
+						                        ELSE 'Del' END AS TYPE
+						       , RANK() OVER (PARTITION BY B.BLNBR ORDER BY B.INTG_BL_SEQ DESC, B.MSG_NO DESC, B.DL_STS) RNK       
+							   , (SELECT MIN(REF_NO) FROM TB_INTG_BL BL WHERE BL.INTG_BL_SEQ = B.INTG_BL_SEQ AND BL.DELT_FLG = 'N') AS FILLING_NO      
+							   , B.BLCK_FLG 
+							   , B.ERR_FLG   
+							   ,  (SELECT SUBSTRING(MAX(MSG_DATE + MSG_SEQ + DISP_CD), LEN(MAX(MSG_DATE + MSG_SEQ + DISP_CD))-1, 2) AS DISP_CD
+							        FROM TB_EDI_AMS_BL_STS 
+							       WHERE BL_NO = B.BLNBR
+								       AND DISP_CD IN ('54','55', '1H', '2H', '3H', '4H', '5H', '6H', '7H','1Y')
+								  ) AS DISP_CD
+							   ,(SELECT MAX(X.CNTRNBR) FROM TB_EDI_SMTAMS_CNTR X WHERE X.MSG_NO = B.MSG_NO AND X.BLNBR = B.BLNBR) AS CNTR_NO
+							   ,(SELECT COUNT(X.CNTRNBR)-1 FROM TB_EDI_SMTAMS_CNTR X WHERE X.MSG_NO = B.MSG_NO AND X.BLNBR = B.BLNBR) AS CNTR_CNT
+							   , A.RGST_OFC_CD AS OFC_CD
+				     FROM TB_EDI_SMTAMS_HDR A, TB_EDI_SMTAMS_BL B
+				   WHERE A.MSG_NO = B.MSG_NO
+					) AA
+	 	WHERE AA.RNK = 1		
+ 		<isNotEmpty property="dl_sts">
+		 	AND AA.DL_STS = #dl_sts#  
+		</isNotEmpty>
+		<isNotEmpty property="dnld_strdt">
+		 	AND AA.DNLD_DATE BETWEEN #dnld_strdt#  AND #dnld_enddt#
+		</isNotEmpty>
+		<isNotEmpty property="etd_strdt">
+		 	AND AA.H_POL_ETD BETWEEN #etd_strdt#  AND #etd_enddt#
+		</isNotEmpty>
+		<isNotEmpty property="eta_strdt">
+		 	AND AA.POD_ETA BETWEEN #eta_strdt#  AND #eta_enddt#
+		</isNotEmpty>
+		
+		<isNotEmpty property="blnbr">
+		 	AND AA.BLNBR LIKE #blnbr# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="refnbr">
+		 	AND AA.REFNBR LIKE #refnbr# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="filling_no">
+		 	AND AA.FILLING_NO LIKE #filling_no# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="pol_cd">
+		 	AND AA.POL_AMS = (SELECT MIN(AMS_LOC_VAL) FROM TB_LOC WHERE LOC_CD =  #pol_cd# )
+		</isNotEmpty>
+		
+		<isNotEmpty property="pod_cd">
+		 	AND AA.POD_AMS = (SELECT MIN(AMS_LOC_VAL) FROM TB_LOC WHERE LOC_CD =  #pod_cd#)
+		</isNotEmpty>
+		
+		<isNotEmpty property="shpr_nm">
+		 	AND AA.SHPR_NM LIKE #shpr_nm# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="cnee_nm">
+		 	AND AA.CNEE_NM LIKE #cnee_nm# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="vsl_fullname">
+		 	AND AA.VSL_FULLNAME LIKE #vsl_fullname# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="vsl_voyage">
+		 	AND AA.VSL_VOYAGE LIKE #vsl_voyage# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="cust_ref_no">
+		 	AND AA.CUST_REF_NO LIKE #cust_ref_no# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="cntrnbr">
+		 	AND AA.MSG_NO IN ( SELECT MSG_NO FROM TB_EDI_SMTAMS_CNTR WHERE CNTRNBR =  #cntrnbr# )
+		</isNotEmpty>
+		<!-- #1309-[BINEX] OI AMS LIST TO HAVE "AGENT ID" SEARCH FIELD -->
+		<isNotEmpty property="agent_id">
+		 	AND AA.CUST_ID = #agent_id#
+		</isNotEmpty>
+		
+		<!-- #3880 -->
+		<isNotEmpty property="f_ofc_cd">
+		 	AND AA.OFC_CD = #f_ofc_cd#
+		</isNotEmpty>		
+		
+		GROUP BY AA.VSL_FULLNAME, AA.VSL_VOYAGE, AA.REFNBR, AA.BLNBR, AA.POL_AMS, AA.CNTR_NO, AA.CNTR_CNT, AA.OFC_CD
+		ORDER BY MAX(AA.MSG_NO) DESC
+	</select>
+	
+	<select id="serachAmsData" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiSmtAmsDataVO">
+		/* serachAmsData */
+		SELECT * 
+		  FROM
+		          ( 
+					SELECT 
+
+								B.SNP AS CARRIER  ,
+						        B.SNP AS  CARR_CD,
+						        B.SNP AS LNR_CD        ,
+						    	(SELECT
+						       LOCL_NM 
+						   		FROM
+						       TB_TRDP TP 
+						   		WHERE
+						       TP.TRDP_CD = B.SNP ) AS CARR_NM                ,
+						       
+						       (SELECT
+						           SUM(TESB.BLPKG) 
+						       FROM
+						           TB_EDI_SMTAMS_BL TESB 
+						       WHERE
+						           TESB.MSG_NO =  B.MSG_NO) MBLPKG  ,
+                
+								A.MSG_NO, A.MSG_STS
+					           , SUBSTRING(A.MSG_DATE, 0, 9) AS MSG_DATE
+					           , A.VSL_FULLNAME, A.VSL_VOYAGE
+					           , A.SCAC
+					           , A.CUST_REF_NO
+							   , B.REFNBR, B.BLNBR, B.POL_AMS
+							   , CONVERT(VARCHAR(8), A.H_POL_ETD) AS H_POL_ETD
+							   , A.REF_NO, A.POD_AMS
+							   , CONVERT(VARCHAR(8), A.POD_ETA) AS POD_ETA
+							   , B.POR_FULLNAME, B.DEL_AMS,  A.CUST_ID
+							   , B.SHPR_NM1  AS SHPR_NM
+							   , B.SHPR_NM2 +  char(13)+char(10) + B.SHPR_ADD1 + char(13)+char(10) + B.SHPR_ADD2 + char(13)+char(10) + B.SHPR_ADD3 AS SHPR_ADD
+							   , B.CNEE_NM1 AS CNEE_NM
+							   , B.CNEE_NM2 + char(13)+char(10)  + B.CNEE_ADD1 + char(13)+char(10)+ B.CNEE_ADD2 + char(13)+char(10) + B.CNEE_ADD3 AS CNEE_ADD
+							   , B.NTFY_NM1 AS NTFY_NM
+							   , B.NTFY_NM2 + char(13)+char(10) + B.NTFY_ADD1 + char(13)+char(10) + B.NTFY_ADD2 + char(13)+char(10) + B.NTFY_ADD3 AS NTFY_ADD
+							   , (SELECT COUNT(*) FROM TB_EDI_SMTAMS_CNTR WHERE MSG_NO = B.MSG_NO AND BLNBR = B.BLNBR) AS CNTR_QTY
+							   , B.BLPKG, B.BLPKGU, B.BLWGT, B.BLWGTU
+							   , B.DL_STS
+						       , (SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD = 'AMSD' AND CD_VAL = B.DL_STS) AS DL_STS_NM
+						       , (SELECT MIN(TRDP_CD) FROM TB_TRDP WHERE SMT_ID = A.CUST_ID AND DELT_FLG = 'N') AS AGT_CD
+						       , (SELECT MIN(ENG_NM) FROM TB_TRDP WHERE SMT_ID = A.CUST_ID AND DELT_FLG = 'N') AS AGT_NM
+						       , (SELECT MIN(PCK_UT_CD) FROM TB_PCK_UT_CD WHERE AMS_PCK_CD_VAL = B.BLPKGU) AS PCK_UT_CD
+						       , CASE B.MSG_STS WHEN 'A' THEN 'New' 
+						                        WHEN 'B' THEN 'Amd' 
+						                        ELSE 'Del' END AS TYPE
+						       , RANK() OVER (PARTITION BY B.BLNBR ORDER BY A.MSG_NO DESC) RNK
+						       ,(SELECT SUM(CONVERT(FLOAT, ISNULL(D_VOL, 0))) FROM TB_EDI_SMTAMS_CNTR_DESC WHERE MSG_NO = A.MSG_NO  AND BLNBR = B.BLNBR ) AS BLVOL
+						       ,A.DNLD_DATE
+				     FROM TB_EDI_SMTAMS_HDR A, TB_EDI_SMTAMS_BL B
+				   WHERE A.MSG_NO = B.MSG_NO
+				    <isNotEmpty property="dnld_strdt">
+					 	AND A.DNLD_DATE BETWEEN #dnld_strdt#  AND #dnld_enddt#
+					</isNotEmpty>
+					<isNotEmpty property="dl_sts">
+					 	AND B.DL_STS = #dl_sts#  
+					</isNotEmpty>
+					<isNotEmpty property="ref_no">
+					 	AND A.REF_NO = #ref_no#  
+					</isNotEmpty>
+					<isNotEmpty property="blnbr">
+					 	AND B.BLNBR = #blnbr#  
+					</isNotEmpty>
+					) AA
+			WHERE 1=1
+			    AND RNK = 1
+	</select>
+		     
+	<select id="selectMpCdByVSL" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiDataMpVO">
+		/* selectMpCdByVSL */
+		SELECT TOP 1 AA.MP_CD 
+		  FROM (
+					SELECT VSL_CD AS MP_CD FROM TB_VSL WHERE VSL_NM = #mp_val# AND DELT_FLG = 'N' AND USE_FLG = 'Y'
+					UNION ALL
+					SELECT MP_CD FROM TB_EDI_DATA_MP WHERE MP_VAL = #mp_val# AND MP_TP = #mp_tp#
+					) AA
+	</select>
+	
+	<select id="selectMpCdByTRDP" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiDataMpVO">
+		/* selectMpCdByTRDP */
+		SELECT TOP 1 MP_CD 
+		  FROM (
+					SELECT TRDP_CD AS MP_CD FROM TB_TRDP WHERE ENG_NM = #mp_val# OR LOCL_NM = #mp_val# AND DELT_FLG = 'N'
+					UNION ALL
+					SELECT MP_CD FROM TB_EDI_DATA_MP WHERE MP_VAL = #mp_val# AND MP_TP = #mp_tp#
+					) AA
+	</select>
+	
+	<select id="selectMpCdByPOR" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiDataMpVO">
+		/* selectMpCdByPOR */
+		SELECT TOP 1 MP_CD, MP_VAL 
+		  FROM (
+					SELECT LOC_CD AS MP_CD, LOC_NM AS MP_VAL FROM TB_LOC WHERE LOC_NM = #mp_val# AND USE_FLG = 'Y' AND DELT_FLG = 'N'
+					UNION ALL
+					SELECT MP_CD, MP_VAL FROM TB_EDI_DATA_MP WHERE MP_VAL = #mp_val# AND MP_TP = #mp_tp#
+					) AA
+	</select>
+	
+	<select id="selectMpCdByLOC" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiDataMpVO">
+		/* selectMpCdByPOR */
+		SELECT TOP 1 MP_CD, MP_VAL 
+		  FROM (
+					SELECT LOC_CD AS MP_CD, LOC_NM AS MP_VAL  FROM TB_LOC WHERE AMS_LOC_VAL = #mp_val# AND USE_FLG = 'Y' AND DELT_FLG = 'N'
+					UNION ALL
+					SELECT MP_CD, MP_VAL  FROM TB_EDI_DATA_MP WHERE MP_VAL = #mp_val# AND MP_TP = #mp_tp#
+					) AA
+	</select>
+	
+	<select id="selectLnrInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.SeeAmsVO">
+		/* selectLnrInfo */
+		SELECT A.LNR_TRDP_CD AS LNR_TRDP_CD, B.ENG_NM AS LNR_TRDP_NM  
+		  FROM TB_VSL A, TB_TRDP B 
+		 WHERE A.LNR_TRDP_CD = B.TRDP_CD 
+		     AND VSL_CD = #vsl_cd#
+		     AND A.DELT_FLG = 'N' 
+		     AND A.USE_FLG = 'Y' 
+		     AND B.DELT_FLG = 'N' 
+	</select>
+	
+	<insert id="insertBlPrnr" parameterClass="HashMap">
+        INSERT INTO tb_bl_prnr(                                                      
+              intg_bl_seq,          bl_trdp_tp_cd,    
+              trdp_cd,              trdp_addr,          trdp_nm,
+              
+              trdp_pic_usr_id,      trdp_pic,           trdp_phn,      trdp_fax,     trdp_eml,
+              
+              rgst_usrid,           rgst_ofc_cd,        rgst_tms,        
+              modi_usrid,           modi_ofc_cd,        modi_tms,      delt_flg                                                       
+        ) SELECT  #intg_bl_seq#,    #bl_trdp_tp_cd#, 
+                  a.trdp_cd,        eng_addr,  eng_nm,
+                  b.cntc_pson_seq,  b.pic_nm,            b.pic_phn,    b.pic_fax,    b.pic_eml,
+                  #rgst_usrid#,     #rgst_ofc_cd#,        getdate(),
+                  #modi_usrid#,     #modi_ofc_cd#,        GETUTCDATE(),    'N'
+            FROM  tb_trdp a 
+ LEFT OUTER JOIN  tb_trdp_cntc_pson b
+              ON  a.trdp_cd=b.trdp_cd 
+             AND  b.cntc_pson_seq = ( SELECT MIN(cntc_pson_seq)  
+                                        FROM tb_trdp_cntc_pson 
+                                       WHERE delt_flg = 'N' AND trdp_cd = a.trdp_cd )
+             AND  a.delt_flg = 'N'
+           WHERE  a.trdp_cd = #trdp_cd# AND a.delt_flg = 'N'
+    </insert>
+    
+    <insert id="insertEdiDataMp" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiDataMpVO">
+        INSERT INTO TB_EDI_DATA_MP
+									           (MP_VAL
+									           ,MP_TP
+									           ,MP_CD
+									           ,RGST_USRID
+									           ,RGST_TMS
+									           <isNotEmpty property="edi_tp">
+									           ,EDI_TP
+									           </isNotEmpty>
+									           )
+									     VALUES
+									           (#mp_val#
+									           ,#mp_tp#
+									           ,#mp_cd#
+									           ,#rgst_usrid#
+									           ,getdate()
+									           <isNotEmpty property="edi_tp">
+									           ,#edi_tp#
+									           </isNotEmpty>
+									           )
+    </insert>			
+    
+    <delete id="deleteEdiDataMp" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiDataMpVO">
+		DELETE  
+		  FROM  TB_EDI_DATA_MP
+		 WHERE  mp_val = #mp_val#
+		 <isNotEmpty property="edi_tp">
+            AND edi_tp = #edi_tp#
+         </isNotEmpty>
+	</delete>
+    
+    
+    <select id="selectEdiDataMp" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiDataMpVO">
+		/* selectEdiDataMp */
+		SELECT *  
+		  FROM TB_EDI_DATA_MP
+		 WHERE mp_val = #mp_val#
+		     AND mp_tp = #mp_tp# 
+	        <isNotEmpty property="edi_tp">
+            AND edi_tp = #edi_tp#
+         </isNotEmpty>
+	</select>   
+	
+	 <select id="selectAmsLocVal" parameterClass="String" resultClass="String">
+		/* selectAmsLocVal */
+		SELECT AMS_LOC_VAL 
+		  FROM TB_LOC
+		 WHERE loc_cd = #loc_cd#
+	</select>
+	
+	<select id="selectEdiSmtAmsCntr" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.CntrListVO">
+		/* selectEdiSmtAmsCntr */
+		SELECT CNTR.CNTR_NO             AS cntr_no
+			 , MIN(CNTR.SEAL_NO1)       AS seal_no1
+			 , MIN(CNTR.CNTR_TPSZ_CD)   AS cntr_tpsz_cd
+			 , MIN(CNTR.DG_GDS_FLG)     AS dg_gds_flg
+			 , SUM(CNTR.CGO_PCK_QTY)    AS cgo_pck_qty
+			 , SUM(CNTR.CGO_WGT)        AS cgo_wgt
+			 , SUM(CNTR.CGO_MEAS)       AS cgo_meas
+		FROM(
+			SELECT  CNTRNBR AS cntr_no
+	        			, SEALNBR AS seal_no1
+	        			, (SELECT MIN(CNTR_TPSZ_CD) FROM TB_CNTR_TPSZ WHERE AMS_CNTR_CD = A.CNTRTYPE) as cntr_tpsz_cd
+	        			, (SELECT CASE WHEN COUNT(*) > 0 THEN 'Y' ELSE 'N' END FROM TB_EDI_SMTAMS_CNTR_DNGR WHERE MSG_NO = A.MSG_NO AND CNTRNBR = A.CNTRNBR ) AS dg_gds_flg  
+	        			, ISNULL((SELECT SUM(CONVERT(INT, ISNULL(D_PKG, 0))) FROM TB_EDI_SMTAMS_CNTR_DESC WHERE MSG_NO = A.MSG_NO AND BLNBR = A.BLNBR AND CNTRNBR = A.CNTRNBR), 0) AS cgo_pck_qty
+	        			, ISNULL((SELECT SUM(CONVERT(FLOAT, ISNULL(D_WGT, 0))) FROM TB_EDI_SMTAMS_CNTR_DESC WHERE MSG_NO = A.MSG_NO AND BLNBR = A.BLNBR AND CNTRNBR = A.CNTRNBR), 0) AS cgo_wgt
+	   		            , ISNULL((SELECT SUM(CONVERT(FLOAT, ISNULL(D_VOL, 0))) FROM TB_EDI_SMTAMS_CNTR_DESC WHERE MSG_NO = A.MSG_NO AND BLNBR = A.BLNBR AND CNTRNBR = A.CNTRNBR), 0) AS cgo_meas
+	   		  FROM TB_EDI_SMTAMS_CNTR A
+			 WHERE MSG_NO = #msg_no#
+			     AND BLNBR = #blnbr#
+		) CNTR
+		GROUP BY CNTR.CNTR_NO
+		<!-- SELECT  CNTRNBR AS cntr_no
+        			, SEALNBR AS seal_no1
+        			, (SELECT MIN(CNTR_TPSZ_CD) FROM TB_CNTR_TPSZ WHERE AMS_CNTR_CD = A.CNTRTYPE) as cntr_tpsz_cd
+        			, (SELECT CASE WHEN COUNT(*) > 0 THEN 'Y' ELSE 'N' END FROM TB_EDI_SMTAMS_CNTR_DNGR WHERE MSG_NO = A.MSG_NO AND CNTRNBR = A.CNTRNBR ) AS dg_gds_flg  
+        			, ISNULL((SELECT SUM(CONVERT(INT, ISNULL(D_PKG, 0))) FROM TB_EDI_SMTAMS_CNTR_DESC WHERE MSG_NO = A.MSG_NO AND BLNBR = A.BLNBR AND CNTRNBR = A.CNTRNBR), 0) AS cgo_pck_qty
+        			, ISNULL((SELECT SUM(CONVERT(FLOAT, ISNULL(D_WGT, 0))) FROM TB_EDI_SMTAMS_CNTR_DESC WHERE MSG_NO = A.MSG_NO AND BLNBR = A.BLNBR AND CNTRNBR = A.CNTRNBR), 0) AS cgo_wgt
+   		            , ISNULL((SELECT SUM(CONVERT(FLOAT, ISNULL(D_VOL, 0))) FROM TB_EDI_SMTAMS_CNTR_DESC WHERE MSG_NO = A.MSG_NO AND BLNBR = A.BLNBR AND CNTRNBR = A.CNTRNBR), 0) AS cgo_meas
+   		  FROM TB_EDI_SMTAMS_CNTR A
+		 WHERE MSG_NO = #msg_no#
+		     AND BLNBR = #blnbr#
+		  -->
+	</select>
+	
+	<select id="selectEdiSmtAmsCntrDesc" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.HblItemVO">
+		/* selectEdiSmtAmsCntrDesc */
+		SELECT CNTRNBR AS  item_cntr_no
+				   , D_CMDT AS item_shp_cmdt_cd
+		           , SUBSTRING(D_DESC, 0, 300) AS item_shp_cmdt_nm
+		           , D_PUNIT AS item_pck_ut_cd
+		           , ISNULL(D_PKG,0) AS item_pck_qty
+		           , D_MARK AS d_mark  
+		           , CASE D_WGT WHEN '' THEN '0' 
+		                                 WHEN NULL THEN '0' 
+		                                    ELSE D_WGT END AS item_wgt 
+		           , CASE D_VOL WHEN '' THEN '0' 
+		                                WHEN NULL THEN '0' 
+		                                  ELSE D_VOL END AS item_meas
+		  FROM TB_EDI_SMTAMS_CNTR_DESC
+		 WHERE MSG_NO = #msg_no#
+		     AND BLNBR = #blnbr#
+	</select>
+	
+	<select id="selectBllInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.BlInfoVO">
+		/* selectBlInfo */
+		SELECT  bl.INTG_BL_SEQ, bl.BL_NO, bl.REF_NO, ISNULL(BLCK.BL_STS_CD1, BL.BL_STS_CD) AS BL_STS_CD, bl.POST_DT
+		  FROM  tb_intg_bl bl 
+		   JOIN  tb_add_info_bnd bnd 
+		     ON  bl.INTG_BL_SEQ = bnd.INTG_BL_SEQ AND bnd.delt_flg = 'N'
+		   LEFT OUTER JOIN(SELECT INTG_BL_SEQ AS INTG_BL_SEQ1, BL_STS_CD AS BL_STS_CD1 FROM TB_INTG_BL_BLCK) BLCK 
+		   	 ON BL.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1
+		 WHERE  bl.bl_no = #bl_no# 
+		     AND  bl.biz_clss_cd = #biz_clss_cd# 
+		     AND  bl.air_sea_clss_cd = #air_sea_clss_cd#
+		     AND  bnd.bnd_clss_cd = #bnd_clss_cd#
+		     AND  bl.delt_flg = 'N'       
+	</select>
+	
+	<select id="selectMbllInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.BlInfoVO">
+		/* selectMblInfo */
+		SELECT  bl.INTG_BL_SEQ, bl.BL_NO, bl.REF_NO, ISNULL(BLCK.BL_STS_CD1, BL.BL_STS_CD) AS BL_STS_CD, bl.POST_DT
+		  FROM  tb_intg_bl bl 
+		   JOIN  tb_add_info_bnd bnd 
+		     ON  bl.INTG_BL_SEQ = bnd.INTG_BL_SEQ AND bnd.delt_flg = 'N'
+		   LEFT OUTER JOIN(SELECT INTG_BL_SEQ AS INTG_BL_SEQ1, BL_STS_CD AS BL_STS_CD1 FROM TB_INTG_BL_BLCK) BLCK 
+		     ON BL.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1
+		 WHERE  bl.bl_no = #bl_no# 
+		     AND  bl.biz_clss_cd = 'M'
+		     AND  bl.air_sea_clss_cd = #air_sea_clss_cd#
+		     AND  bnd.bnd_clss_cd = #bnd_clss_cd#
+		     AND  ISNULL(bl.AMS_ID, '') != ''  
+		     AND  bl.delt_flg = 'N'       
+	</select>
+	
+	<select id="selectMblNoFlg" parameterClass="HashMap" resultClass="String">
+		/* selectMblNoFlg */
+ 		SELECT  CASE WHEN COUNT(bl.INTG_BL_SEQ) > 0 THEN 'Y' ELSE 'N' END AS MBL_NO_FLG
+		  FROM  tb_intg_bl bl 
+		   JOIN  tb_add_info_bnd bnd 
+		     ON  bl.INTG_BL_SEQ = bnd.INTG_BL_SEQ AND bnd.delt_flg = 'N'
+		 WHERE  bl.bl_no = #bl_no# 
+		     AND  bl.biz_clss_cd = 'M'
+		     AND  bl.air_sea_clss_cd = 'S'
+		     AND  bnd.bnd_clss_cd = 'I'
+		     AND  bl.delt_flg = 'N'       
+		     AND  ISNULL(bl.AMS_ID, '') = ''
+	</select>
+	
+	<select id="selectAddMblCntrList" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.CntrListVO">
+		/* selectAddMblCntrList */
+		SELECT * 
+		  FROM TB_CNTR_LIST 
+		 WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) AND DELT_FLG = 'N'
+		     AND CNTR_NO NOT IN (SELECT CNTR_NO FROM TB_CNTR_LIST WHERE INTG_BL_SEQ = #intg_bl_seq_mbl# AND DELT_FLG = 'N')
+	</select>
+	
+	<update id="updateEdiSmtAmsBlSts" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiSmtAmsDataVO">
+		UPDATE  TB_EDI_SMTAMS_BL        
+		     SET  DL_STS = #dl_sts#, INTG_BL_SEQ = #intg_bl_seq#
+		 WHERE  MSG_NO = #msg_no#
+		     AND  BLNBR = #blnbr# 
+	</update>   
+	
+	<select id="selectEdiKamsPreFix" resultClass="String">	
+		SELECT PRE_FIX from TB_SEQ WHERE SEQ_TYPE = 'KAMS_NO'
+	</select>
+	
+	<select id="selectEdiKamsNo" resultClass="String">	
+		SELECT PRE_FIX + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + #iata_cd# + dbo.LPAD(SEQ, 3, '0') from TB_SEQ WHERE SEQ_TYPE = 'KAMS_NO'
+	</select>
+	
+	<update id="updateEdiKamsNo" parameterClass="String"  >
+		UPDATE TB_SEQ
+		     SET SEQ = SEQ + 1
+		 WHERE SEQ_TYPE = 'KAMS_NO'
+    </update> 
+    
+    <!-- REF_MSG_NO SEQ RULE CHANGE-->
+    <!-- select id="selectEdiKamsRefMsgNo" parameterClass="HashMap" resultClass="String">
+		SELECT ISNULL( MAX(SUBSTRING(REF_MSG_NO, 1, 5)) + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + ISNULL(dbo.LPAD(MAX(SUBSTRING(REF_MSG_NO, 13, 3))+1, 3, '0'), '001') 
+								, #kams_pre_fix# + #iata_cd# + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8)+ '001') AS REF_MSG_NO 
+		  FROM TB_EDI_KAMS_SEND
+		 WHERE REF_MSG_NO LIKE #kams_pre_fix# + #iata_cd# + SUBSTRING(CONVERT(VARCHAR(10), GETDATE(), 112), 3, 8) + '%'
+	</select-->
+	
+	<select id="selectEdiKamsRefMsgNo" parameterClass="HashMap" resultClass="String">
+		SELECT ISNULL( MAX(SUBSTRING(REF_MSG_NO, 1, 7)) + ISNULL(dbo.LPAD(MAX(SUBSTRING(REF_MSG_NO, 8, 7)) + 1, 7, '0'), '0000001') 
+								, SUBSTRING(#smt_cust_id#, 1, 4) + #sys_ofc_cd# + '0000001') AS REF_MSG_NO 
+		  FROM TB_EDI_KAMS_SEND
+		 WHERE REF_MSG_NO LIKE SUBSTRING(#smt_cust_id#, 1, 4) + #sys_ofc_cd# + '%'
+	</select>
+    
+    <update id="updateSmtAmsBlBlckFlg" parameterClass="HashMap"  >
+		UPDATE TB_EDI_SMTAMS_BL
+		     SET BLCK_FLG = #blck_flg#, BLCK_DT = CONVERT(VARCHAR(8), GETDATE(), 112), BLCK_USRID = #blck_usrid#
+		 WHERE MSG_NO = #msg_no#
+		     AND BLNBR = #blnbr#
+    </update> 
+    
+    <select id="selectCfsEdiInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiDataMpVO">
+		/* selectCfsEdiInfo */
+		SELECT MP_VAL, MP_TP, MP_CD 
+		 FROM TB_EDI_DATA_MP 
+		WHERE MP_CD = #mp_cd#
+		  AND MP_TP LIKE 'CFS%'
+	</select>
+	
+	<select id="serachSmtAmsMbl" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiSmtAmsDataVO">
+		/* serachSmtAmsMbl */
+		SELECT TOP 1 A.VSL_FULLNAME, A.VSL_VOYAGE, A.VSL_FLAG, H_POL_AMS
+		            , CONVERT(VARCHAR(8), A.H_POL_ETD) AS H_POL_ETD
+	          		, A.POD_AMS, A.CUST_ID
+	          		, CONVERT(VARCHAR(8), A.POD_ETA) AS POD_ETA
+	          		, POL.LOC_NM AS POL_NM,POD.LOC_NM AS POD_NM
+	          		, B.REFNBR , SUBSTRING(B.REFNBR, 1, 4) AS SCAC
+	          		, (SELECT TOP 1 ENG_NM FROM TB_TRDP WHERE SCAC_CD = SUBSTRING(B.REFNBR, 1, 4)) AS CARR_NM
+	     FROM TB_EDI_SMTAMS_HDR A
+	     		  LEFT OUTER JOIN TB_LOC POL ON A.H_POL_AMS = POL.AMS_LOC_VAL AND POL.LOC_CLSS_CD = 'U'
+	     		  LEFT OUTER JOIN TB_LOC POD ON A.POD_AMS = POD.AMS_LOC_VAL AND POD.LOC_CLSS_CD = 'U'
+	     		  , TB_EDI_SMTAMS_BL B
+	    WHERE A.MSG_NO = B.MSG_NO
+	       AND A.MSG_NO = #msg_no#
+	</select>
+	
+	<select id="serachSmtAmsMblCntr" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsCntrVO">
+		SELECT CNTRNBR, MAX(CNTRTYPE) AS CNTRTYPE, MAX(SEALNBR) AS SEALNBR
+			  FROM TB_EDI_SMTAMS_CNTR CNTR,
+					(		
+						SELECT * 
+						  FROM
+								  ( 
+									SELECT A.MSG_NO,B.BLNBR
+											   , RANK() OVER (PARTITION BY B.BLNBR ORDER BY A.MSG_NO DESC) RNK
+									 FROM TB_EDI_SMTAMS_HDR A, TB_EDI_SMTAMS_BL B
+								   WHERE A.MSG_NO = B.MSG_NO
+						 				AND B.REFNBR = #refnbr#
+									) AA
+							WHERE 1=1
+								AND RNK = 1
+				    ) HBL
+			WHERE CNTR.MSG_NO = HBL.MSG_NO
+			  AND CNTR.BLNBR = HBL.BLNBR
+			 GROUP BY CNTRNBR
+	</select>	
+	
+	<select id="serachSmtAmsHbl" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiSmtAmsDataVO">
+		/* serachSmtAmsHbl */
+		SELECT TOP 1 A.MSG_NO, A.REFNBR, A.BLNBR, A.POR_FULLNAME
+	          		, A.SHPR_NM1  AS SHPR_NM
+					, A.SHPR_NM2 +  char(13)+char(10) + A.SHPR_ADD1 + char(13)+char(10) + A.SHPR_ADD2 + char(13)+char(10) + A.SHPR_ADD3 AS SHPR_ADD
+					, A.CNEE_NM1 AS CNEE_NM
+					, A.CNEE_NM2 + char(13)+char(10)  + A.CNEE_ADD1 + char(13)+char(10)+ A.CNEE_ADD2 + char(13)+char(10) + A.CNEE_ADD3 AS CNEE_ADD
+					, A.NTFY_NM1 AS NTFY_NM
+					, A.NTFY_NM2 + char(13)+char(10) + A.NTFY_ADD1 + char(13)+char(10) + A.NTFY_ADD2 + char(13)+char(10) + A.NTFY_ADD3 AS NTFY_ADD
+	     FROM TB_EDI_SMTAMS_BL A
+	     		  LEFT OUTER JOIN TB_LOC POL ON A.POL_AMS = POL.AMS_LOC_VAL AND POL.LOC_CLSS_CD = 'U'
+	    WHERE A.MSG_NO = #msg_no#
+	       AND A.BLNBR = #blnbr#
+	</select>
+	
+	<select id="serachSmtAmsHblCntrDesc" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsCntrDescVO">
+		/* serachSmtAmsHblCntrDesc */
+		SELECT *
+	     FROM TB_EDI_SMTAMS_CNTR_DESC A
+	    WHERE A.MSG_NO = #msg_no#
+	       AND A.BLNBR = #blnbr#
+	</select>
+	
+	<select id="serachSmtAmsHblCntrDngr" parameterClass="HashMap" resultClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsCntrDngrVO">
+		/* serachSmtAmsHblCntrDngr */
+		SELECT *
+	     FROM TB_EDI_SMTAMS_CNTR_DNGR A
+	    WHERE A.MSG_NO = #msg_no#
+	       AND A.BLNBR = #blnbr#
+	</select>
+	
+	
+	<update id="updateEdiBlSts" parameterClass="com.clt.apps.fis.edi.cmm.dto.EdiBlStsVO">
+		/* EdiAmsSQL.xml > updateEdiBlSts*/	
+		MERGE INTO TB_EDI_BL_STS AS X1
+
+		USING (SELECT 
+			#bl_no#	BL_NO ,
+			#msg_tp_cd#	MSG_TP_CD ) X2  
+		ON (X1.BL_NO = X2.BL_NO
+			AND X1.MSG_TP_CD =  X2.MSG_TP_CD )  
+		WHEN MATCHED THEN
+		UPDATE SET 
+			X1.MSG_NO = #msg_no#, 
+			<isNotEmpty property="msg_sts_cd">
+			X1.MSG_STS_CD = #msg_sts_cd#,
+			</isNotEmpty>
+			X1.PRE_BL_NO = #pre_bl_no#, 
+			X1.ATD_CMPL_FLG = #atd_cmpl_flg#,
+			X1.MODI_USRID = #modi_usrid#,
+			X1.MODI_OFC_CD = #modi_ofc_cd#,
+			X1.MODI_TMS = GETUTCDATE()
+		WHEN NOT MATCHED THEN
+				INSERT ([BL_NO]
+		           ,[MSG_TP_CD]
+		           ,[MSG_NO]
+		           ,[MSG_STS_CD]
+		           ,[ATD_CMPL_FLG]
+		           ,[ERR_CD]
+		           ,[ERR_MSG]
+		           ,[RGST_USRID]
+		           ,[RGST_OFC_CD]
+		           ,[RGST_TMS]
+		           ,[MODI_USRID]
+		           ,[MODI_OFC_CD]
+		           ,[MODI_TMS]
+		           ,[CSTMS_RGST_FLG]
+		           ,[MBL_NO]
+		           ,[PRE_BL_NO])
+		     VALUES
+		           (#bl_no#
+		           ,#msg_tp_cd#
+		           ,#msg_no# 
+		           ,#msg_sts_cd#
+		           ,#atd_cmpl_flg#
+		           ,#err_cd#
+		           ,#err_msg#
+		           ,#rgst_usrid#
+		           ,#rgst_ofc_cd#
+		           ,getDate()
+		           ,#modi_usrid#
+		           ,#modi_ofc_cd#
+		           ,GETUTCDATE()
+		           ,'N'
+		           ,#mbl_no#
+		           ,#pre_bl_no#);
+
+	</update>
+	
+	<!-- #2397 [PATSON] OE AMS EDI problem -->
+	<insert id="insertSeeAmsShpCmdt" parameterClass="SeeAmsVO">
+		/* insertSeeAmsShpCmdt */
+		INSERT INTO  tb_shp_cmdt(
+			  shp_cmdt_seq
+			, intg_bl_seq
+			, cntr_list_seq
+			, shp_cmdt_cd
+			, shp_cmdt_nm
+			, hs_grp_cd
+			, pck_qty
+			, pck_ut_cd
+			, wgt
+			, meas
+			, rmk
+			, dg_cd_tp
+			, dg_cd
+			, dg_cntc_nm
+			, RGST_TMS
+			, RGST_USRID
+			, RGST_OFC_CD
+			, MODI_TMS
+			, MODI_USRID
+			, MODI_OFC_CD
+			
+			)
+		SELECT 
+			<!-- (SELECT ISNULL(MAX(CONVERT(numeric, shp_cmdt_seq)),0) + 1 FROM TB_SHP_CMDT) -->
+			<!-- OFVFOUR-7088: [JAPAN TRUST] CANNOT SAVE A NEW ITEM FROM THE CONTAINER TAB -->
+			#shp_cmdt_seq#
+			, #intg_bl_seq#
+			, #cntr_list_seq#
+			, #hts_cd#
+			, #commodity#
+			, (SELECT HS_GRP_CD FROM TB_CMDT_CD WHERE CMDT_CD = #hts_cd#)
+			, #hts_pkg#
+			, #hts_pkg_ut_cd#
+			, #hts_wgt#
+			, #hts_meas#
+			, #item_rmk#
+			, #dg_cd#
+			, #dg_div#
+			, #dg_cntc_nm#
+			, getdate()
+			, #proc_usrid#
+			, #proc_ofccd#
+			, getdate()
+			, #proc_usrid#
+			, #proc_ofccd#
+	</insert>
+	
+	<update id="updateSeeAmsShpCmdt" parameterClass="SeeAmsVO">
+		/* updateSeeAmsShpCmdt */
+		update tb_shp_cmdt set
+			  shp_cmdt_cd   = #hts_cd#
+			, shp_cmdt_nm   = #commodity#
+			, hs_grp_cd     = (SELECT TOP 1 HS_GRP_CD FROM TB_CMDT_CD WHERE CMDT_CD = #hts_cd# AND DELT_FLG='N' )
+			, pck_qty       = #hts_pkg#
+			, dg_cd_tp      = #dg_cd#
+			, dg_cd         = #dg_div#
+			, dg_cntc_nm    = #dg_cntc_nm#
+			, pck_ut_cd     = #hts_pkg_ut_cd#
+			, wgt           = #hts_wgt#
+			, meas          = #hts_meas#
+			, rmk           = #item_rmk#
+			, cntr_list_seq = #cntr_list_seq#
+			, modi_tms      = getdate()
+			, modi_usrid    = #proc_usrid#
+			, modi_ofc_cd   = #proc_ofccd#
+		where shp_cmdt_seq  = #shp_cmdt_seq#
+	</update>
+	
+	<update id="deleteSeeAmsShpCmdt" parameterClass="SeeAmsVO">
+		/* deleteSeeAmsShpCmdt */
+		update tb_shp_cmdt set
+			  delt_flg      = #delt_flg#
+			, modi_tms      = getdate()
+			, modi_usrid    = #proc_usrid#
+			, modi_ofc_cd   = #proc_ofccd#
+		where shp_cmdt_seq  = #shp_cmdt_seq#
+	</update>
+	<update id="updateEdiAmsBl" parameterClass="com.clt.apps.fis.see.bmd.ams.dto.EdiAmsBlVO">
+		/* updateEdiAmsBl */
+		UPDATE TB_EDI_AMS_BL
+		SET 
+			por_fullname	=#por_fullname#,
+			last_pol_ams	=#last_pol_ams#,
+			pol_ams	=#pol_ams#,
+			del_ams	=#del_ams#,
+			last_usa_ams	=#last_usa_ams#,
+			shpr_nm1	=#shpr_nm1#,
+			shpr_nm2	=#shpr_nm2#,
+			shpr_add1	=#shpr_add1#,
+			shpr_add2	=#shpr_add2#,
+			shpr_add3	=#shpr_add3#,
+			cnee_nm1	=#cnee_nm1#,
+			cnee_nm2	=#cnee_nm2#,
+			cnee_add1	=#cnee_add1#,
+			cnee_add2	=#cnee_add2#,
+			cnee_add3	=#cnee_add3#,
+			ntfy_nm1	=#ntfy_nm1#,
+			ntfy_nm2	=#ntfy_nm2#,
+			ntfy_add1	=#ntfy_add1#,
+			ntfy_add2	=#ntfy_add2#,
+			ntfy_add3	=#ntfy_add3#,
+			por_cd	=#por_cd#,
+			pol_cd	=#pol_cd#,
+			last_pol_cd	=#last_pol_cd#,
+			pod_cd	=#pod_cd#,
+			modi_tms = GETUTCDATE(),
+			modi_usrid = #modi_usrid#,
+			ETD_DT = #bl_etd_dt#
+		WHERE MSG_NO IN 
+		(
+		   SELECT TOP 1 MSG_NO
+		   FROM TB_EDI_AMS_BL WHERE  blnbr = #blnbr#
+		   ORDER BY modi_tms DESC   
+		)
+		AND
+		blnbr IN 
+		(
+		   SELECT TOP 1 blnbr
+		   FROM TB_EDI_AMS_BL WHERE  blnbr = #blnbr#
+		   ORDER BY modi_tms DESC   
+		)		
+	</update>
+
+	<select id="existEdiAmsBl" parameterClass="String" resultClass="String">
+		/* existEdiAmsBl */
+		select count(1)
+		from TB_EDI_AMS_BL
+		where 1=1
+		and blnbr=#blnbr#
+	</select>
+	
+		<select id="serachEdiSmtAmsDataExcelAll" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* serachEdiSmtAmsDataExcelAll */
+		/* serachEdiSmtAmsData */
+		SELECT                         
+                     aa.vsl_fullname, aa.vsl_voyage
+				   , aa.refnbr
+				   , max(filling_no) as filling_no	
+				   , aa.blnbr
+				   , aa.cntr_no			
+				   , max(blck_flg) as blck_flg
+				   , max(aa.dl_sts_nm) as dl_sts_nm
+				   , max(aa.cust_id) as cust_id
+				   , max(aa.msg_date) as msg_date
+				   , max(aa.type) as type
+				   , case when max(err_flg) = 'n' then 'accepted' 
+				             when max(err_flg) = 'y' then 'error' 
+				             when max(msg_sts) = 's' then 'sent' 
+				             when max(msg_sts) = 'c' then 'created' 
+				             else '' end as err_flg
+				   , case when max(aa.disp_cd) = '1y' then 'load to ok(1y)'
+				          when max(aa.disp_cd) = '54' then 'deleted'
+				          when max(aa.disp_cd) = '55' then 'amended'
+						  when max(aa.disp_cd) = '6h' then 'do not load'
+						  when max(aa.disp_cd) in ('1h','2h','3h','4h','5h','6h', '7h') then 'hold'
+						  when max(aa.disp_cd) is null and max(err_flg) = 'y' then 'rejected'
+						  when max(aa.disp_cd) is null and max(err_flg) = 'n' then 'ok to load'
+						  end as bl_sts
+				   , max(aa.cust_ref_no) as cust_ref_no
+				   , aa.pol_ams
+				   , max(aa.h_pol_etd) as h_pol_etd
+				   , max(aa.pod_ams) as pod_ams
+				   , max(aa.pod_eta) as pod_eta
+				   , max(aa.por_fullname) as por_fullname
+				   , max(aa.del_ams) as del_ams
+				   ,(select locl_nm  from tb_trdp tp where tp.trdp_cd = max(aa.carrier)) as carr_nm
+				   , max(aa.agt_nm) as agt_nm
+				   , max(aa.shpr_nm) as shpr_nm
+				   , max(aa.cnee_nm) as cnee_nm
+				   , max(aa.ntfy_nm) as ntfy_nm
+				   , max(aa.cntr_qty) as cntr_qty
+				   , max(aa.blpkg) as blpkg
+				   , max(aa.blpkgu) as blpkgu
+				   
+
+					,(select sum(convert(float, isnull(d_vol, 0))) from tb_edi_smtams_cntr_desc where msg_no = max(aa.msg_no)  and blnbr = aa.blnbr ) as blvol
+					,aa.ofc_cd
+					, max(aa.ref_no) as ref_no
+
+					, max(aa.carrier) as lnr_cd
+					, max(aa.agt_cd) as agt_cd
+					 , max(aa.pck_ut_cd) as pck_ut_cd
+				   , max(aa.blkg) as blkg
+				   , max(aa.bllbs) as bllbs				  
+				   , max(aa.msg_no) as msg_no
+				   , max(aa.scac) as scac
+				   , max(aa.disp_cd) as disp_cd   
+				   , max(aa.carrier) as carr_cd
+				   ,max(mblpkg) as mblpkg 
+				   ,aa.cntr_cnt 	   
+				   
+				   , max(aa.msg_sts) as msg_sts			   
+				  
+				   , max(aa.carrier) as carrier
+				      
+				   , max(aa.dl_sts) as dl_sts
+				   , max(aa.dnld_date) as dnld_date
+
+			       , max(rnk) as rnk
+				   
+				   , case when max(err_flg) = 'n' then 'accepted' 
+				             when max(err_flg) = 'y' then 'error' 
+				             when max(msg_sts) = 's' then 'sent' 
+				             when max(msg_sts) = 'c' then 'created' 
+				             else '' end as err_flg
+			      
+		  FROM  (
+					select a.msg_no, a.msg_sts
+					           , substring(a.msg_date, 0, 9) as msg_date
+					           , a.vsl_fullname, a.vsl_voyage
+					           , a.scac
+					           , a.cust_ref_no
+							   , b.refnbr, b.blnbr, b.pol_ams
+							   , convert(varchar(8), a.h_pol_etd) as h_pol_etd
+							   , a.ref_no, a.pod_ams
+							   , convert(varchar(8), a.pod_eta) as pod_eta
+							   , b.por_fullname, b.del_ams, b.snp as carrier, a.cust_id
+							   , b.shpr_nm1 as shpr_nm
+							   , b.cnee_nm1 as cnee_nm
+							   , b.ntfy_nm1 as ntfy_nm
+							   , (select count(*) from tb_edi_smtams_cntr where msg_no = b.msg_no and blnbr = b.blnbr) as cntr_qty
+							   , b.blpkg, b.blpkgu, b.blwgt as blkg
+							   , case when b.blwgtu='KG'then round((b.blwgt*2.20462262185),2)
+							   when b.blwgtu='LB' then round((b.blwgt/2.20462262185),2) end as bllbs
+							   
+							   , b.dl_sts
+							   , a.dnld_date
+							   
+							   <!-- #52744 [zen] oi ams list에서 bl create하면, carrier & package 정보 자동 입력 안됨 -->
+							   ,(select sum(tesb.blpkg) from tb_edi_smtams_bl tesb where tesb.msg_no =  b.msg_no) mblpkg
+            
+            
+						       , (select cd_nm from tb_com_cd_dtl where com_cd = 'amsd' and cd_val = b.dl_sts) as dl_sts_nm
+						       , (select min(trdp_cd) from tb_trdp where smt_id = a.cust_id and delt_flg = 'n') as agt_cd
+						       , (select min(eng_nm) from tb_trdp where smt_id = a.cust_id and delt_flg = 'n') as agt_nm
+						       , (select min(pck_ut_cd) from tb_pck_ut_cd where ams_pck_cd_val = b.blpkgu) as pck_ut_cd
+						       , case b.msg_sts when 'a' then 'new' 
+						                        when 'b' then 'amd' 
+						                        else 'del' end as type
+						       , rank() over (partition by b.blnbr order by b.intg_bl_seq desc, b.msg_no desc, b.dl_sts) rnk       
+							   , (select min(ref_no) from tb_intg_bl bl where bl.intg_bl_seq = b.intg_bl_seq and bl.delt_flg = 'n') as filling_no      
+							   , b.blck_flg 
+							   , b.err_flg   
+							   ,  (select substring(max(msg_date + msg_seq + disp_cd), len(max(msg_date + msg_seq + disp_cd))-1, 2) as disp_cd
+							        from tb_edi_ams_bl_sts 
+							       where bl_no = b.blnbr
+								       and disp_cd in ('54','55', '1h', '2h', '3h', '4h', '5h', '6h', '7h','1y')
+								  ) as disp_cd
+							   ,(select max(x.cntrnbr) from tb_edi_smtams_cntr x where x.msg_no = b.msg_no and x.blnbr = b.blnbr) as cntr_no
+							   ,(select count(x.cntrnbr)-1 from tb_edi_smtams_cntr x where x.msg_no = b.msg_no and x.blnbr = b.blnbr) as cntr_cnt
+							   , a.rgst_ofc_cd as ofc_cd
+				     from tb_edi_smtams_hdr a, tb_edi_smtams_bl b
+				   where a.msg_no = b.msg_no
+
+					) aa
+	 	WHERE AA.RNK = 1		
+ 		<isNotEmpty property="dl_sts">
+		 	AND AA.DL_STS = #dl_sts#  
+		</isNotEmpty>
+		<isNotEmpty property="dnld_strdt">
+		 	AND AA.DNLD_DATE BETWEEN #dnld_strdt#  AND #dnld_enddt#
+		</isNotEmpty>
+		<isNotEmpty property="etd_strdt">
+		 	AND AA.H_POL_ETD BETWEEN #etd_strdt#  AND #etd_enddt#
+		</isNotEmpty>
+		<isNotEmpty property="eta_strdt">
+		 	AND AA.POD_ETA BETWEEN #eta_strdt#  AND #eta_enddt#
+		</isNotEmpty>
+		
+		<isNotEmpty property="blnbr">
+		 	AND AA.BLNBR = #blnbr#
+		</isNotEmpty>
+		
+		<isNotEmpty property="refnbr">
+		 	AND AA.REFNBR = #refnbr#
+		</isNotEmpty>
+		
+		<isNotEmpty property="filling_no">
+		 	AND AA.FILLING_NO = #filling_no#
+		</isNotEmpty>
+		
+		<isNotEmpty property="pol_cd">
+		 	AND AA.POL_AMS = (SELECT MIN(AMS_LOC_VAL) FROM TB_LOC WHERE LOC_CD =  #pol_cd# )
+		</isNotEmpty>
+		
+		<isNotEmpty property="pod_cd">
+		 	AND AA.POD_AMS = (SELECT MIN(AMS_LOC_VAL) FROM TB_LOC WHERE LOC_CD =  #pod_cd#)
+		</isNotEmpty>
+		
+		<isNotEmpty property="shpr_nm">
+		 	AND AA.SHPR_NM LIKE #shpr_nm# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="cnee_nm">
+		 	AND AA.CNEE_NM LIKE #cnee_nm# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="vsl_fullname">
+		 	AND AA.VSL_FULLNAME LIKE #vsl_fullname# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="vsl_voyage">
+		 	AND AA.VSL_VOYAGE LIKE #vsl_voyage# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="cust_ref_no">
+		 	AND AA.CUST_REF_NO LIKE #cust_ref_no# + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="cntrnbr">
+		 	AND AA.MSG_NO IN ( SELECT MSG_NO FROM TB_EDI_SMTAMS_CNTR WHERE CNTRNBR =  #cntrnbr# )
+		</isNotEmpty>
+		<!-- #1309-[BINEX] OI AMS LIST TO HAVE "AGENT ID" SEARCH FIELD -->
+		<isNotEmpty property="agent_id">
+		 	AND AA.CUST_ID = #agent_id#
+		</isNotEmpty>
+		
+		<!-- #3880 -->
+		<isNotEmpty property="f_ofc_cd">
+		 	AND AA.OFC_CD = #f_ofc_cd#
+		</isNotEmpty>		
+		
+		GROUP BY AA.VSL_FULLNAME, AA.VSL_VOYAGE, AA.REFNBR, AA.BLNBR, AA.POL_AMS, AA.CNTR_NO, AA.CNTR_CNT, AA.OFC_CD
+		ORDER BY MAX(AA.MSG_NO) DESC
+	</select>
+	<!-- #6185 [Impex-LA] Ocean Import Outstanding Report (10/8) - Express Type Code related -->
+	<select id="selectDeftOrgBlTpCd" parameterClass="HashMap" resultClass="String">
+		SELECT TOP 1 CD_VAL FROM TB_COM_CD_DTL
+		WHERE COM_CD = #com_cd#
+		AND USE_FLG = 'Y' AND DELT_FLG = 'N'
+		ORDER BY SRT_SEQ
+	</select>
+	<!-- OFVFOUR-7395 [IMPEX FRA] AE KAMS EDI DUPLICATION ERROR -->
+	<select id="selectCheckMblNo" parameterClass="EdiAmsAirMAWBVO" resultClass="String">
+		SELECT TOP 1 MST.MSG_NO
+		FROM TB_EDI_KAMS_AIR_MST MST
+		LEFT OUTER JOIN TB_INTG_BL BL ON MST.INTG_BL_SEQ = BL.INTG_BL_SEQ 
+		WHERE BL.INTG_BL_SEQ = MST.INTG_BL_SEQ 
+		AND BL.DELT_FLG = 'N' 
+		AND BL.BIZ_CLSS_CD = 'M'
+		AND BL.AIR_SEA_CLSS_CD = 'A'
+		AND BL.BL_NO = (SELECT BL_NO FROM TB_INTG_BL WHERE INTG_BL_SEQ = #intg_bl_seq#)
+	</select>
+	
+</sqlMap>

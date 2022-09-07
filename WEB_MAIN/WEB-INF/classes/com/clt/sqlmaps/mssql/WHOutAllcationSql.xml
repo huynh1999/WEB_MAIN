@@ -1,0 +1,1719 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="WHOutAllcation">
+
+	<typeAlias alias="AllcMgmtVO" 	type="com.clt.apps.fis.wms.whoutallcation.dto.AllcMgmtVO"/>
+	<typeAlias alias="Grd01AllcMgmtVO" 	type="com.clt.apps.fis.wms.whoutallcation.dto.Grd01AllcMgmtVO"/>
+	<typeAlias alias="ProcWHOutAllcationMakeAllcCancelVO" 	type="com.clt.apps.fis.wms.whoutallcation.dto.ProcWHOutAllcationMakeAllcCancelVO"/>
+	<typeAlias alias="ProcWHOutAllcationMakeAllcVO" 	type="com.clt.apps.fis.wms.whoutallcation.dto.ProcWHOutAllcationMakeAllcVO"/>
+	<typeAlias alias="ProcWHOutAllcationMakeAllcPtCancelVO" 	type="com.clt.apps.fis.wms.whoutallcation.dto.ProcWHOutAllcationMakeAllcPtCancelVO"/>
+	<typeAlias alias="AllcMgmtUnAllocInvLocListVO" 	type="com.clt.apps.fis.wms.whoutallcation.dto.AllcMgmtUnAllocInvLocListVO"/>
+	<typeAlias alias="ManualAllcPopupItemInfoVO" 	type="com.clt.apps.fis.wms.whoutallcation.dto.ManualAllcPopupItemInfoVO"/>
+	<typeAlias alias="AllcMgmtUnAllocListVO" 	type="com.clt.apps.fis.wms.whoutallcation.dto.AllcMgmtUnAllocListVO"/>
+	
+	<select id="searchAllcMgmtInfo" resultClass="AllcMgmtVO">
+	/*WHOutAllcation.searchAllcMgmtInfo*/
+	SELECT A.WOB_BK_NO
+	     , A.WH_CD
+	     , B.WALC_NO
+	     , (SELECT COUNT(1)
+              FROM TL_WH_ISSU_ITEM ISSU
+             WHERE ISSU.WALC_NO = B.WALC_NO
+            ) AS ISSU_CNT /*issu된건 체크 */
+         , (SELECT COUNT(1)
+              FROM TL_WH_LOAD_PLAN LP
+                 , TL_WH_LOAD_PLAN_ITEM LPI
+             WHERE LP.LP_NO = LPI.LP_NO
+               AND LPI.WOB_BK_NO = A.WOB_BK_NO
+               AND LP.LP_STS_CD IN ('L')
+            ) AS LP_CNT /*Load Plan된건 체크 */
+         , (SELECT COUNT(1)
+              FROM TL_WH_ALLC_ITEM A
+             WHERE B.WALC_NO = A.WALC_NO) AS ALLC_CNT
+	  FROM TL_WH_OB A LEFT JOIN
+	      TL_WH_ALLC B
+				ON A.WOB_BK_NO = B.WOB_BK_NO
+	 WHERE A.WOB_BK_NO = #in_wob_bk_no#
+	   AND A.BK_STS_CD = 'I' /*이슈건만조회*/ 
+	   AND NOT EXISTS /* 기존 WAVE에 속한건 제외*/
+	                 ( SELECT 'X'
+	                     FROM TL_WH_WAVE_OB WV
+	                    WHERE WV.WOB_BK_NO = A.WOB_BK_NO
+	                  )   
+	</select>	
+	<select id="searchAllcMgmtItem" resultClass="Grd01AllcMgmtVO">
+	/*WHOutAllcation.searchAllcMgmtItem*/
+	SELECT T.*
+	     , ISNULL(D.LOT_ATTRIB_01, T.INBOUND_DT_OB) AS INBOUND_DT
+	     , ISNULL(D.LOT_ATTRIB_02, T.LOT_NO_OB)     AS LOT_NO
+	     , ISNULL(D.LOT_ATTRIB_03, T.EXP_DT_OB)     AS EXP_DT
+	     , ISNULL(D.LOT_ATTRIB_04, T.LOT_04_OB)     AS LOT_04
+	     , ISNULL(D.LOT_ATTRIB_05, T.LOT_05_OB)     AS LOT_05
+	     , T.ITEM_EA_QTY - T.ALLOC_EA_QTY AS UN_ALLOC_EA_QTY
+	     , ' ' AS MANUAL_ALLOC_IMG /*화면 컨트롤용*/
+	     , (SELECT COUNT(1) 
+	          FROM TL_WH_ISSU_ITEM A
+	         WHERE A.WALC_NO = T.WALC_NO
+	           AND A.WOB_BK_NO = T.WOB_BK_NO
+	           AND A.SAO_SYS_NO = T.SAO_SYS_NO
+	           AND A.WIB_BK_NO = T.WIB_BK_NO
+	           AND A.PO_SYS_NO = T.PO_SYS_NO
+	           AND A.ITEM_SYS_NO = T.ITEM_SYS_NO
+	           AND A.LOT_ID = T.LOT_ID
+	           AND A.WH_LOC_CD = T.WH_LOC_CD
+	           AND A.ITEM_SEQ = T.ITEM_SEQ) AS ISSU_CNT
+	     , (SELECT COUNT(1) 
+	          FROM TL_WH_LOAD_PLAN A
+	             , TL_WH_LOAD_PLAN_ITEM B
+	         WHERE A.LP_NO = B.LP_NO
+	           AND B.WOB_BK_NO = T.WOB_BK_NO
+	           AND B.SAO_SYS_NO = T.SAO_SYS_NO
+	           AND B.WIB_BK_NO = T.WIB_BK_NO
+	           AND B.PO_SYS_NO = T.PO_SYS_NO
+	           AND B.ITEM_SYS_NO = T.ITEM_SYS_NO
+	           AND B.LOT_ID = T.LOT_ID
+	           AND B.WH_LOC_CD = T.WH_LOC_CD
+	           AND B.ITEM_SEQ = T.ITEM_SEQ
+	           AND A.LP_STS_CD IN ('L')) AS LP_CNT      
+	   FROM (
+	        /*화면에서 SEQ한값을 INBOUND_DT앞에 넣어 MERGE효과를 중지시킨다*/
+	        SELECT  ROW_NUMBER() OVER (ORDER BY A.WOB_BK_NO ASC) AS RN
+	             , B.RUM
+	             , A.WOB_BK_NO
+	             , A.WOB_BK_NO AS WOB_BK_NO_ORG
+	             , A.CTRT_NO
+	             , B.SAO_SYS_NO 
+	             , B.ITEM_SYS_NO
+	             , B.ITEM_SEQ
+	             , C.WALC_NO
+	             , C.PO_SYS_NO
+	             <!-- , C.LOT_ID -->
+	             , C.WH_LOC_CD
+	             , B.SAO_NO /* PO NO OUT*/
+	             , C.WIB_BK_NO
+	             , B.ITEM_CD
+	             , B.CUST_ITEM_CD
+	             , B.ITEM_NM
+	             , B.ITEM_PKGQTY  /*ORDER PKGQTY*/
+	             , B.ITEM_PKGUNIT /*ORDER PKGUNIT*/
+	             , B.ITEM_EA_QTY  /*ORDER EA QTY*/
+	             , SUM(ISNULL(C.PICK_ITEM_EA_QTY,0)) OVER ( PARTITION BY B.WOB_BK_NO, B.SAO_SYS_NO, B.ITEM_SYS_NO, B.ITEM_SEQ) AS ALLOC_EA_QTY /*ALLOC*/
+	             , dbo.TL_GET_WH_LOC_NM(A.WH_CD, C.WH_LOC_CD) AS  WH_LOC_CD_NM
+	             , ISNULL(C.PICK_ITEM_EA_QTY, 0) AS PICK_ITEM_EA_QTY /*Picking*/
+	             , ISNULL(C.PICK_ITEM_CBM, B.ITEM_CBM) AS ITEM_CBM
+	             , ISNULL(C.PICK_ITEM_CBF, B.ITEM_CBF) AS ITEM_CBF
+	             , ISNULL(C.PICK_ITEM_GRS_KGS, B.ITEM_GRS_KGS) AS ITEM_GRS_KGS
+	             , ISNULL(C.PICK_ITEM_GRS_LBS, B.ITEM_GRS_LBS) AS ITEM_GRS_LBS
+	             , ISNULL(C.PICK_ITEM_NET_KGS, B.ITEM_NET_KGS) AS ITEM_NET_KGS
+	             , ISNULL(C.PICK_ITEM_NET_LBS, B.ITEM_NET_LBS) AS ITEM_NET_LBS             
+	             , C.PO_NO AS PO_NO_IN
+	             , B.INBOUND_DT AS INBOUND_DT_OB
+	             , B.LOT_NO AS LOT_NO_OB
+	             , B.EXP_DT AS EXP_DT_OB
+	             , B.LOT_04 AS LOT_04_OB
+	             , B.LOT_05 AS LOT_05_OB
+	             , C.LOT_ID AS LOT_ID
+	             , CASE WHEN C.PICK_ITEM_EA_QTY IS NULL THEN 'I'
+	                    ELSE 'U'
+	                    END AS PROC_MODE /*실행시 모드 I:신규(신규할당), U:수정(CBM관련 내용만 수정) */
+	          FROM TL_WH_OB A
+	             , (           
+	                 SELECT ROW_NUMBER() OVER(ORDER BY TT.WOB_BK_NO ASC) AS RUM
+			              , TT.*
+			           FROM (SELECT OB_ITEM.*
+			                      , (SELECT SUM(ISNULL(PICK_ITEM_EA_QTY,0))
+								       FROM TL_WH_ALLC_ITEM AL
+								      WHERE AL.WOB_BK_NO   = OB_ITEM.WOB_BK_NO
+									    AND AL.SAO_SYS_NO  = OB_ITEM.SAO_SYS_NO
+									    AND AL.ITEM_SYS_NO = OB_ITEM.ITEM_SYS_NO
+									    AND AL.ITEM_SEQ    = OB_ITEM.ITEM_SEQ) AS PICK_ITEM_EA_QTY
+					           FROM TL_WH_OB_ITEM OB_ITEM
+					          WHERE 1 = 1
+					          
+							   <isEqual property="div" compareValue="ALLC">
+					            AND OB_ITEM.WOB_BK_NO = #in_wob_bk_no#
+					           </isEqual>
+					          
+							   <isEqual property="div" compareValue="WAVE">							   
+					            AND OB_ITEM.WOB_BK_NO IN (SELECT WOB_BK_NO
+					                                        FROM TL_WH_WAVE_OB
+					                                       WHERE WAVE_NO =  #in_wave_no#
+					                                      )
+					          </isEqual>
+					         ) TT
+					   
+						<isEqual property="cond_div" compareValue="UN">
+					    /* UnAllocated */	
+					    
+				        WHERE ISNULL(TT.ITEM_EA_QTY,0) - ISNULL(TT.PICK_ITEM_EA_QTY,0) &gt; 0
+				        
+				       </isEqual>
+	             ) B left join  TL_WH_ALLC_ITEM C on  B.WOB_BK_NO   = C.WOB_BK_NO and  
+					B.SAO_SYS_NO  = C.SAO_SYS_NO and B.ITEM_SYS_NO = C.ITEM_SYS_NO and B.ITEM_SEQ    = C.ITEM_SEQ
+	         WHERE A.BK_STS_CD   = 'I'
+	           AND A.WOB_BK_NO   = B.WOB_BK_NO
+	         	          
+			   <isEqual property="div" compareValue="ALLC">
+	           AND A.WOB_BK_NO   = #in_wob_bk_no# 
+	           </isEqual>
+	           <isEqual property="div" compareValue="WAVE">	
+	           AND A.WOB_BK_NO IN (SELECT WOB_BK_NO
+	                                 FROM TL_WH_WAVE_OB
+	                                 WHERE WAVE_NO =  #in_wave_no#
+	                                )
+	           </isEqual>
+	        ) T left join 
+	         TL_CTRT_CUST_ITEM_LOT D on T.CTRT_NO     = D.CTRT_NO and T.ITEM_SYS_NO = D.ITEM_SYS_NO and T.LOT_ID      = D.LOT_ID
+	  	   
+		<isEqual property="cond_div" compareValue="ALLCED">
+	    /* Allocated */	
+        where T.WALC_NO  IS NOT NULL 
+       </isEqual>     
+	  
+	</select>
+	
+	<select id="searchAllcMgmtDocDetail" resultClass="AllcMgmtVO">
+		/* WHOutAllcation.searchAllcMgmtDocDetail */
+        SELECT FIELD_NAME, FIELD_VAL, DOC_TYPE,DISP
+          FROM (SELECT DISTINCT 'Booking' AS FIELD_NAME,
+                                B.WOB_BK_NO AS FIELD_VAL,
+                                'BK' AS DOC_TYPE,
+                                '1' AS DISP
+                  FROM TL_WH_OB B
+                 WHERE B.WOB_BK_NO = #in_wob_bk_no#
+                UNION
+                SELECT DISTINCT 'Outbound Complete by Booking' AS FIELD_NAME,
+                                S.WOB_OUT_NO AS FIELD_VAL,
+                                'OCBK' AS DOC_TYPE,
+                                '2' AS DISP
+                  FROM TL_WH_OB B, TL_WH_ALLC A, TL_WH_ISSU S
+                 WHERE B.WOB_BK_NO = A.WOB_BK_NO
+                   AND A.WALC_NO = S.WALC_NO
+                   AND B.WOB_BK_NO = #in_wob_bk_no#
+                UNION
+                SELECT DISTINCT 'Load Plan' AS FIELD_NAME,
+                                LPS.CONSOL_NO AS FIELD_VAL,
+                                'LP' AS DOC_TYPE,
+                                '3' AS DISP
+                  FROM TL_WH_OB B, TL_WH_ALLC A, TL_WH_ALLC_ITEM AI, TL_WH_PSUDO_LP_SHIP LPS
+                 WHERE B.WOB_BK_NO = A.WOB_BK_NO
+                   AND A.WALC_NO = AI.WALC_NO
+                   AND AI.WOB_BK_NO = LPS.WOB_BK_NO
+                   AND AI.SAO_SYS_NO = LPS.SAO_SYS_NO
+                   AND AI.WIB_BK_NO = LPS.WIB_BK_NO
+                   AND AI.PO_SYS_NO = LPS.PO_SYS_NO
+                   AND AI.ITEM_SYS_NO = LPS.ITEM_SYS_NO
+                   AND AI.LOT_ID = LPS.LOT_ID
+                   AND AI.WH_LOC_CD = LPS.WH_LOC_CD
+                   AND AI.ITEM_SEQ = LPS.ITEM_SEQ
+                   AND B.WOB_BK_NO = #in_wob_bk_no#
+                UNION
+                SELECT DISTINCT 'Outbound Complete by Load Plan' AS FIELD_NAME,
+                                LP.LP_NO AS FIELD_VAL,
+                                'OCLP' AS DOC_TYPE,
+                                '4' AS DISP
+                  FROM TL_WH_OB B, TL_WH_ALLC A, TL_WH_ALLC_ITEM AI, TL_WH_LOAD_PLAN LP, TL_WH_LOAD_PLAN_ITEM LPI
+                 WHERE B.WOB_BK_NO = A.WOB_BK_NO
+                   AND A.WALC_NO = AI.WALC_NO
+                   AND LP.LP_NO = LPI.LP_NO
+                   AND LP.LP_STS_CD IN ('P','L')
+                   AND AI.WOB_BK_NO = LPI.WOB_BK_NO
+                   AND AI.SAO_SYS_NO = LPI.SAO_SYS_NO
+                   AND AI.WIB_BK_NO = LPI.WIB_BK_NO
+                   AND AI.PO_SYS_NO = LPI.PO_SYS_NO
+                   AND AI.ITEM_SYS_NO = LPI.ITEM_SYS_NO
+                   AND AI.LOT_ID = LPI.LOT_ID
+                   AND AI.WH_LOC_CD = LPI.WH_LOC_CD
+                   AND AI.ITEM_SEQ = LPI.ITEM_SEQ
+                   AND B.WOB_BK_NO = #in_wob_bk_no#
+               ) as tb
+         ORDER BY FIELD_VAL		
+	</select>
+	
+	<select id="searchUnAllocList" resultClass="AllcMgmtUnAllocListVO">
+	/*WHOutAllcation.searchUnAllocList*/
+SELECT T.*
+     , ISNULL(IT.LV1_CBM, 0) AS LV1_CBM
+     , ISNULL(IT.LV1_CBF, 0) AS LV1_CBF
+     , ISNULL(IT.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+     , ISNULL(IT.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+     , ISNULL(IT.LV1_NET_KGS, 0) AS LV1_NET_KGS
+     , ISNULL(IT.LV1_NET_LBS, 0) AS LV1_NET_LBS
+     , ISNULL(IT.PKG_LV1_QTY, 0) AS PKG_LV1_QTY
+     , IT_WH.FIX_LOC_CD
+     , ROW_NUMBER() OVER (PARTITION BY T.WOB_BK_NO ORDER BY T.WOB_BK_NO ASC, T.SAO_SYS_NO ASC, T.ITEM_SYS_NO ASC, T.ITEM_SEQ ASC) AS RN
+  FROM    (
+		SELECT OB_I.WOB_BK_NO
+		     , ALLC.WALC_NO
+		     , OB_I.SAO_SYS_NO
+		     , OB_I.ITEM_SYS_NO
+		     , OB_I.ITEM_SEQ
+		     , (OB_I.ITEM_EA_QTY - ISNULL(ALLC_I.EAQTY,0)) AS UN_ALLOC_EA_QTY
+		     , OB_I.SAO_NO
+		     , OB_I.ITEM_CD
+		     , OB_I.CUST_ITEM_CD
+		     , OB_I.ITEM_NM
+		     , OB_I.INBOUND_DT
+		     , OB_I.LOT_NO
+		     , OB_I.EXP_DT
+		     , OB_I.LOT_04
+		     , OB_I.LOT_05
+		     , OB.CTRT_NO
+		     , OB.WH_CD
+		     , OB_I.FIX_LOT_ID
+		  FROM TL_WH_OB OB
+		     , TL_WH_OB_ITEM OB_I left join 
+		      (SELECT A.WOB_BK_NO, A.SAO_SYS_NO, A.ITEM_SYS_NO, A.ITEM_SEQ
+		             , SUM(PICK_ITEM_EA_QTY) AS EAQTY
+		          FROM TL_WH_ALLC_ITEM A
+		         WHERE 1 = 1
+		          
+				   <isEqual property="div" compareValue="ALLC">
+		           AND A.WOB_BK_NO   = #in_wob_bk_no# 
+		           </isEqual>
+		           
+				   <isEqual property="div" compareValue="WAVE">				   
+		           AND A.WOB_BK_NO IN (SELECT WOB_BK_NO
+		                                 FROM TL_WH_WAVE_OB
+		                                 WHERE WAVE_NO =  #in_wave_no#
+		                                )
+		          </isEqual>
+		         GROUP BY A.WOB_BK_NO, A.SAO_SYS_NO, A.ITEM_SYS_NO, A.ITEM_SEQ
+		       ) ALLC_I on OB_I.WOB_BK_NO   = ALLC_I.WOB_BK_NO 
+		       			and OB_I.SAO_SYS_NO  = ALLC_I.SAO_SYS_NO 
+		       			and OB_I.ITEM_SYS_NO = ALLC_I.ITEM_SYS_NO 
+		       			and OB_I.ITEM_SEQ    = ALLC_I.ITEM_SEQ  left join 
+		      TL_WH_ALLC ALLC on OB_I.WOB_BK_NO   = ALLC.WOB_BK_NO
+		 WHERE OB.WOB_BK_NO = OB_I.WOB_BK_NO
+		   
+		   <isEqual property="div" compareValue="ALLC">
+           AND OB_I.WOB_BK_NO   = #in_wob_bk_no# 
+           </isEqual>
+           <isEqual property="div" compareValue="WAVE">			
+           AND OB_I.WOB_BK_NO IN (SELECT WOB_BK_NO
+                                 FROM TL_WH_WAVE_OB
+                                 WHERE WAVE_NO =  #in_wave_no#
+                                )
+          </isEqual>
+		   AND (OB_I.ITEM_EA_QTY - ISNULL(ALLC_I.EAQTY,0)) != 0
+	   ) T left join TL_CTRT_CUST_ITEM IT 
+	  	on T.CTRT_NO     = IT.CTRT_NO 
+	  	and	 T.ITEM_SYS_NO = IT.ITEM_SYS_NO 
+	  	
+	  	left join TL_CTRT_CUST_ITEM_WH IT_WH 
+	  	on	 T.CTRT_NO     = IT_WH.CTRT_NO 
+	  	and  T.ITEM_SYS_NO = IT_WH.ITEM_SYS_NO 
+	  	and  T.WH_CD = IT_WH.WH_CD  /*item level정보*/ 
+	 
+ 		ORDER BY T.WOB_BK_NO ASC, T.SAO_SYS_NO ASC, T.ITEM_SYS_NO ASC, T.ITEM_SEQ ASC
+	</select>
+	<select id="searchAllcItemDup" resultClass="java.lang.String">
+	/*WHOutAllcation.searchAllcItemDup*/
+	SELECT 'Y' AS DUP_YN
+	  FROM TL_WH_ALLC_ITEM
+	 WHERE WALC_NO      = #walc_no#
+	   AND WOB_BK_NO    = #wob_bk_no#
+	   AND SAO_SYS_NO   = #sao_sys_no#
+	   AND WIB_BK_NO	= #wib_bk_no#
+	   AND PO_SYS_NO    = #po_sys_no#
+	   AND ITEM_SYS_NO  = #item_sys_no#
+	   AND LOT_ID       = #lot_id#
+	   AND WH_LOC_CD    = #wh_loc_cd#
+	   AND ITEM_SEQ     = #item_seq#
+	</select>
+	<select id="searchAllcStockCheck" resultClass="java.lang.String">
+	/*WHOutAllcation.searchAllcStockCheck*/
+	SELECT IN_QTY - ISNULL(ALLC_QTY, 0) AS REAL_STOCK
+	  FROM TL_WH_INV_LOC
+	 WHERE WIB_bK_NO	= #wib_bk_no#
+	   AND PO_SYS_NO    = #po_sys_no#
+	   AND ITEM_SYS_NO  = #item_sys_no#
+	   AND LOT_ID       = #lot_id#
+	   AND WH_LOC_CD    = #wh_loc_cd#
+	   AND ISNULL(LIC_PLAT_NO,'') 	= ISNULL(#lic_plat_no#,'')
+	   AND ISNULL(ITEM_SER_NO,'') 	= ISNULL(#item_ser_no#,'')
+	   AND ISNULL(PO_NO,'') 	= ISNULL(#po_no#,'')
+	   
+	</select>
+	<insert id="saveWhAllcItem">
+	/*WHOutAllcation.saveWhAllcItem*/
+	INSERT INTO TL_WH_ALLC_ITEM
+	     ( WALC_NO
+	     , WOB_BK_NO
+	     , SAO_SYS_NO
+	     , WIB_BK_NO
+	     , PO_SYS_NO
+	     , ITEM_SYS_NO
+	     , LOT_ID
+	     , WH_LOC_CD
+	     , ITEM_SEQ
+	     , SAO_NO
+	     , PO_NO
+	     , ITEM_CD
+	     , CUST_ITEM_CD
+	     , ITEM_NM
+	     , PICK_ITEM_EA_QTY
+	     , PICK_ITEM_CBM
+	     , PICK_ITEM_CBF
+	     , PICK_ITEM_GRS_KGS
+	     , PICK_ITEM_GRS_LBS
+	     , PICK_ITEM_NET_KGS
+	     , PICK_ITEM_NET_LBS
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     , INV_ITEM_SEQ
+	     )
+	VALUES
+	     ( #walc_no#
+	     , #wob_bk_no#
+	     , #sao_sys_no#
+	     , #wib_bk_no#
+	     , #po_sys_no#
+	     , #item_sys_no#
+	     , #lot_id#
+	     , #wh_loc_cd#
+	     , #item_seq#
+	     , #sao_no#
+	     , #po_no#
+	     , #item_cd#
+	     , #cust_item_cd#
+	     , #item_nm#
+	     , (SELECT ISNULL(CONVERT(DECIMAL(18,3), CAST(#pick_qty# AS FLOAT)), 0))
+		 , (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_cbm# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_cbf# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_grs_kgs# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_grs_lbs# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_net_kgs# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_net_lbs# AS FLOAT)), 0))))))
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),20)
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),20)
+	     , #inv_item_seq#
+	     )
+	</insert>
+	<update id="modifyWhAllcItem" >
+	/*WHOutAllcation.modifyWhAllcItem*/
+	UPDATE TL_WH_ALLC_ITEM
+	   SET
+	   	   PICK_ITEM_EA_QTY  = (SELECT ISNULL(CONVERT(DECIMAL(18,3), PICK_ITEM_EA_QTY + CAST(#pick_qty# AS FLOAT)), 0))
+	     , PICK_ITEM_CBM     = (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), PICK_ITEM_EA_QTY + CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_cbm# AS FLOAT)), 0))))))
+	     , PICK_ITEM_CBF     = (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), PICK_ITEM_EA_QTY + CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_cbf# AS FLOAT)), 0))))))
+	     , PICK_ITEM_GRS_KGS = (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), PICK_ITEM_EA_QTY + CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_grs_kgs# AS FLOAT)), 0))))))
+	     , PICK_ITEM_GRS_LBS = (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), PICK_ITEM_EA_QTY + CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_grs_lbs# AS FLOAT)), 0))))))
+	     , PICK_ITEM_NET_KGS = (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), PICK_ITEM_EA_QTY + CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_net_kgs# AS FLOAT)), 0))))))
+	     , PICK_ITEM_NET_LBS = (SELECT(CONVERT(DECIMAL (15, 5),((SELECT ISNULL(CONVERT(DECIMAL(15,5), PICK_ITEM_EA_QTY + CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(DECIMAL(15,5), CAST(#lv1_net_lbs# AS FLOAT)), 0))))))
+	     , MODI_ID = #rgst_id#
+	     , MODI_OFC_CD = #rgst_ofc_cd#
+	     , MODI_SYS_DT = GETDATE()
+	     , MODI_LOC_DT = CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),20)
+	 WHERE WALC_NO      = #walc_no#
+	   AND WOB_BK_NO    = #wob_bk_no#
+	   AND SAO_SYS_NO   = #sao_sys_no#
+	   AND WIB_BK_NO    = #wib_bk_no#
+	   AND PO_SYS_NO    = #po_sys_no#
+	   AND ITEM_SYS_NO  = #item_sys_no#
+	   AND LOT_ID       = #lot_id#
+	   AND WH_LOC_CD    = #wh_loc_cd#
+	   AND ITEM_SEQ     = #item_seq#     
+	</update>	
+	<update id="modifyAllcMgmt" >
+	/*WHOutAllcation.modifyAllcMgmt*/
+	UPDATE TL_WH_ALLC_ITEM
+	   SET PICK_ITEM_CBM     = #item_cbm#
+	     , PICK_ITEM_CBF     = #item_cbf#
+	     , PICK_ITEM_GRS_KGS = #item_grs_kgs#
+	     , PICK_ITEM_GRS_LBS = #item_grs_lbs#
+	     , PICK_ITEM_NET_KGS = #item_net_kgs#
+	     , PICK_ITEM_NET_LBS = #item_net_lbs#
+	     , MODI_ID = #modi_id#
+	     , MODI_OFC_CD = #modi_ofc_cd#
+	     , MODI_SYS_DT = GETDATE()
+	     , MODI_LOC_DT = CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#),20)
+	 WHERE WALC_NO      = #walc_no#
+	   AND WOB_BK_NO    = #wob_bk_no#
+	   AND SAO_SYS_NO   = #sao_sys_no#
+	   AND WIB_BK_NO	= #wib_bk_no#
+	   AND PO_SYS_NO    = #po_sys_no#
+	   AND ITEM_SYS_NO  = #item_sys_no#
+	   AND LOT_ID       = #lot_id#
+	   AND WH_LOC_CD    = #wh_loc_cd#
+	   AND ITEM_SEQ     = #item_seq#     
+	</update>
+	<select id="searchAllocInvLocList" resultClass="AllcMgmtVO">
+		/* WHOutAllcation.searchAllocInvLocList */
+       SELECT *
+  FROM (SELECT XO.WOB_BK_NO,
+               XO.SAO_SYS_NO,
+               XO.ITEM_SYS_NO,
+               XO.ITEM_SEQ,
+               XO.SAO_NO,
+               XO.ITEM_CD,
+               XO.CUST_ITEM_CD,
+               XO.ITEM_NM,
+               XI.PO_SYS_NO,
+               XI.LOT_ID,
+               XI.WH_LOC_CD,
+               XI.INB_DT,
+               XI.LOT_NO,
+               XI.EXP_DT,
+               XI.LOT_04,
+               XI.LOT_05,
+               XI.WIB_BK_NO,
+               XI.PO_NO,
+               ISNULL(XO.ITEM_EA_QTY, 0) AS ITEM_EA_QTY,
+               XO.ITEM_UNALC_QTY,
+               XI.AV_IN_QTY,               
+               
+               CASE
+                   WHEN ISNULL(XO.ITEM_UNALC_QTY, 0) - XI.AFT_QTY &gt;= 0 THEN
+                    XI.AV_IN_QTY
+                   WHEN ISNULL(XO.ITEM_UNALC_QTY, 0) - XI.BEF_QTY &gt;= 0 THEN
+                    ISNULL(XO.ITEM_UNALC_QTY, 0) - XI.BEF_QTY
+                   ELSE
+                    0
+               END AS PICK_QTY
+            
+          FROM (SELECT OB.WOB_BK_NO,
+                       OB.SAO_SYS_NO,
+                       OB.ITEM_SYS_NO,
+                       OB.ITEM_SEQ,
+                       OB.SAO_NO,
+                       OB.ITEM_CD,
+                       OB.CUST_ITEM_CD,
+                       OB.ITEM_NM,
+                       OB.ITEM_EA_QTY,
+                       OB.PICK_ITEM_EA_QTY,
+                       OB.ITEM_UNALC_QTY
+                  FROM (SELECT B.*,
+                               ISNULL(P.PICK_ITEM_EA_QTY, 0) AS PICK_ITEM_EA_QTY,
+                               B.ITEM_EA_QTY - ISNULL(P.PICK_ITEM_EA_QTY, 0) AS ITEM_UNALC_QTY
+                          FROM (SELECT I.*
+                                  FROM TL_WH_OB          W,
+                                       TL_WH_OB_ITEM     I,
+                                       TL_CTRT_CUST_ITEM CI
+                                 WHERE W.WOB_BK_NO = I.WOB_BK_NO
+                                   AND W.CTRT_NO = CI.CTRT_NO
+                                   AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+                                   AND W.BK_STS_CD = 'I'
+                                   AND I.ITEM_EA_QTY &gt; 0 
+                                   AND W.WOB_BK_NO = #wob_bk_no# 
+                                   AND I.ITEM_SYS_NO = #item_sys_no#
+                                   AND I.ITEM_SEQ = #item_seq#
+                                ) B LEFT JOIN 
+                               (SELECT AL.WOB_BK_NO,
+                                       ALI.SAO_SYS_NO,
+                                       ALI.ITEM_SYS_NO,
+                                       ALI.ITEM_SEQ,
+                                       SUM(ALI.PICK_ITEM_EA_QTY) AS PICK_ITEM_EA_QTY
+                                  FROM TL_WH_ALLC AL, TL_WH_ALLC_ITEM ALI
+                                 WHERE AL.WALC_NO = ALI.WALC_NO
+                                   AND AL.WOB_BK_NO = #wob_bk_no#
+                                   AND ALI.ITEM_SYS_NO = #item_sys_no#
+                                   AND ALI.ITEM_SEQ = #item_seq#
+                                 GROUP BY AL.WOB_BK_NO,
+                                          ALI.SAO_SYS_NO,
+                                          ALI.ITEM_SYS_NO,
+                                          ALI.ITEM_SEQ) P ON B.WOB_BK_NO = P.WOB_BK_NO AND b.item_sys_no = p.ITEM_SYS_NO AND B.ITEM_SEQ = P.ITEM_SEQ
+                         
+                            WHERE B.ITEM_EA_QTY - ISNULL(P.PICK_ITEM_EA_QTY, 0) &gt; 0 
+                         ORDER BY B.ITEM_SYS_NO, B.ITEM_SEQ) OB) XO left join
+               
+               (SELECT Y.*,
+                       ISNULL(SUM(ISNULL(Y.AV_IN_QTY, 0))
+                           OVER(PARTITION BY Y.ITEM_SYS_NO ORDER BY
+                                Y.ITEM_SYS_NO,
+                                  /* ALLOCATION CRITERION*/									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_01">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.INB_DT ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.INB_DT, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_02">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.LOT_NO ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.LOT_NO, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_03">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.EXP_DT ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.EXP_DT, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_04">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.LOT_04 ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.LOT_04, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_05">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.LOT_05 ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.LOT_05, ' ') DESC,
+										</isNotEqual>
+									</isEqual>								                            
+                                  Y.WH_LOC_CD,
+                                  Y.PO_SYS_NO,
+                               /*-- ROWNUM ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING*/
+                                ),
+                           0) BEF_QTY,
+                       SUM(ISNULL(Y.AV_IN_QTY, 0)) 
+                       OVER(PARTITION BY Y.ITEM_SYS_NO ORDER BY 
+                            Y.ITEM_SYS_NO,
+                                  /* ALLOCATION CRITERION*/
+                                 <isEqual property="alloc_option" compareValue="LOT_ATTRIB_01">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.INB_DT ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.INB_DT, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_02">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.LOT_NO ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.LOT_NO, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_03">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.EXP_DT ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.EXP_DT, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_04">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.LOT_04 ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.LOT_04, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_05">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.LOT_05 ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.LOT_05, ' ') DESC,
+										</isNotEqual>
+									</isEqual>                 
+                                  Y.WH_LOC_CD,
+                                  Y.PO_SYS_NO, ROW_NUMBER ( )  OVER ( PARTITION BY Y.ITEM_SYS_NO ORDER BY Y.ITEM_SYS_NO )
+                                  ) AFT_QTY,
+                       SUM(ISNULL(Y.AV_IN_QTY, 0)) OVER(PARTITION BY Y.ITEM_SYS_NO ORDER BY Y.ITEM_SYS_NO) TOT_QTY
+                  FROM (SELECT DISTINCT V.PO_SYS_NO,
+                                        V.ITEM_SYS_NO,
+                                        ISNULL(V.IN_QTY, 0) - ISNULL(V.ALLC_QTY, 0) AS AV_IN_QTY,
+                                        V.LOT_ID,
+                                        V.WH_LOC_CD,
+                                        V.INB_DT AS INB_DT,
+                                        V.LOT_NO AS LOT_NO,
+                                        V.EXP_DT AS EXP_DT,
+                                        V.LOT_04 AS LOT_04,
+                                        V.LOT_05 AS LOT_05,
+                                        V.WIB_BK_NO,
+						                V.PO_NO,
+						                V.ITEM_CD,
+						                V.KIT_FLG,
+						                V.FWD_DIR
+                          FROM (SELECT INV.PO_SYS_NO,
+                                       INV.ITEM_SYS_NO,
+                                       INV.LOT_ID,
+                                       INV.WH_LOC_CD,
+                                       INV.WH_CD,
+                                       INV.ITEM_CD,
+                                       INV.ITEM_NM,
+                                       INV.IN_BK_QTY,
+                                       INV.IN_QTY,
+                                       INV.ALLC_QTY,
+                                       INV.WIB_BK_NO,
+					                   INV.PO_NO,
+					                   INV.KIT_FLG,
+					                   (SELECT FWD_DIR FROM TL_WH_IB WHERE WIB_BK_NO = INV.WIB_BK_NO) AS FWD_DIR,					                                       
+                                       LOT.LOT_ATTRIB_01 AS INB_DT,
+                                       LOT.LOT_ATTRIB_02 AS LOT_NO,
+                                       LOT.LOT_ATTRIB_03 AS EXP_DT,
+                                       LOT.LOT_ATTRIB_04 AS LOT_04,
+                                       LOT.LOT_ATTRIB_05 AS LOT_05
+                                  FROM TL_WH_INV_LOC         INV,
+                                       TL_CTRT_CUST_ITEM_LOT LOT
+                                 WHERE INV.LOT_ID = LOT.LOT_ID
+                                   AND INV.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+                                   AND INV.CTRT_NO = LOT.CTRT_NO
+                                   AND INV.WH_CD = LOT.WH_CD
+                                   AND INV.ITEM_SYS_NO = #item_sys_no#
+                                   AND INV.CTRT_NO = #ctrt_no#
+                                   AND INV.WH_CD = #wh_cd#
+                                    <![CDATA[ AND INV.IN_QTY - ISNULL(INV.ALLC_QTY, 0) > 0 ]]>
+                                   /*OB ITEM에 LOT 속성이 있으면, 동일 속성 재고만 */
+									   <isNotEmpty property="inbound_dt"> AND ISNULL(LOT.LOT_ATTRIB_01,' ') = #inbound_dt# /*부킹시 inbound dt가 있으면*/</isNotEmpty>
+									   <isNotEmpty property="lot_no">AND ISNULL(LOT.LOT_ATTRIB_02,' ') = #lot_no# /*부킹시 lot_no가 있으면*/</isNotEmpty>
+									   <isNotEmpty property="exp_dt">AND ISNULL(LOT.LOT_ATTRIB_03,' ') = #exp_dt# /*부킹시 exp_dt가 있으면*/</isNotEmpty>
+									   <isNotEmpty property="lot_04">AND ISNULL(LOT.LOT_ATTRIB_04,' ') = #lot_04# /*부킹시 lot4가 있으면*/</isNotEmpty>
+									   <isNotEmpty property="lot_05">AND ISNULL(LOT.LOT_ATTRIB_05,' ') = #lot_05# /*부킹시 lot5가 있으면*/</isNotEmpty>
+									AND EXISTS /*할당 가능한 LOCATION*/
+                                       (SELECT 'X'
+                                          FROM TL_WH_LOC WL, TL_WH_PROP WP
+                                         WHERE WL.LOC_CD = WP.LOC_CD
+                                           AND WL.WH_LOC_CD = INV.WH_LOC_CD
+                                           AND WL.USE_FLG = 'Y'
+                                           AND WL.PROP_CD = WP.PROP_CD
+                                           /*AND WP.PROP_CD IN ('NON', 'STR')*/
+                                           AND WP.ALLOC_FLG = 'Y'
+                                           AND WP.USE_FLG = 'Y') 
+                                   <isNotEmpty property="fix_loc_cd">AND INV.WH_LOC_CD = #fix_loc_cd#</isNotEmpty>                                       
+                                   AND NOT EXISTS /* ISSUE Item 할당 제외 */
+                                 (SELECT 'X'
+                                          FROM TL_WH_ALLC_ITEM AI,
+                                               TL_WH_ISSU_ITEM S
+                                         WHERE AI.WALC_NO = S.WALC_NO
+                                           AND AI.WOB_BK_NO = S.WOB_BK_NO
+                                           AND AI.SAO_SYS_NO = S.SAO_SYS_NO
+                                           AND AI.WIB_BK_NO = S.WIB_BK_NO
+                                           AND AI.PO_SYS_NO = S.PO_SYS_NO
+                                           AND AI.ITEM_SYS_NO = S.ITEM_SYS_NO
+                                           AND AI.LOT_ID = S.LOT_ID
+                                           AND AI.WH_LOC_CD = S.WH_LOC_CD
+                                           AND AI.ITEM_SEQ = S.ITEM_SEQ
+                                           
+                                           AND S.WIB_BK_NO = INV.WIB_BK_NO   
+                                           AND S.PO_SYS_NO = INV.PO_SYS_NO
+                                           AND S.ITEM_SYS_NO = INV.ITEM_SYS_NO
+                                           AND S.LOT_ID = INV.LOT_ID
+                                           AND S.WH_LOC_CD = INV.WH_LOC_CD
+                                              
+                                           AND S.WOB_BK_NO = #wob_bk_no# 
+                                           AND S.ITEM_SYS_NO = #item_sys_no#)
+                                      
+                                   AND NOT EXISTS /*Load Plan Complete 된 Item 할당 제외*/
+                                 (SELECT 'X'
+                                          FROM TL_WH_ALLC_ITEM      AI,
+                                               TL_WH_LOAD_PLAN      P,
+                                               TL_WH_LOAD_PLAN_ITEM PI
+                                         WHERE AI.WOB_BK_NO = PI.WOB_BK_NO
+                                           AND AI.SAO_SYS_NO = PI.SAO_SYS_NO
+                                           AND AI.PO_SYS_NO = PI.PO_SYS_NO
+                                           AND AI.ITEM_SYS_NO = PI.ITEM_SYS_NO
+                                           AND AI.LOT_ID = PI.LOT_ID
+                                           AND AI.WH_LOC_CD = PI.WH_LOC_CD
+                                           AND AI.WIB_BK_NO = PI.WIB_BK_NO
+                                           AND AI.ITEM_SEQ = PI.ITEM_SEQ
+                                              
+                                           AND P.LP_NO = PI.LP_NO
+                                           AND P.LP_STS_CD = 'P'
+                                           
+                                           AND PI.WIB_BK_NO = INV.WIB_BK_NO
+                                           AND PI.PO_SYS_NO = INV.PO_SYS_NO
+                                           AND PI.ITEM_SYS_NO = INV.ITEM_SYS_NO
+                                           AND PI.LOT_ID = INV.LOT_ID
+                                           AND PI.WH_LOC_CD = INV.WH_LOC_CD
+                                           
+                                              
+                                           AND PI.WOB_BK_NO = #wob_bk_no# 
+                                           AND PI.ITEM_SYS_NO = #item_sys_no#)
+                                
+                                ) V
+                         WHERE 1=1) Y
+                <![CDATA[ WHERE Y.AV_IN_QTY > 0) XI ]]> on XO.ITEM_SYS_NO = XI.ITEM_SYS_NO
+        
+        
+                  ) TT
+ <![CDATA[ WHERE TT.PICK_QTY > 0 ]]>
+	</select>
+	<select id="searchAllocInvLocXOList" resultClass="AllcMgmtUnAllocInvLocListVO">
+		/* WHOutAllcation.searchAllocInvLocXOList */
+      SELECT XO.WOB_BK_NO,
+               XO.SAO_SYS_NO,
+               XO.ITEM_SYS_NO,
+               XO.ITEM_SEQ,
+               XO.SAO_NO,
+               XO.ITEM_CD,
+               XO.CUST_ITEM_CD,
+               XO.ITEM_NM,
+               ISNULL(XO.ITEM_EA_QTY, 0) AS ITEM_EA_QTY,
+               ISNULL(XO.ITEM_UNALC_QTY,0) as ITEM_UNALC_QTY
+            
+          FROM (SELECT OB.WOB_BK_NO,
+                       OB.SAO_SYS_NO,
+                       OB.ITEM_SYS_NO,
+                       OB.ITEM_SEQ,
+                       OB.SAO_NO,
+                       OB.ITEM_CD,
+                       OB.CUST_ITEM_CD,
+                       OB.ITEM_NM,
+                       OB.ITEM_EA_QTY,
+                       OB.PICK_ITEM_EA_QTY,
+                       OB.ITEM_UNALC_QTY
+                  FROM (SELECT B.*,
+                               ISNULL(P.PICK_ITEM_EA_QTY, 0) AS PICK_ITEM_EA_QTY,
+                               B.ITEM_EA_QTY - ISNULL(P.PICK_ITEM_EA_QTY, 0) AS ITEM_UNALC_QTY
+                          FROM (SELECT I.*
+                                  FROM TL_WH_OB          W,
+                                       TL_WH_OB_ITEM     I,
+                                       TL_CTRT_CUST_ITEM CI
+                                 WHERE W.WOB_BK_NO = I.WOB_BK_NO
+                                   AND W.CTRT_NO = CI.CTRT_NO
+                                   AND I.ITEM_SYS_NO = CI.ITEM_SYS_NO
+                                   AND W.BK_STS_CD = 'I'
+                                   AND I.ITEM_EA_QTY &gt; 0 
+                                   AND W.WOB_BK_NO = #wob_bk_no# 
+                                   AND I.ITEM_SYS_NO = #item_sys_no#
+                                   AND I.ITEM_SEQ = #item_seq#
+                                ) B LEFT JOIN 
+                               (SELECT AL.WOB_BK_NO,
+                                       ALI.SAO_SYS_NO,
+                                       ALI.ITEM_SYS_NO,
+                                       ALI.ITEM_SEQ,
+                                       SUM(ALI.PICK_ITEM_EA_QTY) AS PICK_ITEM_EA_QTY
+                                  FROM TL_WH_ALLC AL, TL_WH_ALLC_ITEM ALI
+                                 WHERE AL.WALC_NO = ALI.WALC_NO
+                                   AND AL.WOB_BK_NO = #wob_bk_no#
+                                   AND ALI.ITEM_SYS_NO = #item_sys_no#
+                                   AND ALI.ITEM_SEQ = #item_seq#
+                                 GROUP BY AL.WOB_BK_NO,
+                                          ALI.SAO_SYS_NO,
+                                          ALI.ITEM_SYS_NO,
+                                          ALI.ITEM_SEQ) P ON B.WOB_BK_NO = P.WOB_BK_NO AND b.item_sys_no = p.ITEM_SYS_NO AND B.ITEM_SEQ = P.ITEM_SEQ
+                         
+                            WHERE B.ITEM_EA_QTY - ISNULL(P.PICK_ITEM_EA_QTY, 0) &gt; 0 
+                         ) OB ) XO ORDER BY XO.ITEM_SYS_NO, XO.ITEM_SEQ
+	</select>
+	<select id="searchAllocInvLocXIList" resultClass="AllcMgmtUnAllocInvLocListVO">
+		/* WHOutAllcation.searchAllocInvLocXIList */
+     			  SELECT Y.*
+                  FROM (SELECT DISTINCT V.PO_SYS_NO,
+                                        V.ITEM_SYS_NO,
+                                        ISNULL(V.IN_QTY, 0) - ISNULL(V.ALLC_QTY, 0) AS AV_IN_QTY,
+                                        V.LOT_ID,
+                                        V.WH_LOC_CD,
+                                        V.INB_DT AS INB_DT,
+                                        V.LOT_NO AS LOT_NO,
+                                        V.EXP_DT AS EXP_DT,
+                                        V.LOT_04 AS LOT_04,
+                                        V.LOT_05 AS LOT_05,
+                                        V.WIB_BK_NO,
+						                V.PO_NO,
+						                V.ITEM_CD,
+						                V.KIT_FLG,
+						                V.FWD_DIR
+                          FROM (SELECT INV.PO_SYS_NO,
+                                       INV.ITEM_SYS_NO,
+                                       INV.LOT_ID,
+                                       INV.WH_LOC_CD,
+                                       INV.WH_CD,
+                                       INV.ITEM_CD,
+                                       INV.ITEM_NM,
+                                       INV.IN_BK_QTY,
+                                       INV.IN_QTY,
+                                       INV.ALLC_QTY,
+                                       INV.WIB_BK_NO,
+					                   INV.PO_NO,
+					                   INV.KIT_FLG,
+					                   (SELECT FWD_DIR FROM TL_WH_IB WHERE WIB_BK_NO = INV.WIB_BK_NO) AS FWD_DIR,					                                       
+                                       LOT.LOT_ATTRIB_01 AS INB_DT,
+                                       LOT.LOT_ATTRIB_02 AS LOT_NO,
+                                       LOT.LOT_ATTRIB_03 AS EXP_DT,
+                                       LOT.LOT_ATTRIB_04 AS LOT_04,
+                                       LOT.LOT_ATTRIB_05 AS LOT_05
+                                  FROM TL_WH_INV_LOC         INV,
+                                       TL_CTRT_CUST_ITEM_LOT LOT
+                                 WHERE INV.LOT_ID = LOT.LOT_ID
+                                   AND INV.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+                                   AND INV.CTRT_NO = LOT.CTRT_NO
+                                   AND INV.WH_CD = LOT.WH_CD
+                                   AND INV.ITEM_SYS_NO = #item_sys_no#
+                                   AND INV.CTRT_NO = #ctrt_no#
+                                   AND INV.WH_CD = #wh_cd#
+                                    <![CDATA[ AND INV.IN_QTY - ISNULL(INV.ALLC_QTY, 0) > 0 ]]>
+                                   /* OB ITEM에 LOT 속성이 있으면, 동일 속성 재고만  */
+									   <isNotEmpty property="inbound_dt"> AND ISNULL(LOT.LOT_ATTRIB_01,' ') = #inbound_dt# /* 부킹시 inbound dt가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="lot_no">AND ISNULL(LOT.LOT_ATTRIB_02,' ') = #lot_no# /* 부킹시 lot_no가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="exp_dt">AND ISNULL(LOT.LOT_ATTRIB_03,' ') = #exp_dt# /* 부킹시 exp_dt가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="lot_04">AND ISNULL(LOT.LOT_ATTRIB_04,' ') = #lot_04# /* 부킹시 lot4가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="lot_05">AND ISNULL(LOT.LOT_ATTRIB_05,' ') = #lot_05# /* 부킹시 lot5가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="lic_plat_no">AND ISNULL(LOT.LIC_PLAT_NO,'') = ISNULL(#lic_plat_no#,'') /* 부킹시 lot5가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="item_ser_no">AND ISNULL(LOT.ITEM_SER_NO,'') = ISNULL(#item_ser_no#,'') /* 부킹시 lot5가 있으면 */</isNotEmpty>
+									AND EXISTS /* 할당 가능한 LOCATION */
+                                       (SELECT 'X'
+                                          FROM TL_WH_LOC WL, TL_WH_PROP WP
+                                         WHERE WL.LOC_CD = WP.LOC_CD
+                                           AND WL.WH_LOC_CD = INV.WH_LOC_CD
+                                           AND WL.USE_FLG = 'Y'
+                                           AND WL.PROP_CD = WP.PROP_CD
+                                           /*AND WP.PROP_CD IN ('NON', 'STR')*/
+                                           AND WP.ALLOC_FLG = 'Y'
+                                           AND WP.USE_FLG = 'Y') 
+                                   <isNotEmpty property="fix_loc_cd">AND INV.WH_LOC_CD = #fix_loc_cd#</isNotEmpty>                                       
+                                   AND NOT EXISTS /* ISSUE Item 할당 제외 */
+                                 (SELECT 'X'
+                                          FROM TL_WH_ALLC_ITEM AI,
+                                               TL_WH_ISSU_ITEM S
+                                         WHERE AI.WALC_NO = S.WALC_NO
+                                           AND AI.WOB_BK_NO = S.WOB_BK_NO
+                                           AND AI.SAO_SYS_NO = S.SAO_SYS_NO
+                                           AND AI.WIB_BK_NO = S.WIB_BK_NO
+                                           AND AI.PO_SYS_NO = S.PO_SYS_NO
+                                           AND AI.ITEM_SYS_NO = S.ITEM_SYS_NO
+                                           AND AI.LOT_ID = S.LOT_ID
+                                           AND AI.WH_LOC_CD = S.WH_LOC_CD
+                                           AND AI.ITEM_SEQ = S.ITEM_SEQ
+                                           
+                                           AND S.WIB_BK_NO = INV.WIB_BK_NO   
+                                           AND S.PO_SYS_NO = INV.PO_SYS_NO
+                                           AND S.ITEM_SYS_NO = INV.ITEM_SYS_NO
+                                           AND S.LOT_ID = INV.LOT_ID
+                                           AND S.WH_LOC_CD = INV.WH_LOC_CD
+                                              
+                                           AND S.WOB_BK_NO = #wob_bk_no# 
+                                           AND S.ITEM_SYS_NO = #item_sys_no#)
+                                      
+                                   AND NOT EXISTS /* Load Plan Complete 된 Item 할당 제외 */
+                                 (SELECT 'X'
+                                          FROM TL_WH_ALLC_ITEM      AI,
+                                               TL_WH_LOAD_PLAN      P,
+                                               TL_WH_LOAD_PLAN_ITEM PI
+                                         WHERE AI.WOB_BK_NO = PI.WOB_BK_NO
+                                           AND AI.SAO_SYS_NO = PI.SAO_SYS_NO
+                                           AND AI.PO_SYS_NO = PI.PO_SYS_NO
+                                           AND AI.ITEM_SYS_NO = PI.ITEM_SYS_NO
+                                           AND AI.LOT_ID = PI.LOT_ID
+                                           AND AI.WH_LOC_CD = PI.WH_LOC_CD
+                                           AND AI.WIB_BK_NO = PI.WIB_BK_NO
+                                           AND AI.ITEM_SEQ = PI.ITEM_SEQ
+                                              
+                                           AND P.LP_NO = PI.LP_NO
+                                           AND P.LP_STS_CD = 'P'
+                                           
+                                           AND PI.WIB_BK_NO = INV.WIB_BK_NO
+                                           AND PI.PO_SYS_NO = INV.PO_SYS_NO
+                                           AND PI.ITEM_SYS_NO = INV.ITEM_SYS_NO
+                                           AND PI.LOT_ID = INV.LOT_ID
+                                           AND PI.WH_LOC_CD = INV.WH_LOC_CD
+                                           
+                                              
+                                           AND PI.WOB_BK_NO = #wob_bk_no# 
+                                           AND PI.ITEM_SYS_NO = #item_sys_no#)
+                                
+                                ) V
+                         WHERE 1=1) Y
+                <![CDATA[ WHERE Y.AV_IN_QTY > 0 ]]>
+                ORDER BY
+                                Y.ITEM_SYS_NO,
+                                  /* ALLOCATION CRITERION*/									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_01">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.INB_DT ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.INB_DT, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_02">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.LOT_NO ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.LOT_NO, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_03">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.EXP_DT ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.EXP_DT, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_04">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.LOT_04 ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.LOT_04, ' ') DESC,
+										</isNotEqual>
+									</isEqual>
+									
+									<isEqual property="alloc_option" compareValue="LOT_ATTRIB_05">
+										<isEqual property="alloc_ord" compareValue="ASC">
+											Y.LOT_05 ASC,
+										</isEqual>
+										
+										<isNotEqual property="alloc_ord" compareValue="ASC">
+											ISNULL(Y.LOT_05, ' ') DESC,
+										</isNotEqual>
+									</isEqual>								                            
+                                  Y.WH_LOC_CD,
+                                  Y.PO_SYS_NO
+	</select>
+	<sql id="allocLotPriCond">
+		<!-- Priority 1 -->
+		<isEqual property="lot_pri_01" compareValue="LOT01">
+			<isEqual property="lot_pri_01_sort" compareValue="ASC">
+				Y.INB_DT ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_01_sort" compareValue="ASC">
+				ISNULL(Y.INB_DT, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_01" compareValue="LOT02">
+			<isEqual property="lot_pri_01_sort" compareValue="ASC">
+				Y.LOT_NO ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_01_sort" compareValue="ASC">
+				ISNULL(Y.LOT_NO, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_01" compareValue="LOT03">
+			<isEqual property="lot_pri_01_sort" compareValue="ASC">
+				Y.EXP_DT ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_01_sort" compareValue="ASC">
+				ISNULL(Y.EXP_DT, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_01" compareValue="LOT04">
+			<isEqual property="lot_pri_01_sort" compareValue="ASC">
+				Y.LOT_04 ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_01_sort" compareValue="ASC">
+				ISNULL(Y.LOT_04, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_01" compareValue="LOT05">
+			<isEqual property="lot_pri_01_sort" compareValue="ASC">
+				Y.LOT_05 ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_01_sort" compareValue="ASC">
+				ISNULL(Y.LOT_05, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		
+		<!-- Priority 2 -->
+		<isEqual property="lot_pri_02" compareValue="LOT01">
+			<isEqual property="lot_pri_02_sort" compareValue="ASC">
+				Y.INB_DT ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_02_sort" compareValue="ASC">
+				ISNULL(Y.INB_DT, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_02" compareValue="LOT02">
+			<isEqual property="lot_pri_02_sort" compareValue="ASC">
+				Y.LOT_NO ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_02_sort" compareValue="ASC">
+				ISNULL(Y.LOT_NO, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_02" compareValue="LOT03">
+			<isEqual property="lot_pri_02_sort" compareValue="ASC">
+				Y.EXP_DT ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_02_sort" compareValue="ASC">
+				ISNULL(Y.EXP_DT, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_02" compareValue="LOT04">
+			<isEqual property="lot_pri_02_sort" compareValue="ASC">
+				Y.LOT_04 ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_02_sort" compareValue="ASC">
+				ISNULL(Y.LOT_04, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_02" compareValue="LOT05">
+			<isEqual property="lot_pri_02_sort" compareValue="ASC">
+				Y.LOT_05 ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_02_sort" compareValue="ASC">
+				ISNULL(Y.LOT_05, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		
+		<!-- Priority 3 -->
+		<isEqual property="lot_pri_03" compareValue="LOT01">
+			<isEqual property="lot_pri_03_sort" compareValue="ASC">
+				Y.INB_DT ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_03_sort" compareValue="ASC">
+				ISNULL(Y.INB_DT, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_03" compareValue="LOT02">
+			<isEqual property="lot_pri_03_sort" compareValue="ASC">
+				Y.LOT_NO ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_03_sort" compareValue="ASC">
+				ISNULL(Y.LOT_NO, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_03" compareValue="LOT03">
+			<isEqual property="lot_pri_03_sort" compareValue="ASC">
+				Y.EXP_DT ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_03_sort" compareValue="ASC">
+				ISNULL(Y.EXP_DT, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_03" compareValue="LOT04">
+			<isEqual property="lot_pri_03_sort" compareValue="ASC">
+				Y.LOT_04 ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_03_sort" compareValue="ASC">
+				ISNULL(Y.LOT_04, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_03" compareValue="LOT05">
+			<isEqual property="lot_pri_03_sort" compareValue="ASC">
+				Y.LOT_05 ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_03_sort" compareValue="ASC">
+				ISNULL(Y.LOT_05, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		
+		<!-- Priority 4 -->
+		<isEqual property="lot_pri_04" compareValue="LOT01">
+			<isEqual property="lot_pri_04_sort" compareValue="ASC">
+				Y.INB_DT ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_04_sort" compareValue="ASC">
+				ISNULL(Y.INB_DT, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_04" compareValue="LOT02">
+			<isEqual property="lot_pri_04_sort" compareValue="ASC">
+				Y.LOT_NO ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_04_sort" compareValue="ASC">
+				ISNULL(Y.LOT_NO, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_04" compareValue="LOT03">
+			<isEqual property="lot_pri_04_sort" compareValue="ASC">
+				Y.EXP_DT ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_04_sort" compareValue="ASC">
+				ISNULL(Y.EXP_DT, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_04" compareValue="LOT04">
+			<isEqual property="lot_pri_04_sort" compareValue="ASC">
+				Y.LOT_04 ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_04_sort" compareValue="ASC">
+				ISNULL(Y.LOT_04, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_04" compareValue="LOT05">
+			<isEqual property="lot_pri_04_sort" compareValue="ASC">
+				Y.LOT_05 ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_04_sort" compareValue="ASC">
+				ISNULL(Y.LOT_05, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		
+		<!-- Priority 5 -->
+		<isEqual property="lot_pri_05" compareValue="LOT01">
+			<isEqual property="lot_pri_05_sort" compareValue="ASC">
+				Y.INB_DT ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_05_sort" compareValue="ASC">
+				ISNULL(Y.INB_DT, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_05" compareValue="LOT02">
+			<isEqual property="lot_pri_05_sort" compareValue="ASC">
+				Y.LOT_NO ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_05_sort" compareValue="ASC">
+				ISNULL(Y.LOT_NO, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_05" compareValue="LOT03">
+			<isEqual property="lot_pri_05_sort" compareValue="ASC">
+				Y.EXP_DT ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_05_sort" compareValue="ASC">
+				ISNULL(Y.EXP_DT, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_05" compareValue="LOT04">
+			<isEqual property="lot_pri_05_sort" compareValue="ASC">
+				Y.LOT_04 ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_05_sort" compareValue="ASC">
+				ISNULL(Y.LOT_04, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="lot_pri_05" compareValue="LOT05">
+			<isEqual property="lot_pri_05_sort" compareValue="ASC">
+				Y.LOT_05 ASC,
+			</isEqual>
+			<isNotEqual property="lot_pri_05_sort" compareValue="ASC">
+				ISNULL(Y.LOT_05, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+	</sql>
+	<sql id="allocLocPriCond">
+		<isEqual property="loc_pri" compareValue="L1">
+			<isEqual property="loc_pri_sort" compareValue="ASC">
+				Y.WH_LOC_CD ASC,
+			</isEqual>
+			<isNotEqual property="loc_pri_sort" compareValue="ASC">
+				ISNULL(Y.WH_LOC_CD, ' ') DESC,
+			</isNotEqual>
+		</isEqual>
+		<isEqual property="loc_pri" compareValue="L2">
+			<isEqual property="loc_pri_sort" compareValue="ASC">
+				Y.LOC_SEQ ASC,
+			</isEqual>
+			<isNotEqual property="loc_pri_sort" compareValue="ASC">
+				ISNULL(Y.LOC_SEQ, -99) DESC,
+			</isNotEqual>
+		</isEqual>
+	</sql>
+	<select id="searchAllocInvLocXIListFromWave" resultClass="AllcMgmtUnAllocInvLocListVO">
+		/* WHOutAllcation.searchAllocInvLocXIListFromWave */
+     			  SELECT Y.*
+                  FROM (SELECT DISTINCT V.PO_SYS_NO,
+                                        V.ITEM_SYS_NO,
+                                        ISNULL(V.IN_QTY, 0) - ISNULL(V.ALLC_QTY, 0) AS AV_IN_QTY,
+                                        V.LOT_ID,
+                                        V.WH_LOC_CD,
+                                        V.INB_DT AS INB_DT,
+                                        V.LOT_NO AS LOT_NO,
+                                        V.EXP_DT AS EXP_DT,
+                                        V.LOT_04 AS LOT_04,
+                                        V.LOT_05 AS LOT_05,
+                                        V.WIB_BK_NO,
+						                V.PO_NO,
+						                V.ITEM_CD,
+						                V.KIT_FLG,
+						                V.FWD_DIR,
+						                V.LIC_PLAT_NO,
+						                V.ITEM_SER_NO,
+						                V.INV_ITEM_SEQ
+                          FROM (SELECT INV.PO_SYS_NO,
+                                       INV.ITEM_SYS_NO,
+                                       INV.LOT_ID,
+                                       INV.WH_LOC_CD,
+                                       INV.WH_CD,
+                                       INV.ITEM_CD,
+                                       INV.ITEM_NM,
+                                       INV.IN_BK_QTY,
+                                       INV.IN_QTY,
+                                       INV.ALLC_QTY,
+                                       INV.WIB_BK_NO,
+					                   INV.PO_NO,
+					                   INV.KIT_FLG,
+					                   (SELECT FWD_DIR FROM TL_WH_IB WHERE WIB_BK_NO = INV.WIB_BK_NO) AS FWD_DIR,					                                       
+                                       LOT.LOT_ATTRIB_01 AS INB_DT,
+                                       LOT.LOT_ATTRIB_02 AS LOT_NO,
+                                       LOT.LOT_ATTRIB_03 AS EXP_DT,
+                                       LOT.LOT_ATTRIB_04 AS LOT_04,
+                                       LOT.LOT_ATTRIB_05 AS LOT_05,
+                                       INV.LIC_PLAT_NO,
+                                       INV.ITEM_SER_NO,
+                                       INV.ITEM_SEQ AS INV_ITEM_SEQ
+                                  FROM TL_WH_INV_LOC         INV,
+                                       TL_CTRT_CUST_ITEM_LOT LOT
+                                 WHERE INV.LOT_ID = LOT.LOT_ID
+                                   AND INV.ITEM_SYS_NO = LOT.ITEM_SYS_NO
+                                   AND INV.CTRT_NO = LOT.CTRT_NO
+                                   AND INV.WH_CD = LOT.WH_CD
+                                   AND INV.ITEM_SYS_NO = #item_sys_no#
+                                   AND INV.CTRT_NO = #ctrt_no#
+                                   AND INV.WH_CD = #wh_cd#
+                                    <![CDATA[ AND INV.IN_QTY - ISNULL(INV.ALLC_QTY, 0) > 0 ]]>
+                                   /* OB ITEM에 LOT 속성이 있으면, 동일 속성 재고만 */
+									   <isNotEmpty property="inbound_dt"> AND ISNULL(LOT.LOT_ATTRIB_01,' ') = #inbound_dt# /* 부킹시 inbound dt가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="lot_no">AND ISNULL(LOT.LOT_ATTRIB_02,' ') = #lot_no# /* 부킹시 lot_no가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="exp_dt">AND ISNULL(LOT.LOT_ATTRIB_03,' ') = #exp_dt# /* 부킹시 exp_dt가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="lot_04">AND ISNULL(LOT.LOT_ATTRIB_04,' ') = #lot_04# /* 부킹시 lot4가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="lot_05">AND ISNULL(LOT.LOT_ATTRIB_05,' ') = #lot_05# /* 부킹시 lot5가 있으면 */</isNotEmpty>
+									   <isNotEmpty property="item_ser_no">AND ISNULL(INV.ITEM_SER_NO,' ') = ISNULL(#item_ser_no#,' ')</isNotEmpty>
+									   <isNotEmpty property="lic_plat_no">AND ISNULL(INV.LIC_PLAT_NO,' ') = ISNULL(#lic_plat_no#,' ')</isNotEmpty>
+									   <isNotEmpty property="po_no">AND ISNULL(INV.PO_NO,' ') = ISNULL(#po_no#,' ')</isNotEmpty>
+									AND EXISTS /* 할당 가능한 LOCATION */
+	                                       (SELECT 'X'
+	                                          FROM TL_WH_LOC WL, TL_WH_PROP WP
+	                                         WHERE 1 = 1
+	                                           AND WP.ALLOC_FLG = 'Y'
+	                                           AND WP.USE_FLG   = 'Y'
+	                                           AND WL.LOC_CD    = WP.LOC_CD
+	                                           AND WL.PROP_CD   = WP.PROP_CD
+	                                           AND WL.USE_FLG   = 'Y'
+	                                           AND WL.WH_LOC_CD = INV.WH_LOC_CD
+	                                           AND WL.LOC_CD = INV.WH_CD 
+	                                           /*AND WP.PROP_CD IN ('NON', 'STR')*/
+	                                       ) 
+                                   <isNotEmpty property="fix_loc_cd">AND INV.WH_LOC_CD = #fix_loc_cd#</isNotEmpty>                                       
+                                   AND NOT EXISTS /* ISSUE Item 할당 제외 */
+                                 (SELECT 'X'
+                                          FROM TL_WH_ALLC_ITEM AI,
+                                               TL_WH_ISSU_ITEM S
+                                         WHERE AI.WALC_NO = S.WALC_NO
+                                           AND AI.WOB_BK_NO = S.WOB_BK_NO
+                                           AND AI.SAO_SYS_NO = S.SAO_SYS_NO
+                                           AND AI.WIB_BK_NO = S.WIB_BK_NO
+                                           AND AI.PO_SYS_NO = S.PO_SYS_NO
+                                           AND AI.ITEM_SYS_NO = S.ITEM_SYS_NO
+                                           AND AI.LOT_ID = S.LOT_ID
+                                           AND AI.WH_LOC_CD = S.WH_LOC_CD
+                                           AND AI.ITEM_SEQ = S.ITEM_SEQ
+                                           
+                                           AND S.WIB_BK_NO = INV.WIB_BK_NO   
+                                           AND S.PO_SYS_NO = INV.PO_SYS_NO
+                                           AND S.ITEM_SYS_NO = INV.ITEM_SYS_NO
+                                           AND S.LOT_ID = INV.LOT_ID
+                                           AND S.WH_LOC_CD = INV.WH_LOC_CD
+                                              
+                                           AND S.WOB_BK_NO = #wob_bk_no# 
+                                           AND S.ITEM_SYS_NO = #item_sys_no#)
+                                      
+                                   AND NOT EXISTS /* Load Plan Complete 된 Item 할당 제외 */
+                                 (SELECT 'X'
+                                          FROM TL_WH_ALLC_ITEM      AI,
+                                               TL_WH_LOAD_PLAN      P,
+                                               TL_WH_LOAD_PLAN_ITEM PI
+                                         WHERE AI.WOB_BK_NO = PI.WOB_BK_NO
+                                           AND AI.SAO_SYS_NO = PI.SAO_SYS_NO
+                                           AND AI.PO_SYS_NO = PI.PO_SYS_NO
+                                           AND AI.ITEM_SYS_NO = PI.ITEM_SYS_NO
+                                           AND AI.LOT_ID = PI.LOT_ID
+                                           AND AI.WH_LOC_CD = PI.WH_LOC_CD
+                                           AND AI.WIB_BK_NO = PI.WIB_BK_NO
+                                           AND AI.ITEM_SEQ = PI.ITEM_SEQ
+                                              
+                                           AND P.LP_NO = PI.LP_NO
+                                           AND P.LP_STS_CD = 'P'
+                                           
+                                           AND PI.WIB_BK_NO = INV.WIB_BK_NO
+                                           AND PI.PO_SYS_NO = INV.PO_SYS_NO
+                                           AND PI.ITEM_SYS_NO = INV.ITEM_SYS_NO
+                                           AND PI.LOT_ID = INV.LOT_ID
+                                           AND PI.WH_LOC_CD = INV.WH_LOC_CD
+                                           
+                                              
+                                           AND PI.WOB_BK_NO = #wob_bk_no# 
+                                           AND PI.ITEM_SYS_NO = #item_sys_no#)
+                                ) V
+                         WHERE 1=1) Y
+                <![CDATA[ WHERE Y.AV_IN_QTY > 0 ]]>
+                ORDER BY
+                                Y.ITEM_SYS_NO,
+                                  /* ALLOCATION CRITERION*/	
+                                  <include refid="allocLotPriCond"/>								
+                                  <include refid="allocLocPriCond"/>								
+                                  Y.PO_SYS_NO
+	</select>
+	
+	<insert id="saveWhAllc">
+	/*WHOutAllcation.saveWhAllc*/
+	INSERT INTO TL_WH_ALLC
+	     ( WALC_NO
+	     , WOB_BK_NO
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     )
+	VALUES
+	     ( #walc_no#
+	     , #wob_bk_no#
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+	     )
+	</insert>
+	<select id="searchManualAllcPopupItemInfo" resultClass="ManualAllcPopupItemInfoVO">
+	/*WHOutAllcation.searchManualAllcPopupItemInfo*/
+SELECT ISNULL(IT.LV1_CBM, 0) AS LV1_CBM
+     , ISNULL(IT.LV1_CBF, 0) AS LV1_CBF
+     , ISNULL(IT.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+     , ISNULL(IT.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+     , ISNULL(IT.LV1_NET_KGS, 0) AS LV1_NET_KGS
+     , ISNULL(IT.LV1_NET_LBS, 0) AS LV1_NET_LBS
+     , ISNULL(IT.PKG_LV1_QTY, 0) AS PKG_LV1_QTY
+  FROM TL_CTRT_CUST_ITEM IT			  /*item level정보*/ 
+ WHERE IT.CTRT_NO     = (SELECT CTRT_NO
+		                   FROM TL_WH_OB OB
+		                  WHERE OB.WOB_BK_NO   = #wob_bk_no#
+ 
+                         )
+   AND IT.ITEM_SYS_NO = #item_sys_no#
+	</select>
+	
+	<update id="modifyWhAllcItemForManual" >
+	/*WHOutAllcation.modifyWhAllcItemForManual*/
+	UPDATE TL_WH_ALLC_ITEM
+	   SET PICK_ITEM_EA_QTY  = (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0))
+	     , PICK_ITEM_CBM     = (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_cbm# AS FLOAT)), 0))))))
+	     , PICK_ITEM_CBF     =  (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_cbf# AS FLOAT)), 0))))))
+	     , PICK_ITEM_GRS_KGS = (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_grs_kgs# AS FLOAT)), 0))))))
+	     , PICK_ITEM_GRS_LBS = (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_grs_lbs# AS FLOAT)), 0))))))
+	     , PICK_ITEM_NET_KGS = (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_net_kgs# AS FLOAT)), 0))))))
+	     , PICK_ITEM_NET_LBS = (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_net_lbs# AS FLOAT)), 0))))))
+	     , MODI_ID = #modi_id#
+	     , MODI_OFC_CD = #modi_ofc_cd#
+	     , MODI_SYS_DT = GETDATE()
+	     , MODI_LOC_DT = CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+	 WHERE WALC_NO      = #walc_no#
+	   AND WOB_BK_NO    = #wob_bk_no#
+	   AND SAO_SYS_NO   = #sao_sys_no#
+	   AND WIB_BK_NO	= #wib_bk_no#
+	   AND PO_SYS_NO    = #po_sys_no#
+	   AND ITEM_SYS_NO  = #item_sys_no#
+	   AND LOT_ID       = #lot_id#
+	   AND WH_LOC_CD    = #wh_loc_cd#
+	   AND ITEM_SEQ     = #item_seq#     
+	</update>
+	<insert id="saveWhAllcItemForManual">
+	/*WHOutAllcation.saveWhAllcItemForManual*/
+	INSERT INTO TL_WH_ALLC_ITEM
+	     ( WALC_NO
+	     , WOB_BK_NO
+	     , SAO_SYS_NO
+	     , PO_SYS_NO
+	     , ITEM_SYS_NO
+	     , LOT_ID
+	     , WH_LOC_CD
+	     , ITEM_SEQ
+	     , SAO_NO
+	     , WIB_BK_NO
+	     , PO_NO
+	     , ITEM_CD
+	     , CUST_ITEM_CD
+	     , ITEM_NM
+	     , PICK_ITEM_EA_QTY
+	     , PICK_ITEM_CBM
+	     , PICK_ITEM_CBF
+	     , PICK_ITEM_GRS_KGS
+	     , PICK_ITEM_GRS_LBS
+	     , PICK_ITEM_NET_KGS
+	     , PICK_ITEM_NET_LBS
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     )
+	SELECT #walc_no#
+	     , WOB_BK_NO
+	     , SAO_SYS_NO
+	     , #po_sys_no#
+	     , ITEM_SYS_NO
+	     , #lot_id#
+	     , #wh_loc_cd#
+	     , ITEM_SEQ
+	     , SAO_NO
+	     , #wib_bk_no#
+	     , #po_no#
+	     , ITEM_CD
+	     , CUST_ITEM_CD
+	     , ITEM_NM
+	     , (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0))
+		 , (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_cbm# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_cbf# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_grs_kgs# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_grs_lbs# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_net_kgs# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_net_lbs# AS FLOAT)), 0))))))
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+	  FROM TL_WH_OB_ITEM
+	 WHERE WOB_BK_NO    = #wob_bk_no#
+	   AND SAO_SYS_NO   = #sao_sys_no#
+	   AND ITEM_SYS_NO  = #item_sys_no#
+	   AND ITEM_SEQ     = #item_seq# 
+	</insert>
+	<delete id="deleteWhAllcItemForManual" >
+	/*WHOutAllcation.deleteWhAllcItemForManual*/
+	DELETE FROM TL_WH_ALLC_ITEM
+	 WHERE WALC_NO      = #walc_no#
+	   AND WOB_BK_NO    = #wob_bk_no#
+	   AND SAO_SYS_NO   = #sao_sys_no#
+	   AND ITEM_SYS_NO  = #item_sys_no#	   
+	   AND ITEM_SEQ     = #item_seq#     
+	   AND PICK_ITEM_EA_QTY = 0
+	</delete>
+	
+	<update id="modifyWhAllcItemForWaveSimpleManual" >
+	/*WHOutAllcation.modifyWhAllcItemForWaveSimpleManual*/
+	UPDATE TL_WH_ALLC_ITEM
+	   SET PICK_ITEM_EA_QTY  = (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0))
+	     , PICK_ITEM_CBM     = (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_cbm# AS FLOAT)), 0))))))
+	     , PICK_ITEM_CBF     =  (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_cbf# AS FLOAT)), 0))))))
+	     , PICK_ITEM_GRS_KGS = (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_grs_kgs# AS FLOAT)), 0))))))
+	     , PICK_ITEM_GRS_LBS = (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_grs_lbs# AS FLOAT)), 0))))))
+	     , PICK_ITEM_NET_KGS = (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_net_kgs# AS FLOAT)), 0))))))
+	     , PICK_ITEM_NET_LBS = (SELECT(CONVERT(NUMERIC (10, 5),((SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#lv1_net_lbs# AS FLOAT)), 0))))))
+	     , MODI_ID = #modi_id#
+	     , MODI_OFC_CD = #modi_ofc_cd#
+	     , MODI_SYS_DT = GETDATE()
+	     , MODI_LOC_DT = CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+	 WHERE WALC_NO      = #walc_no#
+	   AND WOB_BK_NO    = #wob_bk_no#
+	   AND SAO_SYS_NO   = #sao_sys_no#
+	   AND WIB_BK_NO	= #wib_bk_no#
+	   AND PO_SYS_NO    = #po_sys_no#
+	   AND ITEM_SYS_NO  = #item_sys_no#
+	   AND LOT_ID       = #lot_id#
+	   AND WH_LOC_CD    = #wh_loc_cd#
+	   AND ITEM_SEQ     = #item_seq#     
+	   AND ISNULL(LIC_PLAT_NO,'') 	= ISNULL(#lic_plat_no#,'')
+	   AND ISNULL(ITEM_SER_NO,'')	= ISNULL(#item_ser_no#,'')
+	   AND ISNULL(PO_NO,'')	= ISNULL(#po_no#,'')
+	</update>
+	
+	<insert id="saveWhAllcItemForWaveSimpleManual">
+	/*WHOutWaveSimple.saveWhAllcItemForWaveSimpleManual*/
+	INSERT INTO TL_WH_ALLC_ITEM
+	     ( WALC_NO
+	     , WOB_BK_NO
+	     , SAO_SYS_NO
+	     , PO_SYS_NO
+	     , ITEM_SYS_NO
+	     , LOT_ID
+	     , WH_LOC_CD
+	     , ITEM_SEQ
+	     , SAO_NO
+	     , WIB_BK_NO
+	     , PO_NO
+	     , ITEM_CD
+	     , CUST_ITEM_CD
+	     , ITEM_NM
+	     , PICK_ITEM_EA_QTY
+	     , PICK_ITEM_CBM
+	     , PICK_ITEM_CBF
+	     , PICK_ITEM_GRS_KGS
+	     , PICK_ITEM_GRS_LBS
+	     , PICK_ITEM_NET_KGS
+	     , PICK_ITEM_NET_LBS
+	     , TRUCKER_CD
+	     , TRUCKER_NM
+	     , EQ_TPSZ_CD
+	     , EQ_NO
+	     , SEAL_NO
+	     , DLV_ORD_NO
+	     , DLV_ORD_SEQ
+	     , GATE_NO
+	     , OUTBOUND_LOC_CD
+	     , GATE_IN_HM
+	     , GATE_OUT_HM
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     , RGST_TIMESTAMP
+	     , LIC_PLAT_NO
+	     , ITEM_SER_NO
+	     , INV_ITEM_SEQ
+	     )
+	SELECT #walc_no#
+	     , OB_I.WOB_BK_NO
+	     , OB_I.SAO_SYS_NO
+	     , #po_sys_no#
+	     , OB_I.ITEM_SYS_NO
+	     , #lot_id#
+	     , #wh_loc_cd#
+	     , OB_I.ITEM_SEQ
+	     , OB_I.SAO_NO
+	     , #wib_bk_no#
+	     , #po_no#
+	     , OB_I.ITEM_CD
+	     , OB_I.CUST_ITEM_CD
+	     , OB_I.ITEM_NM
+	     , (SELECT ISNULL(CONVERT(NUMERIC(10,5), CAST(#pick_qty# AS FLOAT)), 0))
+		 , (SELECT(CONVERT(NUMERIC (15, 5),((SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#lv1_cbm# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(NUMERIC (15, 5),((SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#lv1_cbf# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(NUMERIC (15, 5),((SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#lv1_grs_kgs# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(NUMERIC (15, 5),((SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#lv1_grs_lbs# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(NUMERIC (15, 5),((SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#lv1_net_kgs# AS FLOAT)), 0))))))
+	     , (SELECT(CONVERT(NUMERIC (15, 5),((SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pick_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#pkg_lv1_qty# AS FLOAT)), 0)) * (SELECT ISNULL(CONVERT(NUMERIC(15,5), CAST(#lv1_net_lbs# AS FLOAT)), 0))))))
+	     , OB.TRUCKER_CD
+	     , OB.TRUCKER_NM
+	     , OB.EQ_TPSZ_CD
+	     , OB.EQ_NO
+	     , OB.SEAL_NO
+	     , OB.DLV_ORD_NO
+	     , NULL
+	     , (SELECT GATE_NO FROM TL_WH_PICK_SHT WHERE WALC_NO = #walc_no#)
+	     , (SELECT OUTBOUND_LOC_CD FROM TL_WH_PICK_SHT WHERE WALC_NO = #walc_no#)
+	     , (SELECT GATE_IN_HM FROM TL_WH_PICK_SHT WHERE WALC_NO = #walc_no#)
+	     , (SELECT GATE_OUT_HM FROM TL_WH_PICK_SHT WHERE WALC_NO = #walc_no#)
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+	     , GETDATE() 
+	     ,#lic_plat_no#
+	     ,#item_ser_no#
+	     ,#inv_item_seq#
+	  FROM TL_WH_OB_ITEM OB_I
+	     , TL_WH_OB OB
+	 WHERE OB_I.WOB_BK_NO = OB.WOB_BK_NO
+	   AND OB_I.WOB_BK_NO    = #wob_bk_no#
+	   AND OB_I.SAO_SYS_NO   = #sao_sys_no#
+	   AND OB_I.ITEM_SYS_NO  = #item_sys_no#
+	   AND OB_I.ITEM_SEQ     = #item_seq# 
+	</insert>
+	
+	<delete id="deleteWhAllcItemForWaveSimpleManual" >
+	/*WHOutAllcation.deleteWhAllcItemForManual*/
+	DELETE FROM TL_WH_ALLC_ITEM
+	 WHERE WALC_NO      = #walc_no#
+	   AND WOB_BK_NO    = #wob_bk_no#
+	   AND SAO_SYS_NO   = #sao_sys_no#
+	   AND ITEM_SYS_NO  = #item_sys_no#	   
+	   AND ITEM_SEQ     = #item_seq#     
+	   AND PICK_ITEM_EA_QTY = 0
+	</delete>
+	<parameterMap class="com.clt.apps.fis.wms.whoutallcation.dto.ProcWHOutAllcationMakeAllcCancelVO" id="callWHOutAllcationMakeAllcCancelProc_Map">
+		<parameter property="walc_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHOutAllcationMakeAllcCancelProc" parameterMap="callWHOutAllcationMakeAllcCancelProc_Map" >
+		 { CALL PKG_MAKE_TL_WH_ALLC_CANCEL_PRC (?, ?, ?, ?, ?) } 
+	</procedure>
+	<parameterMap class="com.clt.apps.fis.wms.whoutallcation.dto.ProcWHOutAllcationMakeAllcVO" id="callWHOutAllcationMakeAllcProc_Map">
+		<parameter property="walc_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="sao_sys_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="item_sys_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="item_seq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHOutAllcationMakeAllcProc" parameterMap="callWHOutAllcationMakeAllcProc_Map">
+		 { CALL PKG_MAKE_TL_WH_ALLC_PRC (?, ?, ?,?, ?, ?, ?,?) } 
+	</procedure>
+	<parameterMap class="com.clt.apps.fis.wms.whoutallcation.dto.ProcWHOutAllcationMakeAllcPtCancelVO" id="callWHOutAllcationMakeAllcPtCancelProc_Map">
+		<parameter property="walc_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="wob_bk_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="sao_sys_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="wib_bk_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="po_sys_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="item_sys_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="lot_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="wh_loc_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="item_seq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHOutAllcationMakeAllcPtCancelProc" parameterMap="callWHOutAllcationMakeAllcPtCancelProc_Map">
+		 {  CALL PKG_MAKE_TL_WH_ALLC_PT_CANCEL_PRC ( 
+	                                             ?
+	                                            ,?
+	                                            ,?
+	                                            ,?
+	                                            ,?
+	                                            ,?
+	                                            ,?
+	                                            ,?
+	                                            ,?
+												,?
+												,?
+                                                ,?
+                                                ,?
+        ) } 
+	</procedure>
+	<parameterMap class="com.clt.apps.fis.wms.common.dto.DocKeyVO" id="addDockeyNo_Map">
+		<parameter property="doc_tp_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="wh_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="doc_key_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+		<parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="addDockeyNo"  parameterMap="addDockeyNo_Map">
+		 { CALL PKG_MAKE_TL_WH_DOC_KEY_NO_PRC (?, ?, ?, ?, ?, ?,?) } 
+	</procedure>
+</sqlMap>

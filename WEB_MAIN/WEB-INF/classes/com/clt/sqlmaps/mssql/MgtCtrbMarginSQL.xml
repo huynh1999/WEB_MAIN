@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.cust.ctrbmgn">
+
+    <!-- 지점별 인센티브 조회   -->    
+    <select id="selectCTRB_MGN_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.cust.ctrbmgn.dto.CtrbMgnVO">
+        SELECT  TOP $topCnt$      
+		        ctrb_mgn_seq,		cust_cd,     		cust_nm,         		
+		        ctrb_ofc_cd,		
+		        ctrb_ratio_yn,		ctrb_mgn,      		fm_dt,				
+		        to_dt,    			delt_flg,
+                rgst_usrid,        	rgst_ofc_cd,        rgst_tms,
+                modi_usrid,			modi_ofc_cd, 		modi_tms
+          FROM  tb_ctrb_mgn
+		 WHERE  delt_flg = 'N'
+        <dynamic>
+        	<isNotEmpty property="f_cust_cd">
+                AND cust_cd = #f_cust_cd#
+            </isNotEmpty>
+            <isNotEmpty property="f_cust_nm">
+                AND cust_nm like '%' + #f_cust_nm# + '%'
+            </isNotEmpty>
+        </dynamic>
+        ORDER BY cust_cd, ctrb_ofc_cd, fm_dt DESC 
+    </select>
+	
+    
+    <!-- 지점별 인센티브 조회 Counting   -->
+    <select id="selectCTRB_MGN_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT  count(*)
+          FROM  tb_ctrb_mgn
+		 WHERE  delt_flg = 'N'
+        <dynamic>
+        	<isNotEmpty property="f_cust_cd">
+                AND cust_cd = #f_cust_cd#
+            </isNotEmpty>
+            <isNotEmpty property="f_cust_nm">
+                AND cust_nm like '%' + #f_cust_nm# + '%'
+            </isNotEmpty>
+        </dynamic>
+    </select>   
+    
+    <!-- 지점별 인센티브 PK    -->
+    <select id="selectCTRB_MGN_PK" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT  max(ctrb_mgn_seq)
+          FROM  tb_ctrb_mgn                       
+    </select>
+    
+    <!-- 지점별 인센티브 추가   -->
+    <insert id="insertCTRB_MGN" parameterClass="com.clt.apps.fis.mgt.cust.ctrbmgn.dto.CtrbMgnVO">
+        INSERT INTO tb_ctrb_mgn 
+        (
+            ctrb_mgn_seq,		cust_cd,   			cust_nm,    		ctrb_ofc_cd,   		
+            ctrb_ratio_yn,		ctrb_mgn,			
+            fm_dt,  			to_dt,				delt_flg,			
+            rgst_usrid,     	rgst_ofc_cd,   		rgst_tms,
+            modi_usrid,     	modi_ofc_cd,   		modi_tms 
+        )VALUES(
+            #ctrb_mgn_seq#,		#cust_cd#,   		#cust_nm#,   		#ctrb_ofc_cd#,    	
+            #ctrb_ratio_yn#,	#ctrb_mgn#,			
+            #fm_dt#,  			#to_dt#,			'N',				
+            #proc_usrid#,     	#proc_ofccd#,   	getdate(),
+            #proc_usrid#,     	#proc_ofccd#,   	GETUTCDATE()
+        )
+    </insert>
+    
+    <!-- 지점별 인센티브 수정  -->
+    <update id="updateCTRB_MGN" parameterClass="com.clt.apps.fis.mgt.cust.ctrbmgn.dto.CtrbMgnVO">
+        UPDATE  tb_ctrb_mgn
+           SET  ctrb_ratio_yn = #ctrb_ratio_yn#,
+           		ctrb_mgn = #ctrb_mgn#,
+                fm_dt = #fm_dt#,   
+                to_dt = #to_dt#,
+                modi_usrid = #proc_usrid#,   
+                modi_ofc_cd = #proc_ofccd#,   
+                modi_tms = GETUTCDATE()
+         WHERE  ctrb_mgn_seq = #ctrb_mgn_seq#
+    </update>
+    
+    <!-- 지점별 인센티브 삭제    -->
+    <update id="deleteCTRB_MGN" parameterClass="com.clt.apps.fis.mgt.cust.ctrbmgn.dto.CtrbMgnVO">
+        UPDATE  tb_ctrb_mgn
+           SET  delt_flg = 'Y', 
+                modi_usrid = #proc_usrid#,   
+                modi_ofc_cd = #proc_ofccd#,   
+                modi_tms = GETUTCDATE()
+         WHERE  ctrb_mgn_seq = #ctrb_mgn_seq#
+    </update>
+    
+    <!--Contribution Margin 체크  -->
+    <select id="selectCTRB_MGN_CHECK" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+    	SELECT count(*)
+    	  FROM tb_ctrb_mgn
+         WHERE cust_cd = #cust_cd#
+           AND ctrb_ofc_cd != #ctrb_ofc_cd#
+           AND delt_flg = 'N'
+    </select>
+</sqlMap>

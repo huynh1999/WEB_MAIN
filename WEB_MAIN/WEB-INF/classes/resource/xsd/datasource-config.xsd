@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 rel. 3 U (http://www.altova.com) by Joseph (combine) -->
+<xsd:schema xmlns="http://www.cyberlogictec.com/fw/datasource-config" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.cyberlogictec.com/fw/datasource-config" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xsd:element name="datasource-config" type="datasource-configType"/>
+	<xsd:complexType name="datasource-configType">
+		<xsd:sequence>
+			<xsd:element name="devided-datasource-use" type="xsd:boolean" minOccurs="0"/>
+			<xsd:element name="devided-datasource-definition" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="devided-code" type="xsd:string"/>
+						<xsd:element name="devided-datasource-name" type="xsd:string"/>
+						<xsd:element name="devided-datasource-description" type="xsd:string" minOccurs="0"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="test-datasource-use" type="xsd:boolean" minOccurs="0"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

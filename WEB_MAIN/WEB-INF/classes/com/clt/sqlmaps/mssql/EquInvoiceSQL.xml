@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="equ.inv">
+
+
+<typeAlias alias="InvMstVO"   type="com.clt.apps.fis.equ.inv.invoice.dto.InvMstVO"/><!-- equipment invoice 등록 및 조회 정보   -->
+<typeAlias alias="InvMstDtlVO"   type="com.clt.apps.fis.equ.inv.invoice.dto.InvMstDtlVO"/><!-- equipment invoice 등록 및 조회 정보   -->
+		
+	<!-- Invoice Master List    -->
+    <select id="selectInvMstList" resultClass="InvMstVO">
+        SELECT  mst.inv_no,     mst.agmt_no,        mst.lr_trdp_cd, mst.ref_no,       
+                mst.inv_sts_cd, mst.inv_ttl_amt,    mst.due_dt,     mst.pkup_nod_cd,
+                agmt.curr_cd,   mst.intg_bl_seq,    mst.inv_sum_amt,mst.rgst_usrid,
+                mst.rgst_ofc_cd,mst.buy_dt,         mst.xch_rt,     loc.loc_nm pkup_nod_nm,
+                bl.bkg_no,      bl.bl_no,           bl.sr_no,       nod.nod_eng_nm cy_nm,
+                mst.equ_sts_cd,
+                mst.cy_cd,      mst.cy_pkup_no,     trdp.eng_nm lr_trdp_nm,
+                mst.splr_pic,   mst.splr_tel_no,    mst.vat_rt,     mst.frgn_curr_cd, mst.curr_cd inv_curr_cd,
+                CAST(mst.bil_dt as DATE) bil_dt,
+                CAST(mst.rgst_tms as DATE) rgst_tms
+        FROM    TB_EQ_INV_MST mst
+        JOIN TB_CNTR_AGMT agmt
+          ON mst.AGMT_NO = agmt.AGMT_NO
+LEFT OUTER JOIN TB_INTG_BL bl
+          ON mst.INTG_BL_SEQ = bl.INTG_BL_SEQ
+LEFT OUTER JOIN TB_NOD nod
+          ON mst.cy_cd = nod.nod_cd
+LEFT OUTER JOIN TB_LOC loc
+          ON mst.pkup_nod_cd = loc.loc_cd
+        JOIN TB_TRDP trdp
+          ON mst.lr_trdp_cd = trdp.TRDP_CD
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="fm_rgst_dt">
+                <![CDATA[ CONVERT(VARCHAR, mst.rgst_tms, 112) >= #fm_rgst_dt# ]]>
+            </isNotNull>
+            <isNotNull prepend="AND" property="to_rgst_dt">
+                <![CDATA[ CONVERT(VARCHAR, mst.rgst_tms, 112) <= #to_rgst_dt# ]]>
+            </isNotNull>
+            <isNotNull prepend="AND" property="bkg_no">
+                bl.bkg_no = #bkg_no#
+            </isNotNull>
+            <isNotNull prepend="AND" property="sr_no">
+                bl.sr_no = #sr_no#
+            </isNotNull>
+            <isNotNull prepend="AND" property="lr_trdp_cd">
+                mst.lr_trdp_cd = #lr_trdp_cd#
+            </isNotNull>
+            <isNotNull prepend="AND" property="inv_no">
+                mst.inv_no = #inv_no#
+            </isNotNull>
+            <isNotNull prepend="AND" property="bil_dt">
+                mst.bil_dt = #bil_dt#
+            </isNotNull>
+            <isNotNull prepend="AND" property="equ_sts_cd">
+                mst.equ_sts_cd = #equ_sts_cd#
+            </isNotNull>
+        </dynamic>
+        ORDER BY mst.INV_NO
+    </select>
+	
+	<!-- Invoice Master List    -->
+    <select id="selectInvMstDtlList" resultClass="InvMstDtlVO">
+        SELECT  mst.inv_no,     mst.agmt_no,        mst.lr_trdp_cd,     bl.bkg_no,
+                mst.inv_sts_cd, mst.inv_ttl_amt,    mst.xch_rt,         mst.pkup_nod_cd,
+                mst.curr_cd,    mst.intg_bl_seq,    mst.rgst_usrid,     mst.inv_vat_amt,
+                mst.rgst_ofc_cd,mst.buy_dt,         smry.CNTR_TPSZ_CD,  nod.NOD_ENG_NM cy_nm,
+                smry.unit_prc,  smry.QTY,           smry.AMT,           smry.VAT_AMT, 
+                loc.LOC_NM pkup_nod_nm,             bl.bl_no,           bl.sr_no,
+                dbo.fc_eq_bkg_no(dtl.inv_no) tot_bkg_no,                smry.inv_smry_seq,
+                mst.cy_cd,      mst.cy_pkup_no,     trdp.ENG_NM lr_trdp_nm,
+                mst.splr_pic,   mst.splr_tel_no,    mst.bil_dt, mst.vat_rt,
+                CAST(mst.rgst_tms AS DATE) rgst_tms
+        FROM    TB_EQ_INV_MST mst
+        JOIN TB_EQ_INV_SMRY smry ON mst.INV_NO = smry.INV_NO
+        JOIN (SELECT INV_NO, INV_SMRY_SEQ, MAX(INTG_BL_SEQ)INTG_BL_SEQ FROM TB_EQ_INV_DTL
+              GROUP BY INV_NO, INV_SMRY_SEQ) dtl ON smry.INV_NO = dtl.INV_NO AND smry.INV_SMRY_SEQ = dtl.INV_SMRY_SEQ
+LEFT OUTER JOIN TB_INTG_BL bl ON dtl.INTG_BL_SEQ = bl.INTG_BL_SEQ               
+LEFT OUTER JOIN TB_NOD nod ON mst.cy_cd = nod.nod_cd
+LEFT OUTER JOIN TB_LOC loc ON mst.pkup_nod_cd = loc.loc_cd
+        JOIN TB_TRDP trdp ON mst.lr_trdp_cd = trdp.TRDP_CD
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="inv_no">
+				mst.inv_no in ($inv_no$)
+			</isNotNull>
+		</dynamic>
+		ORDER BY mst.INV_NO
+	</select>
+	<!-- Invoice Popup List    -->
+    <select id="selectInvPopup" resultClass="InvMstVO">
+		SELECT	a.inv_no, '' cntr_tpsz_cd
+		FROM	TB_EQ_INV_MST a 
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="inv_sts_cd">
+				a.inv_sts_cd = #inv_sts_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="lr_trdp_cd">
+				a.lr_trdp_cd = #lr_trdp_cd#
+			</isNotNull>
+		</dynamic>
+		ORDER BY a.INV_NO
+	</select>
+	
+	<!-- Invoice Popup List    -->
+    <select id="selectInvPopupDeatil" resultClass="InvMstVO">
+		SELECT	a.inv_no, a.cntr_tpsz_cd
+		FROM	(
+				SELECT	b.inv_no as inv_no, dbo.fc_eq_cntr_tpsz_x(b.inv_no) cntr_tpsz_cd
+				  FROM	TB_EQ_INV_MST b
+				<isNotNull property="lr_trdp_cd">
+				  WHERE	b.lr_trdp_cd = #lr_trdp_cd#
+				</isNotNull>
+				) a
+		WHERE	a.cntr_tpsz_cd is not null
+		ORDER BY a.inv_no
+	</select>
+	
+	<!-- Invoice Master Insert    -->
+	<insert id="insertInvoiceMaster" parameterClass="InvMstVO">
+		INSERT INTO TB_EQ_INV_MST(
+			inv_no,			lr_trdp_cd,		agmt_no,         ref_no,
+			inv_sts_cd,		inv_ttl_amt,	curr_cd,         due_dt,		  inv_sum_amt, 
+			frgn_curr_cd,   frgn_amt,       frgn_vat_amt,    frgn_sum_amt,    xch_rt_dt,   
+			pay_amt,        pay_vat_amt,    pay_frgn_amt,    pay_frgn_vat_amt,   
+			bal_amt,        bal_vat_amt,    bal_frgn_amt,    bal_frgn_vat_amt,
+			cy_cd,			cy_pkup_no,		splr_pic,        inv_vat_amt,     inv_krw_amt,
+			splr_tel_no,	bil_dt,			vat_rt,          xch_rt,		  pkup_nod_cd,
+			equ_sts_cd,
+			rgst_usrid,		rgst_ofc_cd,	rgst_tms
+		)	VALUES	(
+			#inv_no#,		#lr_trdp_cd#,	#agmt_no#,	     #ref_no#,
+			#inv_sts_cd#,	#inv_ttl_amt#,	#curr_cd#,	     #due_dt#,	      #inv_sum_amt#,
+			#frgn_curr_cd#, #frgn_amt#,     #frgn_vat_amt#,  #frgn_sum_amt#,  #xch_rt_dt#,  
+			#pay_amt#,      #pay_vat_amt#,  #pay_frgn_amt#,  #pay_frgn_vat_amt#,
+			#bal_amt#,      #bal_vat_amt#,  #bal_frgn_amt#,  #bal_frgn_vat_amt#,
+			#cy_cd#,		#cy_pkup_no#,	#splr_pic#,	     #inv_vat_amt#,   floor(#inv_krw_amt#),
+			#splr_tel_no#,	#bil_dt#,		#vat_rt#,	     #xch_rt#,	      #pkup_nod_cd#,
+			#inv_sts_cd#,
+			#rgst_usrid#,	#rgst_ofc_cd#,	getdate()
+		)
+	</insert>
+	
+	<!-- Invoice Master Summary    -->
+	<insert id="insertInvoiceSummary" parameterClass="InvMstDtlVO">
+		INSERT INTO TB_EQ_INV_SMRY(
+			inv_no,    inv_smry_seq,   cntr_tpsz_cd, 		
+			unit_prc,		qty,	   amt,     vat_amt
+		)	VALUES	(
+			#inv_no#,  #inv_smry_seq#, #cntr_tpsz_cd#,		
+			#unit_prc#,		#qty#,	   #amt#,  #vat_amt#
+		)
+	</insert>
+	
+	<!-- Invoice Master Detail    -->
+	<insert id="insertInvoiceDetail" parameterClass="InvMstDtlVO">
+		INSERT INTO TB_EQ_INV_DTL(
+			inv_no,      inv_smry_seq,  inv_dtl_seq,	cntr_tpsz_cd,	vat_amt,
+			cntr_no,	unit_prc,       amt,	        intg_bl_seq
+		)	VALUES	(
+			#inv_no#,    #inv_smry_seq#, #inv_dtl_seq#,	#cntr_tpsz_cd#,	#vat_amt#,
+			#cntr_no#,   #unit_prc#,	 #amt#,	        #intg_bl_seq#
+		)
+	</insert>
+	
+	<!-- Invoice Master Update    -->
+	<update id="updateInvoiceMaster" parameterClass="InvMstVO">
+		UPDATE  TB_EQ_INV_MST
+		   SET  xch_rt	= #xch_rt#,			    bil_dt		= #bil_dt#,
+				vat_rt	= #vat_rt#,             ref_no      = #ref_no#,			
+				inv_ttl_amt	= #inv_ttl_amt#,    inv_vat_amt= #inv_vat_amt#, 
+				inv_sum_amt = #inv_sum_amt#,    frgn_amt	= #frgn_amt#,	
+				frgn_vat_amt= #frgn_vat_amt#,	frgn_sum_amt = #frgn_sum_amt#,
+				bal_amt= #bal_amt#,	            bal_vat_amt = #bal_vat_amt#,
+				bal_frgn_amt= #bal_frgn_amt#,	bal_frgn_vat_amt = #bal_frgn_vat_amt#,
+				inv_krw_amt = floor(#inv_krw_amt#),    rgst_usrid = #rgst_usrid#,
+				rgst_ofc_cd = #rgst_ofc_cd#,    rgst_tms = getdate()  
+		 WHERE  inv_no			= #inv_no#
+	</update>
+	
+	<!-- Invoice Summary Update    -->
+	<update id="updateInvoiceSummary" parameterClass="InvMstDtlVO">
+		UPDATE  TB_EQ_INV_SMRY
+		   SET  cntr_tpsz_cd = #cntr_tpsz_cd#, unit_prc = #unit_prc#, 
+				qty = #qty#, amt = #amt#, 
+				vat_amt = #vat_amt#
+		 WHERE  inv_no			= #dtl_inv_no#
+		   AND  inv_smry_seq    = #inv_smry_seq# 
+	</update>
+	
+	<!-- Invoice Summary Update    -->
+	<update id="updateInvoiceDetail" parameterClass="InvMstDtlVO">
+		UPDATE  TB_EQ_INV_DTL
+           SET  cntr_tpsz_cd = #cntr_tpsz_cd#, 
+                unit_prc = #unit_prc#, amt = #amt#, 
+                vat_amt = #vat_amt#, intg_bl_seq = #intg_bl_seq#
+		 WHERE  inv_no			= #dtl_inv_no#
+		   AND  inv_smry_seq    = #inv_smry_seq# 
+		   AND  inv_dtl_seq    = #inv_dtl_seq# 
+	</update>
+	
+	<!-- Invoice Master Update    -->
+	<update id="updateInvoiceMasterMapping" parameterClass="HashMap">
+		UPDATE  TB_EQ_INV_MST
+		   SET  equ_sts_cd	= #equ_sts_cd#
+		 WHERE  inv_no			= #inv_no#
+	</update>
+	
+	
+	<!-- Invoice Management List    -->
+    <select id="selectInvMgmtList" resultClass="InvMstDtlVO">
+        SELECT  mst.inv_no,     mst.agmt_no,        mst.lr_trdp_cd,
+                mst.inv_sts_cd, mst.equ_sts_cd, mst.due_dt,
+                mst.curr_cd,    mst.intg_bl_seq,    dept.CD_NM+' / '+usr.USRID rgst_usrid,
+                mst.rgst_ofc_cd,    mst.buy_dt,     loc.LOC_NM POL_NM,  mst.inv_rmk,    mst.cy_cd,
+                cnt.CNT_ENG_NM AS cnt_nm,
+                bl.bkg_no,      bl.BL_NO,       bl.SR_NO,   mst.ref_no,
+                z.ENG_NM lr_trdp_nm,            nod.NOD_ENG_NM cy_nm,
+                prnr.trdp_cd cnee_trdp_cd,  prnr.trdp_nm cnee_trdp_nm,
+                CASE WHEN mst.curr_cd = 'KRW' THEN mst.inv_krw_amt + mst.inv_vat_amt
+                     ELSE mst.INV_TTL_AMT END INV_TTL_AMT,
+                CASE WHEN mst.curr_cd = 'KRW' THEN dtl_amt.x_amt + ISNULL(ROUND(x_vat_amt, 0), 0)
+                     ELSE dtl_amt.u_x_amt END x_amt,
+                CASE WHEN mst.curr_cd = 'KRW' THEN dtl_amt.used_amt + ISNULL(ROUND(used_vat_amt, 0), 0)
+                     ELSE dtl_amt.u_used_amt END used_amt,
+                (mst.PAY_AMT + mst.PAY_VAT_AMT) PAY_AMT,        (mst.BAL_AMT + mst.BAL_vat_AMT) BAL_AMT,    mst.slip_no,
+                (SELECT COUNT(*) cnt FROM TB_EQ_INV_DTL where INV_NO = mst.INV_NO and CNTR_NO = 'X') as cntr_cnt,
+                dbo.fc_eq_cntr_tpsz(mst.INV_NO) as cntr_tpsz_cd,
+                CONVERT(VARCHAR, mst.rgst_tms, 112) rgst_tms
+        FROM    TB_EQ_INV_MST mst
+        LEFT OUTER JOIN TB_USR usr ON usr.USR_TP = 'I' AND mst.RGST_USRID = usr.USRID
+        LEFT OUTER JOIN TB_COM_CD_DTL dept ON dept.COM_CD = 'C056' and dept.CD_VAL = usr.DEPT_CD
+		<isNotNull property="cntr_no">
+		LEFT OUTER JOIN (SELECT dtl.inv_no FROM TB_EQ_INV_DTL dtl where dtl.cntr_no LIKE '%'+#cntr_no#+'%' group by dtl.INV_NO) dtl
+		  ON mst.INV_NO = dtl.INV_NO 
+		</isNotNull>
+        JOIN (SELECT dtl.inv_no,  
+                     CASE WHEN MAX(cntr_no) = 'X' THEN SUM(UNIT_PRC)  else 0  END u_x_amt,
+                     CASE WHEN MAX(cntr_no) = 'X' THEN 0  else SUM(UNIT_PRC) END u_used_amt,
+                     CASE WHEN MAX(cntr_no) = 'X' THEN SUM(AMT)  else 0  END x_amt,
+                     CASE WHEN MAX(cntr_no) = 'X' THEN SUM(VAT_AMT)  else 0  END x_vat_amt,
+                     CASE WHEN MAX(cntr_no) = 'X' THEN 0  else SUM(AMT) END used_amt,
+                     CASE WHEN MAX(cntr_no) = 'X' THEN 0  else SUM(VAT_AMT) END used_vat_amt
+                FROM TB_EQ_INV_DTL dtl
+                GROUP BY dtl.INV_NO) dtl_amt 
+          ON mst.INV_NO = dtl_amt.INV_NO
+LEFT OUTER JOIN TB_INTG_BL bl ON mst.INTG_BL_SEQ = bl.INTG_BL_SEQ
+LEFT OUTER JOIN   TB_LOC loc ON mst.PKUP_NOD_CD = loc.LOC_CD
+LEFT OUTER JOIN	tb_bl_prnr prnr
+          ON	mst.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'S02' AND prnr.delt_flg = 'N'
+LEFT OUTER JOIN TB_NOD nod ON mst.cy_cd = nod.nod_cd
+LEFT OUTER JOIN TB_CNT cnt ON loc.CNT_CD = cnt.CNT_CD
+		JOIN TB_TRDP z ON mst.lr_trdp_cd = z.TRDP_CD
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="fm_rgst_dt">
+				<![CDATA[ CONVERT(VARCHAR, mst.rgst_tms, 112) >= #fm_rgst_dt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="to_rgst_dt">
+				<![CDATA[ CONVERT(VARCHAR, mst.rgst_tms, 112) <= #to_rgst_dt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="bkg_no">
+				bl.bkg_no = #bkg_no#
+			</isNotNull>
+			<isNotNull prepend="AND" property="cs_trdp_cd">
+				prnr.trdp_cd = #cs_trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="lr_trdp_cd">
+				mst.lr_trdp_cd = #lr_trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="inv_no">
+				mst.inv_no = #inv_no#
+			</isNotNull>
+			<isNotNull prepend="AND" property="equ_sts_cd">
+				mst.equ_sts_cd = #equ_sts_cd#
+			</isNotNull>
+			<isNotNull property="cntr_no">
+				AND mst.inv_sts_cd IN('IP', 'IE')
+			</isNotNull>
+		</dynamic>
+		ORDER BY mst.curr_cd, mst.rgst_tms
+	</select>
+	<!-- Invoice Management List    -->
+    <select id="selectInvMgmtDtlList" resultClass="InvMstDtlVO">
+       SELECT  dtl.inv_dtl_seq,   dtl.cntr_no,      dtl.cntr_tpsz_cd,
+               dtl.inv_no,        dtl.intg_bl_seq,  hbl.bl_no,
+               hbl.bkg_no,        hbl.SR_NO,  
+               SUBSTRING(CONVERT(VARCHAR, mst.rgst_tms, 120), 1, 10) rgst_tms,
+               dtl.unit_prc,      dtl.amt,          imst.CURR_CD
+         FROM  tb_eq_inv_dtl dtl
+         JOIN  TB_EQ_INV_MST imst ON dtl.INV_NO = imst.INV_NO
+LEFT OUTER JOIN tb_cntr_mst mst
+           ON  dtl.cntr_no = mst.cntr_no
+		
+LEFT OUTER JOIN tb_intg_bl hbl
+           ON  dtl.intg_bl_seq = hbl.intg_bl_seq AND hbl.biz_clss_cd = 'H' AND hbl.delt_flg = 'N'
+		
+        WHERE  dtl.inv_no = #inv_no#
+     ORDER BY  dtl.inv_dtl_seq
+    </select>
+    
+	<!-- Invoice Management Update    -->
+	<update id="updateInvoiceMgmt" parameterClass="InvMstVO">
+		UPDATE  TB_EQ_INV_MST
+		   SET  inv_sts_cd	= #inv_sts_cd#,		inv_rmk= #inv_rmk#,
+				ref_no		= #ref_no#
+		 WHERE  inv_no		= #inv_no#
+	</update>
+	
+	<!-- Invoice Management Update    -->
+	<update id="updateInvoiceMgmtDtl" parameterClass="InvMstVO">
+		UPDATE  TB_EQ_INV_DTL
+		   SET  intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		 WHERE  inv_no		= #inv_no#
+	</update>
+	
+	
+	<!-- Invoice Mapping List    -->
+    <select id="selectInvMappingList" resultClass="InvMstDtlVO">
+        SELECT  dtl.CNTR_TPSZ_CD, dtl.CNTR_NO, dtl.AMT, dtl.INTG_BL_SEQ,
+		        bl.BKG_NO, bl.SR_NO, bl.BL_NO, cntr.cntr_sprl_trdp_cd, soc_flg
+		  FROM  TB_EQ_INV_DTL dtl
+LEFT OUTER JOIN  TB_INTG_BL bl ON dtl.INTG_BL_SEQ = bl.INTG_BL_SEQ
+LEFT OUTER JOIN  tb_cntr_list cntr ON  cntr.intg_bl_seq = bl.intg_bl_seq AND dtl.CNTR_TPSZ_CD = cntr.CNTR_TPSZ_CD and dtl.CNTR_NO = cntr.cntr_no
+		 WHERE  dtl.INV_NO = #inv_no#
+		   AND  dtl.CNTR_NO ='X'
+		ORDER BY dtl.INV_SMRY_SEQ, dtl.INV_DTL_SEQ
+		
+    </select>
+    
+	<!-- Mapping 등록여부를 업데이트함   -->
+	<update id="updateCNTR_LIST_RGST" parameterClass="HashMap">
+		UPDATE  tb_cntr_list
+ 		   SET  rgst_cntr_yn  = #rgst_cntr_yn#,  
+		        modi_usrid    = #proc_usrid#,     modi_ofc_cd = #proc_ofccd#,    modi_tms = GETUTCDATE()
+		 WHERE  intg_bl_seq = #cntr_intg_bl_seq#  AND cntr_no = #cntr_no# AND delt_flg = 'N'
+	</update>
+	
+    <!-- Invoice Popup List    -->
+    <select id="selectInvPopupString" resultClass="InvMstDtlVO">
+		SELECT	cntr_tpsz_cd+' : '+convert(varchar,count(inv_no)) cntr_tpsz_cd
+		  FROM	TB_EQ_INV_DTL
+		 WHERE	cntr_no = 'X'
+		   AND	inv_no = #inv_no#
+	  GROUP BY	inv_no, cntr_tpsz_cd
+	  ORDER BY	inv_no
+	</select>
+	
+	<!-- Invoice Management Update    -->
+    <delete id="deleteInvoiceDtl" parameterClass="HashMap">
+        DELETE FROM  TB_EQ_INV_DTL
+         WHERE  inv_no      = #inv_no#
+         <isNotNull property="inv_smry_seq">
+           AND  inv_smry_seq = #inv_smry_seq#
+         </isNotNull>
+    </delete>
+	<!-- Invoice Management Update    -->
+    <delete id="deleteInvoiceSmry" parameterClass="HashMap">
+        DELETE FROM  TB_EQ_INV_SMRY
+         WHERE  inv_no      = #inv_no#
+         <isNotNull property="inv_smry_seq">
+           AND  inv_smry_seq = #inv_smry_seq#
+         </isNotNull>
+    </delete>
+	<!-- Invoice Management Update    -->
+    <delete id="deleteInvoiceMgmt" parameterClass="HashMap">
+        DELETE FROM  TB_EQ_INV_MST
+         WHERE  inv_no      = #inv_no#
+    </delete>
+    
+    <!-- cntr amount   -->
+    <select id="selectInvCntrAmt" parameterClass="HashMap" resultClass="String">
+		SELECT	top(1) amt
+		  FROM	TB_EQ_INV_DTL
+		 WHERE	cntr_no = #cntr_no#
+		   AND  inv_no = #inv_no#
+		   AND  inv_smry_seq = #inv_smry_seq#
+	</select>
+	
+	<!-- G Invoice Management List    -->
+    <select id="selectGInvtList" resultClass="InvMstDtlVO">
+        SELECT  mst.inv_no,         mst.agmt_no,        mst.lr_trdp_cd,     mst.equ_sts_cd,
+                mst.inv_sts_cd,     mst.due_dt,         mst.BIL_DT, mst.XCH_RT_DT,
+                amt.curr_cd,        mst.intg_bl_seq,    dept.CD_NM+' / '+usr.USRID rgst_usrid,
+                mst.rgst_ofc_cd,    mst.inv_to_dt as buy_dt,         mst.inv_rmk,    mst.cy_cd,
+                mst.ref_no,         loc.LOC_NM+' ,'+ cnt.CNT_ENG_NM POL_NM,
+                dbo.fc_eq_bkg_no(mst.INV_NO) bkg_no,
+                dbo.fc_eq_sr_no(mst.INV_NO) SR_NO,                 dbo.fc_eq_bl_no(mst.INV_NO) BL_NO,
+                z.ENG_NM lr_trdp_nm,            nod.NOD_ENG_NM cy_nm,
+                prnr.trdp_cd cnee_trdp_cd,  prnr.trdp_nm cnee_trdp_nm,
+                amt.INV_TTL_AMT,amt.PAY_AMT,        amt.BAL_AMT,    mst.slip_no,
+                (SELECT COUNT(*) cnt FROM TB_EQ_INV_DTL where INV_NO = mst.INV_NO and CNTR_NO = 'X') as cntr_cnt,
+                dbo.fc_eq_cntr_tpsz(mst.INV_NO) as cntr_tpsz_cd,
+                CONVERT(VARCHAR, mst.rgst_tms, 112) rgst_tms
+        FROM    TB_EQ_INV_MST mst
+        JOIN    (
+                SELECT  mst.inv_no, mst.CURR_CD,
+                        SUM(mst.INV_TTL_AMT) INV_TTL_AMT,
+                        SUM(mst.PAY_AMT) PAY_AMT,
+                        SUM(mst.BAL_AMT) BAL_AMT
+                  FROM  (
+                        SELECT  mst.inv_no, mst.FRGN_CURR_CD CURR_CD,
+                                FRGN_AMT INV_TTL_AMT, PAY_FRGN_AMT PAY_AMT, BAL_FRGN_AMT BAL_AMT
+                          FROM  TB_EQ_INV_MST mst
+                         WHERE  mst.FRGN_CURR_CD IS NOT NULL
+			            <isEqual prepend="AND" property="date_cd" compareValue="B">
+			                <isNotNull property="fm_rgst_dt">
+			                    <![CDATA[ CONVERT(VARCHAR, mst.BIL_DT, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+			                </isNotNull>
+			            </isEqual>
+			            <isEqual prepend="AND" property="date_cd" compareValue="C">
+			                <isNotNull property="fm_rgst_dt">
+			                    <![CDATA[ CONVERT(VARCHAR, mst.rgst_tms, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+			                </isNotNull>
+			            </isEqual>
+			            <isEqual prepend="AND" property="date_cd" compareValue="D">
+			                <isNotNull property="fm_rgst_dt">
+			                    <![CDATA[ CONVERT(VARCHAR, mst.due_dt, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+			                </isNotNull>
+			            </isEqual>
+                        UNION ALL
+                        SELECT  mst.inv_no, mst.CURR_CD CURR_CD,
+                                INV_VAT_AMT INV_TTL_AMT, PAY_VAT_AMT PAY_AMT, BAL_VAT_AMT BAL_AMT
+                          FROM  TB_EQ_INV_MST mst
+                         WHERE  mst.FRGN_CURR_CD IS NOT NULL
+                        <isEqual prepend="AND" property="date_cd" compareValue="B">
+                            <isNotNull property="fm_rgst_dt">
+                                <![CDATA[ CONVERT(VARCHAR, mst.BIL_DT, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+                            </isNotNull>
+                        </isEqual>
+                        <isEqual prepend="AND" property="date_cd" compareValue="C">
+                            <isNotNull property="fm_rgst_dt">
+                                <![CDATA[ CONVERT(VARCHAR, mst.rgst_tms, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+                            </isNotNull>
+                        </isEqual>
+                        <isEqual prepend="AND" property="date_cd" compareValue="D">
+                            <isNotNull property="fm_rgst_dt">
+                                <![CDATA[ CONVERT(VARCHAR, mst.due_dt, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+                            </isNotNull>
+                        </isEqual>
+                        UNION ALL
+                        SELECT  mst.inv_no, mst.CURR_CD CURR_CD,
+                                INV_TTL_AMT INV_TTL_AMT, PAY_AMT PAY_AMT, BAL_AMT BAL_AMT
+                          FROM  TB_EQ_INV_MST mst
+                         WHERE  mst.FRGN_CURR_CD IS NULL
+                        <isEqual prepend="AND" property="date_cd" compareValue="B">
+                            <isNotNull property="fm_rgst_dt">
+                                <![CDATA[ CONVERT(VARCHAR, mst.BIL_DT, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+                            </isNotNull>
+                        </isEqual>
+                        <isEqual prepend="AND" property="date_cd" compareValue="C">
+                            <isNotNull property="fm_rgst_dt">
+                                <![CDATA[ CONVERT(VARCHAR, mst.rgst_tms, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+                            </isNotNull>
+                        </isEqual>
+                        <isEqual prepend="AND" property="date_cd" compareValue="D">
+                            <isNotNull property="fm_rgst_dt">
+                                <![CDATA[ CONVERT(VARCHAR, mst.due_dt, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+                            </isNotNull>
+                        </isEqual>
+                        ) mst
+                GROUP BY mst.inv_no, mst.CURR_CD
+                ) amt ON mst.inv_no = amt.inv_no
+        LEFT OUTER JOIN TB_USR usr ON usr.USR_TP = 'I' AND mst.RGST_USRID = usr.USRID
+        LEFT OUTER JOIN TB_COM_CD_DTL dept ON dept.COM_CD = 'C056' and dept.CD_VAL = usr.DEPT_CD
+        <isNotNull property="cntr_no">
+        LEFT OUTER JOIN (SELECT dtl.inv_no FROM TB_EQ_INV_DTL dtl where dtl.cntr_no LIKE '%'+#cntr_no#+'%' group by dtl.INV_NO) dtl
+          ON mst.INV_NO = dtl.INV_NO 
+        </isNotNull>
+        <isNotNull property="bkg_no">
+        JOIN (SELECT dtl.INTG_BL_SEQ, dtl.INV_NO FROM TB_EQ_INV_DTL dtl
+                JOIN TB_INTG_BL bl ON dtl.INTG_BL_SEQ = bl.INTG_BL_SEQ
+               WHERE bl.bkg_no LIKE '%'+ #bkg_no# +'%'
+            GROUP BY dtl.INTG_BL_SEQ, dtl.INV_NO) bl ON mst.INV_NO = bl.INV_NO
+        </isNotNull>
+LEFT OUTER JOIN TB_LOC loc ON mst.PKUP_NOD_CD = loc.LOC_CD
+LEFT OUTER JOIN tb_bl_prnr prnr
+          ON    mst.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'S02' AND prnr.delt_flg = 'N'
+LEFT OUTER JOIN TB_NOD nod ON mst.cy_cd = nod.nod_cd
+LEFT OUTER JOIN TB_CNT cnt ON loc.CNT_CD = cnt.CNT_CD
+        JOIN TB_TRDP z ON mst.lr_trdp_cd = z.TRDP_CD
+        <dynamic prepend="WHERE">
+            <isEqual prepend="AND" property="date_cd" compareValue="B">
+	            <isNotNull property="fm_rgst_dt">
+	                <![CDATA[ CONVERT(VARCHAR, mst.BIL_DT, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+	            </isNotNull>
+            </isEqual>
+            <isEqual prepend="AND" property="date_cd" compareValue="C">
+	            <isNotNull property="fm_rgst_dt">
+                    <![CDATA[ CONVERT(VARCHAR, mst.rgst_tms, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+                </isNotNull>
+            </isEqual>
+            <isEqual prepend="AND" property="date_cd" compareValue="D">
+	            <isNotNull property="fm_rgst_dt">
+	                <![CDATA[ CONVERT(VARCHAR, mst.due_dt, 112) BETWEEN #fm_rgst_dt# AND #to_rgst_dt#]]>
+	            </isNotNull>
+            </isEqual>
+            <isNotNull prepend="AND" property="cs_trdp_cd">
+                prnr.trdp_cd = #cs_trdp_cd#
+            </isNotNull>
+            <isNotNull prepend="AND" property="lr_trdp_cd">
+                mst.lr_trdp_cd = #lr_trdp_cd#
+            </isNotNull>
+            <isNotNull prepend="AND" property="inv_no">
+                mst.inv_no = #inv_no#
+            </isNotNull>
+            <isEqual prepend="AND" property="slip_no" compareValue="Y">
+                mst.slip_no is not null
+	        </isEqual>
+	        <isEqual prepend="AND" property="slip_no" compareValue="N">
+	            mst.slip_no is null
+	        </isEqual>
+            <isNotNull prepend="AND" property="inv_sts_cd">
+                mst.inv_sts_cd = #inv_sts_cd#
+            </isNotNull>
+            <isNotNull property="cntr_no">
+                AND mst.inv_sts_cd IN('IP', 'IE')
+            </isNotNull>
+        </dynamic>
+        ORDER BY amt.curr_cd, mst.rgst_tms
+    </select>
+	<!-- Exchange rate   -->
+    <select id="selectExchangeRate" resultClass="String">
+		SELECT XCH_RT_UT
+	  FROM TB_INV_XCRT a
+	 WHERE  a.delt_flg = 'N'
+	   <![CDATA[ AND a.APLY_FM_DT >= #bil_dt# ]]>
+	   <![CDATA[ AND a.APLY_TO_DT <= #bil_dt# ]]>
+	   AND	a.fm_curr_cd = #fm_curr_cd#
+	   AND	a.CURR_TP_CD = 'S'
+	    <isNotNull property="to_curr_cd">
+	   		AND  a.TO_CURR_CD = #to_curr_cd#
+	    </isNotNull>
+	    <isNull property="to_curr_cd">
+	   		AND  a.TO_CURR_CD = 'KRW'
+	    </isNull>
+	</select>
+	
+	<!-- invoice Status 값 가져오기   -->
+    <select id="selectInvStatus" resultClass="String">
+		SELECT CASE WHEN SUM(A.CNT) = 0 THEN 'IS'
+					WHEN SUM(A.SUM) = SUM(A.CNT) THEN 'IE'
+					ELSE 'IP'
+					END VAL
+		FROM (SELECT CASE WHEN CNTR_NO = 'X' THEN 0
+		       ELSE 1
+		       END CNT, count(*) SUM
+		FROM tb_eq_inv_dtl
+		WHERE inv_no = #inv_no#
+		GROUP BY CNTR_NO) A
+    </select>
+    
+    <!-- trade partner 에 따른 dueDate 가져오기   -->
+    <select id="selectDueDate" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TrdpVO">
+    	SELECT ISNULL(CASE  WHEN cr_term_cd = 'A' THEN CAST(DATEADD("dd", cr_term_dt, #fm_dt#) AS DATE)
+							WHEN cr_term_cd = 'B' THEN CAST(DATEADD("dd",-day(DATEADD(m,1,#fm_dt#)), DATEADD(m,1,#fm_dt#)) AS DATE)
+							WHEN cr_term_cd = 'C' THEN CAST(DATEADD("dd",-day(DATEADD(m,2,#fm_dt#)), DATEADD(m,2,#fm_dt#)) AS DATE)
+							WHEN cr_term_cd = 'D' THEN CAST(DATEADD("dd", cr_term_dt, DATEADD(m, 1, DATEADD(d,-day(#fm_dt#),#fm_dt#))) AS DATE)
+							END, #fm_dt#) cr_term_cd  
+    	FROM TB_TRDP
+		WHERE trdp_cd = #trdp_cd# AND delt_flg = 'N'
+    </select>
+	<!-- invoice NO MAX 값 가져오기   -->
+    <select id="selectInvMax" resultClass="String">
+		SELECT	MAX(maxInv) as maxInv
+		FROM   	(
+		   		SELECT	CASE	WHEN MAX(SUBSTRING(inv_no,7,4)) = SUBSTRING(CONVERT(VARCHAR, getdate(),12),1,4)
+								THEN 'SESELG'+SUBSTRING(CAST(SUBSTRING(inv_no,7,8)+100000001 as VARCHAR), 2, 8)
+						ELSE	'SESELG'+ SUBSTRING(CONVERT(VARCHAR, getdate(),12),1,4)+'0001' END 
+						AS maxInv
+				FROM 	tb_eq_inv_mst
+				GROUP BY inv_no
+				union all
+				select 'SESELG'+ SUBSTRING(CONVERT(VARCHAR, getdate(),12),1,4)+'0001' as maxInv
+				) a
+    </select>
+	<!-- invoice NO MAX 값 가져오기   -->
+    <select id="selectInvSmryMax" resultClass="String">
+		SELECT ISNULL(MAX(INV_SMRY_SEQ)+1, 1)
+		  FROM TB_EQ_INV_SMRY
+		 WHERE INV_NO = #inv_no#
+    </select>
+</sqlMap>

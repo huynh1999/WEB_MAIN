@@ -1,0 +1,121 @@
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+</head>
+
+<script src="./../../../../style/js/jquery-1.11.0.min.js"></script>
+<script src="./../../../../style/js/opus_ui.js"></script>
+
+<link rel="stylesheet" type="text/css" href="./../../../../style/css/theme_default.css" />
+
+<body style="overflow: hidden;">
+<form id="frm1" name="frm1" >	
+<div class="layer_popup_title" style="border-width:6px 6px 6px 6px;">
+
+	<table style="margin-left: 15px; width: 655px; height: 550px;">
+		<tr>
+          	<td height="10" colspan="2"></td>
+          </tr>
+		<tr>
+			<td colspan="2"> 
+				<h1>Alert</h1>
+			</td>
+		</tr>
+		<tr>
+          	<td height="10" colspan="2"></td>
+        </tr>
+        
+       	<tr>
+      	 	<td width="60" style="margin-top: 10px;" valign="top"><img src="./../../../../web/img/main/overlimit.gif"/></td>
+			<td valign="top" style="margin-top: 0px;">
+				<div id="chrome" style="display: none;">
+					Important: new update has been applied to your server, so you must<br/> 
+					clear cache on your browser before accessing OPUS.<br/>
+					<br/>
+					How to delete cache on Chrome:<br/>
+					<br/>
+					1. Open Chrome.<br/>
+					2. Go to URL chrome://settings/clearBrowserData (or click Ctrl + Shift + Delete).<br/>
+					3. Check “the beginning of time option” and select first 4 options to delete.<br/>
+					4. Click Clear browsing data.<br/>
+					5. Close Chrome browser and restart.<br/>
+				</div>
+				<div id="msie" style="display: none;">
+					Important: new update has been applied to your server, so you must <br/> 
+						clear cache on your browser before accessing OPUS.<br/>
+						<br/>
+						How to delete cache on Internet Explorer:<br/>
+						<br/>
+						1. Open Internet Explorer.<br/>
+						2. Go to Tools &gt; Delete browsing history… (or click Ctrl + Shift + Delete) and select first 4 options to delete.<br/>
+						3. Click Delete.<br/>
+						4. Close Internet Explorer and restart.<br/>
+		        </div>
+			</td>
+        </tr>
+        <tr valign="top" style="margin-top: 0px;">
+        	<td width="60"></td>
+        	<td style="line-height: 150%;">
+          		After signing into OPUS and some columns display wrong information, please refresh the page.
+Just clicking the refresh button (or hitting F5) won't be sufficient in some cases, so you may have to right click on your mouse and click “Reload/Refresh” once after loading some screens.
+          	</td>
+          </tr>
+          <tr>
+          	<td align="right" colspan="2">
+          		<input type="checkbox" name="f_notice" id="f_notice" value="" /> Do not show this message again 
+				<button type="button" class="btn_normal" id="btnPrint" onclick="noticeCheck();">OK</button> &nbsp;
+        	</td>
+        </tr>
+    </table>
+</div>
+ <div class="layer_popup_contents">
+ <div class="wrap_result"></div>
+ </div>
+
+</form>			
+
+<script type="text/javascript">
+	
+	var getParam = function(key){
+	    var _parammap = {};
+	    document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function () {
+	        function decode(s) {
+	            return decodeURIComponent(s.split("+").join(" "));
+	        }
+	        _parammap[decode(arguments[1])] = decode(arguments[2]);
+	    });
+	    return _parammap[key];
+	};
+	
+	var lastVersion = getParam("version");
+	var CheckBrowser = getParam("chkBrowser");
+	var getContextPath = getParam("getContextPath");
+	
+	if(CheckBrowser == "Chrome"){
+		document.getElementById('chrome').style.display='inline';
+		document.getElementById('msie').style.display='none';
+	}else if(CheckBrowser == "MSIE"){
+		document.getElementById('chrome').style.display='none';
+		document.getElementById('msie').style.display='inline';
+	}
+	
+	function setCookie(name, value, expiredays){
+		var todayDate = new Date();
+		
+		todayDate.setDate( todayDate.getDate() + expiredays );
+		//document.cookie = name + "=" +  escape(value) + "; path=/opusfwd; expires=" + todayDate.toGMTString() + ";"		
+		document.cookie = name + "=" +  escape(value) + "; path=" + getContextPath + "; expires=" + todayDate.toGMTString() + ";"
+	}		
+	
+	function noticeCheck(){
+		if(document.frm1.f_notice.checked){
+			setCookie("releaseNotice",lastVersion, 20*365);
+			parent.ComClosePopup();
+		}else{
+			parent.ComClosePopup();
+		}
+		
+	}
+</script>
+</body>
+</html>

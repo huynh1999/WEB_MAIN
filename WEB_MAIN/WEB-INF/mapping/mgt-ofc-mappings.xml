@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### cur ####  -->
+    <url-mapping url="MGT_OFC_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.mgt.ofc.incentive.event.MGT_OFC_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="MGT_OFC_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="MGT_OFC_0010GS.clt" screen="MGT_OFC_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.mgt.ofc.incentive.event.MGT_OFC_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.mgt.ofc.incentive.event.MgtOfficeIncentiveEvent</event-class>
+        <service-action-class>com.clt.apps.fis.mgt.ofc.incentive.MgtOfficeIncentiveSC</service-action-class>
+    </event-mapping>
+	
+    <!--#### Notice Management End ####  -->
+</mappings>

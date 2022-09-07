@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="tmp.pop">
+
+	<typeAlias alias="TmpPopVO" type="com.clt.apps.fis.cmm.pop.template.dto.TmpPopVO"/>
+
+	<delete id="deleteTemplateUsr" parameterClass="HashMap">
+		DELETE FROM  TB_TMP_USR
+		      WHERE  SCREEN_ID = #screen_id#
+		        AND  USRID = #usrid#
+	</delete>
+	
+	<insert id="insertTemplateUsr" parameterClass="HashMap">
+		INSERT INTO TB_TMP_USR
+				(
+					SCREEN_ID, SCREEN_VALUE, USRID, DATE_CNT,
+					DATE_TYPE1, FM_DATE_NAME1, FM_DATE_VALUE1, TO_DATE_NAME1, TO_DATE_VALUE1,
+					DATE_TYPE2, FM_DATE_NAME2, FM_DATE_VALUE2, TO_DATE_NAME2, TO_DATE_VALUE2,
+					DATE_TYPE3, FM_DATE_NAME3, FM_DATE_VALUE3, TO_DATE_NAME3, TO_DATE_VALUE3
+				)
+		VALUES  (
+					#screen_id#, #screen_value#, #usrid#, #date_cnt#,
+					#date_type1#, #fm_date_name1#, #fm_date_value1#, #to_date_name1#, #to_date_value1#, 
+					#date_type2#, #fm_date_name2#, #fm_date_value2#, #to_date_name2#, #to_date_value2#, 
+					#date_type3#, #fm_date_name3#, #fm_date_value3#, #to_date_name3#, #to_date_value3# 
+			    )
+	</insert>
+	
+	<select id="selectTemplateUsr" resultClass="TmpPopVO" parameterClass="HashMap">
+		SELECT  SCREEN_ID, SCREEN_VALUE, USRID, DATE_CNT, 
+				DATE_TYPE1, FM_DATE_NAME1, FM_DATE_VALUE1, TO_DATE_NAME1, TO_DATE_VALUE1,
+				DATE_TYPE2, FM_DATE_NAME2, FM_DATE_VALUE2, TO_DATE_NAME2, TO_DATE_VALUE2,
+				DATE_TYPE3, FM_DATE_NAME3, FM_DATE_VALUE3, TO_DATE_NAME3, TO_DATE_VALUE3
+		  FROM  TB_TMP_USR
+		 WHERE  SCREEN_ID = #screen_id#
+		   AND  USRID = #usrid#
+	</select>
+</sqlMap>

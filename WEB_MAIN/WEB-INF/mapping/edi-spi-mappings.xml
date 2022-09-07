@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <url-mapping url="EDI_SPI_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.spi.event.EDI_SPI_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_SPI_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="EDI_SPI_0010GS.clt" screen="EDI_SPI_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.spi.event.EDI_SPI_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.edi.spi.event.EdiSpiEvent</event-class>
+        <service-action-class>com.clt.apps.fis.edi.spi.EdiSpiSC</service-action-class>
+    </event-mapping>
+    
+</mappings>

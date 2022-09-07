@@ -1,0 +1,49 @@
+<?xml version="1.0"?> 
+<ruleset>
+	<name>Login Form</name>
+	<path>/Login</path>
+	<extraHeaderAction>ignore</extraHeaderAction>
+	<extraCookieAction>continue</extraCookieAction>
+	<extraParameterAction>fatal</extraParameterAction>
+
+	<rule>
+		<name>JSESSIONID</name>
+		<type>cookie</type>
+		<regex>^[A-F0-9]{32}$</regex>
+		<malformedAction>continue</malformedAction>
+		<missingAction>ignore</missingAction>
+	</rule>
+ 	
+	<rule>
+		<name>referer</name>
+		<type>header</type>
+		<regex>^http.*$</regex>
+		<malformedAction>continue</malformedAction>
+		<malformedMessage>Session cookie tampering deteted</malformedMessage>
+		<missingAction>ignore</missingAction>
+	</rule>
+ 	
+	<rule>
+		<name>j_username</name>
+		<type>parameter</type>
+		<regex>^[\w]</regex>
+		<malformedAction>continue</malformedAction>
+		<malformedMessage>Please correct your username</malformedMessage>
+		<missingMessage>You must enter a username</missingMessage>
+		<missingAction>continue</missingAction>
+	</rule>
+ 	
+	<!--
+	<rule>
+		<name>j_password</name>
+		<type>parameter</type>
+		<regex>^[A-Za-z0-9]</regex>
+		<malformedAction>continue</malformedAction>
+		<malformedMessage>Please correct your password</malformedMessage>
+		<missingAction>continue</missingAction>
+		<missingMessage>You must enter a password</missingMessage>
+		<hidden>true</hidden>
+	</rule>
+	-->
+ 	
+</ruleset>

@@ -1,0 +1,8 @@
+<jboss-web>
+	<resource-ref>
+		<res-ref-name>jdbc/FMS</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<jndi-name>java:/jdbc/FMS</jndi-name>
+		<res-auth>Container</res-auth>
+	</resource-ref>
+</jboss-web>

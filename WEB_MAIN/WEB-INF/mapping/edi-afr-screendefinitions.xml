@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!-- ############ 해운수출 ################  -->
+    <!-- 해운수출 일본세관 화물적화 목록 신고   -->
+    <screen name="SEE_AFR_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/afr/jsp/SEE_AFR_0010.jsp"/>
+    </screen>
+
+     <!-- 해운수출 일본세관 출항일, 선사코드와 편명 목록조회 데이터 조회   -->
+    <screen name="SEE_AFR_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/afr/jsp/SEE_AFR_0010GS.jsp"/>
+    </screen>
+    
+    <!-- History 조회   -->
+    <screen name="SEE_AFR_0090" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/edi/afr/jsp/SEE_AFR_0090.jsp"/>
+    </screen>
+
+    <screen name="SEE_AFR_0090GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/edi/afr/jsp/SEE_AFR_0090GS.jsp"/>
+    </screen>
+	
+</screen-definitions>

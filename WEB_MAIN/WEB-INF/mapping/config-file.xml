@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-file xmlns="http://www.cyberlogictec.com/fw/config-file">
+
+	<!-- =====================================  mappings file Start =========================================   -->
+	<mappings>
+	<!--Default 모듈 시작  -->
+        <file-path>
+            <path>/WEB-INF/mapping/mappings.xml</path>
+            <description>시스템 설정모듈 호출 URL</description>
+        </file-path>
+		
+		<file-path>
+			<path>/WEB-INF/mapping/opusbase-mappings.xml</path>
+			<description>OPUS Web Solution 공통모듈 호출 URL</description>
+		</file-path>
+		
+		
+        <file-path>
+            <path>/WEB-INF/mapping/mdm-code-mappings.xml</path>
+            <description>Code관리 호출URL</description>
+        </file-path>
+
+        <file-path>
+            <path>/WEB-INF/mapping/mdm-mcm-mappings.xml</path>
+            <description>MDM(MCM) 모듈 호출URL</description>
+        </file-path>
+
+		<file-path>
+            <path>/WEB-INF/mapping/cmm-pop-mappings.xml</path>
+            <description>팝업 호출URL</description>
+        </file-path>
+		
+		<file-path>
+            <path>/WEB-INF/mapping/cmm-mem-mappings.xml</path>
+            <description>공통 메모 화면 조회</description>
+        </file-path>
+		
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-cur-mappings.xml</path>
+            <description>환률관리 호출URL</description>
+        </file-path>
+
+        <file-path>
+            <path>/WEB-INF/mapping/sys-pgm-mappings.xml</path>
+            <description>OFFICE CODE 호출URL</description>
+        </file-path>	
+		
+		
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-job-mappings.xml</path>
+            <description>Job Template 관리 호출URL</description>
+        </file-path>
+
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-his-mappings.xml</path>
+            <description>History Logging 설정 호출URL</description>
+        </file-path>
+        
+    <!--Default 모듈 종료  -->
+		
+        <file-path>
+            <path>/WEB-INF/mapping/see-bmd-mappings.xml</path>
+            <description>해운 수출 Booking And Hbl</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/sal-tpm-mappings.xml</path>
+            <description>거래처 조회</description>
+        </file-path>
+		
+        <file-path>
+            <path>/WEB-INF/mapping/equ-mst-mappings.xml</path>
+            <description>장비  조회</description>
+        </file-path>
+
+        <file-path>
+            <path>/WEB-INF/mapping/equ-inv-mappings.xml</path>
+            <description>장비 송장  조회</description>
+        </file-path>
+
+        <file-path>
+            <path>/WEB-INF/mapping/see-frt-mappings.xml</path>
+            <description>Freight 조회</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/sal-tfm-mappings.xml</path>
+            <description>관세 조회</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/acc-inv-mappings.xml</path>
+            <description>송장 조회</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/sei-bmd-mapping.xml</path>
+            <description>해운수입</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/sec-com-mappings.xml</path>
+            <description>C/A</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/aie-bmd-mappings.xml</path>
+            <description>항공수출</description>
+        </file-path>
+		
+        <file-path>
+            <path>/WEB-INF/mapping/aic-com-mappings.xml</path>
+            <description>항공공통</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/edi-cstm-mappings.xml</path>
+            <description>EDI</description>
+        </file-path>
+        
+        <!-- 2011/09/23 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-mac-mappings.xml</path>
+            <description>MAC Address</description>
+        </file-path>
+        
+        <!-- 2011/09/30 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-log-mappings.xml</path>
+            <description>MAIL LOG</description>
+        </file-path>
+        
+        <!-- 2011/10/20 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/oth-opr-mappings.xml</path>
+            <description>Other Sales Details</description>
+        </file-path>
+        
+        <!-- 2011/11/17 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/acc-jor-mappings.xml</path>
+            <description>Account Journal</description>
+        </file-path>
+        
+        <!-- 2011/10/20 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/oth-whr-mappings.xml</path>
+            <description>Other Sales Details</description>
+        </file-path>
+
+        <!-- 2012/01/12 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/acc-slp-mappings.xml</path>
+            <description>Account Slip</description>
+        </file-path>
+        
+        <!-- 2012/01/16 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/pfm-acc-mappings.xml</path>
+            <description>Performance Accounting</description>
+        </file-path>
+        
+        <!-- 2012/01/17 AIF 추가   -->
+		<file-path>
+            <path>/WEB-INF/mapping/pfm-mgt-mappings.xml</path>
+            <description>Performance Management</description>
+        </file-path>
+        
+        <!-- 2012/03/22 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-debl-mappings.xml</path>
+            <description>DE Customs EDI</description>
+        </file-path>
+
+        <!-- 2012/08/02 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-ams-mappings.xml</path>
+            <description>KAMS EDI</description>
+        </file-path>
+
+        <!-- 2012/09/12 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-mng-mappings.xml</path>
+            <description>Manage Time</description>
+        </file-path>
+        
+        <!-- 2012/09/10 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-isf-mappings.xml</path>
+            <description>ISF EDI</description>
+        </file-path>
+
+        <!-- 2016/04/25 AFR 추가 C.W.Park  -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-afr-mappings.xml</path>
+            <description>AFR EDI</description>
+        </file-path>
+        
+        <!-- 2016/09/26 ACI 추가 ojg  -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-aci-mappings.xml</path>
+            <description>ACI EDI</description>
+        </file-path>
+        
+        <!-- 2018/01/02 ACL 추가 ajs  -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-acl-mappings.xml</path>
+            <description>ACL EDI</description>
+        </file-path>
+        
+        <!-- 2012/10/09 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/cus-trk-mappings.xml</path>
+            <description>사용자 공통서비스</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/_sample-mappings.xml</path>
+            <description>sample</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/oth-vsi-mappings.xml</path>
+            <description>Vender Shipping Instruction</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-eqs-mappings.xml</path>
+            <description>EQ Status</description>
+        </file-path>
+
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-alt-mappings.xml</path>
+            <description>Alert/Notification</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/edi-agt-mappings.xml</path>
+            <description>EDI Agent BL Send</description>
+        </file-path>
+        
+        <!-- Customize Area [Advance] Start   -->
+        <file-path>
+            <path>/WEB-INF/mapping/customize/advanced/advanced-mappings.xml</path>
+            <description>Advanced Customize mapping file</description>
+        </file-path>
+        
+        <!-- Customize Area [Advance] End   -->
+        <!-- Dou TinLuong 2014/12/16 -->
+        <file-path>
+            <path>/WEB-INF/mapping/whm-whm-mappings.xml</path>
+            <description>WareHouse Modul mapping file</description>
+        </file-path>
+        <!-- Dou TinLuong 2014/12/16 -->
+        
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-ofc-mappings.xml</path>
+            <description>지점별 인센티브 관리 호출URL</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-cust-mappings.xml</path>
+            <description>공헌이익 관리 호출URL</description>
+        </file-path>
+                
+        <!-- ETD/ETA Modify -->
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-skd-mappings.xml</path>
+            <description>ETD/ETA Modify  mapping file</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/edi-spi-mappings.xml</path>
+            <description>Shipping Instruction EDI</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/edi-cmm-mappings.xml</path>
+            <description>Common EDI List</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/edi-vgm-mappings.xml</path>
+            <description>Common EDI List</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/edi-bkg-mappings.xml</path>
+            <description>Booking EDI</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/wms-wms-mappings.xml</path>
+            <description>WMS Module mapping file</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/wms-common-mappings.xml</path>
+            <description>WMS Module mapping file</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/wms-mobile-mappings.xml</path>
+            <description>WMS Module mapping file</description>
+        </file-path>
+        <!-- 2017/03/20 -->
+        <file-path>
+            <path>/WEB-INF/mapping/see-bkg-mappings.xml</path>
+            <description>Booking</description>
+        </file-path>
+        
+        <!-- #2231 [Best Ocean, UFF, CLA] [LBE] EAWB EDI -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-awb-mappings.xml</path>
+            <description>AE EAWB EDI</description>
+        </file-path>
+	</mappings>
+	<!-- =====================================  mappings file End   =========================================   -->
+	
+	<!-- =====================================  screendefinitions file Start =========================================   -->
+	<screendefinitions>
+	<!--Default 모듈 시작  -->
+        <file-path>
+            <path>/WEB-INF/mapping/screendefinitions.xml</path>
+            <description>시스템 설정모듈 화면 등록 URL</description>
+        </file-path>
+		
+        <file-path>
+            <path>/WEB-INF/mapping/opusbase-screendefinitions.xml</path>
+            <description>OPUS Web Solution 공통모듈 화면 호출 URL</description>
+        </file-path>
+		
+        <file-path>
+            <path>/WEB-INF/mapping/mdm-code-screendefinitions.xml</path>
+            <description>코드관리 화면 호출 URL</description>
+        </file-path>
+
+        <file-path>
+            <path>/WEB-INF/mapping/mdm-mcm-screendefinitions.xml</path>
+            <description>MDM(MCM) 모듈 화면 호출 URL</description>
+        </file-path>
+
+        <file-path>
+            <path>/WEB-INF/mapping/cmm-pop-screendefinitions.xml</path>
+            <description>팝업 화면 호출 URL</description>
+        </file-path>
+		
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-cur-screendefinitions.xml</path>
+            <description>팝업 화면 호출 URL</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/cmm-mem-screendefinitions.xml</path>
+            <description>공통 메모 화면 호출 URL</description>
+        </file-path>
+		
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-cur-screendefinitions.xml</path>
+            <description>팝업 화면 호출 URL</description>
+        </file-path>
+		
+        <file-path>
+            <path>/WEB-INF/mapping/sys-pgm-screendefinitions.xml</path>
+            <description>팝업 화면 호출 URL</description>
+        </file-path>
+		
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-job-screendefinitions.xml</path>
+            <description>Job Template 화면 호출 URL</description>
+        </file-path>
+
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-his-screendefinitions.xml</path>
+            <description>History Logging 설정 호출 URL</description>
+        </file-path>
+	<!--Default 모듈 종료  -->
+
+		<file-path>
+            <path>/WEB-INF/mapping/see-bmd-screendefinitions.xml</path>
+            <description>해운 수출Booking And HBL</description>
+        </file-path>
+		
+        <file-path>
+            <path>/WEB-INF/mapping/sal-tpm-screendefinitions.xml</path>
+            <description>거래처 조회</description>
+        </file-path>
+        
+		<file-path>
+            <path>/WEB-INF/mapping/equ-mst-screendefinitions.xml</path>
+            <description>장비 조회</description>
+        </file-path>
+        
+		<file-path>
+            <path>/WEB-INF/mapping/equ-inv-screendefinitions.xml</path>
+            <description>장비 송장 조회</description>
+        </file-path>
+
+        <file-path>
+            <path>/WEB-INF/mapping/see-frt-screendefinitions.xml</path>
+            <description>Freight 화면</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/sal-tfm-screendefinitions.xml</path>
+            <description>관세 조회</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/acc-inv-screendefinitions.xml</path>
+            <description>송장 조회</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/sei-bmd-screendefinitions.xml</path>
+            <description>해운 수입</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/sec-com-screendefinitions.xml</path>
+            <description>C/A</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/aie-bmd-screendefinitions.xml</path>
+            <description>항공수출</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/aic-com-screendefinitions.xml</path>
+            <description>항공공</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/edi-cstm-screendefinitions.xml</path>
+            <description>EDI</description>
+        </file-path>
+        
+        <!-- 2011/09/23 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-mac-screendefinitions.xml</path>
+            <description>MAC Address</description>
+        </file-path>
+        
+        <!-- 2011/09/30 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-log-screendefinitions.xml</path>
+            <description>MAIL LOG</description>
+        </file-path>
+        
+        <!-- 2011/10/20 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/oth-opr-screendifinitions.xml</path>
+            <description>Other Sales Details</description>
+        </file-path>
+        
+        <!-- 2011/11/17 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/acc-jor-screendefinitions.xml</path>
+            <description>Account Journal</description>
+        </file-path>
+        
+        <!-- 2011/10/20 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/oth-whr-screendifinitions.xml</path>
+            <description>Other Sales Details</description>
+        </file-path>
+        
+        <!-- 2012/01/12 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/acc-slp-screendefinitions.xml</path>
+            <description>Account Slip</description>
+        </file-path>
+        
+        <!-- 2012/01/16 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/pfm-acc-screendefinitions.xml</path>
+            <description>Performance Accounting</description>
+        </file-path>
+        
+        <!-- 2012/01/17 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/pfm-mgt-screendefinitions.xml</path>
+            <description>Performance Management</description>
+        </file-path>
+        
+        <!-- 2012/03/22 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-debl-screendefinitions.xml</path>
+            <description>DE Customs EDI</description>
+        </file-path>
+
+		<!-- 2012/08/02 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-ams-screendefinitions.xml</path>
+            <description>KAMS EDI</description>
+        </file-path>
+
+		<!-- 2012/09/12 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-mng-screendefinitions.xml</path>
+            <description>Manage Time</description>
+        </file-path>
+        
+        <!-- 2012/09/10 AIF 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-isf-screendefinitions.xml</path>
+            <description>ISF EDI</description>
+        </file-path>
+
+        <!-- 2016/04/25 AFR 추가  C.W.Park -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-afr-screendefinitions.xml</path>
+            <description>AFR EDI</description>
+        </file-path>
+        
+        <!-- 2016/09/26 ACI 추가  OJG -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-aci-screendefinitions.xml</path>
+            <description>ACI EDI</description>
+        </file-path>
+        
+         <!-- 2018/01/02 ACL 추가  AJS -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-acl-screendefinitions.xml</path>
+            <description>ACL EDI</description>
+        </file-path>
+        
+        <!-- 2012/10/09 추가   -->
+        <file-path>
+            <path>/WEB-INF/mapping/cus-trk-screendefinitions.xml</path>
+            <description>사용자 공통서비스 호출URL</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/_sample-screendefinitions.xml</path>
+            <description>sample</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/oth-vsi-screendefinitions.xml</path>			
+            <description>Vender Shipping Instruction</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-eqs-screendefinitions.xml</path>			
+            <description>EQ Status</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/edi-agt-screendefinitions.xml</path>			
+            <description>EDI Agent BL Send</description>
+        </file-path>
+        
+        <!-- Customize Area [Advance] Start   -->
+        <file-path>
+            <path>/WEB-INF/mapping/customize/advanced/advanced-screendefinitions.xml</path>
+            <description>sample</description>
+        </file-path>
+        <!-- Customize Area [Advance] End   -->
+		
+		
+        <!-- Customize Area [Advance] End   -->
+        <file-path>
+            <path>/WEB-INF/mapping/whm-whm-screendefinitions.xml</path>
+            <description>WareHouse Modul Screendifinitions File URL</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-ofc-screendefinitions.xml</path>
+            <description>지점별 인센티브 관리 호출URL</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-cust-screendefinitions.xml</path>
+            <description>공헌이익 관리 호출URL</description>
+        </file-path>
+
+        <!-- ETD/ETA Modify -->
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-skd-screendefinitions.xml</path>
+            <description>ETD/ETA Modify  Screendifinitions File URL</description>
+        </file-path>        
+        
+        <file-path>
+            <path>/WEB-INF/mapping/edi-spi-screendefinitions.xml</path>			
+            <description>Shipping Instruction EDI</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/edi-cmm-screendefinitions.xml</path>			
+            <description>Common EDI</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/edi-vgm-screendefinitions.xml</path>			
+            <description>Common EDI</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/edi-bkg-screendefinitions.xml</path>			
+            <description>Booking EDI</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/wms-wms-screendefinitions.xml</path>			
+            <description>WMS module</description>
+        </file-path>
+        
+        <file-path>
+            <path>/WEB-INF/mapping/wms-common-screendefinitions.xml</path>			
+            <description>WMS common module</description>
+        </file-path>
+        <file-path>
+            <path>/WEB-INF/mapping/wms-mobile-screendefinitions.xml</path>			
+            <description>WMS common module</description>
+        </file-path>        
+        <file-path>
+            <path>/WEB-INF/mapping/mgt-alt-screendefinitions.xml</path>			
+            <description>Alert/Notification</description>
+        </file-path>
+        <!-- 2017/03/20   -->
+        <file-path>
+            <path>/WEB-INF/mapping/see-bkg-screendefinitions.xml</path>			
+            <description>Booking</description>
+        </file-path>
+        
+        <!-- #2231 [Best Ocean, UFF, CLA] [LBE] EAWB EDI -->
+        <file-path>
+            <path>/WEB-INF/mapping/edi-awb-screendefinitions.xml</path>			
+            <description>AE EAWB EDI</description>
+        </file-path>
+	</screendefinitions>
+	<!-- =====================================  screendefinitions file End   =========================================   -->
+</config-file>

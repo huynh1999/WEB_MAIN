@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.code.packages">
+	
+	<!-- Trade Package List pop select    -->
+    <select id="selectCMM_POP_0120_LIST" resultClass="com.clt.apps.fis.mdm.code.packages.dto.PckUtCdVO">
+		SELECT 	pck_ut_cd,			pck_nm
+		  FROM  tb_pck_ut_cd
+		 WHERE  use_flg = 'Y'
+		<dynamic prepend="AND">
+			<isNotNull prepend="AND" property="s_packages_code">
+				pck_ut_cd like #s_packages_code#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_packages_name">
+				pck_nm like #s_packages_name#
+			</isNotNull>
+		</dynamic>
+		ORDER  BY pck_nm
+	</select>
+	
+	<!-- #4568 - [AFR] AFR screen modification request - Nhan.Le [S] -->
+	<!-- Trade Package Code and AFR Code   -->
+    <select id="selectAFR_PCK_CD_LIST" resultClass="com.clt.apps.fis.mdm.code.packages.dto.PckUtCdVO">
+		SELECT 	pck_ut_cd,			pck_nm,			afr_pck_cd_val
+		  FROM  tb_pck_ut_cd
+		 WHERE  use_flg = 'Y'
+		 AND ISNULL(afr_pck_cd_val, '') != ''
+	</select>
+	<!-- #4568 - [AFR] AFR screen modification request - Nhan.Le [E] -->
+	
+	<!-- Trade Package List pop select count    -->
+    <select id="selectCMM_POP_0120_CNT" resultClass="Integer">
+        SELECT  count(*)
+		  FROM  tb_pck_ut_cd
+		 WHERE  use_flg = 'Y'
+		<dynamic prepend="AND">
+			<isNotNull prepend="AND" property="s_packages_code">
+				pck_ut_cd like #s_packages_code#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_packages_name">
+				pck_nm like #s_packages_name#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- Trade Package List pop select    -->
+    <select id="selectCMM_POP_EDI_0120_LIST" resultClass="com.clt.apps.fis.mdm.code.packages.dto.PckUtCdVO">
+		SELECT 	ams_pck_cd_val,			pck_nm
+		  FROM  tb_pck_ut_cd
+		 WHERE  use_flg = 'Y' 
+		    AND ISNULL(ams_pck_cd_val, '') != ''
+		<dynamic prepend="AND">
+			<isNotNull prepend="AND" property="s_packages_code">
+				pck_ut_cd like #s_packages_code#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_packages_name">
+				pck_nm like #s_packages_name#
+			</isNotNull>
+		</dynamic>
+		ORDER  BY pck_ut_cd
+	</select>
+	
+	<!-- Trade Package List pop select count    -->
+    <select id="selectCMM_POP_EDI_0120_CNT" resultClass="Integer">
+        SELECT  count(*)
+		  FROM  tb_pck_ut_cd
+		 WHERE  use_flg = 'Y'
+		<dynamic prepend="AND">
+			<isNotNull prepend="AND" property="s_packages_code">
+				pck_ut_cd like #s_packages_code#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_packages_name">
+				pck_nm like #s_packages_name#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- Package Code List    -->
+    <select id="selectPACKAGECODE_LIST" resultClass="com.clt.apps.fis.mdm.code.packages.dto.PckUtCdVO">
+        SELECT  TOP $topCnt$
+		        pck_ut_cd,         ams_pck_cd_val, afr_pck_cd_val,  
+		        cstms_pck_cd_val,  pck_nm, descr, 
+			    rgst_usrid,        rgst_ofc_cd,    rgst_tms, 
+		        modi_usrid,        modi_ofc_cd,    modi_tms, 
+		        (CASE delt_flg WHEN 'Y' THEN 1 WHEN 'N' THEN 0 ELSE 0 END) AS delt_flg, 'Y' AS db_value,
+		        (CASE use_flg WHEN 'Y' THEN 1 WHEN 'N' THEN 0 ELSE 0 END) AS use_flg
+		  FROM  tb_pck_ut_cd
+	  ORDER BY  pck_ut_cd ASC
+	</select>
+	
+	<!-- Package Code Count    -->
+    <select id="selectPACKAGECODE_CNT" resultClass="Integer">
+        SELECT  count(*)
+		  FROM  tb_pck_ut_cd
+	</select>
+	
+	<!-- Package Code Update    -->
+	<update id="updateMDM_MCM_0130" parameterClass="com.clt.apps.fis.mdm.code.packages.dto.PckUtCdVO">
+		UPDATE tb_pck_ut_cd
+		   SET ams_pck_cd_val = #ams_pck_cd_val#, afr_pck_cd_val = #afr_pck_cd_val#,  cstms_pck_cd_val = #cstms_pck_cd_val#, 
+		       pck_nm     = #pck_nm#,              descr      = #descr#, 
+		       modi_usrid = #modi_usrid#,          modi_ofc_cd = #modi_ofc_cd#,                  modi_tms = GETUTCDATE(),      
+		       <!-- delt_flg = #delt_flg#,  -->
+		       use_flg = #use_flg#
+		 WHERE pck_ut_cd  = #pck_ut_cd#
+	</update>
+	
+	<!-- Package Code Insert    -->
+	<insert id="insertMDM_MCM_0130" parameterClass="com.clt.apps.fis.mdm.code.packages.dto.PckUtCdVO">
+		INSERT INTO tb_pck_ut_cd (
+		  	pck_ut_cd,   ams_pck_cd_val, afr_pck_cd_val,   cstms_pck_cd_val, 
+		    pck_nm,      descr, 
+		    rgst_usrid,  rgst_ofc_cd,      rgst_tms, 
+		    modi_usrid,  modi_ofc_cd,      modi_tms,          delt_flg, use_flg
+			
+		) VALUES (
+			#pck_ut_cd#, #ams_pck_cd_val#, #afr_pck_cd_val#, #cstms_pck_cd_val#, 
+		    #pck_nm#,    #descr#, 
+		    #rgst_usrid#,#rgst_ofc_cd#,    getdate(), 
+		    #modi_usrid#,#modi_ofc_cd#,    GETUTCDATE(),             'N', #use_flg#
+		)
+	</insert>
+	
+	<select id="selectMDM_MCM_0130_CODE" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT pck_ut_cd
+		  FROM tb_pck_ut_cd
+		 WHERE pck_ut_cd = #s_pck_ut_cd#
+	</select>
+</sqlMap>

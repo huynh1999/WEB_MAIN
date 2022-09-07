@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="WHInbkMapper">
+	<!-- Booking Item 생성 프로시저 호출 -->
+	 <parameterMap id="Issue_WHInbkItemProc" class="com.clt.apps.fis.wms.whinbooking.dto.ProcWHInbkItemVO">
+	 
+		<parameter property="wib_bk_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="ctrt_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="wh_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="supp_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="po_sys_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_sys_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_seq" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="po_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+		<parameter property="item_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_nm" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_ea_qty" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_pkgqty" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_pkgunit" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_cbm" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_cbf" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+												
+												
+	    <parameter property="item_grs_kgs" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_grs_lbs" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_net_kgs" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="item_net_lbs" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="eq_tp_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="eq_tpsz_cd" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="eq_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+		<parameter property="seal_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="inbound_dt" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="lot_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="exp_dt" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="lot_04" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="lot_05" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="fix_lot_id" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+		<parameter property="cntr_ref_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+		
+	    <parameter property="hbl_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="mbl_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="pol" 			javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="pod" 			javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="del" 			javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="etd" 			javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="eta" 			javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="carrier_cd" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="vsl_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="vsl_nm" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="voy" 			javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="curr_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="unit_price" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+        <parameter property="uniq_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="invalid_yn" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    
+	    <parameter property="org_item_sys_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="ibflag" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="org_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="user_id" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    
+	    <parameter property="rtncd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	    <parameter property="rtnmsg" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	
+	<procedure id="callWHInbkItemProc"  parameterMap="Issue_WHInbkItemProc">
+	{CALL dbo.PKG_MAKE_TL_WH_IB_ITEM_PRC ( 
+	                                             ?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?
+												,?												
+												,?
+												,?
+                                                ,?
+                                                ,?
+        )
+        }
+	</procedure>
+	
+	<!-- <procedure id="callWHInbkItemProc" parameterClass="com.clt.apps.fis.wms.whinbooking.dto.ProcWHInbkItemVO" resultClass="com.clt.apps.fis.wms.common.dto.ErrorProcVO" >
+	{CALL dbo.PKG_MAKE_TL_WH_IB_ITEM_PRC ( 
+	                                             #wib_bk_no#
+												,#ctrt_no#
+												,#wh_cd#
+												,#supp_cd#
+												,#po_sys_no#
+												,#item_sys_no#
+												,#item_seq#
+												,#po_no#
+												,#item_cd#
+												,#item_nm#
+												,#item_ea_qty#
+												,#item_pkgqty#
+												,#item_pkgunit#
+												,#item_cbm#
+												,#item_cbf#
+												,#item_grs_kgs#
+												,#item_grs_lbs#
+												,#item_net_kgs#
+												,#item_net_lbs#
+												,#eq_tp_cd#
+												,#eq_tpsz_cd#
+												,#eq_no#
+												,#seal_no#
+												,#inbound_dt#
+												,#lot_no#
+												,#exp_dt#
+												,#lot_04#
+												,#lot_05#
+												,#fix_lot_id#
+												,#cntr_ref_no#
+												,#hbl_no#
+												,#mbl_no#
+												,#pol#
+												,#pod#
+												,#del#
+												,#etd#
+												,#eta#
+												,#carrier_cd#
+												,#vsl_cd#
+												,#vsl_nm#
+												,#voy#
+												,#curr_cd#
+												,#unit_price#
+												,#uniq_no#
+												,#invalid_yn#
+												,#org_item_sys_no#
+												,#ibflag#												
+												,#org_cd#
+												,#user_id#
+                                                ,''
+                                                ,''
+        )
+        }
+	</procedure> -->
+	
+	<parameterMap class="com.clt.apps.fis.wms.inboundmanagement.dto.Grd00WHInbkInfoVO" id="callWHInbkProc_Map">
+	 <parameter property="wib_bk_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+	<procedure id="callWHInbkProc"  parameterMap="callWHInbkProc_Map">
+	  {call dbo.PKG_MAKE_TL_WH_IB_PRC (?, ?, ?, ?, ?)}
+	</procedure>
+    
+    
+    <parameterMap class="com.clt.apps.fis.wms.whinbooking.dto.WHInbkInfoVO" id="callCancelWHInbk_Map">
+	 <parameter property="wib_bk_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+    <!-- Cancel 프로시저 호출 -->
+    <procedure id="callCancelWHInbk" parameterMap="callCancelWHInbk_Map">
+		 { CALL dbo.PKG_MAKE_TL_WH_IB_CANCEL_PRC (?, ?, ?, ?, ?) }
+	</procedure>
+ 	
+ 	<!-- Reinstate 프로시저 호출 -->        
+    <parameterMap class="com.clt.apps.fis.wms.whinbooking.dto.WHInbkInfoVO" id="callReinstateWHInbk_Map">
+		<parameter property="wib_bk_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="org_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="user_id" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="rtncd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	    <parameter property="rtnmsg" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	
+	<procedure id="callReinstateWHInbk" parameterMap="callReinstateWHInbk_Map">
+		 { CALL dbo.PKG_MAKE_TL_WH_IB_REINSTATE_PRC (?, ?, ?, ?, ?) }
+	</procedure>
+	
+	<!-- MAKE_TL_WH_IB_XLS_UPALOAD_PRC-->        
+    <parameterMap class="com.clt.apps.fis.wms.common.dto.Grd00WHInBookingExcelUploadVO" id="callWHInBookingExcelUploadProc_Map">
+		<parameter property="xls_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="org_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="user_id" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="rtncd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	    <parameter property="rtnmsg" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap>
+	
+	<procedure id="callWHInBookingExcelUploadProc" parameterMap="callWHInBookingExcelUploadProc_Map">
+		 { CALL dbo.PKG_MAKE_TL_WH_IB_XLS_UPALOAD_PRC (?, ?, ?, ?, ?) }
+	</procedure>
+</sqlMap>

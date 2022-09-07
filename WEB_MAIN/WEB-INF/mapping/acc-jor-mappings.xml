@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### ACC JOURNAL 관련 프로그램  Start ####  -->
+    <url-mapping url="ACC_JOR_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0010GS.clt" screen="ACC_JOR_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Deposit Journal List   -->
+    <url-mapping url="ACC_JOR_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0020.screen"/>
+            <handler-result result="EXCEL"   screen="ExcelDownload.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0020GS.clt" screen="ACC_JOR_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0020HTMLAction</web-action-class>
+    </url-mapping>
+	
+	
+	<!-- Check Journal  -->
+    <url-mapping url="ACC_JOR_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0030GS.clt" screen="ACC_JOR_0030GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Check Journal List   -->
+    <url-mapping url="ACC_JOR_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0040.screen"/>
+            <handler-result result="EXCEL"   screen="ExcelDownload.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0040GS.clt" screen="ACC_JOR_0040GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0040HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- General Journal  -->
+    <url-mapping url="ACC_JOR_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0050.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0050GS.clt" screen="ACC_JOR_0050GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0050HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- General Journal List   -->
+    <url-mapping url="ACC_JOR_0060.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0060HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0060.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0060GS.clt" screen="ACC_JOR_0060GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0060HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    
+    
+    
+    <!-- 관리자 모드    -->
+    <url-mapping url="ACC_JOR_0011.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0011HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0011.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0011GS.clt" screen="ACC_JOR_0011GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0011HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Deposit Journal List   -->
+    <url-mapping url="ACC_JOR_0021.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0021HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0021.screen"/>
+            <handler-result result="EXCEL"   screen="ExcelDownload.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0021GS.clt" screen="ACC_JOR_0021GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0021HTMLAction</web-action-class>
+    </url-mapping>
+	
+	
+	<!-- Check Journal  -->
+    <url-mapping url="ACC_JOR_0031.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0031HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0031.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0031GS.clt" screen="ACC_JOR_0031GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0031HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Check Journal List   -->
+    <url-mapping url="ACC_JOR_0041.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0041HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0041.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0041GS.clt" screen="ACC_JOR_0041GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0041HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- Check Journal2  -->
+    <url-mapping url="ACC_JOR_0032.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0032HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0032.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0032GS.clt" screen="ACC_JOR_0032GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0032HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Check Journal List2   -->
+    <url-mapping url="ACC_JOR_0042.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0042HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0042.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0042GS.clt" screen="ACC_JOR_0042GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0042HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Check Journal List Pop   #1106 [UFF] PAYMENT CHECK BATCH PRINT -->
+    <url-mapping url="ACC_JOR_0043.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0043HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0043.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0043GS.clt" screen="ACC_JOR_0043GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0043HTMLAction</web-action-class>
+    </url-mapping>    
+    
+    
+    <!-- Batch Accounting   -->
+    <url-mapping url="ACC_JOR_0070.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0070HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0070.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0070GS.clt" screen="ACC_JOR_0070GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0070HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0070_1GS.clt" screen="ACC_JOR_0070_1GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0070HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Bank Balance Clear by Excel   -->
+    <url-mapping url="ACC_JOR_0080.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0080HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0080.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0080GS.clt" screen="ACC_JOR_0080GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0080HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Check Deposit Report   -->
+    <url-mapping url="ACC_JOR_0090.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0090HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0090.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+	
+	<!-- Bank Outstanding Report   -->
+    <url-mapping url="ACC_JOR_0100.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0100HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0100.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0100GS.clt" screen="ACC_JOR_0100GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0100HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0101GS.clt" screen="ACC_JOR_0101GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0100HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Outstanding Report(Ocean Import HBL)   -->
+    <url-mapping url="ACC_JOR_0110.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0110HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0110.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    
+    <!-- Bank Reconciliation   -->
+    <url-mapping url="ACC_JOR_0120.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0120HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0120.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0120GS.clt" screen="ACC_JOR_0120GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0120HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0121GS.clt" screen="ACC_JOR_0121GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0120HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0122GS.clt" screen="ACC_JOR_0122GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0120HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- Bank Book Balance Repost   -->
+    <url-mapping url="ACC_JOR_0130.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0130HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0130.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Aging Report   -->
+    <url-mapping url="ACC_JOR_0140.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0140HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0140.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    
+    <!-- Bad Debit List   -->
+    <url-mapping url="ACC_JOR_0150.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0150HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0150.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0150GS.clt" screen="ACC_JOR_0150GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0150HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    
+    
+    <!-- Tax Bill Deposit Journal   -->
+    <url-mapping url="ACC_JOR_0200.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0200HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0200.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0200GS.clt" screen="ACC_JOR_0200GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0200HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- Tax Bill Check Journal   -->
+    <url-mapping url="ACC_JOR_0210.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0210HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0210.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0210GS.clt" screen="ACC_JOR_0210GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0210HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- Tax Bill Deposit Journal List  -->
+    <url-mapping url="ACC_JOR_0300.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0300HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0300.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0300GS.clt" screen="ACC_JOR_0300GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0300HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!-- Tax Bill Check Journal   -->
+    <url-mapping url="ACC_JOR_0310.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0310HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0310.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0310GS.clt" screen="ACC_JOR_0310GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0310HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    
+    <!-- ACC JOURNAL INVOICE LIST POPUP    -->
+    <url-mapping url="ACC_JOR_0500.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0500HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0500.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0500GS.clt" screen="ACC_JOR_0500GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0500HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!--  Payment History   -->
+    <url-mapping url="ACC_JOR_0600.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0600HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0600.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0600GS.clt" screen="ACC_JOR_0600GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0600HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--  Payment History  Level 2 -->
+    <url-mapping url="ACC_JOR_0610.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0610HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0610.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0610GS.clt" screen="ACC_JOR_0610GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0610HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+        <!--  Service Contract with Carrier Management and Report-->
+    <url-mapping url="ACC_JOR_0620.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0620HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0620.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping> 
+    
+    <!-- Journal History PopUp   -->
+    <url-mapping url="ACC_JOR_0700.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0700HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="ACC_JOR_0700.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="ACC_JOR_0700GS.clt"   screen="ACC_JOR_0700GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0700HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0710GS.clt"   screen="ACC_JOR_0710GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0700HTMLAction</web-action-class>
+    </url-mapping>
+	
+
+    <!-- Late Billing Monitoring -->
+    <url-mapping url="ACC_JOR_0630.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0630HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0630.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping> 
+
+    <url-mapping url="ACC_JOR_0630GS.clt" screen="ACC_JOR_0630GS.screen" >
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0630HTMLAction</web-action-class>
+    </url-mapping>	
+    
+    <!-- Deposit/Payment for China (Entry)  -->
+    <url-mapping url="ACC_JOR_0800.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0800HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0800.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0800_1GS.clt" screen="ACC_JOR_0800_1GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0800HTMLAction</web-action-class>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0800_2GS.clt" screen="ACC_JOR_0800_2GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0800HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Deposit/Payment for China (List)   -->
+    <url-mapping url="ACC_JOR_0810.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0810HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="ACC_JOR_0810.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="ACC_JOR_0810GS.clt" screen="ACC_JOR_0810GS.screen">
+        <web-action-class>com.clt.apps.fis.acc.jor.journal.event.ACC_JOR_0810HTMLAction</web-action-class>
+    </url-mapping>
+
+    <event-mapping>
+        <event-class>com.clt.apps.fis.acc.jor.journal.event.AccJournalEvent</event-class>
+        <service-action-class>com.clt.apps.fis.acc.jor.journal.AccJournalSC</service-action-class>
+    </event-mapping>
+</mappings>

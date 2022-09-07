@@ -1,0 +1,1057 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="see.frt.freight">
+	
+	<!-- 결과를 담기위한 ResultMap을 선언  -->
+	<resultMap id="curInfoMap" class="HashMap">
+		<result property="xch_rt_ut"   javaType="String" column="xch_rt_ut" nullValue="0"/>
+	</resultMap>
+	
+	<!-- See House B/L Freight Search    -->
+    <select id="selectFRTINFO_READ" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtBLInformationVO">
+		SELECT  hbl.intg_bl_seq,     hbl.bl_no AS hbl_no,     hbl.bkg_no,
+		        hbl.lnr_bkg_no,      mbl.bl_no AS mbl_no,     ISNULL(BLCK.BL_STS_CD1, HBL.BL_STS_CD) AS BL_STS_CD, 
+                hbl.shp_mod_cd,      hbl.air_sea_clss_cd,     aib.bnd_clss_cd,
+		
+		        hbl.grs_wgt,         cdf.cd_nm AS grs_wgt_ut,
+		        hbl.meas,            cdt.cd_nm AS meas_ut,
+		        hbl.act_wgt,         hbl.pck_ut_cd,
+		
+                hbl.frt_term_cd,     hbl.inco_cd,             hbl.cgo_tp_cd,
+		        hbl.por_cd,          
+		
+		        hbl.pol_cd,          hbl.pol_nod_cd,              
+		        hbl.pod_cd,          hbl.pod_nod_cd, 
+		        hbl.del_cd,          '' AS del_nod_cd,
+		         
+                hbl.obrd_dt_tm,      hbl.etd_dt_tm,           hbl.eta_dt_tm,
+        
+                hbl.fm_svc_term_cd+' / '+ hbl.to_svc_term_cd AS svc_term_cd,
+        
+                aib.bnd_clss_cd,     hbl.rgst_ofc_cd,
+                
+                act.trdp_cd AS act_trdp_cd,       act.trdp_nm AS act_trdp_nm, 
+                shp.trdp_cd AS shpr_trdp_cd,      shp.trdp_nm AS shpr_trdp_nm,
+                lnr.trdp_cd AS lnr_trdp_cd,       lnr.trdp_nm AS lnr_trdp_nm,
+                ptn.trdp_cd AS prnr_trdp_cd,      ptn.trdp_nm AS prnr_trdp_nm
+                
+		  FROM  tb_intg_bl  hbl 
+		  JOIN  tb_add_info_bnd aib 
+		    ON  hbl.intg_bl_seq = aib.intg_bl_seq      AND aib.delt_flg = 'N' 
+LEFT OUTER JOIN  tb_intg_bl_rlt blm  
+		    ON  hbl.intg_bl_seq = blm.intg_bl_seq      AND blm.delt_flg = 'N'
+		
+LEFT OUTER JOIN  tb_intg_bl mbl  
+		    ON  mbl.intg_bl_seq = blm.rlt_intg_bl_seq  AND mbl.delt_flg = 'N'
+		
+          JOIN  tb_com_cd_dtl  cdf  ON  hbl.grs_wgt_ut_cd = cdf.cd_val           AND cdf.delt_flg = 'N' AND  cdf.com_cd = 'C035' 
+          JOIN  tb_com_cd_dtl  cdt  ON  hbl.meas_ut_cd    = cdt.cd_val           AND cdt.delt_flg = 'N' AND  cdt.com_cd = 'C024'
+        
+          JOIN tb_bl_prnr act
+            ON  hbl.intg_bl_seq = act.intg_bl_seq  AND act.bl_trdp_tp_cd = 'S02' AND act.delt_flg = 'N'
+            
+LEFT OUTER JOIN tb_bl_prnr shp
+            ON  hbl.intg_bl_seq = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr lnr
+            ON  hbl.intg_bl_seq = lnr.intg_bl_seq  AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr ptn
+            ON  hbl.intg_bl_seq = ptn.intg_bl_seq  AND ptn.bl_trdp_tp_cd = 'P01' AND ptn.delt_flg = 'N'
+
+LEFT OUTER JOIN(SELECT INTG_BL_SEQ AS INTG_BL_SEQ1, BL_STS_CD AS BL_STS_CD1 FROM TB_INTG_BL_BLCK) BLCK 
+			ON HBL.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1
+		
+         WHERE  hbl.biz_clss_cd = 'H' AND hbl.delt_flg = 'N'
+		<!--AND  hbl.air_sea_clss_cd = #f_air_sea# AND  aib.bnd_clss_cd = #f_bnd_clss_cd#  -->  
+           
+	<dynamic>
+		<isNotNull property="f_bkg_no"> 
+			   AND hbl.bkg_no = #f_bkg_no#  AND hbl.intg_bl_seq = #f_intg_bl_seq#
+		</isNotNull>
+		<isNull property="f_bkg_no">
+			   AND hbl.bl_no  = #f_house_bl_no#
+		</isNull>
+	</dynamic>
+    </select>
+    
+    <!-- See Master B/L Freight Search    -->
+    <select id="selectMBL_FRTINFO_READ" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtBLInformationVO">
+		SELECT  mbl.intg_bl_seq,          mbl.bl_no AS mbl_no,
+				mbl.air_sea_clss_cd,      aib.bnd_clss_cd,
+		
+				mbl.shp_mod_cd,           mbl.pck_ut_cd,        mbl.inco_cd,           
+				mbl.por_cd,               mbl.pol_cd,           mbl.pod_cd,     mbl.del_cd, 
+				mbl.grs_wgt,              mbl.frt_term_cd, 
+				mbl.obrd_dt_tm,          
+		
+		        SUBSTRING(mbl.etd_dt_tm, 1, 8) AS etd_dt_tm,
+				SUBSTRING(mbl.eta_dt_tm, 1, 8) AS eta_dt_tm,
+		
+				mbl.fm_svc_term_cd+' / '+ mbl.to_svc_term_cd AS svc_term_cd, 
+				
+				mbl.meas AS meas,
+				mbl.lnr_bkg_no,           mbl.sr_no,
+				mbl.cgo_tp_cd,            mbl.flt_no,            mbl.act_wgt,   mbl.rgst_ofc_cd,
+				cdf.cd_nm AS grs_wgt_ut,  cdt.cd_nm AS meas_ut,
+				aib.bnd_clss_cd,
+				
+				shp.trdp_cd AS shpr_trdp_cd,      shp.trdp_nm AS shpr_trdp_nm,
+				lnr.trdp_cd AS lnr_trdp_cd,       lnr.trdp_nm AS lnr_trdp_nm,
+				ptn.trdp_cd AS prnr_trdp_cd,      ptn.trdp_nm AS prnr_trdp_nm
+				
+		  FROM  tb_intg_bl     mbl  
+		  JOIN  tb_add_info_bnd aib 
+			ON  mbl.intg_bl_seq   = aib.intg_bl_seq    AND aib.delt_flg = 'N'  
+		  JOIN  tb_com_cd_dtl  cdf  
+			ON  mbl.grs_wgt_ut_cd = cdf.cd_val         AND cdf.delt_flg = 'N'  AND  cdf.com_cd = 'C035' 
+		  JOIN  tb_com_cd_dtl  cdt  
+			ON  mbl.meas_ut_cd    = cdt.cd_val         AND cdt.delt_flg = 'N'  AND  cdt.com_cd = 'C024'
+              
+LEFT OUTER JOIN tb_bl_prnr shp
+            ON  mbl.intg_bl_seq = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr lnr
+            ON  mbl.intg_bl_seq = lnr.intg_bl_seq  AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr ptn
+            ON  mbl.intg_bl_seq = ptn.intg_bl_seq  AND ptn.bl_trdp_tp_cd = 'P01' AND ptn.delt_flg = 'N'
+		
+         WHERE  mbl.air_sea_clss_cd = #f_air_sea#
+           AND  mbl.biz_clss_cd = 'M' AND mbl.delt_flg = 'N'   
+           AND  aib.bnd_clss_cd = #f_bnd_clss_cd#   
+      <dynamic>
+			<isNotNull property="f_master_bl_no">
+				   AND mbl.bl_no  = #f_master_bl_no#
+			</isNotNull>
+			<isNotNull property="f_sr_no">
+				   AND mbl.sr_no  = #f_sr_no#
+			</isNotNull>
+			<isNotNull property="f_house_bl_no">
+				   AND mbl.intg_bl_seq = ( SELECT  rlt.rlt_intg_bl_seq 
+										 FROM  tb_intg_bl hbl, tb_intg_bl_rlt rlt
+										WHERE  hbl.bl_no = #f_house_bl_no# 
+										  AND  hbl.biz_clss_cd = 'H' 
+										  AND  hbl.intg_bl_seq = rlt.intg_bl_seq
+										  AND  hbl.delt_flg = 'N'
+										  AND  rlt.delt_flg = 'N' )
+			</isNotNull>
+		</dynamic>
+    </select>
+	
+    <!-- See House B/L Freight Search    -->
+    <select id="selectAIR_FRTINFO_READ" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtBLInformationVO">
+        SELECT  hbl.intg_bl_seq,     hbl.bl_no AS hbl_no,     hbl.bkg_no,       mbl.bl_no AS mbl_no,
+                hbl.flt_no,          
+        
+                hbl.chg_wgt,         cdf.cd_nm AS chg_wgt_ut,
+                hbl.meas,            cdt.cd_nm AS meas_ut,         
+                hbl.pck_ut_cd,
+        
+                hbl.frt_term_cd,     hbl.inco_cd,             
+                hbl.pol_nod_cd,      hbl.pod_nod_cd,          hbl.del_cd, 
+                 
+                hbl.obrd_dt_tm,      hbl.etd_dt_tm,           hbl.eta_dt_tm,              
+                aib.bnd_clss_cd,     hbl.rgst_ofc_cd,
+                
+                act.trdp_cd AS act_trdp_cd,       act.trdp_nm AS act_trdp_nm, 
+                shp.trdp_cd AS shpr_trdp_cd,      shp.trdp_nm AS shpr_trdp_nm,
+                lnr.trdp_cd AS lnr_trdp_cd,       lnr.trdp_nm AS lnr_trdp_nm,
+                ptn.trdp_cd AS prnr_trdp_cd,      ptn.trdp_nm AS prnr_trdp_nm
+                
+          FROM  tb_intg_bl  hbl 
+          JOIN  tb_add_info_bnd aib 
+            ON  hbl.intg_bl_seq = aib.intg_bl_seq      AND aib.delt_flg = 'N' 
+LEFT OUTER JOIN  tb_intg_bl_rlt blm  
+            ON  hbl.intg_bl_seq = blm.intg_bl_seq      AND blm.delt_flg = 'N'
+        
+LEFT OUTER JOIN  tb_intg_bl mbl  
+            ON  mbl.intg_bl_seq = blm.rlt_intg_bl_seq  AND mbl.delt_flg = 'N'
+        
+          JOIN  tb_com_cd_dtl  cdf  ON  hbl.chg_wgt_ut_cd= cdf.cd_val           AND cdf.delt_flg = 'N' AND  cdf.com_cd = 'C035' 
+          JOIN  tb_com_cd_dtl  cdt  ON  hbl.meas_ut_cd   = cdt.cd_val           AND cdt.delt_flg = 'N' AND  cdt.com_cd = 'C024'
+        
+          JOIN tb_bl_prnr act
+            ON  hbl.intg_bl_seq = act.intg_bl_seq  AND act.bl_trdp_tp_cd = 'S02' AND act.delt_flg = 'N'
+            
+LEFT OUTER JOIN tb_bl_prnr shp
+            ON  hbl.intg_bl_seq = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr lnr
+            ON  hbl.intg_bl_seq = lnr.intg_bl_seq  AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_bl_prnr ptn
+            ON  hbl.intg_bl_seq = ptn.intg_bl_seq  AND ptn.bl_trdp_tp_cd = 'P01' AND ptn.delt_flg = 'N'
+        
+         WHERE  hbl.air_sea_clss_cd = #f_air_sea#
+           AND  hbl.biz_clss_cd = 'H' AND hbl.delt_flg = 'N'   
+           AND  aib.bnd_clss_cd = #f_bnd_clss_cd#
+    <dynamic>
+        <isNotNull property="f_bkg_no"> 
+               AND hbl.bkg_no = #f_bkg_no#  AND hbl.intg_bl_seq = #f_intg_bl_seq#
+        </isNotNull>
+        <isNull property="f_bkg_no">
+               AND hbl.bl_no  = #f_house_bl_no#
+        </isNull>
+    </dynamic>
+    </select>
+	
+    <!-- 컨테이너 사이즈별 수량   -->
+    <select id="selectFRT_TPSZ_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtTpszListVO">
+    	SELECT  cntr_tpsz_cd,    count(ISNULL(cgo_pck_qty,0)) AS cntr_tpsz_cnt
+		  FROM  tb_cntr_list
+		 WHERE  intg_bl_seq = #f_intg_bl_seq#
+           AND  delt_flg = 'N'
+	  GROUP BY  cntr_tpsz_cd
+    </select>
+	
+	
+	<!-- MBL 컨테이너 사이즈별 수량   -->
+    <select id="selectMBL_FRT_TPSZ_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtTpszListVO">
+      SELECT  cf.cntr_tpsz_cd,  count(cgo_pck_qty) AS cntr_tpsz_cnt
+        FROM  tb_cntr_list cf ,
+           (   SELECT  hbl.intg_bl_seq
+                 FROM  tb_intg_bl mbl,  tb_intg_bl_rlt rlt, tb_intg_bl hbl
+                WHERE  mbl.intg_bl_seq = rlt.rlt_intg_bl_seq
+                    AND  mbl.biz_clss_cd = 'M' AND mbl.delt_flg = 'N'
+                  AND  rlt.intg_bl_seq = hbl.intg_bl_seq
+                  AND  rlt.delt_flg = 'N'
+                  AND  hbl.biz_clss_cd = 'H' AND hbl.delt_flg = 'N'
+                  AND  mbl.intg_bl_seq = #f_intg_bl_seq#  
+           )tg
+       WHERE  cf.intg_bl_seq = tg.intg_bl_seq            
+         AND  cf.delt_flg = 'N'    
+    GROUP BY  cf.cntr_tpsz_cd
+    </select>
+	
+    <!-- 개인 스케줄 PK생성   -->
+    <select id="selectFRT_PK" resultClass="Integer">
+        SELECT ISNULL(MAX(frt_seq),0) +1
+        FROM   tb_frt
+    </select>
+    
+    <select id="selectFRT_PK_BKG" resultClass="Integer">
+        SELECT ISNULL(MAX(frt_seq),0) +1
+        FROM   tb_frt_bkg
+    </select>
+	
+	<!--소속 Office의 Currency를 조회함  -->
+	<select id="selectOFC_CURRENCY" resultClass="HashMap" parameterClass="HashMap">
+		SELECT  (SELECT  cnt.curr_cd
+				   FROM  tb_ofc ofc,  tb_cnt cnt
+				  WHERE  ofc.ofc_cd   = #f_user_ofc#
+				    AND  ofc.delt_flg = 'N'
+				    AND  ofc.cnt_cd = cnt.cnt_cd AND  cnt.delt_flg = 'N' )  AS ofccurr_cd,
+		        (SELECT  ofc.trf_cur_cd
+                   FROM  tb_ofc ofc
+                  WHERE  ofc.ofc_cd   = #f_user_ofc#
+                    AND  ofc.delt_flg = 'N'
+		         ) AS trf_cur_cd
+    </select>
+	
+	<!-- Exchange 금액 단위를 조회함   -->
+	<select id="selectEX_RATE_AMT" resultMap="curInfoMap" parameterClass="HashMap">
+		SELECT  top 1 cast(xch_rt_ut AS numeric(20,8)) AS xch_rt_ut
+		  FROM  tb_inv_xcrt    
+		 WHERE  delt_flg = 'N' AND fm_curr_cd = #trf_cur_cd# AND to_curr_cd = #ofccurr_cd# AND DELT_FLG = 'N'
+<![CDATA[  AND  ( ( dt_clss_cd = 'M' AND aply_fm_dt <= #cur_dt# AND aply_to_dt >= #cur_dt# )                         
+		        OR( dt_clss_cd = 'D' AND aply_fm_dt BETWEEN #cur_dt# AND #cur_dt#) ) ]]>
+      ORDER BY  DT_CLSS_CD ASC
+	</select>
+	
+	<!-- Finance Exchange 금액 단위를 조회함  #1617  -->
+	<select id="selectEX_RATE_AMT_FINC" resultMap="curInfoMap" parameterClass="HashMap">
+		SELECT  top 1 cast(xch_rt_ut AS numeric(20,8)) AS xch_rt_ut
+		  FROM  tb_finc_perf_xcrt    
+		 WHERE  delt_flg = 'N' AND fm_curr_cd = #trf_cur_cd# AND to_curr_cd = #ofccurr_cd# AND DELT_FLG = 'N'
+<![CDATA[  AND  ( ( dt_clss_cd = 'M' AND aply_fm_dt <= #cur_dt# AND aply_to_dt >= #cur_dt# )                         
+		        OR( dt_clss_cd = 'D' AND aply_fm_dt BETWEEN #cur_dt# AND #cur_dt#) ) ]]>
+      ORDER BY  DT_CLSS_CD ASC
+	</select>
+	
+	<!-- Freight Code 선택시 조회되는 Exchange Rate   -->
+    <select id="selectTAX_APLY_RATE" resultClass="String" parameterClass="HashMap">
+		SELECT  vat_rt 
+		  FROM  tb_tax_aply
+		 WHERE  cnt_cd = (SELECT cnt_cd  FROM   tb_ofc  WHERE  ofc_cd =  #proc_ofc_cd#) 
+		   AND  frt_cd = #f_frt_cd# 
+           AND  delt_flg = 'N'
+    </select>
+	
+	<!-- Freight Table 입력   -->
+	<insert id="insertFRT" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+	/*  SeeFrtFreightSQL.xml > insertFRT */
+		INSERT INTO tb_frt(
+			sell_buy_tp_cd,   frt_cd,         
+		    trdp_cd,         air_sea_clss_cd,  bnd_clss_cd,
+			rat_curr_cd,     aply_ut_cd,       cntr_tpsz_cd,   qty,      
+		    scg_incl_flg,    frt_term_cd,      ru,
+			
+		    inv_curr_cd,     inv_xcrt,         inv_xcrt_dt,    inv_amt,         inv_vat_amt,     inv_sum_amt,
+		    perf_curr_cd,    perf_xcrt,        perf_amt,       perf_vat_amt,  
+			
+		    frt_biz_clss_cd, inv_sts_cd,       frt_divd_flg,   
+			vat_rt,          vat_amt,     
+			mbl_no,          hbl_no,           bkg_no,         intg_bl_seq,
+		    trf_ctrt_no,     trf_dtl_seq,    
+		   
+		    trf_cur_sum_amt, pay_amt,          spls_amt,  
+		
+		    auto_trf_flg,    inv_iss_flg,
+			rgst_usrid,      rgst_ofc_cd,      rgst_tms,
+			modi_usrid,      modi_ofc_cd,      modi_tms,  delt_flg,
+
+agent_ru,
+agent_amt,
+cr_amt,
+frt_cd_nm,
+reserve_field01,
+reserve_field03,
+wms_seq
+
+		)VALUES(
+            #sell_buy_tp_cd#,   #frt_cd#,         
+			#trdp_cd#,        #air_sea_clss_cd#,  #bnd_clss_cd#,
+            #rat_curr_cd#,    #aply_ut_cd#,       #cntr_tpsz_cd#,   #qty#,      
+		    #scg_incl_flg#,   #frt_term_cd#,      #ru#,
+		
+            #inv_curr_cd#,    #inv_xcrt#,         #inv_xcrt_dt#,    #inv_amt#,     #inv_vat_amt#,    #inv_sum_amt#,
+            #perf_curr_cd#,   #perf_xcrt#,        #perf_amt#,       #perf_vat_amt#,  
+            
+		    #frt_biz_clss_cd#,'FI',               'N',
+		    #vat_rt#,  		  #vat_amt#,
+            #mbl_no#,         #hbl_no#,           #bkg_no#,         #intg_bl_seq#,
+		<isNull property="trf_ctrt_no">
+	             NULL,            NULL,
+		</isNull>
+		<isNotNull property="trf_ctrt_no">	
+			<isNotEqual property="trf_ctrt_no" compareValue=""> 
+				#trf_ctrt_no#,    #trf_dtl_seq#,  
+			</isNotEqual>
+			<isEqual property="trf_ctrt_no" compareValue="">
+				NULL,             NULL,
+			</isEqual>
+		</isNotNull>
+		    #trf_cur_sum_amt#, 0,                  #trf_cur_sum_amt#,
+		
+		    #auto_trf_flg#,    'N',
+            #proc_usrid#,      #proc_ofccd#,       getdate(),         
+			#proc_usrid#,      #proc_ofccd#,       GETUTCDATE(), 'N',
+
+#agent_ru#,
+#agent_amt#,
+#cr_amt#,
+#frt_cd_nm#,
+#reserve_field01#,
+#reserve_field03#,
+#wms_seq#
+		)
+		
+		<selectKey resultClass="string" keyProperty="frt_seq_key">
+			<!-- [#2866, #2868] Income Statement & Profit Report 차액 발생 - Binex & MSD -->
+			SELECT IDENT_CURRENT('TB_FRT') as frt_seq_key
+		</selectKey>
+    </insert>
+    
+    <insert id="insertFRT_BKG" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+	/*  SeeFrtFreightSQL.xml > insertFRT_BKG */
+		INSERT INTO tb_frt_bkg(
+			sell_buy_tp_cd,   frt_cd,         
+		    trdp_cd,         air_sea_clss_cd,  bnd_clss_cd,
+			rat_curr_cd,     aply_ut_cd,       cntr_tpsz_cd,   qty,      
+		    scg_incl_flg,    frt_term_cd,      ru,
+			
+		    inv_curr_cd,     inv_xcrt,         inv_xcrt_dt,    inv_amt,         inv_vat_amt,     inv_sum_amt,
+		    perf_curr_cd,    perf_xcrt,        perf_amt,       perf_vat_amt,  
+			
+		    frt_biz_clss_cd, inv_sts_cd,       frt_divd_flg,   
+			vat_rt,          vat_amt,     
+			mbl_no,          hbl_no,           bkg_no,         bkg_seq,			intg_bl_seq,
+		    trf_ctrt_no,     trf_dtl_seq,    
+		   
+		    trf_cur_sum_amt, pay_amt,          spls_amt,  
+		
+		    auto_trf_flg,    inv_iss_flg,
+			rgst_usrid,      rgst_ofc_cd,      rgst_tms,
+			modi_usrid,      modi_ofc_cd,      modi_tms,  delt_flg,
+
+agent_ru,
+agent_amt,
+cr_amt,
+frt_cd_nm,
+reserve_field01,
+reserve_field03
+
+		)VALUES(
+            #sell_buy_tp_cd#,   #frt_cd#,         
+			#trdp_cd#,        #air_sea_clss_cd#,  #bnd_clss_cd#,
+            #rat_curr_cd#,    #aply_ut_cd#,       #cntr_tpsz_cd#,   #qty#,      
+		    #scg_incl_flg#,   #frt_term_cd#,      #ru#,
+		
+            #inv_curr_cd#,    #inv_xcrt#,         #inv_xcrt_dt#,    #inv_amt#,     #inv_vat_amt#,    #inv_sum_amt#,
+            #perf_curr_cd#,   #perf_xcrt#,        #perf_amt#,       #perf_vat_amt#,  
+            
+		    #frt_biz_clss_cd#,'FI',               'N',
+		    #vat_rt#,  		  #vat_amt#,
+            #mbl_no#,         #hbl_no#,           #bkg_no#,         #bkg_seq#,			#intg_bl_seq#,
+		<isNull property="trf_ctrt_no">
+	             NULL,            NULL,
+		</isNull>
+		<isNotNull property="trf_ctrt_no">	
+			<isNotEqual property="trf_ctrt_no" compareValue=""> 
+				#trf_ctrt_no#,    #trf_dtl_seq#,  
+			</isNotEqual>
+			<isEqual property="trf_ctrt_no" compareValue="">
+				NULL,             NULL,
+			</isEqual>
+		</isNotNull>
+		    #trf_cur_sum_amt#, 0,                  #trf_cur_sum_amt#,
+		
+		    #auto_trf_flg#,    'N',
+            #proc_usrid#,      #proc_ofccd#,       getdate(),         
+			#proc_usrid#,      #proc_ofccd#,       GETUTCDATE(), 'N',
+
+#agent_ru#,
+#agent_amt#,
+#cr_amt#,
+#frt_cd_nm#,
+#reserve_field01#,
+#reserve_field03#
+
+		)
+    </insert>
+	
+	<!-- Freight 목록 조회. Issue, Cancel된 workorder의 Freight 정보도 조회된다.   -->
+    <select id="selectFRT_LIST" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtTariffVO" parameterClass="java.util.HashMap">
+    /*  SeeFrtFreightSQL.xml > selectFRT_LIST */
+		 SELECT	 fr.frt_seq,         fr.sell_buy_tp_cd,          fr.rat_curr_cd,
+		         fr.frt_cd,          fr.frt_cd_nm,
+				 fr.trdp_cd,         tp.locl_nm AS trdp_nm,       tp.trdp_tp_cd,
+				 fr.aply_ut_cd,      fr.cntr_tpsz_cd,             fr.qty,       
+                 fr.scg_incl_flg,    fr.frt_term_cd,             CASE WHEN fr.sell_buy_tp_cd = 'C' THEN fr.agent_ru ELSE fr.ru END AS ru,
+		    
+		  		 fr.inv_curr_cd,     fr.inv_xcrt,                fr.inv_xcrt_dt,    fr.inv_amt,        fr.inv_vat_amt,     fr.inv_sum_amt,
+		         fr.perf_curr_cd,    fr.perf_xcrt,               fr.perf_amt,       fr.perf_vat_amt,   
+		
+		         fr.frt_biz_clss_cd,     
+		         fr.vat_rt,          fr.vat_amt,                 fr.intg_bl_seq,    fr.frt_ask_clss_cd,
+		         fr.trf_ctrt_no,     fr.trf_dtl_seq,             fr.auto_trf_flg,
+				 fr.inv_sts_cd,      cdl.cd_nm  AS inv_sts_nm,   idt.inv_no,
+		
+				 USR.ENG_USR_NM AS proc_usrnm,  				 dpt.cd_nm AS proc_dept_nm,
+				 
+				 fr.trf_cur_sum_amt,
+				 
+				 fr.agent_ru, fr.agent_amt, fr.cr_amt,
+				 
+				 ISNULL(idt.buy_inv_no, fr.reserve_field03) AS buy_inv_no, idt.inv_seq, idt.inv_due_dt,
+				 fr.reserve_field01
+				 
+				 <!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+				 <isEqual property="f_frt_type" compareValue="AR">
+				 	,cmb.inv_no      as cmb_inv_no 
+				 </isEqual> 
+				 <isEqual property="f_frt_type" compareValue="AP">
+				 	,cmb.cmb_inv_seq  as cmb_inv_no   
+				 </isEqual> 
+				 <isEqual property="f_frt_type" compareValue="DC">
+				 	,''  as cmb_inv_no   
+				 </isEqual> 
+				 ,cmb.cmb_inv_seq  as cmb_inv_seq
+				 
+           FROM  tb_frt    fr 
+LEFT OUTER JOIN  tb_trdp   tp   
+		     ON  fr.trdp_cd = tp.trdp_cd AND  tp.delt_flg = 'N'
+		
+           JOIN  tb_frt_cd fd   
+		     ON  fr.frt_cd  = fd.frt_cd  AND  fd.delt_flg = 'N'
+		
+           JOIN  tb_com_cd_dtl cdl
+             ON  cdl.cd_val = fr.inv_sts_cd AND cdl.com_cd = 'C048' AND cdl.delt_flg = 'N' 
+		
+LEFT OUTER JOIN  tb_inv_dtl idt
+             ON  fr.inv_seq = idt.inv_seq AND idt.DELT_FLG = 'N'
+
+<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+LEFT OUTER JOIN tb_inv inv              
+            ON  fr.inv_seq = inv.inv_seq AND inv.DELT_FLG = 'N'                         
+LEFT OUTER JOIN TB_CMB_INV cmb              
+            ON  cmb.CMB_INV_SEQ  = inv.CMB_INV_SEQ  AND cmb.DELT_FLG = 'N'
+<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->             
+                         
+LEFT OUTER JOIN  TB_INTG_BL BL 
+             ON  fr.INTG_BL_SEQ = BL.INTG_BL_SEQ
+             
+LEFT OUTER JOIN  TB_USR USR 
+             ON  USR.USR_TP = 'I' AND fr.MODI_USRID = USR.USRID
+             
+LEFT OUTER JOIN  tb_com_cd_dtl dpt 
+             ON  dpt.cd_val = USR.dept_cd AND dpt.com_cd = 'C056'             
+		
+          WHERE  fr.intg_bl_seq     = #f_intg_bl_seq#  
+            AND  fr.sell_buy_tp_cd  IN (#f_tp_begin#, #f_tp_end#)
+            AND  fr.delt_flg = 'N'
+            
+            <!-- #2105 [PATENT] Option 에 따른 Invoice 자동 생성 기능 추가 -->
+            <isNotNull property="f_inv_sts_cd">
+            AND  fr.inv_sts_cd     = #f_inv_sts_cd#  
+            </isNotNull>
+                        
+  	   ORDER BY  fr.frt_seq ASC
+    </select>
+    
+     <select id="selectFRT_LIST_BKG" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtTariffVO" parameterClass="java.util.HashMap">
+    /*  SeeFrtFreightSQL.xml > selectFRT_LIST_BKG */
+		 SELECT	 fr.frt_seq,         fr.sell_buy_tp_cd,          fr.rat_curr_cd,
+		         fr.frt_cd,          fr.frt_cd_nm,
+				 fr.trdp_cd,         tp.locl_nm AS trdp_nm,       tp.trdp_tp_cd,
+				 fr.aply_ut_cd,      fr.cntr_tpsz_cd,             CAST(CAST(fr.qty AS float )  AS varchar) AS qty,       
+                 fr.scg_incl_flg,    fr.frt_term_cd,             CASE WHEN fr.sell_buy_tp_cd = 'C' THEN fr.agent_ru ELSE fr.ru END AS ru,
+		    
+		  		 fr.inv_curr_cd,     fr.inv_xcrt,                fr.inv_xcrt_dt,    fr.inv_amt,        fr.inv_vat_amt,     fr.inv_sum_amt,
+		         fr.perf_curr_cd,    fr.perf_xcrt,               fr.perf_amt,       fr.perf_vat_amt,   
+		
+		         fr.frt_biz_clss_cd,     
+		         fr.vat_rt,          fr.vat_amt,                 fr.intg_bl_seq,    fr.frt_ask_clss_cd,
+		         fr.trf_ctrt_no,     fr.trf_dtl_seq,             fr.auto_trf_flg,
+				 fr.inv_sts_cd,      cdl.cd_nm  AS inv_sts_nm,   idt.inv_no,
+		
+				 USR.ENG_USR_NM AS proc_usrnm,  				 dpt.cd_nm AS proc_dept_nm,
+				 
+				 fr.trf_cur_sum_amt,
+				 
+				 fr.agent_ru, fr.agent_amt, fr.cr_amt,
+				 
+				 ISNULL(idt.buy_inv_no, fr.reserve_field03) AS buy_inv_no, idt.inv_seq, idt.inv_due_dt,
+				 fr.reserve_field01
+				 
+				 
+           FROM  tb_frt_bkg    fr 
+LEFT OUTER JOIN  tb_trdp   tp   
+		     ON  fr.trdp_cd = tp.trdp_cd AND  tp.delt_flg = 'N'
+		
+           JOIN  tb_frt_cd fd   
+		     ON  fr.frt_cd  = fd.frt_cd  AND  fd.delt_flg = 'N'
+		
+           JOIN  tb_com_cd_dtl cdl
+             ON  cdl.cd_val = fr.inv_sts_cd AND cdl.com_cd = 'C048' AND cdl.delt_flg = 'N' 
+		
+LEFT OUTER JOIN  tb_inv_dtl idt
+             ON  fr.inv_seq = idt.inv_seq AND idt.DELT_FLG = 'N'
+             
+LEFT OUTER JOIN  TB_INTG_BL BL 
+             ON  fr.INTG_BL_SEQ = BL.INTG_BL_SEQ
+             
+LEFT OUTER JOIN  TB_USR USR 
+             ON  USR.USR_TP = 'I' AND fr.MODI_USRID = USR.USRID
+             
+LEFT OUTER JOIN  tb_com_cd_dtl dpt 
+             ON  dpt.cd_val = USR.dept_cd AND dpt.com_cd = 'C056'             
+		
+          WHERE  1 = 1
+            AND  fr.bkg_seq    = #f_bkg_seq# 
+            
+            <!-- isNotNull property="f_bkg_no">
+            AND  fr.bkg_no     = #f_bkg_no#  
+            </isNotNull -->
+            
+            AND  fr.sell_buy_tp_cd  IN (#f_tp_begin#, #f_tp_end#)
+            AND  fr.delt_flg = 'N'
+  	   ORDER BY  fr.frt_seq ASC
+    </select>
+
+    <!-- Freight 목록 조회. Issue, Cancel된 workorder의 Freight 정보도 조회된다.   -->
+    <select id="selectCOPY_FRT_LIST" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtTariffVO" parameterClass="java.util.HashMap">
+    /*  SeeFrtFreightSQL.xml > selectCOPY_FRT_LIST */
+         SELECT  fr.sell_buy_tp_cd,  fr.rat_curr_cd,
+                 fr.frt_cd,          fd.frt_cd_nm,
+                 fr.trdp_cd,         tp.eng_nm AS trdp_nm,       tp.trdp_tp_cd,
+                 fr.aply_ut_cd,      fr.cntr_tpsz_cd,            fr.qty,       
+                 fr.scg_incl_flg,    fr.frt_term_cd,             CASE WHEN fr.sell_buy_tp_cd = 'C' THEN fr.agent_ru ELSE fr.ru END AS ru,
+            
+                 fr.inv_curr_cd,     fr.inv_xcrt,                fr.inv_xcrt_dt,      fr.inv_amt,        fr.inv_vat_amt,     fr.inv_sum_amt,
+                 fr.perf_curr_cd,    0.00 AS perf_xcrt,          0.00 AS perf_amt,    0.00 AS perf_vat_amt,   
+        
+                 fr.frt_biz_clss_cd,     
+                 fr.vat_rt,          fr.vat_amt
+                 
+           FROM  tb_frt    fr 
+           JOIN  tb_trdp   tp   
+             ON  fr.trdp_cd = tp.trdp_cd AND  tp.delt_flg = 'N'
+        
+           JOIN  tb_frt_cd fd   
+             ON  fr.frt_cd  = fd.frt_cd  AND  fd.delt_flg = 'N'
+        
+           JOIN  tb_com_cd_dtl cdl
+             ON  cdl.cd_val = fr.inv_sts_cd AND cdl.com_cd = 'C048' AND cdl.delt_flg = 'N' 
+        
+ LEFT OUTER JOIN tb_inv_dtl idt
+              ON fr.inv_seq = idt.inv_seq AND idt.DELT_FLG = 'N'
+        
+          WHERE  fr.intg_bl_seq     = #f_intg_bl_seq#  
+            AND  fr.sell_buy_tp_cd  IN (#f_tp_begin#, #f_tp_end#)
+            AND  fr.air_sea_clss_cd = #f_air_sea#
+            AND  fr.bnd_clss_cd     = #f_bnd_clss_cd#
+            AND  fr.delt_flg = 'N'
+       ORDER BY  fr.frt_seq ASC
+    </select>
+
+    <update id="updateFRT" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+    /*  SeeFrtFreightSQL.xml > updateFRT */
+        UPDATE tb_frt
+           SET frt_cd      = #frt_cd#,         trdp_cd     = #trdp_cd#,          sell_buy_tp_cd = #sell_buy_tp_cd#,
+               rat_curr_cd = #rat_curr_cd#,    aply_ut_cd  = #aply_ut_cd#,       cntr_tpsz_cd= #cntr_tpsz_cd#,   qty          = #qty#,      
+               scg_incl_flg= #scg_incl_flg#,   frt_term_cd = #frt_term_cd#,      ru          = #ru#,
+		
+               inv_curr_cd = #inv_curr_cd#,    inv_xcrt    = #inv_xcrt#,         inv_xcrt_dt = #inv_xcrt_dt#,    inv_amt      = #inv_amt#,
+		       inv_vat_amt = #inv_vat_amt#,    inv_sum_amt = #inv_sum_amt#,
+		
+               perf_curr_cd= #perf_curr_cd#,   perf_xcrt   = #perf_xcrt#,        perf_amt    = #perf_amt#,       perf_vat_amt = #perf_vat_amt#,  
+               vat_rt      = #vat_rt#,         vat_amt     = #vat_amt#,
+		       trf_cur_sum_amt = #trf_cur_sum_amt#, spls_amt = #trf_cur_sum_amt#,
+		       modi_usrid  = #proc_usrid#,          modi_ofc_cd = #proc_ofccd#,       modi_tms = GETUTCDATE(),
+agent_ru = #agent_ru#,
+agent_amt = #agent_amt#,
+cr_amt = #cr_amt#,
+frt_cd_nm = #frt_cd_nm#,
+reserve_field01 = #reserve_field01#
+        WHERE  frt_seq = #frt_seq#  
+    </update>
+    
+	<update id="updateFRT_BKG" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+	/*  SeeFrtFreightSQL.xml > updateFRT */
+        UPDATE tb_frt_bkg
+           SET frt_cd      = #frt_cd#,         trdp_cd     = #trdp_cd#,          sell_buy_tp_cd = #sell_buy_tp_cd#,
+               rat_curr_cd = #rat_curr_cd#,    aply_ut_cd  = #aply_ut_cd#,       cntr_tpsz_cd= #cntr_tpsz_cd#,   qty          = #qty#,      
+               scg_incl_flg= #scg_incl_flg#,   frt_term_cd = #frt_term_cd#,      ru          = #ru#,
+		
+               inv_curr_cd = #inv_curr_cd#,    inv_xcrt    = #inv_xcrt#,         inv_xcrt_dt = #inv_xcrt_dt#,    inv_amt      = #inv_amt#,
+		       inv_vat_amt = #inv_vat_amt#,    inv_sum_amt = #inv_sum_amt#,
+		
+               perf_curr_cd= #perf_curr_cd#,   perf_xcrt   = #perf_xcrt#,        perf_amt    = #perf_amt#,       perf_vat_amt = #perf_vat_amt#,  
+               vat_rt      = #vat_rt#,         vat_amt     = #vat_amt#,
+		       trf_cur_sum_amt = #trf_cur_sum_amt#, spls_amt = #trf_cur_sum_amt#,
+		       modi_usrid  = #proc_usrid#,          modi_ofc_cd = #proc_ofccd#,       modi_tms = GETUTCDATE(),
+agent_ru = #agent_ru#,
+agent_amt = #agent_amt#,
+cr_amt = #cr_amt#,
+frt_cd_nm = #frt_cd_nm#,
+reserve_field01 = #reserve_field01#
+        WHERE  frt_seq = #frt_seq#  
+    </update>
+    
+    <update id="updateFRT_Reserve" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+    /*  SeeFrtFreightSQL.xml > updateFRT_Reserve */
+        UPDATE tb_frt
+           SET reserve_field01 = #reserve_field01#,
+               modi_usrid  = #proc_usrid#,          modi_ofc_cd = #proc_ofccd#,       modi_tms = GETUTCDATE()
+        WHERE  frt_seq = #frt_seq#  
+    </update>
+    
+     <update id="updateFRT_Reserve_BKG" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+    /*  SeeFrtFreightSQL.xml > updateFRT_Reserve */
+        UPDATE tb_frt_bkg
+           SET reserve_field01 = #reserve_field01#,
+               modi_usrid  = #proc_usrid#,          modi_ofc_cd = #proc_ofccd#,       modi_tms = GETUTCDATE()
+        WHERE  frt_seq = #frt_seq#  
+    </update>
+	
+	<!-- 하나의 MBL에 몇 개의 House B/L 이 만들어 졌는지 확인     -->
+    <select id="selectHBLCount" resultClass="HashMap" parameterClass="java.util.HashMap">	
+		SELECT  mbl.rlt_intg_bl_seq,     count(mbl.intg_bl_seq) AS bl_cnt, 
+		        hbl.shp_mod_cd,          hbl.meas,        hbl.act_wgt
+		  FROM  tb_intg_bl_rlt mbl, 
+		       (SELECT  shp_mod_cd,    meas,     act_wgt 
+		          FROM  tb_intg_bl WHERE intg_bl_seq = #f_intg_bl_seq# AND delt_flg = 'N') hbl
+		 WHERE  mbl.rlt_intg_bl_seq =
+		             (   SELECT  rlt.rlt_intg_bl_seq 
+		                   FROM  tb_intg_bl hbl, tb_intg_bl_rlt rlt
+		                  WHERE  hbl.intg_bl_seq = rlt.intg_bl_seq
+		                    AND  hbl.intg_bl_seq = #f_intg_bl_seq#
+		                    AND  hbl.delt_flg = 'N' AND rlt.delt_flg = 'N'
+		             )
+		   AND  mbl.delt_flg = 'N'
+	  GROUP BY mbl.rlt_intg_bl_seq, hbl.shp_mod_cd,          hbl.meas,        hbl.act_wgt
+    </select>
+	
+	<!-- Master B/L Freight가 Confirm되었는지를 확인함  -->
+    <select id="selectCHECK_MBL_CNF" resultClass="String" parameterClass="java.util.HashMap">   
+		SELECT  ISNULL(BLCK.CFM_FLG1, FRT.CFM_FLG) AS CFM_FLG
+		  FROM  tb_frt frt
+		  LEFT OUTER JOIN (SELECT FRT_SEQ AS FRT_SEQ1, CFM_FLG AS CFM_FLG1 FROM TB_FRT_BLCK) BLCK ON FRT.FRT_SEQ = BLCK.FRT_SEQ1,
+		 (      SELECT  rlt.rlt_intg_bl_seq
+				   FROM  tb_intg_bl hbl, tb_intg_bl_rlt rlt
+				  WHERE  hbl.intg_bl_seq = rlt.intg_bl_seq
+					AND  rlt.intg_bl_seq = #f_intg_bl_seq#
+					AND  hbl.delt_flg = 'N' AND rlt.delt_flg = 'N'
+				 GROUP BY rlt.rlt_intg_bl_seq
+		 )bls
+		 WHERE  bls.rlt_intg_bl_seq = frt.intg_bl_seq  AND frt.sell_buy_tp_cd IN ('B', 'C') 
+		   AND  frt.bnd_clss_cd     = #f_bnd_clss_cd#  AND frt.delt_flg = 'N' 
+		 GROUP  BY ISNULL(BLCK.CFM_FLG1, FRT.CFM_FLG)
+    </select>
+	
+	<!-- MBL에 속한 HBL의 Container Type별로 Sum한다.   -->
+	<select id="selectPerCntrTpSum" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtAutoVO" parameterClass="HashMap">
+        SELECT  cntr_tpsz_cd, COUNT(vol_meas) AS vol_meas
+          FROM  tb_intg_bl_rlt rlt,  tb_cntr_list ctnr
+         WHERE  rlt.rlt_intg_bl_seq =  #rlt_intg_bl_seq#
+           AND  rlt.delt_flg = 'N'
+           AND  rlt.intg_bl_seq = ctnr.intg_bl_seq
+        GROUP BY cntr_tpsz_cd
+        ORDER BY cntr_tpsz_cd ASC 
+	</select>
+	
+	<!-- HBL의 품목의 면적, 무게의 합   -->
+	<select id="selectFrtCnfFlg" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtAutoVO" parameterClass="HashMap">
+		SELECT  frt.cfm_flg, SUM(hbl.meas) AS meas, SUM(hbl.act_wgt)AS act_wgt
+		  FROM  tb_intg_bl_rlt rlt,  tb_intg_bl hbl,
+			 (  SELECT ISNULL(BLCK.CFM_FLG1, FRT.CFM_FLG) AS CFM_FLG, intg_bl_seq
+			      FROM tb_frt frt
+			      LEFT OUTER JOIN (SELECT FRT_SEQ AS FRT_SEQ1, CFM_FLG AS CFM_FLG1 FROM TB_FRT_BLCK) BLCK ON FRT.FRT_SEQ = BLCK.FRT_SEQ1
+			     WHERE intg_bl_seq = #rlt_intg_bl_seq#
+			       AND delt_flg = 'N'
+			  GROUP BY ISNULL(BLCK.CFM_FLG1, FRT.CFM_FLG), intg_bl_seq
+			 ) frt
+		WHERE frt.intg_bl_seq = rlt.rlt_intg_bl_seq
+	      AND rlt.intg_bl_seq = hbl.intg_bl_seq
+     GROUP BY frt.cfm_flg
+    </select>
+		
+	<!-- Buying 시 MasterB/L Freight가 Confirm된 경우  -->
+    <select id="selectAutoCNTRInfo" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtAutoVO" parameterClass="java.util.HashMap">
+         SELECT  hbl.shp_mod_cd,
+                 ctnr.cntr_tpsz_cd,  count(ctnr.cntr_tpsz_cd) AS cntr_cnt,    
+                 SUM(ctnr.vol_meas) AS vol_meas
+           FROM  tb_intg_bl hbl  
+LEFT OUTER JOIN  tb_cntr_list ctnr
+             ON  ctnr.intg_bl_seq = hbl.intg_bl_seq AND ctnr.delt_flg = 'N'
+          WHERE  hbl.intg_bl_seq  = #f_intg_bl_seq#
+            AND  hbl.delt_flg     = 'N'
+       GROUP BY  hbl.shp_mod_cd, ctnr.cntr_tpsz_cd
+       ORDER BY  ctnr.cntr_tpsz_cd ASC
+    </select>
+			
+	<!-- Freight 목록을 삭제함   -->
+	<update id="deleteFRT" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+	/*  SeeFrtFreightSQL.xml > deleteFRT */
+		UPDATE  tb_frt
+		   SET  delt_flg = 'Y',                 modi_usrid = #proc_usrid#, 
+		        modi_ofc_cd = #proc_ofccd#,     modi_tms = GETUTCDATE()
+		 WHERE  frt_seq = #frt_seq# 
+	</update>
+	
+	<update id="deleteFRT_BKG" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+	/*  SeeFrtFreightSQL.xml > deleteFRT */
+		UPDATE  tb_frt_bkg
+		   SET  delt_flg = 'Y',                 modi_usrid = #proc_usrid#, 
+		        modi_ofc_cd = #proc_ofccd#,     modi_tms = GETUTCDATE()
+		 WHERE  frt_seq = #frt_seq# 
+	</update>
+	
+    <!-- Auto Freight 목록을 삭제함   -->
+   <update id="deleteAotoFRT" parameterClass="java.util.HashMap">
+   /*  SeeFrtFreightSQL.xml > deleteAotoFRT */
+        UPDATE  tb_frt
+           SET  delt_flg = 'Y',                 modi_usrid = #proc_usrid#, 
+                modi_ofc_cd = #proc_ofccd#,     modi_tms = GETUTCDATE()
+         WHERE  delt_flg = 'N' AND intg_bl_seq = #f_intg_bl_seq#
+				 AND  ( sell_buy_tp_cd = #f_tp_begin# OR sell_buy_tp_cd = #f_tp_end#) 
+				 AND  auto_trf_flg = 'Y' AND inv_sts_cd = 'FI'
+    </update>
+
+	<!-- Confirm되었는지 상태를 확인함   -->
+    <select id="selectCNF_FLAG" resultClass="java.util.HashMap" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtBLInformationVO">
+			SELECT  tb.dt_tp, tb.flg, tb.invflg
+			FROM (
+				(	SELECT  TOP 1
+		                    ISNULL(BLCK.CFM_FLG1, SD.CFM_FLG) AS flg, sd.inv_iss_flg AS invflg, 'SFRT' AS dt_tp
+					  FROM  tb_frt sd
+					  LEFT OUTER JOIN (SELECT FRT_SEQ AS FRT_SEQ1, CFM_FLG AS CFM_FLG1 FROM TB_FRT_BLCK) BLCK ON SD.FRT_SEQ = BLCK.FRT_SEQ1
+					 WHERE  sd.intg_bl_seq = cast(#intg_bl_seq# as varchar) AND sd.delt_flg = 'N'
+					   AND  (sd.sell_buy_tp_cd = 'S' OR  sd.sell_buy_tp_cd = 'D')
+		               AND  sd.bnd_clss_cd     = #bnd_clss_cd#
+				)UNION ALL(     
+					SELECT  TOP 1
+		                    ISNULL(BLCK.CFM_FLG1, BC.CFM_FLG) AS flg, bc.inv_iss_flg AS invflg, 'BFRT' AS dt_tp
+					  FROM  tb_frt bc
+					  LEFT OUTER JOIN (SELECT FRT_SEQ AS FRT_SEQ1, CFM_FLG AS CFM_FLG1 FROM TB_FRT_BLCK) BLCK ON BC.FRT_SEQ = BLCK.FRT_SEQ1
+					 WHERE  bc.intg_bl_seq = cast(#intg_bl_seq# as varchar) AND bc.delt_flg = 'N'
+					   AND  (bc.sell_buy_tp_cd = 'B' OR  bc.sell_buy_tp_cd = 'C')
+                       AND  bc.bnd_clss_cd     = #bnd_clss_cd#
+				)
+			)tb
+    </select>
+	
+	<!-- Confirm 하는 경우  -->
+    <update id="updateFRT_CONFIRM" parameterClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+    /*  SeeFrtFreightSQL.xml > updateFRT_CONFIRM */
+        UPDATE  tb_frt
+           SET  cfm_flg    = #cfm_flg#,     inv_sts_cd  = #inv_sts_cd#,       
+				modi_usrid = #proc_usrid#,  modi_ofc_cd = #proc_ofccd#,     modi_tms = GETUTCDATE()
+         WHERE  intg_bl_seq= cast(#intg_bl_seq# as varchar) AND frt_seq = #frt_seq#   
+    </update>
+
+    <update id="updateFRT_INVSTS" parameterClass="java.util.HashMap">
+    /*  SeeFrtFreightSQL.xml > updateFRT_INVSTS */
+        UPDATE  tb_frt
+           SET  inv_sts_cd  = #f_inv_sts_cd#,   inv_seq         = #inv_seq#,       
+		        inv_iss_flg = #inv_iss_flg#,    frt_ask_clss_cd = #frt_ask_clss_cd#,
+                modi_usrid  = #proc_usrid#,     modi_ofc_cd     = #proc_ofc_cd#,      modi_tms = GETUTCDATE()
+         WHERE  intg_bl_seq = #f_intg_bl_seq# AND frt_seq = #frt_seq#  
+    </update>
+	
+	<!--House BL 목록 조회  -->
+	<select id="selectHOUSEBL_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtBlInfoVO">
+        SELECT  a.bl_no,              a.por_cd,            a.por_nm,            a.pol_cd,   a.pol_nm,                              
+                a.pod_cd,             a.pod_nm,            a.del_cd,            a.del_nm,   a.grs_wgt,   
+		        a.meas,               a.bkg_no,
+                a.intg_bl_seq,        b.shipper_trdp_cd,   b.shipper_trdp_nm,   b.consignee_trdp_cd,               
+                b.consignee_trdp_nm,  b.partner_trdp_cd,   b.partner_trdp_nm,
+                c.sell_amt,           c.buy_amt
+         FROM   tb_intg_bl a  
+		 JOIN  tb_add_info_bnd aib   ON   a.intg_bl_seq   = aib.intg_bl_seq   AND aib.delt_flg = 'N' AND aib.bnd_clss_cd = #f_bnd_clss_cd#
+    LEFT JOIN  (                                                                                                   
+                    SELECT shp.intg_bl_seq,
+                           shp.trdp_cd AS shipper_trdp_cd, shp.trdp_nm AS shipper_trdp_nm,
+                           cne.trdp_cd AS consignee_trdp_cd, cne.trdp_nm AS consignee_trdp_nm,
+                           ptn.trdp_cd AS partner_trdp_cd, ptn.trdp_nm AS partner_trdp_nm
+                      
+                           FROM tb_bl_prnr shp
+                         
+                LEFT OUTER JOIN tb_bl_prnr cne
+                           ON   shp.intg_bl_seq = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+
+                LEFT OUTER JOIN tb_bl_prnr ptn
+                           ON   shp.intg_bl_seq = ptn.intg_bl_seq  AND ptn.bl_trdp_tp_cd = 'P01' AND ptn.delt_flg = 'N'
+                      
+                        WHERE  shp.intg_bl_seq IN( SELECT intg_bl_seq  FROM  tb_intg_bl_rlt WHERE rlt_intg_bl_seq =  #f_intg_bl_seq#)
+                          AND  shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'     
+		
+				) b  ON a.intg_bl_seq = b.intg_bl_seq           
+LEFT OUTER JOIN (  
+						SELECT   frs.intg_bl_seq, 
+								 SUM(CASE WHEN frs.sell_buy_tp_cd = 'S' THEN frs.perf_amt END) sell_amt,
+								 SUM(CASE WHEN frs.sell_buy_tp_cd = 'B' THEN frs.perf_amt END) buy_amt
+						  FROM   tb_frt frs 
+						 WHERE   frs.intg_bl_seq IN( SELECT intg_bl_seq     FROM  tb_intg_bl_rlt WHERE rlt_intg_bl_seq = #f_intg_bl_seq#)
+						   AND   frs.delt_flg = 'N'
+				      GROUP BY   frs.intg_bl_seq
+					)c      ON   a.intg_bl_seq = c.intg_bl_seq           
+		WHERE  a.intg_bl_seq  IN( SELECT intg_bl_seq     FROM  tb_intg_bl_rlt WHERE rlt_intg_bl_seq =  #f_intg_bl_seq# AND delt_flg = 'N' )
+		  AND  a.delt_flg = 'N'
+    </select>
+	
+	<!--  B/L의 POR, POL, POD, DEL 코드로 해당 코드의 Country Code와 Sub-Continental code를 조회함  -->
+	<select id="selectLOCCODE_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtAutoVO">
+		SELECT  loc.loc_cd,  loc.cnt_cd,   cnt.conti_cd
+		  FROM  tb_loc loc,  tb_cnt cnt
+	 	 WHERE  loc.cnt_cd = cnt.cnt_cd
+	 	   AND  loc.loc_cd IN (#f_pol_cd#, #f_pod_cd#)
+		   AND  loc.delt_flg = 'N' AND cnt.delt_flg = 'N'
+	</select>
+            
+    <!--  B/L의 POR, POL, POD, DEL 코드로 해당 코드의 Country Code와 Sub-Continental code를 조회함  -->
+    <select id="selectTARIFF_PER_CUSTOMER_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtTariffVO">
+        SELECT  tdt.trf_ctrt_no,    tdt.trf_dtl_seq,     tdt.frt_cd,    tdt.frt_nm,       trm.sell_buy_tp_cd,    trm.trf_curr_cd AS rat_curr_cd,
+		        tdt.aply_ut_cd,     tdt.cntr_tpsz_cd,    tdt.trf_amt AS ru,               tdt.cntr_sl_flg
+          FROM  tb_frt_trf_dtl tdt
+		  JOIN  tb_frt_trf trm
+		    ON  tdt.trf_ctrt_no = trm.trf_ctrt_no 
+		   AND  trm.delt_flg = 'N'
+         WHERE  tdt.trf_ctrt_no = (SELECT  TOP 1 trf_ctrt_no 
+				 				     FROM  tb_frt_trf
+								    WHERE  sell_buy_tp_cd IN (#f_tp_begin#, #f_tp_end#)
+								      AND  trdp_cd = #f_trdp_cd#
+								      AND  pol_cd =  #f_pol_cd#   AND pod_cd =#f_pod_cd#  AND dest_del_cd =  #f_del_cd#
+		
+					<![CDATA[		  AND  trf_term_fm_dt <= #f_xcrt_dt_tm# AND trf_term_to_dt >= #f_xcrt_dt_tm#  ]]>  
+		
+							      )
+    </select>
+	
+	<!-- Air   -->
+    <select id="selectAIR_TARIFF_PER_CUSTOMER_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtTariffVO">
+        SELECT  tdt.trf_ctrt_no,    tdt.trf_dtl_seq,     tdt.frt_cd,    tdt.frt_nm,       trm.sell_buy_tp_cd,    trm.trf_curr_cd AS rat_curr_cd,
+                tdt.aply_ut_cd,     tdt.cntr_tpsz_cd,    tdt.trf_amt AS ru,               tdt.cntr_sl_flg
+          FROM  tb_frt_trf_dtl tdt
+          JOIN  tb_frt_trf trm
+            ON  tdt.trf_ctrt_no = trm.trf_ctrt_no 
+           AND  trm.delt_flg = 'N'
+         WHERE  tdt.trf_ctrt_no = (SELECT  TOP 1 trf_ctrt_no 
+                                     FROM  tb_frt_trf
+                                    WHERE  sell_buy_tp_cd IN (#f_tp_begin#, #f_tp_end#)
+                                      AND  trdp_cd = #f_trdp_cd#
+                                      AND  pol_cd =  #f_pol_cd#   AND pod_cd =#f_pod_cd#
+        
+                    <![CDATA[         AND  trf_term_fm_dt <= #f_xcrt_dt_tm# AND trf_term_to_dt >= #f_xcrt_dt_tm#  ]]>  
+        
+                                  )
+    </select>
+	
+	
+    <!-- 권한설정을 위해 해당BL의 OFFICE 계층관계를 조회한다.   -->
+    <select id="selectOFFICEHIERARCHY" resultClass="HashMap" parameterClass="HashMap">
+        SELECT  a.compare, b.ofc_cd AS bl_fnc_ofc
+          FROM (  SELECT  fc_ofc_compare(#bl_ofc#, #cur_ofc#) AS compare) a,
+               (  SELECT  f.ofc_cd
+                    FROM  tb_ofc a  
+         LEFT OUTER JOIN  tb_ofc f  ON a.finc_ofc_cd = f.ofc_cd   
+                   WHERE  a.ofc_cd = #bl_ofc#
+                )b
+	</select>
+	
+	<!-- Invoice의 환률일자를 수정함  -->
+	<update id="updateFRT_XCRT_DT" parameterClass="HashMap">
+	/*  SeeFrtFreightSQL.xml > updateFRT_XCRT_DT */
+		UPDATE  tb_frt 
+		   SET  inv_xcrt_dt  = #cur_xcrt_dt#
+		 WHERE  inv_xcrt_dt != #cur_xcrt_dt# 
+		   AND  inv_sts_cd IN ('FI', 'FC')    AND  delt_flg= 'N'
+		   AND  intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	</update>
+	
+	<select id="selectFreightStatus" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtVO">
+        SELECT
+	        fr.frt_seq,
+	        fr.sell_buy_tp_cd,
+	        fr.rat_curr_cd,
+	        fr.frt_cd,
+	        fr.frt_cd_nm,
+	        fr.trdp_cd,
+	        tp.eng_nm AS trdp_nm,
+	        tp.trdp_tp_cd,
+	        fr.aply_ut_cd,
+	        fr.cntr_tpsz_cd,
+	        CAST(CAST(fr.qty AS float )  AS varchar) AS qty,
+	        fr.scg_incl_flg,
+	        fr.frt_term_cd,
+	        fr.ru,
+	        fr.inv_curr_cd,
+	        fr.inv_xcrt,
+	        fr.inv_xcrt_dt,
+	        fr.inv_amt,
+	        fr.inv_vat_amt,
+	        fr.inv_sum_amt,
+	        fr.perf_curr_cd,
+	        fr.perf_xcrt,
+	        fr.perf_amt,
+	        fr.perf_vat_amt,
+	        fr.frt_biz_clss_cd,
+	        fr.vat_rt,
+	        fr.vat_amt,
+	        fr.intg_bl_seq,
+	        fr.frt_ask_clss_cd,
+	        fr.trf_ctrt_no,
+	        fr.trf_dtl_seq,
+	        fr.auto_trf_flg,
+	        fr.inv_sts_cd,
+	        cdl.cd_nm  AS inv_sts_nm,
+	        idt.inv_no,
+	        USR.ENG_USR_NM AS proc_usrnm,
+	        dpt.cd_nm AS proc_dept_nm,
+	        fr.trf_cur_sum_amt,
+	        fr.agent_ru,
+	        fr.agent_amt,
+	        fr.cr_amt,
+	        idt.buy_inv_no,
+	        idt.inv_seq,
+	        idt.inv_due_dt           
+	    FROM
+	        tb_frt    fr  
+	    LEFT OUTER JOIN
+	        tb_trdp   tp           
+	            ON  fr.trdp_cd = tp.trdp_cd 
+	            AND  tp.delt_flg = 'N'               
+	    JOIN
+	        tb_frt_cd fd           
+	            ON  fr.frt_cd  = fd.frt_cd  
+	            AND  fd.delt_flg = 'N'               
+	    JOIN
+	        tb_com_cd_dtl cdl              
+	            ON  cdl.cd_val = fr.inv_sts_cd 
+	            AND cdl.com_cd = 'C048' 
+	            AND cdl.delt_flg = 'N'     
+	    LEFT OUTER JOIN
+	        tb_inv_dtl idt              
+	            ON  fr.inv_seq = idt.inv_seq 
+	            AND idt.DELT_FLG = 'N'               
+	    LEFT OUTER JOIN
+	        TB_INTG_BL BL               
+	            ON  fr.INTG_BL_SEQ = BL.INTG_BL_SEQ               
+	    LEFT OUTER JOIN
+	        TB_USR USR               
+	            ON USR.USR_TP = 'I'
+	           AND fr.MODI_USRID = USR.USRID
+	    LEFT OUTER JOIN
+	        tb_com_cd_dtl dpt               
+	            ON  dpt.cd_val = USR.dept_cd 
+	            AND dpt.com_cd = 'C056'                           
+	    WHERE fr.frt_seq     =  #frt_seq#
+	        AND  fr.delt_flg = 'N'   
+    </select>
+	
+	
+     <select id="selectFRT_COPY_LIST_BKG" resultClass="com.clt.apps.fis.see.frt.freight.dto.FrtTariffVO" parameterClass="java.util.HashMap">
+    /*  SeeFrtFreightSQL.xml > selectFRT_COPY_LIST_BKG */
+		 SELECT	 fr.frt_seq,         fr.sell_buy_tp_cd,          fr.rat_curr_cd,
+		         fr.frt_cd,          fr.frt_cd_nm,
+				 fr.trdp_cd,         tp.eng_nm AS trdp_nm,       tp.trdp_tp_cd,
+				 fr.aply_ut_cd,      fr.cntr_tpsz_cd,             CAST(CAST(fr.qty AS float )  AS varchar) AS qty,       
+                 fr.scg_incl_flg,    fr.frt_term_cd,             CASE WHEN fr.sell_buy_tp_cd = 'C' THEN fr.agent_ru ELSE fr.ru END AS ru,
+		    
+		  		 fr.inv_curr_cd,     fr.inv_xcrt,                fr.inv_xcrt_dt,    fr.inv_amt,        fr.inv_vat_amt,     fr.inv_sum_amt,
+		         fr.perf_curr_cd,    fr.perf_xcrt,               fr.perf_amt,       fr.perf_vat_amt,   
+		
+		         fr.frt_biz_clss_cd,     
+		         fr.vat_rt,          fr.vat_amt,                 fr.intg_bl_seq,    fr.frt_ask_clss_cd,
+		         fr.trf_ctrt_no,     fr.trf_dtl_seq,             fr.auto_trf_flg,
+				 fr.inv_sts_cd,      cdl.cd_nm  AS inv_sts_nm,   idt.inv_no,
+		
+				 USR.ENG_USR_NM AS proc_usrnm,  				 dpt.cd_nm AS proc_dept_nm,
+				 
+				 fr.trf_cur_sum_amt,
+				 
+				 fr.agent_ru, fr.agent_amt, fr.cr_amt,
+				 
+				 ISNULL(idt.buy_inv_no, fr.reserve_field03) AS buy_inv_no, idt.inv_seq, idt.inv_due_dt,
+				 fr.reserve_field01
+				 ,'I' AS ibflag
+				 
+				 
+           FROM  tb_frt_bkg    fr 
+LEFT OUTER JOIN  tb_trdp   tp   
+		     ON  fr.trdp_cd = tp.trdp_cd AND  tp.delt_flg = 'N'
+		
+           JOIN  tb_frt_cd fd   
+		     ON  fr.frt_cd  = fd.frt_cd  AND  fd.delt_flg = 'N'
+		
+           JOIN  tb_com_cd_dtl cdl
+             ON  cdl.cd_val = fr.inv_sts_cd AND cdl.com_cd = 'C048' AND cdl.delt_flg = 'N' 
+		
+LEFT OUTER JOIN  tb_inv_dtl idt
+             ON  fr.inv_seq = idt.inv_seq AND idt.DELT_FLG = 'N'
+             
+LEFT OUTER JOIN  TB_INTG_BL BL 
+             ON  fr.INTG_BL_SEQ = BL.INTG_BL_SEQ
+             
+LEFT OUTER JOIN  TB_USR USR 
+             ON  USR.USR_TP = 'I' AND fr.MODI_USRID = USR.USRID
+             
+LEFT OUTER JOIN  tb_com_cd_dtl dpt 
+             ON  dpt.cd_val = USR.dept_cd AND dpt.com_cd = 'C056'             
+		
+          WHERE  1 = 1
+            AND  fr.bkg_seq    = #c_bkg_seq# 
+            
+            <!-- isNotNull property="c_bkg_no">
+            AND  fr.bkg_no     = #c_bkg_no#  
+            </isNotNull -->
+            
+            AND  fr.sell_buy_tp_cd  IN (#f_tp_begin#, #f_tp_end#)
+            AND  fr.delt_flg = 'N'
+  	   ORDER BY  fr.frt_seq ASC
+    </select>	
+</sqlMap>

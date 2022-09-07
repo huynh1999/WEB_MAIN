@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+    <url-mapping url="MobLogin.usr" screen="MobLogin.screen" >
+    </url-mapping>
+    <url-mapping url="MobUserInfoMng.clt" screen="MobUserInfoMng.screen" >
+    </url-mapping>
+    <url-mapping url="MobUserPwdMng.clt" screen="MobUserPwdMng.screen" >
+    </url-mapping>
+	<!-- WMS PDA (S) -->
+    <url-mapping url="MobMain.clt" screen="MobMain.screen" >
+    </url-mapping>
+
+	<url-mapping url="MobWHInMain.clt" screen="MobWHInMain.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHInSrch.clt" screen="MobWHInSrch.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHInList.clt" screen="MobWHInList.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHInDtl.clt" screen="MobWHInDtl.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobInvMain.clt" screen="MobInvMain.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHInPtawySrch.clt" screen="MobWHInPtawySrch.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHInPtawyList.clt" screen="MobWHInPtawyList.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHInPtawyDlt.clt" screen="MobWHInPtawyDlt.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHOutMain.clt" screen="MobWHOutMain.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHOutSrch.clt" screen="MobWHOutSrch.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHOutList.clt" screen="MobWHOutList.screen" >
+	</url-mapping>
+		
+	<url-mapping url="MobWHOutDtl.clt" screen="MobWHOutDtl.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHOutShpSrch.clt" screen="MobWHOutShpSrch.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobWHOutShpList.clt" screen="MobWHOutShpList.screen" >
+	</url-mapping>
+		
+	<url-mapping url="MobWHOutShpDtl.clt" screen="MobWHOutShpDtl.screen" >
+	</url-mapping>
+
+	<url-mapping url="MobInvMoveSrch.clt" screen="MobInvMoveSrch.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobInvMoveList.clt" screen="MobInvMoveList.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobInvtMoveItemList.clt" screen="MobInvtMoveItemList.screen" >
+	</url-mapping>
+
+	<url-mapping url="MobInvMoveDtl.clt" screen="MobInvMoveDtl.screen" >
+	</url-mapping>
+
+	<!-- #2451 [WMS4.0]MOBILE - Inventory Search by Item/Serial/LP# 기능 추가 (S) -->
+	<url-mapping url="MobInvtSrch.clt" screen="MobInvtSrch.screen">
+	</url-mapping>
+
+	<url-mapping url="MobInvtSrchList.clt" screen="MobInvtSrchList.screen">
+	</url-mapping>
+
+	<url-mapping url="MobInvtSrchDtl.clt" screen="MobInvtSrchDtl.screen">
+	</url-mapping>
+	<!-- #2451 [WMS4.0]MOBILE - Inventory Search by Item/Serial/LP# 기능 추가 (E) -->
+
+	<url-mapping url="MobInvAdjSrch.clt" screen="MobInvAdjSrch.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobInvAdjList.clt" screen="MobInvAdjList.screen" >
+	</url-mapping>
+		
+	<url-mapping url="MobInvAdjDtl.clt" screen="MobInvAdjDtl.screen" >
+	</url-mapping>
+
+	<url-mapping url="MobCycKntSrch.clt" screen="MobCycKntSrch.screen" >
+	</url-mapping>
+	
+	<url-mapping url="MobCycKntList.clt" screen="MobCycKntList.screen" >
+	</url-mapping>
+		
+	<url-mapping url="MobCycKntDtl.clt" screen="MobCycKntDtl.screen" >
+	</url-mapping>
+    <!-- WMS PDA (E) -->
+
+    <event-mapping>
+        <event-class>com.clt.apps.fis.wms.pda.event.PdaMngEvent</event-class>
+        <service-action-class>com.clt.apps.fis.wms.pda.PdaSC</service-action-class>
+    </event-mapping>
+</mappings>

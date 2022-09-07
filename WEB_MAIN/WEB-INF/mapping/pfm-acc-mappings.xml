@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!-- Agent Statement   -->
+    <url-mapping url="PFM_ACC_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.acc.accounting.event.PFM_ACC_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_ACC_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Agent Statement   -->
+    <url-mapping url="PFM_ACC_0020_1GS.clt" screen="PFM_ACC_0020_1GS.screen">
+        <web-action-class>com.clt.apps.fis.pfm.acc.accounting.event.PFM_ACC_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Agent Statement   -->
+    <url-mapping url="PFM_ACC_0020_2GS.clt" screen="PFM_ACC_0020_2GS.screen">
+        <web-action-class>com.clt.apps.fis.pfm.acc.accounting.event.PFM_ACC_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Local Statement   -->
+    <url-mapping url="PFM_ACC_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.acc.accounting.event.PFM_ACC_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_ACC_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Local Statement   -->
+    <url-mapping url="PFM_ACC_0030GS.clt" screen="PFM_ACC_0030GS.screen">
+        <web-action-class>com.clt.apps.fis.pfm.acc.accounting.event.PFM_ACC_0030HTMLAction</web-action-class>
+    </url-mapping>
+    <!-- OFVFOUR-7394: [Webtrans] Adding grid for Invoice list by customer -->
+    <url-mapping url="PFM_ACC_0030_2GS.clt" screen="PFM_ACC_0030_2GS.screen">
+        <web-action-class>com.clt.apps.fis.pfm.acc.accounting.event.PFM_ACC_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Revenue/Cost Report   -->
+    <url-mapping url="PFM_ACC_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.acc.accounting.event.PFM_ACC_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_ACC_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Income Statement   -->
+    <url-mapping url="PFM_ACC_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.pfm.acc.accounting.event.PFM_ACC_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="PFM_ACC_0050.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- Income Statement   -->
+    <url-mapping url="PFM_ACC_0050GS.clt" screen="PFM_ACC_0050GS.screen">
+        <web-action-class>com.clt.apps.fis.pfm.acc.accounting.event.PFM_ACC_0050HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.pfm.acc.accounting.event.AccAccountingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.pfm.acc.accounting.AccAccountingSC</service-action-class>
+    </event-mapping>
+    
+</mappings>

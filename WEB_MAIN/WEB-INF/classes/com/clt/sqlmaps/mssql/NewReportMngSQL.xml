@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="report.new.mng"> 
+    <typeAlias alias="NewReportVO" type="com.clt.apps.opusbase.system.report.dto.NewReportVO"/>
+    
+    
+	<select id="selectNewReport" resultClass="NewReportVO" parameterClass="java.util.HashMap">
+		SELECT /* NewReportMngSQL.xml > selectNewReport */ 
+			RPT_ID
+			,MDL_ID
+			,RPT_NM
+			,CALL_ID
+			,PURP_DESC
+			,MRD_NM
+			,MRD_PATH_CD
+			,PPR_CD
+			,LANG_CD
+			,CHK_FLG
+			,PRIV_FLG
+			,RMK
+			,QRY_CTNT
+			,PDF_NM
+			,DELT_RSN_RMK
+			,PDF_PATH
+		FROM
+			TB_RPT_NW
+		WHERE
+			DELT_FLG 		= 'N'
+		<isNotNull property="call_id">
+			AND upper(call_id) = upper(#call_id#)
+		</isNotNull>
+		<isNotNull property="rpt_id">
+			AND upper(rpt_id) = upper(#rpt_id#)	
+		</isNotNull>
+		<isNotNull property="rpt_nm">
+			AND upper(rpt_nm) LIKE '%'+#rpt_nm# +'%'
+		</isNotNull>
+		<isNotNull property="ppr_cd">
+			AND upper(ppr_cd) = upper(#ppr_cd#)
+		</isNotNull>
+	</select>
+	
+    <insert id="insertNewReportISQL" parameterClass="NewReportVO">
+		INSERT /* NewReportMngSQL.xml > insertNewReport */ 
+		INTO TB_RPT_NW
+			(RPT_ID
+			,MDL_ID
+			,RPT_NM
+			,CALL_ID
+			,PURP_DESC
+			,MRD_NM
+			,MRD_PATH_CD
+			,PPR_CD
+			,LANG_CD
+			,CHK_FLG
+			,PRIV_FLG
+			,RMK
+			,QRY_CTNT
+			,DELT_RSN_RMK
+			,DELT_FLG
+			,RGST_TMS
+			,RGST_USRID
+			,MODI_TMS
+			,MODI_USRID)
+		VALUES
+			(#rpt_id#
+			,#mdl_id#
+			,#rpt_nm#
+			,#call_id#
+			,#purp_desc#
+			,#mrd_nm#
+			,#mrd_path_cd#
+			,#ppr_cd#
+			,#lang_cd#
+			,#chk_flg#
+			,#priv_flg#
+			,#rmk#
+			,#qry_ctnt#
+			,#delt_rsn_rmk#
+			,'N'
+			,GETDATE()
+			,#proc_usrid#
+			,GETDATE()
+			,#proc_usrid#)
+    </insert>
+    
+    <update id="updateNewReportUSQL" parameterClass="NewReportVO">
+		UPDATE /* NewReportMngSQL.xml > updateNewReport */ 
+			TB_RPT_NW
+		SET 
+			MDL_ID 			= #mdl_id#
+			,RPT_NM 		= #rpt_nm#
+			,CALL_ID 		= #call_id#
+			,PURP_DESC 		= #purp_desc#
+			,MRD_NM 		= #mrd_nm#
+			,MRD_PATH_CD 	= #mrd_path_cd#
+			,PPR_CD 		= #ppr_cd#
+			,LANG_CD 		= #lang_cd#
+			,CHK_FLG 		= #chk_flg#
+			,PRIV_FLG 		= #priv_flg#
+			,RMK 			= #rmk#
+			,QRY_CTNT 		= #qry_ctnt#
+			,DELT_RSN_RMK 	= #delt_rsn_rmk#
+			,MODI_TMS 		= GETDATE()
+			,MODI_USRID		= #proc_usrid#
+		 WHERE 
+		 	upper(RPT_ID) 	= upper(#rpt_id#)
+    </update>
+    
+    <update id="updatePdfNewReport" parameterClass="java.util.HashMap">
+		UPDATE /* NewReportMngSQL.xml > updatePdfNewReport */ 
+			TB_RPT_NW
+		SET 
+			PDF_NM 			= #pdf_nm#
+			,PDF_PATH 		= #pdf_path#
+			,MODI_TMS 		= GETDATE()
+			,MODI_USRID		= #proc_usrid#
+		 WHERE 
+		 	upper(RPT_ID) 	= upper(#rpt_id#)
+    </update>
+    
+    <update id="deleteNewReportDSQL" parameterClass="NewReportVO">
+		UPDATE /* NewReportMngSQL.xml > deleteNewReport */  
+			TB_RPT_NW
+		SET
+			DELT_FLG 		= 'Y'
+			,DELT_RSN_RMK 	= #delt_rsn_rmk#
+			,MODI_TMS 		= GETDATE()
+			,MODI_USRID		= #proc_usrid#
+		WHERE
+		 	upper(RPT_ID) = upper(#rpt_id#)
+    </update>
+    
+    <delete id="removeNewReportDSQL" parameterClass="NewReportVO">
+		DELETE /* NewReportMngSQL.xml > removeNewReport */  
+			TB_RPT_NW
+		WHERE
+		 	upper(RPT_ID) = upper(#rpt_id#)
+    </delete>
+    
+    <delete id="removeReportSetDSQL" parameterClass="NewReportVO">
+		DELETE /* NewReportMngSQL.xml > removeReportSet */  
+			TB_RPT_SET
+		WHERE
+		 	upper(RPT_ID) = upper(#rpt_id#)
+    </delete>
+    
+    <select id="selectNewReportId" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT RPT_ID
+		FROM TB_RPT_NW
+		WHERE 
+			1 = 1
+		<isNotNull property="s_delt_flg">
+			AND DELT_FLG 			= #s_delt_flg#
+		</isNotNull>
+		<isNull property="s_delt_flg">
+			AND DELT_FLG 			= 'N'
+		</isNull>
+			AND upper(RPT_ID) 		= upper(#s_rpt_id#)
+	</select>
+	
+	<select id="selectNewReporMrdNm" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT MRD_NM
+		FROM TB_RPT_NW
+		WHERE 
+			1 = 1
+		<isNotNull property="s_delt_flg">
+			AND DELT_FLG 			= #s_delt_flg#
+		</isNotNull>
+		<isNull property="s_delt_flg">
+			AND DELT_FLG 			= 'N'
+		</isNull>
+			AND upper(MRD_NM) 		= upper(#s_mrd_nm#)
+		<isNotNull property="s_rpt_id">
+			AND upper(RPT_ID) 		!= upper(#s_rpt_id#)
+		</isNotNull>
+	</select>
+</sqlMap>

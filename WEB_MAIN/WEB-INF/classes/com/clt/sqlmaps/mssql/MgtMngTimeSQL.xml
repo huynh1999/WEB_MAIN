@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.mng.time">
+
+	<typeAlias alias="MngTimeVO" type="com.clt.apps.fis.mgt.mng.time.dto.MngTimeVO"/>
+
+	<select id="selectMngTime" parameterClass="HashMap" resultClass="MngTimeVO">
+		SELECT #f_date# AS DATE
+		     , ISNULL(I.START_TIME, '') AS START_TIME
+		     , ISNULL(O.END_TIME, '') AS END_TIME
+		     , USR.USRID, USR.LOCL_USR_NM
+		  FROM TB_USR USR
+LEFT OUTER JOIN (
+				SELECT CONVERT(VARCHAR(8), I.RGST_TMS, 8) AS START_TIME, I.USRID, I.RGST_TMS
+				  FROM TB_MNG_TIME I
+				 WHERE TYPE = 'I'
+				<isNotEmpty property="f_date">
+				   AND CONVERT(VARCHAR(8), I.RGST_TMS, 112) = #f_date#
+				</isNotEmpty>
+				) I
+			 ON USR.USRID = I.USRID
+LEFT OUTER JOIN (
+				SELECT CONVERT(VARCHAR(8), O.RGST_TMS, 8) AS END_TIME, O.USRID, O.RGST_TMS
+				  FROM TB_MNG_TIME O
+				 WHERE TYPE = 'O'
+				<isNotEmpty property="f_date">
+				   AND CONVERT(VARCHAR(8), O.RGST_TMS, 112) = #f_date#
+				</isNotEmpty>
+				) O
+			 ON USR.USRID = O.USRID
+		 WHERE USR.USR_TP = 'I'
+		   AND USR.DELT_FLG = 'N'
+		<isNotEmpty property="f_usrid">
+		   AND USR.USRID = #f_usrid#
+		</isNotEmpty>
+	  ORDER BY I.START_TIME, O.END_TIME, USR.USRID ASC
+	</select>
+	
+	<insert id="insertMngTime" parameterClass="HashMap">
+    	<!-- MSSQL 2008 Ver
+    	INSERT INTO TB_MNG_TIME
+    	(
+    		SEQ, TYPE, RGST_TMS, USRID
+    	)VALUES(
+    		(SELECT ISNULL(MAX(SEQ), 0) + 1 FROM TB_MNG_TIME), #type#, #date# + ' ' + #time#, #usrid#
+    	)
+    	-->    	
+    	<!-- 2013.06.05 LHK, MSSQL 2005 version 으로 Query 수정 (Insert into () values()구문에 하위 쿼리 사용할 수 없슴) -->
+    	INSERT INTO TB_MNG_TIME
+    	(
+    		SEQ, TYPE, RGST_TMS, USRID
+    	) SELECT
+    		(SELECT ISNULL(MAX(SEQ), 0) + 1 FROM TB_MNG_TIME), #type#, #date# + ' ' + #time#, #usrid#
+    	
+    </insert>
+	
+	<update id="updateMngTime" parameterClass="HashMap">
+		UPDATE TB_MNG_TIME
+		   SET RGST_TMS = #date# + ' ' + #time#
+	     WHERE CONVERT(VARCHAR(8), RGST_TMS, 112) = #date#
+	       AND TYPE = #type#
+	       AND USRID = #usrid#
+	</update>
+	
+	<select id="checkMngTime" parameterClass="HashMap" resultClass="String">
+		SELECT 'O'
+		  FROM TB_MNG_TIME
+		 WHERE CONVERT(VARCHAR(8), RGST_TMS, 112) = #date#
+	       AND TYPE = #type#
+	       AND USRID = #usrid#
+	</select>
+</sqlMap>

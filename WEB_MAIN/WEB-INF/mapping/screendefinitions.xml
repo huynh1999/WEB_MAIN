@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+	<!--#### Template ####  -->
+	<!-- default-template>/syscommon/template/template.jsp</default-template> -->
+	<default-template>/syscommon/template/templateTabFrame.jsp</default-template>
+	<template name="templateTab">
+		<url>/syscommon/template/templateTab.jsp</url>
+	</template>
+	<template name="templateTabFrame">
+		<url>/syscommon/template/templateTabFrame.jsp</url>
+	</template>
+	<template name="templateSp">
+		<url>/templateSpace.jsp</url>
+	</template>
+	<template name="templateIBSheet">
+		<url>/syscommon/template/templateIBSheet.jsp</url>
+	</template>
+	<template name="templateLogin">
+		<url>/syscommon/template/templateLogin.jsp</url>
+	</template>
+	<template name="templateMob">
+		<url>/syscommon/template/templateMob.jsp</url>
+	</template>
+	<template name="templateMobLogin">
+		<url>/syscommon/template/templateMobLogin.jsp</url>
+	</template>
+	<template name="templatePop">
+		<url>/syscommon/template/templatePop.jsp</url>
+	</template>
+	<template name="templateNoneJS">
+		<url>/syscommon/template/templateNoneJS.jsp</url>
+	</template>
+	<template name="templateEmpty">
+		<url>/syscommon/template/templateEmpty.jsp</url>
+	</template>
+	<template name="templateExcelDownload">
+		<url>/syscommon/template/templateExcelDownload.jsp</url>
+	</template>
+	<!--#### Template ####  -->
+
+    <!--#### 에러화면 ####  -->
+    <!-- 일반에러   -->
+	<screen name="Error">
+        <parameter key="title"    value="오류페이지" direct="true"/>
+        <parameter key="body"     value="/syscommon/sysmsg/ErrorCommon.jsp" />
+    </screen>
+	
+    <!-- 일반에러   -->
+    <screen name="PopError">
+        <parameter key="title"    value="오류페이지" direct="true"/>
+        <parameter key="body"     value="/syscommon/sysmsg/ErrorCommon.jsp" />
+    </screen>
+
+	<!--#### System status page ####  -->
+	<!-- 404 Not Found 메세지   -->
+	<screen name="NotFound" template="templateEmpty">
+		<parameter key="body"     value="/syscommon/sysmsg/NotFound.jsp" />
+	</screen>
+
+	<!-- 501 Not Implemented 메세지   -->
+	<screen name="NotService">
+			<parameter key="body" value="/syscommon/sysmsg/NotService.jsp"/>
+	</screen>
+
+	<!-- 권한 없음 메세지   -->
+	<screen name="NoAuthority">
+			<parameter key="body" value="/syscommon/sysmsg/NoAuthority.jsp"/>
+	</screen>
+
+	<!-- 세션 없음 메세지   -->
+	<screen name="NoSession">
+			<parameter key="body" value="/syscommon/sysmsg/NoSession.jsp"/>
+	</screen>
+	
+	<!-- 세션 없음 메세지   -->
+	<screen name="ExcelDownload"  template="templateExcelDownload" >
+			<parameter key="body" value="/js/ibsheet/jsp/DirectDown2Excel.jsp"/>
+	</screen>
+	
+	<!--#### System status page ####  -->
+
+</screen-definitions>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+<!--##### tinluong 2014/12/15 warehouse entry ####-->
+    <screen name="WHM_WHM_0003">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/item/itementry/jsp/WHM_WHM_0003.jsp" />
+    </screen>
+    <screen name="WHM_WHM_009">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/inventory/jsp/WHM_WHM_009.jsp" />
+    </screen>
+
+    <screen name="WHM_WHM_0003GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/whm/item/itementry/jsp/WHM_WHM_0003GS.jsp" />
+    </screen> 
+    
+    <screen name="WHM_WHM_0003_01GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/whm/item/itementry/jsp/WHM_WHM_0003_01GS.jsp" />
+    </screen> 
+    
+    <screen name="WHM_WHM_0013GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/whm/item/itementry/jsp/WHM_WHM_0013GS.jsp" />
+    </screen> 
+<!--#### tinluong 2014/12/15 warehouse entry ####-->
+
+<!--##### tinluong 2014/12/15 warehouse List ####-->
+    <screen name="WHM_WHM_0004">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/item/itemlist/jsp/WHM_WHM_0004.jsp" />
+    </screen>
+
+    <screen name="WHM_WHM_0004GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/whm/item/itemlist/jsp/WHM_WHM_0004GS.jsp" />
+    </screen> 
+<!--#### tinluong 2014/12/15 warehouse entry ####-->
+
+<!--#### WHM RECEIVING 관련 프로그램  Start ####  -->
+	<screen name="WHM_WHM_0005">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/receiving/receiving/jsp/WHM_WHM_0005.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0005_01GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/receiving/receiving/jsp/WHM_WHM_0005_01GS.jsp" />
+    </screen>
+    <screen name="WHM_WHM_0005_02GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/receiving/receiving/jsp/WHM_WHM_0005_02GS.jsp" />
+    </screen>
+    <screen name="WHM_WHM_0005_03GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/receiving/receiving/jsp/WHM_WHM_0005_03GS.jsp" />
+    </screen>
+    <screen name="WHM_WHM_0005_04GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/receiving/receiving/jsp/WHM_WHM_0005_04GS.jsp" />
+    </screen>
+    <screen name="WHM_WHM_0005_05GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/receiving/receiving/jsp/WHM_WHM_0005_05GS.jsp" />
+    </screen>
+    <screen name="WHM_WHM_0005_06GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/receiving/receiving/jsp/WHM_WHM_0005_06GS.jsp" />
+    </screen>
+    <screen name="WHM_WHM_0005_07GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/receiving/receiving/jsp/WHM_WHM_0005_07GS.jsp" />
+    </screen>
+    <!-- Bao.Huynh 2015/10/14 (S) -->
+    <screen name="WHM_WHM_0005_08GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/receiving/receiving/jsp/WHM_WHM_0005_08GS.jsp" />
+    </screen>
+    <!-- Bao.Huynh 2015/10/14 (E) -->
+    
+    <!-- Vinh.Vo 2015/1/9 (S) -->
+    <screen name="WHM_ITL_0001" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/receiving/receivinglist/jsp/WHM_ITL_0001.jsp" />
+    </screen>
+    
+     <screen name="WHM_ITL_0001GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/receiving/receivinglist/jsp/WHM_ITL_0001GS.jsp" />
+    </screen>
+     <!-- Vinh.Vo 2015/1/9 (E) -->
+    <screen name="WHM_WHM_0006">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/receiving/receivinglist/jsp/WHM_WHM_0006.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0006GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/receiving/receivinglist/jsp/WHM_WHM_0006GS.jsp" />
+    </screen>
+<!--#### WHM RECEIVING 관련 프로그램  End ####  -->    
+
+<!--#### WHM SHIPPING 관련 프로그램  Start ####  -->
+    <screen name="WHM_WHM_0007">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/shipping/shipping/jsp/WHM_WHM_0007.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0008">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/shipping/shippinglist/jsp/WHM_WHM_0008.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0008GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/shipping/shippinglist/jsp/WHM_WHM_0008GS.jsp" />
+    </screen>
+<!--#### WHM SHIPPING 관련 프로그램  End ####  -->
+
+<!--#### WHM WAREHOUSE 관련 프로그램  End ####  -->
+	<!--VINH.VO ENTRY (S) -->
+    <screen name="WHM_WHM_0001">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/warehouse/entry/jsp/WHM_WHM_0001.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_NEW_0001">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/warehouse/entry/jsp/WHM_WHM_NEW_0001.jsp" />
+    </screen>
+    
+     <screen name="WHM_WHM_0001_01GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/warehouse/entry/jsp/WHM_WHM_0001_01GS.jsp" />
+    </screen>
+    <screen name="WHM_WHM_0001_02GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/warehouse/entry/jsp/WHM_WHM_0001_02GS.jsp" />
+    </screen>
+    <screen name="WHM_WHM_0001_03GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/warehouse/entry/jsp/WHM_WHM_0001_03GS.jsp" />
+    </screen>
+     <screen name="WHM_WHM_0001_04GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/warehouse/entry/jsp/WHM_WHM_0001_04GS.jsp" />
+    </screen>
+     <screen name="WHM_WHM_0001_05GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/warehouse/entry/jsp/WHM_WHM_0001_05GS.jsp" />
+    </screen>
+    <!--VINH.VO ENTRY (E) -->
+    
+    	<!--VINH.VO LIST (S) -->
+    <screen name="WHM_WHM_0002">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/warehouse/list/jsp/WHM_WHM_0002.jsp" />
+    </screen>
+     <screen name="WHM_WHM_0002GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/warehouse/list/jsp/WHM_WHM_0002GS.jsp" />
+    </screen>
+    <!--VINH.VO LIST (E) -->
+   
+<!--#### WHM WAREHOUSE 관련 프로그램  End ####  -->
+
+<!-- Thoa.Dien (S) -->
+     <screen name="WHM_WHM_0009">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/inventory/jsp/WHM_WHM_0009.jsp" />
+    </screen>
+
+    <screen name="WHM_WHM_0009GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/whm/inventory/jsp/WHM_WHM_0009GS.jsp" />
+    </screen> 
+    
+    <screen name="WHM_WHM_0009_01GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/whm/inventory/jsp/WHM_WHM_0009_01GS.jsp" />
+    </screen> 
+<!-- Thoa.Dien (E) -->
+
+<!-- Warehouse doc entry (S) -->
+     <screen name="WHM_WHM_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/warehousedoc/entry/jsp/WHM_WHM_0010.jsp" />
+    </screen>
+
+    <screen name="WHM_WHM_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/whm/warehousedoc/entry/jsp/WHM_WHM_0010GS.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0010_01GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/whm/warehousedoc/entry/jsp/WHM_WHM_0010_01GS.jsp" />
+    </screen>
+<!-- Warehouse doc entry (E) -->
+<!-- Warehouse doc List (S) -->
+	<screen name="WHM_WHM_0011">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/warehousedoc/list/jsp/WHM_WHM_0011.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0011GS" template="templateIBSheet" >
+        <parameter key="body"  value="/apps/fis/whm/warehousedoc/list/jsp/WHM_WHM_0011GS.jsp" />
+    </screen>
+<!-- Warehouse doc List (E) -->
+    
+    <!--  W/H Received Item search pop -->   
+	<screen name="WHM_POP_0007" template="templatePop">
+        <parameter key="body"    value="/apps/fis/whm/shipping/shipping/jsp/WHM_POP_0007.jsp" />
+    </screen>
+    <screen name="WHM_POP_0007GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/shipping/shipping/jsp/WHM_POP_0007GS.jsp" />
+    </screen>
+
+<!-- Bao.Huynh Warehouse Closing (S) -->
+	<screen name="WHM_WHM_0012">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/history/jsp/WHM_WHM_0012.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0012GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/history/jsp/WHM_WHM_0012GS.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0012_1GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/history/jsp/WHM_WHM_0012_1GS.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0012_2GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/history/jsp/WHM_WHM_0012_2GS.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0012_3GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/history/jsp/WHM_WHM_0012_3GS.jsp" />
+    </screen>
+    
+    <screen name="WHM_WHM_0012_4GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/whm/history/jsp/WHM_WHM_0012_4GS.jsp" />
+    </screen>
+    
+    <screen name="HSTPrint" template="templatePop">
+        <parameter key="body"    value="/apps/fis/whm/history/jsp/HSTPrint.jsp" />
+    </screen>
+<!-- Bao.Huynh Warehouse Closing (E) -->
+
+
+    <screen name="WHM_WHM_0015">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/whm/inventory/jsp/WHM_WHM_0015.jsp" />
+    </screen>
+
+    <screen name="WHM_WHM_0015_01GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/whm/inventory/jsp/WHM_WHM_0015_01GS.jsp" />
+    </screen>
+
+</screen-definitions>

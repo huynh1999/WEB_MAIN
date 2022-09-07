@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="WHItemInvMapper">
+    	
+    <!-- Inventory Adjustment 생성 프로시저 호출 -->
+ <parameterMap id="callWHInvAdjustProc_param" class="com.clt.apps.fis.wms.common.dto.InvAdjustVO">
+     <parameter property="adjust_no"  javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+     <parameter property="org_cd"   javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+     <parameter property="user_id"   javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+     <parameter property="rtncd"   javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+     <parameter property="rtnmsg"   javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+ </parameterMap>  
+    <procedure id="callWHInvAdjustProc" parameterMap="callWHInvAdjustProc_param">
+      { call dbo.MAKE_TL_WH_INV_ADJUST_PRC(?, ?, ?, ?, ?) }
+    </procedure>
+    
+</sqlMap>

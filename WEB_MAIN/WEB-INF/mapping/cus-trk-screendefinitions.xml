@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### Cargo Tracking Start ####  -->
+    <!-- Cargo Tracking 화면 조회. Jung-Gu, Kang(2009.02.02)  -->
+    <screen name="CUS_TRK_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/cus/trk/trackingmgt/jsp/CUS_TRK_0010.jsp"/>
+    </screen>
+
+    <!-- Cargo Tracking 화면 BL목록 조회. Jung-Gu, Kang(2009.02.02)  -->
+    <screen name="CUS_TRK_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/cus/trk/trackingmgt/jsp/CUS_TRK_0010GS.jsp"/>
+    </screen>
+	
+    <!-- Cargo Tracking 상태목록 조회. Jung-Gu, Kang(2009.02.02)  -->
+    <screen name="CUS_TRK_0010GS_1" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/cus/trk/trackingmgt/jsp/CUS_TRK_0010GS_1.jsp"/>
+    </screen>
+
+    <!-- MBL 기준 Cargo tracking 정보 목록조회. Jung-Gu, Kang(2009.02.02)  -->
+    <screen name="CUS_TRK_0010GS_2" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/cus/trk/trackingmgt/jsp/CUS_TRK_0010GS_2.jsp"/>
+    </screen>
+
+    <!--#### Cargo Tracking End ####  -->
+</screen-definitions>

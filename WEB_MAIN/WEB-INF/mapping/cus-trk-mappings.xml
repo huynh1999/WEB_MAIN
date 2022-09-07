@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### Cargo Tracking Start ####  -->
+	<!-- Cargo Tracking 화면 조회. Jung-Gu, Kang(2009.02.02)  -->
+    <url-mapping url="CUS_TRK_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cus.trk.trackingmgt.event.CUS_TRK_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CUS_TRK_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <!-- Cargo Tracking 화면 BL목록 조회. Jung-Gu, Kang(2009.02.02)  -->
+    <url-mapping url="CUS_TRK_0010GS.clt" screen="CUS_TRK_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.cus.trk.trackingmgt.event.CUS_TRK_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+	<!-- Cargo Tracking 상태목록 조회. Jung-Gu, Kang(2009.02.02)  -->
+    <url-mapping url="CUS_TRK_0010GS_1.clt" screen="CUS_TRK_0010GS_1.screen" >
+        <web-action-class>com.clt.apps.fis.cus.trk.trackingmgt.event.CUS_TRK_0010HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <!-- MBL 기준 Cargo tracking 정보 목록조회. Jung-Gu, Kang(2009.02.02)  -->
+    <url-mapping url="CUS_TRK_0010GS_2.clt" screen="CUS_TRK_0010GS_2.screen" >
+        <web-action-class>com.clt.apps.fis.cus.trk.trackingmgt.event.CUS_TRK_0010HTMLAction</web-action-class>
+    </url-mapping>
+	
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cus.trk.trackingmgt.event.CusCargoTrackingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cus.trk.trackingmgt.CusCargoTrackingSC</service-action-class>
+    </event-mapping>
+    <!--#### Cargo Tracking End ####  -->
+</mappings>

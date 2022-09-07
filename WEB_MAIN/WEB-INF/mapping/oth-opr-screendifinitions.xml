@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+    <!--  Other Sales Details    -->
+    <screen name="OTH_OPR_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0010.jsp" />
+    </screen>
+    <screen name="OTH_OPR_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0010GS.jsp" />
+    </screen>
+    
+    <screen name="OTH_OPR_0011GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0011GS.jsp" />
+    </screen>
+    
+    <screen name="OTH_OPR_0010_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0010_1GS.jsp" />
+    </screen>
+    
+    <!--  Other Sales List    -->
+    <screen name="OTH_OPR_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/opr/list/jsp/OTH_OPR_0020.jsp" />
+    </screen>
+    <screen name="OTH_OPR_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/oth/opr/list/jsp/OTH_OPR_0020GS.jsp" />
+    </screen>
+    
+    <!-- Ajax loading -->
+    <screen name="OTH_OPR_0010AJ" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0010AJ.jsp" />
+    </screen>
+    
+    <!-- ## Purchase Order ##   -->
+    <!-- Purchase Order 조회 및 등록   -->
+    <screen name="OTH_OPR_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0030.jsp" />
+    </screen>
+    
+    <!-- Purchase Order Logic처리용 Hidden Grid   -->
+    <screen name="OTH_OPR_0030GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0030GS.jsp" />
+    </screen>
+    
+    <!-- Ajax loading -->
+    <screen name="OTH_OPR_0030AJ" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0030AJ.jsp" />
+    </screen>
+    
+    <!-- Purchase Order Item 목록 조회   -->
+    <screen name="OTH_OPR_0030_1GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0030_1GS.jsp" />
+    </screen>
+
+	<!-- Purchase Order User Define Field 목록 조회   -->
+    <screen name="OTH_OPR_0030_2GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0030_2GS.jsp" />
+    </screen>
+    
+    <!-- Purchase Order Document list 목록 조회   -->
+    <screen name="OTH_OPR_0030_3GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0030_3GS.jsp" />
+    </screen>
+    
+    <!-- MAIN 데이터 조회 - Purchase Order Search    -->
+    <screen name="OTH_OPR_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/opr/list/jsp/OTH_OPR_0040.jsp" />
+    </screen>
+    
+    <!-- MAIN 데이터 조회 - Purchase Order Search 그리드 통신   -->
+    <screen name="OTH_OPR_0040GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/oth/opr/list/jsp/OTH_OPR_0040GS.jsp" />
+    </screen>
+    
+    <!--Shipping Document 처리   -->
+    <screen name="OTH_OPR_0050" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/opr/details/jsp/OTH_OPR_0050.jsp" />
+    </screen>
+</screen-definitions>

@@ -1,0 +1,160 @@
+.MAINCTL_DIV * {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.MAINCTL_DIV ul,li {
+	list-style: none !important;
+}
+
+.MAINCTL_DIV input::-ms-clear {display: none;}
+
+/* ibmulticombo main */
+.MAINCTL_DIV .MAINCTL_TBL {
+	border: 1px solid #99bce8;
+	padding: 0 !important;
+	background-color: #fff;
+}
+
+.MAINCTL_DIV .MAINCTL_FOCUS {
+	border: 1px solid #99bce8;
+}
+
+/* ibmulticombo input box */
+.MAINCTL_DIV .MAINCTL_TBL_EDIT {
+	border: 0 !important;
+	padding-left: 2px !important;
+	background-color: transparent !important;
+	font-size: 12px;
+	font-family: Dotum;
+	font-weight: normal;
+	color: #000000;
+	outline: none !important;
+	padding: 0 0 2px 2px !important;
+	margin:0 !important;
+}
+
+/* ibmulticombo dropdown list button*/
+.MAINCTL_DIV .MAINCTL_TBL_BTN {
+	vertical-align: middle !important;
+	cursor: pointer;
+	background: url("{{ImagePath}}/c_combo2.gif") !important;
+	width: 18px !important;
+	height: 20px !important;
+	display: inline-block !important;
+	overflow: hidden !important;
+	background-repeat: no-repeat !important;
+}
+
+/* ibmulticombo dropdown list header */
+.MAINCTL_DRL_DIV .DRL_HEADER_DIV {
+	border-width: 1px 1px 0 1px !important;
+	border-style: solid !important;
+	display: block;
+	width: 100% !important;
+	background-color: #c9e1f5;
+}
+
+/* ibmulticombo dropdown list outer border */
+.MAINCTL_DRL_DIV .DRL_DIV_BORDER {
+	border-color: #99bce8;
+}
+
+/* ibmulticombo dropdown list inner */
+.MAINCTL_DRL_DIV .DRL_DIV .DRL_TBL .DRL_TD {
+	border-width: 0 1px 1px 0 !important;
+	border-style: solid !important;
+	border-color: #e0e0ff;
+	background-color: #fff;
+	overflow: hidden !important;
+	white-space: nowrap !important;
+	-o-text-overflow: ellipsis !important;
+	text-overflow: ellipsis !important;
+}
+
+/*.MAINCTL_DRL_DIV .DRL_DIV .DRL_TBL .DRL_TD_HOVER {
+	background-color:blue;
+}
+*/
+/* ibmulticombo dropdown list font */
+.MAINCTL_DRL_DIV .DRL_FONT {
+	font-family: Dotum;
+	color: #000;
+}
+
+/* ibmulticombo selected item Color */
+.MAINCTL_DRL_DIV .DRL_SELECTED_ITEM {
+	color: #000;
+	background-color: #fea;
+}
+
+/* ibmulticobo hover item */
+.MAINCTL_DRL_DIV .DRL_HOVER_ITEM {
+	color: #000;
+	background-color: #fea;
+}
+
+.MAINCTL_DIV .MAINCTL_TBL_TR {
+	line-height: 18px !important;
+	height: 18px !important;
+}
+
+.MAINCTL_DRL_DIV th {
+	font-weight: normal;
+}
+.MAINCTL_DRL_DIV {
+	position:absolute !important;
+}
+
+
+.MAINCTL_DRL_DIV .MAINCTL_DRL_TBL {
+	width: 100%;
+	table-layout: fixed !important;
+	empty-cells: show !important;
+}
+
+.MAINCTL_DRL_DIV .MAINCTL_DRL_TBL_IE67 {
+	border-collapse: collapse !important;
+	margin: -4px 0 0 -1px !important;
+	border-spacing:0 !important;
+}
+
+.MAINCTL_DRL_DIV .DRL_HEADER_DIV .DRL_HEADER_TD {
+	border-width: 0 1px 0 0 !important;
+	border-style: solid !important;
+	overflow: hidden !important;
+}
+
+.MAINCTL_DRL_DIV .DRL_HEADER_DIV .DRL_HEADER_TD .DRL_HEADER_TD_DIV {
+	text-overflow: ellipsis !important;
+}
+
+.MAINCTL_DRL_DIV .DRL_DIV .DRL_DIV_SCROLL {
+	position:absolute; left:0px !important;
+	border-width: 1px;
+	border-style: solid !important;
+	display:block;
+	overflow-y:auto !important;
+	overflow-x:hidden !important;
+	width: 100%;
+	background-color: white;
+}
+
+.MAINCTL_DRL_DIV .DRL_DIV .DRL_TBL .DRL_TD_CK {
+	text-align: center;
+}
+
+.MAINCTL_DRL_DIV .DRL_DIV .DRL_TBL .DRL_TD .DRL_CHECK {
+	margin:0 !important; padding:0 !important;
+}
+
+.MAINCTL_DRL_DIV .DRL_DIV .DRL_TBL .DRL_TD .DRL_CELL_TEXT {
+	overflow: hidden !important;
+	margin: 2px 5px 0 5px !important;
+	vertical-align: middle !important;
+	text-overflow: ellipsis !important;
+}
+
+.MAINCTL_DRL_DIV{
+	z-index:999999;
+}

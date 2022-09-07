@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--#### Tariff 관련 프로그램  Start ####  -->
+    <!-- Sea Tariff 등록, 수정, 조회   -->
+    <url-mapping url="SAL_TFM_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TFM_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TFM_0010GS.clt" screen="SAL_TFM_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TFM_0010_1GS.clt" screen="SAL_TFM_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Air Tariff 등록, 수정, 조회   -->
+    <url-mapping url="SAL_TFM_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TFM_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TFM_0020GS.clt" screen="SAL_TFM_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TFM_0020_1GS.clt" screen="SAL_TFM_0020_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0020HTMLAction</web-action-class>
+    </url-mapping>
+      
+    <!-- Tariff 조회   -->
+    <url-mapping url="SAL_TFM_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TFM_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TFM_0040GS.clt" screen="SAL_TFM_0040GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0040HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.sal.tfm.tariff.event.TariffMgmtEvent</event-class>
+        <service-action-class>com.clt.apps.fis.sal.tfm.tariff.TariffMgmtSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Iata Tariff 등록, 수정, 조회   -->
+    <url-mapping url="SAL_TFM_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TFM_0050.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TFM_0050GS.clt" screen="SAL_TFM_0050GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0050HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TFM_0050_1GS.clt" screen="SAL_TFM_0050_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0050HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TFM_0050_2GS.clt" screen="SAL_TFM_0050_2GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0050HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Inland Tariff 등록, 수정, 조회   -->
+    <url-mapping url="SAL_TFM_0060.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0060HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TFM_0060.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TFM_0060GS.clt" screen="SAL_TFM_0060GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0060HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TFM_0060_1GS.clt" screen="SAL_TFM_0060_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0060HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TFM_0070.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0070HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TFM_0070.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TFM_0070GS.clt" screen="SAL_TFM_0070GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0070HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Rate Management 등록, 수정, 조회   -->
+    <url-mapping url="SAL_TFM_0080.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0080HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TFM_0080.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    <url-mapping url="SAL_TFM_0080GS.clt" screen="SAL_TFM_0080GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0080HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SAL_TFM_0080_1GS.clt" screen="SAL_TFM_0080_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0080HTMLAction</web-action-class>
+    </url-mapping>    
+
+    <!-- Rate Management - Ocean 등록, 수정, 조회 (S)-->
+    <url-mapping url="SAL_TFM_0090.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0090HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TFM_0090.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="SAL_TFM_0090GS.clt" screen="SAL_TFM_0090GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0090HTMLAction</web-action-class>
+    </url-mapping>
+
+    <url-mapping url="SAL_TFM_0090_1GS.clt" screen="SAL_TFM_0090_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0090HTMLAction</web-action-class>
+    </url-mapping>
+
+    <url-mapping url="SAL_TFM_CMDT_POP.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0090HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TFM_CMDT_POP.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="SAL_TFM_CMDT_POP_1GS.clt" screen="SAL_TFM_CMDT_POP_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0090HTMLAction</web-action-class>
+    </url-mapping>
+
+    <url-mapping url="SAL_TFM_ACCT_POP.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0090HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SAL_TFM_ACCT_POP.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+
+    <url-mapping url="SAL_TFM_ACCT_POP_1GS.clt" screen="SAL_TFM_ACCT_POP_1GS.screen">
+        <web-action-class>com.clt.apps.fis.sal.tfm.tariff.event.SAL_TFM_0090HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Rate Management - Ocean 등록, 수정, 조회 (E)-->
+
+    <!--#### Tariff 관련 프로그램 End ####  -->
+</mappings>

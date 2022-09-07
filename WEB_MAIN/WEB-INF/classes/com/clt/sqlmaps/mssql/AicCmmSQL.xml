@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="air.cmm">
+   <!-- AIR Carrier Schedule Count   -->
+    <select id="selectAIR_SKD_LIST_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT  count(skd.air_skd_seq)
+          FROM  tb_air_skd skd
+          JOIN  tb_trdp aln
+            ON  skd.trdp_cd = aln.trdp_cd AND aln.delt_flg = 'N'
+
+		 WHERE  skd.delt_flg = 'N'
+        <isNotNull property="f_trdp_cd">
+            AND  skd.trdp_cd = #f_trdp_cd#
+        </isNotNull>
+        <isNotNull property="f_dep_loc_cd">
+            AND  skd.dep_loc_cd = #f_dep_loc_cd#
+        </isNotNull>
+        <isNotNull property="f_dest_loc_cd">
+            AND  skd.dest_loc_cd = #f_dest_loc_cd#
+        </isNotNull>
+        <isNotNull property="f_prd_dt">
+            AND  skd.prd_dt = #f_prd_dt#
+        </isNotNull>
+	</select>
+
+	<!-- AIR Carrier Schedule 조회  -->
+	<select id="selectAIR_SKD_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.aic.bmd.linerinfo.dto.AirSkdVO">
+		SELECT  TOP $topCnt$
+				skd.air_skd_seq,    skd.trdp_cd,          aln.shrt_nm AS trdp_nm,
+				skd.flt_no,         skd.dep_loc_cd,       skd.dest_loc_cd,
+
+				skd.wkdy_sun_flg,   skd.wkdy_mon_flg,     skd.wkdy_tue_flg,
+				skd.wkdy_wed_flg,   skd.wkdy_thu_flg,     skd.wkdy_fri_flg,   skd.wkdy_sat_flg,
+
+				skd.dep_hrmnt,      skd.arr_hrmnt,        skd.dur_dys_qty,    skd.prd_dt,
+
+				skd.ts1_trdp_cd,    skd.ts1_arpt_loc_cd,  skd.ts1_dur_dys_qty,
+				skd.ts1_arr_hrmnt,  skd.ts1_flt_no,       ts1.shrt_nm AS ts1_trdp_nm,
+
+				skd.ts2_trdp_cd,    skd.ts2_arpt_loc_cd,  skd.ts2_dur_dys_qty,
+				skd.ts2_arr_hrmnt,  skd.ts2_flt_no,       ts2.shrt_nm AS ts2_trdp_nm,
+
+				skd.ts3_trdp_cd,    skd.ts3_arpt_loc_cd,  skd.ts3_dur_dys_qty,
+				skd.ts3_arr_hrmt,   skd.ts3_flt_no,       ts3.shrt_nm AS ts3_trdp_nm,
+
+				skd.rmk
+
+		  FROM  tb_air_skd skd
+		  JOIN  tb_trdp aln
+		    ON  skd.trdp_cd = aln.trdp_cd AND aln.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_trdp ts1
+		    ON  skd.ts1_trdp_cd = ts1.trdp_cd  AND ts1.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_trdp ts2
+		    ON  skd.ts2_trdp_cd = ts2.trdp_cd AND ts2.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_trdp ts3
+		    ON  skd.ts3_trdp_cd = ts3.trdp_cd AND ts3.delt_flg = 'N'
+
+		 WHERE  skd.delt_flg = 'N'
+		<isNotNull property="f_trdp_cd">
+			AND	 skd.trdp_cd = #f_trdp_cd#
+		</isNotNull>
+		<isNotNull property="f_dep_loc_cd">
+			AND  skd.dep_loc_cd = #f_dep_loc_cd#
+		</isNotNull>
+		<isNotNull property="f_dest_loc_cd">
+			AND  skd.dest_loc_cd = #f_dest_loc_cd#
+		</isNotNull>
+		<isNotNull property="f_prd_dt">
+			AND  skd.prd_dt = #f_prd_dt#
+		</isNotNull>
+    </select>
+
+	<select id="selectAIR_SKD_MkPK" resultClass="String">
+        SELECT ISNULL(MAX(air_skd_seq),0)+1
+        FROM   tb_air_skd
+    </select>
+
+	<!-- Air Line Schedule등록   -->
+	<insert id="insertAIR_SKD" parameterClass="com.clt.apps.fis.aic.bmd.linerinfo.dto.AirSkdVO">
+		INSERT INTO tb_air_skd(
+                air_skd_seq,       trdp_cd,              flt_no,
+                dep_loc_cd,        dest_loc_cd,
+
+                wkdy_sun_flg,      wkdy_mon_flg,         wkdy_tue_flg,
+                wkdy_wed_flg,      wkdy_thu_flg,         wkdy_fri_flg,      wkdy_sat_flg,
+
+                dep_hrmnt,         arr_hrmnt,            dur_dys_qty,       prd_dt,
+
+                ts1_trdp_cd,       ts1_arpt_loc_cd,      ts1_dur_dys_qty,
+                ts1_arr_hrmnt,     ts1_flt_no,
+
+                ts2_trdp_cd,       ts2_arpt_loc_cd,      ts2_dur_dys_qty,
+                ts2_arr_hrmnt,     ts2_flt_no,
+
+                ts3_trdp_cd,       ts3_arpt_loc_cd,      ts3_dur_dys_qty,
+                ts3_arr_hrmt,      ts3_flt_no,
+
+                rmk,
+
+                rgst_usrid,        rgst_ofc_cd,          rgst_tms,
+                modi_usrid,        modi_ofc_cd,          modi_tms,            delt_flg
+		)VALUES(
+                #air_skd_seq#,     #trdp_cd#,            #flt_no#,
+                #dep_loc_cd#,      #dest_loc_cd#,
+
+                #wkdy_sun_flg#,    #wkdy_mon_flg#,       #wkdy_tue_flg#,
+                #wkdy_wed_flg#,    #wkdy_thu_flg#,       #wkdy_fri_flg#,      #wkdy_sat_flg#,
+
+                #dep_hrmnt#,       #arr_hrmnt#,          #dur_dys_qty#,       #prd_dt#,
+
+                #ts1_trdp_cd#,     #ts1_arpt_loc_cd#,    #ts1_dur_dys_qty#,
+                #ts1_arr_hrmnt#,   #ts1_flt_no#,
+
+                #ts2_trdp_cd#,     #ts2_arpt_loc_cd#,    #ts2_dur_dys_qty#,
+                #ts2_arr_hrmnt#,   #ts2_flt_no#,
+
+                #ts3_trdp_cd#,     #ts3_arpt_loc_cd#,    #ts3_dur_dys_qty#,
+                #ts3_arr_hrmt#,    #ts3_flt_no#,
+
+                #rmk#,
+
+				#proc_usrid#,    #proc_ofccd#,      getdate(),
+				#proc_usrid#,    #proc_ofccd#,      GETUTCDATE(),         'N'
+		)
+	</insert>
+
+    <!-- Air Line Schedule 수정   -->
+    <update id="updateAIR_SKD" parameterClass="com.clt.apps.fis.aic.bmd.linerinfo.dto.AirSkdVO">
+        UPDATE  tb_air_skd
+           SET  trdp_cd      = #trdp_cd#,           flt_no         = #flt_no#,
+                dep_loc_cd   = #dep_loc_cd#,        dest_loc_cd    = #dest_loc_cd#,
+
+                wkdy_sun_flg = #wkdy_sun_flg#,      wkdy_mon_flg   = #wkdy_mon_flg#,         wkdy_tue_flg   = #wkdy_tue_flg#,
+                wkdy_wed_flg = #wkdy_wed_flg#,      wkdy_thu_flg   = #wkdy_thu_flg#,         wkdy_fri_flg   = #wkdy_fri_flg#,      wkdy_sat_flg = #wkdy_sat_flg#,
+
+                dep_hrmnt    = #dep_hrmnt#,         arr_hrmnt      = #arr_hrmnt#,            dur_dys_qty    = #dur_dys_qty#,       prd_dt       = #prd_dt#,
+
+                ts1_trdp_cd  = #ts1_trdp_cd#,       ts1_arpt_loc_cd= #ts1_arpt_loc_cd#,      ts1_dur_dys_qty= #ts1_dur_dys_qty#,
+                ts1_arr_hrmnt= #ts1_arr_hrmnt#,     ts1_flt_no     = #ts1_flt_no#,
+
+                ts2_trdp_cd  = #ts2_trdp_cd#,       ts2_arpt_loc_cd= #ts2_arpt_loc_cd#,      ts2_dur_dys_qty= #ts2_dur_dys_qty#,
+                ts2_arr_hrmnt= #ts2_arr_hrmnt#,     ts2_flt_no     = #ts2_flt_no#,
+
+                ts3_trdp_cd  = #ts3_trdp_cd#,       ts3_arpt_loc_cd= #ts3_arpt_loc_cd#,      ts3_dur_dys_qty= #ts3_dur_dys_qty#,
+                ts3_arr_hrmt = #ts3_arr_hrmt#,      ts3_flt_no     = #ts3_flt_no#,
+
+                rmk = #rmk#,
+
+		        modi_usrid   = #proc_usrid#,     modi_ofc_cd = #proc_ofccd#,   modi_tms   = GETUTCDATE()
+		 WHERE  air_skd_seq  = #air_skd_seq#
+    </update>
+
+    <!-- Air Line Schedule 삭제   -->
+    <update id="deleteAIR_SKD" parameterClass="com.clt.apps.fis.aic.bmd.linerinfo.dto.AirSkdVO">
+        UPDATE  tb_air_skd
+           SET  delt_flg     = 'Y',
+                modi_usrid   = #proc_usrid#,     modi_ofc_cd = #proc_ofccd#,   modi_tms   = GETUTCDATE()
+         WHERE  air_skd_seq  = #air_skd_seq#
+    </update>
+    <!-- #2827 : [BINEX]Fresh Cargo C/I & P/L 기능 수정  -->
+    <!-- #3636 [BINEX] AEM C/I for Produce Cargo QTY 로직 변경 필요 -->
+    <select id="selectBlOthItm" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.aie.bmd.housebl.dto.BlOthItmVO">
+		SELECT /* AicCmmSQL.xml : selectBlOthItm */
+			BOI.INTG_BL_SEQ
+			,CCIA.CTRT_NO + CAST(CCIA.ITEM_ATRR_SEQ AS varchar) + CCIA.ITEM_SYS_NO ITEM_CD
+			,OTH_ITM_SEQ
+			,CCIA.CTRT_NO
+			,CCIA.ITEM_SYS_NO
+			,CCIA.ITEM_ATRR_SEQ
+			,CASE WHEN BOI.ATTR_NM IS NULL THEN CCIA.ATTR_NM ELSE BOI.ATTR_NM END ATTR_NM
+			,CCIA.VSBL_FLG
+			,BOI.VAR_NM
+			,BOI.LBL_NM
+			,BOI.PCK_TP_NM
+			,BOI.SZ_NM
+			,CASE WHEN CCIA.VSBL_FLG = 'Y' then BOI.ITEM_QTY else  0 end ITEM_QTY
+			,CASE WHEN BOI.PCK_DT = '' then convert(varchar, getdate(), 112) else  BOI.PCK_DT end PCK_DT
+			,BOI.NET_KGS_WGT
+			,BOI.NET_LBS_WGT
+			,BOI.GRS_KGS_WGT
+			,BOI.GRS_LBS_WGT
+			,BOI.ITEM_RU 
+			,CASE WHEN CCIA.VSBL_FLG = 'Y' then BOI.ITEM_RU * ITEM_QTY else BOI.ITEM_RU end INV_AMT
+			,#ibflag# ibflag
+			,STUFF((SELECT '|' + D.ITEM_DTL_CD FROM TL_CTRT_CUST_ITEM_DTL_CD D WHERE CCIA.CTRT_NO = D.CTRT_NO AND CCIA.ITEM_SYS_NO = D.ITEM_SYS_NO AND D.ITEM_DTL_CD_TP='V' AND D.DELT_FLG = 'N'  FOR XML PATH ('')), 1, 1, '') AS DTLCD_V
+			,STUFF((SELECT '|' + D.ITEM_DTL_CD FROM TL_CTRT_CUST_ITEM_DTL_CD D WHERE CCIA.CTRT_NO = D.CTRT_NO AND CCIA.ITEM_SYS_NO = D.ITEM_SYS_NO AND D.ITEM_DTL_CD_TP='L' AND D.DELT_FLG = 'N'  FOR XML PATH ('')), 1, 1, '') AS DTLCD_L
+			,STUFF((SELECT '|' + D.ITEM_DTL_CD FROM TL_CTRT_CUST_ITEM_DTL_CD D WHERE CCIA.CTRT_NO = D.CTRT_NO AND CCIA.ITEM_SYS_NO = D.ITEM_SYS_NO AND D.ITEM_DTL_CD_TP='P' AND D.DELT_FLG = 'N'  FOR XML PATH ('')), 1, 1, '') AS DTLCD_P
+			,STUFF((SELECT '|' + D.ITEM_DTL_CD FROM TL_CTRT_CUST_ITEM_DTL_CD D WHERE CCIA.CTRT_NO = D.CTRT_NO AND CCIA.ITEM_SYS_NO = D.ITEM_SYS_NO AND D.ITEM_DTL_CD_TP='S' AND D.DELT_FLG = 'N'  FOR XML PATH ('')), 1, 1, '') AS DTLCD_S
+		FROM
+			TB_BL_OTH BO
+		INNER JOIN
+			TB_BL_OTH_ITM BOI
+		ON
+			BO.INTG_BL_SEQ = BOI.INTG_BL_SEQ
+		AND
+			BO.WRK_TP = BOI.WRK_TP
+		AND
+			BO.WRK_TP = #parm_wrk_tp#
+		INNER JOIN
+			TL_CTRT_CUST_ITEM_ATTR CCIA
+		ON
+			BOI.CTRT_NO = CCIA.CTRT_NO
+		AND
+			BOI.ITEM_SYS_NO = CCIA.ITEM_SYS_NO
+		AND
+			BOI.ITEM_ATRR_SEQ = CCIA.ITEM_ATRR_SEQ
+		WHERE
+			BOI.DELT_FLG = 'N'
+		AND
+			BOI.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+    </select>
+	<select id="selectBlOthItmSEQ"  parameterClass="com.clt.apps.fis.aie.bmd.housebl.dto.BlOthItmVO" resultClass="String">
+		SELECT /* AicCmmSQL.xml : selectBlOthItmSEQ */
+			count(1) + 1
+		FROM
+			TB_BL_OTH_ITM A
+		WHERE
+			A.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	<!-- #2827 : [BINEX]Fresh Cargo C/I & P/L 기능 수정  -->
+	<insert id="insertBlOthItm"  parameterClass="com.clt.apps.fis.aie.bmd.housebl.dto.BlOthItmVO">
+		INSERT /* AicCmmSQL.xml : insertBlOthItm */
+			INTO TB_BL_OTH_ITM
+				(INTG_BL_SEQ
+				,OTH_ITM_SEQ
+				,WRK_TP
+				,CTRT_NO
+				,ITEM_SYS_NO
+				,ITEM_ATRR_SEQ
+				,ITEM_QTY
+				,PCK_DT
+				,NET_KGS_WGT
+				,NET_LBS_WGT
+				,GRS_KGS_WGT
+				,GRS_LBS_WGT
+				,ITEM_RU
+				,INV_AMT
+				,DELT_FLG
+				,RGST_USRID
+				,RGST_OFC_CD
+				,RGST_TMS
+				,MODI_USRID
+				,MODI_OFC_CD
+				,MODI_TMS
+				,ATTR_NM
+				,VAR_NM
+				,LBL_NM
+				,PCK_TP_NM
+				,SZ_NM
+				)
+			VALUES
+				(#intg_bl_seq#
+				,#oth_itm_seq#
+				,#wrk_tp#
+				,#ctrt_no#
+				,#item_sys_no#
+				,#item_atrr_seq#
+				,#item_qty#
+				,#pck_dt#
+				,#net_kgs_wgt#
+				,#net_lbs_wgt#
+				,#grs_kgs_wgt#
+				,#grs_lbs_wgt#
+				,#item_ru#
+				,#inv_amt#
+				,'N'
+				,#userInfo.usrid#
+				,#userInfo.ofc_cd#
+				,getdate()
+				,#userInfo.usrid#
+				,#userInfo.ofc_cd#
+				,getdate()
+				,#attr_nm#
+				,#var_nm#
+				,#lbl_nm#
+				,#pck_tp_nm#
+				,#sz_nm#
+				)
+	</insert>
+	<!-- #2827 : [BINEX]Fresh Cargo C/I & P/L 기능 수정  -->
+	<update id="updateBlOthItm"  parameterClass="com.clt.apps.fis.aie.bmd.housebl.dto.BlOthItmVO">
+		UPDATE /* AicCmmSQL.xml : updateBlOthItm */
+			TB_BL_OTH_ITM
+		SET
+			CTRT_NO = #ctrt_no#
+			,ITEM_SYS_NO = #item_sys_no#
+			,ITEM_ATRR_SEQ = #item_atrr_seq#
+			,ITEM_QTY = #item_qty#
+			,PCK_DT = #pck_dt#
+			,NET_KGS_WGT = #net_kgs_wgt#
+			,NET_LBS_WGT = #net_lbs_wgt#
+			,GRS_KGS_WGT = #grs_kgs_wgt#
+			,GRS_LBS_WGT = #grs_lbs_wgt#
+			,ITEM_RU = #item_ru#
+			,INV_AMT = #inv_amt#
+			,MODI_USRID = #userInfo.usrid#
+			,MODI_OFC_CD = #userInfo.ofc_cd#
+			,MODI_TMS = getdate()
+			,ATTR_NM = #attr_nm#
+			,VAR_NM = #var_nm#
+			,LBL_NM = #lbl_nm#
+			,PCK_TP_NM = #pck_tp_nm#
+			,SZ_NM = #sz_nm#
+		WHERE
+			INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		AND
+			OTH_ITM_SEQ = #oth_itm_seq#
+		AND
+			WRK_TP = #wrk_tp#
+	</update>
+
+	<delete id="deleteBlOthItm"  parameterClass="com.clt.apps.fis.aie.bmd.housebl.dto.BlOthItmVO">
+		UPDATE /* AicCmmSQL.xml : deleteBlOthItm */
+			TB_BL_OTH_ITM
+		SET
+			DELT_FLG = 'Y'
+			,MODI_USRID = #userInfo.usrid#
+			,MODI_OFC_CD = #userInfo.ofc_cd#
+			,MODI_TMS = getdate()
+		WHERE
+			INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		<isNotEmpty property="oth_itm_seq">
+		AND
+			OTH_ITM_SEQ = #oth_itm_seq#
+		</isNotEmpty>
+		AND
+			WRK_TP = #wrk_tp#
+	</delete>
+</sqlMap>

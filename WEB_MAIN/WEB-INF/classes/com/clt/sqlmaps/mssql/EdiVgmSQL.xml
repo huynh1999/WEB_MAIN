@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="edi.vgm">
+	
+	<select id="searchVgmInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.vgm.dto.EdiVgmVO">
+		/* searchVgmInfo */
+		SELECT * 
+		 FROM (	
+		           SELECT mbl.BL_NO as MBL_NO
+					        , mbl.REF_NO as REF_NO              
+					        , mbl.INTG_BL_SEQ as INTG_BL_SEQ
+					        , mbl.LNR_BKG_NO as LNR_BKG_NO
+					        , lnr.TRDP_CD as lnr_trdp_cd
+					        , vgm.MSG_NO AS MSG_NO
+					        , vgm.MSG_NO_SEQ  AS MSG_NO_SEQ
+					        , vgm.MSG_STS AS  MSG_STS 
+					        , vgm.MSG_FNC_CD AS MSG_FNC_CD
+					        , ( CASE WHEN vgm.MSG_STS = 'S' THEN 'Sending'
+					                   WHEN vgm.MSG_STS = 'E' THEN 'Error'
+					        		   WHEN vgm.MSG_STS = 'T' THEN 'Transmitted'	 
+					                   WHEN vgm.MSG_STS = 'R' THEN 'Rejected'
+					                   WHEN vgm.MSG_STS = 'A' THEN 'Accepted' END  ) AS MSG_STS_NM
+					                   
+
+				            ,mbl.por_cd
+				            ,mbl.pol_cd 
+				            ,mbl.pod_cd 
+				            ,mbl.del_cd 
+
+				            ,mbl.por_nm
+				            ,mbl.pol_nm 
+				            ,mbl.pod_nm 
+				            ,mbl.del_nm 
+					       
+					       	,(select top 1  UN_LOC_CD from tb_loc loc where loc.loc_cd = mbl.por_cd) AS un_por_cd
+				            ,(select top 1  UN_LOC_CD from tb_loc loc where loc.loc_cd = mbl.pol_cd) AS un_pol_cd
+					       	,(select top 1  UN_LOC_CD from tb_loc loc where loc.loc_cd = mbl.pod_cd) AS un_pod_cd
+				            ,(select top 1  UN_LOC_CD from tb_loc loc where loc.loc_cd = mbl.del_cd) AS un_del_cd
+
+				            ,mbl.pck_qty
+				            ,(select top 1 PCK_UT_EDI_CD from tb_pck_ut_cd pck where mbl.pck_ut_cd = pck.pck_ut_cd  and isnull(pck.delt_flg,'') != 'y') as pck_ut_cd
+				            ,mbl.grs_wgt
+							,mbl.meas
+							,itn_no
+							,(SELECT COUNT(X.CNTR_NO)FROM TB_CNTR_LIST X WHERE X.INTG_BL_SEQ = MBL.INTG_BL_SEQ AND X.DELT_FLG = 'N') AS CNTR_CNT
+							,(SELECT COUNT(X.CNTR_NO)FROM TB_CNTR_LIST X WHERE X.INTG_BL_SEQ = MBL.INTG_BL_SEQ AND X.DELT_FLG = 'N' AND ISNULL(CNTR_NO,'') = '') AS NO_NAME_CNTR_CNT
+
+							,(SELECT COUNT(LIST.CNTR_TPSZ_CD)FROM TB_CNTR_LIST LIST JOIN TB_CNTR_TPSZ TPSZ ON LIST.CNTR_TPSZ_CD = TPSZ.CNTR_TPSZ_CD 
+							WHERE LIST.INTG_BL_SEQ = MBL.INTG_BL_SEQ AND LIST.DELT_FLG = 'N' AND ISNULL(TPSZ.ISO_CNTR_CD,'') = '') AS NO_TPSZ_CNTR_CNT
+
+							
+							,mbl.desc_txt
+							
+							,shp_pic.PIC_NM  AS shpr_pic_nm 
+							,shp_pic.PIC_PHN AS shpr_pic_phn 
+							,shp_pic.PIC_FAX AS shpr_pic_fax 
+							,shp_pic.PIC_EML AS shpr_pic_eml
+							,shp.trdp_cd AS shpr_trdp_cd
+							,shp.trdp_nm AS shpr_trdp_nm
+							
+							,cne_pic.PIC_NM  AS cnee_pic_nm 
+							,cne_pic.PIC_PHN AS cnee_pic_phn 
+							,cne_pic.PIC_FAX AS cnee_pic_fax 
+							,cne_pic.PIC_EML AS cnee_pic_eml
+							,cne.trdp_cd AS cnee_trdp_cd
+							,cne.trdp_nm AS cnee_trdp_nm
+							
+							,ntf_pic.PIC_NM  AS ntfy_pic_nm 
+							,ntf_pic.PIC_PHN AS ntfy_pic_phn 
+							,ntf_pic.PIC_FAX AS ntfy_pic_fax 
+							,ntf_pic.PIC_EML AS ntfy_pic_eml
+							,ntf.trdp_cd AS ntfy_trdp_cd
+							,ntf.trdp_nm AS ntfy_trdp_nm
+							
+							,lnr_pic.PIC_NM  AS carr_pic_nm 
+							,lnr_pic.PIC_PHN AS carr_pic_phn 
+							,lnr_pic.PIC_FAX AS carr_pic_fax 
+							,vgm.carr_pic_eml AS carr_pic_eml
+					        ,lnr.trdp_cd AS carr_trdp_cd
+							,lnr.trdp_nm AS carr_trdp_nm
+					        
+					        ,(SELECT lgl_addr FROM tb_trdp x where x.trdp_cd = shp.trdp_cd) AS shpr_trdp_addr
+					        ,(SELECT lgl_addr FROM tb_trdp x where x.trdp_cd = cne.trdp_cd) AS cnee_trdp_addr
+					        ,(SELECT lgl_addr FROM tb_trdp x where x.trdp_cd = ntf.trdp_cd) AS ntfy_trdp_addr
+					        ,(SELECT lgl_addr FROM tb_trdp x where x.trdp_cd = lnr.trdp_cd) AS carr_trdp_addr
+					        
+					        ,(SELECT CD_NM FROM TB_COM_CD_DTL WHERE COM_CD ='C089' AND CD_VAL = mbl.obl_tp_cd) AS OBL_TP_NM
+					        , RANK() OVER (PARTITION BY mbl.INTG_BL_SEQ ORDER BY mbl.INTG_BL_SEQ DESC, vgm.RGST_TMS DESC) RNK                  
+				 FROM   tb_intg_bl mbl
+					         JOIN   tb_add_info_bnd bnd
+					         ON   mbl.intg_bl_seq = bnd.intg_bl_seq AND bnd.bnd_clss_cd = 'O' AND bnd.delt_flg = 'N'
+					         
+					         LEFT OUTER JOIN tb_edi_vgm vgm          
+		                     ON   mbl.intg_bl_seq = vgm.intg_bl_seq
+
+							LEFT OUTER JOIN tb_bl_prnr shp
+							ON mbl.intg_bl_seq = shp.intg_bl_seq AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+							LEFT OUTER JOIN tb_trdp_cntc_pson shp_pic      
+							ON shp.trdp_cd = shp_pic.trdp_cd AND shp_pic.rep_flg = 'Y'   AND shp_pic.delt_flg = 'N' 
+
+		                    LEFT OUTER JOIN tb_bl_prnr cne
+							ON mbl.intg_bl_seq = cne.intg_bl_seq AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+							LEFT OUTER JOIN tb_trdp_cntc_pson cne_pic      
+							ON cne.trdp_cd = cne_pic.trdp_cd AND cne_pic.rep_flg = 'Y'   AND cne_pic.delt_flg = 'N' 
+						
+							LEFT OUTER JOIN tb_bl_prnr ntf
+							ON mbl.intg_bl_seq = ntf.intg_bl_seq AND ntf.bl_trdp_tp_cd = 'N01' AND ntf.delt_flg = 'N'
+							LEFT OUTER JOIN tb_trdp_cntc_pson ntf_pic      
+							ON ntf.trdp_cd = ntf_pic.trdp_cd AND ntf_pic.rep_flg = 'Y'  AND ntf_pic.delt_flg = 'N' 
+
+							LEFT OUTER JOIN tb_bl_prnr lnr
+							ON mbl.intg_bl_seq = lnr.intg_bl_seq AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+							LEFT OUTER JOIN tb_trdp_cntc_pson lnr_pic      
+							ON lnr.trdp_cd = lnr_pic.trdp_cd AND lnr_pic.rep_flg = 'Y'  AND lnr_pic.delt_flg = 'N' 
+
+							 
+				WHERE mbl.delt_flg = 'N' AND mbl.biz_clss_cd = 'M' AND mbl.air_sea_clss_cd = 'S'
+					AND mbl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+					AND mbl.DELT_FLG = 'N'
+				) AA
+			WHERE AA.RNK = 1
+		ORDER BY LNR_BKG_NO DESC 
+	</select>
+	
+	<select id="searchVgmCntrList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.vgm.dto.EdiVgmMblCntrListVO">
+		/* searchVgmCntrList */
+		SELECT * FROM TB_CNTR_LIST 
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		ORDER BY CNTR_LIST_SEQ ASC
+	</select>
+	
+	<select id="searchEdiVgmMblInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.vgm.dto.EdiVgmMblInfoVO">
+		/* searchEdiVgmMblInfo */
+		SELECT TOP 1
+		bl.intg_bl_seq, 
+		bl.bl_no, 
+		bl.lnr_bkg_no,
+		bl.ref_no,
+		
+		bl.por_cd, 
+		bl.pol_cd, 
+		bl.pod_cd, 
+		bl.del_cd, 
+		(select top 1  UN_LOC_CD from tb_loc loc where loc.loc_cd = bl.por_cd) AS un_por_cd,
+		(select top 1  UN_LOC_CD from tb_loc loc where loc.loc_cd = bl.pol_cd) AS un_pol_cd,
+		(select top 1  UN_LOC_CD from tb_loc loc where loc.loc_cd = bl.pod_cd) AS un_pod_cd,
+		(select top 1  UN_LOC_CD from tb_loc loc where loc.loc_cd = bl.del_cd) AS un_del_cd,
+		
+		
+		lnr.trdp_cd AS lnr_trdp_cd, 
+		
+		shp.trdp_cd AS shpr_trdp_cd, 
+		shp.trdp_nm AS shpr_trdp_nm, 
+		shp_pic.PIC_NM  AS shpr_pic_nm, 
+		shp_pic.PIC_PHN AS shpr_pic_phn, 
+		shp_pic.PIC_FAX AS shpr_pic_fax, 
+		shp_pic.PIC_EML AS shpr_pic_eml,
+
+		carr.trdp_cd AS carr_trdp_cd, 
+		carr.trdp_nm AS carr_trdp_nm, 
+		carr_pic.PIC_NM  AS carr_pic_nm, 
+		carr_pic.PIC_PHN AS carr_pic_phn, 
+		carr_pic.PIC_FAX AS carr_pic_fax, 
+		carr_pic.PIC_EML AS carr_pic_eml,
+		
+		(SELECT lgl_addr FROM tb_trdp x where x.trdp_cd = shp.trdp_cd) AS shpr_trdp_addr,
+		(SELECT lgl_addr FROM tb_trdp x where x.trdp_cd = lnr.trdp_cd) AS carr_trdp_addr,
+		
+		(select edi_vndr_cd from tb_trdp_edi_cnfg where trdp_cd=lnr.TRDP_CD and edi_clss_cd = 'SPI') as lnr_edi_vndr_cd,
+	    (select vndr_mapg_cd from tb_trdp_edi_cnfg where trdp_cd=lnr.TRDP_CD and edi_clss_cd = 'SPI') as lnr_vndr_mapg_cd
+		
+		FROM tb_intg_bl bl
+		
+		LEFT OUTER JOIN tb_bl_prnr shp
+		ON bl.intg_bl_seq = shp.intg_bl_seq AND shp.bl_trdp_tp_cd = 'S01' AND
+		shp.delt_flg = 'N'
+		
+		LEFT OUTER JOIN tb_trdp_cntc_pson shp_pic      
+		ON shp.trdp_cd = shp_pic.trdp_cd AND shp_pic.rep_flg = 'Y'   AND shp_pic.delt_flg = 'N' 
+		
+		LEFT OUTER JOIN tb_bl_prnr lnr
+		ON bl.intg_bl_seq = lnr.intg_bl_seq AND lnr.bl_trdp_tp_cd = 'L01' AND
+		lnr.delt_flg = 'N'
+		
+		LEFT OUTER JOIN tb_bl_prnr carr
+		ON bl.intg_bl_seq = carr.intg_bl_seq AND carr.bl_trdp_tp_cd = 'L01' AND
+		carr.delt_flg = 'N'
+		
+		LEFT OUTER JOIN tb_trdp_cntc_pson carr_pic      
+		ON carr.trdp_cd = carr_pic.trdp_cd AND carr_pic.rep_flg = 'Y'  AND carr_pic.delt_flg = 'N' 
+		
+		WHERE bl.delt_flg = 'N' AND bl.biz_clss_cd = 'M' AND bl.air_sea_clss_cd = 'S'
+		   AND bl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+    </select>
+    
+    <select id="searchEdiVgmMblCntrList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.vgm.dto.EdiVgmMblCntrListVO">
+		/* searchEdiVgmMblCntrList */ 
+		SELECT  LIST.*,TPSZ.ISO_CNTR_CD
+          FROM  TB_CNTR_LIST LIST 
+          JOIN	TB_CNTR_TPSZ TPSZ ON LIST.CNTR_TPSZ_CD = TPSZ.CNTR_TPSZ_CD AND ISNULL(TPSZ.DELT_FLG,'') !='Y'
+         WHERE  INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+		   AND  LIST.DELT_FLG = 'N' 
+      ORDER BY  INTG_BL_SEQ ASC, CNTR_LIST_SEQ ASC
+    </select>
+    
+    <select id="searchEdiSpiMblItemList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.spi.dto.EdiSpiMblItemListVO">
+		/* searchEdiSpiMblItemList */ 
+		SELECT 
+			SHP_CMDT_CD
+			,SHP_CMDT_NM
+			,PCK_UT_CD
+			,(SELECT TOP 1 CD.PCK_UT_EDI_CD FROM TB_PCK_UT_CD CD WHERE CD.PCK_UT_CD = CMDT.PCK_UT_CD AND USE_FLG !='N') AS PCK_UT_EDI_CD
+			,(SELECT TOP 1 CD.PCK_NM FROM TB_PCK_UT_CD CD WHERE CD.PCK_UT_CD = CMDT.PCK_UT_CD AND USE_FLG !='N') AS PCK_UT_NM 
+			,RMK
+			,SUM(PCK_QTY) AS PCK_QTY
+			,SUM(WGT) AS WGT
+			,SUM(CONVERT(NUMERIC(13,3),MEAS)) AS  MEAS
+		FROM TB_SHP_CMDT CMDT 
+		WHERE INTG_BL_SEQ IN (
+			SELECT INTG_BL_SEQ  FROM TB_INTG_BL_RLT 
+			WHERE RLT_INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) 
+		)
+		GROUP BY SHP_CMDT_CD,SHP_CMDT_NM,PCK_UT_CD, RMK 
+    </select>
+
+    <select id="searchEdiSpiItemCmdtList" parameterClass="com.clt.apps.fis.edi.spi.dto.EdiSpiMblItemListVO" resultClass="com.clt.apps.fis.edi.spi.dto.ICmCntrVO">
+		/* searchEdiSpiItemCmdtList */ 
+		SELECT 
+		(SELECT LIST.CNTR_NO FROM TB_CNTR_LIST LIST WHERE LIST.CNTR_LIST_SEQ = CMDT.CNTR_LIST_SEQ AND ISNULL(LIST.DELT_FLG,'Y') != 'Y') AS ICMD_CNTR_NO
+			,PCK_QTY AS ICMD_CNTR_PKG_QTY
+			,WGT AS ICMD_CNTR_WGT_QTY
+			,CONVERT(NUMERIC(13,3),MEAS) AS ICMD_CNTR_MEA_QTY
+		FROM TB_SHP_CMDT CMDT 
+		WHERE INTG_BL_SEQ IN (
+			SELECT INTG_BL_SEQ  FROM TB_INTG_BL_RLT 
+			WHERE RLT_INTG_BL_SEQ = cast(#intg_bl_seq# as varchar))
+		AND SHP_CMDT_CD = #shp_cmdt_cd#
+		AND PCK_UT_CD = #pck_ut_cd#
+		AND RMK =  #rmk#
+    </select>
+    
+    <select id="searchEdiVgm" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.vgm.dto.EdiVgmVO">
+		SELECT TOP 1 * 
+		 FROM TB_EDI_VGM 
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar) 
+		ORDER BY MSG_NO_SEQ DESC
+    </select>
+    
+    <select id="searchEdiVgmMsgNo" parameterClass="java.lang.String" resultClass="java.lang.String">
+		SELECT #msg_no_prefix# + ISNULL(dbo.LPAD(MAX(SUBSTRING(MSG_NO, 10, 5))+1, 5, '0'), '00001')
+		  FROM  TB_EDI_VGM 
+		 WHERE MSG_NO LIKE #msg_no_prefix# + '%'
+	</select>
+    
+    <select id="searchRequesterAddr" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select OFC_ADDR from TB_OFC where OFC_CD = #ofc_cd#
+	</select>
+    
+    
+    <select id="searchEdiSpiForSave" parameterClass="java.lang.String" resultClass="com.clt.apps.fis.edi.spi.dto.EdiSpiVO">
+		SELECT TOP 1 *
+		FROM TB_EDI_SI
+		WHERE INTG_BL_SEQ =  cast(#intg_bl_seq# as varchar)
+		ORDER BY MODI_TMS DESC 
+	</select>
+    
+    <insert id="insertEdiVgm"  parameterClass="com.clt.apps.fis.edi.vgm.dto.EdiVgmVO">
+	    INSERT INTO TB_EDI_VGM
+	           (MSG_NO
+				,MSG_NO_SEQ
+				,MSG_FNC_CD
+				,MSG_STS
+				,INTG_BL_SEQ
+				,FILE_NM
+				,CARR_PIC_EML
+				,RGST_USRID
+				,RGST_OFC_CD
+				,RGST_TMS)
+	     VALUES
+	           (#msg_no#
+				,#msg_no_seq#
+				,#msg_fnc_cd#
+				,#msg_sts#
+				,#intg_bl_seq#
+				,#file_nm#
+				,#carr_pic_eml#
+				,#proc_usrid#
+				,#proc_ofccd#
+				,GETDATE())
+	</insert>
+	
+    <update id="updateEdiVgm"  parameterClass="com.clt.apps.fis.edi.vgm.dto.EdiVgmVO">
+    /* updateEdiSi */
+	    UPDATE TB_EDI_SI SET 
+			 MSG_NO_SEQ = #msg_no_seq#
+			,MSG_FNC_CD = #msg_fnc_cd#
+			,MSG_STS = #msg_sts#
+			,FILE_NM = #file_nm#
+			,CARR_PIC_EML = #carr_pic_eml#
+			,MODI_USRID = #proc_usrid#
+			,MODI_OFC_CD = #proc_ofccd#
+			,MODI_TMS = GETDATE() 
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+			AND MSG_NO = #msg_no#
+	</update>
+	
+	
+	
+    <update id="updateEdiSiForSend"  parameterClass="com.clt.apps.fis.edi.spi.dto.EdiSpiVO">
+    /* updateEdiSiForSend */
+	    UPDATE TB_EDI_VGM SET 
+			 MSG_NO = #msg_no#
+			,MSG_NO_SEQ = #msg_no_seq#
+			,MSG_FNC_CD = #msg_fnc_cd#
+			,MSG_STS = #msg_sts#
+			,FILE_NM = #file_nm#
+			,SHPR_TRDP_ADDR = #shpr_trdp_addr#
+			,SHPR_PIC_NM = #shpr_pic_nm#
+			,SHPR_PIC_PHN = #shpr_pic_phn#
+			,SHPR_PIC_FAX = #cnee_pic_fax#
+			,SHPR_PIC_EML = #shpr_pic_eml#
+			,CNEE_TRDP_ADDR = #cnee_trdp_addr#
+			,CNEE_PIC_NM = #cnee_pic_nm#
+			,CNEE_PIC_PHN = #cnee_pic_phn#
+			,CNEE_PIC_FAX = #cnee_pic_fax#
+			,CNEE_PIC_EML = #cnee_pic_eml#
+			,NTFY_TRDP_ADDR = #ntfy_trdp_addr#
+			,NTFY_PIC_NM = #ntfy_pic_nm#
+			,NTFY_PIC_PHN = #ntfy_pic_phn#
+			,NTFY_PIC_FAX = #ntfy_pic_fax#
+			,NTFY_PIC_EML = #ntfy_pic_eml#
+			,UN_POR_CD = #un_por_cd#
+			,UN_POL_CD = #un_pol_cd#
+			,UN_POD_CD = #un_pod_cd#
+			,UN_DEL_CD = #un_del_cd#
+			,ORG_BL_QTY = #org_bl_qty#
+			,LNR_BKG_NO = #lnr_bkg_no#
+			,BL_SPLIT_CNT = #bl_split_cnt#
+			,BL_FRT_TP = #bl_frt_tp#
+			,SI_BL_TP = #si_bl_tp#
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+			AND MSG_NO ='0'
+	</update>
+	
+	
+		
+    <update id="updateEdiSiStatus"  parameterClass="com.clt.apps.fis.edi.spi.dto.EdiSpiVO">
+	    UPDATE INTO TB_EDI_SI SET 
+			 MSG_NO_SEQ = #msg_no_seq#
+			,MSG_FNC_CD = #msg_fnc_cd#
+			,MSG_STS = #msg_sts#
+			,FILE_NM = #file_nm#
+			,SI_STS = 'S'
+			,MODI_USRID = #proc_usrid#
+			,MODI_OFC_CD = #proc_ofccd#
+			,MODI_TMS = GETDATE() 
+		WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+			AND MSG_NO = #msg_no#
+	</update>
+    <!-- 
+	<select id="searchEdiSpiMblInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.spi.dto.EdiSpiMblInfoVO">
+		/* searchEdiSpiMblInfo */
+		SELECT TOP 1  bl.bl_no as mbl_no, bl.shp_mod_cd
+					, bl.fm_svc_term_cd, bl.to_svc_term_cd
+					, bl.por_cd, bl.por_nm
+					, bl.pol_cd, bl.pol_nm
+					, bl.pod_cd,  bl.pod_nm
+					, bl.del_cd, bl.del_nm
+				    , bl.fnl_dest_loc_cd, bl.fnl_dest_loc_nm
+				    , bl.trnk_vsl_nm, bl.trnk_voy
+				    , bl.etd_dt_tm, bl.eta_dt_tm
+				    , bl.ref_no, bl.express_tp_cd
+				    , bl.shp_mod_cd
+				    , bl.intg_bl_seq
+				    , lnr.trdp_nm AS lnr_trdp_nm
+				    , lnrX.scac_cd AS lnr_scac_cd
+				    , prnr.trdp_nm AS prnr_trdp_nm
+				    , prnrX.CNT_CD AS prnr_cnt_cd
+		FROM tb_intg_bl bl
+		JOIN tb_add_info_bnd bnd
+		ON bl.intg_bl_seq = bnd.intg_bl_seq AND bnd.bnd_clss_cd = 'O'
+		AND bnd.delt_flg = 'N'
+		LEFT OUTER JOIN tb_bl_prnr lnr
+		ON bl.intg_bl_seq = lnr.intg_bl_seq AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+		LEFT OUTER JOIN tb_trdp lnrX 
+		ON lnr.trdp_cd = lnrX.trdp_cd AND lnrX.delt_flg = 'N'
+		LEFT OUTER JOIN tb_bl_prnr prnr
+		ON bl.intg_bl_seq = prnr.intg_bl_seq AND prnr.bl_trdp_tp_cd = 'C01' AND prnr.delt_flg = 'N'
+		LEFT OUTER JOIN tb_trdp prnrX 
+		ON prnr.trdp_cd = prnrX.trdp_cd AND prnrX.delt_flg = 'N'
+		WHERE bl.delt_flg = 'N' AND bl.biz_clss_cd = 'M' 
+			<isNotEmpty property="intg_bl_seq">
+				AND bl.intg_bl_seq = #intg_bl_seq#
+			</isNotEmpty>
+			<isNotEmpty property="ref_no">
+				AND bl.ref_no = #ref_no#
+			</isNotEmpty>
+    </select>
+     -->
+</sqlMap>

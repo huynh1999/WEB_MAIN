@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+    
+    <screen name="init" template="templateLogin">
+        <parameter key="body"    value="/index.html"/>
+        <parameter key="body"    value="/apps/opusbase/main/jsp/NewMain.jsp"/>
+    </screen>
+    
+    <screen name="version">
+        <parameter key="body"    value="/version.txt"/>
+    </screen>
+    
+    <screen name="version">
+        <parameter key="body"    value="/version.txt"/>
+    </screen>
+    
+    <screen name="version">
+        <parameter key="body"    value="/setup.exe"/>
+    </screen>
+
+    <!--#### Login 관련 Start ####  -->
+    <screen name="Index">
+        <parameter key="body"    value="/index.html"/>
+    </screen>
+    
+    <screen name="Login"  template="templateLogin">
+        <parameter key="body"    value="/apps/opusbase/login/jsp/Login.jsp"/>
+    </screen>
+    
+    <screen name="Change_Pwd">
+        <parameter key="body"  value="/apps/opusbase/login/jsp/Change_Pwd.jsp" />
+    </screen>
+    
+    <screen name="ChgPwd"  template="templateLogin">
+        <parameter key="body"  value="/apps/opusbase/login/jsp/Move_Change_Pwd.jsp" />
+    </screen>
+
+    <screen name="TopFrame">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/TopFrame.jsp"/>
+    </screen>
+    
+    <screen name="MidFrame">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/MidFrame.jsp"/>
+    </screen>
+
+    <screen name="MainFrame">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/MainFrame.jsp"/>
+    </screen>
+    
+    <screen name="NewMain">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/NewMain.jsp"/>
+    </screen>    
+    
+    <screen name="XmlMenu">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/XmlMenu.jsp"/>
+    </screen> 
+    
+     <screen name="Menu">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/LeftMenu.jsp"/>
+    </screen>
+    
+    <!-- 최상위 메뉴   -->
+     <screen name="TopMenu">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/TopMenu.jsp"/>
+    </screen>
+    
+    <!-- Main 페이지   -->
+    <!-- screen name="Main" -->
+    <screen name="MainOld">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/Main.jsp"/>
+    </screen>
+    <!--
+    <screen name="MainPage">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/Main.jsp"/>
+    </screen>
+    -->
+    <!--  screen name="MainTab" template="templateTab" -->
+    <screen name="Main" template="templateTab">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/MainTab.jsp"/>
+    </screen>
+
+    <!--좌측 탭메뉴  -->
+    <screen name="tabMenu">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/LeftTabMenu.jsp"/>
+    </screen>
+    
+    <!--메인화면의 칼렌더 페이지  -->
+    <screen name="MainCalendar" template="templateEmpty">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/MainCalendar.jsp"/>
+    </screen>
+	
+	<!--#### Login 관련 End ####  -->    
+    
+    <!-- #5064 A/N Print 시에 Error Log 확인 필요(v5.0 동일 처리 - RPT_RD_0010 두 번 호출되는 오류수정) -->
+    <screen name="blank" template="templateEmpty">
+        <parameter key="body"    value="/syscommon/template/blank.jsp"/>
+    </screen>
+    
+    <screen name="blankblue">
+        <parameter key="body"    value="/syscommon/template/blankBlue.jsp"/>
+    </screen>
+	
+    
+    <screen name="TabWindow">
+        <parameter key="body"    value="/apps/opusbase/main/jsp/TabWindow.jsp"/>
+    </screen>
+	
+    <!--#### Notice Management Start ####  -->
+    <!-- 게시판 목록. Jung-Gu, Kang(2009.02.04)  -->
+    <screen name="NoticeList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/service/notice/jsp/NoticeList.jsp"/>
+    </screen>
+
+    <!-- 게시판 목록화면 데이터조회. Jung-Gu, Kang(2009.02.05)  -->
+    <screen name="NoticeListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/service/notice/jsp/NoticeListGS.jsp"/>
+    </screen>
+
+    <!-- 게시물 등록 화면  -->
+    <screen name="NoticeMngRead">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/service/notice/jsp/NoticeMngRead.jsp"/>
+    </screen>
+
+    <!-- 게시물 내용확인 화면  -->
+    <screen name="NoticeRead">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/service/notice/jsp/NoticeRead.jsp"/>
+    </screen>
+    
+    <!-- 메인화면에서 팝업으로 게시물 내용확인 화면  -->
+    <screen name="NoticePopRead" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/service/notice/jsp/NoticePopRead.jsp"/>
+    </screen>
+    
+    <!--#### Notice Management End ####  -->
+    
+    <!--#### Mbrd Management Start ####  -->
+    <!-- 게시판 목록. Jung-Gu, Kang(2009.02.04)  -->
+    <screen name="MbrdList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/service/mbrd/jsp/MbrdList.jsp"/>
+    </screen>
+
+    <!-- 게시판 목록화면 데이터조회. Jung-Gu, Kang(2009.02.05)  -->
+    <screen name="MbrdListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/service/mbrd/jsp/MbrdListGS.jsp"/>
+    </screen>
+    
+    <!-- Mbrd 게시물 등록 화면  -->
+    <screen name="MbrdMngRead">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/service/mbrd/jsp/MbrdMngRead.jsp"/>
+    </screen>
+
+    <!-- Mbrd 게시물 내용확인 화면  -->
+    <screen name="MbrdRead">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/service/mbrd/jsp/MbrdRead.jsp"/>
+    </screen>
+    
+    <!--#### Mbrd Management End ####  -->
+	
+    <!--#### 스케줄관리 ####  -->
+    <!-- 스케줄관리화면 조회. Jung-Gu, Kang(2009.02.10)  -->
+    <screen name="MySchedule">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/user/jsp/MySchedule.jsp"/>
+    </screen>
+
+    <!-- 스케줄 내용조회  -->
+    <screen name="MyScheduleSub" template="templateEmpty">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/user/jsp/MyScheduleSub.jsp"/>
+    </screen>   
+<!--#### 스케줄관리 End ####  -->
+	
+<!--#### 메뉴관리 Start ####  -->
+    <!-- 최 상위 메뉴관리   -->
+    <screen name="TopMenuMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/TopMenuMng.jsp"/>
+    </screen>
+
+    <!-- 최 상위 메뉴관리 그리드  -->
+    <screen name="TopMenuMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/TopMenuMngGS.jsp"/>
+    </screen>
+    
+    <!-- 메뉴관리   -->
+    <screen name="MenuMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/MenuMng.jsp"/>
+    </screen>
+
+    <!-- 메뉴관리 그리드  -->
+    <screen name="MenuMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/MenuMngGS.jsp"/>
+    </screen>
+    
+    
+    
+    
+    <!-- 메뉴관리 트리표시   -->
+    <screen name="MenuMngSub" template="templateEmpty">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/MenuMngSub.jsp"/>
+    </screen>
+        
+    <!-- 프로그램 관리화면   -->
+    <screen name="ProgramMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/ProgramMng.jsp"/>
+    </screen>
+
+    <!-- 프로그램 관리화면 데이터  -->
+    <screen name="ProgramMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/ProgramMngGS.jsp"/>
+    </screen>
+    
+    <!-- 프로그램 role 버튼  관리화면 데이터  -->
+    <screen name="ProgramButtonRoleMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/ProgramButtonRoleMngGS.jsp"/>
+    </screen>
+    
+    <!-- 프로그램 관리화면 메뉴트리 표시   -->
+    <screen name="ProgramMngSub" template="templateEmpty">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/ProgramMngSub.jsp"/>
+    </screen>
+    
+    <!-- 프로그램 팝업 조회   -->
+    <screen name="ProgramPopList" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/ProgramPopList.jsp"/>
+    </screen>
+    <!-- 프로그램 팝업 조회 데이터   -->
+    <screen name="ProgramPopListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/ProgramPopListGS.jsp"/>
+    </screen>
+    
+    <!-- Language Properties 관리화면   -->
+    <screen name="MsgLngMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/MsgLngMng.jsp"/>
+    </screen>
+
+    <!-- Language Properties 데이터셋 관리화면   -->
+    <screen name="MsgLngMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/MsgLngMngGS.jsp"/>
+    </screen>
+    
+    <!-- Create Properties File List 팝업 화면   -->
+    <screen name="CreatePropList" template="templatePop">
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/CreatePropList.jsp"/>
+    </screen>
+
+    <!-- Create Properties File List 팝업 데이터셋 관리화면   -->
+    <screen name="CreatePropListGS" template="templateIBSheet">
+    	<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/CreatePropListGS.jsp"/>
+    </screen>
+    
+    <!-- 2016.12.12 MenuMngSub 팝업 화면   -->
+    <screen name="MenuMngSub_popup" template="templatePop">
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/MenuMngSub_popup.jsp"/>
+    </screen>
+    
+
+    <!-- 2016.12.12 MenuMngSub 팝업  데이터셋 관리화면   -->
+    <screen name="MenuMngSub_popupGS" template="templateIBSheet">
+    	<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/MenuMngSub_popupGS.jsp"/>
+    </screen>
+    
+
+<!-- 2016.12.16 ProgramMngSub_popup 팝업 화면   -->
+    <screen name="ProgramMngSub_popup" template="templatePop">
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/ProgramMngSub_popup.jsp"/>
+    </screen>
+    
+
+    <!-- 2016.12.16 ProgramMngSub_popup 팝업  데이터셋 관리화면   -->
+    <screen name="ProgramMngSub_popupGS" template="templateIBSheet">
+    	<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/ProgramMngSub_popupGS.jsp"/>
+    </screen>
+
+
+
+<!--#### 메뉴관리 End ####  -->
+
+    
+<!--#### 롤관리 Start ####  -->
+    <!-- 롤 관리팝업 화면   -->
+    <screen name="RoleMng" >
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/RoleMng.jsp"/>
+    </screen>
+    
+    <screen name="RoleMngPop" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/RoleMng.jsp"/>
+    </screen>
+
+    <!-- 롤 관리팝업 데이터  -->
+    <screen name="RoleMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/RoleMngGS.jsp"/>
+    </screen>
+    
+    <!-- 롤 관리팝업 데이터  -->
+    <screen name="RoleFncGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/RoleFncGS.jsp"/>
+    </screen>
+    
+    <!-- 롤 매핑 화면   -->
+    <screen name="RoleAssign">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/RoleAssign.jsp"/>
+    </screen>
+    
+    <!-- 롤 Button 매핑 화면   -->
+    <screen name="RoleBtnAssign">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/RoleBtnAssign.jsp"/>
+    </screen>
+    
+    <!-- 롤 Button 매핑 화면   -->
+    <screen name="RoleBtnAssignGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/RoleBtnAssignGS.jsp"/>
+    </screen>
+
+    <!-- 롤 Button 매핑 화면   -->
+    <screen name="NewRoleBtnAssign">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/NewRoleBtnAssign.jsp"/>
+    </screen>
+    
+    <!-- 롤 Button 매핑 화면   -->
+    <screen name="NewRoleBtnAssignGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/role/jsp/NewRoleBtnAssignGS.jsp"/>
+    </screen>
+<!--#### 롤관리 End ####  -->
+    
+<!--#### 사용자관리 Start ####  -->
+    <!-- 사용자관리 화면. Jung-Gu, Kang(2008.12.25)  -->
+    <screen name="UserMngList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/user/jsp/UserMngList.jsp"/>
+    </screen>
+
+    <!-- 사용자관리 화면 데이터. Jung-Gu, Kang(2008.12.25)  -->
+    <screen name="UserMngListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/user/jsp/UserMngListGS.jsp"/>
+    </screen>
+    
+    <screen name="UserMngList_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/user/jsp/UserMngList_1GS.jsp"/>
+    </screen>
+    
+    <!-- 사용자관리 화면 데이터. #65: #52672 - [CLA] Security Management / OPUS Forwarding 보안 문제  -->
+    <screen name="UserMngList_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/user/jsp/UserMngList_2GS.jsp"/>
+    </screen>
+
+    <!-- 개인정보 관리화면. Jung-Gu, Kang(2009.01.23)  -->
+    <screen name="UserInfoMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/user/jsp/UserInfoMng.jsp"/>
+    </screen>
+    <!-- 개인정보 관리화면 정렬순서. cej 2016.03  -->
+    <screen name="UserInfoMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/user/jsp/UserInfoMngGS.jsp"/>
+    </screen>    
+    
+    <!-- 패스워드 변경. Jung-Gu, Kang(2009.01.23)  -->
+    <screen name="UserPwdMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/user/jsp/UserPwdMng.jsp"/>
+    </screen>
+    <!-- OFVFOUR-7227 [KING FREIGHT NY] APPLYING LINK TO PROFILE EMAIL BODY  -->
+    <screen name="EmlCtntGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/user/jsp/EmlCtntGS.jsp"/>
+    </screen>
+    
+<!--#### 사용자관리 End ####  -->
+	
+<!--#### 코드 관리Start ####  -->
+    <!--  마스터코드 기본화면    -->
+    <screen name="TopCodeMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/systemcode/jsp/TopCodeMng.jsp"/>
+    </screen>
+
+    <!--  마스터코드 DataSheet화면    -->
+    <screen name="TopCodeMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/systemcode/jsp/TopCodeMngGS.jsp"/>
+    </screen>    
+
+    <!--  서브코드 기본화면    -->
+    <screen name="SubCodeMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/systemcode/jsp/SubCodeMng.jsp"/>
+    </screen>
+
+    <!--  서브코드 DataSheet화면    -->
+    <screen name="SubCodeMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/systemcode/jsp/SubCodeMngGS.jsp"/>
+    </screen>
+<!--#### 코드등록 End ####  -->
+<!--#### Modal Calendar Start ####  -->
+    <screen name="Calendar">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/calendar/jsp/Calendar.jsp"/>
+    </screen>
+<!--#### Modal Calendar End ####  -->
+
+
+	<!-- E-Petition   -->
+	<screen name="UserPetitionList">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/user/jsp/UserPetitionList.jsp"/>
+    </screen>
+
+    <screen name="UserPetitionListGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/user/jsp/UserPetitionListGS.jsp"/>
+    </screen>
+
+    <screen name="UserPetition">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/user/jsp/UserPetition.jsp"/>
+    </screen>
+    
+    <!-- My Favorites Menu 20121204 OJG   -->
+	<screen name="MyPgm">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/user/jsp/MyPgm.jsp"/>
+    </screen>
+    
+    <!-- Favorites 20141008 YJW   -->
+	<screen name="viewBookmark" template="templateNoneJS">
+        <parameter key="body"  value="/apps/opusbase/system/bookmark/jsp/viewBookmark.jsp"/>
+    </screen>
+    
+    <screen name="viewBookmarkGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/bookmark/jsp/viewBookmarkGS.jsp" />
+    </screen>
+    
+    <!-- Vinh Vo 2015/1/13 (S)  -->
+    <screen name="MGT_OPT_0001">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/optconf/jsp/MGT_OPT_0001.jsp"/>
+    </screen>
+    
+    <screen name="MGT_OPT_0001GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/optconf/jsp/MGT_OPT_0001GS.jsp"/>
+    </screen>
+    
+     <screen name="MGT_OPT_0001_01GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/optconf/jsp/MGT_OPT_0001_01GS.jsp"/>
+    </screen>
+    
+    <screen name="MGT_OPT_0001_02GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/optconf/jsp/MGT_OPT_0001_02GS.jsp"/>
+    </screen>
+    
+    <screen name="MGT_OPT_SUB_0001" template="templateEmpty">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/optconf/jsp/MGT_OPT_SUB_0001.jsp"/>
+    </screen>
+    
+   <screen name="MGT_OPT_POP_0001" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/optconf/jsp/MGT_OPT_POP_0001.jsp" />
+    </screen>
+    
+     <screen name="MGT_OPT_POP_0001GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/opusbase/system/optconf/jsp/MGT_OPT_POP_0001GS.jsp" />
+    </screen>
+    <!-- Vinh Vo 2015/1/13 (E)  -->
+    
+    
+    <!--System Option config for admin -->
+	<screen name="MGT_OPT_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/optconf/jsp/MGT_OPT_0010.jsp"/>
+    </screen>
+    
+    <screen name="MGT_OPT_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/optconf/jsp/MGT_OPT_0010GS.jsp"/>
+    </screen>
+    
+     <screen name="MGT_OPT_0011GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/optconf/jsp/MGT_OPT_0011GS.jsp"/>
+    </screen>
+    
+    <screen name="MGT_OPT_0012GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/optconf/jsp/MGT_OPT_0012GS.jsp"/>
+    </screen>
+    <!--System Option config for admin -->
+    
+    <!-- Edi Config Settings 관리화면   -->
+    <screen name="EdiCnfg">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/edicnfg/jsp/EdiCnfg.jsp"/>
+    </screen>
+    <screen name="EdiCnfgGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/edicnfg/jsp/EdiCnfgGS.jsp"/>
+    </screen>
+    <!-- Report 관리화면   -->
+    <screen name="ReportMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/ReportMng.jsp"/>
+    </screen>
+    <screen name="ReportMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/ReportMngGS.jsp"/>
+    </screen>        
+    <!-- Duc Nguyen 2017/12/04 (S) -->
+    <screen name="NewReportMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/NewReportMng.jsp"/>
+    </screen>
+    <screen name="NewReportMng_Pop" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/NewReportMng_Pop.jsp"/>
+    </screen>
+    <screen name="NewReportMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/NewReportMngGS.jsp"/>
+    </screen>
+    <screen name="NewReportMngQuery" template="templatePop">
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/NewReportMngQuery.jsp"/>
+    </screen>
+    <screen name="NewReportMngUpload" template="templatePop">
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/NewReportMngUpload.jsp"/>
+    </screen>
+     <screen name="NewReportMngUploadAJ" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/NewReportMngUploadAJ.jsp"/>
+    </screen>
+    <!-- Duc Nguyen 2017/12/04 (E) -->
+    <screen name="ProfitGLBatch">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/batch/jsp/ProfitGLBatch.jsp"/>
+    </screen>    
+    <screen name="ProfitGLBatchGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/batch/jsp/ProfitGLBatchGS.jsp" />
+    </screen>
+     
+    <!-- Report Set Management - Start  -->
+    <screen name="ReportSetMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/ReportSetMng.jsp"/>
+    </screen>
+    <screen name="ReportSetMngGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/opusbase/system/report/jsp/ReportSetMngGS.jsp"/>
+    </screen>   
+    <!-- Report Set Management - End  -->
+    
+     <!--  Program Configuration Management (2017.12.04) (S)  -->
+    <screen name="ProgramConfigMng">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/ProgramConfigMng.jsp"/>
+    </screen>
+    
+     <screen name="ProgramConfigMngGS">
+        <parameter key="body"  value="/apps/opusbase/system/menu/jsp/ProgramConfigMngGS.jsp"/>
+    </screen>
+    <!--  Program Configuration Management (2017.12.04) (E)  -->
+</screen-definitions>

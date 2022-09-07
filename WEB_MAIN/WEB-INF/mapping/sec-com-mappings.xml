@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+	
+    <!--  Liner schedule    -->   
+    <url-mapping url="SEC_BMD_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.bmd.linerinfo.event.SEC_BMD_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_BMD_0010.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="SEC_BMD_0010GS.clt" screen="SEC_BMD_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.sec.bmd.linerinfo.event.SEC_BMD_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    
+    <!--  MBL Vessel schedule    -->   
+    <url-mapping url="SEC_BMD_0011.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.bmd.linerinfo.event.SEC_BMD_0011HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_BMD_0011.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="SEC_BMD_0011GS.clt" screen="SEC_BMD_0011GS.screen" >
+        <web-action-class>com.clt.apps.fis.sec.bmd.linerinfo.event.SEC_BMD_0011HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--  Container Movement Event Status Update    -->   
+    <url-mapping url="SEC_BMD_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.bmd.linerinfo.event.SEC_BMD_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_BMD_0020.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="SEC_BMD_0020GS.clt" screen="SEC_BMD_0020GS.screen" >
+        <web-action-class>com.clt.apps.fis.sec.bmd.linerinfo.event.SEC_BMD_0020HTMLAction</web-action-class>
+    </url-mapping>
+        
+    <url-mapping url="SEC_BMD_0020_MBL_GS.clt" screen="SEC_BMD_0020_MBL_GS.screen" >
+        <web-action-class>com.clt.apps.fis.sec.bmd.linerinfo.event.SEC_BMD_0020HTMLAction</web-action-class>
+    </url-mapping>
+
+    <url-mapping url="SEC_BMD_0020_HIS_GS.clt" screen="SEC_BMD_0020_HIS_GS.screen" >
+        <web-action-class>com.clt.apps.fis.sec.bmd.linerinfo.event.SEC_BMD_0020HTMLAction</web-action-class>
+    </url-mapping>
+
+	<!--  Liner schedule    -->  
+    <event-mapping>
+        <event-class>com.clt.apps.fis.sec.bmd.linerinfo.event.SecLinerScheduleEvent</event-class>
+        <service-action-class>com.clt.apps.fis.sec.bmd.linerinfo.SecLinerScheduleSC</service-action-class>
+    </event-mapping>
+    
+    <!--  Correction Advice (OEM) -->   
+    <url-mapping url="SEC_FRT_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0030HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice (OEH) -->   
+    <url-mapping url="SEC_FRT_0031.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0030HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice (OIM) -->    
+    <url-mapping url="SEC_FRT_0032.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0030HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice (OIH) -->   
+    <url-mapping url="SEC_FRT_0033.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0030HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice (AEM) -->     
+    <url-mapping url="SEC_FRT_0034.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0030HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice (AEH) -->   
+    <url-mapping url="SEC_FRT_0035.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0030HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice (AIM) -->   
+    <url-mapping url="SEC_FRT_0036.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0030HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice (AIH) -->   
+    <url-mapping url="SEC_FRT_0037.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0030HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SEC_FRT_0030AJ.clt" screen="SEC_FRT_0030AJ.screen">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- 
+    <url-mapping url="SEC_FRT_0031.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0031HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0030.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    -->
+    
+    <url-mapping url="SEC_FRT_0030GS.clt" screen="SEC_FRT_0030GS.screen" >
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--  Correction Advice Search (OEM) -->   
+    <url-mapping url="SEC_FRT_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0040HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0040.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice Search (OEH) -->   
+    <url-mapping url="SEC_FRT_0041.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0040HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0040.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice Search (OIM) -->   
+    <url-mapping url="SEC_FRT_0042.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0040HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0040.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice Search (OIH) -->   
+    <url-mapping url="SEC_FRT_0043.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0040HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0040.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice Search (AEM) -->   
+    <url-mapping url="SEC_FRT_0044.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0040HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0040.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice Search (AEH) -->   
+    <url-mapping url="SEC_FRT_0045.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0040HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0040.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice Search (AIM) -->   
+    <url-mapping url="SEC_FRT_0046.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0040HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0040.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!--  Correction Advice Search (AIH) -->   
+    <url-mapping url="SEC_FRT_0047.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0040HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0040.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+        
+    <url-mapping url="SEC_FRT_0040GS.clt" screen="SEC_FRT_0040GS.screen" >
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0040HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="SEC_FRT_0041GS.clt" screen="SEC_FRT_0040GS.screen" >
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0041HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.sec.frt.cainfo.event.SecCorrectionAdviceEvent</event-class>
+        <service-action-class>com.clt.apps.fis.sec.frt.cainfo.SecCorrectionAdviceSC</service-action-class>
+    </event-mapping>
+    
+    
+    
+    
+    <!--  Correction Advice Inbound    -->   
+    <url-mapping url="SEC_FRT_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0050HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0050.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SEC_FRT_0050GS.clt" screen="SEC_FRT_0050GS.screen" >
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0050HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!--  Correction Advice Search  -->   
+    <url-mapping url="SEC_FRT_0060.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0060HTMLAction</web-action-class>
+ 		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEC_FRT_0060.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+        
+    <url-mapping url="SEC_FRT_0060GS.clt" screen="SEC_FRT_0060GS.screen" >
+        <web-action-class>com.clt.apps.fis.sec.frt.cainfo.event.SEC_FRT_0060HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.sec.frt.cainfo.event.SecCorrectionAdviceEvent</event-class>
+        <service-action-class>com.clt.apps.fis.sec.frt.cainfo.SecCorrectionAdviceSC</service-action-class>
+    </event-mapping>
+    
+    
+    
+</mappings>

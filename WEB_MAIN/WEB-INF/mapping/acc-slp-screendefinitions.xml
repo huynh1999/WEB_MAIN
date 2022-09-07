@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### ACC SLIP Create 관련 프로그램  Start ####  -->
+    
+    <!--  SLIP   -->
+    <screen name="ACC_SLP_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0010.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0010GS.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0011GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0011GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_SLP_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0020.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0020GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_SLP_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0030.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0030GS.jsp" />
+    </screen>
+    
+    
+    <!-- Accounting Interface   -->
+    <screen name="ACC_SLP_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0040.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0040GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0040GS.jsp" />
+    </screen>
+    
+    
+    <!-- TradePartner Interface   -->
+    <screen name="ACC_SLP_0050">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0050.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0050GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0050GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_SLP_0060">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0060.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0060GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0060GS.jsp" />
+    </screen>
+    
+     <!-- Accounting Block   -->
+    <screen name="ACC_SLP_0070">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0070.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0070GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0070GS.jsp" />
+    </screen>
+    
+    <!-- Accounting Block Maintenance  -->
+    <screen name="ACC_SLP_0080">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0080.jsp" />
+    </screen>
+    
+    <screen name="ACC_SLP_0080GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0080GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_SLP_0081GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0081GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_SLP_0082GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0082GS.jsp" />
+    </screen>
+    
+    <screen name="ACC_SLP_0083GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0083GS.jsp" />
+    </screen>
+    
+    <!-- Year-End Processing   -->
+    <screen name="ACC_SLP_0090">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0090.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0090GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0090GS.jsp" />
+    </screen>
+    
+    <!-- Block History -->
+    <screen name="ACC_SLP_0100">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0100.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0100GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0100GS.jsp" />
+    </screen>
+    
+    <!-- Month Closing for VAT Declaration   -->
+    <screen name="ACC_SLP_0110">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0110.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0110GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0110GS.jsp" />
+    </screen>
+	<!-- Monthly Exchange Profit Adjustment  -->
+    <screen name="ACC_SLP_0120">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0120.jsp" />
+    </screen>
+    <screen name="ACC_SLP_0120GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/acc/slp/slip/jsp/ACC_SLP_0120GS.jsp" />
+    </screen>
+</screen-definitions>

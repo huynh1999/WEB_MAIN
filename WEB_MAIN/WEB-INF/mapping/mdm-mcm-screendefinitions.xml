@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+    <screen name="MDM_MCM_0070">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0070.jsp" />
+    </screen>
+
+    <screen name="MDM_MCM_0250">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0250.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0250GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0250GS.jsp" />
+    </screen>
+
+	<screen name="MDM_MCM_0260">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0260.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0260GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0260GS.jsp" />
+    </screen>
+    <!-- CSR #2827 : [BINEX]Fresh Cargo C/I & P/L 기능 수정  -->
+    <screen name="MDM_MCM_0260_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0260_1GS.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0260_2GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0260_2GS.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0010.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0010GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0010GS.jsp" />
+    </screen>
+
+    <screen name="MDM_MCM_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0020.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0020GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0020GS.jsp" />
+    </screen>
+
+    <screen name="MDM_MCM_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0030.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0030GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0030GS.jsp" />
+    </screen>
+
+    <screen name="MDM_MCM_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0040.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0040GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0040GS.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0041GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0041GS.jsp" />
+    </screen>
+
+    <screen name="MDM_MCM_0050">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0050.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0050GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0050GS.jsp" />
+    </screen>
+	
+	<!-- New Office Code -->
+	<screen name="MDM_MCM_0050_NW">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0050_NW.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0050_NWGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0050_NWGS.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0053_NWGS1" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0053_NWGS1.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0053_NWGS2" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0053_NWGS2.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0053_NWGS3" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0053_NWGS3.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0055_NWGS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0055_NWGS.jsp" />
+    </screen>
+    <!-- New Office Code - Remark Popup -->
+    <screen name="MDM_MCM_0150_NW" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0150_NW.jsp" />
+    </screen>
+    <!-- New Office Code - Ajax loading -->
+    <screen name="MDM_MCM_0050_NWAJ" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0050_NWAJ.jsp" />
+    </screen>
+    <!-- Ocean H B/L Remark 목록 view #16904 -->
+    <screen name="MDM_MCM_0051GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0051GS.jsp" />
+    </screen>
+
+    <!-- Ocean H B/L Remark 팝업(등록/수정) #16904 -->
+    <screen name="MDM_MCM_0150" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0150.jsp" />
+    </screen>
+    <!-- [SI] Report Mgmt #829 -->
+    <screen name="MDM_MCM_0058_Pop" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0058_Pop.jsp" />
+    </screen>
+
+    <screen name="MDM_MCM_0060">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0060.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0060GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0060GS.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0061GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0061GS.jsp" />
+    </screen>
+
+    <screen name="MDM_MCM_0070GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0070GS.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0071GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0071GS.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0073GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0073GS.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0074GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0074GS.jsp" />
+    </screen>
+
+    <!-- AIF 추가, 2011/10/14 Kim,Jin-Hyuk   -->
+    <!--  State Code    -->
+    <screen name="MDM_MCM_0310">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0310.jsp"/>
+    </screen>
+
+    <!--  Gl Code    -->
+    <screen name="MDM_MCM_0310GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0310GS.jsp"/>
+    </screen>
+    
+    <!-- Lane Code #3376 [JTC] Japan Trust 용 Profit Report 개발   -->
+    <screen name="MDM_MCM_0360">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0360.jsp"/>
+    </screen>
+    <!--  Lane Code    -->
+    <screen name="MDM_MCM_0360GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/mcm/location/jsp/MDM_MCM_0360GS.jsp"/>
+    </screen>
+
+    <!--  Bank Setup    -->
+    <screen name="MDM_MCM_0320">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/bank/jsp/MDM_MCM_0320.jsp"/>
+    </screen>
+
+    <!--  Bank Setup    -->
+    <screen name="MDM_MCM_0320GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/mcm/bank/jsp/MDM_MCM_0320GS.jsp"/>
+    </screen>
+
+    <!--  Office Code Search    -->
+    <screen name="MDM_MCM_0330">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0330.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0330GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0330GS.jsp" />
+    </screen>
+
+    <!--  Other Operation Code Search    -->
+    <screen name="MDM_MCM_0340">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0340.jsp" />
+    </screen>
+    <screen name="MDM_MCM_0340GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/partner/jsp/MDM_MCM_0340GS.jsp" />
+    </screen>
+    <!-- Ajax loading -->
+    <screen name="MDM_MCM_0050AJ" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/mcm/office/jsp/MDM_MCM_0050AJ.jsp" />
+    </screen>
+</screen-definitions>

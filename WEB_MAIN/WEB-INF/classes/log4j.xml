@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m\n" />
+		</layout>
+	</appender>
+    <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">       
+            <param name="File" value="/logs/CLT_FWD_Log.txt" />
+            <param name="Append" value="true" />
+            <param name="DatePattern" value="'.'MMddyy" />
+            <layout class="org.apache.log4j.PatternLayout">
+            	<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p : (%F:%L) %m%n"/>
+        	</layout>
+    </appender>
+    <logger name="org.apache">
+		<level value="ERROR" />
+	</logger>
+    <category name="com.ibatis">
+            <priority value="ERROR" />
+    </category>
+    <category name="java.sql">
+            <priority value="ERROR" />
+    </category>
+    
+    <root>
+        <level value="ERROR"/>
+        <appender-ref ref="STDOUT"/>
+  		<appender-ref ref="FILE"/>
+    </root>
+</log4j:configuration>

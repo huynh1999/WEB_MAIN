@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.code.warehouse">
+	
+	<!-- Trade Package List pop select    -->
+    <select id="selectCMM_POP_0250_LIST" resultClass="com.clt.apps.fis.mdm.code.warehouse.dto.WhCdVO">
+		SELECT 	wh_cd,    wh_nm,    edi_cd,    rmk
+		  FROM  TB_KR_CSTM_WH_CD
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="wh_cd">
+				wh_cd like '%'+#wh_cd#+'%'
+			</isNotNull>
+			<isNotNull prepend="AND" property="wh_nm">
+				wh_nm like '%'+#wh_nm#+'%'
+			</isNotNull>
+			<isNotNull prepend="AND" property="edi_cd">
+				edi_cd  = #edi_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="air_sea_clss_cd">
+				air_sea_clss_cd  = #air_sea_clss_cd#
+			</isNotNull>
+		</dynamic>
+		ORDER  BY wh_nm
+	</select>
+	
+	<!-- Trade Package List pop select count    -->
+    <select id="selectCMM_POP_0250_CNT" resultClass="Integer">
+        SELECT  count(*)
+		  FROM  TB_KR_CSTM_WH_CD
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="wh_cd">
+                wh_cd like '%'+#wh_cd#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="wh_nm">
+                wh_nm like '%'+#wh_nm#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="edi_cd">
+                edi_cd  = #edi_cd#
+            </isNotNull>
+			<isNotNull prepend="AND" property="air_sea_clss_cd">
+				air_sea_clss_cd  = #air_sea_clss_cd#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- Package Code List    -->
+    <select id="selectWarehouseCODE_LIST" resultClass="com.clt.apps.fis.mdm.code.warehouse.dto.WhCdVO">
+        SELECT  TOP $topCnt$
+                wh_seq,    wh_cd,    air_sea_clss_cd,    
+                edi_cd,    wh_nm,    use_flg,   rmk
+          FROM  TB_KR_CSTM_WH_CD
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="wh_cd">
+                wh_cd like '%'+#wh_cd#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="wh_nm">
+                wh_nm like '%'+#wh_nm#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="edi_cd">
+                edi_cd  = #edi_cd#
+            </isNotNull>
+            <isNotNull prepend="AND" property="air_sea_clss_cd">
+                air_sea_clss_cd  = #air_sea_clss_cd#
+            </isNotNull>
+            <isNotNull prepend="AND" property="use_flg">
+                use_flg  = #use_flg#
+            </isNotNull>
+        </dynamic>
+      ORDER BY  air_sea_clss_cd ASC, wh_seq
+	</select>
+	
+	<!-- Package Code Count    -->
+    <select id="selectWarehouseCODE_CNT" resultClass="Integer">
+        SELECT  count(*)
+		  FROM  TB_KR_CSTM_WH_CD
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="wh_cd">
+                wh_cd like '%'+#wh_cd#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="wh_nm">
+                wh_nm like '%'+#wh_nm#+'%'
+            </isNotNull>
+            <isNotNull prepend="AND" property="edi_cd">
+                edi_cd  = #edi_cd#
+            </isNotNull>
+            <isNotNull prepend="AND" property="air_sea_clss_cd">
+                air_sea_clss_cd  = #air_sea_clss_cd#
+            </isNotNull>
+            <isNotNull prepend="AND" property="use_flg">
+                use_flg  = #use_flg#
+            </isNotNull>
+        </dynamic>
+	</select>
+	
+	<!-- Package Code Update    -->
+	<update id="updateMDM_MCM_0180" parameterClass="com.clt.apps.fis.mdm.code.warehouse.dto.WhCdVO">
+		UPDATE TB_KR_CSTM_WH_CD
+		   SET wh_cd = #wh_cd#,    use_flg = #use_flg#,  air_sea_clss_cd = #air_sea_clss_cd#,    
+               edi_cd = #edi_cd#,  wh_nm = #wh_nm#,      rmk = #rmk#
+		 WHERE wh_seq  = #wh_seq#
+	</update>
+	
+	<!-- Package Code Insert    -->
+	<insert id="insertMDM_MCM_0180" parameterClass="com.clt.apps.fis.mdm.code.warehouse.dto.WhCdVO">
+		INSERT INTO TB_KR_CSTM_WH_CD (
+		  	 wh_cd,     use_flg,  air_sea_clss_cd,    
+             edi_cd,    wh_nm,    rmk
+			
+		) VALUES (
+			 #wh_cd#,     'Y',       #air_sea_clss_cd#,   
+             #edi_cd#,    #wh_nm#,   #rmk#
+		)
+	</insert>
+	
+	<select id="selectMDM_MCM_0180_CODE" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT wh_cd
+		  FROM TB_KR_CSTM_WH_CD
+		 WHERE wh_seq = #wh_seq#
+	</select>
+</sqlMap>

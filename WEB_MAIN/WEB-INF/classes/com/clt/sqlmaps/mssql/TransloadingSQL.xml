@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Transloading">
+	<!-- Nam Tran (S) -->
+	
+	<select id="searchTransloadingMgmtList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.transloading.dto.TLOMgmtListVO">
+    /* TransloadingSQL.xml - searchTransloadingMgmtList*/
+		SELECT *
+		  FROM (
+			    SELECT A.TLO_NO
+				      ,A.TLO_SEQ 
+				      ,A.TRO_NO 
+				      ,A.TRO_SEQ 
+				      ,A.TRD_NO
+				      ,A.TLO_STS_CD
+				      ,A.TLO_BK_STS_CD
+				      ,A.BK_NO 
+				      ,A.SO_NO 
+				      ,A.CTRT_NO 
+				      ,dbo.TL_GET_CTRT_NM(A.CTRT_NO) AS CTRT_NM 
+				      ,A.RTP_NO 
+				      ,A.RGST_OFC_CD AS ORG_CD
+				      ,A.WH_CD 
+				      ,dbo.TL_GET_LOC_NM(A.WH_CD) AS WH_NM 
+				      ,A.ACT_CUST 
+				      ,A.TRANS_TP_CD 
+				      ,A.TRADE_TP_CD 
+				      ,A.FWD_TP_CD 
+				      ,A.SHIP_EA_QTY 
+				      ,A.SHIP_CBM 
+				      ,A.SHIP_CBF 
+				      ,A.SHIP_GRS_KGS 
+				      ,A.SHIP_GRS_LBS 
+				      ,A.SHIP_NET_KGS 
+				      ,A.SHIP_NET_LBS 
+				      ,A.RMK 
+				      ,CONVERT(VARCHAR(10), B.BK_DATE, 110) 	AS BK_DATE 
+				      ,CONVERT(VARCHAR(10), B.EST_IN_DT, 110) 	AS EST_DT 
+				      ,B.CUST_ORD_NO 
+				      ,B.VSL_CD 
+				      ,B.VSL_NM 
+				      ,B.VOY 
+				      ,B.MBL_NO 
+				      ,B.HBL_NO 
+				      ,B.POL 
+				      ,dbo.TL_GET_LOC_NM(B.POL) AS POL_NM 
+				      ,B.POD 
+				      ,dbo.TL_GET_LOC_NM(B.POD) AS POD_NM 
+				      ,CONVERT(VARCHAR(10), B.ETD, 110) AS POL_ETD 
+				      ,CONVERT(VARCHAR(10), B.ETA, 110) AS POD_ETA 
+				      ,(SELECT CONVERT(VARCHAR(10), NODE_ATA_DT, 110)
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO     = A.TLO_NO
+				           AND TLO_SEQ    = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2' 
+				       ) AS ACT_DT 
+				      ,(SELECT IF NODE_ATA_HM IS NOT NULL BEGIN SUBSTRING(CONVERT(VARCHAR(20), NODE_ATA_HM, 13), 13, 5) END ELSE BEGIN NODE_ATA_HM END
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO     = A.TLO_NO
+				           AND TLO_SEQ    = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS ACT_HM 
+				       
+				      ,(SELECT NODE_TP_CD
+				        FROM TL_TLO_ROUTE
+				        WHERE TLO_NO 	 = A.TLO_NO
+				          AND TLO_SEQ 	 = A.TLO_SEQ
+				          AND TLO_RT_SEQ = '1'
+				       ) AS NODE_TP_CD 
+				      ,(SELECT dbo.TL_GET_COMM_NM('F1', NODE_LOC_TP_CD)
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ    = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS NODE_LOC_TP_CD 
+				      ,(SELECT NODE_LOC_CD
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS NODE_LOC_CD 
+				      ,(SELECT NODE_LOC_NM
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1' 
+				       ) AS NODE_LOC_NM
+				      ,(SELECT NODE_ADDR
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS NODE_ADDR 
+				       
+				      ,(
+				        SELECT NODE_LOC_CD
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_LOC_CD 
+				      ,(
+				        SELECT NODE_LOC_NM
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ    = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_LOC_NM 
+				      ,(
+				        SELECT NODE_LOC_TP_CD
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_TP_CD 
+				      ,(
+				        SELECT NODE_ADDR
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_ADDR 
+				      ,(
+				        SELECT NODE_PIC_NM
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_PIC_NM 
+				      ,(
+				        SELECT NODE_PIC_TEL
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_PIC_TEL 
+				      ,(
+				        SELECT NODE_LOC_CD
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_LOC_CD 
+				      ,(
+				        SELECT NODE_LOC_NM
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_LOC_NM 
+				      ,(
+				        SELECT NODE_LOC_TP_CD
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_TP_CD 
+				      ,(
+				        SELECT NODE_ADDR
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_ADDR 
+				      ,(
+				        SELECT NODE_PIC_NM
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_PIC_NM 
+				      ,(
+				        SELECT NODE_PIC_TEL
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_PIC_TEL 
+				      ,D.CURR_CD 
+				      ,D.BASIC_AMT 
+				      ,D.NEGO_AMT 
+				      ,D.ADD_AMT 
+				      ,D.TOT_AMT 
+				      ,F.CNTR_TPSZ_CD 
+				      ,F.CNTR_NO 
+				      ,F.SEAL_NO 
+				      ,F.LOAD_ID 
+				      ,dbo.TL_GET_TLO_ITEM('IB', A.BK_NO) AS ITEM_CD 
+				      ,F.TRANSIT_TP_CD 
+				      ,F.TRUCKER_TP_CD 
+				      ,F.TRUCKER_CD 
+				      ,F.TRUCKER_NM 
+				      ,F.TRUCK_TPSZ_CD 
+				      ,F.TRUCK_NO 
+				      ,F.TRAIL_NO 
+				      ,F.ACT_TRUCKER 
+				      ,CONVERT(VARCHAR(10), F.DISP_DT, 110) 	AS DISP_DT 
+				      ,SUBSTRING(CONVERT(VARCHAR(20), F.DISP_HM, 13), 13, 5) 		AS DISP_HM 
+				      ,CONVERT(VARCHAR(10), F.GATEIN_DT, 110) 	AS GATEIN_DT 
+				      ,SUBSTRING(CONVERT(VARCHAR(20), F.GATEIN_HM, 13), 13, 5) 		AS GATEIN_HM 
+				      ,CONVERT(VARCHAR(10), F.LOAD_DT, 110) 	AS LOAD_DT 
+				      ,SUBSTRING(CONVERT(VARCHAR(20), F.LOAD_HM, 13), 13, 5) 		AS LOAD_HM 
+				      ,CONVERT(VARCHAR(10), F.GATEOUT_DT, 110) AS GATEOUT_DT 
+				      ,SUBSTRING(CONVERT(VARCHAR(20), F.GATEOUT_HM, 13), 13, 5) 		AS GATEOUT_HM 
+				      ,F.DRIVER1_CD 
+				      ,F.DRIVER1_NM 
+				      ,F.DRIVER_LIC_NO 
+				      ,F.DRIVER2_CD 
+				      ,F.DRIVER2_NM 
+				      ,F.DRIVER2_LIC_NO 
+				      ,A.BK_NO AS IN_BK_NO
+				      ,(SELECT SUM(X.ITEM_EA_QTY) FROM TL_WH_IB_ITEM X WHERE X.WIB_BK_NO = A.BK_NO) AS ORD_QTY
+				      ,(SELECT SUM(X.ITEM_EA_QTY) FROM TL_TRO_ITEM X WHERE X.TRO_NO = A.TRO_NO AND X.BK_NO = A.BK_NO) AS DSP_QTY
+				      ,(SELECT SUM(X.IN_QTY) FROM TL_WH_INV_ITEM X WHERE X.WIB_BK_NO = A.BK_NO) AS SHP_QTY
+				      ,(SELECT SUM(X.IN_QTY) - SUM(X.OUT_QTY) FROM TL_WH_INV_ITEM X WHERE X.WIB_BK_NO = A.BK_NO) AS RSD_QTY
+				      ,(SELECT CASE WHEN MAX(WIB_IN_NO) IS NULL THEN 'N' ELSE 'Y' END FROM TL_WH_RCV X WHERE X.WIB_BK_NO = A.BK_NO) CMPL_FLG
+			    FROM TL_TLO_BK A LEFT JOIN TL_WH_IB B ON A.BK_NO = B.WIB_BK_NO
+			    		LEFT JOIN TL_TRO_FRT D ON A.TRO_NO = D.TRO_NO AND A.TRO_SEQ = D.TRO_SEQ
+			    		LEFT JOIN TL_TLO_TR F ON A.TLO_NO = F.TLO_NO AND A.TLO_SEQ = F.TLO_SEQ
+			    WHERE 1=1
+			      AND A.TRANS_TP_CD = 'IB'
+			      AND A.WH_CD       = #wh_cd#
+			      
+			      <isNotEmpty property="ctrt_no">
+			      	AND A.CTRT_NO = #ctrt_no#
+			      </isNotEmpty>
+			      
+			      <isNotEmpty property="node_loc_cd">
+			      	AND EXISTS (SELECT 'X' FROM TL_TLO_ROUTE X WHERE X.TLO_NO = A.TLO_NO AND X.TLO_SEQ = A.TLO_SEQ AND X.TLO_RT_SEQ = '1' AND X.NODE_LOC_CD = #node_loc_cd#)
+			      </isNotEmpty>
+			      
+			      <isEqual property="sts_opt" compareValue="TL">
+			      	<isNotEqual property="tlo_sts_cd" compareValue="ALL">
+			      		AND A.TLO_STS_CD = #tlo_sts_cd#
+			      	</isNotEqual>
+			      </isEqual>
+			      
+			      <isEqual property="sts_opt" compareValue="BK">
+			      	<isNotEqual property="bkg_sts_cd" compareValue="ALL">
+			      		AND A.TLO_BK_STS_CD = #bkg_sts_cd#
+			      	</isNotEqual>
+			      </isEqual>
+			      
+			      <isNotEqual property="trans_tp_cd" compareValue="ALL">
+			      	AND A.TRANS_TP_CD = #trans_tp_cd#
+			      </isNotEqual>
+			      
+			      <isEqual property="no_opt" compareValue="TL">
+			      	<isNotEmpty property="tlo_no">
+			      		AND A.TLO_NO = #tlo_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="no_opt" compareValue="CS">
+			      	<isNotEmpty property="tlo_no">
+			      		AND B.CUST_ORD_NO = #tlo_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="no_opt" compareValue="DO">
+			      	<isNotEmpty property="tlo_no">
+			      		AND A.TRO_NO = #tlo_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="dt_opt" compareValue="TL">
+			      	<isNotEmpty property="ord_dt_fm">
+			      		AND B.BK_DATE BETWEEN REPLACE(#ord_dt_fm#, '-','') AND REPLACE(#ord_dt_to#, '-','')
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="dt_opt" compareValue="AC">
+			      	<isNotEmpty property="ord_dt_fm">
+			      		AND EXISTS(
+			      	    			SELECT 'X'
+							          FROM TL_TLO_ROUTE X
+							         WHERE X.TLO_NO     = A.TLO_NO
+							           AND X.TLO_SEQ    = A.TLO_SEQ
+							           AND X.TLO_RT_SEQ = '2'
+							           AND X.NODE_ATA_DT BETWEEN REPLACE(#ord_dt_fm#, '-','') AND REPLACE(#ord_dt_to#, '-','')
+							        
+			      	              )
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="dt_opt" compareValue="ES">
+			      	<isNotEmpty property="ord_dt_fm">
+			      		AND B.EST_IN_DT BETWEEN REPLACE(#ord_dt_fm#, '-','') AND REPLACE(#ord_dt_to#, '-','')
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isNotEmpty property="trucker_cd">
+			      	AND F.TRUCKER_CD = #trucker_cd#
+			      </isNotEmpty>
+			      
+			      <isEqual property="trk_opt" compareValue="TK">
+			      	<isNotEmpty property="truck_no">
+			      		AND F.TRUCK_NO = #truck_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="trk_opt" compareValue="TA">
+			      	<isNotEmpty property="truck_no">
+			      		AND F.TRAIL_NO = #truck_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="cntr_opt" compareValue="CN">
+			      	<isNotEmpty property="cntr_no">
+			      		AND F.CNTR_NO = #cntr_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="cntr_opt" compareValue="SE">
+			      	<isNotEmpty property="cntr_no">
+			      		AND F.SEAL_NO = #cntr_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="cntr_opt" compareValue="LO">
+			      	<isNotEmpty property="cntr_no">
+			      		AND F.LOAD_ID = #cntr_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isNotEmpty property="mbl_no">
+			      	AND B.MBL_NO = #mbl_no#
+			      </isNotEmpty>
+			      
+			UNION       
+		
+		    SELECT A.TLO_NO
+				      ,A.TLO_SEQ 
+				      ,A.TRO_NO 
+				      ,A.TRO_SEQ 
+				      ,A.TRD_NO
+				      ,A.TLO_STS_CD
+				      ,A.TLO_BK_STS_CD
+				      ,A.BK_NO 
+				      ,A.SO_NO 
+				      ,A.CTRT_NO 
+				      ,dbo.TL_GET_CTRT_NM(A.CTRT_NO) AS CTRT_NM 
+				      ,A.RTP_NO 
+				      ,A.RGST_OFC_CD AS ORG_CD
+				      ,A.WH_CD 
+				      ,dbo.TL_GET_LOC_NM(A.WH_CD) AS WH_NM 
+				      ,A.ACT_CUST 
+				      ,A.TRANS_TP_CD 
+				      ,A.TRADE_TP_CD 
+				      ,A.FWD_TP_CD 
+				      ,A.SHIP_EA_QTY 
+				      ,A.SHIP_CBM 
+				      ,A.SHIP_CBF 
+				      ,A.SHIP_GRS_KGS 
+				      ,A.SHIP_GRS_LBS 
+				      ,A.SHIP_NET_KGS 
+				      ,A.SHIP_NET_LBS 
+				      ,A.RMK 
+				      ,CONVERT(VARCHAR(10), B.BK_DATE, 110) 		AS BK_DATE 
+				      ,CONVERT(VARCHAR(10), B.EST_OUT_DT, 110) 	AS EST_DT 
+				      ,B.CUST_ORD_NO 
+				      ,B.VSL_CD 
+				      ,B.VSL_NM 
+				      ,B.VOY 
+				      ,B.MBL_NO 
+				      ,B.HBL_NO 
+				      ,B.POL 
+				      ,dbo.TL_GET_LOC_NM(B.POL) AS POL_NM 
+				      ,B.POD 
+				      ,dbo.TL_GET_LOC_NM(B.POD) AS POD_NM 
+				      ,CONVERT(VARCHAR(10), B.ETD, 110) AS POL_ETD 
+				      ,CONVERT(VARCHAR(10), B.ETA, 110) AS POD_ETA 
+				      ,(SELECT CONVERT(VARCHAR(10), NODE_ATD_DT, 110)
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO     = A.TLO_NO
+				           AND TLO_SEQ    = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1' 
+				       ) AS ACT_DT 
+				      ,(SELECT IF NODE_ATD_HM IS NOT NULL BEGIN SUBSTRING(CONVERT(VARCHAR(20), NODE_ATD_HM, 13), 13, 5) END ELSE BEGIN NODE_ATD_HM END
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO     = A.TLO_NO
+				           AND TLO_SEQ    = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS ACT_HM 
+				       
+				      ,(SELECT NODE_TP_CD
+				        FROM TL_TLO_ROUTE
+				        WHERE TLO_NO 	 = A.TLO_NO
+				          AND TLO_SEQ 	 = A.TLO_SEQ
+				          AND TLO_RT_SEQ = '2'
+				       ) AS NODE_TP_CD 
+				      ,(SELECT dbo.TL_GET_COMM_NM('F1', NODE_LOC_TP_CD)
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ    = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS NODE_LOC_TP_CD 
+				      ,(SELECT NODE_LOC_CD
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS NODE_LOC_CD 
+				      ,(SELECT NODE_LOC_NM
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2' 
+				       ) AS NODE_LOC_NM
+				      ,(SELECT NODE_ADDR
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS NODE_ADDR 
+				       
+				      ,(
+				        SELECT NODE_LOC_CD
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_LOC_CD 
+				      ,(
+				        SELECT NODE_LOC_NM
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ    = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_LOC_NM 
+				      ,(
+				        SELECT NODE_LOC_TP_CD
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_TP_CD 
+				      ,(
+				        SELECT NODE_ADDR
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_ADDR 
+				      ,(
+				        SELECT NODE_PIC_NM
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_PIC_NM 
+				      ,(
+				        SELECT NODE_PIC_TEL
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '1'
+				       ) AS FR_NODE_PIC_TEL 
+				      ,(
+				        SELECT NODE_LOC_CD
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_LOC_CD 
+				      ,(
+				        SELECT NODE_LOC_NM
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_LOC_NM 
+				      ,(
+				        SELECT NODE_LOC_TP_CD
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_TP_CD 
+				      ,(
+				        SELECT NODE_ADDR
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_ADDR 
+				      ,(
+				        SELECT NODE_PIC_NM
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_PIC_NM 
+				      ,(
+				        SELECT NODE_PIC_TEL
+				          FROM TL_TLO_ROUTE
+				         WHERE TLO_NO 	  = A.TLO_NO	
+				           AND TLO_SEQ 	  = A.TLO_SEQ
+				           AND TLO_RT_SEQ = '2'
+				       ) AS TO_NODE_PIC_TEL 
+				      ,D.CURR_CD 
+				      ,D.BASIC_AMT 
+				      ,D.NEGO_AMT 
+				      ,D.ADD_AMT 
+				      ,D.TOT_AMT 
+				      ,F.CNTR_TPSZ_CD 
+				      ,F.CNTR_NO 
+				      ,F.SEAL_NO 
+				      ,F.LOAD_ID 
+				      ,dbo.TL_GET_TLO_ITEM('OB', A.BK_NO) AS ITEM_CD
+				      ,F.TRANSIT_TP_CD 
+				      ,F.TRUCKER_TP_CD 
+				      ,F.TRUCKER_CD 
+				      ,F.TRUCKER_NM 
+				      ,F.TRUCK_TPSZ_CD 
+				      ,F.TRUCK_NO 
+				      ,F.TRAIL_NO 
+				      ,F.ACT_TRUCKER 
+				      ,CONVERT(VARCHAR(10), F.DISP_DT, 110) 	AS DISP_DT 
+				      ,SUBSTRING(CONVERT(VARCHAR(20), F.DISP_HM, 13), 13, 5) 		AS DISP_HM 
+				      ,CONVERT(VARCHAR(10), F.GATEIN_DT, 110) 	AS GATEIN_DT 
+				      ,SUBSTRING(CONVERT(VARCHAR(20), F.GATEIN_HM, 13), 13, 5) 		AS GATEIN_HM 
+				      ,CONVERT(VARCHAR(10), F.LOAD_DT, 110) 	AS LOAD_DT 
+				      ,SUBSTRING(CONVERT(VARCHAR(20), F.LOAD_HM, 13), 13, 5) 		AS LOAD_HM 
+				      ,CONVERT(VARCHAR(10), F.GATEOUT_DT, 110) AS GATEOUT_DT 
+				      ,SUBSTRING(CONVERT(VARCHAR(20), F.GATEOUT_HM, 13), 13, 5) 		AS GATEOUT_HM 
+				      ,F.DRIVER1_CD 
+				      ,F.DRIVER1_NM 
+				      ,F.DRIVER_LIC_NO 
+				      ,F.DRIVER2_CD 
+				      ,F.DRIVER2_NM 
+				      ,F.DRIVER2_LIC_NO 
+				      ,R.IN_BK_NO
+				      ,(SELECT SUM(X.ITEM_EA_QTY) FROM TL_WH_OB_ITEM X WHERE X.WOB_BK_NO = A.BK_NO) AS ORD_QTY
+				      ,(SELECT SUM(X.ITEM_EA_QTY) FROM TL_TRO_ITEM X WHERE X.TRO_NO = A.TRO_NO AND X.BK_NO = A.BK_NO) AS DSP_QTY
+				      ,(SELECT SUM(X.ISSU_ITEM_EA_QTY) FROM TL_WH_ISSU_ITEM X WHERE X.WOB_BK_NO = A.BK_NO) AS SHP_QTY
+				      ,0 AS RSD_QTY
+				      ,(SELECT CASE WHEN MAX(WALC_NO) IS NULL THEN 'N' ELSE 'Y' END FROM TL_WH_ALLC X WHERE X.WOB_BK_NO = A.BK_NO) CMPL_FLG
+			    FROM TL_TLO_BK A LEFT JOIN TL_WH_OB B ON A.BK_NO = B.WOB_BK_NO
+			    		LEFT JOIN TL_TRO_FRT D ON A.TRO_NO = D.TRO_NO AND A.TRO_SEQ = D.TRO_SEQ
+			    		LEFT JOIN TL_TLO_TR F ON A.TLO_NO = F.TLO_NO AND A.TLO_SEQ = F.TLO_SEQ
+			        ,TL_TLO_BK_REL R
+			    WHERE 1=1
+			      AND A.TLO_NO      = R.TLO_NO
+			      AND A.TLO_SEQ		= R.TLO_SEQ
+			      AND A.BK_NO       = R.OUT_BK_NO
+			      AND A.TRANS_TP_CD = 'OB'
+			      AND A.WH_CD       = #wh_cd#
+			      
+			      <isNotEmpty property="ctrt_no">
+			      	AND A.CTRT_NO = #ctrt_no#
+			      </isNotEmpty>
+			      
+			      <isNotEmpty property="node_loc_cd">
+			      	AND EXISTS (SELECT 'X' FROM TL_TLO_ROUTE X WHERE X.TLO_NO = A.TLO_NO AND X.TLO_SEQ = A.TLO_SEQ AND X.TLO_RT_SEQ = '2' AND X.NODE_LOC_CD = #node_loc_cd#)
+			      </isNotEmpty>
+			      
+			      <isEqual property="sts_opt" compareValue="TL">
+			      	<isNotEqual property="tlo_sts_cd" compareValue="ALL">
+			      		AND A.TLO_STS_CD = #tlo_sts_cd#
+			      	</isNotEqual>
+			      </isEqual>
+			      
+			      <isEqual property="sts_opt" compareValue="BK">
+			      	<isNotEqual property="bkg_sts_cd" compareValue="ALL">
+			      		AND A.TLO_BK_STS_CD = #bkg_sts_cd#
+			      	</isNotEqual>
+			      </isEqual>
+			      
+			      <isNotEqual property="trans_tp_cd" compareValue="ALL">
+			      	AND A.TRANS_TP_CD = #trans_tp_cd#
+			      </isNotEqual>
+			      
+			      <isEqual property="no_opt" compareValue="TL">
+			      	<isNotEmpty property="tlo_no">
+			      		AND A.TLO_NO = #tlo_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="no_opt" compareValue="CS">
+			      	<isNotEmpty property="tlo_no">
+			      		AND B.CUST_ORD_NO = #tlo_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="no_opt" compareValue="DO">
+			      	<isNotEmpty property="tlo_no">
+			      		AND A.TRO_NO = #tlo_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="dt_opt" compareValue="TL">
+			      	<isNotEmpty property="ord_dt_fm">
+			      		AND B.BK_DATE BETWEEN REPLACE(#ord_dt_fm#, '-','') AND REPLACE(#ord_dt_to#, '-','')
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="dt_opt" compareValue="AC">
+			      	<isNotEmpty property="ord_dt_fm">
+			      		AND EXISTS(
+			      	    			SELECT 'X'
+							          FROM TL_TLO_ROUTE X
+							         WHERE X.TLO_NO     = A.TLO_NO
+							           AND X.TLO_SEQ    = A.TLO_SEQ
+							           AND X.TLO_RT_SEQ = '1'
+							           AND X.NODE_ATA_DT BETWEEN REPLACE(#ord_dt_fm#, '-','') AND REPLACE(#ord_dt_to#, '-','')
+							        
+			      	              )
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="dt_opt" compareValue="ES">
+			      	<isNotEmpty property="ord_dt_fm">
+			      		AND B.EST_IN_DT BETWEEN REPLACE(#ord_dt_fm#, '-','') AND REPLACE(#ord_dt_to#, '-','')
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isNotEmpty property="trucker_cd">
+			      	AND F.TRUCKER_CD = #trucker_cd#
+			      </isNotEmpty>
+			      
+			      <isEqual property="trk_opt" compareValue="TK">
+			      	<isNotEmpty property="truck_no">
+			      		AND F.TRUCK_NO = #truck_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="trk_opt" compareValue="TA">
+			      	<isNotEmpty property="truck_no">
+			      		AND F.TRAIL_NO = #truck_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="cntr_opt" compareValue="CN">
+			      	<isNotEmpty property="cntr_no">
+			      		AND F.CNTR_NO = #cntr_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="cntr_opt" compareValue="SE">
+			      	<isNotEmpty property="cntr_no">
+			      		AND F.SEAL_NO = #cntr_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isEqual property="cntr_opt" compareValue="LO">
+			      	<isNotEmpty property="cntr_no">
+			      		AND F.LOAD_ID = #cntr_no#
+			      	</isNotEmpty>
+			      </isEqual>
+			      
+			      <isNotEmpty property="mbl_no">
+			      	AND B.MBL_NO = #mbl_no#
+			      </isNotEmpty>
+			      
+		  )
+		
+		ORDER BY TLO_NO, IN_BK_NO, BK_NO	   
+    </select>
+	
+	<!-- Nam Tran (E) -->
+</sqlMap>

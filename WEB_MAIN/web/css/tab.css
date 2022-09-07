@@ -1,0 +1,220 @@
+/* 반드시 들어가야 하는 스타일 시작 */
+
+/* 9.탭 스타일*/
+.tab_head {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #6c6c6c;
+    background-image: url(/fms/web/img/main/tab_table_choice_bg-m.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    width: 90px;
+}
+.tab_head_non {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #FFFFFF;
+    background-image: url(/fms/web/img/main/tab_table_nochoice_bg-m.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    padding-top: 3px;
+    width: 90px;
+}
+.tab_head-l {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #6c6c6c;
+    background-image: url(/fms/web/img/main/tab_table_choice_bg-l.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    width: 140px;
+    text-indent: 10px;
+}
+.tab_head_non-l {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #FFFFFF;
+    background-image: url(/fms/web/img/main/tab_table_nochoice_bg-l.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    padding-top: 3px;
+    width: 140px;
+    text-indent: 10px;
+}
+.tab_head-s {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #6c6c6c;
+    background-image: url(/fms/web/img/main/tab_table_choice_bg-s.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    width: 50px;
+    text-indent: 10px;
+}
+.tab_head_non-s {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    vertical-align: middle;
+    color: #FFFFFF;
+    background-image: url(/fms/web/img/main/tab_table_nochoice_bg-s.gif);
+    background-repeat: no-repeat;
+    background-position: left;
+    padding-top: 3px;
+    width: 50px;
+    text-indent: 10px;
+}
+.table_head {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: bold;
+    height: 24px;
+    text-align: center;
+    vertical-align: middle;
+    color: #FFFFFF;
+    padding-top: 3px;
+    background-image: url(/fms/web/img/main/table_title_bg.gif);
+    background-repeat: repeat-x;
+}
+.table_body_c {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: normal;
+    background-color: #FFFFFF;
+    height: 24px;
+    text-align: center;
+    vertical-align: middle;
+    color: #666666;
+    padding-top: 3px;
+    padding-bottom: 2px;
+    padding-right: 1px;
+    padding-left: 1px;
+}
+.table {
+    border-top-color: #BBD5E1;
+    border-right-color: #BBD5E1;
+    border-bottom-color: #BBD5E1;
+    border-left-color: #BBD5E1;
+    background-color: #BBD5E1;
+}
+.table_body_c-bold {
+
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #EEF4F9;
+    height: 25px;
+    text-align: center;
+    vertical-align: middle;
+    color: #58709A;
+    padding-top: 3px;
+    padding-right: 3px;
+    padding-bottom: 2px;
+    padding-left: 3px;
+}
+.table_head-2 {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: bold;
+    height: 22px;
+    text-align: center;
+    vertical-align: middle;
+    color: #4e6388;
+    padding-top: 3px;
+    background-color: #E7EFFE;
+}
+.td_body001-tab {
+    font-size:9pt;
+    height:28;
+    color:#666666;
+    padding-left: 10px;
+    background-color:#FFFFFF;
+    padding-top: 10px;
+}
+.table_body_l {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: normal;
+    background-color: #FFFFFF;
+    height: 22px;
+    text-align: left;
+    vertical-align: middle;
+    color: #666666;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 6px;
+}
+
+.table_body_r {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: normal;
+    background-color: #FFFFFF;
+    height: 22px;
+    text-align: right;
+    vertical-align: middle;
+    color: #666666;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 6px;
+}
+.table_body_c-bold_login {
+
+
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #E2F3F3;
+    height: 24px;
+    text-align: center;
+    vertical-align: middle;
+    color: #58709A;
+    padding-top: 3px;
+    padding-right: 3px;
+    padding-bottom: 2px;
+    padding-left: 3px;
+}
+
+.td_login {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 11px;
+    font-weight: bold;
+    height: 24px;
+    text-align: left;
+    vertical-align: middle;
+    color: #FFFFFF;
+    padding-top: 3px;
+    background-image: url(/fms/web/img/main/bg_top_right.gif);
+    background-repeat: no-repeat;
+}
+.table_title {
+    font-family: "Tahoma", "Arial", "Verdana";
+    font-size: 12px;
+    font-weight: bold;
+    height: 20px;
+    text-align: center;
+    vertical-align: middle;
+    color: #FFFFFF;
+    padding-top: 3px;
+    background-image: url(/fms/web/img/main/title_bg.gif);
+    background-repeat: repeat-y;
+    background-position: center;
+}

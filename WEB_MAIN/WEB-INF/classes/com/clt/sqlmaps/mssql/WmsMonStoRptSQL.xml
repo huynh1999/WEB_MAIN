@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="wms.monstorpt">
+	<typeAlias alias="MonthlyStorageRptVO" 	type="com.clt.apps.fis.wms.whinventory.dto.MonthlyStorageRptVO"/>
+	<select id="searchMonthlyStorageRpt" resultClass="com.clt.apps.fis.wms.whinventory.dto.MonStoRptVO" parameterClass="java.util.HashMap">
+	/*WmsCommonSQL.xml > searchMonthlyStorageRpt*/
+		SELECT SD.ITEM_CD
+		      ,SD.ITEM_NM
+		      ,SD.LOT_ID
+		      ,SD.STC_QTY
+		      ,SD.OUT_QTY
+		      ,SD.INBOUND_DT
+		      ,SD.OUTBOUND_DT
+		      ,SD.STR_FR_DT
+		      ,SD.STR_TO_DT
+		      ,SD.STR_DAYS
+		      ,SR.CTRT_NO
+		      ,dbo.TL_GET_CTRT_NM(SR.CTRT_NO) AS CTRT_NM
+		      ,SR.WH_CD
+		      ,dbo.TL_GET_LOC_NM(SR.WH_CD) AS WH_NM
+		  FROM TL_WH_STR_RPT SR
+		      ,TL_WH_STR_RPT_DTL SD
+		 WHERE SR.CTRT_NO = SD.CTRT_NO
+		   AND SR.WH_CD   = SD.WH_CD
+		   AND SR.RPT_MTH = SD.RPT_MTH
+		   AND SR.STS_CD  = 'E'
+		   <isNotEmpty property="ctrt_no">
+		    AND SR.CTRT_NO = #ctrt_no#
+		   </isNotEmpty>
+		   <isNotEmpty property="wh_cd">
+		    AND SR.WH_CD = #wh_cd#
+		   </isNotEmpty>
+		   AND SR.RPT_MTH = SUBSTRING(REPLACE(#rpt_to_dt#, '-', ''), 1,6)
+	</select>
+	
+	<select id="searchMonthlyStorageRptSts"  parameterClass="java.util.HashMap" resultClass="String">
+	/*WmsCommonSQL.xml > searchMonthlyStorageRptSts*/
+		SELECT MAX(STS_CD) AS STS_CD
+		  FROM TL_WH_STR_RPT 
+		 WHERE 1=1
+		   <isNotEmpty property="ctrt_no">
+		   AND CTRT_NO = #ctrt_no#
+		   </isNotEmpty>
+		   <isNotEmpty property="ctrt_no">
+		   AND WH_CD = #wh_cd#
+		   </isNotEmpty>  
+		   AND RPT_MTH = SUBSTRING(REPLACE(#rpt_to_dt#, '-', ''), 1,6)
+	</select>
+	
+	<insert id="insertMonthlyStorageRpt"  parameterClass="java.util.HashMap">
+	/*WmsCommonSQL.xml > insertMonthlyStorageRpt*/
+		INSERT INTO TL_WH_STR_RPT(
+		       CTRT_NO
+			  ,WH_CD
+			  ,RPT_MTH
+			  ,RPT_FR_DT
+			  ,RPT_TO_DT
+			  ,STS_CD
+			  ,RGST_ID
+			  ,RGST_OFC_CD
+			  ,RGST_SYS_DT
+			  ,RGST_LOC_DT
+			)VALUES(
+			   #ctrt_no#
+			  ,#wh_cd#
+			  ,SUBSTRING( REPLACE(#rpt_to_dt#, '-', ''), 1, 6)
+			  ,REPLACE(#rpt_fr_dt#, '-', '')
+			  ,REPLACE(#rpt_to_dt#, '-', '')
+			  ,'S'
+			  ,#user_id#
+			  ,#ofc_cd#
+			  ,GETDATE()
+			  ,CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+			  )
+	</insert>
+	
+	<select id="searchMonthlyStorageRptDetail" resultClass="MonthlyStorageRptVO">
+	<!-- LKH 2016-02-03 -->
+	/*searchMonthlyStorageRptDetail*/
+		SELECT T.CTRT_NO,
+		       T.WH_CD,
+		       SUBSTRING(REPLACE(#rpt_to_dt#, '-', ''), 1, 6) AS RPT_MTH, /* 조회조건 MONTHLY TO_DATE*/
+		       REPLACE(#rpt_fr_dt#, '-', '') AS RPT_FR_DT, 			/* 조회조건 MONTHLY FR_DATE*/
+		       REPLACE(#rpt_to_dt#, '-', '') AS RPT_TO_DT, 			/* 조회조건 MONTHLY TO_DATE*/
+		       T.ITEM_CD,
+		       T.ITEM_NM,
+		       T.LOT_ID,
+		       T.ITEM_SYS_NO,
+		       T.IN_QTY,
+		       0 AS STC_QTY, 
+		       T.OUT_QTY,
+		       T.INBOUND_DT,
+		       T.OUTBOUND_DT,
+		       <![CDATA[ CASE WHEN T.INBOUND_DT > REPLACE(#rpt_fr_dt#, '-', '') THEN T.INBOUND_DT ELSE REPLACE(#rpt_fr_dt#, '-', '') END  AS STR_FR_DT, ]]>	/* 조회조건 MONTHLY FR_DATE*/
+		       ISNULL(T.OUTBOUND_DT, REPLACE(#rpt_to_dt#, '-', '')) AS STR_TO_DT, /* 조회조건 MONTHLY TO_DATE*/
+		       datediff(dd,Convert(DateTime, REPLACE((<![CDATA[ CASE WHEN T.INBOUND_DT > REPLACE(#rpt_fr_dt#, '-', '') THEN T.INBOUND_DT ELSE REPLACE(#rpt_fr_dt#, '-', '') END ]]> ), '-', '')),convert(datetime,ISNULL(T.OUTBOUND_DT, REPLACE(#rpt_to_dt#, '-', '')))) +1 AS STR_DAYS /* 조회조건 MONTHLY TO_DATE - FR_DATE + 1*/
+		  FROM (SELECT   IB.ITEM_SYS_NO,
+		          ISNULL(IB.ITEM_CD, ' ') AS ITEM_CD,
+		                 ISNULL(IB.ITEM_NM, ' ') AS ITEM_NM,
+		                 ISNULL(IB.LOT_ID, ' ') AS LOT_ID,
+		                 IB.IN_QTY,
+		                 OB.OUT_QTY AS OUT_QTY,
+		                 IB.INBOUND_DT AS INBOUND_DT,
+		                 OB.OUTBOUND_DT,
+		                 IB.CTRT_NO,
+		                 IB.WH_CD
+		            FROM (SELECT I.ITEM_SYS_NO,
+		                         I.LOT_ID,
+		                         I.CTRT_NO AS CTRT_NO,
+		                         I.WH_CD AS WH_CD,
+		                         I.ITEM_CD AS ITEM_CD,
+		                         I.ITEM_NM AS ITEM_NM,
+		                         L.LOT_ATTRIB_01 AS INBOUND_DT,
+		                         SUM(I.IN_QTY) AS IN_QTY
+		                    FROM TL_WH_INV_LOT I, TL_CTRT_CUST_ITEM_LOT L
+		                   WHERE I.CTRT_NO = L.CTRT_NO
+		                     AND I.WH_CD = L.WH_CD
+		                     AND I.ITEM_SYS_NO = L.ITEM_SYS_NO
+		                     AND I.LOT_ID = L.LOT_ID
+		                     AND I.CTRT_NO = #ctrt_no# /* 조회조건 CONTRACT NO*/
+		                     AND I.WH_CD   = #wh_cd#   /* 조회조건 WH CODE*/
+		                     AND EXISTS
+		                   (SELECT 'X'
+		                            FROM TL_WH_OB        B,
+		                                 TL_WH_ALLC      A,
+		                                 TL_WH_ISSU      S,
+		                                 TL_WH_ISSU_ITEM SI
+		                           WHERE B.WOB_BK_NO = A.WOB_BK_NO
+		                             AND A.WALC_NO = S.WALC_NO
+		                             AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+                           <![CDATA[ AND S.OUTBOUND_DT >= REPLACE(#rpt_fr_dt#, '-', '') ]]>	/* 조회조건 MONTHLY FR_DATE*/
+                           <![CDATA[ AND S.OUTBOUND_DT <= REPLACE(#rpt_to_dt#, '-', '') ]]> 	/* 조회조건 MONTHLY TO_DATE*/
+		                             AND SI.WIB_BK_NO   = I.WIB_BK_NO
+		                             AND SI.PO_SYS_NO   = I.PO_SYS_NO
+		                             AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+		                             AND SI.LOT_ID = I.LOT_ID)
+		                   GROUP BY I.ITEM_SYS_NO,
+		                            I.LOT_ID,
+		                            I.CTRT_NO,
+		                            I.WH_CD,
+		                            I.ITEM_CD,
+		                            I.ITEM_NM,
+		                            L.LOT_ATTRIB_01
+		                   ) IB,
+		                 (SELECT OC.ITEM_SYS_NO,
+		                         OC.LOT_ID,
+		                         MAX(OC.CTRT_NO) AS CTRT_NO,
+		                         MAX(OC.WH_CD) AS WH_CD,
+		                         MAX(ITEM_CD) AS ITEM_CD,
+		                         MAX(ITEM_NM) AS ITEM_NM,
+		                         MAX(L.LOT_ATTRIB_01) AS INBOUND_DT,
+		                         MAX(L.LOT_ATTRIB_02) AS LOT_NO,
+		                         MAX(L.LOT_ATTRIB_03) AS EXP_DT,
+		                         MAX(L.LOT_ATTRIB_04) AS LOT_04,
+		                         MAX(L.LOT_ATTRIB_05) AS LOT_05,
+		                         MAX(OUTBOUND_DT) AS OUTBOUND_DT,
+		                         SUM(OUT_QTY) AS OUT_QTY
+		                    FROM (SELECT SI.WOB_BK_NO,
+		                                 SI.PO_SYS_NO,
+		                                 SI.ITEM_SYS_NO,
+		                                 SI.LOT_ID,
+		                                 B.CTRT_NO,
+		                                 B.WH_CD,
+		                                 SI.WH_LOC_CD,
+		                                 SI.ITEM_SEQ,
+		                                 SI.WIB_BK_NO,
+		                                 SI.ITEM_CD,
+		                                 SI.ITEM_NM,
+		                                 SI.ISSU_ITEM_EA_QTY AS OUT_QTY,
+		                                 S.OUTBOUND_DT
+		                            FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+		                           WHERE B.WOB_BK_NO = SI.WOB_BK_NO
+		                             AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+		                             AND B.CTRT_NO = #ctrt_no#  /* 조회 조건 Contract No*/
+		                             AND B.WH_CD   = #wh_cd#  /* 조회 조건 WH CODE*/
+		                          ) OC,
+		                         TL_CTRT_CUST_ITEM_LOT L
+		                   WHERE OC.CTRT_NO = L.CTRT_NO
+		                     AND OC.WH_CD   = L.WH_CD
+		                     AND OC.ITEM_SYS_NO = L.ITEM_SYS_NO
+		                     AND OC.LOT_ID  = L.LOT_ID
+		                   GROUP BY OC.ITEM_SYS_NO, OC.LOT_ID, OC.OUTBOUND_DT
+		                   ) OB
+		        WHERE IB.ITEM_SYS_NO = OB.ITEM_SYS_NO
+		           	 AND IB.LOT_ID = OB.LOT_ID
+				) T
+		 WHERE 1 = 1
+		   <![CDATA[ AND T.OUTBOUND_DT >= REPLACE(#rpt_fr_dt#, '-', '') ]]> 	/* 조회조건 MONTHLY FR_DATE*/
+		   <![CDATA[ AND T.OUTBOUND_DT <= REPLACE(#rpt_to_dt#, '-', '') ]]> 	/* 조회조건 MONTHLY TO_DATE*/
+	     ORDER BY ITEM_SYS_NO, LOT_ID, OUTBOUND_DT 
+	</select>
+	
+	<select id="searchMonthlyStorageRptDetailUnion" resultClass="MonthlyStorageRptVO">
+	<!-- LKH 2016-02-03 -->
+		/* 해당 기간 현재고  */
+		SELECT CT.CTRT_NO,
+		       CT.WH_CD,
+		       SUBSTRING(REPLACE(#rpt_to_dt#, '-', ''), 1, 6) AS RPT_MTH, /* 조회조건 MONTHLY TO_DATE*/
+		       REPLACE(#rpt_fr_dt#, '-', '') AS RPT_FR_DT, /* 조회조건 MONTHLY FR_DATE*/
+		       REPLACE(#rpt_to_dt#, '-', '') AS RPT_TO_DT, /* 조회조건 MONTHLY TO_DATE*/
+		       CT.ITEM_CD AS ITEM_CD,
+		       CT.ITEM_NM AS ITEM_NM,
+		       CT.LOT_ID,
+		       CT.ITEM_SYS_NO,
+		       CT.IN_QTY,
+		       CT.IN_QTY - ISNULL(CT.OUT_QTY, 0) AS STC_QTY,
+		       0 AS OUT_QTY,
+		       CT.INBOUND_DT AS INBOUND_DT,
+		       '' AS OUTBOUND_DT,
+		       <![CDATA[ CASE WHEN CT.INBOUND_DT > REPLACE(#rpt_fr_dt#, '-', '') THEN CT.INBOUND_DT ELSE REPLACE(#rpt_fr_dt#, '-', '') END AS STR_FR_DT, ]]> /* 조회조건 MONTHLY FR_DATE*/
+		       REPLACE(#rpt_to_dt#, '-', '') AS STR_TO_DT, /* 조회조건 MONTHLY TO_DATE*/
+		       datediff(dd,Convert(DateTime, (<![CDATA[ CASE WHEN CT.INBOUND_DT > REPLACE(#rpt_fr_dt#, '-', '') THEN CT.INBOUND_DT ELSE REPLACE(#rpt_fr_dt#, '-', '') END ]]>)),convert(datetime,REPLACE(#rpt_to_dt#, '-', ''))) +1 AS STR_DAYS /* 조회조건 MONTHLY TO_DATE - FR_DATE + 1*/
+		  FROM (SELECT I.CTRT_NO,
+		               I.WH_CD,
+		               I.ITEM_CD AS ITEM_CD,
+		               I.ITEM_NM AS ITEM_NM,
+		               I.ITEM_SYS_NO,
+		               I.LOT_ID,
+		               SUM(I.IN_QTY) AS IN_QTY,
+		               MAX(S.OUT_QTY) AS OUT_QTY,
+		               MAX(L.LOT_ATTRIB_01) AS INBOUND_DT
+		          FROM TL_CTRT_CUST_ITEM_LOT L,
+		          	   TL_WH_INV_LOT I
+		               LEFT JOIN
+		               (SELECT B1.CTRT_NO,
+		                       B1.WH_CD,
+		                       S2.ITEM_SYS_NO,
+		                       S2.LOT_ID,
+		                       SUM(S2.ISSU_ITEM_EA_QTY) AS OUT_QTY
+		                  FROM TL_WH_OB        B1,
+		                       TL_WH_ALLC      A1,
+		                       TL_WH_ISSU      S1,
+		                       TL_WH_ISSU_ITEM S2
+		                 WHERE B1.WOB_BK_NO  = A1.WOB_BK_NO
+		                   AND A1.WALC_NO    = S1.WALC_NO
+		                   AND S1.WOB_OUT_NO = S2.WOB_OUT_NO
+		                   <![CDATA[ AND S1.OUTBOUND_DT <= REPLACE(#rpt_to_dt#, '-', '') ]]>
+		                   AND B1.CTRT_NO = #ctrt_no# /* 조회조건 CONTRACT NO*/
+		                   AND B1.WH_CD   = #wh_cd#   /* 조회조건 WH CODE*/
+		                 GROUP BY B1.CTRT_NO, B1.WH_CD, S2.ITEM_SYS_NO, S2.LOT_ID) S
+						 ON I.CTRT_NO = S.CTRT_NO
+						   AND I.WH_CD   = S.WH_CD
+						   AND I.ITEM_SYS_NO = S.ITEM_SYS_NO
+						   AND I.LOT_ID  = S.LOT_ID
+		         WHERE I.CTRT_NO = L.CTRT_NO
+		           AND I.WH_CD   = L.WH_CD
+		           AND I.ITEM_SYS_NO = L.ITEM_SYS_NO
+		           AND I.LOT_ID  = L.LOT_ID	              
+		           AND I.CTRT_NO = #ctrt_no# /* 조회조건 CONTRACT NO*/
+		           AND I.WH_CD   = #wh_cd#   /* 조회조건 WH CODE*/
+		           <![CDATA[ AND L.LOT_ATTRIB_01 <= REPLACE(#rpt_to_dt#, '-', '') ]]>	 /* 조회조건 MONTHLY TO_DATE*/
+		         GROUP BY I.CTRT_NO, I.WH_CD, I.ITEM_CD, I.ITEM_NM, I.LOT_ID, I.ITEM_SYS_NO) CT
+		 WHERE 1 = 1
+		   <![CDATA[ AND CT.IN_QTY - ISNULL(CT.OUT_QTY, 0) > 0 ]]>
+	 	 ORDER BY ITEM_CD, ITEM_NM, LOT_ID, INBOUND_DT, OUTBOUND_DT 
+	</select>
+	<select id="searchMonthlyStorageRptDetail_BACKUP" resultClass="MonthlyStorageRptVO">
+	/*searchMonthlyStorageRptDetail*/
+		SELECT T.CTRT_NO,
+		       T.WH_CD,
+		       SUBSTRING(REPLACE(#rpt_to_dt#, '-', ''), 1, 6) AS RPT_MTH, /* 조회조건 MONTHLY TO_DATE*/
+		       REPLACE(#rpt_fr_dt#, '-', '') AS RPT_FR_DT, 			/* 조회조건 MONTHLY FR_DATE*/
+		       REPLACE(#rpt_to_dt#, '-', '') AS RPT_TO_DT, 			/* 조회조건 MONTHLY TO_DATE*/
+		       T.ITEM_CD,
+		       T.ITEM_NM,
+		       T.LOT_ID,
+		       T.ITEM_SYS_NO,
+		       T.IN_QTY,
+		       0 AS STC_QTY, 
+		       T.OUT_QTY,
+		       T.INBOUND_DT,
+		       T.OUTBOUND_DT,
+		       <![CDATA[ CASE WHEN T.INBOUND_DT > REPLACE(#rpt_fr_dt#, '-', '') THEN T.INBOUND_DT ELSE REPLACE(#rpt_fr_dt#, '-', '') END  AS STR_FR_DT, ]]>	/* 조회조건 MONTHLY FR_DATE*/
+		       ISNULL(T.OUTBOUND_DT, REPLACE(#rpt_to_dt#, '-', '')) AS STR_TO_DT, /* 조회조건 MONTHLY TO_DATE*/
+		       CONVERT(INT,ISNULL(T.OUTBOUND_DT, REPLACE(#rpt_to_dt#, '-', '')), 112) - CONVERT(INT,REPLACE((<![CDATA[ CASE WHEN T.INBOUND_DT > REPLACE(#rpt_fr_dt#, '-', '') THEN T.INBOUND_DT ELSE REPLACE(#rpt_fr_dt#, '-', '') END ]]> ), '-', ''), 112) + 1 AS STR_DAYS /* 조회조건 MONTHLY TO_DATE - FR_DATE + 1 */
+		       
+		  FROM (SELECT   IB.ITEM_SYS_NO,
+		          ISNULL(IB.ITEM_CD, ' ') AS ITEM_CD,
+		                 ISNULL(IB.ITEM_NM, ' ') AS ITEM_NM,
+		                 ISNULL(IB.LOT_ID, ' ') AS LOT_ID,
+		                 IB.IN_QTY,
+		                 OB.OUT_QTY AS OUT_QTY,
+		                 IB.INBOUND_DT AS INBOUND_DT,
+		                 OB.OUTBOUND_DT,
+		                 IB.CTRT_NO,
+		                 IB.WH_CD
+		            FROM (SELECT I.ITEM_SYS_NO,
+		                         I.LOT_ID,
+		                         I.CTRT_NO AS CTRT_NO,
+		                         I.WH_CD AS WH_CD,
+		                         I.ITEM_CD AS ITEM_CD,
+		                         I.ITEM_NM AS ITEM_NM,
+		                         L.LOT_ATTRIB_01 AS INBOUND_DT,
+		                         SUM(I.IN_QTY) AS IN_QTY
+		                    FROM TL_WH_INV_LOT I, TL_CTRT_CUST_ITEM_LOT L
+		                   WHERE I.CTRT_NO = L.CTRT_NO
+		                     AND I.WH_CD = L.WH_CD
+		                     AND I.ITEM_SYS_NO = L.ITEM_SYS_NO
+		                     AND I.LOT_ID = L.LOT_ID
+		                     AND I.CTRT_NO = #ctrt_no# /* 조회조건 CONTRACT NO*/
+		                     AND I.WH_CD   = #wh_cd#   /* 조회조건 WH CODE*/
+		                     AND EXISTS
+		                   (SELECT 'X'
+		                            FROM TL_WH_OB        B,
+		                                 TL_WH_ALLC      A,
+		                                 TL_WH_ISSU      S,
+		                                 TL_WH_ISSU_ITEM SI
+		                           WHERE B.WOB_BK_NO = A.WOB_BK_NO
+		                             AND A.WALC_NO = S.WALC_NO
+		                             AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+                           <![CDATA[ AND S.OUTBOUND_DT >= REPLACE(#rpt_fr_dt#, '-', '') ]]>	/* 조회조건 MONTHLY FR_DATE*/
+                           <![CDATA[ AND S.OUTBOUND_DT <= REPLACE(#rpt_to_dt#, '-', '') ]]> 	/* 조회조건 MONTHLY TO_DATE*/
+		                             AND SI.WIB_BK_NO   = I.WIB_BK_NO
+		                             AND SI.PO_SYS_NO   = I.PO_SYS_NO
+		                             AND SI.ITEM_SYS_NO = I.ITEM_SYS_NO
+		                             AND SI.LOT_ID = I.LOT_ID)
+		                   GROUP BY I.ITEM_SYS_NO,
+		                            I.LOT_ID,
+		                            I.CTRT_NO,
+		                            I.WH_CD,
+		                            I.ITEM_CD,
+		                            I.ITEM_NM,
+		                            L.LOT_ATTRIB_01
+		                   ) IB,
+		                 (SELECT OC.ITEM_SYS_NO,
+		                         OC.LOT_ID,
+		                         MAX(OC.CTRT_NO) AS CTRT_NO,
+		                         MAX(OC.WH_CD) AS WH_CD,
+		                         MAX(ITEM_CD) AS ITEM_CD,
+		                         MAX(ITEM_NM) AS ITEM_NM,
+		                         MAX(L.LOT_ATTRIB_01) AS INBOUND_DT,
+		                         MAX(L.LOT_ATTRIB_02) AS LOT_NO,
+		                         MAX(L.LOT_ATTRIB_03) AS EXP_DT,
+		                         MAX(L.LOT_ATTRIB_04) AS LOT_04,
+		                         MAX(L.LOT_ATTRIB_05) AS LOT_05,
+		                         MAX(OUTBOUND_DT) AS OUTBOUND_DT,
+		                         SUM(OUT_QTY) AS OUT_QTY
+		                    FROM (SELECT SI.WOB_BK_NO,
+		                                 SI.PO_SYS_NO,
+		                                 SI.ITEM_SYS_NO,
+		                                 SI.LOT_ID,
+		                                 B.CTRT_NO,
+		                                 B.WH_CD,
+		                                 SI.WH_LOC_CD,
+		                                 SI.ITEM_SEQ,
+		                                 SI.WIB_BK_NO,
+		                                 SI.ITEM_CD,
+		                                 SI.ITEM_NM,
+		                                 SI.ISSU_ITEM_EA_QTY AS OUT_QTY,
+		                                 S.OUTBOUND_DT
+		                            FROM TL_WH_OB B, TL_WH_ISSU S, TL_WH_ISSU_ITEM SI
+		                           WHERE B.WOB_BK_NO = SI.WOB_BK_NO
+		                             AND S.WOB_OUT_NO = SI.WOB_OUT_NO
+		                             AND B.CTRT_NO = #ctrt_no#  /* 조회 조건 Contract No*/
+		                             AND B.WH_CD   = #wh_cd#  /* 조회 조건 WH CODE*/
+		                          ) OC,
+		                         TL_CTRT_CUST_ITEM_LOT L
+		                   WHERE OC.CTRT_NO = L.CTRT_NO
+		                     AND OC.WH_CD   = L.WH_CD
+		                     AND OC.ITEM_SYS_NO = L.ITEM_SYS_NO
+		                     AND OC.LOT_ID  = L.LOT_ID
+		                   GROUP BY OC.ITEM_SYS_NO, OC.LOT_ID, OC.OUTBOUND_DT
+		                   ) OB
+		        WHERE IB.ITEM_SYS_NO = OB.ITEM_SYS_NO
+		           	 AND IB.LOT_ID = OB.LOT_ID
+				) T
+		 WHERE 1 = 1
+		   <![CDATA[ AND T.OUTBOUND_DT >= REPLACE(#rpt_fr_dt#, '-', '') ]]> 	/* 조회조건 MONTHLY FR_DATE*/
+		   <![CDATA[ AND T.OUTBOUND_DT <= REPLACE(#rpt_to_dt#, '-', '') ]]> 	/* 조회조건 MONTHLY TO_DATE*/
+	     ORDER BY ITEM_SYS_NO, LOT_ID, OUTBOUND_DT 
+	</select>
+	<select id="searchMonthlyStorageRptDetailUnion_BACKUP" resultClass="MonthlyStorageRptVO">
+		/* 해당 기간 현재고  */
+		SELECT CT.CTRT_NO,
+		       CT.WH_CD,
+		       SUBSTRING(REPLACE(#rpt_to_dt#, '-', ''), 1, 6) AS RPT_MTH, /* 조회조건 MONTHLY TO_DATE*/
+		       REPLACE(#rpt_fr_dt#, '-', '') AS RPT_FR_DT, /* 조회조건 MONTHLY FR_DATE*/
+		       REPLACE(#rpt_to_dt#, '-', '') AS RPT_TO_DT, /* 조회조건 MONTHLY TO_DATE*/
+		       CT.ITEM_CD AS ITEM_CD,
+		       CT.ITEM_NM AS ITEM_NM,
+		       CT.LOT_ID,
+		       CT.ITEM_SYS_NO,
+		       CT.IN_QTY,
+		       CT.IN_QTY - ISNULL(CT.OUT_QTY, 0) AS STC_QTY,
+		       0 AS OUT_QTY,
+		       CT.INBOUND_DT AS INBOUND_DT,
+		       '' AS OUTBOUND_DT,
+		       <![CDATA[ CASE WHEN CT.INBOUND_DT > REPLACE(#rpt_fr_dt#, '-', '') THEN CT.INBOUND_DT ELSE REPLACE(#rpt_fr_dt#, '-', '') END AS STR_FR_DT, ]]> /* 조회조건 MONTHLY FR_DATE*/
+		       REPLACE(#rpt_to_dt#, '-', '') AS STR_TO_DT, /* 조회조건 MONTHLY TO_DATE*/
+		       CONVERT(INT,REPLACE(#rpt_to_dt#, '-', ''), 112) - CONVERT(INT,(<![CDATA[ CASE WHEN CT.INBOUND_DT > REPLACE(#rpt_fr_dt#, '-', '') THEN CT.INBOUND_DT ELSE REPLACE(#rpt_fr_dt#, '-', '') END ]]>), 112) + 1 AS STR_DAYS /* 조회조건 MONTHLY TO_DATE - FR_DATE + 1*/
+		  FROM (SELECT I.CTRT_NO,
+		               I.WH_CD,
+		               I.ITEM_CD AS ITEM_CD,
+		               I.ITEM_NM AS ITEM_NM,
+		               I.ITEM_SYS_NO,
+		               I.LOT_ID,
+		               SUM(I.IN_QTY) AS IN_QTY,
+		               MAX(S.OUT_QTY) AS OUT_QTY,
+		               MAX(L.LOT_ATTRIB_01) AS INBOUND_DT
+		          FROM TL_CTRT_CUST_ITEM_LOT L,
+		          	   TL_WH_INV_LOT I
+		               LEFT JOIN
+		               (SELECT B1.CTRT_NO,
+		                       B1.WH_CD,
+		                       S2.ITEM_SYS_NO,
+		                       S2.LOT_ID,
+		                       SUM(S2.ISSU_ITEM_EA_QTY) AS OUT_QTY
+		                  FROM TL_WH_OB        B1,
+		                       TL_WH_ALLC      A1,
+		                       TL_WH_ISSU      S1,
+		                       TL_WH_ISSU_ITEM S2
+		                 WHERE B1.WOB_BK_NO  = A1.WOB_BK_NO
+		                   AND A1.WALC_NO    = S1.WALC_NO
+		                   AND S1.WOB_OUT_NO = S2.WOB_OUT_NO
+		                   <![CDATA[ AND S1.OUTBOUND_DT <= REPLACE(#rpt_to_dt#, '-', '') ]]>
+		                   AND B1.CTRT_NO = #ctrt_no# /* 조회조건 CONTRACT NO*/
+		                   AND B1.WH_CD   = #wh_cd#   /* 조회조건 WH CODE*/
+		                 GROUP BY B1.CTRT_NO, B1.WH_CD, S2.ITEM_SYS_NO, S2.LOT_ID) S
+						 ON I.CTRT_NO = S.CTRT_NO
+						   AND I.WH_CD   = S.WH_CD
+						   AND I.ITEM_SYS_NO = S.ITEM_SYS_NO
+						   AND I.LOT_ID  = S.LOT_ID
+		         WHERE I.CTRT_NO = L.CTRT_NO
+		           AND I.WH_CD   = L.WH_CD
+		           AND I.ITEM_SYS_NO = L.ITEM_SYS_NO
+		           AND I.LOT_ID  = L.LOT_ID	              
+		           AND I.CTRT_NO = #ctrt_no# /* 조회조건 CONTRACT NO*/
+		           AND I.WH_CD   = #wh_cd#   /* 조회조건 WH CODE*/
+		           <![CDATA[ AND L.LOT_ATTRIB_01 <= REPLACE(#rpt_to_dt#, '-', '') ]]>	 /* 조회조건 MONTHLY TO_DATE*/
+		         GROUP BY I.CTRT_NO, I.WH_CD, I.ITEM_CD, I.ITEM_NM, I.LOT_ID, I.ITEM_SYS_NO) CT
+		 WHERE 1 = 1
+		   <![CDATA[ AND CT.IN_QTY - ISNULL(CT.OUT_QTY, 0) > 0 ]]>
+	 	 ORDER BY ITEM_CD, ITEM_NM, LOT_ID, INBOUND_DT, OUTBOUND_DT 
+	</select>
+	<insert id="insertMonthlyStorageRptDetail">
+		INSERT INTO TL_WH_STR_RPT_DTL(
+		       CTRT_NO
+			  ,WH_CD
+			  ,RPT_MTH
+			  ,RPT_SEQ
+			  ,ITEM_CD
+			  ,ITEM_NM
+			  ,LOT_ID
+			  ,STC_QTY
+			  ,OUT_QTY
+			  ,INBOUND_DT
+			  ,OUTBOUND_DT
+			  ,STR_FR_DT
+			  ,STR_TO_DT
+			  ,STR_DAYS
+			  ,RGST_ID
+			  ,RGST_SYS_DT
+			  ,RGST_LOC_DT
+			)VALUES(
+			   #ctrt_no#
+			  ,#wh_cd#
+			  ,#rpt_mth#
+			  ,(SELECT ISNULL(MAX(RPT_SEQ),0)+1 FROM TL_WH_STR_RPT_DTL WHERE CTRT_NO = #ctrt_no# AND WH_CD = #wh_cd# AND RPT_MTH = #rpt_mth#)
+			  ,#item_cd#
+			  ,#item_nm#
+			  ,#lot_id#
+			  ,#stc_qty#
+			  ,#out_qty#
+			  ,#inbound_dt#
+			  ,#outbound_dt#
+			  ,#str_fr_dt#
+			  ,#str_to_dt#
+			  ,#str_days#
+			  ,#user_id#
+			  ,GETDATE()
+			  ,CONVERT(DATETIME,dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#))
+			  )
+	</insert>
+	<delete id="deleteMonthlyStorageRptDetail" parameterClass="java.util.HashMap">
+	/*WmsCommonSQL.xml > deleteMonthlyStorageRptDetail*/
+		DELETE FROM TL_WH_STR_RPT_DTL
+		 WHERE CTRT_NO = #ctrt_no#
+		   AND WH_CD   = #wh_cd#
+		   AND RPT_MTH = SUBSTRING(REPLACE(#rpt_to_dt#, '-', ''), 1,6)
+	</delete>
+	<update id="updateMonthlyStorageRptSts" parameterClass="java.util.HashMap">
+		UPDATE TL_WH_STR_RPT
+		   SET STS_CD = 'E'
+		 WHERE CTRT_NO = #ctrt_no#
+		   AND WH_CD   = #wh_cd#
+		   AND RPT_MTH = SUBSTRING(REPLACE(#rpt_to_dt#, '-', ''), 1,6)
+	</update>
+	<update id="updateMonthlyStorageRptStsX" parameterClass="java.util.HashMap">
+		UPDATE TL_WH_STR_RPT
+		   SET STS_CD = 'X'
+		 WHERE CTRT_NO = #ctrt_no#
+		   AND WH_CD   = #wh_cd#
+		   AND RPT_MTH = SUBSTRING(REPLACE(#rpt_to_dt#, '-', ''), 1,6)
+	</update>
+	<delete id="deleteMonthlyStorageRpt" parameterClass="java.util.HashMap">
+	/*WmsCommonSQL.xml > deleteMonthlyStorageRpt*/
+		DELETE FROM TL_WH_STR_RPT
+		 WHERE CTRT_NO = #ctrt_no#
+		   AND WH_CD   = #wh_cd#
+		   AND RPT_MTH = SUBSTRING(REPLACE(#rpt_to_dt#, '-', ''), 1,6)
+	</delete>
+</sqlMap>
+
+
+
+
+
+
+
+
+

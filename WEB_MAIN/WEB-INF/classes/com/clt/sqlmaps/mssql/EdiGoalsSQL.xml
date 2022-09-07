@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="edi.goals">
+	
+	
+	<!-- EDI BL INFO 를 조회한다.   -->
+	<select id="selectBlInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.goals.dto.EdiGoalsVO">
+		SELECT  bl.intg_bl_seq,  
+        		bl.ref_no,      
+        		bl.ref_ofc_cd,
+        		(SELECT cnt_cd FROM TB_OFC WHERE OFC_CD = bl.ref_ofc_cd) AS cnt_cd,
+        		CASE WHEN bl.biz_clss_cd = 'M' THEN bl.bl_no
+        		     ELSE mbl.bl_no 		
+        		END AS mbl_no,
+        		CASE WHEN bl.biz_clss_cd = 'M' THEN mbl.bl_no
+        		     ELSE bl.bl_no
+        		end AS hbl_no,
+        		bl.bkg_no,
+        		bl.air_sea_clss_cd,
+				bl.biz_clss_cd,
+				bnd.bnd_clss_cd,
+				'L' AS hbl_tp_cd, /* 항공은 글로비스 입장에서 COLOAD 임*/
+				bl.cargo_tp_cd,
+			    bl.inco_cd,
+			    bl.rep_cmdt_cd,
+			    bl.rep_cmdt_nm,
+			    bl.fm_svc_term_cd,
+			    bl.to_svc_term_cd,
+			    CASE WHEN bl.shp_mod_cd = 'FCL'  THEN 'F'
+			         WHEN bl.shp_mod_cd = 'LCL'  THEN 'L'
+			         WHEN bl.shp_mod_cd = 'BULK' THEN 'B'
+			         WHEN bl.shp_mod_cd = 'FAK'  THEN 'F'
+			    END AS shp_mod_cd,
+			    bl.CNT_CD AS org_cnt_cd,
+			    (SELECT CNT_ENG_NM FROM TB_CNT WHERE CNT_CD = bl.CNT_CD) AS org_cnt_nm,
+			    bl.inv_no AS inv_no,
+			    bl.lc_no,
+			    (SELECT TOP 1 IATA_CD FROM TB_TRDP WHERE TRDP_CD = lnr.BL_TRDP_TP_CD) AS CARR_3CD,
+			    (SELECT TOP 1 PREFIX FROM TB_TRDP WHERE TRDP_CD = lnr.BL_TRDP_TP_CD) AS CARR_INI,
+			    (SELECT TOP 1 LOCL_NM FROM TB_TRDP WHERE TRDP_CD = lnr.BL_TRDP_TP_CD) AS CARR_NM,
+			    (SELECT TOP 1 CNT_CD FROM TB_TRDP WHERE TRDP_CD = lnr.BL_TRDP_TP_CD) AS CARR_CNT,
+		    	bl.flt_no,
+		    	bl.trnk_vsl_cd,
+		    	bl.trnk_vsl_nm,
+		    	bl.trnk_voy,
+		    	CASE WHEN bl.air_sea_clss_cd = 'S' THEN bl.trnk_vsl_nm
+        		     ELSE bl.flt_no
+        		END vsl_flt,
+		    	bl.etd_dt_tm,
+		    	bl.eta_dt_tm,
+		    	bl.obrd_dt_tm,		
+		    	bl.bl_iss_dt,    	
+		    	CASE WHEN bl.frt_term_cd = 'PP' THEN 'P'
+		    	     WHEN bl.frt_term_cd = 'CC' THEN 'C'
+		    	END AS frt_term_cd,
+		        CASE WHEN bl.AIR_SEA_CLSS_CD = 'A' THEN  bl.pol_cd
+		             WHEN bl.AIR_SEA_CLSS_CD = 'S' THEN (SELECT TOP 1 STN_NO FROM TB_LOC WHERE LOC_CD = bl.pol_cd) 
+		        END AS pol_cd,   
+		        bl.pol_nm,     
+		        CASE WHEN bl.AIR_SEA_CLSS_CD = 'A' THEN  bl.pod_cd
+		             WHEN bl.AIR_SEA_CLSS_CD = 'S' THEN (SELECT TOP 1 STN_NO FROM TB_LOC WHERE LOC_CD = bl.pod_cd) 
+		        END AS pod_cd,
+                bl.pod_nm,
+                CASE WHEN bl.AIR_SEA_CLSS_CD = 'A' THEN  bl.por_cd
+		             WHEN bl.AIR_SEA_CLSS_CD = 'S' THEN (SELECT TOP 1 STN_NO FROM TB_LOC WHERE LOC_CD = bl.por_cd) 
+		        END AS por_cd,
+        		bl.por_nm,		
+        		CASE WHEN bl.AIR_SEA_CLSS_CD = 'A' THEN  bl.del_cd
+		             WHEN bl.AIR_SEA_CLSS_CD = 'S' THEN (SELECT TOP 1 STN_NO FROM TB_LOC WHERE LOC_CD = bl.del_cd) 
+		        END AS del_cd,
+        		bl.del_nm,	   
+        		CASE WHEN bl.AIR_SEA_CLSS_CD = 'A' THEN  bl.fnl_dest_loc_cd
+		             WHEN bl.AIR_SEA_CLSS_CD = 'S' THEN (SELECT TOP 1 STN_NO FROM TB_LOC WHERE LOC_CD = bl.fnl_dest_loc_cd) 
+		        END AS fnl_dest_loc_cd,     		
+   		        bl.FNL_DEST_LOC_NM,
+   		        bl.grs_wgt,
+   		        bl.grs_wgt1,
+   		        bl.CHG_WGT,
+   		        bl.CHG_WGT1,
+   		        bl.GRS_WGT_UT_CD,
+   		        bl.CHG_WGT_UT_CD,
+   		        bl.meas,
+        		bl.meas1,      		
+        		bl.pck_qty,
+        		(SELECT cstms_pck_cd_val FROM tb_pck_ut_cd WHERE pck_ut_cd = bl.pck_ut_cd) AS pck_ut_cd,     
+        		pcd.pck_nm 			AS pck_ut_nm, 
+        		(SELECT TOP 1 EDI_CD FROM TB_KR_CSTM_WH_CD WHERE WH_SEQ = bl.cfs_nod_cd) AS cfs_nod_cd,
+        		bl.cfs_loc_nm,
+        		bl.csts_clr_tp,
+        		bl.CURR_CD,
+				bl.RMK,
+			    bl.MK_TXT,
+			    bl.DESC_TXT,
+			    bl.PO_NO,
+			    '' AS mrn,
+			    CASE WHEN bl.biz_clss_cd = 'M' THEN bl.bl_ser_no
+			         ELSE ''
+			    END msn,
+			    CASE WHEN bl.biz_clss_cd = 'H' THEN bl.bl_ser_no
+			         ELSE ''
+			    END hsn,
+			    isnull(bl.RESERVE_FIELD11, 'N') AS RESERVE_FIELD11,
+        		(SELECT TOP 1 shrt_nm FROM TB_TRDP WHERE trdp_cd = shp.trdp_cd) AS shpr_trdp_cd,      
+        		shp.trdp_nm 	AS shpr_trdp_nm,      
+        		shp.trdp_addr 	AS shpr_trdp_addr,
+                (SELECT TOP 1 shrt_nm FROM TB_TRDP WHERE trdp_cd = cne.trdp_cd) AS cnee_trdp_cd,      
+                cne.trdp_nm 	AS cnee_trdp_nm,      
+                cne.trdp_addr 	AS cnee_trdp_addr,
+                (SELECT TOP 1 shrt_nm FROM TB_TRDP WHERE trdp_cd = ntf.trdp_cd)	AS ntfy_trdp_cd,      
+                ntf.trdp_nm 	AS ntfy_trdp_nm,      
+                ntf.trdp_addr 	AS ntfy_trdp_addr,
+                (SELECT TOP 1 shrt_nm FROM TB_TRDP WHERE trdp_cd = act.trdp_cd) AS act_shpr_trdp_cd,  
+                act.trdp_nm 	AS act_shpr_trdp_nm,  
+                act.trdp_addr 	AS act_trdp_addr,
+                (SELECT TOP 1 shrt_nm FROM TB_TRDP WHERE trdp_cd = lnr.trdp_cd) AS lnr_trdp_cd,       
+                lnr.trdp_nm 	AS lnr_trdp_nm,
+                (SELECT TOP 1 scac_cd FROM TB_TRDP WHERE trdp_cd = lnr.trdp_cd) AS lnr_scac_cd,
+                (SELECT TOP 1 shrt_nm FROM TB_TRDP WHERE trdp_cd = ptn.trdp_cd)	AS prnr_trdp_cd,      
+                ptn.trdp_nm 	AS prnr_trdp_nm,      
+                ptn.trdp_addr 	AS prnr_trdp_addr,
+                (SELECT TOP 1 shrt_nm FROM TB_TRDP WHERE trdp_cd = agent.trdp_cd) 	AS agent_trdp_cd,   
+                agent.trdp_nm 	AS agent_trdp_nm,   
+                agent.trdp_addr AS agent_trdp_addr,
+                (SELECT TOP 1 shrt_nm FROM TB_TRDP WHERE trdp_cd = ptn2.trdp_cd) 	AS prnr_trdp_cd2,    
+                ptn2.trdp_nm 	AS prnr_trdp_nm2,    
+                ptn2.trdp_addr 	AS prnr_trdp_addr2,
+           	    trk.TRDP_CD		AS trk_trdp_cd,
+                trk.TRDP_NM		AS trk_trdp_nm
+								
+         FROM   tb_intg_bl bl
+         JOIN   tb_add_info_bnd bnd
+           ON   bl.intg_bl_seq = bnd.intg_bl_seq 
+             AND bnd.delt_flg = 'N'
+	LEFT OUTER JOIN tb_bl_prnr act
+           ON bl.intg_bl_seq = act.intg_bl_seq  AND act.bl_trdp_tp_cd = 'S02' AND act.delt_flg = 'N'
+	LEFT OUTER JOIN tb_pck_ut_cd pcd        
+           ON bl.pck_ut_cd   = pcd.pck_ut_cd    AND pcd.delt_flg = 'N'
+	LEFT OUTER JOIN tb_bl_prnr shp
+           ON bl.intg_bl_seq = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+	LEFT OUTER JOIN tb_bl_prnr cne
+           ON bl.intg_bl_seq = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+	LEFT OUTER JOIN tb_bl_prnr ntf
+           ON bl.intg_bl_seq = ntf.intg_bl_seq  AND ntf.bl_trdp_tp_cd = 'N01' AND ntf.delt_flg = 'N'
+	LEFT OUTER JOIN tb_bl_prnr lnr
+           ON bl.intg_bl_seq = lnr.intg_bl_seq  AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+	LEFT OUTER JOIN tb_bl_prnr ptn
+           ON bl.intg_bl_seq = ptn.intg_bl_seq  AND ptn.bl_trdp_tp_cd = 'P01' AND ptn.delt_flg = 'N'
+	LEFT OUTER JOIN tb_bl_prnr agent
+           ON bl.intg_bl_seq = agent.intg_bl_seq  AND agent.bl_trdp_tp_cd = 'A01' AND agent.delt_flg = 'N'
+	LEFT OUTER JOIN tb_bl_prnr ptn2
+           ON bl.intg_bl_seq = ptn2.intg_bl_seq  AND ptn2.bl_trdp_tp_cd = 'P03' AND ptn2.delt_flg = 'N'   
+    LEFT OUTER JOIN tb_bl_prnr trk
+           ON bl.intg_bl_seq = trk.intg_bl_seq  AND trk.bl_trdp_tp_cd = 'T02' AND trk.delt_flg = 'N'                   
+	LEFT OUTER JOIN tb_intg_bl_rlt rlt
+           ON bl.intg_bl_seq = rlt.intg_bl_seq AND rlt.delt_flg = 'N'
+	LEFT OUTER JOIN tb_intg_bl mbl
+           ON rlt.rlt_intg_bl_seq = mbl.intg_bl_seq AND mbl.biz_clss_cd = 'M' AND mbl.delt_flg = 'N'
+        WHERE bl.delt_flg    = 'N' 
+          AND bl.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	
+	<!-- EDI CONTAINER INFO 를 조회한다.   -->
+	<select id="selectCntrInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.goals.dto.EdiCntrVO">
+		SELECT CNTR_NO
+		      ,CNTR_TPSZ_CD
+		      ,SEAL_NO1
+		      ,SEAL_NO2
+		      ,SEAL_NO3
+		      ,CGO_PCK_QTY
+		      ,CGO_PCK_UT
+		      ,CGO_WGT
+		      ,CGO_MEAS
+		      ,CNTR_RMK
+		  FROM TB_CNTR_LIST
+		 WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</select>
+	
+	
+	<!-- EDI 문서 SEQUENCE 를 조회한다.   -->
+	<select id="selectEdiSeq" parameterClass="HashMap" resultClass="String">
+		SELECT ISNULL(MAX(SEQ), 0) + 1
+		  FROM TB_EDI_SEQ
+		 WHERE EDI_DT = CONVERT(VARCHAR(8), GETDATE(), 112)
+	</select>
+	
+	<update id="insertEdiSeq" parameterClass="String">
+		INSERT INTO TB_EDI_SEQ(
+				 EDI_DT
+				,SEQ
+		)VALUES(
+				CONVERT(VARCHAR(8), GETDATE(), 112)
+			   ,#value# 	
+		)
+	</update>
+	
+	
+	<update id="updateBlEdiYn" parameterClass="String">
+		UPDATE TB_INTG_BL
+		   SET RESERVE_FIELD11 = 'Y'
+		 WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	</update>
+	
+	
+	
+</sqlMap>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE taglib
+        PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+        "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+    <tlib-version>1.3</tlib-version>
+    <jsp-version>1.2</jsp-version>
+    <short-name>logic</short-name>
+    <uri>http://struts.apache.org/tags-logic</uri>
+    <description></description>
+    <tag>
+        <name>iterate</name>
+        <tag-class>com.clt.syscommon.taglib.RowSetTag</tag-class>
+        <body-content>JSP</body-content>
+        <description/>
+        <attribute>
+            <name>collection</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+            <description>
+                <![CDATA[
+      <p>A runtime expression that evaluates to a collection (conforming to
+      the requirements listed above) to be iterated over.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>id</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>The name of a page scope JSP bean that will contain the current
+      element of the collection on each iteration, if it is not
+      <code>null</code>.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>indexId</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>The name of a page scope JSP bean that will contain the current
+      index of the collection on each iteration.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>length</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>The maximum number of entries (from the underlying collection) to be
+      iterated through on this page.  This can be either an integer that
+      directly expresses the desired value, or the name of a JSP bean (in
+      any scope) of type <code>java.lang.Integer</code> that defines the
+      desired value.  If not present, there will be no limit on the number
+      of iterations performed.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>name</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>The name of the JSP bean containing the collection to be iterated
+      (if <code>property</code> is not specified), or the JSP bean whose
+      property getter returns the collection to be iterated (if
+      <code>property</code> is specified).</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>offset</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>The zero-relative index of the starting point at which entries from
+      the underlying collection will be iterated through.  This can be either
+      an integer that directly expresses the desired value, or the name of a
+      JSP bean (in any scope) of type <code>java.lang.Integer</code> that
+      defines the desired value.  If not present, zero is assumed (meaning
+      that the collection will be iterated from the beginning.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>property</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>Name of the property, of the JSP bean specified by <code>name</code>,
+      whose getter returns the collection to be iterated.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>scope</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>The bean scope within which to search for the bean named by the
+      <code>name</code> property, or "any scope" if not specified.</p>
+      ]]>
+            </description>
+        </attribute>
+        <attribute>
+            <name>type</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                <![CDATA[
+      <p>Fully qualified Java class name of the element to be exposed through
+      the JSP bean named from the <code>id</code> attribute.  If not present,
+      no type conversions will be performed.  NOTE:  The actual elements of
+      the collection must be assignment-compatible with this class, or a
+      request time ClassCastException will occur.</p>
+      ]]>
+            </description>
+        </attribute>
+    </tag>
+</taglib>

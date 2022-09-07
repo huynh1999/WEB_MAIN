@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+    <screen name="MobLogin"  template="templateMobLogin">
+        <parameter key="body"	value="/apps/fis/mob/main/jsp/MobLogin.jsp" />
+    </screen>
+	<screen name="MobUserInfoMng" template="templateMob">
+		<parameter key="title" value="User Setting" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/main/jsp/MobUserInfoMng.jsp" />
+	</screen>
+	<screen name="MobUserPwdMng" template="templateMob">
+		<parameter key="title" value="Change Password" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/main/jsp/MobUserPwdMng.jsp" />
+	</screen>
+    
+	<screen name="MobMain" template="templateMob">
+		<parameter key="title" value="Main" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/main/jsp/MobMain.jsp" />
+	</screen>
+	<screen name="MobWHInMain" template="templateMob">
+		<parameter key="title" value="Inbound" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ib/jsp/MobWHInMain.jsp" />
+	</screen>
+	<screen name="MobWHInSrch" template="templateMob">
+		<parameter key="title" value="Inbound Complete" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ib/jsp/MobWHInSrch.jsp" />
+	</screen>
+	<screen name="MobWHInList" template="templateMob">
+		<parameter key="title" value="Inbound Complete" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ib/jsp/MobWHInList.jsp" />
+	</screen>
+	<screen name="MobWHInDtl" template="templateMob">
+		<parameter key="title" value="Inbound Complete" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ib/jsp/MobWHInDtl.jsp" />
+	</screen>
+	<screen name="MobWHInPtawySrch" template="templateMob">
+		<parameter key="title" value="Putaway" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ib/jsp/MobWHInPtawySrch.jsp" />
+	</screen>
+	<screen name="MobWHInPtawyList" template="templateMob">
+		<parameter key="title" value="Putaway" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ib/jsp/MobWHInPtawyList.jsp" />
+	</screen>
+	<screen name="MobWHInPtawyDlt" template="templateMob">
+		<parameter key="title" value="Putaway" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ib/jsp/MobWHInPtawyDlt.jsp" />
+	</screen>
+	
+	<screen name="MobWHOutMain" template="templateMob">
+		<parameter key="title" value="Outbound" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ob/jsp/MobWHOutMain.jsp" />
+	</screen>
+
+	<screen name="MobWHOutSrch" template="templateMob">
+		<parameter key="title" value="Picking" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ob/jsp/MobWHOutSrch.jsp" />
+	</screen>
+	<screen name="MobWHOutList" template="templateMob">
+		<parameter key="title" value="Picking" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ob/jsp/MobWHOutList.jsp" />
+	</screen>
+
+	<screen name="MobWHOutDtl" template="templateMob">
+		<parameter key="title" value="Picking" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ob/jsp/MobWHOutDtl.jsp" />
+	</screen>
+	
+	<screen name="MobWHOutShpSrch" template="templateMob">
+		<parameter key="title" value="Shipping" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ob/jsp/MobWHOutShpSrch.jsp" />
+	</screen>
+	<screen name="MobWHOutShpList" template="templateMob">
+		<parameter key="title" value="Shipping" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ob/jsp/MobWHOutShpList.jsp" />
+	</screen>
+
+	<screen name="MobWHOutShpDtl" template="templateMob">
+		<parameter key="title" value="Shipping" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ob/jsp/MobWHOutShpDtl.jsp" />
+	</screen>
+	
+	<screen name="MobWHOutShpDtl" template="templateMob">
+		<parameter key="title" value="Shipping" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/ob/jsp/MobWHOutShpDtl.jsp" />
+	</screen>
+	
+	<screen name="MobInvMoveSrch" template="templateMob">
+		<parameter key="title" value="Movement" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobInvtMoveSrch.jsp" />
+	</screen>
+	<screen name="MobInvMoveList" template="templateMob">
+		<parameter key="title" value="Movement" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobInvtMoveList.jsp" />
+	</screen>
+	<screen name="MobInvtMoveItemList" template="templateMob">
+		<parameter key="title" value="Movement" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobInvtMoveItemList.jsp" />
+	</screen>
+	<screen name="MobInvMoveDtl" template="templateMob">
+		<parameter key="title" value="Movement" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobInvtMoveDtl.jsp" />
+	</screen>
+	<screen name="MobInvMain" template="templateMob">
+		<parameter key="title" value="Inventory" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobInvtMain.jsp" />
+	</screen>
+
+	<!-- #2451 [WMS4.0]MOBILE - Inventory Search by Item/Serial/LP# 기능 추가 (S) -->
+	<screen name="MobInvtSrch" template="templateMob">
+		<parameter key="title" value="Inventory Search" direct="true"/>
+		<parameter key="body"  value="/apps/fis/mob/invt/jsp/MobInvtSrch.jsp" />
+	</screen>
+
+	<screen name="MobInvtSrchList" template="templateMob">
+		<parameter key="title" value="Inventory Search" direct="true"/>
+		<parameter key="body"  value="/apps/fis/mob/invt/jsp/MobInvtSrchList.jsp" />
+	</screen>
+
+	<screen name="MobInvtSrchDtl" template="templateMob">
+		<parameter key="title" value="Inventory Search" direct="true"/>
+		<parameter key="body"  value="/apps/fis/mob/invt/jsp/MobInvtSrchDtl.jsp" />
+	</screen>
+	<!-- #2451 [WMS4.0]MOBILE - Inventory Search by Item/Serial/LP# 기능 추가 (S) -->
+
+	<screen name="MobInvAdjSrch" template="templateMob">
+		<parameter key="title" value="Adjustment" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobInvtAdjSrch.jsp" />
+	</screen>
+	<screen name="MobInvAdjList" template="templateMob">
+		<parameter key="title" value="Adjustment" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobInvtAdjList.jsp" />
+	</screen>
+	<screen name="MobInvAdjDtl" template="templateMob">
+		<parameter key="title" value="Adjustment" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobInvtAdjDtl.jsp" />
+	</screen>
+	
+	<screen name="MobCycKntSrch" template="templateMob">
+		<parameter key="title" value="Cycle Count" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobCycKntSrch.jsp" />
+	</screen>
+	<screen name="MobCycKntList" template="templateMob">
+		<parameter key="title" value="Cycle Count" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobCycKntList.jsp" />
+	</screen>
+	<screen name="MobCycKntDtl" template="templateMob">
+		<parameter key="title" value="Cycle Count" direct="true"/>
+		<parameter key="body"	value="/apps/fis/mob/invt/jsp/MobCycKntDtl.jsp" />
+	</screen>
+</screen-definitions>

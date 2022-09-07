@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+	
+    <!--AIE_BMD_0010.clt  AIR Liner Schedule SEARCH    -->
+    <url-mapping url="AIC_BMD_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.aic.bmd.linerinfo.event.AIC_BMD_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="AIC_BMD_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- AIR Liner Schedule의 화면필드정보를 그리드로 통신한다.  -->
+    <url-mapping url="AIC_BMD_0010GS.clt" screen="AIC_BMD_0010GS.screen" >
+        <web-action-class>com.clt.apps.fis.aic.bmd.linerinfo.event.AIC_BMD_0010HTMLAction</web-action-class>
+    </url-mapping>  
+    
+    <!-- AIR Liner Schedule의 화면필드정보를 그리드로 통신한다.  -->
+    <event-mapping>
+        <event-class>com.clt.apps.fis.aic.bmd.linerinfo.event.AicLinerScheduleEvent</event-class>
+        <service-action-class>com.clt.apps.fis.aic.bmd.linerinfo.AicLinerScheduleSC</service-action-class>
+    </event-mapping>
+
+	
+</mappings>

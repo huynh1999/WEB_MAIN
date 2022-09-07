@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+	<!--  Shipping Instruction Entry   -->
+	<url-mapping url="OTH_VSI_0010.clt" useFlowHandler="true">
+		<web-action-class>com.clt.apps.fis.oth.vndrsi.event.OTH_VSI_0010HTMLAction</web-action-class>
+		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+			<handler-result result="SUCCESS" screen="OTH_VSI_0010.screen"/>
+			<handler-result result="ERROR" screen="Error.screen"/>
+		</flow-handler>
+	</url-mapping>
+	<url-mapping url="OTH_VSI_0010GS.clt" screen="OTH_VSI_0010GS.screen">
+		<web-action-class>com.clt.apps.fis.oth.vndrsi.event.OTH_VSI_0010HTMLAction</web-action-class>
+	</url-mapping>
+	<url-mapping url="OTH_VSI_0010_1GS.clt" screen="OTH_VSI_0010_1GS.screen">
+		<web-action-class>com.clt.apps.fis.oth.vndrsi.event.OTH_VSI_0010HTMLAction</web-action-class>
+	</url-mapping>
+
+	<event-mapping>
+		<event-class>com.clt.apps.fis.oth.vndrsi.event.OthVndrSiEvent</event-class>
+		<service-action-class>com.clt.apps.fis.oth.vndrsi.OthVndrSiSC</service-action-class>
+	</event-mapping>
+
+
+	<!--  Shipping Instruction List   -->
+	<url-mapping url="OTH_VSI_0020.clt" useFlowHandler="true">
+		<web-action-class>com.clt.apps.fis.oth.vndrsi.event.OTH_VSI_0020HTMLAction</web-action-class>
+		<flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+			<handler-result result="SUCCESS" screen="OTH_VSI_0020.screen"/>
+			<handler-result result="ERROR" screen="Error.screen"/>
+		</flow-handler>
+	</url-mapping>
+	<url-mapping url="OTH_VSI_0020GS.clt" screen="OTH_VSI_0020GS.screen">
+		<web-action-class>com.clt.apps.fis.oth.vndrsi.event.OTH_VSI_0020HTMLAction</web-action-class>
+	</url-mapping>
+
+	<event-mapping>
+		<event-class>com.clt.apps.fis.oth.vndrsi.event.OthVndrSiEvent</event-class>
+		<service-action-class>com.clt.apps.fis.oth.vndrsi.OthVndrSiSC</service-action-class>
+	</event-mapping>
+</mappings>

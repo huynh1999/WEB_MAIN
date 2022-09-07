@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.his.hismgt">
+
+	<!-- GROUP LIST 조회   -->
+	<select id="selectGROUPLIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.his.hismgt.dto.MgtHisGroupVO">
+		SELECT  cng_grp_attr_nm
+			   ,cng_grp_attr_seq
+		FROM tb_cng_grp_ppt
+		WHERE delt_flg = 'N'
+		        
+	</select>
+	
+	
+	<!-- HISTORY MANAGEMENT 조회   -->
+	<select id="selectHISTORYMGT" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.his.hismgt.dto.MgtHisMgtVO">
+		SELECT    A.table_name
+	                 ,A.column_name
+	                 ,A.lgc_attr_nm
+	                 ,A.cng_grp_attr_seq
+	                 ,A.column_key
+	                 ,A.use_flg
+	                 ,A.warning
+	                 ,COMMENTS AS column_comment
+	                 ,COLNO
+	                 ,CASE WHEN A.warning = 'Error' THEN 1
+	                       ELSE 2
+	                  END AS sort_seq
+	          FROM  (
+	                    /* DB에만 존재하는 데이터(NEW) */
+	                      select   upper(x.name) as table_name  
+	                              ,y.name  column_name
+	                              ,z.lgc_attr_nm
+	                              ,z.cng_grp_attr_seq
+	                              ,column_key = (select max(j.xtype)
+	                                               from sysindexkeys i, sysobjects j, sysindexkeys k
+	                                              where k.id         = y.id
+	                                                and k.colid      = y.colid
+	                                                and i.id         = k.id
+	                                                and i.indid      = k.indid
+	                                                and j.parent_obj = i.id
+	                                                and j.xtype      in ('PK', 'F')
+	                                            )
+	                              ,z.use_flg
+	                              ,case when z.phys_ett_nm is null or z.phys_ett_nm = '' then 'new'
+	                                    else 'nomal'
+	                                end as warning
+	                              ,(select text from syscomments m where y.cdefault = m.id and m.colid = 1) comments
+	                              ,y.colid colno
+	                        from  sysobjects x
+	                        join  syscolumns y on x.id = y.id
+	             left outer join  (select * from tb_cng_ppt where delt_flg = 'N') z
+	                          on  x.name = z.PHYS_ETT_NM and y.name = z.phys_attr_nm 
+	                       where  x.xtype = 'U'
+	                        <isNotNull property="Table_in">
+	                          and x.name like '%' + #Table_in# + '%'
+	                        </isNotNull>
+	                          and x.id = y.id
+	                          and x.name like 'TB_%'
+	                    UNION ALL
+	                    /* TABLE에 존재하는 데이터(ERROR) */
+	                  select   a.phys_ett_nm
+	                          ,a.phys_attr_nm
+	                          ,a.lgc_attr_nm 
+	                          ,a.cng_grp_attr_seq
+	                          ,null
+	                          ,a.use_flg
+	                          ,'error' as warning
+	                          ,null
+	                          ,0
+	                  from tb_cng_ppt a
+	                  where not exists (
+	                                      select 'x'
+	                                       from (select x.name tname, y.name cname 
+	                                               from sysobjects x, syscolumns y 
+	                                              where x.id   = y.id
+	                                                and x.xtype = 'U'
+	                                            ) c
+	                                      where c.tname  = a.phys_ett_nm 
+	                                        and c.cname  = a.phys_attr_nm
+	                                   )
+	                  and a.delt_flg = 'N'
+	                ) A
+	    <dynamic prepend="WHERE">
+	    <isNotEmpty prepend="AND" property="Table_in">
+	         A.table_name = #Table_in#
+	    </isNotEmpty>
+	    <isNotEmpty prepend="AND" property="Group_in">
+	         A.cng_grp_attr_seq =  #Group_in#
+	    </isNotEmpty>
+	    <isNotEmpty prepend="AND" property="Warning_in">
+	         A.warning = #Warning_in#
+	    </isNotEmpty>
+	    </dynamic>
+	    ORDER BY A.table_name, sort_seq, A.colno ASC
+	</select>
+	
+	<!-- GROUP LIST PK조회(SEQ)   -->
+	<select id="selectHISMGTPK" parameterClass="java.util.HashMap" resultClass="String">
+		SELECT  ISNULL(MAX(CONVERT(NUMERIC, cng_attr_seq)),0)+1 AS cng_attr_seq   
+		FROM tb_cng_ppt
+	</select>
+	
+	
+	
+	<!-- GROUP LIST를 등록한다.   -->
+	<insert id="insertHISMGT" parameterClass="com.clt.apps.fis.mgt.his.hismgt.dto.MgtHisMgtVO">
+		INSERT INTO tb_cng_ppt(
+                  cng_attr_seq
+                 ,phys_ett_nm
+                 ,phys_attr_nm
+                 ,lgc_attr_nm
+                 ,use_flg
+                 ,cng_grp_attr_seq
+                 ,rgst_usrid
+                 ,rgst_ofc_cd
+                 ,rgst_tms
+                 ,modi_usrid
+                 ,modi_ofc_cd
+                 ,modi_tms
+                 ,delt_flg
+
+        )VALUES(
+                  #cng_attr_seq#
+                 ,#table_name#
+                 ,#column_name#                     
+                 ,#lgc_attr_nm#
+                 ,#use_flg#
+                 ,#cng_grp_attr_seq#       
+                 ,#rgst_usrid#      
+                 ,#rgst_ofc_cd#     
+                 ,getdate() 
+                 ,#modi_usrid#
+                 ,#modi_ofc_cd#                     
+                 ,GETUTCDATE()
+                 ,'N'
+        )
+	</insert>
+		
+	<!-- HISTORY MANAGEMENT 를 수정한다.   -->
+	<update id="updateHISMGT" parameterClass="com.clt.apps.fis.mgt.his.hismgt.dto.MgtHisMgtVO">
+		UPDATE tb_cng_ppt
+        SET  modi_tms           = GETUTCDATE()
+        <isNotNull property="lgc_attr_nm">
+        	,lgc_attr_nm        = #lgc_attr_nm#
+        </isNotNull>  
+        <isNotEmpty property="cng_grp_attr_seq">
+            ,cng_grp_attr_seq   = #cng_grp_attr_seq#
+        </isNotEmpty>
+            ,use_flg            = #use_flg#
+            ,modi_ofc_cd        = #modi_ofc_cd#
+            ,modi_usrid         = #modi_usrid#
+        WHERE phys_ett_nm  = #table_name#
+          AND phys_attr_nm = #column_name#
+	</update>
+	
+	<!-- GROUP LIST를 수정한다.   -->
+	<delete id="deleteHISMGT" parameterClass="com.clt.apps.fis.mgt.his.hismgt.dto.MgtHisMgtVO">
+		UPDATE tb_cng_ppt
+        SET delt_flg = 'Y'
+        WHERE phys_ett_nm  = #table_name#
+        AND   phys_attr_nm = #column_name#
+	</delete>
+	
+	<!-- jsjang 2013.8.22 #17610 [BINEX] 7. Email 전송 History 조회 -->
+	<select id="searchRdHistory" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.his.hismgt.dto.MgtHisMgtVO">
+		/* MgtHisMgtSQL.xml >> searchRdHistory */
+		select * from (
+			SELECT his_seq, his_type, his_call_view, 
+					case when his_5 is not null then (select bl_no from tb_intg_bl where intg_bl_seq = his_5) else bl_no end bl_no,
+					inv_no, a1.rgst_tms, rgst_dt, snd_no, his_1, his_2, his_3, his_4, his_5, eng_usr_nm, locl_usr_nm, 
+					HIS_CALL_URL, HIS_CALL_FRM, RCVR_INFO, FAX_PROC_STS_CD, PROC_STS_CD, HIS_TITLE, 
+					CASE WHEN ISNULL(ERR.CD_NM,'') = '' THEN ERR_MSG ELSE ERR.CD_NM END AS ERR_MSG,
+					COUNT(*) OVER() AS TOT_CNT,ROW_NUMBER() OVER (ORDER BY his_seq DESC) AS RNUM, oth_ref_no     
+		    FROM 
+		    (     
+				SELECT his_seq, dtl.cd_nm his_type, his_call_view, 
+						<!-- CASE WHEN SUBSTRING(snd_no,1,2) = 'po' THEN a.intg_bl_seq
+						ELSE bl.bl_no END AS bl_no -->
+						<!-- #6859:[KING FREIGHT] ADDING 'LOG' BUTTON ON B/L LIST UNDER LOCAL TRANSPORT -->
+						Case 
+							WHEN (bl.intg_bl_seq ) != '' and SUBSTRING(snd_no, 1, 2) = 'po' THEN a.intg_bl_seq 
+							WHEN (oth_bl.oth_seq ) != '' and SUBSTRING(snd_no, 1, 2) = 'po' THEN a.oth_seq  
+						ELSE CASE WHEN isnull(bl.intg_bl_seq,'') != '' THEN bl.bl_no else oth_bl.mbl_no END 
+						END as bl_no
+						,inv.inv_no
+				           <!-- , LEFT(CONVERT(VARCHAR, CONVERT(datetime, a.rgst_tms, 120), 110), 10)+ ' ' 
+			       			+ LEFT(CONVERT(VARCHAR, CONVERT(datetime, a.rgst_tms, 121), 24), 8)  AS rgst_tms -->
+			       		   , a.rgst_tms AS rgst_tms
+			       		   , CONVERT(VARCHAR(8), a.rgst_tms, 112) AS rgst_dt	
+			       		   , snd_no AS snd_no
+				           , his_1, his_2, his_3
+				           <!-- #6859:[KING FREIGHT] ADDING 'LOG' BUTTON ON B/L LIST UNDER LOCAL TRANSPORT -->
+				           ,(SELECT CASE WHEN bl.intg_bl_seq != '' THEN his_4 ELSE '' END) AS his_4
+				           , his_5,b.eng_usr_nm, b.locl_usr_nm 
+				  	,a.HIS_CALL_URL,a.HIS_CALL_FRM
+				  	,CASE WHEN dtl.cd_nm ='FAX' THEN
+						fax_info.RCVR_INFO_CTNT
+						ELSE
+						eml_info.TO_EML_CTNT
+						END AS RCVR_INFO,
+					fax_info.FAX_PROC_STS_CD,
+					CASE WHEN dtl.cd_nm ='FAX' THEN
+						CASE WHEN  fax_info.FAX_PROC_STS_CD = '1' THEN 'Sending' 
+							 WHEN  fax_info.FAX_PROC_STS_CD = '2' THEN 'Sending' 
+							 WHEN  fax_info.FAX_PROC_STS_CD = '3' THEN 'Success' 
+							 WHEN  fax_info.FAX_PROC_STS_CD = '4' THEN 'Failed'
+							 WHEN  fax_info.FAX_PROC_STS_CD = '5' THEN 'Failed'
+							 ELSE  'Status N/A'
+						END
+					WHEN dtl.cd_nm ='EMAIL' THEN
+						CASE WHEN  eml_info.EML_PROC_STS_CD = '1' THEN 'Sending' 
+							 WHEN  eml_info.EML_PROC_STS_CD = '2' THEN 'Sending' 
+							 WHEN  eml_info.EML_PROC_STS_CD = '3' THEN 'Success' 
+							 WHEN  eml_info.EML_PROC_STS_CD = '4' THEN 'Failed'
+							 WHEN  eml_info.EML_PROC_STS_CD = '5' THEN 'Failed'
+							 ELSE  'Status N/A'
+						END
+						<!-- #434 [Binex LA new] email/fax history status and worng info on history -->
+					ELSE 'Status N/A'
+					END AS PROC_STS_CD	
+				    ,a.HIS_TITLE	
+	                ,CASE WHEN dtl.cd_nm = 'EMAIL' THEN
+	                	  CASE WHEN eml_info.EML_PROC_STS_CD IN ('4','5') THEN 
+							   CASE WHEN isnull(eml_info.EML_ERR_MSG,'') = '' THEN ''
+								    ELSE CASE WHEN eml_info.EML_ERR_MSG like '%' + 'not found as file or resource' + '%' OR eml_info.EML_ERR_MSG like 'IOException while sending message' + '%' THEN '1'
+								           	  WHEN eml_info.EML_ERR_MSG like 'Exception reading response' + '%' OR eml_info.EML_ERR_MSG like 'Unknown SMTP host:' + '%' THEN '2'
+									          WHEN eml_info.EML_ERR_MSG like 'Command Fail [0|Report stopped' + '%' OR eml_info.EML_ERR_MSG like 'Command Fail [0|[Microsoft]' + '%' THEN '3'
+										      WHEN eml_info.EML_ERR_MSG like 'Command Fail [0|Export Failure(lib error)' + '%' THEN '4'
+										      WHEN eml_info.EML_ERR_MSG like 'Command Fail [0|File' + '%' THEN '5'
+										      WHEN eml_info.EML_ERR_MSG like 'Illegal' + '%' OR eml_info.EML_ERR_MSG like 'Invalid Addresses' + '%' THEN '6'
+										      WHEN eml_info.EML_ERR_MSG like 'null' + '%' THEN '7'
+										      WHEN eml_info.EML_ERR_MSG like 'Command Fail [0|Failed to connect' + '%' OR eml_info.EML_ERR_MSG like 'Unknown SMTP host:' + '%' THEN '2'
+										      WHEN eml_info.EML_ERR_MSG like 'Exception reading response' + '%' OR eml_info.EML_ERR_MSG like 'Could not connect to SMTP host:' + '%' OR eml_info.EML_ERR_MSG like 'Can''t send command to SMTP host' + '%' THEN '8' 
+										      ELSE eml_info.EML_ERR_MSG END
+									END 
+							   ELSE '' END
+	                 ELSE '' END AS ERR_MSG,
+	                  <!-- #6859:[KING FREIGHT] ADDING 'LOG' BUTTON ON B/L LIST UNDER LOCAL TRANSPORT -->
+	                 (SELECT CASE WHEN isnull(bl.intg_bl_seq,'') = '' THEN his_4 ELSE '' END) AS oth_ref_no
+				  FROM TB_RD_HIS a
+				  join  tb_com_cd_dtl dtl on dtl.delt_flg = 'N' and dtl.com_cd = 'C114' and dtl.cd_val = a.his_type
+				  join  tb_usr b on a.RGST_USRID = b.usrid	
+				  LEFT OUTER JOIN tb_intg_bl bl WITH(NOLOCK) 
+		           ON   bl.intg_bl_seq = a.intg_bl_seq AND bl.delt_flg = 'N'
+				  LEFT OUTER JOIN tb_inv_dtl inv WITH(NOLOCK) 
+		           ON   inv.inv_seq = a.inv_seq AND inv.delt_flg = 'N'
+		          LEFT OUTER JOIN com_fax_snd_info fax_info WITH(NOLOCK)  
+		           ON   fax_info.FAX_SND_NO = a.snd_no AND dtl.cd_nm ='FAX'
+		          LEFT OUTER JOIN com_eml_snd_info eml_info WITH(NOLOCK)  
+		           ON   eml_info.EML_SND_NO = a.snd_no AND dtl.cd_nm ='EMAIL' 
+		           <!-- #6859:[KING FREIGHT] ADDING 'LOG' BUTTON ON B/L LIST UNDER LOCAL TRANSPORT -->
+		          LEFT OUTER JOIN TB_OTH_SALES oth_bl ON oth_bl.oth_seq = a.oth_seq
+		        WHERE  1=1         
+				<isNotEmpty property="his_type">
+					<![CDATA[
+					 AND his_type = #his_type# 
+					]]>
+				</isNotEmpty>
+				   AND a.delt_flg = 'N'
+				<isNotEmpty property="his_call_view">
+					AND a.his_call_view LIKE '%'+#his_call_view#+'%'
+				</isNotEmpty> 
+				
+				<!-- C.W Park 
+					#52971 Log Button 기능 분리 AR/AP List를 통해서 실행시 적용
+				-->
+				<isNotEmpty property="inv_seq">
+					AND a.inv_seq = #inv_seq#
+				</isNotEmpty>
+			
+		    ) a1   
+		    LEFT OUTER JOIN TB_COM_CD_DTL ERR ON ERR.CD_VAL = ERR_MSG AND COM_CD = 'C230' AND DELT_FLG = 'N'
+		    WHERE 1=1	
+			<isNotEmpty property="s_eng_name">
+			<isNotNull prepend="AND" property="s_eng_name">
+			( eng_usr_nm LIKE '%'+#s_eng_name#+'%' or locl_usr_nm LIKE '%'+#s_eng_name#+'%' )
+			</isNotNull>  
+			</isNotEmpty> 
+			
+			<isNotEmpty property="s_bl_inv">
+			<isNotNull prepend="AND" property="s_bl_inv">
+			( bl_no LIKE '%'+#s_bl_inv#+'%' or inv_no LIKE '%'+#s_bl_inv#+'%' or (select bl_no from tb_intg_bl where intg_bl_seq = his_5) LIKE '%'+#s_bl_inv#+'%' or oth_ref_no LIKE '%'+#s_bl_inv#+'%' or his_4 LIKE '%'+#s_bl_inv#+'%')
+			</isNotNull>  
+			</isNotEmpty> 
+			
+			<isNotEmpty property="s_rgst_tms">
+			<isNotNull prepend="AND" property="s_rgst_tms">
+			a1.rgst_dt between #s_rgst_tms# and #e_rgst_tms#
+			</isNotNull>  
+			</isNotEmpty> 
+		
+	  ) lst
+  		 where  <![CDATA[ lst.RNUM > #beginIdx# AND lst.RNUM <= #topCnt#	]]> 
+		 ORDER BY lst.his_seq desc
+	</select> 
+	
+	<!-- #6859:[KING FREIGHT] ADDING 'LOG' BUTTON ON B/L LIST UNDER LOCAL TRANSPORT  -->
+	<select id="searchRdHistoryOthBlNo" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.his.hismgt.dto.MgtHisMgtVO">
+		/* MgtHisMgtSQL.xml >> searchRdHistoryOthBlNo */
+		with rd_his as (select
+				a.intg_bl_seq ,
+				a.his_seq ,
+				a.his_type ,
+				a.inv_seq ,
+				a.snd_no ,
+				a.delt_flg ,
+				a.his_call_view ,
+				a.rgst_tms ,
+				a.rgst_usrid ,
+				a.his_1 ,
+				a.his_2 ,
+				a.his_3 ,
+				bl.ref_no as oth_ref_no,
+				a.his_5 ,
+				a.his_call_url ,
+				a.his_call_frm ,
+				a.his_title ,
+				bl.MBL_NO as bl_no
+			FROM TB_OTH_SALES bl
+			JOIN TB_RD_HIS a ON (bl.OTH_SEQ = a.OTH_SEQ) AND bl.delt_flg = 'N'
+			WHERE 1 = 1 
+			<!-- OFVFOUR-7435 [PQC] [Email/Fax/Print History] The search condition fields donot effect when searching -->
+			AND (
+                bl.ref_no like '%' + #s_bl_inv# + '%'
+                OR bl.mbl_no like '%' + #s_bl_inv# + '%'
+            )
+			),
+			listInfo as (
+			select
+				a.his_seq,
+				dtl.cd_nm his_type,
+				his_call_view,
+				a.snd_no,
+				a.INV_SEQ,
+				a.INTG_BL_SEQ,
+				CASE WHEN SUBSTRING(a.snd_no, 1, 2) = 'po' THEN a.intg_bl_seq ELSE a.bl_no END AS bl_no,
+				inv.inv_no,
+				a.rgst_tms AS rgst_tms,
+				CONVERT(VARCHAR(8), a.rgst_tms, 112) AS rgst_dt,
+				his_1,
+				his_2,
+				his_3,
+				oth_ref_no,
+				his_5,
+				b.eng_usr_nm,
+				b.locl_usr_nm,
+				a.HIS_CALL_URL,
+				a.HIS_CALL_FRM,
+				CASE WHEN dtl.cd_nm = 'FAX' THEN fax_info.RCVR_INFO_CTNT ELSE eml_info.TO_EML_CTNT END AS RCVR_INFO,
+				fax_info.FAX_PROC_STS_CD,
+				CASE
+					WHEN dtl.cd_nm = 'FAX' THEN
+					CASE
+						WHEN fax_info.FAX_PROC_STS_CD = '1' THEN 'Sending'
+						WHEN fax_info.FAX_PROC_STS_CD = '2' THEN 'Sending'
+						WHEN fax_info.FAX_PROC_STS_CD = '3' THEN 'Success'
+						WHEN fax_info.FAX_PROC_STS_CD = '4' THEN 'Failed'
+						WHEN fax_info.FAX_PROC_STS_CD = '5' THEN 'Failed'
+						ELSE 'Status N/A'
+					END
+					WHEN dtl.cd_nm = 'EMAIL' THEN
+					CASE
+						WHEN eml_info.EML_PROC_STS_CD = '1' THEN 'Sending'
+						WHEN eml_info.EML_PROC_STS_CD = '2' THEN 'Sending'
+						WHEN eml_info.EML_PROC_STS_CD = '3' THEN 'Success'
+						WHEN eml_info.EML_PROC_STS_CD = '4' THEN 'Failed'
+						WHEN eml_info.EML_PROC_STS_CD = '5' THEN 'Failed'
+						ELSE 'Status N/A'
+					END
+					ELSE 'Status N/A'
+				END AS PROC_STS_CD,
+				a.HIS_TITLE,
+				ROW_NUMBER() OVER ( ORDER BY his_seq DESC) AS RNUM
+			from rd_his a
+			join tb_usr b on a.RGST_USRID = b.usrid
+			join tb_com_cd_dtl dtl on dtl.delt_flg = 'N' and dtl.com_cd = 'C114' and dtl.cd_val = a.his_type
+			LEFT OUTER JOIN tb_inv_dtl inv WITH(NOLOCK) ON inv.inv_seq = a.inv_seq AND inv.delt_flg = 'N'
+			LEFT OUTER JOIN com_fax_snd_info fax_info WITH(NOLOCK) ON fax_info.FAX_SND_NO = a.snd_no AND dtl.cd_nm = 'FAX'
+			LEFT OUTER JOIN com_eml_snd_info eml_info WITH(NOLOCK) ON eml_info.EML_SND_NO = a.snd_no AND dtl.cd_nm = 'EMAIL'
+			WHERE a.delt_flg = 'N' 
+			<!-- OFVFOUR-7238 [V4] Option Type from Email/Fax/Print History Entry --> 
+			<isNotEmpty property="his_type">
+				<![CDATA[
+					AND his_type = #his_type# 
+				]]>
+			</isNotEmpty>
+			)
+			<!-- OFVFOUR-7435 [PQC] [Email/Fax/Print History] The search condition fields donot effect when searching --> 
+			select * 
+			from listInfo t
+			where 1 = 1
+			<isNotEmpty property="his_call_view">
+				AND t.his_call_view LIKE '%' + #his_call_view# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="s_eng_name">
+				AND ( t.eng_usr_nm LIKE '%' + #s_eng_name# + '%' OR t.eng_usr_nm LIKE '%' + #s_eng_name# + '%' )
+			</isNotEmpty>
+			<isNotEmpty property="s_rgst_tms">
+				AND t.rgst_dt BETWEEN #s_rgst_tms# and #e_rgst_tms#
+			</isNotEmpty>
+			order by t.rgst_tms desc;
+	</select>
+	
+	<!-- #886 Email/Fax/Print History 성능개선  -->
+	<select id="searchRdHistoryBlNo" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.his.hismgt.dto.MgtHisMgtVO">
+		/* MgtHisMgtSQL.xml >> searchRdHistoryBlNo */
+		
+		with rd_his as (
+			select 
+				a.intg_bl_seq
+				,a.his_seq
+				,a.his_type 
+				,a.inv_seq
+				,a.snd_no 
+				,a.delt_flg
+				,a.his_call_view
+				,a.rgst_tms
+				,a.rgst_usrid
+				,a.his_1
+				,a.his_2
+				,a.his_3
+				,a.his_4
+				,a.his_5
+				,a.his_call_url
+				,a.his_call_frm
+				,a.his_title  
+				,bl.bl_no as bl_no
+			
+			FROM TB_INTG_BL bl
+			JOIN TB_RD_HIS a
+			     ON   (bl.intg_bl_seq = a.intg_bl_seq )
+			     AND bl.delt_flg = 'N' 
+			          
+			WHERE 1=1
+			<!-- OFVFOUR-7435 [PQC] [Email/Fax/Print History] The search condition fields donot effect when searching -->
+			and (
+                (CASE WHEN SUBSTRING(a.snd_no,1,2) = 'po' THEN a.intg_bl_seq ELSE bl.bl_no END) like '%' + #s_bl_inv# + '%'
+                OR his_4 like '%' + #s_bl_inv# + '%'
+            )
+
+			    union all
+			select 
+				a.INTG_BL_SEQ
+				,a.his_seq
+				,a.his_type 
+				,a.inv_seq
+				,a.snd_no 
+				,a.DELT_FLG
+				,a.his_call_view
+				,a.rgst_tms
+				,a.RGST_USRID
+				,a.his_1
+				,a.his_2
+				,a.his_3
+				,a.his_4
+				,a.his_5
+				,a.HIS_CALL_URL
+				,a.HIS_CALL_FRM
+				,a.HIS_TITLE  
+				,bl.BL_NO as BL_NO
+			
+			FROM TB_INTG_BL bl
+			
+			JOIN TB_RD_HIS a
+			     ON   ( bl.intg_bl_seq = a.HIS_5 )
+			     AND bl.delt_flg = 'N' 
+			
+			          
+			WHERE bl.bl_no  = #s_bl_inv#       
+		    
+		)
+		,listInfo as 
+		(
+		
+				select 
+						a.his_seq,
+						dtl.cd_nm his_type,
+						his_call_view,
+						CASE 
+							WHEN SUBSTRING(a.snd_no,  1,  2) = 'po' THEN a.intg_bl_seq      
+							ELSE a.bl_no 
+						END AS bl_no,						
+						inv.inv_no,
+						a.rgst_tms AS rgst_tms,
+						CONVERT(VARCHAR(8),  a.rgst_tms,  112) AS rgst_dt,
+						snd_no AS snd_no,
+						his_1,
+						his_2,
+						his_3,
+						his_4,
+						his_5,
+						b.eng_usr_nm,
+						b.locl_usr_nm,
+						a.HIS_CALL_URL,
+						a.HIS_CALL_FRM,
+						CASE 
+							WHEN dtl.cd_nm ='FAX' THEN      fax_info.RCVR_INFO_CTNT      
+							ELSE      eml_info.TO_EML_CTNT      
+						END AS RCVR_INFO,
+						fax_info.FAX_PROC_STS_CD,
+						CASE 
+							WHEN dtl.cd_nm ='FAX' THEN      CASE 
+								WHEN  fax_info.FAX_PROC_STS_CD = '1' THEN 'Sending'         
+								WHEN  fax_info.FAX_PROC_STS_CD = '2' THEN 'Sending'         
+								WHEN  fax_info.FAX_PROC_STS_CD = '3' THEN 'Success'         
+								WHEN  fax_info.FAX_PROC_STS_CD = '4' THEN 'Failed'        
+								WHEN  fax_info.FAX_PROC_STS_CD = '5' THEN 'Failed'        
+								ELSE  'Status N/A'      
+							END     
+							WHEN dtl.cd_nm ='EMAIL' THEN      CASE 
+								WHEN  eml_info.EML_PROC_STS_CD = '1' THEN 'Sending'         
+								WHEN  eml_info.EML_PROC_STS_CD = '2' THEN 'Sending'         
+								WHEN  eml_info.EML_PROC_STS_CD = '3' THEN 'Success'         
+								WHEN  eml_info.EML_PROC_STS_CD = '4' THEN 'Failed'        
+								WHEN  eml_info.EML_PROC_STS_CD = '5' THEN 'Failed'        
+								ELSE  'Status N/A'      
+							END           
+							ELSE 'Status N/A'     
+						END AS PROC_STS_CD,
+						a.HIS_TITLE,
+						ROW_NUMBER() OVER (      ORDER BY        his_seq DESC) AS RNUM             
+				from rd_his a
+				join
+					tb_usr b 
+						on a.RGST_USRID = b.usrid         
+				join
+					 tb_com_cd_dtl dtl 
+					 on dtl.delt_flg = 'N' 
+					 and dtl.com_cd = 'C114' 
+					 and dtl.cd_val = a.his_type        
+				LEFT OUTER JOIN
+					tb_inv_dtl inv WITH(NOLOCK)              
+						ON   inv.inv_seq = a.inv_seq 
+						AND inv.delt_flg = 'N'      
+			            
+				LEFT OUTER JOIN
+					com_fax_snd_info fax_info WITH(NOLOCK)               
+						ON   fax_info.FAX_SND_NO = a.snd_no 
+						AND dtl.cd_nm ='FAX'            
+				LEFT OUTER JOIN
+					com_eml_snd_info eml_info WITH(NOLOCK)               
+						ON   eml_info.EML_SND_NO = a.snd_no 
+							AND dtl.cd_nm ='EMAIL'      
+				WHERE a.delt_flg = 'N' 
+				<!-- OFVFOUR-7238 [V4] Option Type from Email/Fax/Print History Entry --> 
+				<isNotEmpty property="his_type">
+					<![CDATA[
+					 AND his_type = #his_type# 
+					]]>
+				</isNotEmpty>
+		                    
+		)
+		
+		<!-- OFVFOUR-7435 [PQC] [Email/Fax/Print History] The search condition fields donot effect when searching --> 
+		select * 
+		from listInfo t 
+		where 1 = 1
+		<isNotEmpty property="his_call_view">
+			AND t.his_call_view LIKE '%' + #his_call_view# + '%'
+		</isNotEmpty>
+		<isNotEmpty property="s_eng_name">
+			AND ( t.eng_usr_nm LIKE '%' + #s_eng_name# + '%' OR t.eng_usr_nm LIKE '%' + #s_eng_name# + '%' )
+		</isNotEmpty>
+		<isNotEmpty property="s_rgst_tms">
+			AND t.rgst_dt BETWEEN #s_rgst_tms# and #e_rgst_tms#
+		</isNotEmpty>
+    	order by t.rgst_tms desc;
+		
+
+	</select>    
+	
+	
+	<!-- Eml History File -->
+    <select id="selectHisEmlFile" resultClass="java.util.HashMap" parameterClass="HashMap">
+	select top 1 
+		a.FILE_UPLD_NM 
+		,a.FILE_SAV_ID 
+		,a.FILE_PATH_URL 
+	from COM_UPLD_FILE a  
+	join COM_EML_ATCH_FILE_RSLT b on a.FILE_SAV_ID = b.EML_ATCH_FILE_NO
+	where 1=1
+	and b.EML_SND_RSLT_NO = #snd_no#
+	and a.DELT_FLG = 'N'
+	order by a.UPD_DT desc
+    </select>
+    
+    <!-- Fax History File -->
+    <select id="selectHisFaxFile" resultClass="java.util.HashMap" parameterClass="HashMap">
+	SELECT TOP 1
+		FILE_UPLD_NM
+		,FILE_SAV_ID 
+		,FILE_PATH_URL 
+	FROM COM_UPLD_FILE
+	WHERE FILE_SAV_ID LIKE #snd_no#+'%' 
+    </select>
+	
+</sqlMap>

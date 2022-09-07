@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="mdm.code.systemcode">
+    
+    <!--최상위 메뉴 조회  -->
+    <select id="selectCOM_CD_LIST" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdVO" parameterClass="java.util.HashMap">
+        SELECT  com_cd,      prnt_com_cd,   com_cd_nm,     cd_spc_qty,
+                sys_cd_flg,  use_flg,       rmk
+          FROM  tb_com_cd
+	   	 WHERE  delt_flg = 'N' 
+    </select>
+	
+    <!-- 최상위 메뉴등록   -->
+    <insert id="insertCOM_CD" parameterClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdVO">    
+        INSERT INTO tb_com_cd(
+				com_cd,      prnt_com_cd,   com_cd_nm,     cd_spc_qty,
+                sys_cd_flg,  use_flg,       rmk,
+                rgst_usrid,  rgst_ofc_cd,   rgst_tms,      modi_usrid,   modi_ofc_cd,   modi_tms
+        )VALUES(
+			#com_cd#,        #prnt_com_cd#, #com_cd_nm#,   #cd_spc_qty#,
+			#sys_cd_flg#,    #use_flg#,     #rmk#,
+			#proc_usrid#,    #proc_ofccd#,  getdate(),         #proc_usrid#, #proc_ofccd#,  GETUTCDATE()
+        )
+    </insert>
+    
+	
+    <!-- 최상위 메뉴등록. prnt_com_cd 코드가 Null인 경우   -->
+    <update id="updateCOM_CD" parameterClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdVO">    
+        UPDATE  tb_com_cd
+           SET  com_cd_nm  = #com_cd_nm#,   cd_spc_qty = #cd_spc_qty#,
+                sys_cd_flg = #sys_cd_flg#,  use_flg    = #use_flg#,      rmk      = #rmk#,
+                modi_usrid = #proc_usrid#,  modi_ofc_cd= #proc_ofccd#,   modi_tms = GETUTCDATE()
+	     WHERE  com_cd = #com_cd# 
+    </update>
+	
+    <!-- Sub Code 조회시  -->
+    <select id="selectCOM_CD_DTL_SUBCD_LIST" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO" parameterClass="java.util.HashMap">
+        SELECT  com_cd,   cd_val,
+                cd_nm,    srt_seq,   use_flg,      rmk
+          FROM  tb_com_cd_dtl
+         WHERE  delt_flg = 'N' AND com_cd = #PARAM1#
+    </select>
+		
+    <!-- 서브코드 등록   -->
+    <insert id="insertCOM_CD_DTL" parameterClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO">    
+        INSERT INTO tb_com_cd_dtl(
+                com_cd,      cd_val,
+                cd_nm,       srt_seq,       use_flg,       rmk,
+                rgst_usrid,  rgst_ofc_cd,   rgst_tms,      modi_usrid,   modi_ofc_cd,   modi_tms
+        )VALUES(
+            #com_cd#,        #cd_val#, 
+            #cd_nm#,         #srt_seq#,     #use_flg#,     #rmk#,
+            #proc_usrid#,    #proc_ofccd#,  getdate(),     #proc_usrid#, #proc_ofccd#,  GETUTCDATE()
+        ) 
+    </insert>
+	
+	<!-- 서브코드 수정   -->
+    <update id="updateCOM_CD_DTL" parameterClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO">    
+        UPDATE  tb_com_cd_dtl
+           SET  cd_nm      = #cd_nm#,        srt_seq     = #srt_seq#,          
+		        use_flg    = #use_flg#,      rmk         = #rmk#,
+                modi_usrid = #proc_usrid#,   modi_ofc_cd = #proc_ofccd#,   modi_tms = GETUTCDATE()
+         WHERE  com_cd = #com_cd#   AND  cd_val = #cd_val#        
+    </update>
+    
+    <!--2010.12.01 김진혁 추가 AMS    -->
+    <!--한번에 여러 코드를 조회할 경우 사용되는 SQL구문임. PARAM1 ~ PARAM10을 키값으로 상위 코드(sub_com_cd)를 넣어 조회함   --> 
+    <select id="selectCOM_CD_DTL_MULTI_LIST" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO" parameterClass="java.util.HashMap">
+        SELECT  com_cd,   cd_val,    sub_com_cd,
+                cd_nm,    srt_seq,   use_flg,      rmk
+          FROM  tb_com_cd_dtl
+         WHERE  delt_flg = 'N' 
+      <dynamic>
+         <isNotNull property="PARAM1">
+			 AND  com_cd IN ( #PARAM1#
+		   <isNotNull property="PARAM2">	 
+			     , #PARAM2#
+				<isNotNull property="PARAM3">     
+					 , #PARAM3#
+					<isNotNull property="PARAM4">     
+						 , #PARAM4#
+						<isNotNull property="PARAM5">     
+							 , #PARAM5#
+							<isNotNull property="PARAM6">     
+								 , #PARAM6#
+								<isNotNull property="PARAM7">     
+									 , #PARAM7#
+								</isNotNull>
+									<isNotNull property="PARAM8">     
+										 , #PARAM8#
+										<isNotNull property="PARAM9">     
+											 , #PARAM9#
+											<isNotNull property="PARAM10">     
+												 , #PARAM10#
+											</isNotNull>
+										</isNotNull>
+									</isNotNull>
+							</isNotNull>
+						</isNotNull>
+					</isNotNull>
+				</isNotNull>
+		   </isNotNull>			 
+			 )
+         </isNotNull>
+      </dynamic>
+      ORDER BY  com_cd ASC, srt_seq ASC
+    </select>
+</sqlMap>

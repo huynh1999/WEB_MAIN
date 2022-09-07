@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="aie.mblstk">
+    
+    <!-- MASTER STOCK DIGIT 조회 -->
+	<select id="searchMasterStockDigit" parameterClass="String" resultClass="String">
+		SELECT MOD(#value#, 7) FROM DUAL
+	</select>
+	
+	<!-- MASTER STOCK 인증번호로 CNA 중복체크를 한다. -->
+	<select id="checkCNAConfNo" parameterClass="java.util.HashMap" resultClass="String">
+		SELECT COUNT(mbl_no)
+		  FROM TB_MBL_STK
+		 WHERE st_no = #st_no#
+		 AND   lst_no = #lst_no#
+		 AND   crr_iata_cd = #crr_iata_cd#
+	</select>
+	
+	<!-- MASTER STOCK SUMMARY DELETE   -->
+	<delete id="deleteMasterStockSummary" parameterClass="HashMap">
+	<!-- #5755 [Impex-Germany] Dublicate error message when creating MAWB stock -->
+     /* AieMblStkSQL.xml : deleteMasterStockSummary */   
+        DELETE  TB_MBL_STK                                                                
+		 WHERE isnull(delt_flg,'N') = 'Y'
+		   AND crr_iata_cd 	= #s_iata_cd#
+		   AND stk_tp_cd 	= #s_awb_type#
+		   AND st_no 		= #s_bl_st#
+		   AND lst_no 		= #s_bl_lst#
+		   AND aloc_area_cd    = #s_aloc_area_cd#		  				
+		   AND allc_dt     =  #s_allc_dt#
+    </delete> 
+	
+	<!-- MASTER STOCK SUMMARY 조회   -->
+	<select id="searchMasterStockSummary" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.aie.bmd.stock.dto.MawbStockVO">
+	/* AieMblStkSQL.xml : searchMasterStockSummary */   
+		SELECT  a.crr_iata_cd      as s_crr_iata_cd
+               ,a.aloc_area_cd     as s_aloc_area_cd
+               ,a.allc_dt          as s_allc_dt
+               ,a.st_no            as s_st_no
+               ,a.lst_no           as s_lst_no
+               ,a.stk_tp_cd        as s_stk_tp_cd
+               ,a.rgst_usrid       as s_usrid
+               ,(SELECT eng_usr_nm
+                   FROM TB_USR x
+                  WHERE x.usr_tp = 'I' AND x.usrid = a.rgst_usrid
+                ) as s_usrnm
+               ,COUNT(CASE WHEN a.usd_flag = 'Y' THEN mbl_no
+                END ) AS s_use_tot
+               ,COUNT(CASE WHEN a.usd_flag = 'N' THEN mbl_no
+                END ) AS s_stk_tot
+               ,MAX(a.mbl_no) AS s_mbl_no   
+               ,#f_delt_flg# AS s_delt_flg   
+               , (
+				  SELECT COUNT(*)           AS CNT
+				    FROM
+				        TB_MBL_STK    
+				    WHERE
+				        isnull(delt_flg,'N') = 'N'      
+				        AND crr_iata_cd  =   a.crr_iata_cd  
+				        AND stk_tp_cd  = a.stk_tp_cd
+				        AND st_no   =  a.st_no
+				        AND lst_no   = a.lst_no
+						AND aloc_area_cd = a.aloc_area_cd 
+						AND allc_dt = a.allc_dt
+				) AS s_not_del_cnt
+          FROM TB_MBL_STK a
+         WHERE 1= 1
+           <!-- #5755 [Impex-Germany] Dublicate error message when creating MAWB stock
+           AND isnull(a.delt_flg,'N') = 'N' -->
+           AND isnull(a.delt_flg,'N') = #f_delt_flg#
+         <isNotEmpty property="f_iata_cd">
+           AND a.crr_iata_cd = dbo.fc_isnull(#f_iata_cd#, null)
+         </isNotEmpty>   
+           AND a.stk_tp_cd = dbo.fc_isnull(#f_awb_type#, null)
+         GROUP BY a.crr_iata_cd, a.aloc_area_cd, a.allc_dt, a.st_no, a.lst_no, a.stk_tp_cd, a.rgst_usrid
+         ORDER BY a.allc_dt desc
+	</select>
+	
+	
+	<!-- MASTER STOCK LIST 조회   -->
+	<select id="searchMasterStockList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.aie.bmd.stock.dto.MawbStockVO">
+		SELECT  /* AieMblStkSQL.xml : searchMasterStockList */ 
+				mbl_no             AS m_mbl_no
+		        ,CASE WHEN stk_tp_cd = 'CL' THEN 'Neutral'  
+		              ELSE 'Express'
+		         END        AS m_stk_tp_cd
+		        ,crr_iata_cd        AS m_crr_iata_cd
+		        ,aloc_area_cd       AS m_aloc_area_cd
+		        ,crr_agn_no         AS m_crr_agn_no
+		        ,st_no              AS m_st_no
+		        ,lst_no             AS m_lst_no
+		        ,auth_no            AS m_auth_no
+		        ,allc_dt            AS m_allc_dt
+		        ,pre_bkg_flg		   AS m_pre_bkg_flg
+		        ,usd_flag           AS m_use_flg
+		  FROM TB_MBL_STK
+		 WHERE isnull(delt_flg,'N') = 'N'
+		   AND crr_iata_cd 	= #s_iata_cd#
+		   AND stk_tp_cd 	= #f_awb_type#
+		   AND st_no 		= #f_st_no#
+		   AND lst_no 		= #f_lst_no#
+		 ORDER BY allc_dt DESC, mbl_no 
+	</select>
+	
+	
+	<!-- HOUSE STOCK CREATE   -->
+	<insert id="createMasterStock" parameterClass="com.clt.apps.fis.aie.bmd.stock.dto.MawbStockVO">
+		INSERT INTO /* AieMblStkSQL.xml : createMasterStock */
+			TB_MBL_STK(
+	                 mbl_no        
+	                ,stk_tp_cd  
+	                ,trdp_cd        
+	                ,crr_iata_cd         
+	                ,aloc_area_cd        
+	                ,crr_agn_no       
+	                ,st_no
+	                ,lst_no
+	                ,auth_no
+	                ,allc_dt
+	                ,pre_bkg_flg
+	                ,usd_flag
+	                ,usd_usrid
+	                ,delt_flg
+	                ,rgst_usrid    
+	                ,rgst_ofc_cd   
+	                ,rgst_tms      
+	                ,modi_usrid    
+	                ,modi_ofc_cd   
+	                ,modi_tms 
+		)VALUES(
+		    		 #mbl_no#        
+	                ,#stk_tp_cd#  
+	                ,#trdp_cd#        
+	                ,#crr_iata_cd#         
+	                ,#aloc_area_cd#        
+	                ,#crr_agn_no#       
+	                ,#st_no#
+	                ,#lst_no#
+	                ,#auth_no#
+	                ,#allc_dt#
+	                ,#pre_bkg_flg#
+	                ,#usd_flag#
+	                ,#usd_usrid#
+	                ,'N'
+					,#rgst_usrid#    
+					,#rgst_ofc_cd#   
+					,getdate()      
+					,#modi_usrid#    
+					,#modi_ofc_cd#  
+					,GETUTCDATE()
+		)
+	</insert>
+	
+	
+	<!-- HOUSE STOCK LIST UPDATE   -->
+	<update id="updateMasterStockList" parameterClass="com.clt.apps.fis.aie.bmd.stock.dto.MawbStockVO">
+		UPDATE /* AieMblStkSQL.xml : updateMasterStockList */
+				TB_MBL_STK
+		   SET  usd_flag    = dbo.decode1var(#m_use_flg#, 'Y', 'Y', 'N')
+		   	   ,pre_bkg_flg    = dbo.decode1var(#m_pre_bkg_flg#, 'Y', 'Y', 'N')
+		       ,usd_usrid   = dbo.decode1var(#m_use_flg#, 'Y', #rgst_usrid#, null)
+		       ,modi_usrid  = #modi_usrid#     
+               ,modi_ofc_cd = #modi_ofc_cd#   
+               ,modi_tms    = GETUTCDATE()
+         WHERE mbl_no = #m_mbl_no#
+	</update>
+	
+	
+	<!-- HOUSE STOCK LIST DELETE   -->
+	<update id="deleteMasterStockList" parameterClass="com.clt.apps.fis.aie.bmd.stock.dto.MawbStockVO">
+		UPDATE TB_MBL_STK
+		   SET  delt_flg   	= 'Y'
+		       ,modi_usrid  = #modi_usrid#     
+               ,modi_ofc_cd = #modi_ofc_cd#   
+               ,modi_tms    = GETUTCDATE()
+         WHERE mbl_no = #m_mbl_no#
+	</update>
+	
+	
+	<!-- IATA_CD로 TRAD_PARTNER_CODE 조회   -->
+	<select id="searchTradPartnerCode" parameterClass="String" resultClass="String">
+		SELECT	MAX(trdp_cd)
+		  FROM	tb_trdp
+		 WHERE	1 = 1
+		   AND  iata_cd = #value#
+		   AND	delt_flg = 'N'
+	</select>
+	
+	<!-- IATA_CD로 TRDP_CD 와 PREFIX 조회   -->
+	<select id="searchTradPartnerInfo" parameterClass="String" resultClass="java.util.HashMap">
+		SELECT	MAX(trdp_cd) AS trdp_cd, MAX(PREFIX) AS prefix
+		  FROM	tb_trdp
+		 WHERE	iata_cd = #value#
+		   AND	delt_flg = 'N'
+	</select>
+
+	<!-- Prefix로 IATA_CD조회   -->
+	<select id="searchTradPartnerIataCd" parameterClass="String" resultClass="String">
+		SELECT	iata_cd as IATA_CD
+		  FROM	tb_trdp
+		 WHERE	prefix = #value#
+		   AND	delt_flg = 'N'
+	</select>
+	
+	<!-- IATA Code 조회   -->
+	<select id="searchIataCdList" resultClass="String">
+		SELECT	iata_cd
+		  FROM	tb_trdp
+		 WHERE	ISNULL(iata_cd, '') != ''
+		   AND	prefix IS NOT NULL
+		   AND	delt_flg = 'N'
+		GROUP BY iata_cd
+		ORDER BY iata_cd
+	</select>
+	
+	<!-- Office Code 조회   -->
+	<select id="searchOfcCdList" resultClass="String">
+		SELECT	ofc_cd
+		  FROM	tb_ofc
+		 WHERE	use_flg = 'Y'
+		   AND	delt_flg = 'N'
+		ORDER BY ofc_cd
+	</select>
+	
+	<!-- Office Code 조회   -->
+	<select id="searchStCd" resultClass="Integer">
+		SELECT COUNT(*) FROM
+		TB_MBL_STK
+		WHERE 1=1
+		AND CRR_IATA_CD = #iata_cd#
+		AND SUBSTRING(MBL_NO, 5, 7) BETWEEN #from# AND #to#
+	</select>
+	
+</sqlMap>

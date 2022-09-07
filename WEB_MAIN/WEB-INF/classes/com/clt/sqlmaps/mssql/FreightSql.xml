@@ -1,0 +1,2364 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="Freight">
+
+	<typeAlias alias="Grd00FreightMgmtHeaderVO" 	type="com.clt.apps.fis.wms.freight.dto.Grd00FreightMgmtHeaderVO"/>
+	<typeAlias alias="Grd01FreightMgmtSVORelDocVO" 	type="com.clt.apps.fis.wms.freight.dto.Grd01FreightMgmtSVORelDocVO"/>
+	
+	<typeAlias alias="Grd02FreightMgmtExRateVO" 	type="com.clt.apps.fis.wms.freight.dto.Grd02FreightMgmtExRateVO"/>
+	<typeAlias alias="Grd03FreightMgmtSumAmtVO" 	type="com.clt.apps.fis.wms.freight.dto.Grd03FreightMgmtSumAmtVO"/>
+	<typeAlias alias="Grd04FreightMgmtFrtMstVO" 	type="com.clt.apps.fis.wms.freight.dto.Grd04FreightMgmtFrtMstVO"/>
+	
+	<typeAlias alias="FreightMgmtCondVO" 	type="com.clt.apps.fis.wms.freight.dto.FreightMgmtCondVO"/>
+	
+	<typeAlias alias="DocKeyVO" type="com.clt.apps.fis.wms.common.dto.DocKeyVO"/>
+    
+    <select id="callFreightDelete" resultClass="DocKeyVO" parameterClass="DocKeyVO">
+		declare @input1 varchar(100)
+		declare @input2 varchar(100)
+		exec TAN_PHAM #wh_cd#, #org_cd#, #user_id#,@input1 output,@input2 output
+		select @input1 as RTNCD,@input2 as RTNMSG
+    </select>
+	
+    <procedure id="callFreightIMSIF" parameterClass="Grd00FreightMgmtHeaderVO" resultClass="Grd00FreightMgmtHeaderVO">
+     	 { CALL  OTL_FREIGHT_PKG.CALL_IMS_FREIGHT_IF_PRC (
+     	 
+     	 			#doc_cls_cd#, 
+     	 			#doc_no#, 
+     	 			#user_id#) }
+    </procedure>
+	
+    <procedure id="callFreightMstSellProc" parameterClass="Grd04FreightMgmtFrtMstVO" resultClass="java.lang.String">
+     	 { CALL  OTL_FREIGHT_PKG.CALL_TL_FRT_MST_PRC (
+     	 
+     	 			#ibflag#, 
+     	 			#frt_doc_no#, 
+     	 			#sb_cls_cd#, 
+     	 			#frt_seq#, 
+     	 			#doc_cls_cd#, 
+     	 			#frt_br_cd#, 
+     	 			#cust_cd#, 
+     	 			
+     	 			#accrual_cd#, 
+     	 			#frt_cd#, 
+     	 			#frt_nm#, 
+     	 			#curr_cd#, 
+     	 			#exrate#, 
+     	 			#unit_cd#, 
+     	 			#unit_qty#, 
+     	 			
+     	 			#unit_price#, 
+     	 			#amt#, 
+     	 			#loc_amt#, 
+     	 			#val_cls_cd#, 
+     	 			#vat_amt#, 
+     	 			#curr_vat_amt#, 
+     	 			#ttl_amt#, 
+     	 			
+     	 			#pass_cd#, 
+     	 			#usd_amt#, 
+     	 			#relay_cd#, 
+     	 			#relay_seq#, 
+     	 			#cust_org_yn#, 
+     	 			#internal_sts_cd#, 
+     	 			#seq#, 
+     	 			
+     	 			#ca_no#, 
+     	 			#user_id#, 
+     	 			#rtncd#, 
+     	 			#rtnmsg#) }
+    </procedure>
+	
+	
+	<procedure id="callFreightExrateProc" parameterClass="Grd00FreightMgmtHeaderVO" resultClass="java.lang.String">
+     	 { CALL  PKG_CALL_TL_FRT_EXRATE_PRC (
+     	 
+     	 			#doc_no#, 
+     	 			#org_cd#, 
+     	 			#sell_exrate_dt#, 
+     	 			#sell_curr_cd#, 
+     	 			#sell_exrate#, 
+     	 			
+     	 			#sell_usd_conv_rate#, 
+     	 			#sell_exrate_cls_cd#, 
+     	 			#buy_exrate_dt#, 
+     	 			#buy_curr_cd#, 
+     	 			#buy_exrate#, 
+     	 			
+     	 			#buy_usd_conv_rate#, 
+     	 			#buy_exrate_cls_cd#, 
+     	 			#user_id#) }
+    </procedure>
+	
+	<procedure id="callFreightCAMstProc" parameterClass="Grd00FreightMgmtHeaderVO" resultClass="java.lang.String">
+     	 { CALL  PKG_CALL_TL_FRT_CA_MST_PRC (
+     	 
+     	 			#doc_no#, 
+     	 			#doc_cls_cd#, 
+     	 			#frt_closing_flg_nm#, 
+     	 			#rmk#, 
+     	 			#ca_reason_code#, 
+     	 			
+     	 			#org_cd#, 
+     	 			#user_id#) }
+    </procedure>
+    
+	<select id="searchFreightMgmtDailyExRateInfo" resultClass="Grd02FreightMgmtExRateVO"  parameterClass="java.util.HashMap">
+	/* FreightSql.searchFreightMgmtDailyExRateInfo*/	
+	SELECT 
+	
+	LTRIM(RTRIM(CONVERT(decimal(10,2), (ISNULL (MAX (T1.O1) ,MAX (T2.O2) ) )))) AS USD_CONV_RATE  
+	                       
+	,LTRIM(RTRIM(CONVERT(decimal(10,2),
+	      
+	      (CASE WHEN #loc_curr_cd# = #curr_cd# THEN 1
+	      
+	            ELSE (MAX (T3.O3) ) 
+	            
+	       END)
+	       
+	       ))) AS EXRATE    
+	       
+    From    (SELECT (case #exrate_cls_cd# when 'S' then E.WIRE_SEND_EXRT when 'R' then E.WIRE_RECV_EXRT else E.EXCH_BASERT end) as O1
+	
+	                 FROM dbo.T_MDM117 E
+	                 WHERE E.BASE_CURR = #loc_curr_cd#
+	                 AND E.CURR_CD = 'USD'
+	                 AND E.EXRT_YMD = #exrate_dt#) T1  ,
+	                 
+	        (SELECT I.EX_RATE as O2
+	                  FROM dbo.T_IMS101 I
+	                 WHERE I.CURR_FM = 'USD'
+	                   AND I.CURR_TO = #loc_curr_cd#
+	                   AND I.EX_DATE = SUBSTRING(#exrate_dt#, 1, 6) + '01') T2 ,  
+	                   
+	         (SELECT (case #exrate_cls_cd# when 'S' then T.WIRE_SEND_EXRT when 'R' then T.WIRE_RECV_EXRT else T.EXCH_BASERT end) as O3  
+	                          FROM dbo.T_MDM117 T
+	                         WHERE T.BASE_CURR = #loc_curr_cd#
+	                           AND T.CURR_CD = #curr_cd#
+	                           AND T.EXRT_YMD = #exrate_dt# ) T3
+
+	</select>
+	
+	
+	<select id="searchFreightMgmtFrtMstList" resultClass="Grd04FreightMgmtFrtMstVO" parameterClass="FreightMgmtCondVO">
+	/* FreightSql.searchFreightMgmtFrtMstList */
+	SELECT T.FRT_DOC_NO,
+	       T.SB_CLS_CD,
+	       T.FRT_SEQ,
+	       T.DOC_CLS_CD,
+	       T.FRT_BR_CD,
+	       T.CUST_CD,
+		   (SELECT C.CUST_LOC_NM FROM TL_CUST C WHERE C.CUST_CD = T.CUST_CD ) AS CUST_NM,
+	       T.ACCRUAL_CD,
+	       T.FRT_CD,
+	       T.FRT_NM,
+	       T.CURR_CD,
+	       T.EXRATE,
+	       T.UNIT_CD,
+	       T.UNIT_QTY,
+	       T.UNIT_PRICE,
+	       T.AMT,
+	       T.LOC_AMT,
+	       T.VAL_CLS_CD,
+	       T.VAT_AMT,
+	       T.CURR_VAT_AMT,
+	       T.TTL_AMT,
+	       T.PASS_CD,
+	       T.INTERNAL_STS_CD,
+	       INV.INV_NO,
+	       INV.INV_YMD,
+		   INV.ACCT_USD_AMT AS INV_ACCT_USD_AMT,
+		   dbo.TL_GET_USER_NM(T.RGST_ID) AS CREATE_USER,
+	       dbo.TL_GET_USER_NM(T.MODI_ID) AS UPDATE_USER,
+	       T.USD_AMT,
+	       T.CUST_ORG_YN,
+		   T.RELAY_CD,
+		   T.RELAY_SEQ,
+	       T.PLN_CLS_CD,
+	       
+	       (SELECT (case V.INV_NO when '' then 'N' else 'Y' end) 
+	          FROM TL_FRT_MST F
+	          
+	          		left join dbo.T_IMS002 V
+	          		
+	          		on F.FRT_DOC_NO = V.MNGT_NO
+	          		and F.FRT_DOC_NO = V.MNGT_NO
+	          		and F.DOC_CLS_CD = V.MBL_HBL_CLS
+	          		and F.SB_CLS_CD = V.SELL_BUY_CLS
+	          		and F.FRT_SEQ = V.FARE_SEQ
+	              
+	         WHERE 1=1
+	           AND F.FRT_DOC_NO = T.FRT_DOC_NO
+	           AND F.SB_CLS_CD = (case T.SB_CLS_CD when 'S' then 'B' when 'B' then 'S' end)
+	           AND F.RELAY_SEQ = T.FRT_SEQ
+	           AND F.RELAY_CD = T.FRT_CD
+	           AND F.DOC_CLS_CD = T.DOC_CLS_CD
+	           AND F.RELAY_CD IS NOT NULL ) RELAY_INV_FLAG,
+	           
+	       O.INCLS_VAT_AMT_FLG,
+		   CASE WHEN T.INTERNAL_STS_CD IS NOT NULL AND O.CURR_CD = T.CURR_CD THEN 1
+                WHEN T.INTERNAL_STS_CD IS NOT NULL THEN ISNULL((SELECT EX.EXCH_BASERT
+	                                                            FROM dbo.T_MDM117 EX
+	                                                           WHERE EX.BASE_CURR = O.CURR_CD
+	                                                             AND EX.CURR_CD = T.CURR_CD
+	                                                             AND EX.EXRT_YMD = (case T.SB_CLS_CD when 'S' then FE.SELL_EXRATE_DT when 'B' then FE.BUY_EXRATE_DT end)),0)
+	       END AS INTERNAL_EXRATE
+	  FROM TL_FRT_MST T
+	  
+	  		left join dbo.T_IMS002 INV
+	  		
+	  		on T.FRT_DOC_NO = INV.MNGT_NO
+	  		and T.DOC_CLS_CD = INV.MBL_HBL_CLS
+	  		and T.SB_CLS_CD = INV.SELL_BUY_CLS
+	  		and T.FRT_SEQ = INV.FARE_SEQ
+	  		
+	  		left join TL_ORG O
+	  		
+	  		on T.FRT_BR_CD = O.OFFICE_CD
+	  		
+	      ,TL_FRT_EXRATE FE
+	      
+	 WHERE 1=1
+	   AND T.FRT_DOC_NO = FE.FRT_DOC_NO
+	   AND T.FRT_BR_CD = FE.FRT_BR_CD
+	   AND T.FRT_DOC_NO = #in_frt_doc_no#
+	   AND T.DOC_CLS_CD = #in_doc_cls_cd#
+	   AND T.SB_CLS_CD  = #sb_cls_cd#
+	   
+	   <isNotEqual property="cust_cd" compareValue="">
+       <isNotEqual property="cust_cd" compareValue="ALL">
+	   AND T.CUST_CD = #cust_cd#
+	   </isNotEqual>
+	   </isNotEqual>
+	   
+       <!-- <isEqual property="auth_lvl" compareValue="AQ">
+       AND T.FRT_BR_CD IN ( SELECT OFFICE_CD 
+	                          FROM TL_ORG O
+	                         WHERE O.USE_FLG = 'Y'
+	                           AND O.UPPER_ORG_CD = #org_cd#
+	                        UNION
+	                        SELECT OFFICE_CD
+	                          FROM TL_ORG O
+	                         WHERE O.USE_FLG = 'Y'
+	                           AND O.OFFICE_CD = #org_cd# 
+	                       )
+       </isEqual>
+       
+       <isEqual property="auth_lvl" compareValue="LB">
+       AND T.FRT_BR_CD = #org_cd#
+       </isEqual> -->
+       
+    UNION ALL
+    SELECT T.MNGT_NO
+	      ,T.SELL_BUY_CLS
+	      ,T.FARE_SEQ
+	      ,T.MBL_HBL_CLS
+	      ,T.BRANCH
+	      ,T.CUST_CD
+	      ,T.CUST_NM
+	      ,(case T.ACRU_CLS when 'A' then 'Y' else 'N' end)
+	      ,T.FARE_CD
+	      ,T.FARE_NM
+	      ,T.CURR_CD
+	      ,T.EX_RATE
+	      ,T.PKG_UNIT
+	      ,T.PKG_CNT
+	      ,T.UNIT_PRC
+	      ,T.FARE_AMT
+	      ,T.FARE_LOC_AMT
+	      ,T.VAT_CLS
+	      ,T.FARE_VAT_AMT
+	      ,T.FARE_VAT_AMT_FORE
+	      ,T.SHA_FARE_AMT
+	      ,(case T.PASS_CLS when 'P' then 'Y' else 'N' end)
+	      ,T.INT_FLG
+	      ,T.INV_NO
+	      ,T.INV_YMD
+	      ,T.ACCT_USD_AMT
+	      ,dbo.TL_GET_USER_NM(T.INS_USR)
+	      ,dbo.TL_GET_USER_NM(T.UPD_USR)
+	      ,T.FARE_USD_AMT
+	      ,''
+	      ,T.RELAY_CD
+	      ,T.RELAY_SEQ
+	      ,''
+	      ,''
+	      ,''
+	      ,0
+	      
+	  FROM dbo.T_IMS002 T
+	  
+	 WHERE T.MNGT_NO = #in_frt_doc_no#
+	   AND T.SELL_BUY_CLS = #sb_cls_cd#
+	   AND T.MBL_HBL_CLS = #in_doc_cls_cd#
+	   
+	   <isNotEqual property="cust_cd" compareValue="">
+       <isNotEqual property="cust_cd" compareValue="ALL">
+	   AND T.CUST_CD = #cust_cd#
+	   </isNotEqual>
+	   </isNotEqual>
+	   
+	   <!-- <isEqual property="auth_lvl" compareValue="AQ">
+       AND T.BRANCH IN (SELECT OFFICE_CD 
+                          FROM TL_ORG O
+                         WHERE O.USE_FLG = 'Y'
+                           AND O.UPPER_ORG_CD = #org_cd#
+                        UNION
+                        SELECT OFFICE_CD
+                          FROM TL_ORG O
+                         WHERE O.USE_FLG = 'Y'
+                           AND O.OFFICE_CD = #org_cd# 
+                       )
+       </isEqual>
+       <isEqual property="auth_lvl" compareValue="LB">
+       AND T.BRANCH = #org_cd#
+       </isEqual> -->
+       
+       <![CDATA[  AND T.FARE_SEQ >= 1000 ]]> 
+	      
+	 ORDER BY FRT_SEQ	
+	</select>
+	
+	<select id="searchFreightMgmtSumAmtInfo" resultClass="Grd03FreightMgmtSumAmtVO" parameterClass="FreightMgmtCondVO">
+	/* FreightSql.searchFreightMgmtSumAmtInfo */	
+	SELECT 
+	
+		 LTRIM(RTRIM(CONVERT(decimal(10,2), (ISNULL(SELL.SUM_TOT_AMT_SELL,0) + ISNULL(SELL_INV.SUM_TOT_AMT_SELL_INV,0)) ))) AS SUM_TOT_AMT_SELL
+		,LTRIM(RTRIM(CONVERT(decimal(10,2), (ISNULL(SELL.SUM_VAT_AMT_SELL,0) + ISNULL(SELL_INV.SUM_VAT_AMT_SELL_INV,0)) ))) AS SUM_VAT_AMT_SELL
+		,LTRIM(RTRIM(CONVERT(decimal(10,2), (ISNULL(SELL.SUM_LOC_AMT_SELL,0) + ISNULL(SELL_INV.SUM_LOC_AMT_SELL_INV,0)) ))) AS SUM_LOC_AMT_SELL
+		,LTRIM(RTRIM(CONVERT(decimal(10,2), (ISNULL(SELL.SUM_INV_ACCT_SELL,0) + ISNULL(SELL_INV.SUM_INV_ACCT_SELL_INV,0)) ))) AS SUM_INV_ACCT_SELL
+		
+		,LTRIM(RTRIM(CONVERT(decimal(10,2), (ISNULL(BUY.SUM_TOT_AMT_BUY,0) + ISNULL(BUY_INV.SUM_TOT_AMT_BUY_INV,0)) ))) AS SUM_TOT_AMT_BUY
+		,LTRIM(RTRIM(CONVERT(decimal(10,2), (ISNULL(BUY.SUM_VAT_AMT_BUY,0) + ISNULL(BUY_INV.SUM_VAT_AMT_BUY_INV,0)) ))) AS SUM_VAT_AMT_BUY
+		,LTRIM(RTRIM(CONVERT(decimal(10,2), (ISNULL(BUY.SUM_LOC_AMT_BUY,0) + ISNULL(BUY_INV.SUM_LOC_AMT_BUY_INV,0)) ))) AS SUM_LOC_AMT_BUY
+		,LTRIM(RTRIM(CONVERT(decimal(10,2), (ISNULL(BUY.SUM_INV_ACCT_BUY,0) + ISNULL(BUY_INV.SUM_INV_ACCT_BUY_INV,0)) ))) AS SUM_INV_ACCT_BUY
+	
+	  FROM (SELECT CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+	                    ELSE SUM(T.LOC_AMT)
+	               END AS SUM_LOC_AMT_SELL,
+	               CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+	                    ELSE SUM(T.VAT_AMT)
+	               END AS SUM_VAT_AMT_SELL,
+	               CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+	                    ELSE SUM(T.TTL_AMT)
+	               END AS SUM_TOT_AMT_SELL,
+	               SUM(INV.ACCT_USD_AMT) AS SUM_INV_ACCT_SELL
+	               
+	          FROM TL_FRT_MST T
+	          
+	          		left join dbo.T_IMS002 INV
+	          		
+	          		on T.FRT_DOC_NO = INV.MNGT_NO
+	          		and T.DOC_CLS_CD = INV.MBL_HBL_CLS
+	          		and T.SB_CLS_CD = INV.SELL_BUY_CLS
+	          		and T.FRT_SEQ = INV.FARE_SEQ
+
+	         WHERE 1=1
+	           AND T.FRT_DOC_NO = #in_frt_doc_no#
+	           AND T.DOC_CLS_CD = #in_doc_cls_cd#
+	           AND T.SB_CLS_CD = 'S'
+	           <isNotEqual property="sell_cust" compareValue="">
+	           <isNotEqual property="sell_cust" compareValue="ALL">
+			   AND T.CUST_CD = #sell_cust#
+			   </isNotEqual>
+			   </isNotEqual>
+			   
+	           <!-- <isEqual property="auth_lvl" compareValue="AQ">
+	           AND T.FRT_BR_CD IN ( SELECT OFFICE_CD 
+			                          FROM TL_ORG O
+			                         WHERE O.USE_FLG = 'Y'
+			                           AND O.UPPER_ORG_CD =  #org_cd#
+			                        UNION
+			                        SELECT OFFICE_CD
+			                          FROM TL_ORG O
+			                         WHERE O.USE_FLG = 'Y'
+			                           AND O.OFFICE_CD =  #org_cd#  
+			                       )
+	           </isEqual>
+	           
+	           <isEqual property="auth_lvl" compareValue="LB">
+	           AND T.FRT_BR_CD = #org_cd#
+	           </isEqual> -->
+	       ) SELL 
+	       
+          ,(SELECT CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+                        ELSE SUM(INV.FARE_LOC_AMT)
+                   END AS SUM_LOC_AMT_SELL_INV,
+                   CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+                        ELSE SUM(INV.FARE_VAT_AMT)
+                   END AS SUM_VAT_AMT_SELL_INV,
+                   CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+                        ELSE SUM(INV.SHA_FARE_AMT)
+                   END AS SUM_TOT_AMT_SELL_INV,
+                   SUM(INV.ACCT_USD_AMT) AS SUM_INV_ACCT_SELL_INV
+                   
+              FROM dbo.T_IMS002 INV
+              
+             WHERE 1=1
+               AND INV.MNGT_NO = #in_frt_doc_no#
+               AND INV.MBL_HBL_CLS = #in_doc_cls_cd#
+               AND INV.SELL_BUY_CLS = 'S'
+               
+               <isNotEqual property="sell_cust" compareValue="">
+	           <isNotEqual property="sell_cust" compareValue="ALL">
+			   AND INV.CUST_CD = #sell_cust#
+			   </isNotEqual>
+			   </isNotEqual>
+			   
+			   <![CDATA[  AND INV.FARE_SEQ >= 1000 ]]> 
+			   
+               <!-- <isEqual property="auth_lvl" compareValue="AQ">
+	           AND INV.BRANCH IN ( SELECT OFFICE_CD 
+			                          FROM TL_ORG O
+			                         WHERE O.USE_FLG = 'Y'
+			                           AND O.UPPER_ORG_CD =  #org_cd#
+			                        UNION
+			                        SELECT OFFICE_CD
+			                          FROM TL_ORG O
+			                         WHERE O.USE_FLG = 'Y'
+			                           AND O.OFFICE_CD =  #org_cd#  
+			                       )
+	           </isEqual>
+	           
+	           <isEqual property="auth_lvl" compareValue="LB">
+	           AND INV.BRANCH = #org_cd#
+	           </isEqual> -->
+	           
+           ) SELL_INV 
+              
+	      ,(SELECT CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+	                    ELSE SUM(T.LOC_AMT)
+	               END AS SUM_LOC_AMT_BUY,
+	               CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+	                    ELSE SUM(T.VAT_AMT)
+	               END AS SUM_VAT_AMT_BUY,
+	               CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+	                    ELSE SUM(T.TTL_AMT)
+	               END AS SUM_TOT_AMT_BUY,
+	               SUM(INV.ACCT_USD_AMT) AS SUM_INV_ACCT_BUY
+	               
+	          FROM TL_FRT_MST T
+	          
+	          		left join dbo.T_IMS002 INV
+	          		
+	          		on T.FRT_DOC_NO = INV.MNGT_NO
+	          		and T.DOC_CLS_CD = INV.MBL_HBL_CLS
+	          		and T.SB_CLS_CD = INV.SELL_BUY_CLS
+	          		and T.FRT_SEQ = INV.FARE_SEQ
+	              
+	         WHERE 1=1
+	           AND T.FRT_DOC_NO = #in_frt_doc_no#
+	           AND T.DOC_CLS_CD = #in_doc_cls_cd#
+	           AND T.SB_CLS_CD = 'B'
+	           
+	           <isNotEqual property="buy_cust" compareValue="">
+	           <isNotEqual property="buy_cust" compareValue="ALL">
+			   AND T.CUST_CD = #buy_cust#
+			   </isNotEqual>
+			   </isNotEqual>
+			   
+	           <!-- <isEqual property="auth_lvl" compareValue="AQ">
+	           AND T.FRT_BR_CD IN ( SELECT OFFICE_CD 
+			                          FROM TL_ORG O
+			                         WHERE O.USE_FLG = 'Y'
+			                           AND O.UPPER_ORG_CD =  #org_cd#
+			                        UNION
+			                        SELECT OFFICE_CD
+			                          FROM TL_ORG O
+			                         WHERE O.USE_FLG = 'Y'
+			                           AND O.OFFICE_CD =  #org_cd#  
+			                       )
+	           </isEqual>
+	           
+	           <isEqual property="auth_lvl" compareValue="LB">
+	           AND T.FRT_BR_CD = #org_cd#
+	           </isEqual>  -->
+	            
+	       ) BUY   
+          ,(SELECT CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+                        ELSE SUM(INV.FARE_LOC_AMT)
+                   END AS SUM_LOC_AMT_BUY_INV,
+                   CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+                        ELSE SUM(INV.FARE_VAT_AMT)
+                   END AS SUM_VAT_AMT_BUY_INV,
+                   CASE WHEN ('HQ' = #auth_lvl# OR 'AQ' = #auth_lvl#) THEN 0
+                        ELSE SUM(INV.SHA_FARE_AMT)
+                   END AS SUM_TOT_AMT_BUY_INV,
+                   SUM(INV.ACCT_USD_AMT) AS SUM_INV_ACCT_BUY_INV
+                   
+              FROM dbo.T_IMS002 INV
+              
+             WHERE 1=1
+               AND INV.MNGT_NO = #in_frt_doc_no#
+               AND INV.MBL_HBL_CLS = #in_doc_cls_cd#
+               AND INV.SELL_BUY_CLS = 'B'
+               
+               <isNotEqual property="buy_cust" compareValue="">
+	           <isNotEqual property="buy_cust" compareValue="ALL">
+			   AND INV.CUST_CD = #buy_cust#
+			   </isNotEqual>
+			   </isNotEqual>
+			   
+			   <![CDATA[  AND INV.FARE_SEQ >= 1000 ]]> 
+               
+              <!--  <isEqual property="auth_lvl" compareValue="AQ">
+	           AND INV.BRANCH IN ( SELECT OFFICE_CD 
+			                          FROM TL_ORG O
+			                         WHERE O.USE_FLG = 'Y'
+			                           AND O.UPPER_ORG_CD =  #org_cd#
+			                        UNION
+			                        SELECT OFFICE_CD
+			                          FROM TL_ORG O
+			                         WHERE O.USE_FLG = 'Y'
+			                           AND O.OFFICE_CD =  #org_cd#  
+			                       )
+	           </isEqual>
+	           
+	           <isEqual property="auth_lvl" compareValue="LB">
+	           AND INV.BRANCH = #org_cd#
+	           </isEqual> -->
+	           
+           ) BUY_INV	
+	</select>
+	
+	<select id="searchFreightMgmtExRateInfo" resultClass="Grd02FreightMgmtExRateVO" parameterClass="FreightMgmtCondVO">	
+	/* FreightSql.searchFreightMgmtExRateInfo */	
+	SELECT FRT_DOC_NO,
+	       FRT_BR_CD,
+	       
+	       ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), SELL_EXRATE_DT, 112), 120),'')  AS SELL_EXRATE_DT,
+	       
+	       SELL_CURR_CD,
+	       
+	       LTRIM(RTRIM(CONVERT(decimal(10,2), SELL_EXRATE ))) AS SELL_EXRATE,
+	       LTRIM(RTRIM(CONVERT(decimal(10,2), SELL_USD_CONV_RATE ))) AS SELL_USD_CONV_RATE,
+	       
+	       ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), BUY_EXRATE_DT, 112), 120),'')  AS BUY_EXRATE_DT,
+	        
+	       BUY_CURR_CD,
+	       
+	       LTRIM(RTRIM(CONVERT(decimal(10,2), BUY_EXRATE ))) AS BUY_EXRATE,
+	       LTRIM(RTRIM(CONVERT(decimal(10,2), BUY_USD_CONV_RATE ))) AS BUY_USD_CONV_RATE,
+	       
+	       SELL_EXRATE_CLS_CD,
+	       BUY_EXRATE_CLS_CD,
+	       
+	       dbo.TL_GET_ROWTOCOLL_Freight(#in_frt_doc_no#,#in_doc_cls_cd#,'S',#org_cd#,#auth_lvl#,'|') AS SELL_CUST_CD,
+	       
+	       dbo.TL_GET_ROWTOCOLL_Freight_2(#in_frt_doc_no#,#in_doc_cls_cd#,'S',#org_cd#,#auth_lvl#,'|') AS SELL_CUST_NM,
+	       
+	       dbo.TL_GET_ROWTOCOLL_Freight(#in_frt_doc_no#,#in_doc_cls_cd#,'B',#org_cd#,#auth_lvl#,'|') AS BUY_CUST_CD,
+	       
+	       dbo.TL_GET_ROWTOCOLL_Freight_2(#in_frt_doc_no#,#in_doc_cls_cd#,'B',#org_cd#,#auth_lvl#,'|') AS BUY_CUST_NM,
+	       
+	       <!-- TL_GET_ROWTOCOLL('SELECT DISTINCT T.CUST_CD
+                               FROM TL_FRT_MST T
+                              WHERE 1=1
+                                AND T.FRT_DOC_NO = '''||#{in_frt_doc_no}||'''
+                                AND T.DOC_CLS_CD = '''||#{in_doc_cls_cd}||'''
+                                AND T.SB_CLS_CD  = ''S''
+                                <if test="auth_lvl == 'AQ' ">
+						        AND T.FRT_BR_CD IN ( SELECT OFFICE_CD 
+							                           FROM TL_ORG O
+							                          WHERE O.USE_FLG = ''Y''
+							                            AND O.UPPER_ORG_CD = '''||#{org_cd}||'''
+							                         UNION
+							                         SELECT OFFICE_CD
+							                           FROM TL_ORG O
+							                          WHERE O.USE_FLG = ''Y''
+							                            AND O.OFFICE_CD = '''||#{org_cd}||'''  
+							                        )
+						        </if>
+						        <if test="auth_lvl == 'LB' ">
+						        AND T.FRT_BR_CD = '''||#{org_cd}||'''
+						        </if>
+                              ORDER BY T.CUST_CD ', '|') AS SELL_CUST_CD,
+           TL_GET_ROWTOCOLL('SELECT DISTINCT T.CUST_CD||''[''||TL_GET_CUST_NM(T.CUST_CD)||'']''
+                               FROM TL_FRT_MST T
+                              WHERE 1=1
+                                AND T.FRT_DOC_NO = '''||#{in_frt_doc_no}||'''
+                                AND T.DOC_CLS_CD = '''||#{in_doc_cls_cd}||'''
+                                AND T.SB_CLS_CD  = ''S''
+                                <if test="auth_lvl == 'AQ' ">
+						        AND T.FRT_BR_CD IN ( SELECT OFFICE_CD 
+							                           FROM TL_ORG O
+							                          WHERE O.USE_FLG = ''Y''
+							                            AND O.UPPER_ORG_CD = '''||#{org_cd}||'''
+							                         UNION
+							                         SELECT OFFICE_CD
+							                           FROM TL_ORG O
+							                          WHERE O.USE_FLG = ''Y''
+							                            AND O.OFFICE_CD = '''||#{org_cd}||'''  
+							                        )
+						        </if>
+						        <if test="auth_lvl == 'LB' ">
+						        AND T.FRT_BR_CD = '''||#{org_cd}||'''
+						        </if>
+                              ORDER BY T.CUST_CD||''[''||TL_GET_CUST_NM(T.CUST_CD)||'']'' ', '|') AS SELL_CUST_NM,
+	       TL_GET_ROWTOCOLL('SELECT DISTINCT T.CUST_CD
+                               FROM TL_FRT_MST T
+                              WHERE 1=1
+                                AND T.FRT_DOC_NO = '''||#{in_frt_doc_no}||'''
+                                AND T.DOC_CLS_CD = '''||#{in_doc_cls_cd}||'''
+                                AND T.SB_CLS_CD  = ''B''
+                                <if test="auth_lvl == 'AQ' ">
+						        AND T.FRT_BR_CD IN ( SELECT OFFICE_CD 
+							                           FROM TL_ORG O
+							                          WHERE O.USE_FLG = ''Y''
+							                            AND O.UPPER_ORG_CD = '''||#{org_cd}||'''
+							                         UNION
+							                         SELECT OFFICE_CD
+							                           FROM TL_ORG O
+							                          WHERE O.USE_FLG = ''Y''
+							                            AND O.OFFICE_CD = '''||#{org_cd}||'''  
+							                        )
+						        </if>
+						        <if test="auth_lvl == 'LB' ">
+						        AND T.FRT_BR_CD = '''||#{org_cd}||'''
+						        </if>
+                              ORDER BY T.CUST_CD ', '|') AS BUY_CUST_CD,
+           TL_GET_ROWTOCOLL('SELECT DISTINCT T.CUST_CD||''[''||TL_GET_CUST_NM(T.CUST_CD)||'']''
+                               FROM TL_FRT_MST T
+                              WHERE 1=1
+                                AND T.FRT_DOC_NO = '''||#{in_frt_doc_no}||'''
+                                AND T.DOC_CLS_CD = '''||#{in_doc_cls_cd}||'''
+                                AND T.SB_CLS_CD  = ''B''
+                                <if test="auth_lvl == 'AQ' ">
+						        AND T.FRT_BR_CD IN ( SELECT OFFICE_CD 
+							                           FROM TL_ORG O
+							                          WHERE O.USE_FLG = ''Y''
+							                            AND O.UPPER_ORG_CD = '''||#{org_cd}||'''
+							                         UNION
+							                         SELECT OFFICE_CD
+							                           FROM TL_ORG O
+							                          WHERE O.USE_FLG = ''Y''
+							                            AND O.OFFICE_CD = '''||#{org_cd}||'''  
+							                        )
+						        </if>
+						        <if test="auth_lvl == 'LB' ">
+						        AND T.FRT_BR_CD = '''||#{org_cd}||'''
+						        </if>
+                              ORDER BY T.CUST_CD||''[''||TL_GET_CUST_NM(T.CUST_CD)||'']'' ', '|') AS BUY_CUST_NM, -->
+           B.CA_NO,
+           B.CA_STATUS_NM
+	  FROM TL_FRT_EXRATE
+	  
+	  		left join (SELECT A.MNGT_NO
+	              ,A.CA_NO
+			      ,A.CA_STATUS_NM
+			  FROM (SELECT T.MNGT_NO
+			              ,T.CA_NO
+			              ,(case T.CA_STATUS when 'H' then 'Hold' when 'A' then 'Approval' when 'R' then 'Reject' end) AS CA_STATUS_NM
+			              ,ROW_NUMBER() OVER(PARTITION BY BRANCH, MNGT_NO, DOC_CLS ORDER BY INS_DATE DESC) RNUM
+			          FROM dbo.T_FRT_CA_MST T
+			         WHERE T.BRANCH = #org_cd#
+			           AND T.MNGT_NO = #in_frt_doc_no#
+			           AND T.DOC_CLS = (case #in_doc_cls_cd# when 'S' then 'V' else #in_doc_cls_cd# end)
+			       ) A
+			 WHERE A.RNUM = 1 ) B
+			 
+			 on FRT_DOC_NO = B.MNGT_NO
+
+	 WHERE 1 = 1
+       AND FRT_DOC_NO = #in_frt_doc_no#
+	   AND FRT_BR_CD = #org_cd#
+	</select>	
+
+	<select id="searchFreightMgmtSVOHeaderInfo" resultClass="Grd00FreightMgmtHeaderVO" parameterClass="FreightMgmtCondVO">
+	/* FreightSql.searchFreightMgmtSVOHeaderInfo */	
+	SELECT T.SO_NO AS DOC_NO
+          ,T.CTRT_NO
+          ,dbo.TL_GET_CTRT_NM(T.CTRT_NO) AS CTRT_NM
+          ,(SELECT C.SALES_OFC_CD FROM TL_CTRT C WHERE C.CTRT_NO = T.CTRT_NO ) AS SALES_OFC_CD
+          ,dbo.TL_GET_PIC_NM((SELECT C.SALES_PIC_ID FROM TL_CTRT C WHERE C.CTRT_NO = T.CTRT_NO )) AS SALES_PIC_NM
+          ,dbo.TL_GET_COMM_NM('FG',T.PNL_SVC_TP_CD) AS PNL_SVC_TP_NM
+          ,(SELECT dbo.TL_GET_COMM_NM('L1',O.ORD_TP_LVL1_CD) + ' / ' + dbo.TL_GET_COMM_NM('L2',O.ORD_TP_LVL2_CD)
+              FROM TL_RTP R
+                  ,TL_CTRT_ORD_TP O
+             WHERE R.CTRT_NO = O.CTRT_NO
+               AND R.ORD_TP_CD = O.ORD_TP_CD
+               AND R.CTRT_NO = T.CTRT_NO
+               AND R.RTP_NO = T.RTP_NO) AS CTRT_ORD_TP_NM
+               
+          ,(case when WB.WB_NO is NULL then F.SUPP_CD else WB.SUPP_CD end) AS SHIP_CD
+          ,(dbo.TL_GET_CUST_NM(case when WB.WB_NO is NULL then F.SUPP_CD else WB.SUPP_CD end)) AS SHIP_NM
+          
+          ,(case when WB.WB_NO is NULL then F.BUYER_CD else WB.BUYER_CD end) AS CNE_CD
+          ,(dbo.TL_GET_CUST_NM(case when WB.WB_NO is NULL then F.BUYER_CD else WB.BUYER_CD end)) AS CNE_NM
+          
+          ,'' AS WO_CUST_CD
+          ,'' AS WO_CUST_NM
+          ,'' AS SPROV_CD
+          ,'' AS SPROV_NM
+          
+          ,LTRIM(RTRIM(CONVERT(decimal(10,5), (case when WB.WB_NO is NULL then FCR_ITEM.TOT_QTY else WB_ITEM.TOT_QTY end) ))) AS TOT_QTY
+          ,LTRIM(RTRIM(CONVERT(decimal(10,5), (case when WB.WB_NO is NULL then FCR_ITEM.TOT_PKGQTY else WB_ITEM.TOT_PKGQTY end) ))) AS TOT_PKGQTY
+          
+          ,(case when WB.WB_NO is NULL then FCR_ITEM.TOT_PKGUNIT else WB_ITEM.TOT_PKGUNIT end) AS TOT_PKGUNIT
+          
+          ,LTRIM(RTRIM(CONVERT(decimal(10,5), (case when WB.WB_NO is NULL then FCR_ITEM.TOT_CBM else WB_ITEM.TOT_CBM end) ))) AS TOT_CBM
+          ,LTRIM(RTRIM(CONVERT(decimal(10,5), (case when WB.WB_NO is NULL then FCR_ITEM.TOT_KGS else WB_ITEM.TOT_KGS end) ))) AS TOT_KGS
+          
+          ,'' AS CNTR_TYPE1
+          ,'' AS CNTR_TYPE2
+          ,'' AS CNTR_TYPE3
+          ,'' AS CNTR_TYPE4
+          ,'' AS CNTR_TYPE5
+          ,'' AS CNTR_CNT1
+          ,'' AS CNTR_CNT2
+          ,'' AS CNTR_CNT3
+          ,'' AS CNTR_CNT4
+          ,'' AS CNTR_CNT5
+          
+          ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), (case when WB.WB_NO is NULL then F.POL_ETD else WB.ETD end), 112), 120),'')  AS ETD
+          ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), (case when WB.WB_NO is NULL then F.POD_ETA else WB.ETA end), 112), 120),'')  AS ETA
+          
+          ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), 
+          
+          ISNULL (ISNULL ((case when WB.WB_NO is NULL then F.EST_CMPL_DT else WB.EST_CMPL_DT end)
+          ,(SELECT MAX(WO.EST_CMPL_DT) FROM TL_EO_WO WO WHERE WO.SO_NO = T.SO_NO )),(SELECT MAX(CLS.CLS_DT)
+                                                                                     FROM TL_WH_CLS CLS
+                                                                                         ,TL_WH_CLS_SO CS
+                                                                                    WHERE CLS.CLS_NO = CS.CLS_NO
+                                                                                      AND CS.SO_NO = T.SO_NO ))
+			
+			, 112), 120),'')  AS EST_CMPL_DT
+          
+          ,ISNULL (CONVERT(VARCHAR(10), T.MODI_SYS_DT, 120),'') AS UPD_DT
+          
+          ,dbo.TL_GET_USER_NM(T.MODI_ID) AS UPD_USER_NM
+          ,dbo.TL_GET_USER_BRANCH(T.MODI_ID) AS UPD_ORG_NM
+          
+          ,(case when WB.WB_NO is NULL then F.FCR_STFF_OFC_CD else WB.BK_STFF_OFC_CD end) AS OP_OFC_CD
+          ,T.SO_NO
+	      ,T.CTRT_CUST_CD
+	      ,dbo.TL_GET_CUST_NM(T.CTRT_CUST_CD) AS CTRT_CUST_NM
+	      
+	      ,(SELECT MAX(J.JOB_FLG)
+              FROM TL_SO_JOB J
+             WHERE J.SO_NO = T.SO_NO
+               AND J.OFC_CD = #org_cd# ) AS LOC_JOB_FLG   
+                 
+		  ,dbo.TL_GET_COMM_NM('J01',(SELECT MAX(J.JOB_FLG)
+		                           FROM TL_SO_JOB J
+		                          WHERE J.SO_NO = T.SO_NO
+		                            AND J.OFC_CD = #org_cd# )) AS LOC_JOB_FLG_NM
+		                            
+		  ,ISNULL (CONVERT(VARCHAR(10), (SELECT MAX(J.JOB_CLOSE_SYS_DT) FROM TL_SO_JOB J WHERE J.SO_NO = T.SO_NO AND J.OFC_CD = #org_cd# ), 120),'') AS LOC_JOB_CLOSE_DT
+		  
+		  ,ISNULL (CONVERT(VARCHAR(5), (SELECT MAX(J.JOB_CLOSE_SYS_DT) FROM TL_SO_JOB J WHERE J.SO_NO = T.SO_NO AND J.OFC_CD = #org_cd# ), 8),'') AS LOC_JOB_CLOSE_DT_HM
+
+		  ,dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,ISNULL((case when WB.WB_NO is NULL then F.EST_CMPL_DT else WB.EST_CMPL_DT end),(SELECT MAX(WO.EST_CMPL_DT) FROM TL_EO_WO WO WHERE WO.SO_NO = T.SO_NO )),'S') AS FRT_CLOSING_DT   
+		   
+		   
+		   ,CASE WHEN dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,ISNULL((case when WB.WB_NO is NULL then F.EST_CMPL_DT else WB.EST_CMPL_DT end),(SELECT MAX(WO.EST_CMPL_DT) FROM TL_EO_WO WO WHERE WO.SO_NO = T.SO_NO )),'S') IS NULL THEN ''
+			
+			WHEN CONVERT(VARCHAR(23) , (dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,ISNULL ((case when WB.WB_NO is NULL then F.EST_CMPL_DT else WB.EST_CMPL_DT end),(SELECT MAX(WO.EST_CMPL_DT) FROM TL_EO_WO WO WHERE WO.SO_NO = T.SO_NO )),'S')),120)
+			<![CDATA[  >= ]]>  
+			CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_BY_ORG(#org_cd#)),120)
+			
+			THEN 'Open' ELSE 'Close'
+				
+			END AS FRT_CLOSING_FLG_NM 
+			  
+	      ,(SELECT O.ORD_TP_LVL2_CD
+              FROM TL_RTP R
+                  ,TL_CTRT_ORD_TP O
+             WHERE R.CTRT_NO = O.CTRT_NO
+               AND R.ORD_TP_CD = O.ORD_TP_CD
+               AND R.CTRT_NO = T.CTRT_NO
+               AND R.RTP_NO = T.RTP_NO) AS ORD_TP_LVL2_CD  
+	      ,(SELECT C.EX_IN_CD
+	          FROM TL_CTRT C
+	         WHERE C.CTRT_NO = T.CTRT_NO ) AS EX_IN_CD    
+	               
+	  FROM TL_SO T
+	  
+	  	   left join TL_EO_WB WB on T.SO_NO = WB.SO_NO
+	  	   
+	  	   left join TL_EO_FCR F on T.SO_NO = F.SO_NO
+	  	   
+	  	   left join (SELECT TFCR.FCR_NO, 
+	               SUM(ISNULL(TFCRI.ITEM_QTY,0)) AS TOT_QTY,
+	               SUM(ISNULL(TFCRI.ITEM_PKGQTY,0)) AS TOT_PKGQTY,
+	               SUM(ISNULL(TFCRI.ITEM_CBM,0)) AS TOT_CBM,
+	               SUM(ISNULL(TFCRI.ITEM_KGS,0)) AS TOT_KGS,
+	               MAX(TFCRI.ITEM_PKGUNIT) AS TOT_PKGUNIT
+	          FROM TL_EO_FCR TFCR
+	              ,TL_EO_FCR_ITEM TFCRI
+	         WHERE TFCR.EO_FCR_NO = TFCRI.EO_FCR_NO
+	           AND TFCR.SO_NO = #in_frt_doc_no#
+	         GROUP BY TFCR.FCR_NO
+	       ) FCR_ITEM  
+	       
+	       on F.FCR_NO = FCR_ITEM.FCR_NO
+	  	   
+	  	   left join (SELECT TWB.WB_NO, 
+	               SUM(ISNULL(TWBI.ITEM_QTY,0)) AS TOT_QTY,
+	               SUM(ISNULL(TWBI.ITEM_PKGQTY,0)) AS TOT_PKGQTY,
+	               SUM(ISNULL(TWBI.ITEM_CBM,0)) AS TOT_CBM,
+	               SUM(ISNULL(TWBI.ITEM_KGS,0)) AS TOT_KGS,
+	               MAX(TWBI.ITEM_PKGUNIT) AS TOT_PKGUNIT
+	          FROM TL_EO_WB TWB
+	              ,TL_EO_WB_ITEM TWBI
+	         WHERE TWB.WB_NO = TWBI.WB_NO
+	           AND TWB.SO_NO = #in_frt_doc_no#
+	         GROUP BY TWB.WB_NO
+	       ) WB_ITEM  
+	       
+	      on WB.WB_NO = WB_ITEM.WB_NO
+   
+	 WHERE T.SO_NO = #in_frt_doc_no#
+	</select>	
+	
+	<select id="searchFreightMgmtFCRHeaderInfo" resultClass="Grd00FreightMgmtHeaderVO" parameterClass="FreightMgmtCondVO">	
+	/* FreightSql.searchFreightMgmtFCRHeaderInfo */	
+	SELECT T.FCR_NO AS DOC_NO
+	      ,T.CTRT_NO
+	      ,dbo.TL_GET_CTRT_NM(T.CTRT_NO) AS CTRT_NM
+	      ,(SELECT C.SALES_OFC_CD FROM TL_CTRT C WHERE C.CTRT_NO = T.CTRT_NO ) AS SALES_OFC_CD
+	      ,dbo.TL_GET_PIC_NM((SELECT C.SALES_PIC_ID FROM TL_CTRT C WHERE C.CTRT_NO = T.CTRT_NO )) AS SALES_PIC_NM
+	      ,dbo.TL_GET_COMM_NM('FG',S.PNL_SVC_TP_CD) AS PNL_SVC_TP_NM
+	      ,(SELECT dbo.TL_GET_COMM_NM('L1',O.ORD_TP_LVL1_CD) + ' / ' + dbo.TL_GET_COMM_NM('L2',O.ORD_TP_LVL2_CD)
+	          FROM TL_RTP R
+	              ,TL_CTRT_ORD_TP O
+	         WHERE R.CTRT_NO = O.CTRT_NO
+	           AND R.ORD_TP_CD = O.ORD_TP_CD
+	           AND R.CTRT_NO = T.CTRT_NO
+	           AND R.RTP_NO = T.RTP_NO) AS CTRT_ORD_TP_NM
+	           
+	      ,T.SUPP_CD AS SHIP_CD
+	      ,dbo.TL_GET_CUST_NM(T.SUPP_CD) AS SHIP_NM
+	      ,T.BUYER_CD AS CNE_CD
+	      ,dbo.TL_GET_CUST_NM(T.BUYER_CD) AS CNE_NM
+	      ,'' AS WO_CUST_CD
+	      ,'' AS WO_CUST_NM
+	      ,'' AS SPROV_CD
+	      ,'' AS SPROV_NM
+	      
+	      ,LTRIM(RTRIM(CONVERT(decimal(10,5),W.TOT_QTY))) AS TOT_QTY
+		  ,LTRIM(RTRIM(CONVERT(decimal(10,5),W.TOT_PKGQTY))) AS TOT_PKGQTY
+	      
+	      ,W.TOT_PKGUNIT
+	      
+	      ,LTRIM(RTRIM(CONVERT(decimal(10,5),W.TOT_CBM))) AS TOT_CBM
+		  ,LTRIM(RTRIM(CONVERT(decimal(10,5),W.TOT_KGS))) AS TOT_KGS
+				
+	      ,B.CNTR_TYPE1
+	      ,B.CNTR_TYPE2
+	      ,B.CNTR_TYPE3
+	      ,B.CNTR_TYPE4
+	      ,B.CNTR_TYPE5
+	      ,B.CNTR_CNT1
+	      ,B.CNTR_CNT2
+	      ,B.CNTR_CNT3
+	      ,B.CNTR_CNT4
+	      ,B.CNTR_CNT5
+	      
+	      ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), T.POL_ETD, 112), 120),'')  AS ETD
+	      ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), T.POD_ETA, 112), 120),'')  AS ETD
+	      
+	      ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), 
+
+			ISNULL(
+			
+						CASE WHEN A.ORI_BR_CD = #org_cd# OR A.TRI_BR_CD = #org_cd# THEN A.ONBOARD_YMD
+											WHEN A.DEST_BR_CD = #org_cd# THEN A.ARRIVAL_YMD
+											ELSE ''
+						END,
+					  CASE WHEN F.ORI_BR_CD = #org_cd# OR F.TRI_BR_CD = #org_cd# THEN F.ETD
+											WHEN F.DEST_BR_CD = #org_cd# THEN F.ETA
+											ELSE ''
+					  END)
+			
+			, 112), 120),'')  AS EST_CMPL_DT
+			
+		  ,ISNULL (CONVERT(VARCHAR(10), T.MODI_SYS_DT, 120),'') AS UPD_DT
+	                           
+	      ,dbo.TL_GET_USER_NM(T.MODI_ID) AS UPD_USER_NM
+	      ,dbo.TL_GET_USER_BRANCH(T.MODI_ID) AS UPD_ORG_NM
+	      ,T.FCR_STFF_OFC_CD AS OP_OFC_CD
+          ,T.SO_NO
+	      ,S.CTRT_CUST_CD
+	      ,dbo.TL_GET_CUST_NM(S.CTRT_CUST_CD) AS CTRT_CUST_NM
+	      
+	      ,(SELECT MAX(J.JOB_FLG)
+              FROM TL_SO_JOB J
+             WHERE J.SO_NO = T.SO_NO
+               AND J.OFC_CD = #org_cd# ) AS LOC_JOB_FLG  
+                  
+		  ,dbo.TL_GET_COMM_NM('J01',(SELECT MAX(J.JOB_FLG)
+		                           FROM TL_SO_JOB J
+		                          WHERE J.SO_NO = T.SO_NO
+		                            AND J.OFC_CD = #org_cd# )) AS LOC_JOB_FLG_NM
+		                            
+		  ,ISNULL (CONVERT(VARCHAR(10), (SELECT MAX(J.JOB_CLOSE_SYS_DT) FROM TL_SO_JOB J WHERE J.SO_NO = T.SO_NO AND J.OFC_CD = #org_cd# ), 120),'') AS LOC_JOB_CLOSE_DT
+		            
+		  ,ISNULL (CONVERT(VARCHAR(5), (SELECT MAX(J.JOB_CLOSE_SYS_DT) FROM TL_SO_JOB J WHERE J.SO_NO = T.SO_NO AND J.OFC_CD = #org_cd# ), 8),'') AS LOC_JOB_CLOSE_DT_HM
+
+		  ,dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,'','S') AS FRT_CLOSING_DT   
+		   
+		   
+		   ,(CASE WHEN dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,'','S') IS NULL THEN ''
+			
+			WHEN CONVERT(VARCHAR(23) , (dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,'','S')),120)
+			<![CDATA[  >= ]]>   
+			CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_BY_ORG(#org_cd#)),120)
+			
+			THEN 'Open' ELSE 'Close'
+				
+			END) AS FRT_CLOSING_FLG_NM 
+	          
+	      ,(SELECT O.ORD_TP_LVL2_CD
+	          FROM TL_RTP R
+	              ,TL_CTRT_ORD_TP O
+	         WHERE R.CTRT_NO = O.CTRT_NO
+	           AND R.ORD_TP_CD = O.ORD_TP_CD
+	           AND R.CTRT_NO = T.CTRT_NO
+	           AND R.RTP_NO = T.RTP_NO) AS ORD_TP_LVL2_CD  
+	            
+	      ,(SELECT C.EX_IN_CD
+	          FROM TL_CTRT C
+	         WHERE C.CTRT_NO = T.CTRT_NO ) AS EX_IN_CD   
+	           
+	  FROM TL_EO_FCR T 
+	  
+	  left join (SELECT I.FCR_NO, 
+	               SUM(I.ITEM_QTY) AS TOT_QTY,
+	               SUM(I.ITEM_PKGQTY) AS TOT_PKGQTY,
+	               SUM(I.ITEM_CBM) AS TOT_CBM,
+	               SUM(I.ITEM_KGS) AS TOT_KGS,
+	               MAX(I.ITEM_PKGUNIT) AS TOT_PKGUNIT
+	          FROM TL_EO_FCR_ITEM I
+	         WHERE FCR_NO = #in_frt_doc_no#
+	         GROUP BY I.FCR_NO
+	       ) W
+	       
+	  on T.FCR_NO = W.FCR_NO
+	  
+	  left join (SELECT A.FCR_NO
+	              
+	              ,MAX(case ROWNUM when 1 then A.CNTR_TYPE else '' end) AS CNTR_TYPE1
+	              ,MAX(case ROWNUM when 1 then A.CNT else '' end) AS CNTR_CNT1
+
+				  ,MAX(case ROWNUM when 2 then A.CNTR_TYPE else '' end) AS CNTR_TYPE2
+	              ,MAX(case ROWNUM when 2 then A.CNT else '' end) AS CNTR_CNT2
+
+				  ,MAX(case ROWNUM when 3 then A.CNTR_TYPE else '' end) AS CNTR_TYPE3
+	              ,MAX(case ROWNUM when 3 then A.CNT else '' end) AS CNTR_CNT3
+
+				  ,MAX(case ROWNUM when 4 then A.CNTR_TYPE else '' end) AS CNTR_TYPE4
+	              ,MAX(case ROWNUM when 4 then A.CNT else '' end) AS CNTR_CNT4
+
+				  ,MAX(case ROWNUM when 5 then A.CNTR_TYPE else '' end) AS CNTR_TYPE5
+	              ,MAX(case ROWNUM when 5 then A.CNT else '' end) AS CNTR_CNT5
+	              
+	          FROM (
+	                SELECT DISTINCT I.FCR_NO, 
+	                	   ROW_NUMBER () OVER (PARTITION BY  I.FCR_NO
+        							 ORDER BY I.FCR_NO DESC) AS ROWNUM,
+	                       I.CNTR_TPSZ_CD AS CNTR_TYPE,
+	                       COUNT(*) AS CNT
+	                  FROM TL_EO_FCR_CNTR I
+	                 WHERE FCR_NO = #in_frt_doc_no#
+	                   AND I.CNTR_TPSZ_CD IS NOT NULL
+	                 GROUP BY I.FCR_NO, I.CNTR_NO, I.CNTR_TPSZ_CD ) A  
+	         GROUP BY A.FCR_NO        
+	       ) B
+	       
+	 on T.FCR_NO = B.FCR_NO
+	 
+	 left join TL_EO_SFWD F on T.SO_NO = F.SO_NO
+	 
+	 left join TL_EO_AFWD A on T.SO_NO = A.SO_NO
+	  
+	      ,TL_SO S
+        
+	 WHERE T.SO_NO = S.SO_NO
+	   <![CDATA[ AND ISNULL(F.SFWD_STS_CD,'I') <> 'I' ]]>
+	   AND T.FCR_NO = #in_frt_doc_no#
+	   
+	</select>
+	
+	<select id="searchFreightMgmtWOHeaderInfo" resultClass="Grd00FreightMgmtHeaderVO" parameterClass="FreightMgmtCondVO">
+	/* FreightSql.searchFreightMgmtWOHeaderInfo*/
+	SELECT T.WO_NO AS DOC_NO
+	      ,W.CTRT_NO
+	      ,dbo.TL_GET_CTRT_NM(W.CTRT_NO) AS CTRT_NM
+	      ,(SELECT C.SALES_OFC_CD FROM TL_CTRT C WHERE C.CTRT_NO = W.CTRT_NO ) AS SALES_OFC_CD
+	      ,dbo.TL_GET_PIC_NM((SELECT C.SALES_PIC_ID FROM TL_CTRT C WHERE C.CTRT_NO = W.CTRT_NO )) AS SALES_PIC_NM
+	      ,dbo.TL_GET_COMM_NM('FG',CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.PNL_SVC_TP_CD
+	                                ELSE ( SELECT S.PNL_SVC_TP_CD FROM TL_SO S WHERE S.SO_NO = W.SO_NO )
+	                           END) AS PNL_SVC_TP_NM
+	      ,(SELECT dbo.TL_GET_COMM_NM('L1',O.ORD_TP_LVL1_CD) + ' / ' + dbo.TL_GET_COMM_NM('L2',O.ORD_TP_LVL2_CD)
+	          FROM TL_RTP R
+	              ,TL_CTRT_ORD_TP O
+	         WHERE R.CTRT_NO = O.CTRT_NO
+	           AND R.ORD_TP_CD = O.ORD_TP_CD
+	           AND R.CTRT_NO = W.CTRT_NO
+	           AND R.RTP_NO = W.RTP_NO) AS CTRT_ORD_TP_NM
+	           
+	      ,ISNULL(A.SHP_CD, F.SHP_CD) AS SHIP_CD
+	      ,dbo.TL_GET_CUST_NM(ISNULL(A.SHP_CD, F.SHP_CD)) AS SHIP_NM
+	      ,ISNULL(A.CNE_CD, F.CNE_CD) AS CNE_CD
+	      ,dbo.TL_GET_CUST_NM(ISNULL(A.CNE_CD, F.CNE_CD)) AS CNE_NM
+	      ,T.SVC_CUST_CD AS WO_CUST_CD
+	      ,dbo.TL_GET_CUST_NM(T.SVC_CUST_CD) AS WO_CUST_NM
+	      ,T.SPROV_CD
+	      ,dbo.TL_GET_CUST_NM(T.SPROV_CD) AS SPROV_NM
+	      
+	      ,LTRIM(RTRIM(CONVERT(decimal(10,5),W.TOT_QTY))) AS TOT_QTY
+		  ,LTRIM(RTRIM(CONVERT(decimal(10,5),W.TOT_PKGQTY))) AS TOT_PKGQTY
+	      
+	      ,W.TOT_PKGUNIT
+	      
+	      ,LTRIM(RTRIM(CONVERT(decimal(10,5),W.TOT_CBM))) AS TOT_CBM
+		  ,LTRIM(RTRIM(CONVERT(decimal(10,5),W.TOT_KGS))) AS TOT_KGS
+	      
+	      ,T.CGO_TYPE1 AS CNTR_TYPE1
+          ,T.CGO_TYPE2 AS CNTR_TYPE2
+          ,T.CGO_TYPE3 AS CNTR_TYPE3
+          ,T.CGO_TYPE4 AS CNTR_TYPE4
+          ,T.CGO_TYPE5 AS CNTR_TYPE5
+          ,T.CGO_QTY1 AS CNTR_CNT1
+          ,T.CGO_QTY2 AS CNTR_CNT2
+          ,T.CGO_QTY3 AS CNTR_CNT3
+          ,T.CGO_QTY4 AS CNTR_CNT4
+          ,T.CGO_QTY5 AS CNTR_CNT5
+          
+          ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.ETD ELSE ISNULL (A.ONBOARD_YMD,F.ETD) END, 112), 120),'')  AS ETD
+
+		  ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.ETD ELSE ISNULL (A.ARRIVAL_YMD,F.ETA) END, 112), 120),'')  AS ETA
+          
+          ,ISNULL (CONVERT(VARCHAR(10),  CONVERT(VARCHAR(8), 
+
+			CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.EST_CMPL_DT
+			ELSE ISNULL(
+			
+						CASE WHEN A.ORI_BR_CD = #org_cd# OR A.TRI_BR_CD = #org_cd# THEN A.ONBOARD_YMD
+											WHEN A.DEST_BR_CD = #org_cd# THEN A.ARRIVAL_YMD
+											ELSE ''
+						END,
+					  CASE WHEN F.ORI_BR_CD = #org_cd# OR F.TRI_BR_CD = #org_cd# THEN F.ETD
+											WHEN F.DEST_BR_CD = #org_cd# THEN F.ETA
+											ELSE ''
+					  END)
+			END
+			
+			, 112), 120),'')  AS EST_CMPL_DT
+
+		  ,ISNULL (CONVERT(VARCHAR(10), T.MODI_SYS_DT, 120),'') AS UPD_DT
+
+	      ,dbo.TL_GET_USER_NM(T.MODI_ID) AS UPD_USER_NM
+	      ,dbo.TL_GET_USER_BRANCH(T.MODI_ID) AS UPD_ORG_NM
+	      ,T.WK_OFC_CD AS OP_OFC_CD
+          ,T.SO_NO
+          ,T.WO_ORD_TP_CD
+          
+	      ,ISNULL(A.ORI_BR_CD, F.ORI_BR_CD) AS ORI_BR_CD
+	      ,ISNULL(A.DEST_BR_CD, F.DEST_BR_CD) AS DEST_BR_CD
+	      ,ISNULL(A.TRI_BR_CD, F.TRI_BR_CD) AS TRI_BR_CD
+	      
+	      ,(SELECT MAX(J.JOB_FLG)
+              FROM TL_SO_JOB J
+             WHERE J.SO_NO = T.SO_NO
+               AND J.OFC_CD = #org_cd# ) AS LOC_JOB_FLG     
+		  ,dbo.TL_GET_COMM_NM('J01',(SELECT MAX(J.JOB_FLG)
+		                           FROM TL_SO_JOB J
+		                          WHERE J.SO_NO = T.SO_NO
+		                            AND J.OFC_CD = #org_cd# )) AS LOC_JOB_FLG_NM
+		  
+		  ,ISNULL (CONVERT(VARCHAR(10), (SELECT MAX(J.JOB_CLOSE_SYS_DT) FROM TL_SO_JOB J WHERE J.SO_NO = T.SO_NO AND J.OFC_CD = #org_cd# ), 120),'') AS LOC_JOB_CLOSE_DT
+		
+		  ,ISNULL (CONVERT(VARCHAR(5), (SELECT MAX(J.JOB_CLOSE_SYS_DT) FROM TL_SO_JOB J WHERE J.SO_NO = T.SO_NO AND J.OFC_CD = #org_cd# ), 8),'') AS LOC_JOB_CLOSE_DT_HM
+
+		  ,CASE WHEN T.WO_ORD_TP_CD = 'P' THEN dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,T.EST_CMPL_DT,'S')
+		        ELSE dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,'','S')
+		   END AS FRT_CLOSING_DT   
+		   
+		   
+		   ,CASE WHEN T.WO_ORD_TP_CD = 'P' THEN CASE WHEN dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,T.EST_CMPL_DT,'S') IS NULL THEN ''
+
+			WHEN CONVERT(VARCHAR(23) , (dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,T.EST_CMPL_DT,'S')),120)
+			<![CDATA[  >= ]]>  
+			CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_BY_ORG(#org_cd#)),120)
+			THEN 'Open' ELSE 'Close' END
+			
+			ELSE CASE WHEN dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,'','S') IS NULL THEN ''
+			
+			WHEN CONVERT(VARCHAR(23) , (dbo.TL_GET_FRT_CLOSE_DT(T.SO_NO,#org_cd#,'','S')),120)
+			<![CDATA[  >= ]]>  
+			CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_BY_ORG(#org_cd#)),120)
+			
+			THEN 'Open' ELSE 'Close' END	
+				
+			END AS FRT_CLOSING_FLG_NM 
+    
+	      ,(SELECT O.ORD_TP_LVL2_CD
+	          FROM TL_RTP R
+	              ,TL_CTRT_ORD_TP O
+	         WHERE R.CTRT_NO = O.CTRT_NO
+	           AND R.ORD_TP_CD = O.ORD_TP_CD
+	           AND R.CTRT_NO = W.CTRT_NO
+	           AND R.RTP_NO = W.RTP_NO) AS ORD_TP_LVL2_CD  
+	      ,(SELECT C.EX_IN_CD
+	          FROM TL_CTRT C
+	         WHERE C.CTRT_NO = W.CTRT_NO ) AS EX_IN_CD   
+	                       
+	  FROM TL_EO_WO T 
+	  
+	  left join (SELECT I.WO_NO, 
+	               MAX(I.CTRT_NO) AS CTRT_NO,
+	               MAX(I.RTP_NO) AS RTP_NO,
+	               MAX(I.SO_NO) AS SO_NO,
+	               SUM(I.ITEM_QTY) AS TOT_QTY,
+	               SUM(I.ITEM_PKGQTY) AS TOT_PKGQTY,
+	               SUM(I.ITEM_CBM) AS TOT_CBM,
+	               SUM(I.ITEM_KGS) AS TOT_KGS,
+	               MAX(I.ITEM_PKGUNIT) AS TOT_PKGUNIT
+	          FROM TL_EO_WO_ITEM I
+	         WHERE WO_NO = #in_frt_doc_no#
+	         GROUP BY I.WO_NO
+	       ) W
+	       
+	  on T.WO_NO = W.WO_NO
+
+	  left join (SELECT A.WO_NO
+	              ,MAX(case ROWNUM when 1 then A.CNTR_TYPE else '' end) AS CNTR_TYPE1
+	              ,MAX(case ROWNUM when 1 then A.CNT else '' end) AS CNTR_CNT1
+
+				  ,MAX(case ROWNUM when 2 then A.CNTR_TYPE else '' end) AS CNTR_TYPE2
+	              ,MAX(case ROWNUM when 2 then A.CNT else '' end) AS CNTR_CNT2
+
+				  ,MAX(case ROWNUM when 3 then A.CNTR_TYPE else '' end) AS CNTR_TYPE3
+	              ,MAX(case ROWNUM when 3 then A.CNT else '' end) AS CNTR_CNT3
+
+				  ,MAX(case ROWNUM when 4 then A.CNTR_TYPE else '' end) AS CNTR_TYPE4
+	              ,MAX(case ROWNUM when 4 then A.CNT else '' end) AS CNTR_CNT4
+
+				  ,MAX(case ROWNUM when 5 then A.CNTR_TYPE else '' end) AS CNTR_TYPE5
+	              ,MAX(case ROWNUM when 5 then A.CNT else '' end) AS CNTR_CNT5
+
+	          FROM (
+	                SELECT I.WO_NO,ROW_NUMBER () OVER (PARTITION BY  I.WO_NO
+        							 ORDER BY I.WO_NO DESC) AS ROWNUM,  
+	                       I.CNTR_TPSZ_CD AS CNTR_TYPE,
+	                       COUNT(*) AS CNT
+	                  FROM TL_EO_WO_ITEM I
+	                 WHERE WO_NO = #in_frt_doc_no#
+	                   AND I.CNTR_TPSZ_CD IS NOT NULL
+	                 GROUP BY I.WO_NO, I.CNTR_TPSZ_CD ) A  
+	         GROUP BY A.WO_NO        
+	       ) B 
+
+	  on T.WO_NO = B.WO_NO
+	  
+	  left join TL_EO_SFWD F on W.SO_NO = F.SO_NO
+
+	  left join TL_EO_AFWD A on W.SO_NO = A.SO_NO
+        
+	  WHERE 1 = 1
+	  AND T.WO_NO = #in_frt_doc_no#
+	  <![CDATA[ AND ISNULL(T.CR_FLG,'N') <> 'Y' ]]>
+	
+	</select>
+	
+	<select id="searchFreightMgmtSVOExistsInfo" resultClass="Grd00FreightMgmtHeaderVO" parameterClass="java.util.HashMap">
+	/* FreightSql.searchFreightMgmtSVOExistsInfo*/
+	SELECT COUNT(*) AS DOC_CNT , MAX (TT.DOC_TYPE) as DOC_TYPE
+	      from (select (CASE WHEN ( SELECT COUNT(*)
+	                         FROM TL_EO_WB W
+	                        WHERE W.SO_NO = T.SO_NO
+	                        <![CDATA[  AND W.BK_STS_CD = 'I' ) > 0 THEN 'WB' ]]>  
+	                          
+	                WHEN ( SELECT COUNT(*)
+	                         FROM TL_EO_FCR W
+	                        WHERE W.SO_NO = T.SO_NO
+	                          AND W.FCR_STS_CD = 'I'
+	                          AND EXISTS ( SELECT 'X'
+	                                         FROM TL_RTP R
+	                                             ,TL_CTRT_ORD_TP P
+	                                        WHERE R.CTRT_NO = P.CTRT_NO
+	                                          AND R.ORD_TP_CD = P.ORD_TP_CD
+	                                          AND R.CTRT_NO = W.CTRT_NO
+	                                          AND R.RTP_NO = W.RTP_NO
+	                                          <![CDATA[  AND P.ORD_TP_LVL1_CD = 'P') ) > 0 THEN 'FCR' ]]> 
+	                                          
+	                                          
+	                WHEN ( SELECT COUNT(*)
+	                         FROM TL_EO_WO W
+	                        WHERE W.SO_NO = T.SO_NO
+	                          AND W.WO_ORD_TP_CD = 'P'
+	                          
+	                          <![CDATA[  AND ISNULL(W.CR_FLG, 'N') <> 'Y'  ]]> 
+	                          <![CDATA[  AND W.WO_STS_CD = 'I') > 0 THEN 'P'  ]]> 
+                                    
+                    ELSE T.WH_ACC_FLG                      
+	           END) AS DOC_TYPE 
+	  FROM TL_SO T
+	 WHERE T.SO_NO = #in_frt_doc_no#
+	   AND T.SO_STS_CD NOT IN ( 'O', 'C' ) ) as TT
+	</select>
+	
+	<select id="searchFreightMgmtFCRExistsInfo" resultClass="Grd00FreightMgmtHeaderVO" parameterClass="java.util.HashMap">
+	/*searchFreightMgmtFCRExistsInfo*/
+	SELECT COUNT(*) AS DOC_CNT , MAX (TT.DOC_TYPE) as DOC_TYPE
+	      from (select (CASE WHEN T.ORD_TP_CD = 'HBL' THEN CASE WHEN F.ORI_BR_CD = #org_cd# THEN 'A'
+                                                       WHEN F.DEST_BR_CD = #org_cd# THEN 'A'
+                                                       WHEN F.TRI_BR_CD = #org_cd# THEN 'A'
+                                                       WHEN (F.ORI_BR_CD IN ( SELECT OFFICE_CD 
+                                                                                FROM TL_ORG O
+                                                                               WHERE O.USE_FLG = 'Y'
+                                                                                 AND O.UPPER_ORG_CD = #org_cd#
+                                                                                 
+                                                                              UNION
+                                                                              SELECT OFFICE_CD
+                                                                                FROM TL_ORG O
+                                                                               WHERE O.USE_FLG = 'Y'
+                                                                                 AND O.OFFICE_CD = #org_cd#)
+                                                                                 
+                                                             OR F.DEST_BR_CD IN ( SELECT OFFICE_CD 
+                                                                                    FROM TL_ORG O
+                                                                                   WHERE O.USE_FLG = 'Y'
+                                                                                     AND O.UPPER_ORG_CD = #org_cd#
+                                                                                     
+                                                                                  UNION
+                                                                                  SELECT OFFICE_CD
+                                                                                    FROM TL_ORG O
+                                                                                   WHERE O.USE_FLG = 'Y'
+                                                                                     AND O.OFFICE_CD = #org_cd#)
+                                                                                     
+                                                             OR F.TRI_BR_CD IN ( SELECT OFFICE_CD 
+                                                                                   FROM TL_ORG O
+                                                                                  WHERE O.USE_FLG = 'Y'
+                                                                                    AND O.UPPER_ORG_CD = #org_cd#
+                                                                                    
+                                                                                 UNION
+                                                                                 SELECT OFFICE_CD
+                                                                                   FROM TL_ORG O
+                                                                                  WHERE O.USE_FLG = 'Y'
+                                                                                    AND O.OFFICE_CD = #org_cd#)                     
+                                                            ) THEN 'A'
+                                                       WHEN 'KRSELHQ' = #org_cd# THEN 'A'
+                                                       ELSE 'N'
+                                                  END                                    
+                    ELSE 'P'
+               END                                 
+              ) AS DOC_TYPE
+	  FROM TL_EO_FCR T
+	      ,TL_EO_SFWD F
+	 WHERE T.SO_NO = F.SO_NO
+	   AND T.FCR_NO = #in_frt_doc_no#
+	   <![CDATA[ AND ISNULL(F.SFWD_STS_CD,'I') <> 'I' ]]> ) as TT
+	</select>
+	
+	<select id="searchFreightMgmtWOExistsInfo" resultClass="Grd00FreightMgmtHeaderVO" parameterClass="java.util.HashMap">
+	/* FreightSql.searchFreightMgmtWOExistsInfo*/
+	SELECT COUNT(*) AS DOC_CNT , MAX(TT.DOC_TYPE) as DOC_TYPE
+	      from (select (CASE WHEN T.WO_ORD_TP_CD = 'HBL' THEN (SELECT CASE WHEN F.ORI_BR_CD = #org_cd# THEN 'A'
+                                                                  WHEN F.DEST_BR_CD = #org_cd# THEN 'A'
+                                                                  WHEN F.TRI_BR_CD = #org_cd# THEN 'A'
+                                                                  WHEN (F.ORI_BR_CD IN ( SELECT OFFICE_CD 
+                                                                                           FROM TL_ORG O
+                                                                                          WHERE O.USE_FLG = 'Y'
+                                                                                            AND O.UPPER_ORG_CD = #org_cd#
+                                                                                            
+                                                                                         UNION
+                                                                                         SELECT OFFICE_CD
+                                                                                           FROM TL_ORG O
+                                                                                          WHERE O.USE_FLG = 'Y'
+                                                                                            AND O.OFFICE_CD = #org_cd#)
+                                                                                            
+                                                                        OR F.DEST_BR_CD IN ( SELECT OFFICE_CD 
+                                                                                               FROM TL_ORG O
+                                                                                              WHERE O.USE_FLG = 'Y'
+                                                                                                AND O.UPPER_ORG_CD = #org_cd#
+                                                                                                
+                                                                                             UNION
+                                                                                             SELECT OFFICE_CD
+                                                                                               FROM TL_ORG O
+                                                                                              WHERE O.USE_FLG = 'Y'
+                                                                                                AND O.OFFICE_CD = #org_cd#)
+                                                                                                
+                                                                        OR F.TRI_BR_CD IN ( SELECT OFFICE_CD 
+                                                                                              FROM TL_ORG O
+                                                                                             WHERE O.USE_FLG = 'Y'
+                                                                                               AND O.UPPER_ORG_CD = #org_cd#
+                                                                                               
+                                                                                            UNION
+                                                                                            SELECT OFFICE_CD
+                                                                                              FROM TL_ORG O
+                                                                                             WHERE O.USE_FLG = 'Y'
+                                                                                               AND O.OFFICE_CD = #org_cd#)                     
+                                                                       ) THEN 'A'
+                                                                  WHEN 'KRSELHQ' = #org_cd# THEN 'A'
+                                                                  ELSE 'N'
+                                                             END     
+                                                        FROM TL_EO_SFWD F
+                                                       WHERE F.SO_NO = T.SO_NO)
+                    WHEN T.WO_ORD_TP_CD = 'HAWB' THEN (SELECT CASE WHEN F.ORI_BR_CD = #org_cd# THEN 'A'
+                                                                   WHEN F.DEST_BR_CD = #org_cd# THEN 'A'
+                                                                   WHEN F.TRI_BR_CD = #org_cd# THEN 'A'
+                                                                   
+                                                                   WHEN (F.ORI_BR_CD IN ( SELECT OFFICE_CD 
+                                                                                            FROM TL_ORG O
+                                                                                           WHERE O.USE_FLG = 'Y'
+                                                                                             AND O.UPPER_ORG_CD = #org_cd#
+                                                                                             
+                                                                                          UNION
+                                                                                          SELECT OFFICE_CD
+                                                                                            FROM TL_ORG O
+                                                                                           WHERE O.USE_FLG = 'Y'
+                                                                                             AND O.OFFICE_CD = #org_cd#)
+                                                                                             
+                                                                         OR F.DEST_BR_CD IN ( SELECT OFFICE_CD 
+                                                                                                FROM TL_ORG O
+                                                                                               WHERE O.USE_FLG = 'Y'
+                                                                                                 AND O.UPPER_ORG_CD = #org_cd#
+                                                                                                 
+                                                                                              UNION
+                                                                                              SELECT OFFICE_CD
+                                                                                                FROM TL_ORG O
+                                                                                               WHERE O.USE_FLG = 'Y'
+                                                                                                 AND O.OFFICE_CD = #org_cd#)
+                                                                                                 
+                                                                         OR F.TRI_BR_CD IN ( SELECT OFFICE_CD 
+                                                                                               FROM TL_ORG O
+                                                                                              WHERE O.USE_FLG = 'Y'
+                                                                                                AND O.UPPER_ORG_CD = #org_cd#
+                                                                                                
+                                                                                             UNION
+                                                                                             SELECT OFFICE_CD
+                                                                                               FROM TL_ORG O
+                                                                                              WHERE O.USE_FLG = 'Y'
+                                                                                                AND O.OFFICE_CD = #org_cd#)                     
+                                                                        ) THEN 'A'
+                                                                   WHEN 'KRSELHQ' = #org_cd# THEN 'A'
+                                                                   ELSE 'N'
+                                                              END     
+                                                         FROM TL_EO_AFWD F
+                                                        WHERE F.SO_NO = T.SO_NO)                                  
+                    ELSE 'P'
+               END                                 
+              ) AS DOC_TYPE
+	  FROM TL_EO_WO T
+	 WHERE T.WO_NO = #in_frt_doc_no#
+	   AND T.WO_STS_CD NOT IN ('C', 'X')
+	   <![CDATA[ AND ISNULL(T.CR_FLG,'N') <> 'Y' ]]> ) as TT
+	</select>
+	
+	<select id="searchFreightMgmtSVORelDocList" resultClass="Grd01FreightMgmtSVORelDocVO" parameterClass="Grd00FreightMgmtHeaderVO">	
+	/* FreightSql.searchFreightMgmtSVORelDocList */	
+	SELECT 'WO' AS DOC_TYPE,
+	       W.WO_NO AS DOC_NO,
+	       'View' AS FREIGHT,
+	       W.SPROV_CD,
+	       dbo.TL_GET_CUST_NM(W.SPROV_CD) AS SPROV_NM
+	       
+	  FROM TL_EO_WO W
+	      ,TL_SO S
+	 WHERE W.SO_NO = S.SO_NO
+	 
+	  <![CDATA[ AND ISNULL(W.CR_FLG,'N') <> 'Y'  ]]>
+	  
+	   
+	   AND W.SO_NO = #so_no#
+	   AND W.WO_STS_CD NOT IN ('C', 'X')
+	   
+	UNION
+	SELECT 'FCR' AS DOC_TYPE,
+	       F.FCR_NO AS DOC_NO,
+	       CASE WHEN (SELECT COUNT(*) 
+	                    FROM TL_EO_SFWD W
+	                   WHERE W.SO_NO = S.SO_NO
+	                   
+	                   <![CDATA[ AND ISNULL(W.SFWD_STS_CD,'I') <> 'I' ) > 0 THEN 'View'  ]]>
+	                   
+	                     
+		        ELSE ''   
+	       END AS FREIGHT,
+	       '' AS SPROV_CD,
+	       '' AS SPROV_NM
+	  FROM TL_EO_FCR F
+	      ,TL_SO S
+	 WHERE F.SO_NO = S.SO_NO
+	   AND F.SO_NO = #so_no#
+	   
+	UNION                         
+	SELECT 'SVO' AS DOC_TYPE,
+	       S.SO_NO AS DOC_NO,
+	       CASE WHEN (SELECT COUNT(*) 
+	                    FROM TL_EO_WB W
+	                    
+	                    <![CDATA[ WHERE W.SO_NO = S.SO_NO ) > 0 THEN 'View'    ]]>
+	                    
+	                      
+	            WHEN (SELECT COUNT(*) 
+	                    FROM TL_EO_FCR W
+	                   WHERE W.SO_NO = S.SO_NO
+	                     AND EXISTS ( SELECT 'X'
+                                         FROM TL_RTP R
+                                             ,TL_CTRT_ORD_TP P
+                                        WHERE R.CTRT_NO = P.CTRT_NO
+                                          AND R.ORD_TP_CD = P.ORD_TP_CD
+                                          AND R.CTRT_NO = W.CTRT_NO
+                                          AND R.RTP_NO = W.RTP_NO
+                                          
+                                          <![CDATA[ AND P.ORD_TP_LVL1_CD = 'P') ) > 0 THEN 'View'     ]]>
+                                          
+                                              
+	            WHEN (SELECT COUNT(*) 
+	                    FROM TL_EO_WO W
+	                   WHERE W.WO_ORD_TP_CD = 'P'
+	                     
+	                     
+	                     <![CDATA[ AND ISNULL(W.CR_FLG,'N') <> 'Y' ]]>
+	                     <![CDATA[ AND W.SO_NO = S.SO_NO ) > 0 THEN 'View'  ]]>
+	                     
+	                     
+	            WHEN S.WH_ACC_FLG = 'Y' THEN 'View'         
+	            ELSE ''     
+	       END AS FREIGHT,
+	       '' AS SPROV_CD,
+	       '' AS SPROV_NM
+	  FROM TL_SO S
+	  
+	 WHERE 1=1   
+	   AND S.SO_NO = #so_no#
+	   AND S.SO_STS_CD NOT IN ( 'O', 'C' )
+	   
+	UNION
+	SELECT 'HBL' AS DOC_TYPE,
+	       T.HBL_NO AS DOC_NO,
+	       '' AS FREIGHT,
+	       T.LINE_CD AS SPROV_CD,
+	       dbo.TL_GET_CUST_NM(T.LINE_CD) AS SPROV_NM
+	  FROM TL_EO_SFWD T
+	 WHERE T.SO_NO = #so_no#
+	 
+	UNION 
+	SELECT 'MBL' AS DOC_TYPE,
+	       T.MBL_NO AS DOC_NO,
+	       '' AS FREIGHT,
+	       T.LINE_CD AS SPROV_CD,
+	       dbo.TL_GET_CUST_NM(T.LINE_CD) AS SPROV_NM
+	  FROM TL_EO_SFWD T
+	 WHERE T.SO_NO = #so_no#
+	 
+	UNION
+	SELECT 'HAWB' AS DOC_TYPE,
+	       T.HAWB_NO AS DOC_NO,
+	       '' AS FREIGHT,
+	       T.CARRIER_CD AS SPROV_CD,
+	       dbo.TL_GET_CUST_NM(T.CARRIER_CD) AS SPROV_NM
+	  FROM TL_EO_AFWD T
+	 WHERE T.SO_NO = #so_no#
+	 
+	UNION
+	SELECT 'MAWB' AS DOC_TYPE,
+	       T.MAWB_NO AS DOC_NO,
+	       '' AS FREIGHT,
+	       T.CARRIER_CD AS SPROV_CD,
+	       dbo.TL_GET_CUST_NM(T.CARRIER_CD) AS SPROV_NM
+	  FROM TL_EO_AFWD T
+	 WHERE T.SO_NO = #so_no#
+	</select>		
+
+	<select id="searchFreightMgmtJobNo" resultClass="Grd00FreightMgmtHeaderVO" parameterClass="java.util.HashMap">	
+	    /* FreightSql.searchFreightMgmtJobNo*/
+		SELECT MAX(S.SO_NO) AS SO_NO
+		  FROM TL_SO_JOB S
+		 WHERE S.OFC_CD = #org_cd#
+		   AND S.JOB_NO = #in_job_no#
+	</select>	
+
+	<!-- <resultMap type="com.clt.business.oms.freight.dto.Grd00FreightMgmtHeaderDto" id="Grd00FreightMgmtHeaderDto"></resultMap>
+	<resultMap type="com.clt.business.oms.freight.dto.Grd01FreightMgmtSVORelDocDto" id="Grd01FreightMgmtSVORelDocDto"></resultMap>
+	<resultMap type="com.clt.business.oms.freight.dto.Grd02FreightMgmtExRateDto" id="Grd02FreightMgmtExRateDto"></resultMap>
+	<resultMap type="com.clt.business.oms.freight.dto.Grd03FreightMgmtSumAmtDto" id="Grd03FreightMgmtSumAmtDto"></resultMap>
+	<resultMap type="com.clt.business.oms.freight.dto.Grd04FreightMgmtFrtMstDto" id="Grd04FreightMgmtFrtMstDto"></resultMap>
+	<resultMap type="com.clt.business.oms.freight.dto.Grd05FreightMgmtFrtMstDto" id="Grd05FreightMgmtFrtMstDto"></resultMap>
+	
+	<resultMap type="com.clt.business.oms.freight.dto.Grd01FreightHstDto" id="Grd01FreightHstDto"></resultMap>
+	<resultMap type="com.clt.business.oms.freight.dto.Grd02FreightHstDto" id="Grd02FreightHstDto"></resultMap>
+	<resultMap type="com.clt.business.oms.freight.dto.Grd04FreightHstDto" id="Grd04FreightHstDto"></resultMap>
+		
+	
+	<select id="searchFreightHstSellList" resultMap="Grd01FreightHstDto">
+	/*searchFreightHstSellList*/
+		SELECT T.HST_SEQ
+		      ,T.HST_TP_CD
+		      ,TL_GET_USER_NM(T.MODI_ID) AS UPDATE_USER
+		      ,TO_CHAR(T.MODI_SYS_DT,'YYYYMMDDHH24MISS') AS UPDATE_TIME
+		      ,T.FRT_SEQ
+		      ,T.CUST_CD
+		      ,TL_GET_CUST_NM(T.CUST_CD) AS CUST_NM
+		      ,T.FRT_CD
+		      ,T.FRT_NM
+		      ,TL_GET_COMM_NM('FNA',T.ACCRUAL_CD) AS ACCRUAL_NM
+		      ,T.CURR_CD
+		      ,T.EXRATE
+		      ,T.UNIT_CD
+		      ,T.UNIT_QTY
+		      ,T.UNIT_PRICE
+		      ,T.AMT
+		      ,T.LOC_AMT
+		      ,T.VAL_CLS_CD
+		      ,T.VAT_AMT
+		      ,T.CURR_VAT_AMT
+		      ,T.INTERNAL_STS_CD
+		      ,T.TTL_AMT
+		      ,T.SB_CLS_CD
+		  FROM TL_FRT_MST_HST T
+		 WHERE T.FRT_DOC_NO 	       = #{frt_doc_no}
+		   AND T.FRT_BR_CD  		   = #{org_cd}
+		   AND NVL(T.HST_DEL_FLG,'N') != 'Y'
+		   AND T.SB_CLS_CD 			   = 'S'
+		 ORDER BY T.FRT_SEQ, T.HST_SEQ DESC 
+	</select>
+	
+	<select id="searchFreightHstBuyList" resultMap="Grd02FreightHstDto">
+	/*searchFreightHstBuyList*/
+		SELECT T.HST_SEQ
+		      ,T.HST_TP_CD
+		      ,TL_GET_USER_NM(T.MODI_ID) AS UPDATE_USER
+		      ,TO_CHAR(T.MODI_SYS_DT,'YYYYMMDDHH24MISS') AS UPDATE_TIME
+		      ,T.FRT_SEQ
+		      ,T.CUST_CD
+		      ,TL_GET_CUST_NM(T.CUST_CD) AS CUST_NM
+		      ,T.FRT_CD
+		      ,T.FRT_NM
+		      ,TL_GET_COMM_NM('FNA',T.ACCRUAL_CD) AS ACCRUAL_NM
+		      ,T.CURR_CD
+		      ,T.EXRATE
+		      ,T.UNIT_CD
+		      ,T.UNIT_QTY
+		      ,T.UNIT_PRICE
+		      ,T.AMT
+		      ,T.LOC_AMT
+		      ,T.VAL_CLS_CD
+		      ,T.VAT_AMT
+		      ,T.CURR_VAT_AMT
+		      ,T.INTERNAL_STS_CD
+		      ,T.TTL_AMT
+		      ,T.SB_CLS_CD
+		  FROM TL_FRT_MST_HST T
+		 WHERE T.FRT_DOC_NO 	       = #{frt_doc_no}
+		   AND T.FRT_BR_CD  		   = #{org_cd}
+		   AND NVL(T.HST_DEL_FLG,'N') != 'Y'
+		   AND T.SB_CLS_CD 			   = 'B'
+		 ORDER BY T.FRT_SEQ, T.HST_SEQ DESC 
+	</select>
+	
+	<select id="searchFreightHistoryDeleteList" resultMap="Grd04FreightHstDto">
+	/*searchFreightHistoryDeleteList*/
+		SELECT DECODE(T.SB_CLS_CD,'S','Selling','B','Buying') AS SB_CLS_NM
+		      ,T.HST_SEQ
+		      ,T.HST_TP_CD
+		      ,TL_GET_USER_NM(T.MODI_ID) AS UPDATE_USER
+		      ,TO_CHAR(T.MODI_SYS_DT,'YYYYMMDDHH24MISS') AS UPDATE_TIME
+		      ,T.FRT_SEQ
+		      ,T.CUST_CD
+		      ,TL_GET_CUST_NM(T.CUST_CD) AS CUST_NM
+		      ,T.FRT_CD
+		      ,T.FRT_NM
+		      ,TL_GET_COMM_NM('FNA',T.ACCRUAL_CD) AS ACCRUAL_NM
+		      ,T.CURR_CD
+		      ,T.EXRATE
+		      ,T.UNIT_CD
+		      ,T.UNIT_QTY
+		      ,T.UNIT_PRICE
+		      ,T.AMT
+		      ,T.LOC_AMT
+		      ,T.VAL_CLS_CD
+		      ,T.VAT_AMT
+		      ,T.CURR_VAT_AMT
+		      ,T.INTERNAL_STS_CD
+		      ,T.TTL_AMT
+		  FROM TL_FRT_MST_HST T
+		 WHERE T.FRT_DOC_NO  = #{frt_doc_no}
+		   AND T.FRT_BR_CD 	 = #{org_cd}
+		   AND T.HST_DEL_FLG = 'Y'
+		 ORDER BY T.FRT_SEQ, T.HST_SEQ DESC
+ 
+	</select>
+	
+	<resultMap type="com.clt.business.oms.freight.dto.Grd01FreightCopyFormDto" id="Grd01FreightCopyFormDto">
+	</resultMap>
+	
+	<select id="searchFreightCopyFormWO" resultMap="Grd01FreightCopyFormDto">
+	    SELECT 'W' AS DOC_CLS_CD
+		      ,T.WO_NO
+		      ,'' AS FCR_NO
+		      ,'' AS SO_NO
+		      ,TL_GET_COMM_NM('WT',T.WO_ORD_TP_CD) AS WO_ORD_TP_NM
+		      ,W.CTRT_NO
+		      ,TL_GET_CTRT_NM(W.CTRT_NO) AS CTRT_NM
+		      ,T.SPROV_CD
+		      ,TL_GET_CUST_NM(T.SPROV_CD) AS SPROV_NM
+		      ,T.SVC_CUST_CD AS WO_CUST_CD
+		      ,TL_GET_CUST_NM(T.SVC_CUST_CD) AS WO_CUST_NM
+		      ,T.WO_DT
+		      ,CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.EST_CMPL_DT
+		            ELSE NVL(CASE WHEN A.ORI_BR_CD  = #{org_cd} OR A.TRI_BR_CD = #{org_cd} THEN A.ONBOARD_YMD
+		                          WHEN A.DEST_BR_CD = #{org_cd} THEN A.ARRIVAL_YMD
+		                          ELSE ''
+		                     END,
+		                     CASE WHEN F.ORI_BR_CD  = #{org_cd} OR F.TRI_BR_CD = #{org_cd} THEN F.ETD
+		                          WHEN F.DEST_BR_CD = #{org_cd} THEN F.ETA
+		                          ELSE ''
+		                     END)
+		       END AS EST_CMPL_DT
+		      ,NVL(A.HAWB_NO,F.HBL_NO) AS HBL_NO
+		      ,NVL(A.MAWB_NO,F.MBL_NO) AS MBL_NO
+		      ,CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.ETD
+		            ELSE NVL(A.ONBOARD_YMD,F.ETD)
+		       END AS ETD
+		      ,CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.ETA
+		            ELSE NVL(A.ARRIVAL_YMD,F.ETA)
+		       END AS ETA
+		  FROM TL_EO_WO T 
+		      ,TL_EO_SFWD F
+		      ,TL_EO_AFWD A
+		      ,(SELECT I.WO_NO, 
+		               MAX(I.CTRT_NO) AS CTRT_NO,
+		               MAX(I.RTP_NO) AS RTP_NO,
+		               MAX(I.SO_NO) AS SO_NO
+		          FROM TL_EO_WO_ITEM I
+		         WHERE 1=1
+		         GROUP BY I.WO_NO
+		       ) W
+		 WHERE T.WO_NO = W.WO_NO(+)
+		   AND W.SO_NO = A.SO_NO(+)
+		   AND W.SO_NO = F.SO_NO(+)
+		   AND NVL(T.CR_FLG,'N') != 'Y'
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_FRT_MST FM
+		                 WHERE FM.FRT_DOC_NO = T.WO_NO
+		                   AND FM.DOC_CLS_CD = 'W'
+		                   AND FM.FRT_BR_CD  = #{org_cd} )
+		   <if test="wo_no != '' ">
+		   AND T.WO_NO = #{wo_no}
+		   </if>
+		   <if test="so_no != '' ">
+		   AND W.SO_NO = #{so_no}
+		   </if>
+		   <if test="hbl_no != '' ">
+		   AND NVL(A.HAWB_NO,F.HBL_NO) = #{hbl_no}
+		   </if>
+		   <if test="mbl_no != '' ">
+		   AND NVL(A.MAWB_NO,F.MBL_NO) = #{mbl_no}
+		   </if>
+		   <if test="fcr_no != '' ">
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_FCR EF
+		                 WHERE EF.SO_NO  = W.SO_NO
+		                   AND EF.FCR_NO = #{fcr_no} )
+		   </if>   
+		   <if test="ctrt_no != '' ">             
+		   AND W.CTRT_NO = #{ctrt_no}
+		   </if>  
+		   <if test="sprov_cd != '' ">
+		   AND T.SPROV_CD = #{sprov_cd}
+		   </if>
+		   <if test="wo_cust_cd != '' ">
+		   AND T.SVC_CUST_CD = #{wo_cust_cd}
+		   </if>
+		   <if test="wo_fr_dt != '' ">
+		   <![CDATA[ 
+		   AND T.WO_DT >= REPLACE(#{wo_fr_dt}, '-', '')
+		   ]]>
+		   </if>
+		   <if test="wo_to_dt != '' ">
+		   <![CDATA[ 
+		   AND T.WO_DT <= REPLACE(#{wo_to_dt}, '-','') 
+		   ]]>
+		   </if>
+		   <if test="pfm_fr_dt != '' ">
+		   <![CDATA[ 
+		   AND CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.EST_CMPL_DT
+		            ELSE NVL(CASE WHEN A.ORI_BR_CD  = #{org_cd} OR A.TRI_BR_CD = #{org_cd} THEN A.ONBOARD_YMD
+		                          WHEN A.DEST_BR_CD = #{org_cd} THEN A.ARRIVAL_YMD
+		                          ELSE ''
+		                     END,
+		                     CASE WHEN F.ORI_BR_CD  = #{org_cd} OR F.TRI_BR_CD = #{org_cd} THEN F.ETD
+		                          WHEN F.DEST_BR_CD = #{org_cd} THEN F.ETA
+		                          ELSE ''
+		                     END)
+		       END >= REPLACE(#{pfm_fr_dt}, '-','')
+		   ]]>    
+		   </if>
+		   <if test="pfm_to_dt != '' ">
+		   <![CDATA[ 
+		   AND CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.EST_CMPL_DT
+		            ELSE NVL(CASE WHEN A.ORI_BR_CD  = #{org_cd} OR A.TRI_BR_CD = #{org_cd} THEN A.ONBOARD_YMD
+		                          WHEN A.DEST_BR_CD = #{org_cd} THEN A.ARRIVAL_YMD
+		                          ELSE ''
+		                     END,
+		                     CASE WHEN F.ORI_BR_CD  = #{org_cd} OR F.TRI_BR_CD = #{org_cd} THEN F.ETD
+		                          WHEN F.DEST_BR_CD = #{org_cd} THEN F.ETA
+		                          ELSE ''
+		                     END)
+		       END <= REPLACE(#{pfm_to_dt}, '-','')
+		   ]]>    
+		   </if>     
+		   <if test="etd_fr_dt != '' "> 
+		   <![CDATA[   
+		   AND CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.ETD
+		            ELSE NVL(A.ONBOARD_YMD,F.ETD)
+		       END  >= REPLACE(#{etd_fr_dt}, '-','')
+		   ]]>    
+		   </if>
+		   <if test="etd_to_dt != '' "> 
+		   <![CDATA[   
+		   AND CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.ETD
+		            ELSE NVL(A.ONBOARD_YMD,F.ETD)
+		       END  <= REPLACE(#{etd_to_dt}, '-','')
+		   ]]>    
+		   </if>    
+		   <if test="eta_fr_dt != '' "> 
+		   <![CDATA[
+		   AND CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.ETA
+		            ELSE NVL(A.ARRIVAL_YMD,F.ETA)
+		       END  >= REPLACE(#{eta_fr_dt}, '-','')
+		   ]]>      
+		   </if>
+		   <if test="eta_to_dt != '' "> 
+		   <![CDATA[
+		   AND CASE WHEN T.WO_ORD_TP_CD = 'P' THEN T.ETA
+		            ELSE NVL(A.ARRIVAL_YMD,F.ETA)
+		       END  <= REPLACE(#{eta_to_dt}, '-','')
+		   ]]>      
+		   </if>
+	</select>
+	
+	
+	<select id="searchFreightCopyFormSVO" resultMap="Grd01FreightCopyFormDto">
+	    SELECT 'S' AS DOC_CLS_CD
+		      ,'' AS WO_NO
+		      ,'' AS FCR_NO
+		      ,T.SO_NO AS SO_NO
+		      ,'' AS WO_ORD_TP_NM
+		      ,T.CTRT_NO
+		      ,TL_GET_CTRT_NM(T.CTRT_NO) AS CTRT_NM
+		      ,'' AS SPROV_CD
+		      ,'' AS SPROV_NM
+		      ,'' AS WO_CUST_CD
+		      ,'' AS WO_CUST_NM
+		      ,'' AS WO_DT
+		      ,WB.EST_CMPL_DT AS EST_CMPL_DT
+		      ,WB.HBL_NO AS HBL_NO
+		      ,WB.MBL_NO AS MBL_NO
+		      ,WB.ETD AS ETD
+		      ,WB.ETA AS ETA
+		  FROM TL_SO T
+		      ,TL_EO_WB WB
+		 WHERE T.SO_NO = WB.SO_NO(+)
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_FRT_MST FM
+		                 WHERE FM.FRT_DOC_NO = T.SO_NO
+		                   AND FM.DOC_CLS_CD = 'S'
+		                   AND FM.FRT_BR_CD  = #{org_cd} )
+		   <if test="wo_no != '' ">                
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO            = T.SO_NO
+		                   AND WO.WO_ORD_TP_CD     = 'P'
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WO.WO_NO = #{wo_no} )
+		   </if>   
+		   <if test="so_no != '' ">             
+		   AND T.SO_NO = #{so_no}
+		   </if>
+		   <if test="fcr_no != '' ">
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_FCR EF
+		                 WHERE EF.SO_NO = T.SO_NO
+		                   AND EF.FCR_NO = #{fcr_no} )
+		   </if>         
+		   <if test="hbl_no != '' ">       
+		   AND WB.HBL_NO = #{hbl_no}
+		   </if>  
+		   <if test="mbl_no != '' ">  
+		   AND WB.MBL_NO = #{mbl_no}
+		   </if>
+		   <if test="ctrt_no != '' ">
+		   AND T.CTRT_NO = #{ctrt_no}
+		   </if>
+		   <if test="sprov_cd != '' ">
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 		    = T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 		= 'P'
+		                   AND NVL(WO.CR_FLG,'N')  != 'Y'
+		                   AND WO.SPROV_CD 			= #{sprov_cd} )
+		   </if>
+		   <if test="wo_cust_cd != '' ">
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			= T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 		= 'P'
+		                   AND NVL(WO.CR_FLG,'N')  != 'Y'
+		                   AND WO.SVC_CUST_CD 		= #{wo_cust_cd} )
+		   </if>
+		   <if test="wo_fr_dt != '' ">
+		   <![CDATA[ 
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			= T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 		= 'P'
+		                   AND NVL(WO.CR_FLG,'N')  != 'Y'
+		                   AND WO.WO_DT >= REPLACE(#{wo_fr_dt}, '-', '') )
+		   ]]>
+		   </if>
+		   <if test="wo_to_dt != '' ">
+		   <![CDATA[ 
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			= T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 		= 'P'
+		                   AND NVL(WO.CR_FLG,'N')  != 'Y'
+		                   AND WO.WO_DT <= REPLACE(#{wo_to_dt}, '-','')  )
+		   ]]>
+		   </if>
+		   <if test="pfm_fr_dt != '' ">
+		   <![CDATA[ 
+		   AND WB.EST_CMPL_DT >= REPLACE(#{pfm_fr_dt}, '-','')
+		   ]]>
+		   </if>    
+		   <if test="pfm_to_dt != '' ">
+		   <![CDATA[ 
+		   AND WB.EST_CMPL_DT <= REPLACE(#{pfm_to_dt}, '-','')
+		   ]]>
+		   </if>      
+		   <if test="etd_fr_dt != '' "> 
+		   <![CDATA[  	
+		   AND WB.ETD >= REPLACE(#{etd_fr_dt}, '-','')
+		   ]]>
+		   </if>
+		   <if test="etd_to_dt != '' "> 
+		   <![CDATA[  	
+		   AND WB.ETD <= REPLACE(#{etd_to_dt}, '-','')
+		   ]]>
+		   </if>  
+		   <if test="eta_fr_dt != '' "> 
+		   <![CDATA[
+		   AND WB.ETA >= REPLACE(#{eta_fr_dt}, '-','')
+		   ]]>
+		   </if>    
+		   <if test="eta_to_dt != '' "> 
+		   <![CDATA[
+		   AND WB.ETA <= REPLACE(#{eta_to_dt}, '-','')
+		   ]]>
+		   </if>                                                                                
+		UNION
+	    SELECT 'S' AS DOC_CLS_CD
+		      ,'' AS WO_NO
+		      ,'' AS FCR_NO
+		      ,T.SO_NO AS SO_NO
+		      ,'' AS WO_ORD_TP_NM
+		      ,T.CTRT_NO
+		      ,TL_GET_CTRT_NM(T.CTRT_NO) AS CTRT_NM
+		      ,'' AS SPROV_CD
+		      ,'' AS SPROV_NM
+		      ,'' AS WO_CUST_CD
+		      ,'' AS WO_CUST_NM
+		      ,'' AS WO_DT
+		      ,'' AS EST_CMPL_DT
+		      ,'' AS HBL_NO
+		      ,'' AS MBL_NO
+		      ,'' AS ETD
+		      ,'' AS ETA
+		  FROM TL_SO T
+		      ,TL_EO_WO WB
+		 WHERE T.SO_NO = WB.SO_NO(+)
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_FRT_MST FM
+		                 WHERE FM.FRT_DOC_NO = T.SO_NO
+		                   AND FM.DOC_CLS_CD = 'S'
+		                   AND FM.FRT_BR_CD  = #{org_cd} )
+		   <if test="wo_no != '' ">                
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO            = T.SO_NO
+		                   AND WO.WO_ORD_TP_CD     = 'P'
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WO.WO_NO = #{wo_no} )
+		   </if>   
+		   <if test="so_no != '' ">             
+		   AND T.SO_NO = #{so_no}
+		   </if>
+		   <if test="fcr_no != '' ">
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_FCR EF
+		                 WHERE EF.SO_NO = T.SO_NO
+		                   AND EF.FCR_NO = #{fcr_no} )
+		   </if>         
+		   <if test="hbl_no != '' ">       
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                      ,TL_EO_WO_ITEM WI
+		                 WHERE WO.SO_NO 			 = T.SO_NO
+		                   AND WO.EO_WO_NO 		 = WI.EO_WO_NO
+		                   AND WO.WO_ORD_TP_CD     = 'P'
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WI.REF_HBL_NO 		 = #{hbl_no} )
+		   </if>  
+		   <if test="mbl_no != '' ">  
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                      ,TL_EO_WO_ITEM WI
+		                 WHERE WO.SO_NO 			 = T.SO_NO
+		                   AND WO.EO_WO_NO 		 = WI.EO_WO_NO
+		                   AND WO.WO_ORD_TP_CD 	 = 'P'
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WI.REF_MBL_NO 		 = #{mbl_no} )
+		   </if>
+		   <if test="ctrt_no != '' ">
+		   AND T.CTRT_NO = #{ctrt_no}
+		   </if>
+		   <if test="sprov_cd != '' ">
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 		    = T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 		= 'P'
+		                   AND NVL(WO.CR_FLG,'N')  != 'Y'
+		                   AND WO.SPROV_CD 			= #{sprov_cd} )
+		   </if>
+		   <if test="wo_cust_cd != '' ">
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			= T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 		= 'P'
+		                   AND NVL(WO.CR_FLG,'N')  != 'Y'
+		                   AND WO.SVC_CUST_CD 		= #{wo_cust_cd} )
+		   </if>
+		   <if test="wo_fr_dt != '' ">
+		   <![CDATA[ 
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			= T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 		= 'P'
+		                   AND NVL(WO.CR_FLG,'N')  != 'Y'
+		                   AND WO.WO_DT >= REPLACE(#{wo_fr_dt}, '-', '') )
+		   ]]>
+		   </if>
+		   <if test="wo_to_dt != '' ">
+		   <![CDATA[ 
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			= T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 		= 'P'
+		                   AND NVL(WO.CR_FLG,'N')  != 'Y'
+		                   AND WO.WO_DT <= REPLACE(#{wo_to_dt}, '-','')  )
+		   ]]>
+		   </if>
+		   <if test="pfm_fr_dt != '' ">
+		   <![CDATA[ 
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			 = T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 	 = 'P'
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WO.EST_CMPL_DT >= REPLACE(#{pfm_fr_dt}, '-','') )
+		   ]]>
+		   </if>    
+		   <if test="pfm_to_dt != '' ">
+		   <![CDATA[ 
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			 = T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 	 = 'P'
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WO.EST_CMPL_DT <= REPLACE(#{pfm_to_dt}, '-','') )
+		   ]]>
+		   </if>      
+		   <if test="etd_fr_dt != '' "> 
+		   <![CDATA[  	
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			 = T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 	 = 'P'
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WO.ETD >= REPLACE(#{etd_fr_dt}, '-','') )
+		   ]]>
+		   </if>
+		   <if test="etd_to_dt != '' "> 
+		   <![CDATA[  	
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			 = T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 	 = 'P'
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WO.ETD <= REPLACE(#{etd_to_dt}, '-','') )
+		   ]]>
+		   </if>  
+		   <if test="eta_fr_dt != '' "> 
+		   <![CDATA[
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			 = T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 	 = 'P'
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WO.ETA >= REPLACE(#{eta_fr_dt}, '-','') )
+		   ]]>
+		   </if>    
+		   <if test="eta_to_dt != '' "> 
+		   <![CDATA[
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 			 = T.SO_NO
+		                   AND WO.WO_ORD_TP_CD 	 = 'P'
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WO.ETA <= REPLACE(#{eta_to_dt}, '-','') )
+		   ]]>
+		   </if>      		
+
+	</select>
+	
+	
+	<select id="searchFreightCopyFormFCR" resultMap="Grd01FreightCopyFormDto">
+		SELECT 'F' AS DOC_CLS_CD
+		      ,'' AS WO_NO
+		      ,'' AS SO_NO
+		      ,T.FCR_NO AS FCR_NO
+		      ,'' AS WO_ORD_TP_NM
+		      ,T.CTRT_NO
+		      ,TL_GET_CTRT_NM(T.CTRT_NO) AS CTRT_NM
+		      ,'' AS SPROV_CD
+		      ,'' AS SPROV_NM
+		      ,'' AS WO_CUST_CD
+		      ,'' AS WO_CUST_NM
+		      ,'' AS WO_DT
+		      ,NVL(CASE WHEN A.ORI_BR_CD  = #{org_cd} OR A.TRI_BR_CD = #{org_cd} THEN A.ONBOARD_YMD
+		                WHEN A.DEST_BR_CD = #{org_cd} THEN A.ARRIVAL_YMD
+		                ELSE ''
+		           END,
+		           CASE WHEN F.ORI_BR_CD  = #{org_cd} OR F.TRI_BR_CD = #{org_cd} THEN F.ETD
+		                WHEN F.DEST_BR_CD = #{org_cd} THEN F.ETA
+		                ELSE ''
+		           END) AS EST_CMPL_DT
+		      ,NVL(A.HAWB_NO,F.HBL_NO) AS HBL_NO
+		      ,NVL(A.MAWB_NO,F.MBL_NO) AS MBL_NO     
+		      ,NVL(A.ONBOARD_YMD,F.ETD) AS ETD
+		      ,NVL(A.ARRIVAL_YMD,F.ETA) AS ETA
+		  FROM TL_EO_FCR T 
+		      ,TL_SO S
+		      ,TL_EO_SFWD F
+		      ,TL_EO_AFWD A
+		 WHERE T.SO_NO = S.SO_NO
+		   AND T.SO_NO = A.SO_NO(+)
+		   AND T.SO_NO = F.SO_NO(+)
+		   AND NVL(F.SFWD_STS_CD,'I') != 'I'
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_FRT_MST FM
+		                 WHERE FM.FRT_DOC_NO = T.FCR_NO
+		                   AND FM.DOC_CLS_CD = 'F'
+		                   AND FM.FRT_BR_CD  = #{org_cd} )
+		   <if test="wo_no != '' ">                
+		   AND EXISTS ( SELECT 'X'
+		                  FROM TL_EO_WO WO
+		                 WHERE WO.SO_NO 		   = T.SO_NO
+		                   AND NVL(WO.CR_FLG,'N') != 'Y'
+		                   AND WO.WO_NO 		   = #{wo_no} )
+		   </if>
+		   <if test="so_no != '' ">
+		   AND T.SO_NO = #{so_no}
+		   </if>
+		   <if test="fcr_no != '' ">
+		   AND T.FCR_NO = #{fcr_no}
+		   </if>
+		   <if test="hbl_no != '' ">
+		   AND NVL(A.HAWB_NO,F.HBL_NO) = #{hbl_no}
+		   </if>
+		   <if test="mbl_no != '' ">
+		   AND NVL(A.MAWB_NO,F.MBL_NO) = #{mbl_no}
+		   </if>
+		   <if test="ctrt_no != '' ">
+		   AND T.CTRT_NO = #{ctrt_no}
+		   </if>
+		   <if test="pfm_fr_dt != '' ">
+		   <![CDATA[ 
+		   AND NVL(CASE WHEN A.ORI_BR_CD  = #{org_cd} OR A.TRI_BR_CD = #{org_cd} THEN A.ONBOARD_YMD
+		                WHEN A.DEST_BR_CD = #{org_cd} THEN A.ARRIVAL_YMD
+		                ELSE ''
+		           END,
+		           CASE WHEN F.ORI_BR_CD  = #{org_cd} OR F.TRI_BR_CD = #{org_cd} THEN F.ETD
+		                WHEN F.DEST_BR_CD = #{org_cd} THEN F.ETA
+		                ELSE ''
+		           END) >= REPLACE(#{pfm_fr_dt}, '-','')
+		   ]]>    
+		   </if> 
+		   <if test="pfm_to_dt != '' ">
+		   <![CDATA[ 
+		   AND NVL(CASE WHEN A.ORI_BR_CD  = #{org_cd} OR A.TRI_BR_CD = #{org_cd} THEN A.ONBOARD_YMD
+		                WHEN A.DEST_BR_CD = #{org_cd} THEN A.ARRIVAL_YMD
+		                ELSE ''
+		           END,
+		           CASE WHEN F.ORI_BR_CD  = #{org_cd} OR F.TRI_BR_CD = #{org_cd} THEN F.ETD
+		                WHEN F.DEST_BR_CD = #{org_cd} THEN F.ETA
+		                ELSE ''
+		           END) <= REPLACE(#{pfm_to_dt}, '-','')
+		   ]]>    
+		   </if>  
+		   <if test="etd_fr_dt != '' ">
+		   <![CDATA[       
+		   AND NVL(A.ONBOARD_YMD,F.ETD) >= REPLACE(#{etd_fr_dt}, '-','')
+		   ]]>    
+		   </if>
+		   <if test="etd_to_dt != '' ">
+		   <![CDATA[       
+		   AND NVL(A.ONBOARD_YMD,F.ETD) <= REPLACE(#{etd_to_dt}, '-','')
+		   ]]>    
+		   </if> 
+		   <if test="eta_fr_dt != '' ">
+		   <![CDATA[    
+		   AND NVL(A.ARRIVAL_YMD,F.ETA) >= REPLACE(#{eta_fr_dt}, '-','')
+		   ]]>    
+		   </if> 
+		   <if test="eta_to_dt != '' ">
+		   <![CDATA[    
+		   AND NVL(A.ARRIVAL_YMD,F.ETA) <= REPLACE(#{eta_to_dt}, '-','')
+		   ]]>    
+		   </if> 
+	</select>
+	
+	
+	
+	
+	<resultMap type="com.clt.business.oms.freight.dto.Grd02FreightCopyFormDto" id="Grd02FreightCopyFormDto">
+	</resultMap>
+	
+	<select id="searchFreightCopyFormDtlSellList" resultMap="Grd02FreightCopyFormDto">
+		SELECT T.FRT_DOC_NO,
+		       T.SB_CLS_CD,
+		       T.FRT_SEQ,
+		       T.DOC_CLS_CD,
+		       T.FRT_BR_CD,
+		       T.CUST_CD,
+		       (SELECT C.CUST_LOC_NM FROM TL_CUST C WHERE C.CUST_CD = T.CUST_CD ) AS CUST_NM,
+		       T.ACCRUAL_CD,
+		       T.FRT_CD,
+		       T.FRT_NM,
+		       T.CURR_CD,
+		       T.UNIT_CD,
+		       T.UNIT_PRICE,
+		       T.VAL_CLS_CD,
+		       T.PASS_CD,
+		       T.CUST_ORG_YN AS ORG_YN
+		  FROM TL_FRT_MST T
+		 WHERE 1=1
+		   AND T.FRT_DOC_NO = #{f_fcr_doc_no}
+		   AND T.DOC_CLS_CD = #{f_doc_cls_cd}
+		   AND T.FRT_BR_CD  = #{org_cd}
+		   AND T.SB_CLS_CD  = 'S'
+		   AND T.RELAY_CD IS NULL
+		 ORDER BY T.FRT_SEQ
+				
+	</select>
+	
+	<select id="searchFreightCopyFormDtlBuyList" resultMap="Grd02FreightCopyFormDto">
+		SELECT T.FRT_DOC_NO,
+		       T.SB_CLS_CD,
+		       T.FRT_SEQ,
+		       T.DOC_CLS_CD,
+		       T.FRT_BR_CD,
+		       T.CUST_CD,
+		       (SELECT C.CUST_LOC_NM FROM TL_CUST C WHERE C.CUST_CD = T.CUST_CD ) AS CUST_NM,
+		       T.ACCRUAL_CD,
+		       T.FRT_CD,
+		       T.FRT_NM,
+		       T.CURR_CD,
+		       T.UNIT_CD,
+		       T.UNIT_PRICE,
+		       T.VAL_CLS_CD,
+		       T.PASS_CD,
+		       T.CUST_ORG_YN AS ORG_YN
+		  FROM TL_FRT_MST T
+		 WHERE 1=1
+		   AND T.FRT_DOC_NO = #{f_fcr_doc_no}
+		   AND T.DOC_CLS_CD = #{f_doc_cls_cd}
+		   AND T.FRT_BR_CD  = #{org_cd}
+		   AND T.SB_CLS_CD  = 'B'
+		   AND T.RELAY_CD IS NULL
+		 ORDER BY T.FRT_SEQ
+				
+	</select>
+	
+	
+	<resultMap type="com.clt.business.oms.freight.dto.FreightSellBuyRouteDto" id="FreightSellBuyRouteDto">		
+	</resultMap>	
+	<select id="searchFreightSellBuyRouteList" resultMap = "FreightSellBuyRouteDto">
+		SELECT 	R.CTRT_NO,
+		       	R.SB_CLS_CD,
+		       	R.RATE_NO,
+		       	R.FRT_MODE,
+		       	TL_GET_COMM_NM('FT1',R.FRT_MODE) AS FRT_MODE_NM,
+		       	R.POR,
+		       	TL_GET_LOC_NM(R.POR) AS POR_NM,
+		       	R.POL,
+		       	TL_GET_LOC_NM(R.POL) AS POL_NM,
+		       	R.POD,
+		       	TL_GET_LOC_NM(R.POD) AS POD_NM,
+		       	R.DEL,
+		       	TL_GET_LOC_NM(R.DEL) AS DEL_NM,
+		       	R.SVCTERM_FR_CD,
+		       	R.SVCTERM_TO_CD,
+		       	R.DEPARTURE_CD,
+		       	R.ARRIVAL_CD,
+		       	R.ORIGIN_LOC_CD,
+		       	R.ORIGIN_LOC_NM,
+		       	R.DEST_LOC_CD,
+		       	R.DEST_LOC_NM,
+		       	R.LOC_CD,
+		       	R.LOC_NM,
+		       	R.COMMODITY_DESC,		       	
+		       	R.CO_LOADER_CD,
+		        R.CARRIER_CD,
+		        R.SC_NO,
+		        R.BULLET_NO,
+		        R.PRIORITY,
+		        R.NAMED_ACCT_FLG,		        
+		       	R.EFF_FR_DT,
+		       	R.EFF_TO_DT
+  		FROM 	TL_CTRT C, TL_CTRT_RATE R
+ 		WHERE 	C.CTRT_NO 		= R.CTRT_NO
+   		AND 	C.CTRT_USE_FLG 	= 'Y'      
+   		<if test="ctrt_no != '' ">
+   		AND 	R.CTRT_NO 		= #{ctrt_no}
+   		</if>
+   		AND 	R.SB_CLS_CD 	= #{sb_cls_cd} 
+   		<if test="eff_dt != '' ">
+   		<![CDATA[ AND 	(R.EFF_FR_DT IS NULL OR R.EFF_FR_DT 	<= REPLACE(#{eff_dt}, '-', '')) ]]>
+   		<![CDATA[ AND 	(R.EFF_TO_DT IS NULL OR R.EFF_TO_DT 	>= REPLACE(#{eff_dt}, '-', '')) ]]>
+   		</if>
+   		<if test="frt_mode != '' ">
+   		AND 	R.FRT_MODE 		IN (${frt_mode}) 
+   		</if>
+   		<if test="por != '' ">
+   		AND 	(R.POR IS NULL OR R.POR 			= #{por})
+   		</if>
+   		<if test="pol != '' ">
+   		AND 	(R.POL IS NULL OR R.POL 			= #{pol})
+   		</if>
+   		<if test="pod != '' ">
+   		AND 	(R.POD IS NULL OR R.POD 			= #{pod})
+   		</if>
+   		<if test="del != '' ">
+   		AND 	(R.DEL IS NULL OR R.DEL 			= #{del})
+   		</if>
+   		<if test="sb_cls_cd == 'B'.toString() and carrier_cd != '' ">
+   		AND R.CARRIER_CD = ''
+   		</if>
+   		<if test="sb_cls_cd == 'B'.toString() and co_loader_cd != '' ">
+   		AND R.CO_LOADER_CD = ''
+   		</if>   		
+   		<if test="svcterm_fr_cd != '' and svcterm_fr_cd !=  'ALL'">
+   		AND 	R.SVCTERM_FR_CD = #{svcterm_fr_cd}
+   		</if>
+   		<if test="svcterm_to_cd != '' and svcterm_to_cd !=  'ALL'">
+   		AND 	R.SVCTERM_TO_CD = #{svcterm_to_cd}
+   		</if>
+   		<if test="sb_cls_cd != 'S'.toString() ">
+ 		ORDER BY R.FRT_MODE, R.RATE_NO
+ 		</if>
+ 		<if test="sb_cls_cd != 'B'.toString() ">
+ 		ORDER BY R.FRT_MODE, R.PRIORITY, R.RATE_NO
+ 		</if>
+	</select>
+	
+	<resultMap type="com.clt.business.oms.freight.dto.FreightSellBuyRateDto" id="FreightSellBuyRateDto">		
+	</resultMap>	
+	<select id="searchFreightSellBuyRateList" resultMap = "FreightSellBuyRateDto">
+		SELECT 	RA.CTRT_NO,
+		       	RA.SB_CLS_CD,
+		       	RA.RATE_NO,
+		       	RA.RATE_SEQ,
+		       	RA.OFC_CD,
+		       	RA.CUST_CD,
+		       	TL_GET_CUST_NM(RA.CUST_CD) CUST_NM,
+		       	RA.FRT_CD,
+		       	RA.FRT_NM,
+		       	RA.UNIT_CD,
+		       	RA.CURR_CD,
+		       	RA.UNIT_PRICE,
+		       	RA.RMK
+		      ,(SELECT MAX(C.ORG_FLG)
+		          FROM TL_CUST C
+		         WHERE C.CUST_CD = RA.CUST_CD ) AS ORG_YN
+		      ,NVL((SELECT MAX(M.SELL_VAT_CD)
+		          FROM HJLMDM.T_MDM206 M
+		         WHERE M.BRANCH = RA.OFC_CD
+		           AND M.FARE_CD = RA.FRT_CD ),'NIL') AS SELL_VAT_CD
+		      ,NVL((SELECT MAX(M.BUY_VAT_CD)
+		          FROM HJLMDM.T_MDM206 M
+		         WHERE M.BRANCH = RA.OFC_CD
+		           AND M.FARE_CD = RA.FRT_CD ),'NIL') AS BUY_VAT_CD
+  		FROM 	TL_CTRT_RATE RO, TL_CTRT_RATE_DTL RA
+	 	WHERE 	RO.CTRT_NO 		= RA.CTRT_NO
+   		AND 	RO.SB_CLS_CD 	= RA.SB_CLS_CD
+   		AND 	RO.RATE_NO 		= RA.RATE_NO      
+   		AND     NVL(RA.FRT_CD,'N') != 'OWFG'
+   		AND 	RO.CTRT_NO 		= #{ctrt_no}
+   		AND 	RA.OFC_CD 		= #{org_cd}
+   		AND 	RO.SB_CLS_CD 	= #{sb_cls_cd}
+   		<if test="frt_mode == 'A'.toString() ">
+   		AND 	RO.FRT_MODE 	= 'A'
+   		</if>
+   		<if test="frt_mode == 'S'.toString() ">
+   		AND 	RO.FRT_MODE 	= 'S'
+   		</if>
+   		<if test="frt_mode == 'D'.toString() ">
+   		AND 	RO.FRT_MODE 	= 'D'
+   		</if>
+   		<if test="rate_no != '' ">
+   		AND 	RO.RATE_NO 		= #{rate_no}
+   		</if>
+	</select>
+
+	<resultMap type="com.clt.business.oms.freight.dto.Grd01FreightCAListDto" id="Grd01FreightCAListDto">		
+	</resultMap>	
+	<select id="searchFreightCAIssuePopupList" resultMap = "Grd01FreightCAListDto">	
+		SELECT T.CA_NO
+		      ,T.CA_SEQ
+		      ,DECODE(T.CA_STATUS, 'H', 'Hold', 'A', 'Approval', 'R', 'Reject') AS CA_STATUS_NM
+		      ,T.RMK
+		      ,T.INS_USR
+		      ,TO_CHAR(T.INS_DATE,'YYYYMMDD') AS INS_DATE 
+		      ,(SELECT M.CD_NM
+                  FROM HJLMDM.T_MDM201 M
+                 WHERE M.GRP_CD = 'S24'
+                   AND M.COMN_CD = T.CA_REASON) AS CA_REASON_NM
+		  FROM HJLFMS.T_FRT_CA_MST T
+		 WHERE T.BRANCH = #{org_cd}
+		   AND T.MNGT_NO = #{frt_doc_no}
+		   AND T.DOC_CLS = DECODE(#{doc_cls_cd},'S','V',#{doc_cls_cd})
+		 ORDER BY T.INS_DATE DESC   	
+	</select>	
+	
+	
+	
+	<select id="searchFreightIndirectCostPopupList" resultMap = "Grd05FreightMgmtFrtMstDto">	
+		/*searchFreightIndirectCostPopupList*/
+		SELECT T.FARE_SEQ AS FRT_SEQ
+		      ,T.INDIRECT_REV
+		      ,T.FARE_CD AS FRT_CD
+		      ,T.FARE_NM AS FRT_NM
+		      ,T.BRANCH AS FRT_BR_CD
+		      ,T.CTRT_NO
+		      ,T.CTRT_NM
+		      ,T.CURR_CD
+		      ,T.EX_RATE AS EXRATE
+		      ,T.FARE_AMT AS AMT
+		      ,T.FARE_LOC_AMT AS LOC_AMT
+		      ,T.ACCT_USD_AMT AS INV_ACCT_USD_AMT
+		  FROM HJLIMS.T_INDIRECT_COST T
+		 WHERE T.MNGT_NO = #{doc_no}
+		   AND T.SYS_CD = 'OMS'
+		   AND T.DOC_CLS = DECODE(#{doc_cls_cd},'S','V',#{doc_cls_cd})
+		   AND T.SELL_BUY_CLS = 'B'
+	</select>  -->  	
+</sqlMap>

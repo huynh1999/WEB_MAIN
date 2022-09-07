@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.code.trucksizetype">
+	<typeAlias alias="TrkSzTpVO" 	type="com.clt.apps.fis.mdm.code.trucksizetype.dto.TrkSzTpVO"/>
+	<typeAlias alias="String" 	type="java.lang.String"/>
+	<typeAlias alias="HashMap" 	type="java.util.HashMap"/>
+	
+	
+	<select id="searchTrkSzTpRSQL" parameterClass="HashMap" resultClass="TrkSzTpVO">
+	/* MdmCodeTrkSzTpSQL.xml > searchTrkSzTpRSQL */
+	
+        SELECT
+		TRK_TP_CT,
+		DESCR,
+		STNK_WGT,
+		STND_CBM,
+		RMK,
+		USE_YN,
+		RGST_OFC_CD,
+		RGST_USRID,
+		RGST_TMS,
+		MODI_OFC_CD,	
+		MODI_USRID,
+		MODI_TMS
+	FROM
+		TL_TRK_TP_CD
+	WHERE
+		1 = 1
+		<isNotEmpty property="use_yn">
+		AND USE_YN = UPPER(#use_yn#)
+		</isNotEmpty>
+		
+		<isNotEmpty property="descr">
+		AND UPPER(DESCR) like '%' + UPPER(#descr#) + '%'
+		</isNotEmpty>
+		
+		<isNotEmpty property="trk_tp_ct">
+		AND TRK_TP_CT = UPPER(#trk_tp_ct#)
+		</isNotEmpty>
+	</select>
+	
+	<insert id="insertTrkSzTpCSQL" parameterClass="TrkSzTpVO">
+	/* MdmCodeTrkSzTpSQL.xml > insertTrkSzTpCSQL */
+	
+		INSERT INTO TL_TRK_TP_CD(
+			TRK_TP_CT,
+			DESCR,
+			STNK_WGT,
+			STND_CBM,
+			RMK,
+			USE_YN,
+			RGST_OFC_CD,
+			RGST_USRID,
+			RGST_TMS,
+			MODI_OFC_CD,
+			MODI_USRID,
+			MODI_TMS
+		)VALUES(
+			#trk_tp_ct#,
+			#descr#,
+			#stnk_wgt#,
+			#stnd_cbm#,
+			#rmk#,
+			#use_yn#,
+			#rgst_ofc_cd#,
+			#rgst_usrid#,
+			GETDATE(),
+			#modi_ofc_cd#,
+			#modi_usrid#,
+			GETDATE()
+		)
+	</insert>
+	<update id="updateTrkSzTpUSQL" parameterClass="TrkSzTpVO">
+	/* MdmCodeTrkSzTpSQL.xml > updateTrkSzTpUSQL */
+	UPDATE TL_TRK_TP_CD	
+		SET DESCR 		= #descr#,
+		 	STNK_WGT 	= #stnk_wgt#,
+		 	STND_CBM 	= #stnd_cbm#,
+		 	RMK 		= #rmk#,
+		 	USE_YN 		= #use_yn#,
+		 	MODI_OFC_CD = #modi_ofc_cd#,
+		 	MODI_USRID 	= #modi_usrid#,
+		 	MODI_TMS 	= GETDATE()
+		 	
+	WHERE TRK_TP_CT = #trk_tp_ct#
+	</update>
+	
+	<update id="deleteTrkSzTpDSQL" parameterClass="TrkSzTpVO">
+	/* MdmCodeTrkSzTpSQL.xml > deleteTrkSzTpDSQL */
+	UPDATE TL_TRK_TP_CD	
+		SET USE_YN 		= 'N',
+		 	MODI_OFC_CD = #modi_ofc_cd#,
+		 	MODI_USRID 	= #modi_usrid#,
+		 	MODI_TMS 	= GETDATE()
+		 	
+	WHERE TRK_TP_CT = #trk_tp_ct#
+	</update>	
+</sqlMap>

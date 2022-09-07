@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+    
+    
+    
+    <!--  Other Warehouse Receipt Details    -->
+    <screen name="OTH_WHR_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/whr/details/jsp/OTH_WHR_0010.jsp" />
+    </screen>
+    <screen name="OTH_WHR_0010GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/whr/details/jsp/OTH_WHR_0010GS.jsp" />
+    </screen>
+    <screen name="OTH_WHR_0011GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/whr/details/jsp/OTH_WHR_0011GS.jsp" />
+    </screen>
+    
+    
+    
+    
+    
+    <!--  Other Warehouse Receipt List    -->
+    <screen name="OTH_WHR_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/whr/list/jsp/OTH_WHR_0020.jsp" />
+    </screen>
+    <screen name="OTH_WHR_0020GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/whr/list/jsp/OTH_WHR_0020GS.jsp" />
+    </screen>
+    
+    <!--  Warehouse Receipt PopUP    -->
+    <screen name="WHR_POP_0010" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/whr/list/jsp/WHR_POP_0010.jsp" />
+    </screen>
+    <screen name="WHR_POP_0010GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/whr/list/jsp/WHR_POP_0010GS.jsp" />
+    </screen>
+    <!-- Ajax loading -->
+    <screen name="OTH_WHR_0010AJ" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/oth/whr/details/jsp/OTH_WHR_0010AJ.jsp" />
+    </screen>
+    
+</screen-definitions>

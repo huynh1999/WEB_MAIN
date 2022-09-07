@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>As-Is HTML 구조변환 작성 가이드</title>
+    <style type="text/css">
+        /* 가이드용 CSS (무시하세요) */
+        /* Guide - CODE CSS */
+       
+        header h1{margin:0;padding:10px 30px 13px;font-size:18px;font-family:Verdana,'나눔고딕','NanumGothic','돋움',sans-serif;text-shadow:1px 1px 0 #000;background-color:#444;color:#fff}
+        h1 span {float:right;font-size:14px;font-weight:normal;line-height:21px}
+        section{margin:40px}
+        header > div {
+            padding:10px;border-bottom:1px dashed #C7C7C7;
+            background-color:#fff
+        }
+        header > div a {
+            display:inline-block;padding:7px 15px;border:1px solid #bbb;border-radius:5px;
+            background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(229,229,229,1) 100%); /* FF3.6+ */
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(229,229,229,1))); /* Chrome,Safari4+ */
+            background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(229,229,229,1) 100%); /* Chrome10+,Safari5.1+ */
+            background: -o-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(229,229,229,1) 100%); /* Opera 11.10+ */
+            background: -ms-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(229,229,229,1) 100%); /* IE10+ */
+            background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(229,229,229,1) 100%); /* W3C */
+        }
+        header > div a:hover {text-decoration:underline;color:#000}
+        .class-box{margin:10px 0 20px;padding:10px;border:1px dashed #ccc;background-color:#f2f2f2}
+        .class-view{padding:20px 10px 10px;background-color:#fff}
+        .class-view .red{font-size:13px;color:rgb(216, 0, 0)}
+        .class-view .font12{font-size:12px}
+        .class-desc{margin-top:40px;padding:20px 15px 12px;font-size:12px;font-family:Arial, Helvetica,"돋움",Dotum,"굴림",Gulim, sans-serif;border:1px solid #FADC8E}
+        .class-desc h2{margin:-20px -15px 12px;padding:6px 15px;font-size:14px;font-family:Verdana;border-bottom:1px solid #FADF8B;background-color:#FFFAD2;color:#E6B314}
+        .class-desc p{line-height:17px}
+        .class-desc ul {padding-left:15px;list-style:disc}
+        .class-desc ul li {line-height:20px;list-style:disc}
+        .class-code{position:relative;margin-top:10px;padding:20px 20px 15px;border:1px solid #ccc;font-size:13px;background-color:#fff;line-height:21px;color:#fff}
+        .codePre,.code-textArea{font-size:14px;font-family:'Courier New',Verdana,'나눔고딕','돋움',sans-serif;line-height:19px}
+        .codePre{white-space:pre-wrap;cursor:pointer;color:#3f7f95}
+        .codePre > span, .codePre .highlight > span {font-style:italic;color:#2a00ff}
+        .codePre .highlight {font-style:normal;font-weight:800;background-color:rgba(255, 235, 0, 0.44);color:#3f7f95}
+        .codePre .code-attr,.codePre .highlight .code-attr {font-style:normal;color:#7f007f}
+        .codePre .codePre-comment{font-style:normal;color:#3f5fbf}
+        .codePre .codePre-text, .codePre .highlight .codePre-text {font-style:normal;color:#000}
+        .code-textArea{display:none;position:absolute;top:0;left:0;overflow:hidden;width:100%;height:100%;padding:19px 18px 0;box-sizing:border-box;background:#fff;color:#000}
+        /* CODE Customize */
+    </style>
+    <link rel="stylesheet" type="text/css" href="style/css/theme_default.css" />
+    <script type="text/javascript" src="style/js/fakeselect.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        // 가이드용 jQuery (무시하세요)
+        $(function(){
+           $('pre').on('click',function(){
+              $(this).next('.code-textArea').text($(this).text()).fadeIn(100).focus().select(); 
+           });
+           $('.code-textArea').focusout(function(){
+              $(this).fadeOut(100); 
+           });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>As-Is HTML 구조변환 작성 가이드<span>Date :: 2014-04-14</span></h1>
+        <div>
+            <a href="#opus_design_inquiry">조회영역 (opus_design_inquiry)</a>
+        </div>
+    </header>
+    <section>
+        <!-- class-box -->
+        <div class="class-box" id="opus_design_inquiry">
+            <div class="class-view">
+                <!-- 실제 디지인 렌더링 영역 (S)-->
+                <!-- opus_design_inquiry(S) -->
+                <div class="opus_design_inquiry">
+                    <table>
+                        <colgroup>
+                            <col width="120" />
+                            <col width="370" />
+                            <col width="120" />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th>title</th>
+                                <td colspan="3">
+                                    <input type="radio" name="rad_dateSep" id="exID01" />
+                                    <label for="exID01">Planned Departure</label>
+                                    <input type="radio" name="rad_dateSep" id="exID02" />
+                                    <label for="exID02">Door Arrival</label>
+                                    <input type="radio" name="rad_dateSep" id="exID03" />
+                                    <label for="exID03">Rail Creation</label>
+                                </td>
+                            <tr>
+                                <th>Date</th>
+                                <td>
+                                    <span class="inquiry_calendar">
+                                        <input name="frm_plandate" type="text" maxlength="8" onfocus="javascript:delHypen(this);" onblur="javascript:getHypen(this); getDateBetween(this);" />
+                                        <span class="dash">-</span>
+                                        <input name="to_plandate" type="text" maxlength="8" onfocus="javascript:delHypen(this);" onblur="javascript:getHypen(this);" onkeyup="javascript:doSearchEnter();" />
+                                        <a href="" class="calendar ir">calendar</a>
+                                    </span>
+                                </td>
+                                <th>CY/Door</th>
+                                <td>
+                                    <select name="cydoor_div" onchange="getCostModeCombo();"><option value="CY">CY</option><option value="DR">DOOR</option></select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Booking No.</th>
+                                <td>
+                                    <input class="input_search" /><a href="" class="input_seach_btn"></a>
+                                    <a href="" class="multiple_inq ir">Mutiple inquiry</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- opus_design_inquiry(E) -->
+                
+
+                <!-- 실제 디지인 렌더링 영역 (E)-->
+                <div class="class-desc">
+                    <h2>Description / Note</h2>
+                    <p>
+                        <ul>
+                            <li><span class="red">&lt;table&gt; 중첩 최대한 지양 (속도저하 발생)</span></li>
+                            <li>최상위 랩핑 요소 : &lt;div class="opus_design_inquiry"&gt; &lt;/div&gt;</li>
+                            <li>각 컬럼(테이블의 세로 단)의  넓이를 그룹핑 할 수 있는 경우 col width="" 속성 / 속성값으로 넓이 조절. <span class="red">그룹핑 불가 할 경우 &lt;colgroup&gt;,&lt;col&gt; 삭제</span></li>
+                            <li>조회조건 레이블(타이틀)은 &lt;th&gt;, 데이터는 &lt;td&gt; 로 구분</li>
+                            <li>&lt;input type="radio/checkbox"&gt; 태그의 경우 커플 &lt;label&gt; 태그가 있어야 하며, input 의 id 값과 대응하는 커플 label의 for 값이 동일해야 함</li>
+                            <li> input_search:단건 조건(돋보기 아이콘 인풋박스) / input_search_btn:돋보기버튼 = <span class="red">반드시 한줄로 작성(디자인 깨짐)</span></li>
+                        </ul>
+                    </p>
+                </div>
+                <div class="class-code">
+<!-- pre 태그 들여쓰기 금지 -->
+<pre class="codePre">
+<span class="codePre-comment">&lt;!-- opus_design_inquiry(S) --&gt;</span>
+<span class="highlight">&lt;div <span class="code-attr">class=</span><span>"opus_design_inquiry"</span>&gt;</span>
+    &lt;table&gt;
+        &lt;colgroup&gt;
+            <span class="highlight">&lt;col <span class="code-attr">width=</span><span>"120"</span> /&gt;</span>
+            &lt;col <span class="code-attr">width=</span><span>"370"</span> /&gt;
+            &lt;col <span class="code-attr">width=</span><span>"120"</span> /&gt;
+        &lt;/colgroup&gt;
+        &lt;tbody&gt;
+            &lt;tr&gt;
+                <span class="highlight">&lt;th&gt;<span class="codePre-text">title</span>&lt;/th&gt;</span>
+                &lt;td <span class="code-attr">colspan=</span><span>"3"</span>&gt;
+                    &lt;input <span class="code-attr">type=</span><span>"radio"</span> <span class="code-attr">name=</span><span>"rad_dateSep"</span> <span class="highlight"><span class="code-attr">id=</span><span>"exID01"</span></span>&gt;&lt;label <span class="highlight"><span class="code-attr">for=</span><span>"exID01"</span></span>&gt;<span class="codePre-text">Planned Departure</span>&lt;/label&gt;
+                    &lt;input <span class="code-attr">type=</span><span>"radio"</span> <span class="code-attr">name=</span><span>"rad_dateSep"</span> <span class="code-attr">id=</span><span>"exID02"</span>&gt;&lt;label <span class="code-attr">for=</span><span>"exID02"</span>&gt;<span class="codePre-text">Door Arrival</span>&lt;/label&gt;
+                    &lt;input <span class="code-attr">type=</span><span>"radio"</span> <span class="code-attr">name=</span><span>"rad_dateSep"</span> <span class="code-attr">id=</span><span>"exID03"</span>&gt;&lt;label <span class="code-attr">for=</span><span>"exID03"</span>&gt;<span class="codePre-text">Rail Creation</span>&lt;/label&gt;
+                &lt;/td&gt;
+            &lt;tr&gt;
+                &lt;th&gt;<span class="codePre-text">Date</span>&lt;/th&gt;
+                &lt;td&gt;
+                    &lt;span <span class="code-attr">class=</span><span>"inquiry_calendar"</span>&gt;
+                        &lt;input <span class="code-attr">name=</span><span>"frm_plandate"</span> <span class="code-attr">type=</span><span>"text"</span> <span class="code-attr">maxlength=</span><span>"8"</span> <span class="code-attr">onfocus=</span><span>"javascript:delHypen(this);"</span> <span class="code-attr">onblur=</span><span>"javascript:getHypen(this); getDateBetween(this);"</span>&gt;
+                        &lt;span <span class="code-attr">class=</span><span>"dash"</span>&gt;-&lt;/span&gt;
+                        &lt;input <span class="code-attr">name=</span><span>"to_plandate"</span> <span class="code-attr">type=</span><span>"text"</span> <span class="code-attr">maxlength=</span><span>"8"</span> <span class="code-attr">onfocus=</span><span>"javascript:delHypen(this);"</span> <span class="code-attr">onblur=</span><span>"javascript:getHypen(this);"</span> <span class="code-attr">onkeyup=</span><span>"javascript:doSearchEnter();"</span>&gt;
+                        &lt;a <span class="code-attr">class=</span><span>"calendar ir"</span>&gt;<span class="codePre-text">calendar</span>&lt;/a&gt;
+                    &lt;/span&gt;
+                &lt;/td&gt;
+                &lt;th&gt;<span class="codePre-text">CY/Door</span>&lt;/th&gt;
+                &lt;td&gt;
+                    &lt;select <span class="code-attr">name=</span><span>"cydoor_div"</span> <span class="code-attr">onchange=</span><span>"getCostModeCombo();"</span>&gt;
+                        &lt;option <span class="code-attr">value=</span><span>"CY"</span>&gt;CY&lt;/option&gt;
+                        &lt;option <span class="code-attr">value=</span><span>"DR"</span>&gt;DOOR&lt;/option&gt;
+                    &lt;/select&gt;
+                &lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th <span class="code-attr">scope=</span><span>"row"</span>&gt;Booking No.&lt;/th&gt;
+                &lt;td <span class="code-attr">colspan=</span><span>"3"</span>&gt;
+                    <span class="highlight">&lt;input <span class="code-attr">class=</span><span>"input_search"</span> /&gt;&lt;a <span class="code-attr">href=""</span> <span class="code-attr">class=</span><span>"input_seach_btn"</span>&gt;&lt;/a&gt;</span>
+                    &lt;a <span class="code-attr">href=</span><span>""</span> <span class="code-attr">class=</span><span>"multiple_inq ir"</span>&gt;<span class="codePre-text">Mutiple inquiry</span>&lt;/a&gt;
+                &lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+&lt;/div&gt;
+<span class="codePre-comment">&lt;!-- opus_design_inquiry(E) --&gt;</span>
+
+</pre>
+<!-- pre(E) -->
+<textarea class="code-textArea" rows="5" cols="10"> </textarea>
+                </div>
+            </div>
+        </div>
+        <!-- //class-box -->
+        
+    </section>
+</body>
+</html>

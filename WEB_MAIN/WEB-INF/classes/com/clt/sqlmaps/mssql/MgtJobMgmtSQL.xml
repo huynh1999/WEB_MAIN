@@ -1,0 +1,692 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.job.jobmgt">
+
+	<!-- Category (조회조건)   -->
+	<select id="selectMGT_CATEGORY" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.CategoryVO">
+		SELECT com_cd,  cd_val,  cd_nm,  srt_seq
+		  FROM tb_com_cd_dtl 
+		 WHERE com_cd ='C130'
+	  ORDER BY srt_seq
+	</select>
+	
+	<!-- Template List (조회조건)   -->
+	<select id="selectTEMPLATE_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TemplateListVO">
+		SELECT  tmplt_nm,  jb_tmplt_seq,  descr , delt_flg
+		  FROM  tb_jb_tmplt 
+		 WHERE  delt_flg = 'N'
+        <isNotNull property="f_lg_clss_biz_cd">
+           AND  lg_clss_biz_cd = #f_lg_clss_biz_cd#
+		</isNotNull>
+        <isNotNull property="lgs_clss_cd">
+           AND  lg_clss_biz_cd = #lgs_clss_cd#
+        </isNotNull>
+	</select>
+	
+	<!-- Basic Time List   -->
+	<select id="selectMGT_BASICTIME" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.BasicTimeVO">
+		SELECT cd_val,   cd_nm
+		  FROM tb_com_cd_dtl
+		 WHERE com_cd = #category_code#
+	  ORDER BY srt_seq
+	</select>
+		
+	<!-- Template Info   -->
+	<select id="selectTEMPLATE_INFO" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TbJbTmpltVO">
+		SELECT tmplt_nm,   descr,  bzc_tm,  calc_lgc
+		  FROM tb_jb_tmplt 
+		 WHERE jb_tmplt_seq = #template_code#
+		   AND delt_flg = 'N'
+	</select>
+	
+	<!-- New 조회(Default list)   -->
+    <select id="selectMGT_JOB_0010_DEFAULT" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TbJbTmpltListVO">
+		SELECT ''  AS jb_tmplt_seq,    cd_val AS bl_sts_cd,    srt_seq,
+		       '0' AS dur_tm_qty,      cd_nm,                  delt_flg
+		  FROM tb_com_cd_dtl
+		 WHERE com_cd = #c_code# AND cd_val != #f_cd_val#
+		   AND use_flg = 'Y'
+		   AND delt_flg = 'N'
+		ORDER BY srt_seq
+	</select>
+	
+	<select id="selectMGT_JOB_0010_DEFAULT_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    	SELECT COUNT(cd_val)
+		  FROM tb_com_cd_dtl
+		 WHERE com_cd = 'C004'			
+		   AND use_flg = 'Y'
+		   AND delt_flg = 'N'
+		   AND SUBSTRING(CD_VAL, 1,2) = #c_code#
+	</select>
+		
+	<!-- 조회(Detail list)   -->
+    <select id="selectMGT_JOB_0010_TMPLT_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TbJbTmpltList2VO">
+    	SELECT a.jb_tmplt_seq,    a.bl_sts_cd,  
+		       a.srt_seq,         a.dur_tm_qty,      b.cd_nm,
+		       CASE WHEN a.delt_flg = 'N' THEN '1' ELSE '0' END AS delt_flg   
+		  FROM tb_jb_tmplt_list a, tb_com_cd_dtl b
+		 WHERE jb_tmplt_seq = #template_code#
+		   AND a.bl_sts_cd = b.cd_val
+		   AND b.com_cd =  #c_code# AND b.cd_val != #f_cd_val#
+		ORDER BY srt_seq
+	</select>
+	
+	<select id="selectMGT_JOB_0010_TMPLT_CNT" parameterClass="java.util.HashMap" resultClass="Integer">    	
+		SELECT COUNT(a.bl_sts_cd)
+		  FROM tb_jb_tmplt_list a
+		 WHERE a.jb_tmplt_seq = #template_code#
+	</select>
+	
+	
+	<!-- 필드의 내용을 insert(최초 insert시 수정자 정보는 생성자 정보와 같다)   -->
+	<insert id="insertMGT_JOB_0010" parameterClass="java.util.HashMap">
+		INSERT INTO tb_jb_tmplt (
+		   jb_tmplt_seq,   
+		   delt_flg,      lg_clss_biz_cd,    tmplt_nm,
+		   bzc_tm,        calc_lgc,          descr,
+		   rgst_usrid,    rgst_ofc_cd,       rgst_tms,
+		   modi_usrid,    modi_ofc_cd,       modi_tms
+		)VALUES(
+		   #jb_tmplt_seq#,
+		   'N',           #category_code#,   #tmplt_nm#,
+		   #basic_time#,  #cal_loc#,         #description#,
+		   #rgst_usrid#,  #rgst_ofc_cd#,     getdate(),
+		   #modi_usrid#,  #modi_ofc_cd#,     getutcdate()
+		)
+	</insert>
+	
+	
+	<!-- 그리드의 내용을 insert(최초 insert시 수정자 정보는 생성자 정보와 같다)   -->
+	<insert id="insertMGT_JOB_0010_LIST" parameterClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TbJbTmpltList2VO">
+		INSERT INTO tb_jb_tmplt_list (
+			jb_tmplt_seq,    bl_sts_cd,     bl_sts_lbl,
+		    dur_tm_qty,      srt_seq,
+		    rgst_usrid,      rgst_ofc_cd,   rgst_tms,
+		    modi_usrid,      modi_ofc_cd,   modi_tms,   delt_flg
+		)VALUES(
+			#jb_tmplt_seq#,  #bl_sts_cd#,   #bl_sts_lbl#,
+		    #dur_tm_qty#,    #srt_seq#,
+		    #rgst_usrid#,    #rgst_ofc_cd#, getdate(),
+		    #modi_usrid#,    #modi_ofc_cd#, getutcdate(),      #delt_flg#
+			
+		)
+	</insert>
+		
+	<!-- 필드의 내용을 update 한다(Name / Description)   -->
+	<update id="updateMGT_JOB_0010" parameterClass="java.util.HashMap">
+		UPDATE tb_jb_tmplt
+		   SET tmplt_nm   = #tmplt_nm#,      bzc_tm     = #basic_time#,     
+		       calc_lgc   = #cal_loc#,       descr      = #description#,
+		       modi_usrid = #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,   modi_tms = getutcdate()
+		 WHERE jb_tmplt_seq = #template_code#
+	</update>
+	
+	<!-- 그리드의 내용을 update   -->
+	<update id="updateMGT_JOB_0010_LIST" parameterClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TbJbTmpltList2VO">
+		UPDATE  tb_jb_tmplt_list
+		   SET  dur_tm_qty  = #dur_tm_qty#,   srt_seq     = #srt_seq#, 
+		        bl_sts_lbl  = #bl_sts_lbl#,   
+		        modi_usrid  = #modi_usrid#,   modi_ofc_cd = #modi_ofc_cd#,   modi_tms = getutcdate(), delt_flg = #delt_flg#
+		 WHERE  jb_tmplt_seq= #jb_tmplt_seq# AND bl_sts_cd = #bl_sts_cd#
+	</update>
+	
+	<!-- TEMPLET LIST PK    -->
+    <select id="selectMGT_JOB_0010_MAX_SEQ" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT max(jb_tmplt_seq)
+		  FROM tb_jb_tmplt						
+	</select>
+	
+	<!-- Template 삭제   -->
+	<update id="removeMGT_JOB_0010_LIST" parameterClass="java.util.HashMap">
+		UPDATE tb_jb_tmplt
+		   SET delt_flg = 'Y'
+		       ,modi_usrid  = #modi_usrid#,   modi_ofc_cd = #modi_ofc_cd#,   modi_tms = getutcdate()
+		 WHERE jb_tmplt_seq = #tmp_seq#
+	</update>
+	
+	
+	
+	<!-- Current Step 조회   -->
+    <select id="selectMGT_JOB_0020_CurrentStep_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO">
+    	SELECT b.bl_sts_cd AS cd_val,    a.cd_nm
+		  FROM tb_com_cd_dtl a, tb_jb_tmplt_list b, tb_jb_tmplt c
+		 WHERE a.com_cd = (CASE WHEN c.lg_clss_biz_cd = 'AI' THEN 'C065' 
+					                               WHEN c.lg_clss_biz_cd = 'AO' THEN 'C064' 
+					                               WHEN c.lg_clss_biz_cd = 'SI' THEN 'C063' 
+					                               WHEN c.lg_clss_biz_cd = 'SO' THEN 'C062'
+					                          END)
+		   AND b.jb_tmplt_seq = #template_code#
+		   AND b.jb_tmplt_seq = c.jb_tmplt_seq
+		   AND a.cd_val       = b.bl_sts_cd
+		   AND b.delt_flg     = 'N'
+		ORDER BY b.srt_seq
+	</select>
+	
+	<!-- Job Visibility Summary 조회   -->
+    <select id="selectMGT_JOB_0020_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.JobVisibilitySummaryVO">
+	    	<!-- 
+	    	SELECT
+				(
+					SELECT e.cd_nm
+					FROM tb_com_cd_dtl e
+					WHERE e.com_cd = 'C021'
+					AND e.cd_val = a.lg_clss_biz_cd
+				) AS g_category
+				, a.tmplt_nm
+				, CASE MOD(z.dur_tot_qty, 8) 
+						WHEN 0 THEN CONCAT((z.dur_tot_qty DIV 8), "days")
+						ELSE 
+							CASE (z.dur_tot_qty DIV 8)
+								WHEN 0 THEN CONCAT(MOD(z.dur_tot_qty, 8), "Hours")
+								ELSE CONCAT((z.dur_tot_qty DIV 8), "days\n", MOD(z.dur_tot_qty, 8), "Hours")
+							END	
+				  END AS dur_tm_qty
+				, d.bkg_no
+				, d.bl_no AS hbl_no
+				, (
+					SELECT 
+						f.bl_no
+					FROM tb_intg_bl f, tb_intg_bl_rlt g
+					WHERE f.intg_bl_seq = g.rlt_intg_bl_seq
+					AND g.intg_bl_seq = d.intg_bl_seq
+					) AS mbl_no
+				, (
+					SELECT
+						h.cd_nm
+					FROM tb_com_cd_dtl h
+					WHERE h.cd_val = c.BL_STS_CD
+					AND h.com_cd = 'C004'
+					) AS current_step
+				, CASE c.jb_pln_dt_tm &gt;= c.jb_act_dt_tm       
+					WHEN 0 THEN 'red'        
+					WHEN 1 THEN 'green'       
+					ELSE         
+						CASE c.jb_pln_dt_tm &gt;= DATE_FORMAT(getdate(), '%Y%m%d%H%i')       
+							WHEN 0 THEN 'red'          
+							WHEN 1 THEN 'green'        
+						END      
+					END      AS job_status 
+				, d.intg_bl_seq
+				, (
+					SELECT MAX(e.srt_seq) 
+					FROM tb_wrk_flow e
+					WHERE e.intg_bl_seq = c.intg_bl_seq
+					AND   e.bnd_clss_cd = #bnd_clss_cd#
+				   )AS mx_seq
+				, (
+					SELECT DATE_FORMAT(CONVERT(CONCAT(MAX(e.jb_pln_dt_tm),'00'),DATETIME), '%Y-%m-%d %H:%i')
+					FROM tb_wrk_flow e
+					WHERE intg_bl_seq = c.intg_bl_seq
+					AND   SRT_SEQ = 1
+				  ) AS bkg_dt_tm
+				, (
+					SELECT DATE_FORMAT(CONVERT(CONCAT(MAX(e.jb_pln_dt_tm),'00'),DATETIME), '%Y-%m-%d %H:%i')
+					FROM tb_wrk_flow e
+					WHERE e.intg_bl_seq = c.intg_bl_seq
+					AND   e.bnd_clss_cd = #bnd_clss_cd#
+				   ) AS jb_pln_dt_tm
+				, (
+					SELECT DATE_FORMAT(CONVERT(CONCAT(MAX(e.jb_act_dt_tm),'00'),DATETIME), '%Y-%m-%d %H:%i')
+					FROM tb_wrk_flow e
+					WHERE e.intg_bl_seq = d.intg_bl_seq
+					AND   e.bnd_clss_cd = #bnd_clss_cd#
+					AND   srt_seq = mx_seq
+				   ) AS jb_act_dt_tm   
+				, c.jb_pln_dt_tm AS jb_plan_dt_tm_cp   
+				, c.jb_act_dt_tm AS jb_act_dt_tm_cp
+				, f.sls_usrid  AS modi_ofc_cd	
+								  
+			FROM tb_jb_tmplt a, tb_jb_tmplt_list b, tb_wrk_flow c, tb_intg_bl d, tb_add_info_bnd f
+				, (
+					SELECT sum(dur_tm_qty) AS dur_tot_qty, jb_tmplt_seq
+					FROM tb_jb_tmplt_list
+					<isNotNull prepend="WHERE" property="s_TemplateList">
+						jb_tmplt_seq = #s_TemplateList#
+					</isNotNull>
+					GROUP BY jb_tmplt_seq
+					
+					
+				) z
+			WHERE a.jb_tmplt_seq = b.jb_tmplt_seq
+			AND b.jb_tmplt_seq = c.jb_tmplt_seq
+			AND b.jb_tmplt_seq = z.jb_tmplt_seq
+			AND b.bl_sts_cd    = c.bl_sts_cd
+			AND c.intg_bl_seq  = d.intg_bl_seq
+			AND d.intg_bl_seq  = f.intg_bl_seq
+			AND a.lg_clss_biz_cd = #s_Category#
+			AND f.bnd_clss_cd  = #bnd_clss_cd#
+			<isNotNull prepend="AND" property="s_TemplateList">
+				a.jb_tmplt_seq = #s_TemplateList#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_CurrentStep">
+				b.bl_sts_cd    = #s_CurrentStep#
+			</isNotNull>
+						
+			<isNotNull prepend="AND" property="s_recv">
+				bkg_dt_tm BETWEEN CONCAT(#s_recvDt_fm#,'0000') AND CONCAT(#s_recvDt_to#,'0000')
+			</isNotNull>
+						
+			<isNotNull prepend="AND" property="ofc_cd_in">
+				f.modi_ofc_cd = #ofc_cd_in#
+			</isNotNull>
+			
+			GROUP BY d.bkg_no
+			
+			ORDER BY a.tmplt_nm
+			   -->
+			SELECT t.g_category
+			      ,t.tmplt_nm
+			      ,isnull(t.bkg_no, '') AS bkg_no
+			      ,t.hbl_no
+			      ,t.mbl_no
+			      ,t.current_step
+			      ,t.next_step
+<!--			      ,t.job_status  -->
+                  , CASE WHEN max_jb_pln_dt_tm >= max_jb_act_dt_tm 
+                         THEN 'green'                              
+          				 ELSE 'red'       
+			        END  AS job_status
+			      ,CASE  WHEN FLOOR(t.dur_tm_qty/ 8) > 0 AND (t.dur_tm_qty % 8) > 0 
+			             THEN CONVERT(VARCHAR,FLOOR(t.dur_tm_qty / 8)) + 'days ' + CONVERT(VARCHAR,(t.dur_tm_qty % 8)) + 'Hours'        
+			             WHEN FLOOR(t.dur_tm_qty / 8) > 0  
+			             THEN CONVERT(VARCHAR,FLOOR(t.dur_tm_qty / 8)) + 'days'
+			             WHEN (t.dur_tm_qty % 8) > 0 
+			             THEN CONVERT(VARCHAR,(t.dur_tm_qty % 8)) + 'Hours'    
+			             ELSE ''  
+			       END AS dur_tm_qty
+			      ,t.intg_bl_seq
+			      ,t.mx_seq
+			      ,t.bkg_dt_tm
+				  ,t.jb_pln_dt_tm
+				  ,t.jb_act_dt_tm   
+				  ,t.jb_plan_dt_tm_cp   
+				  ,t.jb_act_dt_tm_cp
+				  ,t.modi_ofc_cd
+			  FROM (SELECT
+						CASE WHEN a.lg_clss_biz_cd='SO' THEN 'Ocean Export'
+							WHEN a.lg_clss_biz_cd='SI' THEN 'Ocean Import'
+							WHEN a.lg_clss_biz_cd='AO' THEN 'Air Export'
+							WHEN a.lg_clss_biz_cd='AI' THEN 'Air Import'
+						END AS g_category
+						, a.tmplt_nm AS tmplt_nm				
+						, d.bkg_no AS bkg_no
+						, d.bl_no AS hbl_no
+						, (SELECT f.bl_no
+							 FROM tb_intg_bl f, tb_intg_bl_rlt g
+						    WHERE f.intg_bl_seq = g.rlt_intg_bl_seq
+							  AND g.intg_bl_seq = d.intg_bl_seq) AS mbl_no
+						, (SELECT bse_tm_nm FROM TB_JB_BSE_ITM WHERE bse_tm_cd =B.bse_tm_cd AND lgs_clss_cd = lg_clss_biz_cd) AS current_step 
+					    , (   SELECT bse_tm_nm FROM TB_JB_BSE_ITM WHERE bse_tm_cd = 
+					    			(SELECT c2.jb_sts_cd FROM tb_wrk_flow c2 WHERE c2.intg_bl_seq = c.intg_bl_seq AND c2.srt_seq = c.srt_seq+1)
+							    AND lgs_clss_cd = lg_clss_biz_cd
+                		   ) AS next_step                       
+				   <![CDATA[
+				   		,   CASE   WHEN (c.jb_act_dt_tm IS NULL) AND (  c.jb_pln_dt_tm < getdate())
+		                       THEN 'red'
+		                       WHEN (c.jb_act_dt_tm IS NULL) AND (  c.jb_pln_dt_tm >= getdate())    
+		                       THEN 'green'
+		                       WHEN datediff(hour, c.jb_pln_dt_tm , c.jb_act_dt_tm)<act_itval_hrs
+		                       THEN 'green'
+		                       WHEN datediff(hour, c.jb_pln_dt_tm , c.jb_act_dt_tm)>=act_itval_hrs
+		                       THEN 'red' END AS job_status
+    				]]> 		                       
+					    , SUM(ISNULL(b.PLN_ITVAL_HRS, 0)) OVER (PARTITION BY d.intg_bl_seq) AS dur_tm_qty    
+					    , MAX(ISNULL(c.srt_seq, 0)) OVER (PARTITION BY d.intg_bl_seq) AS max_srt_seq  
+						, d.intg_bl_seq
+						, c.srt_seq AS mx_seq
+						, CONVERT(VARCHAR(16), d.bl_iss_dt,121) AS bkg_dt_tm
+						, CONVERT(VARCHAR(16), c.jb_pln_dt_tm,121) AS jb_pln_dt_tm
+						, CONVERT(VARCHAR(16), c.jb_act_dt_tm,121) AS jb_act_dt_tm   
+						, CONVERT(VARCHAR(16), c.jb_pln_dt_tm,121) AS jb_plan_dt_tm_cp   
+						, CONVERT(VARCHAR(16), c.jb_act_dt_tm,121) AS jb_act_dt_tm_cp
+						, f.sls_usrid  AS modi_ofc_cd	
+						, (select top 1 t2.jb_pln_dt_tm 
+						     from tb_wrk_flow t2 
+						     where t2.intg_bl_seq = c.intg_bl_seq
+						   order by t2.srt_seq desc) as max_jb_pln_dt_tm
+						, (select top 1 isnull(t3.jb_act_dt_tm, getdate()) 
+						     from tb_wrk_flow t3 
+						    where t3.intg_bl_seq = c.intg_bl_seq 
+						    order by t3.srt_seq desc) as max_jb_act_dt_tm
+					    ,ISNULL((select c2.jb_sts_cd 
+			                       from tb_wrk_flow c2 
+			                      where c2.intg_bl_seq = c.intg_bl_seq 
+			                        and c2.srt_seq = c.srt_seq+1)
+			                    , c.jb_sts_cd) AS next_jb_sts_cd	
+			            ,c.jb_sts_cd            
+					FROM tb_jb_tmplt a, tb_jb_tmplt_itm b, tb_wrk_flow c, 
+						 tb_intg_bl d
+						 LEFT OUTER JOIN(SELECT INTG_BL_SEQ AS INTG_BL_SEQ1, BL_STS_CD AS BL_STS_CD1 FROM TB_INTG_BL_BLCK) BLCK ON D.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1, 
+						 tb_add_info_bnd f
+					WHERE 1=1
+					AND c.intg_bl_seq  = d.intg_bl_seq
+					AND d.intg_bl_seq  = f.intg_bl_seq
+					AND f.jb_tmplt_seq  = a.jb_tmplt_seq
+					AND a.jb_tmplt_seq = b.jb_tmplt_seq
+					AND b.bse_tm_cd    = c.jb_sts_cd 
+					AND a.lg_clss_biz_cd = #s_Category#
+					AND f.bnd_clss_cd  = #bnd_clss_cd#
+					
+					<isNotNull prepend="AND" property="s_TemplateList">
+						a.jb_tmplt_seq = #s_TemplateList#
+					</isNotNull>
+					
+					<isEqual prepend="AND" property="s_bl_status_in" compareValue="Processing">
+						ISNULL(BLCK.BL_STS_CD1, D.BL_STS_CD)    != 'HF'
+					</isEqual>
+						
+					<isNotNull prepend="AND" property="s_recv">
+						d.bl_iss_dt BETWEEN CONVERT(VARCHAR(16), #s_recvDt_fm#,121) AND CONVERT(VARCHAR(16), #s_recvDt_to#,121)
+					</isNotNull>
+								
+					<isNotNull prepend="AND" property="ofc_cd_in">
+						f.modi_ofc_cd = #ofc_cd_in#
+					</isNotNull>
+			       ) t		
+			WHERE t.mx_seq = (SELECT MAX(t2.srt_seq) 
+			                    FROM tb_wrk_flow t2 
+			                   WHERE t2.intg_bl_seq = t.intg_bl_seq 
+			                     AND ISNULL(t2.jb_act_dt_tm, '') != '') 
+			<isEqual prepend="AND" property="s_job_status_in" compareValue="Delay">
+			<![CDATA[  max_jb_pln_dt_tm < max_jb_act_dt_tm ]]>
+			</isEqual>                           
+			<isNotNull prepend="AND" property="s_CurrentStep">
+				t.jb_sts_cd    = #s_CurrentStep#
+			</isNotNull>
+			ORDER BY t.tmplt_nm
+			
+	</select>
+	
+	
+	<select id="selectWORKFLOWJOBSTS" resultClass="com.clt.apps.fis.see.bmd.housebl.dto.WrkFlowVO">
+        SELECT 	 A.intg_bl_seq		      	,A.bl_sts_cd
+			  	,A.jb_sts_cd				,A.srt_seq
+			    ,A.jb_pln_dt_tm   			,A.jb_act_dt_tm
+			    ,A.rgst_usrid				,A.modi_usrid
+			    ,B.cd_nm
+			    
+		FROM  tb_wrk_flow A, tb_com_cd_dtl B
+		WHERE A.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+		AND   A.bl_sts_cd = B.cd_val
+		AND   A.bnd_clss_cd = #bnd_clss_cd#
+		AND   B.com_cd = 'C004'
+		ORDER BY A.srt_seq
+    </select>
+    
+    
+	
+	<select id="selectMGT_JOB_0040_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TbJbTmpltList0040VO">
+		SELECT  c.cd_nm,   b.tmplt_nm,   b.descr,   a.dur_tm_qty,
+		       (SELECT eng_usr_nm FROM tb_usr WHERE usr_tp = 'I' AND usrid = a.rgst_usrid ) AS rgst_usrid,  a.rgst_tms,
+		       (SELECT eng_usr_nm FROM tb_usr WHERE usr_tp = 'I' AND usrid = a.modi_usrid ) AS modi_usrid,  a.modi_tms,
+		       (SELECT ofc_eng_nm FROM tb_ofc WHERE ofc_cd = a.rgst_ofc_cd ) AS rgst_ofc_cd
+		FROM tb_jb_tmplt_list a, tb_jb_tmplt b , tb_com_cd_dtl c
+		WHERE a.jb_tmplt_seq = #template_code# 
+			AND a.jb_tmplt_seq = b.jb_tmplt_seq
+			AND c.com_cd ='C021'
+			AND b.lg_clss_biz_cd = c.cd_val
+			AND a.delt_flg = 'N'
+		ORDER BY a.srt_seq
+	</select>	
+	
+	<select id="selectMGT_JOB_0040_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		 SELECT count(c.cd_nm)			
+		   FROM tb_jb_tmplt_list a, tb_jb_tmplt b , tb_com_cd_dtl c
+		  WHERE a.jb_tmplt_seq = #template_code# 
+			AND a.jb_tmplt_seq = b.jb_tmplt_seq
+			AND c.com_cd ='C021'
+			AND b.lg_clss_biz_cd = c.cd_val
+			AND a.delt_flg = 'N'
+	</select>
+	
+	<!--JOB TEMPLATE 상태를 조회한다. JobVisibility용  -->
+    <select id="selectWORKFLOWJOBVISIBILITY" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.JobVisibilityDetailVO">
+        <!-- 
+        SELECT 	 A.intg_bl_seq		      	
+        		,A.bl_sts_cd
+			  	,A.jb_sts_cd				
+			  	,A.srt_seq
+			  	,CASE WHEN C.bnd_clss_cd = 'I' THEN 'INBOUND'
+			  		  WHEN C.bnd_clss_cd = 'O' THEN 'OUTBOUND'
+			  	 END AS bnd_clss_cd
+			    ,DATE_FORMAT(CONVERT(CONCAT(A.jb_pln_dt_tm,'00'),DATETIME), '%Y-%m-%d %H:%i') AS jb_pln_dt_tm
+			    ,DATE_FORMAT(CONVERT(CONCAT(A.jb_act_dt_tm,'00'),DATETIME), '%Y-%m-%d %H:%i') AS jb_act_dt_tm
+				
+			    ,A.rgst_usrid				
+			    ,CASE WHEN A.jb_act_dt_tm is null THEN null
+					  ELSE A.modi_usrid
+				 END AS modi_usrid
+			    ,B.cd_nm
+				,(
+					SELECT date_add(getdate(), INTERVAL ISNULL(B.td_qty,0) HOUR)
+					FROM  tb_ofc A LEFT JOIN tb_loc B ON A.loc_cd = B.loc_cd
+					WHERE A.ofc_cd = C.sls_ofc_cd
+				  ) AS curr_tm
+				  
+				,D.bkg_no	
+				,D.bl_no AS hbl_no
+				,D.sr_no
+				,DATE_FORMAT(CONVERT(CONCAT(D.bkg_dt_tm,'00'),DATETIME), '%Y-%m-%d %H:%i') AS recv_dt
+				
+				,(
+                 	SELECT bl_no 
+                 	FROM tb_intg_bl 
+                 	WHERE intg_bl_seq = ( SELECT rlt_intg_bl_seq
+                 						  FROM   tb_intg_bl_rlt
+                 						  WHERE  intg_bl_seq = #intg_bl_seq#
+                 						 )
+									
+              	 ) AS mbl_no
+				,(
+                    SELECT 	A.tmplt_nm
+					FROM 	tb_jb_tmplt A ,tb_wrk_flow B LEFT JOIN tb_add_info_bnd C ON B.bnd_clss_cd = C.bnd_clss_cd  
+					WHERE 	B.intg_bl_seq = #intg_bl_seq#
+					AND   	A.jb_tmplt_seq = B.jb_tmplt_seq
+					AND     C.bnd_clss_cd = #bnd_clss_cd# 
+					AND   	A.delt_flg = 'N' LIMIT 1	
+										
+                  ) AS template		
+				,(
+					SELECT a.cd_nm
+					FROM tb_com_cd_dtl a, tb_jb_tmplt b, tb_wrk_flow c
+					WHERE a.com_cd = 'C021'
+					AND   a.cd_val = b.lg_clss_biz_cd
+					AND   b.jb_tmplt_seq = c.jb_tmplt_seq
+					AND   c.intg_bl_seq = #intg_bl_seq#
+					AND   c.bnd_clss_cd = #bnd_clss_cd# LIMIT 1
+				 ) AS category
+				
+		FROM  tb_wrk_flow A, tb_com_cd_dtl B, tb_add_info_bnd C, tb_intg_bl D
+		WHERE A.intg_bl_seq = #intg_bl_seq#
+		AND   A.bl_sts_cd = B.cd_val
+		AND   A.intg_bl_seq = C.intg_bl_seq
+		AND   A.bnd_clss_cd = C.bnd_clss_cd
+		AND   C.intg_bl_seq = D.intg_bl_seq
+		AND   A.bnd_clss_cd = #bnd_clss_cd#
+		AND   D.air_sea_clss_cd = #air_sea_clss_cd#
+		AND   B.com_cd = 'C004'
+		ORDER BY A.srt_seq
+		   -->
+		 SELECT
+				CASE WHEN a.lg_clss_biz_cd='SO' THEN 'Ocean Export'
+							WHEN a.lg_clss_biz_cd='SI' THEN 'Ocean Import'
+							WHEN a.lg_clss_biz_cd='AO' THEN 'Air Export'
+							WHEN a.lg_clss_biz_cd='AI' THEN 'Air Import'
+						END AS category
+				, a.tmplt_nm AS template
+				, CASE WHEN f.bnd_clss_cd = 'I' THEN 'Import'
+			  		   WHEN f.bnd_clss_cd = 'O' THEN 'Export'
+			  	  END AS bnd_clss_cd				
+				, d.bkg_no AS bkg_no
+				, d.bl_no AS hbl_no
+				, (SELECT f.bl_no
+					 FROM tb_intg_bl f, tb_intg_bl_rlt g
+				    WHERE f.intg_bl_seq = g.rlt_intg_bl_seq
+					  AND g.intg_bl_seq = d.intg_bl_seq) AS mbl_no
+			    , d.sr_no	
+			    , ISNULL(BLCK.BL_STS_CD1, D.BL_STS_CD) AS BL_STS_CD
+			  	, c.jb_sts_cd
+<!--			  	, ISNULL(c.jb_act_dt_tm, getdate()) AS curr_tm  -->
+			    , DATEADD(HOUR, ISNULL(b.PLN_ITVAL_HRS,0), getdate()) AS curr_tm    
+			   <![CDATA[   
+			    ,  CASE   WHEN (c.jb_act_dt_tm IS NULL) AND (  c.jb_pln_dt_tm < getdate())
+                       THEN 'red'
+                       WHEN (c.jb_act_dt_tm IS NULL) AND (  c.jb_pln_dt_tm >= getdate())    
+                       THEN 'green'
+                       WHEN datediff(hour, c.jb_pln_dt_tm , c.jb_act_dt_tm)<act_itval_hrs
+                       THEN 'green'
+                       WHEN datediff(hour, c.jb_pln_dt_tm , c.jb_act_dt_tm)>=act_itval_hrs
+                       THEN 'red' end AS sts_color  
+                   ]]> 
+				, d.intg_bl_seq
+				, c.srt_seq
+				, (SELECT h.bse_tm_nm 
+				     FROM TB_JB_BSE_ITM h 
+				    WHERE h.bse_tm_cd = c.jb_sts_cd 
+				      AND lgs_clss_cd = b.lgs_clss_cd ) AS cd_nm
+				, CONVERT(VARCHAR(16), d.bl_iss_dt,121) AS recv_dt
+				, CONVERT(VARCHAR(16), c.jb_pln_dt_tm,121) AS jb_pln_dt_tm
+				, CONVERT(VARCHAR(16), c.jb_act_dt_tm,121) AS jb_act_dt_tm   
+				, c.rgst_usrid				
+			    , CASE WHEN c.jb_act_dt_tm is null THEN null
+					   ELSE c.modi_usrid
+				  END AS modi_usrid		
+			FROM tb_jb_tmplt a, tb_jb_tmplt_itm b, tb_wrk_flow c, 
+				 tb_intg_bl d
+				 LEFT OUTER JOIN(SELECT INTG_BL_SEQ AS INTG_BL_SEQ1, BL_STS_CD AS BL_STS_CD1 FROM TB_INTG_BL_BLCK) BLCK ON D.INTG_BL_SEQ = BLCK.INTG_BL_SEQ1, 
+				 tb_add_info_bnd f
+			WHERE 1=1
+			AND c.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+			AND c.intg_bl_seq  = d.intg_bl_seq
+			AND d.intg_bl_seq  = f.intg_bl_seq
+			AND f.jb_tmplt_seq  = a.jb_tmplt_seq
+			AND a.jb_tmplt_seq = b.jb_tmplt_seq
+			AND b.bse_tm_cd    = c.jb_sts_cd 
+			ORDER BY c.srt_seq
+    </select>
+    
+	<select id="selectMGT_JOB_0050_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.JobBasicDataVO">
+		SELECT 
+		  lgs_clss_cd,
+		  bse_tm_cd,
+		  bse_tm_nm,
+		  act_desc,
+		  srt_seq,
+		  evnt_itm_cd,
+		  dflt_pln_itval_hrs,
+		  dflt_act_itval_hrs,
+		  CASE use_flg WHEN 'Y' THEN 1 ELSE 0 END AS use_flg,
+		  rgst_usrid,
+		  rgst_ofc_cd,
+		  rgst_tms,
+		  modi_usrid,
+		  modi_ofc_cd,
+		  modi_tms
+		FROM 
+		  TB_JB_BSE_ITM
+		WHERE 1=1
+		<isNotNull prepend="AND" property="clss_cd">
+			lgs_clss_cd = #clss_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="bse_tm_cd">
+			bse_tm_cd = #bse_tm_cd#
+		</isNotNull>
+		Order by lgs_clss_cd, srt_seq asc
+	</select>	
+	
+	<select id="selectMGT_JOB_0050_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT count(*)
+		FROM 
+		  TB_JB_BSE_ITM
+		WHERE 1=1
+		<isNotNull prepend="AND" property="clss_cd">
+			lgs_clss_cd = #clss_cd#
+		</isNotNull>
+	</select>
+	<insert id="insertMGT_JOB_0050" parameterClass="com.clt.apps.fis.mgt.job.jobmgt.dto.JobBasicDataVO">
+		INSERT INTO TB_JB_BSE_ITM (
+			lgs_clss_cd,   bse_tm_cd,   bse_tm_nm,   act_desc,
+  			srt_seq,  evnt_itm_cd,   dflt_pln_itval_hrs,  dflt_act_itval_hrs,  use_flg,
+  			rgst_usrid,   rgst_ofc_cd,   rgst_tms,
+  			modi_usrid,   modi_ofc_cd,  modi_tms
+		) VALUES (
+			#lgs_clss_cd#,      #bse_tm_cd#,        #bse_tm_nm#,      #act_desc#, 
+			#srt_seq#, #evnt_itm_cd#,  #dflt_pln_itval_hrs#,  #dflt_act_itval_hrs#, #use_flg#,
+			#rgst_usrid#,  #rgst_ofc_cd#,   getdate(), 
+			#modi_usrid#,  #modi_ofc_cd#,   GETUTCDATE()
+		)
+	</insert>		
+	<update id="updateMGT_JOB_0050" parameterClass="com.clt.apps.fis.mgt.job.jobmgt.dto.JobBasicDataVO">
+		UPDATE TB_JB_BSE_ITM 
+			SET	modi_usrid = #modi_usrid#
+		   	  , modi_ofc_cd = #modi_ofc_cd#
+		      , modi_tms = GETUTCDATE()  
+		    <isNotNull property="bse_tm_nm">
+				,bse_tm_nm = #bse_tm_nm#
+			</isNotNull>
+		    <isNotNull property="act_desc">
+				,act_desc = #act_desc#
+			</isNotNull>
+			<isNotNull property="srt_seq">
+				,srt_seq = #srt_seq#
+			</isNotNull>			
+			<isNotNull property="evnt_itm_cd">
+				,evnt_itm_cd = #evnt_itm_cd#
+			</isNotNull>
+			<isNotNull property="dflt_pln_itval_hrs">
+				,dflt_pln_itval_hrs = #dflt_pln_itval_hrs#
+			</isNotNull>
+			<isNotNull property="dflt_act_itval_hrs">
+				,dflt_act_itval_hrs = #dflt_act_itval_hrs#
+			</isNotNull>
+			<isNotNull property="use_flg">
+				,use_flg = #use_flg#
+			</isNotNull>
+		 WHERE lgs_clss_cd = #lgs_clss_cd#
+		  and bse_tm_cd= #bse_tm_cd#
+	</update>
+	<delete id="deleteMGT_JOB_0050" parameterClass="com.clt.apps.fis.mgt.job.jobmgt.dto.JobBasicDataVO">
+		DELETE TB_JB_BSE_ITM
+		 WHERE lgs_clss_cd = #lgs_clss_cd#
+		  and bse_tm_cd= #bse_tm_cd#
+	</delete>
+	
+	<!-- 조회(Template Item list)   -->
+    <select id="selectMGT_JOB_0010_TMPLT_ITM" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TbJbTmpltList2VO">
+		SELECT jb_tmplt_seq, jb_cd, bse_tm_cd,srt_seq,
+				xter_dp_flg, eml_snd_flg, pln_itval_hrs, act_itval_hrs, use_flg, jb_tmplt_itm_seq
+		FROM tb_jb_tmplt_itm 
+		WHERE jb_tmplt_seq = #template_code#
+			AND lgs_clss_cd = #lgs_clss_cd#
+	</select>	
+	
+    <select id="selectMGT_JOB_0010_ITM_MAX_SEQ" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT  ISNULL(MAX(jb_tmplt_itm_seq),0)+1
+		  FROM tb_jb_tmplt_itm						
+	</select>	
+	<insert id="insertMGT_JOB_0010_TMPLT_ITM" parameterClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TbJbTmpltList2VO">
+		INSERT INTO tb_jb_tmplt_itm (
+		    jb_tmplt_seq,      lgs_clss_cd,     jb_cd,   srt_seq,     bse_tm_cd
+		    , pln_itval_hrs,   act_itval_hrs,   use_flg,     xter_dp_flg, eml_snd_flg
+      		, rgst_usrid,      rgst_ofc_cd,     rgst_tms,   modi_usrid,   modi_ofc_cd,   modi_tms, jb_tmplt_itm_seq
+		)VALUES(
+			#jb_tmplt_seq#,    #lgs_clss_cd#,   #jb_cd#, #srt_seq#,    #bse_tm_cd#
+		    ,#pln_itval_hrs#,  #act_itval_hrs#, #use_flg#,   #xter_dp_flg#,#eml_snd_flg#
+		    ,#rgst_usrid#,     #rgst_ofc_cd#,   getdate(),   #modi_usrid#, #modi_ofc_cd#, getutcdate(), #jb_tmplt_itm_seq#			
+		)
+	</insert>    
+	<update id="updateMGT_JOB_0010_TMPLT_ITM" parameterClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TbJbTmpltList2VO">
+		UPDATE  tb_jb_tmplt_itm
+		   SET  jb_cd = #jb_cd#,   srt_seq = #srt_seq#, bse_tm_cd  = #bse_tm_cd#
+		       ,pln_itval_hrs =#pln_itval_hrs#, act_itval_hrs =#act_itval_hrs#, use_flg = #use_flg#
+		       ,xter_dp_flg =#xter_dp_flg#, eml_snd_flg =#eml_snd_flg#
+		       ,modi_usrid  = #modi_usrid#,   modi_ofc_cd = #modi_ofc_cd#,   modi_tms = getutcdate()
+		 WHERE jb_tmplt_seq = #jb_tmplt_seq# 
+		   AND jb_tmplt_itm_seq = #jb_tmplt_itm_seq#
+	</update>
+	<delete id="deleteMGT_JOB_0010_TMPLT_ITM" parameterClass="com.clt.apps.fis.mgt.job.jobmgt.dto.TbJbTmpltList2VO">
+		DELETE tb_jb_tmplt_itm
+		 WHERE jb_tmplt_seq = #jb_tmplt_seq# 
+		    AND jb_tmplt_itm_seq = #jb_tmplt_itm_seq#	   
+	</delete>	
+</sqlMap>

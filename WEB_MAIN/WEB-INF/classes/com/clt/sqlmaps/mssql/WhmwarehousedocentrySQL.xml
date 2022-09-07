@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="whm.warehousedoc.entry">
+				   
+					
+    <!-- Other Sales Details    -->
+    <select id="typeOtherSalesDetails" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthDetailsVO">
+		SELECT	oth_tp,			oth_prfx,		rmk
+		  FROM	TB_OTH_CD
+		 WHERE  USE_FLG = 'Y'
+	  ORDER BY  oth_tp ASC
+	</select>
+	
+	<select id="selectWMInvChk" parameterClass="HashMap" resultClass="String">
+		SELECT  CASE WHEN COUNT(*) > 0 THEN 'N' ELSE 'Y' END AS CHKFLG
+           FROM  TB_WM_DOC_MST WMS
+           JOIN  TB_FRT FRT 
+             ON  WMS.WM_DOC_SEQ = FRT.WMS_SEQ AND WMS.DELT_FLG = 'N' AND FRT.DELT_FLG = 'N'
+           JOIN  TB_INV INV 
+             ON  FRT.INV_SEQ = INV.INV_SEQ AND INV.DELT_FLG = 'N'
+          WHERE  1=1
+            AND  WMS.WM_DOC_SEQ = #wm_doc_seq# 
+	</select>
+
+	
+	<update id="updateOtherCdOthNo" parameterClass="java.util.HashMap">
+		UPDATE TB_OTH_CD
+		   SET OTH_NO = isnull(OTH_NO, 0) + 1
+		 WHERE OTH_TP = #type#
+	</update>
+	
+	<!-- Warehouse Doc Entry Header 조회   -->
+	<!-- #2753 [LOA WMS3.0] LOADING FOREVER -with(nolock) mod -->
+    <select id="selectWM_doc_entry" resultClass="com.clt.apps.fis.whm.warehousedoc.entry.dto.OthDetailsVO">
+    /* WhmwarehousedocentrySQL.xml > selectWM_doc_entry */
+		SELECT	t.wm_doc_seq,		t.doc_ref_no,	t.ofc_cd,		t.wh_cd,		t.sts_cd,		
+				t.mbl_no,			t.hbl_no,		t.cust_cd,		t.cust_nm,		t.cust_ref_no,	
+				t.cntr_info,		t.post_dt,		t.int_memo,		t.ext_memo,		t.sls_usrid,		
+				t.sls_ofc_cd,		t.rgst_usrid,	t.rgst_ofc_cd,	t.rgst_tms,		t.modi_usrid,	
+				t.modi_ofc_cd,	    t.modi_tms,		t.delt_flg,	    t.curr_cd,		t.ctrb_ofc_cd,		
+				t.ctrb_ratio_yn,	t.ctrb_dept_cd,	t.ctrb_mgn ,    t.issued_by,    t.ctrt_no,
+				(SELECT CTRT_NM FROM TL_CTRT ct with(nolock) WHERE ct.CTRT_NO = t.ctrt_no) as ctrt_nm
+				FROM	tb_wm_doc_mst t with(nolock)
+				WHERE  doc_ref_no = #doc_ref_no# 
+				 AND     delt_flg = 'N'
+			  ORDER BY  doc_ref_no ASC
+	</select>
+	
+	
+	<!-- Warehouse Doc Entry 채번후 keyvalue binding 조회   -->
+    <select id="selectWM_doc_entryInfo" resultClass="com.clt.apps.fis.whm.warehousedoc.entry.dto.OthDetailsVO">
+		SELECT	wm_doc_seq AS g_wm_doc_seq,		
+				doc_ref_no AS g_doc_ref_no,						 				
+				wh_cd AS g_wh_cd
+				  FROM	tb_wm_doc_mst
+				 WHERE  doc_ref_no = #doc_ref_no# 
+				   AND delt_flg = 'N'
+			  ORDER BY  doc_ref_no ASC
+	</select>
+	
+	<insert id="insertWarehousedocHeader" parameterClass="java.util.HashMap">
+	/* whmwarehousedocentry.xml >  insertWarehousedocHeader */
+		INSERT INTO tb_wm_doc_mst( 
+				wm_doc_seq,
+				doc_ref_no,			ofc_cd,				wh_cd,				sts_cd,				mbl_no,				hbl_no,
+				cust_cd,			cust_nm,			cust_ref_no,		cntr_info,			post_dt,			int_memo,
+				ext_memo,			sls_usrid,			sls_ofc_cd,			rgst_usrid,			rgst_ofc_cd,		rgst_tms,
+				modi_usrid,			modi_ofc_cd,		modi_tms,			delt_flg,			curr_cd,             ctrb_ofc_cd,		
+				ctrb_ratio_yn,		ctrb_dept_cd,		ctrb_mgn,			ctrt_no, 			sys_cd			
+		) VALUES (
+				#wm_doc_seq#,
+				#doc_ref_no#,		#ofc_cd#,			#wh_cd#,			#sts_cd#,			#mbl_no#,			#hbl_no#,
+				#cust_cd#,			#cust_nm#,			#cust_ref_no#,		#cntr_info#,		#post_dt#,			#int_memo#,
+				#ext_memo#,			#sls_usrid#,		#sls_ofc_cd#,		#proc_usrid#,		#proc_ofccd#,		getdate(),
+				#proc_usrid#,		#proc_ofccd#,		getdate(),			#delt_flg#,			#curr_cd#,			#ctrb_ofc_cd#,		
+				#ctrb_ratio_yn#,	#ctrb_dept_cd#,		#ctrb_mgn#,			#ctrt_no#,			#sys_cd#
+		)
+	</insert>
+	
+	
+	<update id="updateWarehousedocHeader" parameterClass="java.util.HashMap">
+		/* whmwarehousedocentry.xml >  updateWarehousedocHeader */
+		UPDATE	tb_wm_doc_mst
+		   SET	doc_ref_no	= #doc_ref_no#
+		   	,ofc_cd		    = #ofc_cd#
+		   	,wh_cd		    = #wh_cd#
+		   	,sts_cd		    = #sts_cd#
+		   	,mbl_no			= #mbl_no#
+		   	,hbl_no         = #hbl_no#
+		   	,cust_cd        = #cust_cd#
+		   	,cust_nm        = #cust_nm#
+		   	,cust_ref_no    = #cust_ref_no#
+		   	,cntr_info      = #cntr_info#
+		   	,post_dt        = #post_dt#
+		   	,int_memo       = #int_memo#
+		   	,ext_memo       = #ext_memo#
+		   	,sls_usrid      = #sls_usrid#
+		   	,sls_ofc_cd     = #sls_ofc_cd#
+		   	,modi_usrid     = #modi_usrid#
+		   	,modi_ofc_cd    = #modi_ofc_cd#
+		   	,modi_tms       = getdate()
+		   	,delt_flg       = #delt_flg#
+		   	,curr_cd		= #curr_cd#
+		   	,ctrb_ofc_cd    = #ctrb_ofc_cd#
+			,ctrb_ratio_yn  = #ctrb_ratio_yn#
+			,ctrb_dept_cd   = #ctrb_dept_cd#
+			,ctrb_mgn       = #ctrb_mgn#
+			,ctrt_no        = #ctrt_no#
+		 WHERE	wm_doc_seq  = #wm_doc_seq#
+	</update>
+	
+	<update id="removeWarehousedocHeader" parameterClass="java.util.HashMap">
+		UPDATE	tb_wm_doc_mst
+		   SET	delt_flg = 'Y'
+		 WHERE	wm_doc_seq = #wm_doc_seq#
+	</update>
+	
+	<update id="removeWarehousedocDetail" parameterClass="java.util.HashMap">
+		UPDATE	tb_wm_doc_dtl
+		   SET	delt_flg = 'Y'
+		 WHERE	wm_doc_seq = #wm_doc_seq#
+	</update>
+	<!-- Tin.Luong DOU update closing entry(S) -->
+	<update id="updatedelflg_tbfrt" parameterClass="java.util.HashMap">
+		UPDATE TL_WH_CLS_SO
+		SET 
+		 SO_NO = NULL,
+		 STS_CD = 'S'
+		WHERE
+			SO_NO in (
+				SELECT
+					DOC_REF_NO
+				FROM
+					TB_WM_DOC_MST
+				WHERE
+					wm_doc_seq = #wm_doc_seq#
+			)
+	</update>
+	
+	<update id="updatestscd_closing" parameterClass="java.util.HashMap">
+		<!-- [#2866, #2868] Income Statement & Profit Report 차액 발생 - Binex & MSD -->
+		UPDATE tb_frt
+		SET DELT_FLG = 'Y', inv_seq = null
+		WHERE
+			WMS_SEQ = #wm_doc_seq#
+	</update>
+	<!-- Tin.Luong DOU update closing entry(E) -->
+	
+	
+	<select id="selectWarehouseList" resultClass="com.clt.apps.fis.whm.warehousedoc.entry.dto.WarehousercvshpVO">
+		SELECT 1 AS check_flag, rcv.wh_cd ,
+		(SELECT WH_NM FROM WHM_WH WH WHERE WH.WH_CD = rcv.wh_cd) AS f_wh_nm, 
+		rcv.file_no , rcv.cust_cd , 
+		(SELECT TOP 1
+            trbp.locl_nm 
+        FROM
+            TB_TRDP trbp 
+        WHERE
+            trdp_cd = rcv.cust_cd ) cust_nm,
+		rcv.bkg_dt , rcv.rcv_shp_dt 
+		,rcv.cust_ref_no , rcv.splr_rcvr_cd , 
+		(SELECT TOP 1
+            trbp.locl_nm 
+        FROM
+            TB_TRDP trbp 
+        WHERE
+            trdp_cd = rcv.splr_rcvr_cd 
+            ) SPLR_NM,		
+		rcv.trkr_cd ,
+		(SELECT TOP 1
+            trbp.LOCL_NM 
+        FROM
+            TB_TRDP trbp 
+        WHERE
+            trbp.TRDP_CD = rcv.trkr_cd) trkr_nm, 
+		rcv.plt_no , rcv.cntr_no, mst_bl_no as mbl_no ,
+		STUFF(( SELECT
+		            ', ' + ITM1.ITM_PO_NO      
+		        FROM
+		            WHM_RCV_SHP_ITM ITM1      
+		        WHERE
+		            1=1      
+		            AND ITM1.FILE_NO = rcv.FILE_NO      
+		            AND ITM1.RGST_OFC_CD = rcv.RGST_OFC_CD      
+		            AND ITM1.ITM_PO_NO is not null   
+		            AND <![CDATA[ITM1.ITM_PO_NO <> '']]>                        FOR XML PATH('')),		            
+		        1,
+		        1,
+		        '') AS ITM_PO_NO,
+		hus_bl_no AS hbl_no ,
+		(SELECT TOP 1
+            LOCL_USR_NM 
+        from
+            TB_USR      
+        WHERE
+            USRID = rcv.OPR_CD
+         <!--    AND ISNULL(DELT_FLG, 'N') = 'N'      
+            AND ISNULL(USE_FLG, 'N') = 'Y' -->
+            ) RCV_BY
+		FROM tb_wm_doc_dtl dtl join whm_rcv_shp rcv
+		ON dtl.FILE_NO =rcv.file_no 
+		WHERE wm_doc_seq = #wm_doc_seq#
+		 AND delt_flg = 'N'
+	</select>
+	
+	
+	<select id="selectWarehouseList_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT COUNT(rcv.file_no)		 
+		FROM tb_wm_doc_dtl dtl join whm_rcv_shp rcv
+		ON dtl.FILE_NO =rcv.file_no 
+		WHERE wm_doc_seq = #wm_doc_seq#
+		 AND delt_flg = 'N'
+	</select>
+	
+	<!-- #2753 [LOA WMS3.0] LOADING FOREVER -with(nolock) mod -->
+	<select id="selectWH_RcvShpList" resultClass="com.clt.apps.fis.whm.warehousedoc.entry.dto.WarehousercvshpVO">
+	
+	/*WhmwarehousedocentrySQL.xml > selectWH_RcvShpList*/
+	
+		SELECT CASE ( SELECT  isnull(max(file_no) ,'x') FROM tb_wm_doc_dtl with(nolock) WHERE wm_doc_seq =#wm_doc_seq# AND file_no = rcv.file_no AND delt_flg ='N') when 'x' then 0
+		else 1 end	AS check_flag ,rcv.wh_cd ,
+		(SELECT WH_NM FROM WHM_WH WH with(nolock) WHERE WH.WH_CD = rcv.wh_cd) AS f_wh_nm,
+		 rcv.file_no , rcv.cust_cd ,
+		(SELECT TOP 1
+            trbp.locl_nm 
+        FROM
+            TB_TRDP trbp with(nolock) 
+        WHERE
+            trdp_cd = rcv.cust_cd ) cust_nm,		 
+		 rcv.bkg_dt , rcv.rcv_shp_dt 
+		,rcv.cust_ref_no , rcv.splr_rcvr_cd ,
+		 (SELECT TOP 1
+            trbp.locl_nm 
+        FROM
+            TB_TRDP trbp with(nolock)
+        WHERE
+            trdp_cd = rcv.splr_rcvr_cd) SPLR_NM, 
+		rcv.trkr_cd ,
+		(SELECT top 1
+            trbp.LOCL_NM 
+        FROM
+            TB_TRDP trbp with(nolock)
+        WHERE
+            trbp.TRDP_CD = rcv.trkr_cd) trkr_nm,  
+		rcv.plt_no , rcv.cntr_no, rcv.mst_bl_no as mbl_no ,
+		STUFF(( SELECT
+		            ', ' + ITM1.ITM_PO_NO      
+		        FROM
+		            WHM_RCV_SHP_ITM ITM1 with(nolock)     
+		        WHERE
+		            1=1      
+		            AND ITM1.FILE_NO = rcv.FILE_NO      
+		            AND ITM1.RGST_OFC_CD = rcv.RGST_OFC_CD      
+		            AND ITM1.ITM_PO_NO is not null   
+		            AND <![CDATA[ITM1.ITM_PO_NO <> '']]>                        FOR XML PATH('')),		            
+		        1,
+		        1,
+		        '') AS ITM_PO_NO,
+		hus_bl_no AS hbl_no ,
+		(SELECT TOP 1
+            LOCL_USR_NM 
+        from
+            TB_USR with(nolock)     
+        WHERE
+            USRID = rcv.OPR_CD
+           <!--  AND ISNULL(DELT_FLG, 'N') = 'N'      
+            AND ISNULL(USE_FLG, 'N') = 'Y' -->
+            ) RCV_BY
+		FROM whm_rcv_shp rcv with(nolock)
+			LEFT OUTER JOIN 
+				tb_trdp trdp with(nolock)
+		ON rcv.cust_cd = trdp.trdp_cd	
+		where 1=1
+		<isNotNull prepend="AND" property="f_wh_cd"> 
+			rcv.wh_Cd  = #f_wh_cd#
+		</isNotNull> 
+		<isNotNull prepend="AND" property="f_cust_cd"> 
+			rcv.cust_cd = #f_cust_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_cust_nm"> 
+			trdp.eng_nm LIKE #f_cust_nm#+'%'
+		</isNotNull>
+		
+		<!-- <isNotNull prepend="AND" property="ctrt_no"> --> 
+			 and rcv.ctrt_no = #ctrt_no#
+		<!-- </isNotNull> -->
+		
+		<isEqual property="f_tp_date" compareValue="BKG">
+			<isNotEmpty property="f_rcvshp_fmdt">
+				<isNotEmpty property="f_rcvshp_todt">
+		  			AND  rcv.bkg_dt BETWEEN #f_rcvshp_fmdt# AND #f_rcvshp_todt#
+		  	</isNotEmpty>
+		</isNotEmpty>  
+		</isEqual>
+		<isEqual property="f_tp_date" compareValue="RCV">
+			<isNotEmpty property="f_rcvshp_fmdt">
+				<isNotEmpty property="f_rcvshp_todt">
+				AND  rcv.rcv_shp_dt BETWEEN #f_rcvshp_fmdt# AND #f_rcvshp_todt#
+					</isNotEmpty>
+			</isNotEmpty> 
+		</isEqual>		
+		<isNotNull prepend="AND" property="f_rcv_shp_tp_cd"> 			
+					rcv.rcv_shp_tp_cd = #f_rcv_shp_tp_cd#			
+		</isNotNull>
+		
+        union 
+        SELECT 1 AS check_flag ,rcv.wh_cd ,
+        (SELECT wh_nm FROM WHM_WH WH with(nolock) WHERE WH.WH_CD = rcv.wh_cd) AS f_wh_nm,
+         rcv.file_no , rcv.cust_cd ,
+         		(SELECT TOP 1
+            trbp.locl_nm 
+        FROM
+            TB_TRDP trbp with(nolock)
+        WHERE
+            trdp_cd = rcv.cust_cd ) cust_nm,
+          rcv.bkg_dt , rcv.rcv_shp_dt 
+		,rcv.cust_ref_no , rcv.splr_rcvr_cd ,
+		 (SELECT TOP 1
+            trbp.locl_nm 
+        FROM
+            TB_TRDP trbp with(nolock)
+        WHERE
+            trdp_cd = rcv.splr_rcvr_cd ) SPLR_NM,
+		 rcv.trkr_cd ,
+		(SELECT TOP 1
+            trbp.LOCL_NM 
+        FROM
+            TB_TRDP trbp with(nolock)
+        WHERE
+            trbp.TRDP_CD = rcv.trkr_cd) trkr_nm,   
+		rcv.plt_no , rcv.cntr_no, mst_bl_no as mbl_no ,
+		STUFF(( SELECT
+		            ', ' + ITM1.ITM_PO_NO      
+		        FROM
+		            WHM_RCV_SHP_ITM ITM1 with(nolock)     
+		        WHERE
+		            1=1      
+		            AND ITM1.FILE_NO = rcv.FILE_NO      
+		            AND ITM1.RGST_OFC_CD = rcv.RGST_OFC_CD      
+		            AND ITM1.ITM_PO_NO is not null   
+		            AND <![CDATA[ITM1.ITM_PO_NO <> '']]>                        FOR XML PATH('')),		            
+		        1,
+		        1,
+		        '') AS ITM_PO_NO,
+		hus_bl_no AS hbl_no ,
+		(SELECT TOP 1
+            LOCL_USR_NM 
+        from
+            TB_USR with(nolock)      
+        WHERE
+            USRID = rcv.OPR_CD    
+           <!--  AND ISNULL(DELT_FLG, 'N') = 'N'      
+            AND ISNULL(USE_FLG, 'N') = 'Y' -->
+            ) RCV_BY
+		FROM tb_wm_doc_dtl dtl with(nolock) join whm_rcv_shp rcv with(nolock)
+		ON dtl.FILE_NO =rcv.file_no 
+		WHERE wm_doc_seq = #wm_doc_seq#
+		 AND delt_flg = 'N'
+	</select>
+	
+	<!-- #2753 [LOA WMS3.0] LOADING FOREVER -with(nolock) mod -->
+	<select id="selectWH_RcvShpList_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+	select count(a.file_no) from (
+		SELECT rcv.file_no
+		FROM whm_rcv_shp rcv with(nolock)
+			LEFT OUTER JOIN 
+				tb_trdp trdp with(nolock)
+		ON rcv.cust_cd = trdp.trdp_cd	
+		where 1=1
+		<isNotNull prepend="AND" property="f_wh_Cd"> 
+			rcv.wh_Cd  = #f_wh_cd#
+		</isNotNull> 
+		<isNotNull prepend="AND" property="f_cust_cd"> 
+			rcv.cust_cd = #f_cust_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_cust_nm"> 
+			trdp.eng_nm LIKE #f_cust_nm#+'%'
+		</isNotNull>
+		<isNotNull prepend="AND" property="f_rcv_shp_tp_cd"> 
+			rcv.rcv_shp_tp_cd = #f_rcv_shp_tp_cd#
+		</isNotNull>
+		<isNotNull prepend="AND" property="ctrt_no"> 
+			rcv.ctrt_no = #ctrt_no#
+		</isNotNull>
+		<isEqual property="f_tp_date" compareValue="BKG">
+			<isNotEmpty property="f_rcvshp_fmdt">
+				<isNotEmpty property="f_rcvshp_todt">
+		  			AND  rcv.bkg_dt BETWEEN #f_rcvshp_fmdt# AND #f_rcvshp_todt#
+		  	</isNotEmpty>
+		</isNotEmpty>  
+		</isEqual>
+		<isEqual property="f_tp_date" compareValue="RCV">
+			<isNotEmpty property="f_rcvshp_fmdt">
+				<isNotEmpty property="f_rcvshp_todt">
+				AND  rcv.rcv_shp_dt BETWEEN #f_rcvshp_fmdt# AND #f_rcvshp_todt#
+					</isNotEmpty>
+			</isNotEmpty> 
+		</isEqual>	
+		union 
+		 SELECT rcv.file_no
+		FROM tb_wm_doc_dtl dtl with(nolock) join whm_rcv_shp rcv with(nolock) 
+		ON dtl.FILE_NO =rcv.file_no 
+		WHERE wm_doc_seq = #wm_doc_seq#
+		 AND delt_flg = 'N'
+		)A 
+	</select>
+	
+	
+	
+	<insert id="mergeWarehousercvshpList" parameterClass="com.clt.apps.fis.whm.warehousedoc.entry.dto.WarehousercvshpVO">
+	/* whmwarehousedocentry.xml >  mergeWarehousercvshpList */
+		MERGE tb_wm_doc_dtl   AS T
+      USING ( SELECT  #wm_doc_seq# as wm_doc_seq 
+					, #file_no# as file_no 
+					, #sls_ofc_cd# as sls_ofc_cd					
+					, #check_flag# as check_flag
+			)AS S
+      ON t.wm_doc_seq = s.wm_doc_seq
+	  and t.file_no = s.file_no
+        WHEN MATCHED THEN
+        UPDATE SET		
+		t.modi_usrid = #proc_usrid#
+		,t.modi_ofc_cd = #proc_ofccd#
+		,t.modi_tms		=getdate()
+		, delt_flg =  case #check_flag#  when '1' then 'N' ELSE 'Y' END   
+        WHEN NOT MATCHED THEN
+        INSERT VALUES(#wm_doc_seq# , #file_no#, #sls_ofc_cd#, #proc_usrid#, #proc_ofccd# , getdate() , 
+		#proc_usrid#, #proc_ofccd# , getdate() , 'N' ,'X','X','X') ; 
+	</insert>
+	
+	
+	<select id="selectWarehousercvshp" parameterClass="com.clt.apps.fis.whm.warehousedoc.entry.dto.WarehousercvshpVO" resultClass="String">
+		/* whmwarehousedocentry.xml >  selectWarehousercvshp */
+		SELECT ISNULL(MAX(FILE_NO) ,'NONE') 
+		FROM tb_wm_doc_dtl
+		WHERE wm_doc_seq = #wm_doc_seq#
+        AND file_no =#file_no# 
+	</select>
+	<insert id="insertWarehousercvshpList" parameterClass="com.clt.apps.fis.whm.warehousedoc.entry.dto.WarehousercvshpVO">
+	/* whmwarehousedocentry.xml >  insertWarehousercvshpList */
+		INSERT INTO tb_wm_doc_dtl
+		(	WM_DOC_SEQ, FILE_NO, SLS_OFC_CD, RGST_USRID, RGST_OFC_CD, 
+			RGST_TMS ,MODI_USRID , MODI_OFC_CD, MODI_TMS, DELT_FLG, 
+			AR_CHK, AP_CHK, DC_CHK
+			
+		)VALUES (#wm_doc_seq# , #file_no#, #sls_ofc_cd#, #proc_usrid#, #proc_ofccd# , 
+				getdate() ,	#proc_usrid#, #proc_ofccd# , getdate() , 'N' ,
+				'X','X','X') ; 
+	</insert>
+	
+	<insert id="updateWarehousercvshpList" parameterClass="com.clt.apps.fis.whm.warehousedoc.entry.dto.WarehousercvshpVO">
+	/* whmwarehousedocentry.xml >  updateWarehousercvshpList */
+        UPDATE tb_wm_doc_dtl 
+        	SET 
+			modi_usrid = #proc_usrid#
+			,modi_ofc_cd = #proc_ofccd#
+			,modi_tms		=getdate()
+			,delt_flg =  case #check_flag#  when '1' then 'N' ELSE 'Y' END   
+        WHERE wm_doc_seq = #wm_doc_seq#
+        AND file_no =#file_no#        
+	</insert>
+	
+	<insert id="deleteWarehousercvshpList" parameterClass="com.clt.apps.fis.whm.warehousedoc.entry.dto.WarehousercvshpVO">
+	/* whmwarehousedocentry.xml >  deleteWarehousercvshpList */
+
+        UPDATE  tb_wm_doc_dtl SET
+		modi_usrid = #proc_usrid#
+		,modi_ofc_cd = #proc_ofccd#
+		,modi_tms	=getdate()
+		,delt_flg = 'Y'
+        where wm_doc_seq =#wm_doc_seq#
+        AND file_no = #file_no# 
+	</insert>
+	
+	
+	
+	<!-- Ref No 중복체크    -->
+    <select id="checkWMDocRefDup" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT DOC_REF_NO
+		  FROM TB_WM_DOC_MST
+		 WHERE DOC_REF_NO = #doc_ref_no#
+		   AND DELT_FLG = 'N'
+		   
+    </select>
+	
+	
+	
+	
+	<!-- #2753 [LOA WMS3.0] LOADING FOREVER -with(nolock) mod -->
+	<select id ="selectWM_DOC_list" parameterClass="HashMap" resultClass="com.clt.apps.fis.whm.warehousedoc.list.dto.WarehousedocListVO">
+	    /* WhmReceivingSQL.xml > selectWM_DOC_list */
+	    SELECT DISTINCT 
+			HD.WH_CD,
+			HD.WM_DOC_SEQ,
+			(SELECT WH_NM FROM WHM_WH WH with(nolock) WHERE WH.WH_CD = HD.WH_CD) F_WH_NM,
+			HD.DOC_REF_NO, 
+			HD.CURR_CD,
+			HD.CUST_CD AS F_CUST_CD,
+			(SELECT TOP 1 trbp.LOCL_NM FROM TB_TRDP trbp with(nolock) WHERE trbp.TRDP_CD = HD.CUST_CD) F_CUST_NM,
+			HD.CUST_REF_NO,
+			HD.POST_DT,		
+			HD.INT_MEMO,
+			HD.EXT_MEMO,
+			(SELECT MAX(X.LOCL_USR_NM) FROM TB_USR X with(nolock) WHERE  X.USRID = HD.RGST_USRID)  AS RGST_USRNM
+		FROM 
+			TB_WM_DOC_MST HD with(nolock)	 
+		WHERE HD.delt_flg ='N'
+		AND HD.WH_CD = #wh_cd#			
+		<isNotNull property="post_dt_strdt">
+			AND HD.post_dt between #post_dt_strdt# and #post_dt_enddt# 
+		</isNotNull>		
+		<isNotEmpty property="doc_ref_no">
+			AND	doc_ref_no = #doc_ref_no#
+		</isNotEmpty>
+		<isNotEmpty property="cust_ref_no">
+			AND	HD.CUST_REF_NO = #cust_ref_no#
+		</isNotEmpty>
+		<isNotEmpty property="cntr_no">
+			AND	RCV_SHP.CNTR_NO = #cntr_no#
+		</isNotEmpty>
+		<isNotEmpty property="plt_no">
+			AND	RCV_SHP.PLT_NO = #plt_no#
+		</isNotEmpty>
+		<isNotEmpty property="mst_bl_no">
+			AND	HD.MBL_NO = #mst_bl_no#
+		</isNotEmpty>
+		<isNotEmpty property="hus_bl_no">
+			AND	HD.HBL_NO = #hus_bl_no#
+		</isNotEmpty>
+		<isNotEmpty property="cust_cd">
+			AND	HD.CUST_CD = #cust_cd#
+		</isNotEmpty>
+		<isNotEmpty property = "itm_cd">
+			AND ITM.CUST_ITM_ID = #itm_cd#
+	  	</isNotEmpty> 
+	  	<isNotEmpty property = "itm_po_no">
+			AND ITM.ITM_PO_NO = #itm_po_no#
+	  	</isNotEmpty>		
+   </select>
+	
+	<update id="updateWmsFrtInvPostDt" parameterClass="java.util.HashMap">
+		UPDATE  tb_frt 
+		   SET  inv_post_dt = #post_dt#
+		 WHERE  <![CDATA[inv_seq <> '']]>
+		   AND  frt_seq IN (
+				SELECT  frt.frt_seq
+				  FROM  tb_frt frt
+	   LEFT OUTER JOIN  tb_inv_dtl idtl ON frt.inv_seq = idtl.inv_seq
+	   LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, INV_NO AS INV_NO1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_DTL_BLCK) BLCK ON IDTL.INV_SEQ = BLCK.INV_SEQ1 AND IDTL.INV_NO = BLCK.INV_NO1 
+				 WHERE  frt.wms_seq = #wm_doc_seq#
+				   AND  ISNULL(ISNULL(BLCK.CLT_CMPL_FLG1, IDTL.CLT_CMPL_FLG), 'N') = 'N'
+				   AND  ISNULL(idtl.pay_amt, 0) = 0
+		   		)
+	</update>
+	
+	<update id="updateWmsInvDtlInvPostDt" parameterClass="java.util.HashMap">
+		UPDATE  tb_inv_dtl
+		   SET  inv_post_dt = #post_dt#
+			   ,inv_dt = CASE WHEN y.post_dt_inv = 'POST' 
+		                      THEN #post_dt#
+		                      ELSE inv_dt
+		                 END     
+		 	   ,inv_due_dt = CASE WHEN y.post_dt_inv = 'POST' 
+		                      	  THEN y.due_dt
+		                          ELSE inv_due_dt
+		                     END
+		       ,modi_usrid 	= #proc_usrid#
+		       ,modi_ofc_cd	= #proc_ofccd#              
+			   ,modi_tms	= GETUTCDATE()
+		  FROM  tb_inv_dtl dtl
+		      , (SELECT inv.inv_seq,
+		                (select post_dt_inv from tb_ofc where ofc_cd = inv.ofc_cd) AS post_dt_inv,
+						CONVERT(VARCHAR
+		                       ,case when trdp.cr_term_cd = 'A' 
+								     then dateadd(d, convert(int, trdp.cr_term_dt), #post_dt#)
+								     when trdp.cr_term_cd = 'B' 
+								     then dateadd(month,1,#post_dt#)-(day(#post_dt#))
+								     when trdp.cr_term_cd = 'C' 
+								     then dateadd(month,2,#post_dt#)-(day(#post_dt#))
+								     when trdp.cr_term_cd = 'D' 
+								     then dateadd(d, convert(int, trdp.cr_term_dt), dateadd(month,1,#post_dt#)-(day(#post_dt#)))
+								end
+							   ,112) AS due_dt
+					FROM tb_inv inv
+						 JOIN tb_inv_dtl dtl ON inv.inv_seq = dtl.inv_seq
+						 LEFT OUTER JOIN tb_trdp trdp ON inv.trdp_cd = trdp.trdp_cd 
+						 LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, INV_NO AS INV_NO1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_DTL_BLCK) BLCK ON DTL.INV_SEQ = BLCK.INV_SEQ1 AND DTL.INV_NO = BLCK.INV_NO1 
+				   WHERE inv.inv_seq IN (
+										SELECT  frt.inv_seq
+										  FROM  tb_frt frt
+										 WHERE  ISNULL(frt.inv_seq, '') != ''
+										   AND  frt.wms_seq = #wm_doc_seq#
+									 	 GROUP BY  frt.inv_seq
+										) 
+				     AND ISNULL(ISNULL(BLCK.CLT_CMPL_FLG1, DTL.CLT_CMPL_FLG), 'N') = 'N'
+			         AND ISNULL(dtl.pay_amt, 0) = 0   								
+				) y						
+			WHERE dtl.inv_seq = y.inv_seq
+	</update>
+	     
+</sqlMap>

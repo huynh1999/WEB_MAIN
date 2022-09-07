@@ -1,0 +1,2861 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="WHInbk">
+<typeAlias alias="WHInbkInfoVO" type="com.clt.apps.fis.wms.whinbooking.dto.WHInbkInfoVO"/>
+<!-- Header 정보 조회 -->
+	<select id="searchWHInbkInfo" parameterClass="java.util.HashMap" resultClass="WHInbkInfoVO">
+		/* WHInbk.searchWHInbkInfo */
+			SELECT S.WIB_BK_NO
+			      ,S.SO_NO
+			      ,S.CTRT_NO
+			      ,C.CTRT_NM
+			      ,C.EFF_FR_DT
+			      ,C.EFF_TO_DT
+			      ,C.CTRT_CUST_CD
+			      ,dbo.TL_GET_CUST_NM (C.CTRT_CUST_CD) AS CTRT_CUST_NM
+			      ,C.SALES_OFC_CD
+			      ,dbo.TL_GET_ORG_NM (C.SALES_OFC_CD) AS SALES_OFC_NM
+			      ,C.SALES_PIC_ID
+			      ,dbo.TL_GET_PIC_NM (C.SALES_PIC_ID) AS SALES_PIC_NM
+			      ,S.RTP_NO
+			      ,S.WH_CD
+			      ,dbo.TL_GET_LOC_NM (S.WH_CD) AS WH_NM
+						,CASE WHEN S.BK_DATE IS NOT NULL THEN CONVERT (VARCHAR(10),S.BK_DATE,120) ELSE S.BK_DATE END AS BK_DATE
+			      ,S.ORD_TP_CD      
+			      ,S.BK_STS_CD
+			      ,CASE WHEN S.EST_IN_DT IS NOT NULL THEN CONVERT (VARCHAR(10),S.EST_IN_DT,120) ELSE S.EST_IN_DT END AS EST_IN_DT
+			      ,S.LOAD_TP_CD      
+			      ,S.FWD_DIR
+			      ,S.ORDER_REL
+			      <!-- ,dbo.TL_GET_SVO_MAIN_SVC_TYPE (S.SO_NO) AS MAIN_SVC_TYPE TinLuong Modify: not use table: TL_SO-->
+			      <!-- ,dbo.TL_GET_COMM_NM ('FG', dbo.TL_GET_SVO_MAIN_SVC_TYPE (S.SO_NO)) AS MAIN_SVC_NM TinLuong Modify: not use table: TL_SO-->
+			      <!-- ,dbo.TL_GET_CTRT_ORD_TP_NM (S.CTRT_NO, S.RTP_NO) AS CTRT_ORD_TP_NM TinLuong Modify: not use table: TL_RTP-->
+			      ,S.OWNER_CD
+			      ,S.OWNER_ADDR1
+			      ,S.OWNER_ADDR2
+			      ,S.OWNER_ADDR3
+			      ,S.OWNER_ADDR4
+			      ,S.OWNER_ADDR5
+			      ,S.SUPP_CD
+			      ,dbo.TL_GET_CUST_NM (S.SUPP_CD) AS SUPP_NM
+			      ,S.SUPP_ADDR1
+			      ,S.SUPP_ADDR2
+			      ,S.SUPP_ADDR3
+			      ,S.SUPP_ADDR4
+			      ,S.SUPP_ADDR5
+			      ,CASE  S.SUPP_CD WHEN  '' THEN  '' ELSE  'S' END AS SUPP_TYPE
+			      ,S.BUYER_CD
+			      ,dbo.TL_GET_CUST_NM (S.BUYER_CD) AS BUYER_NM
+			      ,S.BUYER_ADDR1
+			      ,S.BUYER_ADDR2
+			      ,S.BUYER_ADDR3
+			      ,S.BUYER_ADDR4
+			      ,S.BUYER_ADDR5
+			      ,CASE  S.BUYER_CD WHEN  '' THEN  '' ELSE  'S' END AS BUYER_TYPE
+			      ,S.CUST_ORD_NO
+			      ,S.COMMC_INV_NO
+			      ,S.DLV_ORD_NO
+			      ,S.JOB_NO      
+			      ,S.RMK
+			      ,S.VSL_CD
+			      ,S.VSL_NM
+			      ,S.VOY            
+			      ,S.HBL_NO
+			      ,S.MBL_NO      
+			      ,S.CARRIER_CD
+			      ,dbo.TL_GET_CUST_NM (S.CARRIER_CD) CARRIER_NM      
+			      ,S.POL
+			      ,dbo.TL_GET_LOC_NM (S.POL) AS POL_NM
+			      ,CASE WHEN S.ETD IS NOT NULL THEN CONVERT (VARCHAR(10),S.ETD,120) ELSE S.ETD END AS ETD
+			      ,S.POD
+			      ,dbo.TL_GET_LOC_NM (S.POD) AS POD_NM      
+			      ,CASE WHEN S.ETA IS NOT NULL THEN CONVERT (VARCHAR(10),S.ETA,120) ELSE S.ETA END AS ETA     
+			      ,S.DEL
+			      ,dbo.TL_GET_LOC_NM (S.DEL) AS DEL_NM
+			      ,S.DEL_DT
+			      ,CASE WHEN S.EST_CMPL_DT IS NOT NULL THEN CONVERT (VARCHAR(10),S.EST_CMPL_DT,120) ELSE S.EST_CMPL_DT END AS EST_CMPL_DT
+			      ,S.SRC_CD      
+			      ,S.IN_STS_CD
+			      ,(SELECT COUNT (*) FROM TL_WH_UNLOAD_SHT WHERE WIB_BK_NO = #c_wib_bk_no#) AS UNLOAD_SHT_CNT
+			      ,ISNULL(S.SRC_TP_CD, 'WMS') AS SRC_TP_CD
+			      ,S.REF_NO
+			  FROM TL_WH_IB S LEFT JOIN TL_CTRT C ON S.CTRT_NO = C.CTRT_NO
+			 WHERE S.WIB_BK_NO = #c_wib_bk_no#
+			   <!-- AND S.BK_STS_CD = 'I' -->
+	</select>
+	
+	<!-- House B/L No 조회 -->
+	<typeAlias alias="WHInbkInfoHouseBlVO" type="com.clt.apps.fis.wms.whinbooking.dto.WHInbkInfoHouseBlVO"/>
+	<select id="searchWBHouseBlList" parameterClass="java.util.HashMap" resultClass="WHInbkInfoHouseBlVO">
+		/* WHInbk.searchWBHouseBlList */
+		  SELECT HBL_NO
+		    FROM TL_WH_IB_ITEM
+		   WHERE WIB_BK_NO = #c_wib_bk_no#
+		     AND HBL_NO IS NOT NULL
+		GROUP BY HBL_NO
+		ORDER BY HBL_NO	
+	</select>
+
+	<!-- Master B/L No 조회 -->
+	<typeAlias alias="WHInbkInfoMasterBlVO" type="com.clt.apps.fis.wms.whinbooking.dto.WHInbkInfoMasterBlVO"/>
+	<select id="searchWBMasterBlList" parameterClass="java.util.HashMap" resultClass="WHInbkInfoMasterBlVO">
+		/* WHInbk.searchWBMasterBlList */	
+		  SELECT MBL_NO
+		    FROM TL_WH_IB_ITEM
+		   WHERE WIB_BK_NO = #c_wib_bk_no#
+		     AND MBL_NO IS NOT NULL
+		GROUP BY MBL_NO
+		ORDER BY MBL_NO	
+	</select>
+	
+	<!-- Booling Item Tab 정보 조회 -->
+	<select id="searchWBItemList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.whinbooking.dto.WHInbkItemVO">
+		/* WHInbk.searchWBItemList */	
+		SELECT T.*
+		     , ISNULL (T.ITEM_NM_ORG, CI.ITEM_NM) AS ITEM_NM
+		     , ISNULL (CI.LV1_CBM, 0) AS LV1_CBM
+			 , ISNULL (CI.LV1_CBF, 0) AS LV1_CBF
+			 , ISNULL (CI.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+			 , ISNULL (CI.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+			 , ISNULL (CI.LV1_NET_KGS, 0) AS LV1_NET_KGS
+			 , ISNULL (CI.LV1_NET_LBS, 0) AS LV1_NET_LBS	
+			 , CI.PKG_LV1_UNIT_CD
+			 , ISNULL(CI.PKG_LV1_QTY,0) AS PKG_LV1_QTY	        
+			 , CI.ITEM_PKGUNIT AS PKG_LV2_UNIT_CD    /*LEVEL 2*/
+			 , ISNULL(CI.ITEM_PKGBASEQTY,0) AS PKG_LV2_QTY /*LEVEL 2*/
+			 , CI.PKG_LV3_UNIT_CD
+			 , ISNULL(CI.PKG_LV3_QTY,0) AS PKG_LV3_QTY
+			 , CI.PKG_LV4_UNIT_CD
+			 , ISNULL(CI.PKG_LV4_QTY,0) AS PKG_LV4_QTY
+			 , dbo.TL_GET_WH_PACK_MST_INFO(CI.PKG_LV1_QTY, CI.PKG_LV1_UNIT_CD, CI.ITEM_PKGBASEQTY, CI.ITEM_PKGUNIT
+		     , CI.PKG_LV3_QTY, CI.PKG_LV3_UNIT_CD, CI.PKG_LV4_QTY, CI.PKG_LV4_UNIT_CD) AS PKG_INFO
+		     /*VIS에서 넘어온경우는 EA_QTY가 0으로 넘어올수있으므로 재계산 */
+		     , CASE WHEN T.INVALID_YN = 'Y' AND SU_VALID_YN = 'Y' THEN  T.ITEM_PKGQTY * (CASE WHEN CI.PKG_LV1_UNIT_CD = T.ITEM_PKGUNIT THEN PKG_LV1_QTY
+		                                                                                      WHEN CI.ITEM_PKGUNIT    = T.ITEM_PKGUNIT THEN ITEM_PKGBASEQTY
+		                                                                                      WHEN CI.PKG_LV3_UNIT_CD = T.ITEM_PKGUNIT THEN PKG_LV3_QTY
+		                                                                                      WHEN CI.PKG_LV4_UNIT_CD = T.ITEM_PKGUNIT THEN PKG_LV4_QTY
+		                                                                                      ELSE 0 
+		                                                                                      END 
+		                                                                                 )
+		
+		            ELSE O_ITEM_EA_QTY END AS ITEM_EA_QTY
+		 FROM (    
+		        SELECT TT.*
+		             /*VIS에서 넘어온경우는 실제 ITEM_CD가 유효할경우 ITEM_SYS_NO를 다시 가져온다*/
+		             , CASE WHEN TT.INVALID_YN = 'Y' THEN CHG_ITEM_SYS_NO ELSE O_ITEM_SYS_NO END AS ITEM_SYS_NO 
+		             /*VIS에서 넘어온경우는 실제 ITEM_CD가 유효할경우 FLAG값을 'Y'로 셋팅한다*/
+		             , CASE WHEN TT.INVALID_YN = 'Y' AND CHG_ITEM_SYS_NO IS NOT NULL THEN 'Y' ELSE '' END AS SU_VALID_YN
+		          FROM (
+		        	  SELECT WBI.WIB_BK_NO
+		        	        ,WBI.PO_SYS_NO
+		        	        ,WB.CTRT_NO
+		        	        ,WBI.ITEM_SYS_NO AS O_ITEM_SYS_NO	        
+		        	        ,WBI.ITEM_SEQ
+		        	        ,WBI.PO_NO
+		        	        ,WBI.ITEM_CD
+		        	        ,WBI.ITEM_NM AS ITEM_NM_ORG
+		        	        ,WBI.ITEM_EA_QTY AS O_ITEM_EA_QTY
+		        	        ,WBI.ITEM_PKGQTY
+		        	        ,WBI.ITEM_PKGUNIT
+		        	        ,WBI.ITEM_CBM
+		        	        ,WBI.ITEM_CBF
+		        	        ,WBI.ITEM_GRS_KGS
+		        	        ,WBI.ITEM_GRS_LBS
+		        	        ,WBI.ITEM_NET_KGS
+		        	        ,WBI.ITEM_NET_LBS
+		        	        ,WBI.EQ_TP_CD
+		        	        ,WBI.EQ_TPSZ_CD
+		        	        ,WBI.EQ_NO
+		        	        ,WBI.SEAL_NO
+		        	        ,WBI.INBOUND_DT
+		        	        ,WBI.LOT_NO
+		        	        ,WBI.EXP_DT
+		        	        ,WBI.LOT_04
+		        	        ,WBI.LOT_05
+		        	        ,WBI.FIX_LOT_ID
+		        	        ,WBI.CNTR_REF_NO
+		        	        ,WBI.HBL_NO
+		        	        ,WBI.MBL_NO
+		        	        ,WBI.POL
+		        	        ,WBI.ETD
+		        	        ,WBI.POD
+		        	        ,WBI.ETA
+		        	        ,WBI.DEL
+		        	        ,WBI.CARRIER_CD
+		        	        ,dbo.TL_GET_CUST_NM (WBI.CARRIER_CD) CARRIER_NM
+		        	        ,WBI.VSL_CD
+		        	        ,WBI.VSL_NM
+		        	        ,WBI.VOY
+		        	        ,WBI.CUSTMS_REF_NO
+		        	        ,WBI.UNLOAD_GATE_NO
+		        	        ,WBI.UNLOAD_INBOUND_LOC_CD	        
+		        			,WBI.CURR_CD
+		        			,WBI.UNIT_PRICE
+		        			,WBI.INVALID_YN
+		        			/*vis 에서 들어온경우 유효성검사전일경우 관련 필드 시작 */
+		        			,CASE WHEN WBI.INVALID_YN = 'Y' THEN WBI.ITEM_SYS_NO ELSE '' END AS ORG_ITEM_SYS_NO 
+		        			,CASE WHEN WBI.INVALID_YN = 'Y' THEN (
+		        			                                          SELECT MAX(IT.ITEM_SYS_NO) OVER (PARTITION BY IT.ITEM_CD) AS ITEM_SYS_NO    			                                           
+		            			                                        FROM TL_CTRT_CUST_ITEM IT 
+		            			                                       WHERE IT.ITEM_CD = WBI.ITEM_CD
+		            			                                         AND IT.CTRT_NO = WB.CTRT_NO
+		            			                                         AND IT.ITEM_USE_FLG = 'Y'
+		        			                                     )
+		        			      ELSE '' END AS CHG_ITEM_SYS_NO
+		        			/*vis 에서 들어온경우 유효성검사전일경우 관련 필드 종료 */
+		        			,WBI.RGST_TIMESTAMP
+		        	    FROM TL_WH_IB WB
+		        	        ,TL_WH_IB_ITEM WBI
+		        	   WHERE WB.WIB_BK_NO = WBI.WIB_BK_NO
+		        	     AND WB.WIB_BK_NO = #c_wib_bk_no#
+		        	   ) TT 
+			   ) T LEFT JOIN TL_CTRT_CUST_ITEM CI ON T.CTRT_NO = CI.CTRT_NO AND T.ITEM_SYS_NO = CI.ITEM_SYS_NO
+		  ORDER BY T.RGST_TIMESTAMP ASC, T.ITEM_CD ASC, T.PO_SYS_NO ASC, T.LOT_NO ASC, T.ITEM_PKGUNIT ASC
+	</select>
+	
+	<!-- Doc Detail 정보 조회 -->
+	<typeAlias alias="WHInbkDocVO" type="com.clt.apps.fis.wms.whinbooking.dto.WHInbkDocVO"/>
+	<select id="searchWBDocList" parameterClass="java.util.HashMap" resultClass="WHInbkDocVO" >
+		/* WHInbk.searchWBDocList */	
+        SELECT FIELD_NAME, FIELD_VAL, DOC_TYPE
+          FROM (SELECT DISTINCT 'Inbound Complete' AS FIELD_NAME,
+                                R.WIB_IN_NO AS FIELD_VAL,
+                                'IC' AS DOC_TYPE,
+                                '1' AS DISP
+                  FROM TL_WH_IB B, TL_WH_RCV R
+                 WHERE B.WIB_BK_NO = R.WIB_BK_NO
+                   AND B.WIB_BK_NO = #c_wib_bk_no#
+                UNION
+                SELECT DISTINCT 'PUTAWAY' AS FIELD_NAME,
+                                R.WIB_IN_NO AS FIELD_VAL,
+                                'PA' AS DOC_TYPE,
+                                '2' AS DISP
+                  FROM TL_WH_IB B, TL_WH_RCV R, TL_WH_PUTAWAY P
+                 WHERE B.WIB_BK_NO = R.WIB_BK_NO
+                   AND R.WIB_IN_NO = P.WIB_IN_NO
+                   AND B.WIB_BK_NO = #c_wib_bk_no#
+                <!-- TinLuong Modify: not use table : TL_EO_WO
+                UNION
+                SELECT DISTINCT 'Work Order No' AS FIELD_NAME,
+                                W.WO_NO AS FIELD_VAL,
+                                'WO' AS DOC_TYPE,
+                                '3' AS DISP
+                  FROM TL_WH_IB B, TL_EO_WO W
+                 WHERE B.WIB_BK_NO = W.RCV_BK_NO 
+                   <![CDATA[ AND ISNULL(W.CR_FLG, 'N') <> 'Y' ]]>
+                   AND B.WIB_BK_NO = #c_wib_bk_no# -->
+               ) AS TMP
+         ORDER BY DISP, FIELD_VAL
+ 	</select>
+ 	
+ 	<!-- Attachment 정보 조회 -->
+ 	<typeAlias alias="WHInbkAttachmentVO" type="com.clt.apps.fis.wms.whinbooking.dto.WHInbkAttachmentVO"/>
+	<select id="searchWHInbkFileList" resultClass="WHInbkAttachmentVO">
+		/* WHInbk.searchWHInbkFileList */
+		SELECT R.DOC_NO
+		      ,R.FILE_ORG_NM
+		      ,R.FILE_PATH
+		      ,R.FILE_SYS_NM
+		      ,R.FILE_SIZE
+		      ,CONVERT(VARCHAR(8),R.RGST_SYS_DT, 112) AS UPLOAD_DATE
+		  FROM TL_FILE_REP R
+		 WHERE 1 = 1
+		   AND R.DOC_REF_NO = (SELECT T.WIB_BK_NO
+		                         FROM TL_WH_IB T
+		                        WHERE T.WIB_BK_NO = #c_wib_bk_no#)
+		   AND R.DOC_REF_TP_CD = 'WIB'
+		   AND R.SVC_TP_CD = 'WB'
+		   AND R.DOC_TP_CD = 'WIB'
+	</select>
+	
+	<typeAlias alias="WHInbkInfoVO" type="com.clt.apps.fis.wms.whinbooking.dto.WHInbkInfoVO"/>
+	<update id="modifyWHInbkInfo" parameterClass="java.util.HashMap">
+	/* WHInbk.modifyWHInbkInfo */	
+		UPDATE TL_WH_IB
+		SET    SO_NO        = #so_no#
+		      ,CTRT_NO      = #ctrt_no#
+		      ,RTP_NO       = #rtp_no#
+		      ,WH_CD        = #wh_cd#
+		      ,BK_DATE      = REPLACE (#bk_date#, '-', '')
+		      ,BK_STS_CD    = (CASE #issue# WHEN 'Y' THEN 'I' ELSE #bk_sts_cd# END)
+		      ,EST_IN_DT    = REPLACE (#est_in_dt#, '-', '')
+		      ,ORD_TP_CD    = #ord_tp_cd#
+		      ,LOAD_TP_CD   = #load_tp_cd#
+		      ,FWD_DIR      = #fwd_dir#
+		      ,ORDER_REL    = #order_rel#
+		      ,OWNER_CD     = #owner_cd#
+		      ,OWNER_ADDR1  = #owner_addr1#
+		      ,OWNER_ADDR2  = #owner_addr2#
+		      ,OWNER_ADDR3  = #owner_addr3#
+		      ,OWNER_ADDR4  = #owner_addr4#
+		      ,OWNER_ADDR5  = #owner_addr5#
+		      ,SUPP_CD      = #supp_cd#
+		      ,SUPP_ADDR1   = #supp_addr1#
+		      ,SUPP_ADDR2   = #supp_addr2#
+		      ,SUPP_ADDR3   = #supp_addr3#
+		      ,SUPP_ADDR4   = #supp_addr4#
+		      ,SUPP_ADDR5   = #supp_addr5#
+		      ,BUYER_CD     = #buyer_cd#
+		      ,BUYER_ADDR1  = #buyer_addr1#
+		      ,BUYER_ADDR2  = #buyer_addr2#
+		      ,BUYER_ADDR3  = #buyer_addr3#
+		      ,BUYER_ADDR4  = #buyer_addr4#
+		      ,BUYER_ADDR5  = #buyer_addr5#
+		      ,CUST_ORD_NO  = #cust_ord_no#
+		      ,COMMC_INV_NO = #commc_inv_no#
+		      ,DLV_ORD_NO   = #dlv_ord_no#
+		      ,JOB_NO       = #job_no#
+		      ,RMK          = #rmk#
+		      ,VSL_CD       = #vsl_cd#
+		      ,VSL_NM       = #vsl_nm#
+		      ,VOY          = #voy#
+		      ,CARRIER_CD   = #carrier_cd#
+		      ,HBL_NO       = #hbl_no#
+		      ,MBL_NO       = #mbl_no#
+		      ,POL          = #pol#
+		      ,POD          = #pod#
+		      ,DEL          = #del#
+		      ,ETD          = REPLACE (#etd#, '-', '')
+		      ,ETA          = REPLACE (#eta#, '-', '')
+		      ,DEL_DT       = #del_dt#
+		      ,EST_CMPL_DT  = #est_cmpl_dt#
+		      ,SRC_CD       = #src_cd#
+		      ,MODI_ID      = #user_id#
+		      ,MODI_OFC_CD  = #org_cd#
+		      ,MODI_SYS_DT  = GETDATE()
+		      ,MODI_LOC_DT  = CONVERT (VARCHAR(19), dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#), 120)
+		      ,REF_NO       = #ref_no#
+		WHERE  WIB_BK_NO    = #wib_bk_no#	
+	</update>
+	
+	<!-- Header 등록 -->
+	<insert id="addWHInbkInfo">
+	/* WHInbk.addWHInbkInfo */
+		INSERT INTO TL_WH_IB
+		(
+		    WIB_BK_NO
+		   ,SO_NO
+		   ,CTRT_NO
+		   ,RTP_NO
+		   ,WH_CD
+		   ,BK_DATE
+		   ,BK_STS_CD
+		   ,EST_IN_DT
+		   ,ORD_TP_CD
+		   ,LOAD_TP_CD
+		   ,FWD_DIR
+		   ,ORDER_REL
+		   ,OWNER_CD
+		   ,OWNER_ADDR1
+		   ,OWNER_ADDR2
+		   ,OWNER_ADDR3
+		   ,OWNER_ADDR4
+		   ,OWNER_ADDR5
+		   ,SUPP_CD
+		   ,SUPP_ADDR1
+		   ,SUPP_ADDR2
+		   ,SUPP_ADDR3
+		   ,SUPP_ADDR4
+		   ,SUPP_ADDR5
+		   ,BUYER_CD
+		   ,BUYER_ADDR1
+		   ,BUYER_ADDR2
+		   ,BUYER_ADDR3
+		   ,BUYER_ADDR4
+		   ,BUYER_ADDR5
+		   ,CUST_ORD_NO
+		   ,COMMC_INV_NO
+		   ,DLV_ORD_NO
+		   ,JOB_NO
+		   ,RMK
+		   ,VSL_CD
+		   ,VSL_NM
+		   ,VOY
+		   ,CARRIER_CD
+		   ,HBL_NO
+		   ,MBL_NO
+		   ,POL
+		   ,POD
+		   ,DEL
+		   ,ETD
+		   ,ETA
+		   ,DEL_DT
+		   ,EST_CMPL_DT
+		   ,SRC_CD
+		   ,IN_STS_CD
+		   ,RGST_ID
+		   ,RGST_OFC_CD
+		   ,RGST_SYS_DT
+		   ,RGST_LOC_DT
+		   ,MODI_ID
+		   ,MODI_OFC_CD
+		   ,MODI_SYS_DT
+		   ,MODI_LOC_DT
+		   ,REF_NO
+		)
+		VALUES
+		(
+		    #wib_bk_no#
+		   ,#so_no#
+		   ,#ctrt_no#
+		   ,#rtp_no#
+		   ,#wh_cd#
+		   ,REPLACE (#bk_date#, '-', '')
+		   ,CASE #issue# WHEN 'Y' THEN 'I' ELSE #bk_sts_cd# END
+		   ,REPLACE (#est_in_dt#, '-', '')
+		   ,#ord_tp_cd#
+		   ,#load_tp_cd#
+		   ,#fwd_dir#
+		   ,#order_rel#
+		   ,#owner_cd#
+		   ,#owner_addr1#
+		   ,#owner_addr2#
+		   ,#owner_addr3#
+		   ,#owner_addr4#
+		   ,#owner_addr5#
+		   ,#supp_cd#
+		   ,#supp_addr1#
+		   ,#supp_addr2#
+		   ,#supp_addr3#
+		   ,#supp_addr4#
+		   ,#supp_addr5#
+		   ,#buyer_cd#
+		   ,#buyer_addr1#
+		   ,#buyer_addr2#
+		   ,#buyer_addr3#
+		   ,#buyer_addr4#
+		   ,#buyer_addr5#
+		   ,#cust_ord_no#
+		   ,#commc_inv_no#
+		   ,#dlv_ord_no#
+		   ,#job_no#
+		   ,#rmk#
+		   ,#vsl_cd#
+		   ,#vsl_nm#
+		   ,#voy#
+		   ,#carrier_cd#
+		   ,#hbl_no#
+		   ,#mbl_no#
+		   ,#pol#
+		   ,#pod#
+		   ,#del#
+		   ,REPLACE (#etd#, '-', '')
+		   ,REPLACE (#eta#, '-', '')
+		   ,#del_dt#
+		   ,#est_cmpl_dt#
+		   ,#src_cd#
+		   ,#in_sts_cd#
+		   ,#user_id#
+		   ,#org_cd#
+		   ,GETDATE()
+		   ,CONVERT (VARCHAR(19), dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#), 120)
+		   ,#user_id#
+		   ,#org_cd#
+		   ,GETDATE()
+		   ,CONVERT (VARCHAR(19), dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#), 120)
+		   ,#ref_no#
+		)	
+	</insert>
+	
+	<!-- 파일 삭제 -->	
+    <delete id="removeFile">
+      DELETE FROM TL_FILE_REP
+       WHERE DOC_NO = #doc_no#
+    </delete>
+    
+    <!-- Inbound Booking 20160905(S) -->
+    <typeAlias alias="Grd01WHInMgmtVO" type="com.clt.apps.fis.wms.inboundmanagement.dto.Grd01WHInMgmtVO"/>
+    <select id="searchWHInMgmtList" parameterClass="java.util.HashMap" resultClass="Grd01WHInMgmtVO">
+		/*WHInbk.searchWHInMgmtList*/	
+	SELECT IB.WIB_BK_NO
+     , IB.SO_NO     
+     , IB.WH_CD
+     , dbo.TL_GET_LOC_NM(IB.WH_CD) AS WH_NM     
+     , IB.BK_DATE
+     , CASE WHEN IB.BK_STS_CD = 'I' AND LTRIM(IB.IN_STS_CD) IS NULL THEN 'I' /* Issue */
+	        WHEN IB.BK_STS_CD = 'I' AND LTRIM(IB.IN_STS_CD) IS NOT NULL THEN 'X' /*Partial, Complete */
+	        ELSE IB.BK_STS_CD /* Initial, Cancel */
+	        END AS BK_STS_CD 
+     , ISNULL(LTRIM(IB.CUST_ORD_NO), '') AS CUST_ORD_NO
+     , IB.ORD_TP_CD
+     , IB.EST_IN_DT
+     , IB.EST_IN_HM     
+     , IB.CTRT_NO
+     , dbo.TL_GET_CTRT_NM(IB.CTRT_NO) AS CTRT_NM
+     , IB.RTP_NO
+     , IB.INBOUND_DT
+     , IB.INBOUND_HM
+     , IB.INBOUND_PL_QTY
+     , IB.INBOUND_BX_QTY
+     , IB.INBOUND_EA_QTY
+     , IB.INBOUND_SQFT
+     , IB.INBOUND_CBM
+     , IB.INBOUND_CBF
+     , IB.INBOUND_GRS_KGS
+     , IB.INBOUND_GRS_LBS
+     , IB.INBOUND_NET_KGS
+     , IB.INBOUND_NET_LBS
+     , IB.EQ_TP_CD
+     , IB.EQ_TPSZ_CD
+     , IB.EQ_NO
+     , IB.SEAL_NO
+     , IB.DLV_ORD_NO
+     , IB.LOAD_TP_CD
+     , IB.TRADE_TP_CD
+     , IB.FWD_TP_CD
+     , IB.MBL_NO
+     , IB.HBL_NO
+     , IB.REF_NO
+     , IB.COMMC_INV_NO
+     , IB.RMK
+     , IB.OWNER_CD
+     , IB.OWNER_ADDR1
+     , IB.OWNER_ADDR2
+     , IB.OWNER_ADDR3
+     , IB.OWNER_ADDR4
+     , IB.OWNER_ADDR5
+     , IB.SUPP_CD
+     , IB.SUPP_ADDR1
+     , IB.SUPP_ADDR2
+     , IB.SUPP_ADDR3
+     , IB.SUPP_ADDR4
+     , IB.SUPP_ADDR5
+     , IB.VSL_CD
+     , IB.VSL_NM
+     , IB.VOY
+     , IB.CARRIER_CD
+     , dbo.TL_GET_CUST_NM (IB.CARRIER_CD) CARRIER_NM
+     , IB.POL
+		 , dbo.TL_GET_LOC_NM (IB.POL) AS POL_NM
+		 , IB.POD
+		 , dbo.TL_GET_LOC_NM (IB.POD) AS POD_NM
+		 , IB.DEL
+		 , dbo.TL_GET_LOC_NM (IB.DEL) AS DEL_NM
+     , IB.ETD
+     , IB.ETA
+     , CASE WHEN IB.BK_STS_CD = 'N' THEN '' 
+            WHEN UN_SH.WIB_BK_NO IS NULL THEN 'N' 
+            ELSE 'Y' END AS UNLOAD_SHT_YN
+     , '+' AS ROW_ADD
+     , '' AS ROW_DEL
+     , WH_LOC.LABEL_UNIT
+     , (SELECT SUM(ISNULL(BX_LABEL_QTY, 0)) FROM TL_WH_IB_ITEM I WHERE IB.WIB_BK_NO = I.WIB_BK_NO) AS SUM_BX_LABEL_QTY
+     , (SELECT COUNT(1) FROM TL_WH_RCV RCV WHERE RCV.WIB_BK_NO = IB.WIB_BK_NO) AS RCV_CNT
+     , IB.SRC_CD
+  FROM TL_WH_IB IB
+     LEFT JOIN TL_WH_UNLOAD_SHT UN_SH ON IB.WIB_BK_NO = UN_SH.WIB_BK_NO
+     LEFT JOIN TL_CTRT_WH_LOC WH_LOC ON IB.CTRT_NO = WH_LOC.CTRT_NO AND IB.WH_CD = WH_LOC.LOC_CD
+  WHERE 1 = 1
+<isNotEmpty property="list_wh_cd">
+   AND IB.WH_CD = #list_wh_cd#
+</isNotEmpty>
+<isNotEmpty property="list_ctrt_no">
+   AND IB.CTRT_NO = #list_ctrt_no#
+</isNotEmpty>
+
+<isEqual property="list_bk_sts_cd" compareValue="ALL">
+   AND IB.BK_STS_CD != 'C'
+</isEqual>
+<isEqual property="list_bk_sts_cd" compareValue="C">
+   AND IB.BK_STS_CD = 'C'
+</isEqual>
+
+<isNotEqual property="list_bk_sts_cd" compareValue="ALL">
+	<isNotEqual property="list_bk_sts_cd" compareValue="C">
+		AND (CASE WHEN IB.BK_STS_CD = 'I' AND LTRIM(IB.IN_STS_CD) IS NULL THEN 'I' /* Issue */
+	            WHEN IB.BK_STS_CD = 'I' AND LTRIM(IB.IN_STS_CD) IS NOT NULL THEN 'X' /*Partial, Complete */
+	            ELSE IB.BK_STS_CD /* Initial, Cancel */
+	            END) = #list_bk_sts_cd# /*조건-status*/
+	</isNotEqual>
+</isNotEqual>
+
+<isNotEmpty property="list_in_no">
+	<isEqual property="list_in_search_tp" compareValue="WIB_BK_NO">
+   		AND IB.WIB_BK_NO = #list_in_no#
+	</isEqual>
+	<isEqual property="list_in_search_tp" compareValue="CUST_ORD_NO">
+   		AND IB.CUST_ORD_NO = #list_in_no#
+	</isEqual>
+</isNotEmpty>
+
+<isNotEmpty property="list_fm_date">
+	<isEqual property="list_in_date_tp" compareValue="BK_DATE">
+   		AND (SELECT CONVERT(date, IB.BK_DATE, 112)) BETWEEN (SELECT CONVERT(date, #list_fm_date#, 110)) AND (SELECT CONVERT(date, #list_to_date#, 110))
+	</isEqual>
+	<isEqual property="list_in_date_tp" compareValue="EST_IN_DT">
+   		AND (SELECT CONVERT(date, IB.EST_IN_DT, 112)) BETWEEN (SELECT CONVERT(date, #list_fm_date#, 110)) AND (SELECT CONVERT(date, #list_to_date#, 110))
+	</isEqual>
+	<isEqual property="list_in_date_tp" compareValue="RGST_LOC_DT">
+   		AND (SELECT CONVERT(date, IB.RGST_LOC_DT, 121)) BETWEEN (SELECT CONVERT(date, #list_fm_date#, 110))  AND (SELECT CONVERT(date, #list_to_date#, 110))
+	</isEqual>
+</isNotEmpty>
+<isNotEqual property="list_ord_tp_cd" compareValue="ALL">
+   AND IB.ORD_TP_CD = #list_ord_tp_cd#
+</isNotEqual>
+ ORDER BY IB.RGST_SYS_DT ASC, IB.WH_CD ASC, IB.CUST_ORD_NO ASC, IB.EST_IN_DT ASC
+</select>
+    <!-- Inbound Booking (E) -->
+    
+    <!-- Inbound Freight(S) -->
+    <typeAlias type="com.clt.apps.fis.wms.rate.dto.Grd02RTDetailListVO" alias="Grd02RTDetailListVO"/>
+    <select id="searchWHInMgmtFreightList"  resultClass="Grd02RTDetailListVO">
+        /** WHInbk.searchWHInMgmtFreightList **/
+        SELECT A.CTRT_NO
+        	, B.LOC_CD AS WH_CD
+        	, #wib_bk_no# AS WIB_BK_NO
+        	, #cust_ord_no# AS CUST_ORD_NO
+	        <!-- , A.SB_CLS_CD
+	        , A.RATE_NO
+	        , A.RATE_SEQ -->
+	        , A.CUST_CD
+	        , dbo.TL_GET_CUST_NM(A.CUST_CD) AS CUST_NM
+	        , A.OFC_CD
+	        , A.FRT_CD
+	        , A.FRT_NM
+	        , A.UNIT_CD
+	        , A.CURR_CD
+	        , A.UNIT_PRICE
+	        <!-- #3388-[BINEX WMS4.0] RATE IN & OUT MINIMUM CHARGE - Vien.Cao -->
+	        , A.RMK
+	        , 'IN' AS RATE_TP_CD
+	        <!-- , A.COND_FIRST
+	        , A.COND_SECOND
+	        , A.EXT_RATE
+	        , A.INT_RATE
+	        , A.FULL_MON_RATE
+	        , A.HALF_MON_RATE
+	        , A.WEEK_RATE
+	        , A.DAY_RATE
+	        , A.DAY_OPT
+	        , A.FIX_RATE_FLG -->
+	        , A.UNIT_CD2
+	        , A.ITEM_CD
+	        , A.EFF_FR_DT
+	        , A.EFF_TO_DT
+	        , '1' AS QTY
+	        , '' AS INV_AMT
+	        , '' AS INV_TTL_AMT
+	        , '' AS CLS_NO
+	        , '' AS CLS_DT
+	        , '' AS INV_SEQ
+	        , '' AS SELL_BUY_TP_CD
+	        , '' AS FRT_SEQ
+	        , 'Y' AS RATING_FLG
+        FROM TL_CTRT_RATE_DTL A, TL_CTRT_RATE B
+        WHERE 1=1
+        AND A.CTRT_NO = B.CTRT_NO
+        AND A.SB_CLS_CD = B.SB_CLS_CD
+        AND A.RATE_NO = B.RATE_NO
+        AND A.CTRT_NO = #ctrt_no#
+        <isNotEmpty property="cust_cd">
+        AND A.CUST_CD = #cust_cd#
+        </isNotEmpty>
+        AND B.LOC_CD = #wh_cd#
+        AND A.RATE_TP_CD IN ('IN','IAO') 
+        <!-- AND CONVERT(VARCHAR, getDate(), 112) BETWEEN B.EFF_FR_DT AND B.EFF_TO_DT -->
+        AND #inbound_dt# BETWEEN A.EFF_FR_DT AND A.EFF_TO_DT
+        ORDER BY A.FRT_CD, A.UNIT_CD, A.ITEM_CD desc
+    </select>
+<!-- Inbound Freight(E) -->
+    
+<typeAlias alias="Grd00WHInMgmtVO" type="com.clt.apps.fis.wms.inboundmanagement.dto.Grd00WHInMgmtVO"/>
+    <select id="searchWHInMgmtFormInfo" parameterClass="java.util.HashMap" resultClass="Grd00WHInMgmtVO">
+	/* WHInbk.searchWHInMgmtFormInfo */	
+		SELECT IB.WH_CD
+	     , DBO.TL_GET_LOC_NM(IB.WH_CD) AS WH_NM 
+	     , IB.CTRT_NO
+	     , dbo.TL_GET_CTRT_NM(IB.CTRT_NO) AS CTRT_NM
+	     , IB.RTP_NO
+	     , IB.OWNER_CD
+	     , dbo.TL_GET_CUST_NM (IB.OWNER_CD) OWNER_NM
+	     , IB.OWNER_ADDR1
+	     , IB.OWNER_ADDR2
+	     , IB.OWNER_ADDR3
+	     , IB.OWNER_ADDR4
+	     , IB.OWNER_ADDR5
+	     , ISNULL(LTRIM(IB.CUST_ORD_NO), ' ') AS CUST_ORD_NO
+	     , IB.WIB_BK_NO
+	     , CASE WHEN IB.BK_STS_CD = 'N' AND IB.IN_STS_CD IS NULL THEN 'N'
+	            WHEN IB.BK_STS_CD = 'I' AND IB.IN_STS_CD IS NULL THEN 'I'
+	            WHEN IB.IN_STS_CD IS NOT NULL THEN 'X' ELSE '' END AS BK_STS_CD
+	     , dbo.TL_GET_COMM_NM('WB5', (CASE WHEN IB.BK_STS_CD = 'N' AND IB.IN_STS_CD IS NULL THEN 'N'
+	                                   WHEN IB.BK_STS_CD = 'I' AND IB.IN_STS_CD IS NULL THEN 'I'
+	                                   WHEN IB.IN_STS_CD IS NOT NULL THEN 'X' ELSE '' END /*Partial도 Complete로 */
+	                               )) AS BK_STS_NM
+	     , IB.ORD_TP_CD
+	     , CASE WHEN IB.BK_DATE IS NOT NULL THEN CONVERT (VARCHAR(10),IB.BK_DATE,120) ELSE IB.BK_DATE END AS BK_DATE   
+	     , IB.LOAD_TP_CD  
+	     , CASE WHEN IB.EST_IN_DT IS NOT NULL THEN CONVERT (VARCHAR(10),IB.EST_IN_DT,120) ELSE IB.EST_IN_DT END AS EST_IN_DT
+	     , CASE IB.EST_IN_HM WHEN '' THEN '' ELSE SUBSTRING (IB.EST_IN_HM, 1, 2) + ':' + SUBSTRING (IB.EST_IN_HM, 3, 2) END AS EST_IN_HM
+	     , IB.TRADE_TP_CD
+	     , CASE WHEN RCV.INBOUND_DT IS NOT NULL THEN CONVERT (VARCHAR(10),RCV.INBOUND_DT,120) ELSE RCV.INBOUND_DT END AS INBOUND_DT
+	     , CASE   RCV.INBOUND_HM when '' then '' else  SUBSTRING (RCV.INBOUND_HM, 1, 2) + ':' + SUBSTRING (RCV.INBOUND_HM, 3, 2) end AS INBOUND_HM
+	     , IB.FWD_TP_CD
+	     , LTRIM(RTRIM  (CONVERT(NUMERIC(10,0),ISNULL(IB.INBOUND_PL_QTY,0)))) AS INBOUND_PL_QTY
+	     , LTRIM(RTRIM  (CONVERT(NUMERIC(10,0),ISNULL(IB.INBOUND_BX_QTY,0)))) AS INBOUND_BX_QTY
+	     , LTRIM(RTRIM  (CONVERT(NUMERIC(10,0),ISNULL(IB.INBOUND_EA_QTY,0)))) AS INBOUND_EA_QTY
+	     , LTRIM(RTRIM  (CONVERT(DECIMAL(15,3),ISNULL(IB.INBOUND_SQFT,0)))) AS INBOUND_SQFT
+	     , LTRIM(RTRIM  (CONVERT(DECIMAL(15,3),ISNULL(IB.INBOUND_CBM,0)))) AS INBOUND_CBM
+	     , LTRIM(RTRIM  (CONVERT(DECIMAL(15,3),ISNULL(IB.INBOUND_GRS_KGS,0)))) AS INBOUND_GRS_KGS
+	     , LTRIM(RTRIM  (CONVERT(DECIMAL(15,3),ISNULL(IB.INBOUND_NET_KGS,0)))) AS INBOUND_NET_KGS
+	     , IB.TRUCKER_CD
+	     , dbo.TL_GET_CUST_NM (IB.TRUCKER_CD) TRUCKER_NM     
+	     , IB.EQ_TPSZ_CD
+	     , IB.EQ_NO
+	     , IB.EQ_TP_CD
+	     , IB.SEAL_NO
+	     , IB.DLV_ORD_NO     
+	     , IB.SUPP_CD
+	     , dbo.TL_GET_CUST_NM (IB.SUPP_CD) AS SUPP_NM
+	     , IB.SUPP_ADDR1
+	     , IB.SUPP_ADDR2
+	     , IB.SUPP_ADDR3
+	     , IB.SUPP_ADDR4
+	     , IB.SUPP_ADDR5
+	     , IB.REF_NO
+	     , IB.COMMC_INV_NO
+	     , IB.MBL_NO
+	     , IB.HBL_NO
+	     , IB.VSL_CD
+	     , IB.VSL_NM
+	     , IB.VOY 
+	     , IB.CARRIER_CD
+	     , DBO.TL_GET_CUST_NM (IB.CARRIER_CD) CARRIER_NM
+	     , IB.POL
+	     , DBO.TL_GET_LOC_NM (IB.POL) AS POL_NM
+	     , IB.POD
+	     , DBO.TL_GET_LOC_NM (IB.POD) AS POD_NM
+	     , IB.DEL
+	     , DBO.TL_GET_LOC_NM (IB.DEL) AS DEL_NM
+	     , IB.ETD AS ETD
+	     , IB.ETA AS ETA
+	     , CASE WHEN IB.BK_STS_CD = 'N' THEN '' 
+	            WHEN UN_SH.WIB_BK_NO IS NULL THEN 'N' 
+	            ELSE 'Y' END AS UNLOAD_SHT_YN
+	     , IB.RMK
+	     , WH_LOC.LABEL_UNIT
+	     , (SELECT SUM(ISNULL(BX_LABEL_QTY, 0)) FROM TL_WH_IB_ITEM I WHERE IB.WIB_BK_NO = I.WIB_BK_NO) AS SUM_BX_LABEL_QTY
+	     , (SELECT COUNT(1) FROM TL_WH_RCV RCV WHERE RCV.WIB_BK_NO = IB.WIB_BK_NO) AS RCV_CNT
+	     , dbo.TL_GET_PUTAWY_STS(IB.WIB_BK_NO,'') AS PUTAWY_STS_NM <!-- #1881 [BINEX WMS4.0] PUTAWAY LOCATION COLUMN ADD TO INBOUND LIST -->	     
+	  FROM TL_WH_IB IB
+	     LEFT JOIN TL_WH_UNLOAD_SHT UN_SH ON IB.WIB_BK_NO = UN_SH.WIB_BK_NO
+	     LEFT JOIN TL_CTRT_WH_LOC WH_LOC  ON IB.CTRT_NO   = WH_LOC.CTRT_NO AND IB.WH_CD = WH_LOC.LOC_CD
+	     LEFT JOIN TL_WH_RCV RCV ON IB.WIB_BK_NO = RCV.WIB_BK_NO
+     WHERE 1= 1 
+     AND IB.BK_STS_CD != 'C'
+     <isNotEmpty property="wib_bk_no">   
+	   AND IB.WIB_BK_NO = #wib_bk_no#
+	 </isNotEmpty>
+	 <isEmpty property="wib_bk_no">
+	 	 <isNotEmpty property="cust_ord_no">   
+		   AND IB.WIB_BK_NO = (select Max(WIB_BK_NO) from TL_WH_IB where CUST_ORD_NO = #cust_ord_no#)
+		 </isNotEmpty>
+	 </isEmpty>
+	</select>
+	
+	<typeAlias alias="Grd02WHInMgmtVO" type="com.clt.apps.fis.wms.inboundmanagement.dto.Grd02WHInMgmtVO"/>
+	<select id="searchWHInItemList" resultClass="Grd02WHInMgmtVO">
+	/* WHInbk.searchWHInItemList */	
+SELECT TTT.*
+	/* PE 계산로직 
+	 Total (Lv1)수량을 PE단위로 환산
+ 	 PE단위가 없을 경우 : 무조건 1
+     PE단위 이하 수량이 입고되면무조건 1
+     PE단위로 입고되면 나누기(무조건올림처리)
+	 */ 
+	<![CDATA[ 
+	 , CASE WHEN TTT.WIB_IN_NO IS NOT NULL THEN TTT.IN_ITEM_PE_QTY_RCV
+	        WHEN TTT.BK_STS_CD = 'I' AND ISNULL(TTT.IN_ITEM_EA_QTY, 0) > 0 THEN 
+	             (
+	             CASE WHEN TTT.PE_QTY < 0  THEN 1
+	                  WHEN TTT.PE_QTY > TTT.IN_ITEM_EA_QTY THEN 1
+	                  ELSE CEILING(TTT.IN_ITEM_EA_QTY / TTT.PE_QTY) END	
+	             )
+	        ELSE 0		     
+	        END AS IN_ITEM_PE_QTY /* Rcv정보가 없고 부킹만있을경우는 0 */
+	   
+	 , CASE WHEN ISNULL(TTT.IN_ITEM_EA_QTY, 0) > 0 THEN ISNULL(TTT.RCV_OS_ITEM_EA_QTY, ISNULL(TTT.IN_ITEM_EA_QTY, 0)-TTT.ITEM_EA_QTY) 
+	        WHEN TTT.WIB_IN_NO IS NULL AND (TTT.BK_STS_CD = 'X' AND LEN(ISNULL(TTT.INBOUND_DT, '')) > 0) THEN (0-TTT.ITEM_EA_QTY)
+	        ELSE 0 
+	        END AS OS_ITEM_EA_QTY ]]>
+	 , '+' AS ROW_ADD
+     , CASE WHEN TTT.WIB_IN_NO IS NULL THEN '-' ELSE ''END AS ROW_DEL
+     , 1 AS ROW_ADD_QTY
+  FROM (     
+		SELECT TT.*   
+		     , CASE WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_01 ELSE TT.INBOUND_DT_IB END  AS INBOUND_DT
+             , CASE WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_02 ELSE TT.LOT_NO_IB END      AS LOT_NO
+             , CASE WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_03 ELSE TT.EXP_DT_IB END      AS EXP_DT
+             , CASE WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_04 ELSE TT.LOT_04_IB END      AS LOT_04
+             , CASE WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_05 ELSE TT.LOT_05_IB END      AS LOT_05     
+             , CASE WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_CBM
+		            ELSE ISNULL(TT.SND_ITEM_CBM_ORG, 0) END AS SND_ITEM_CBM
+		     , CASE WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_CBF
+		            ELSE ISNULL(TT.SND_ITEM_CBF_ORG, 0) END AS SND_ITEM_CBF
+		     , CASE WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_GRS_KGS
+		            ELSE ISNULL(TT.SND_ITEM_GRS_KGS_ORG, 0) END AS SND_ITEM_GRS_KGS                   
+		     , CASE WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_GRS_LBS
+		            ELSE ISNULL(TT.SND_ITEM_GRS_LBS_ORG, 0) END AS SND_ITEM_GRS_LBS
+		     , CASE WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_NET_KGS
+		            ELSE ISNULL(TT.SND_ITEM_NET_KGS_ORG, 0) END AS SND_ITEM_NET_KGS                   
+		     , CASE WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_NET_LBS
+		            ELSE ISNULL(TT.SND_ITEM_NET_LBS_ORG, 0) END AS SND_ITEM_NET_LBS                    
+		                        
+		                        
+             , ISNULL (TT.ITEM_NM_ORG, CI.ITEM_NM) AS ITEM_NM
+             , ISNULL(ISNULL(INBOUND_LOC_CD_RCV, IT_WH.FIX_LOC_CD), UNLOAD_INBOUND_LOC_CD) AS INBOUND_LOC_CD    
+             , DBO.TL_GET_WH_LOC_NM(TT.WH_CD, ISNULL(ISNULL(INBOUND_LOC_CD_RCV, IT_WH.FIX_LOC_CD), UNLOAD_INBOUND_LOC_CD)) AS  INBOUND_LOC_NM
+             , DBO.TL_GET_WH_LOC_NM(TT.WH_CD, DMG_LOC_CD) AS  DMG_LOC_NM
+             , IT_WH.FIX_LOC_CD
+             , DBO.TL_GET_WH_LOC_NM(TT.WH_CD, IT_WH.FIX_LOC_CD) AS  FIX_LOC_CD_NM
+             , DBO.TL_GET_WH_PACK_MST_INFO(CI.PKG_LV1_QTY, CI.PKG_LV1_UNIT_CD, CI.ITEM_PKGBASEQTY, CI.ITEM_PKGUNIT
+                                     , CI.PKG_LV3_QTY, CI.PKG_LV3_UNIT_CD, CI.PKG_LV4_QTY, CI.PKG_LV4_UNIT_CD) AS PKG_INFO
+             , (CASE WHEN CI.PKG_LV1_UNIT_CD = 'PE' THEN CI.PKG_LV1_QTY
+        		     WHEN CI.ITEM_PKGUNIT    = 'PE' THEN CI.ITEM_PKGBASEQTY
+        			 WHEN CI.PKG_LV3_UNIT_CD = 'PE' THEN CI.PKG_LV3_QTY
+        			 WHEN CI.PKG_LV4_UNIT_CD = 'PE' THEN CI.PKG_LV4_QTY
+        			 ELSE -1
+        	    END
+        		) AS PE_QTY
+        		
+             , ISNULL(CI.PKG_LV1_QTY, 0)     AS PKG_LV1_QTY 	     
+             , CI.PKG_LV1_UNIT_CD AS PKG_LV1_UNIT_CD
+             , dbo.TL_GET_PKG_NM(CI.PKG_LV1_UNIT_CD)	AS PKG_LV1_UNIT_NM
+             , ISNULL(CI.ITEM_PKGBASEQTY, 0) AS PKG_LV2_QTY
+             , CI.ITEM_PKGUNIT    AS PKG_LV2_UNIT_CD
+             , dbo.TL_GET_PKG_NM(CI.ITEM_PKGUNIT)	AS PKG_LV2_UNIT_NM
+             , ISNULL(CI.PKG_LV3_QTY, 0)     AS PKG_LV3_QTY
+             , CI.PKG_LV3_UNIT_CD AS PKG_LV3_UNIT_CD
+             , (SELECT	lic_plat_desc FROM	TL_WH_LIC_PLAT_UT_CD PKG WHERE	PKG.lic_plat_ut_cd = ISNULL(CI.PKG_LV3_UNIT_CD, '')) AS PKG_LV3_UNIT_NM
+             , ISNULL(CI.PKG_LV4_QTY, 0)     AS PKG_LV4_QTY
+             , CI.PKG_LV4_UNIT_CD AS PKG_LV4_UNIT_CD
+                   
+			 , ISNULL(CI.LV1_CBM, 0) AS LV1_CBM
+			 , ISNULL(CI.LV1_CBF, 0) AS LV1_CBF
+			 , ISNULL(CI.LV1_GRS_KGS, 0) AS LV1_GRS_KGS
+			 , ISNULL(CI.LV1_GRS_LBS, 0) AS LV1_GRS_LBS
+			 , ISNULL(CI.LV1_NET_KGS, 0) AS LV1_NET_KGS
+			 , ISNULL(CI.LV1_NET_LBS, 0) AS LV1_NET_LBS
+			 /*VIS에서 넘어온경우는 EA_QTY가 0으로 넘어올수있으므로 재계산 */
+		     , CASE WHEN TT.INVALID_YN = 'Y' AND SU_VALID_YN = 'Y' THEN  TT.ITEM_PKGQTY * (CASE WHEN CI.PKG_LV1_UNIT_CD = TT.ITEM_PKGUNIT THEN PKG_LV1_QTY
+		                                                                                        WHEN CI.ITEM_PKGUNIT    = TT.ITEM_PKGUNIT THEN ITEM_PKGBASEQTY
+		                                                                                        WHEN CI.PKG_LV3_UNIT_CD = TT.ITEM_PKGUNIT THEN PKG_LV3_QTY
+		                                                                                        WHEN CI.PKG_LV4_UNIT_CD = TT.ITEM_PKGUNIT THEN PKG_LV4_QTY
+		                                                                                        ELSE 0 
+		                                                                                        END 
+		                                                                                 )
+		
+		            ELSE O_ITEM_EA_QTY END AS ITEM_EA_QTY
+		     , CI.UNIT_PRICE AS ITEM_UNIT_PRICE
+		     <!-- #2333 [WMS4.0] MOBILE VALIDATION OF SERIAL # (NO DUPLICATE) (S) -->
+			 , ISNULL(CI.USE_SERIAL_FLAG, 'Y') AS USE_SERIAL_FLAG
+			 , ISNULL(CI.SERIAL_REQ_FLAG, 'N') AS SERIAL_REQ_FLAG
+			 , ISNULL(CI.SERIAL_UNIQ_FLAG, 'N') AS SERIAL_UNIQ_FLAG
+		     <!-- #2333 [WMS4.0] MOBILE VALIDATION OF SERIAL # (NO DUPLICATE) (E) -->
+		  FROM (
+		        SELECT T.* 			 
+					 /*VIS에서 넘어온경우는 실제 ITEM_CD가 유효할경우 ITEM_SYS_NO를 다시 가져온다*/
+		             , CASE WHEN T.INVALID_YN = 'Y' THEN T.CHG_ITEM_SYS_NO ELSE O_ITEM_SYS_NO END AS ITEM_SYS_NO 
+		             /*VIS에서 넘어온경우는 실제 ITEM_CD가 유효할경우 FLAG값을 'Y'로 셋팅한다*/
+		             , CASE WHEN T.INVALID_YN = 'Y' AND T.CHG_ITEM_SYS_NO IS NOT NULL THEN 'Y' ELSE '' END AS SU_VALID_YN
+		          FROM (
+		            SELECT IB.WIB_BK_NO
+		                 , R_ITEM.WIB_IN_NO
+		                 , I_ITEM.RGST_TIMESTAMP
+		                 , IB.CTRT_NO
+		                 , DBO.TL_GET_CTRT_NM(IB.CTRT_NO) AS CTRT_NM
+		                 , IB.RTP_NO
+		                 , IB.WH_CD
+		                 , DBO.TL_GET_LOC_NM(IB.WH_CD) AS WH_NM
+		                 , CASE WHEN IB.BK_STS_CD = 'N' AND IB.IN_STS_CD IS NULL THEN 'N'
+					            WHEN IB.BK_STS_CD = 'I' AND IB.IN_STS_CD IS NULL THEN 'I'
+					            WHEN IB.IN_STS_CD IS NOT NULL THEN 'X' ELSE '' END AS BK_STS_CD
+		                 , I_ITEM.PO_SYS_NO
+		                 , I_ITEM.ITEM_SYS_NO AS O_ITEM_SYS_NO	
+		                 , I_ITEM.ITEM_SEQ
+		                 , I_ITEM.PO_NO
+		                 , I_ITEM.ITEM_CD
+		                 , I_ITEM.ITEM_NM  AS ITEM_NM_ORG              
+		                 , I_ITEM.ITEM_PKGUNIT
+		                 , I_ITEM.ITEM_EA_QTY AS O_ITEM_EA_QTY
+		                 , I_ITEM.ITEM_PKGQTY
+		                 , CASE WHEN R_ITEM.WIB_IN_NO IS NULL AND ISNULL(I_ITEM.ITEM_RCV_PKGQTY, 0) > 0 THEN I_ITEM.ITEM_PKGUNIT
+                                ELSE R_ITEM.SND_PKGUNIT END AS SND_PKGUNIT
+		                 , CASE WHEN R_ITEM.WIB_IN_NO IS NULL THEN ISNULL(I_ITEM.ITEM_RCV_PKGQTY, 0)
+		                        ELSE ISNULL(R_ITEM.SND_PKGQTY,0) END AS RCV_PKGQTY
+		                 , CASE WHEN R_ITEM.WIB_IN_NO IS NULL THEN ISNULL(I_ITEM.ITEM_RCV_EA_QTY, 0) 
+		                        ELSE ISNULL(R_ITEM.SND_EA_QTY, 0) END AS SND_EA_QTY
+		                 , R_ITEM.SND_ITEM_CBM AS SND_ITEM_CBM_ORG
+		                 , R_ITEM.SND_ITEM_CBF AS SND_ITEM_CBF_ORG      
+		                 , R_ITEM.SND_ITEM_GRS_KGS AS SND_ITEM_GRS_KGS_ORG
+		                 , R_ITEM.SND_ITEM_GRS_LBS AS SND_ITEM_GRS_LBS_ORG
+		                 , R_ITEM.SND_ITEM_NET_KGS AS SND_ITEM_NET_KGS_ORG
+		                 , R_ITEM.SND_ITEM_NET_LBS AS SND_ITEM_NET_LBS_ORG
+		                        
+		                 , R_ITEM.DMG_PKGUNIT
+		                 , ISNULL(R_ITEM.DMG_PKGQTY,0) AS DMG_PKGQTY
+		                 , R_ITEM.DMG_EA_QTY
+		                 , R_ITEM.DMG_ITEM_CBM
+		                 , R_ITEM.DMG_ITEM_CBF
+		                 , R_ITEM.DMG_ITEM_GRS_KGS
+		                 , R_ITEM.DMG_ITEM_GRS_LBS
+		                 , R_ITEM.DMG_ITEM_NET_KGS
+		                 , R_ITEM.DMG_ITEM_NET_LBS
+		                 , I_ITEM.UNLOAD_INBOUND_LOC_CD
+		                 , R_ITEM.INBOUND_LOC_CD AS INBOUND_LOC_CD_RCV
+		                 , R_ITEM.DMG_LOC_CD
+		                 , CASE WHEN R_ITEM.WIB_IN_NO IS NULL THEN ISNULL(I_ITEM.ITEM_RCV_EA_QTY, 0) ELSE ISNULL(R_ITEM.IN_ITEM_EA_QTY, 0) END AS IN_ITEM_EA_QTY		  
+		                 , R_ITEM.OS_ITEM_EA_QTY AS RCV_OS_ITEM_EA_QTY                              
+		                 , I_ITEM.MBL_NO
+		                 , I_ITEM.HBL_NO
+		                 , CAST(ISNULL(R_ITEM.IN_ITEM_CBM,  I_ITEM.ITEM_CBM) AS FLOAT) AS ITEM_CBM
+		                 , CAST(ISNULL(R_ITEM.IN_ITEM_CBF,  I_ITEM.ITEM_CBF) AS FLOAT) AS ITEM_CBF
+		                 , CAST(ISNULL(R_ITEM.IN_ITEM_GRS_KGS,  I_ITEM.ITEM_GRS_KGS) AS FLOAT) AS ITEM_GRS_KGS
+		                 , CAST(ISNULL(R_ITEM.IN_ITEM_GRS_LBS,  I_ITEM.ITEM_GRS_LBS) AS FLOAT) AS ITEM_GRS_LBS
+		                 , CAST(ISNULL(R_ITEM.IN_ITEM_NET_KGS,  I_ITEM.ITEM_NET_KGS) AS FLOAT) AS ITEM_NET_KGS
+		                 , CAST(ISNULL(R_ITEM.IN_ITEM_NET_LBS,  I_ITEM.ITEM_NET_LBS) AS FLOAT) AS ITEM_NET_LBS
+		                 , ISNULL(R_ITEM.LOT_ID, I_ITEM.FIX_LOT_ID) AS LOT_ID 
+		                 , I_ITEM.FIX_LOT_ID 
+		                 , I_ITEM.INBOUND_DT AS INBOUND_DT_IB
+		                 , I_ITEM.LOT_NO AS LOT_NO_IB
+		                 , I_ITEM.EXP_DT AS EXP_DT_IB
+		                 , I_ITEM.LOT_04 AS LOT_04_IB
+		                 , I_ITEM.LOT_05 AS LOT_05_IB         
+		                 , I_ITEM.CURR_CD
+		                 , I_ITEM.UNIT_PRICE     
+		                 , R_ITEM.IN_ITEM_PE_QTY AS IN_ITEM_PE_QTY_RCV
+		                 , I_ITEM.INVALID_YN
+		       			 /*vis 에서 들어온경우 유효성검사전일경우 관련 필드 시작 */
+		       			 , CASE WHEN I_ITEM.INVALID_YN = 'Y' THEN I_ITEM.ITEM_SYS_NO ELSE '' END AS ORG_ITEM_SYS_NO 
+		       			 , CASE WHEN I_ITEM.INVALID_YN = 'Y' THEN (
+		       			                                          SELECT MAX(IT.ITEM_SYS_NO) /*OVER (PARTITION BY IT.ITEM_CD ORDER BY IT.ITEM_SYS_NO)*/ AS ITEM_SYS_NO    			                                           
+		           			                                        FROM TL_CTRT_CUST_ITEM IT 
+		           			                                       WHERE IT.ITEM_CD = I_ITEM.ITEM_CD
+		           			                                         AND IT.CTRT_NO = IB.CTRT_NO
+		           			                                         AND IT.ITEM_USE_FLG = 'Y'
+		       			                                     )
+		       			      ELSE '' END AS CHG_ITEM_SYS_NO
+		       			 /*vis 에서 들어온경우 유효성검사전일경우 관련 필드 종료 */
+		       			 , I_ITEM.CNTR_REF_NO
+		       			 , I_ITEM.CUSTMS_REF_NO
+		       			 , I_ITEM.UNLOAD_GATE_NO
+		       			 
+		       			 , WH_LOC.LABEL_UNIT
+		       			 , I_ITEM.BX_LABEL_QTY
+		       			 , I_ITEM.BX_LABEL_QTY AS BX_LABEL_QTY_ORG  
+		       			 
+		       			 , IB.SRC_CD
+		       			 , R_ITEM.RCV_STS_CD
+		       			 <!-- #1882 [BINEX WMS4.0] INBOUND COMPLETE CANCEL DELETES SAVED SERIAL # -->
+		       			 , CASE WHEN R_ITEM.RCV_STS_CD IS NOT NULL THEN R_ITEM.ITEM_SER_NO ELSE I_ITEM.ITEM_SER_NO END ITEM_SER_NO
+		       			 , CASE WHEN R_ITEM.RCV_STS_CD IS NOT NULL THEN R_ITEM.LIC_PLAT_NO ELSE I_ITEM.LIC_PLAT_NO END LIC_PLAT_NO
+		       			 , I_ITEM.EQ_TPSZ_CD
+						 , I_ITEM.EQ_NO
+						 , I_ITEM.SEAL_NO
+						 , I_ITEM.EQ_TP_CD
+		              FROM TL_WH_IB IB
+		                 LEFT JOIN TL_WH_IB_ITEM I_ITEM   ON IB.WIB_BK_NO = I_ITEM.WIB_BK_NO
+		                 LEFT JOIN TL_WH_RCV_ITEM R_ITEM  ON I_ITEM.WIB_BK_NO 	= R_ITEM.WIB_BK_NO 
+		                 								 AND I_ITEM.PO_SYS_NO 	= R_ITEM.PO_SYS_NO 
+														 AND I_ITEM.ITEM_SYS_NO = R_ITEM.ITEM_SYS_NO
+														 AND I_ITEM.ITEM_SEQ 	= R_ITEM.ITEM_SEQ
+		                 LEFT JOIN TL_CTRT_WH_LOC WH_LOC ON IB.CTRT_NO = WH_LOC.CTRT_NO AND IB.WH_CD = WH_LOC.LOC_CD
+		             WHERE 1 = 1
+		             AND IB.BK_STS_CD != 'C'
+		              <isNotEmpty property="wib_bk_no">   
+					   	AND IB.WIB_BK_NO = #wib_bk_no#
+					  </isNotEmpty>
+					  <isEmpty property="wib_bk_no">
+					 	 <isNotEmpty property="cust_ord_no">   
+						   AND IB.WIB_BK_NO = (select Max(WIB_BK_NO) from TL_WH_IB where CUST_ORD_NO = #cust_ord_no#)
+						 </isNotEmpty>
+					  </isEmpty>
+		             ) T
+		     ) TT
+		     LEFT JOIN TL_CTRT_CUST_ITEM CI ON TT.ITEM_SYS_NO =  CI.ITEM_SYS_NO AND TT.CTRT_NO = CI.CTRT_NO
+		     LEFT JOIN TL_CTRT_CUST_ITEM_WH IT_WH ON TT.CTRT_NO     = IT_WH.CTRT_NO AND TT.ITEM_SYS_NO = IT_WH.ITEM_SYS_NO AND TT.WH_CD = IT_WH.WH_CD
+		     LEFT JOIN TL_CTRT_CUST_ITEM_LOT LOT ON TT.CTRT_NO = LOT.CTRT_NO AND TT.ITEM_SYS_NO =  LOT.ITEM_SYS_NO AND TT.LOT_ID = LOT.LOT_ID
+      ) TTT
+ 	 ORDER BY <!-- TTT.RGST_TIMESTAMP ASC, --> TTT.ITEM_CD ASC, TTT.LOT_ID ASC, TTT.ITEM_SEQ ASC
+ 	</select>
+ 	
+ 	<typeAlias alias="Grd02WHInMgmtVO" type="com.clt.apps.fis.wms.inboundmanagement.dto.Grd02WHInMgmtVO"/>
+	<select id="searchWHInItemFrtList" resultClass="Grd02WHInMgmtVO">
+	/* WHInbk.searchWHInItemFrtList */	
+	SELECT
+			TTT.CTRT_NO,
+			<isNotEmpty property="f_unitCd">
+			TTT.LIC_PLAT_NO,
+			</isNotEmpty>
+			<isEmpty property="f_unitCd">
+			'' AS LIC_PLAT_NO,
+			</isEmpty>
+			SUM(TTT.SND_EA_QTY) TOT_SND_EA_QTY,
+			<!-- SUM(TTT.SND_EA_QTY/TTT.PKG_LV2_QTY) TOT_RCV_PKGQTY, -->
+			SUM(TTT.TOT_RCV_PKGQTY) TOT_RCV_PKGQTY,
+			SUM(TTT.SND_ITEM_CBM) TOT_SND_ITEM_CBM,  
+			SUM(TTT.SND_ITEM_CBF) TOT_SND_ITEM_CBF,
+			SUM(TTT.SND_ITEM_GRS_KGS) TOT_SND_ITEM_GRS_KGS,
+			SUM(TTT.SND_ITEM_GRS_LBS) TOT_SND_ITEM_GRS_LBS,
+			SUM(TTT.SND_ITEM_NET_KGS) TOT_SND_ITEM_NET_KGS,
+			SUM(TTT.SND_ITEM_NET_LBS) TOT_SND_ITEM_NET_LBS,
+			SUM(TTT.DMG_EA_QTY) TOT_DMG_EA_QTY,
+			<!-- SUM(TTT.DMG_EA_QTY/TTT.PKG_LV2_QTY) TOT_DMG_PKGQTY, -->
+			SUM(TTT.TOT_DMG_PKGQTY) TOT_DMG_PKGQTY,
+			SUM(TTT.DMG_ITEM_CBM) TOT_DMG_ITEM_CBM,  
+			SUM(TTT.DMG_ITEM_CBF) TOT_DMG_ITEM_CBF,
+			SUM(TTT.DMG_ITEM_GRS_KGS) TOT_DMG_ITEM_GRS_KGS,
+			SUM(TTT.DMG_ITEM_GRS_LBS) TOT_DMG_ITEM_GRS_LBS,
+			SUM(TTT.DMG_ITEM_NET_KGS) TOT_DMG_ITEM_NET_KGS,
+			SUM(TTT.DMG_ITEM_NET_LBS) TOT_DMG_ITEM_NET_LBS
+			
+			<!--#4445 Added Logic -->
+			,SUM(TTT.ONLY_RCV_PKGQTY) ONLY_RCV_PKGQTY
+			
+			,SUM(TTT.ONLY_SND_EA_QTY) ONLY_SND_EA_QTY
+			,SUM(TTT.ONLY_DMG_EA_QTY) ONLY_DMG_EA_QTY
+	
+			,SUM(TTT.ONLY_SND_ITEM_CBM_PKG) ONLY_SND_ITEM_CBM_PKG
+			,SUM(TTT.ONLY_SND_ITEM_CBF_PKG) ONLY_SND_ITEM_CBF_PKG
+			,SUM(TTT.ONLY_SND_ITEM_GRS_KGS_PKG) ONLY_SND_ITEM_GRS_KGS_PKG
+			,SUM(TTT.ONLY_SND_ITEM_GRS_LBS_PKG) ONLY_SND_ITEM_GRS_LBS_PKG
+			,SUM(TTT.ONLY_SND_ITEM_GRS_KGS_PKG) ONLY_SND_ITEM_NET_KGS_PKG
+			,SUM(TTT.ONLY_SND_ITEM_GRS_LBS_PKG) ONLY_SND_ITEM_NET_LBS_PKG
+	
+			,SUM(TTT.ONLY_SND_ITEM_CBM) ONLY_SND_ITEM_CBM
+			,SUM(TTT.ONLY_SND_ITEM_CBF) ONLY_SND_ITEM_CBF
+			,SUM(TTT.ONLY_SND_ITEM_GRS_KGS) ONLY_SND_ITEM_GRS_KGS
+			,SUM(TTT.ONLY_SND_ITEM_GRS_LBS) ONLY_SND_ITEM_GRS_LBS
+			,SUM(TTT.ONLY_SND_ITEM_GRS_KGS) ONLY_SND_ITEM_NET_KGS
+			,SUM(TTT.ONLY_SND_ITEM_GRS_LBS) ONLY_SND_ITEM_NET_LBS
+	
+			,SUM(TTT.ONLY_DMG_ITEM_CBM) ONLY_DMG_ITEM_CBM
+			,SUM(TTT.ONLY_DMG_ITEM_CBF) ONLY_DMG_ITEM_CBF
+			,SUM(TTT.ONLY_DMG_ITEM_GRS_KGS) ONLY_DMG_ITEM_GRS_KGS
+			,SUM(TTT.ONLY_DMG_ITEM_GRS_LBS) ONLY_DMG_ITEM_GRS_LBS
+			,SUM(TTT.ONLY_DMG_ITEM_GRS_KGS) ONLY_DMG_ITEM_NET_KGS
+			,SUM(TTT.ONLY_DMG_ITEM_GRS_LBS) ONLY_DMG_ITEM_NET_LBS
+			
+	    FROM
+	        (SELECT
+	            TT.*,
+	            CASE 
+	                WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_01 
+	                ELSE TT.INBOUND_DT_IB 
+	            END  AS INBOUND_DT,
+	
+	            CASE 
+	                WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_CBM               
+	                ELSE ISNULL(TT.SND_ITEM_CBM_ORG,
+	                0) 
+	            END AS SND_ITEM_CBM ,
+	            CASE 
+	                WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_CBF               
+	                ELSE ISNULL(TT.SND_ITEM_CBF_ORG,
+	                0) 
+	            END AS SND_ITEM_CBF,
+	            CASE 
+	                WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_GRS_KGS               
+	                ELSE ISNULL(TT.SND_ITEM_GRS_KGS_ORG,
+	                0) 
+	            END AS SND_ITEM_GRS_KGS,
+	            CASE 
+	                WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_GRS_LBS               
+	                ELSE ISNULL(TT.SND_ITEM_GRS_LBS_ORG,
+	                0) 
+	            END AS SND_ITEM_GRS_LBS,
+	            CASE 
+	                WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_NET_KGS               
+	                ELSE ISNULL(TT.SND_ITEM_NET_KGS_ORG,
+	                0) 
+	            END AS SND_ITEM_NET_KGS,
+	            CASE 
+	                WHEN TT.WIB_IN_NO IS NULL THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_NET_LBS               
+	                ELSE ISNULL(TT.SND_ITEM_NET_LBS_ORG,
+	                0) 
+	            END AS SND_ITEM_NET_LBS  ,     
+	            CI.UNIT_PRICE AS ITEM_UNIT_PRICE ,    
+	            ISNULL(CI.ITEM_PKGBASEQTY, 0) AS PKG_LV2_QTY,
+				CASE WHEN ISNULL(CI.ITEM_PKGBASEQTY,0) = 0 THEN 0
+					 ELSE SND_EA_QTY/ISNULL(CI.ITEM_PKGBASEQTY,0) 
+				END TOT_RCV_PKGQTY,  
+				CASE WHEN ISNULL(CI.ITEM_PKGBASEQTY,0) = 0 THEN 0
+					 ELSE DMG_EA_QTY/ISNULL(CI.ITEM_PKGBASEQTY,0) 
+				END TOT_DMG_PKGQTY,
+				
+				<!-- #4445 Added Logic -->
+				
+				<!-- PKG UNIT QUANTITY -->
+				CASE
+				WHEN ISNULL(CI.ITEM_PKGBASEQTY, 0) = 0 
+				  	 THEN 0       
+	            ELSE 
+					CASE WHEN TT.SND_PKGUNIT = CI.ITEM_PKGUNIT THEN SND_EA_QTY/ISNULL(CI.ITEM_PKGBASEQTY, 0) 
+					ELSE 0	      
+					END
+	            END ONLY_RCV_PKGQTY,
+	
+				<!-- HND UNIT QUANTITY -->
+				CASE WHEN TT.SND_PKGUNIT = PKG_LV1_UNIT_CD THEN SND_EA_QTY
+				ELSE 0 
+	            END ONLY_SND_EA_QTY,
+	
+				CASE WHEN TT.DMG_PKGUNIT = PKG_LV1_UNIT_CD THEN DMG_EA_QTY
+				ELSE 0 
+	            END ONLY_DMG_EA_QTY,
+	
+				<!-- PKG UNIT CBM/CBF/KGS/LBS -->
+				CASE WHEN TT.SND_PKGUNIT = CI.ITEM_PKGUNIT 
+					THEN ISNULL(TT.SND_ITEM_CBM_ORG, 0) 
+				ELSE 0 
+	            END AS ONLY_SND_ITEM_CBM_PKG ,
+	            
+				CASE WHEN TT.SND_PKGUNIT = CI.ITEM_PKGUNIT 
+					THEN ISNULL(TT.SND_ITEM_CBF_ORG, 0) 
+				ELSE 0 
+	            END AS ONLY_SND_ITEM_CBF_PKG ,
+	            
+				CASE WHEN TT.SND_PKGUNIT = CI.ITEM_PKGUNIT 
+					THEN ISNULL(TT.SND_ITEM_GRS_KGS_ORG, 0) 
+				ELSE 0 
+	            END AS ONLY_SND_ITEM_GRS_KGS_PKG ,
+	            
+				CASE WHEN TT.SND_PKGUNIT = CI.ITEM_PKGUNIT 
+					THEN ISNULL(TT.SND_ITEM_GRS_LBS_ORG, 0) 
+				ELSE 0
+	            END AS ONLY_SND_ITEM_GRS_LBS_PKG ,
+	            
+				CASE WHEN TT.SND_PKGUNIT = CI.ITEM_PKGUNIT 
+					THEN  ISNULL(TT.SND_ITEM_NET_KGS_ORG, 0) 
+				ELSE 0
+	            END AS ONLY_SND_ITEM_NET_KGS_PKG ,
+	
+				CASE WHEN TT.SND_PKGUNIT = CI.ITEM_PKGUNIT 
+					THEN ISNULL(TT.SND_ITEM_NET_LBS_ORG, 0) 
+				ELSE 0
+	            END AS ONLY_SND_ITEM_NET_LBS_PKG ,
+	
+				<!-- SOUND HND UNIT CBM/CBF/KGS/LBS -->
+	            CASE                   
+	                WHEN ( TT.WIB_IN_NO IS NULL ) AND ( TT.SND_PKGUNIT = PKG_LV1_UNIT_CD ) 
+						THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_CBM                                 
+	                ELSE 
+						CASE WHEN TT.SND_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.SND_ITEM_CBM_ORG, 0) ELSE 0 END
+	            END AS ONLY_SND_ITEM_CBM ,
+	            
+				CASE                   
+	                WHEN ( TT.WIB_IN_NO IS NULL ) AND ( TT.SND_PKGUNIT = PKG_LV1_UNIT_CD ) 
+						THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_CBF                                 
+	                ELSE 
+						CASE WHEN TT.SND_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.SND_ITEM_CBF_ORG, 0) ELSE 0 END               
+	            END AS ONLY_SND_ITEM_CBF,
+	            
+				CASE                   
+	                WHEN ( TT.WIB_IN_NO IS NULL ) AND ( TT.SND_PKGUNIT = PKG_LV1_UNIT_CD ) 
+						THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_GRS_KGS                                 
+	                ELSE 
+						CASE WHEN TT.SND_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.SND_ITEM_GRS_KGS_ORG, 0) ELSE 0 END               
+	            END AS ONLY_SND_ITEM_GRS_KGS,
+	            
+				CASE                   
+	                WHEN ( TT.WIB_IN_NO IS NULL ) AND ( TT.SND_PKGUNIT = PKG_LV1_UNIT_CD ) 
+						THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_GRS_LBS                                 
+	                ELSE 
+						CASE WHEN TT.SND_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.SND_ITEM_GRS_LBS_ORG, 0) ELSE 0 END               
+	            END AS ONLY_SND_ITEM_GRS_LBS,
+	            
+				CASE                   
+	                WHEN ( TT.WIB_IN_NO IS NULL ) AND ( TT.SND_PKGUNIT = PKG_LV1_UNIT_CD ) 
+						THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_NET_KGS                                 
+	                ELSE CASE WHEN TT.SND_PKGUNIT = PKG_LV1_UNIT_CD THEN  ISNULL(TT.SND_ITEM_NET_KGS_ORG, 0) ELSE 0 END               
+	            END AS ONLY_SND_ITEM_NET_KGS,
+	
+	            CASE                   
+	                WHEN ( TT.WIB_IN_NO IS NULL ) AND ( TT.SND_PKGUNIT = PKG_LV1_UNIT_CD ) 
+						THEN SND_EA_QTY * CI.PKG_LV1_QTY* CI.LV1_NET_LBS                                 
+	                ELSE CASE WHEN TT.SND_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.SND_ITEM_NET_LBS_ORG, 0) ELSE 0 END               
+	            END AS ONLY_SND_ITEM_NET_LBS  ,
+	
+				<!-- DAMAGE HND UNIT CBM/CBF/KGS/LBS -->
+				CASE WHEN TT.DMG_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.DMG_ITEM_CBM, 0)      ELSE 0 END ONLY_DMG_ITEM_CBM ,
+	            
+				CASE WHEN TT.DMG_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.DMG_ITEM_CBF, 0)      ELSE 0 END ONLY_DMG_ITEM_CBF,
+	            
+				CASE WHEN TT.DMG_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.DMG_ITEM_GRS_KGS, 0)  ELSE 0 END ONLY_DMG_ITEM_GRS_KGS,
+	            
+				CASE WHEN TT.DMG_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.DMG_ITEM_GRS_LBS, 0)  ELSE 0 END ONLY_DMG_ITEM_GRS_LBS,
+	            
+				CASE WHEN TT.DMG_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.DMG_ITEM_NET_KGS, 0)  ELSE 0 END ONLY_DMG_ITEM_NET_KGS,
+	
+				CASE WHEN TT.DMG_PKGUNIT = PKG_LV1_UNIT_CD THEN ISNULL(TT.DMG_ITEM_NET_LBS, 0)  ELSE 0 END ONLY_DMG_ITEM_NET_LBS,
+            	<!-- Added Logic -->
+            	
+				CI.PKG_LV3_UNIT_CD 
+	        FROM
+	            (           SELECT
+	                T.*            /*VIS에서 넘어온경우는 실제 ITEM_CD가 유효할경우 ITEM_SYS_NO를 다시 가져온다*/,
+	                CASE 
+	                    WHEN T.INVALID_YN = 'Y' THEN T.CHG_ITEM_SYS_NO 
+	                    ELSE O_ITEM_SYS_NO 
+	                END AS ITEM_SYS_NO                 /*VIS에서 넘어온경우는 실제 ITEM_CD가 유효할경우 FLAG값을 'Y'로 셋팅한다*/,
+	                CASE 
+	                    WHEN T.INVALID_YN = 'Y' 
+	                    AND T.CHG_ITEM_SYS_NO IS NOT NULL THEN 'Y' 
+	                    ELSE '' 
+	                END AS SU_VALID_YN             
+	            FROM
+	                ( SELECT
+	                    IB.WIB_BK_NO,
+	                    R_ITEM.WIB_IN_NO,
+	                    IB.CTRT_NO,
+	                    IB.WH_CD,
+	                    I_ITEM.PO_SYS_NO,
+	                    I_ITEM.ITEM_SYS_NO AS O_ITEM_SYS_NO,
+	                    I_ITEM.ITEM_SEQ,
+	                    I_ITEM.PO_NO,
+	                    I_ITEM.ITEM_CD,
+	                    I_ITEM.ITEM_NM  AS ITEM_NM_ORG ,
+	                    I_ITEM.ITEM_PKGUNIT,
+	                    I_ITEM.ITEM_EA_QTY AS O_ITEM_EA_QTY,
+	                    I_ITEM.ITEM_PKGQTY ,
+	                    CASE 
+	                        WHEN R_ITEM.WIB_IN_NO IS NULL 
+	                        AND ISNULL(I_ITEM.ITEM_RCV_PKGQTY,
+	                        0) > 0 THEN I_ITEM.ITEM_PKGUNIT                                 
+	                        ELSE R_ITEM.SND_PKGUNIT 
+	                    END AS SND_PKGUNIT,
+	                    CASE 
+	                        WHEN R_ITEM.WIB_IN_NO IS NULL THEN ISNULL(I_ITEM.ITEM_RCV_PKGQTY,
+	                        0)                           
+	                        ELSE ISNULL(R_ITEM.SND_PKGQTY,
+	                        0) 
+	                    END AS RCV_PKGQTY,
+	                    CASE 
+	                        WHEN R_ITEM.WIB_IN_NO IS NULL THEN ISNULL(I_ITEM.ITEM_RCV_EA_QTY,
+	                        0)                            
+	                        ELSE ISNULL(R_ITEM.SND_EA_QTY,
+	                        0) 
+	                    END AS SND_EA_QTY,
+	                    R_ITEM.SND_ITEM_CBM AS SND_ITEM_CBM_ORG,
+	                    R_ITEM.SND_ITEM_CBF AS SND_ITEM_CBF_ORG,
+	                    R_ITEM.SND_ITEM_GRS_KGS AS SND_ITEM_GRS_KGS_ORG,
+	                    R_ITEM.SND_ITEM_GRS_LBS AS SND_ITEM_GRS_LBS_ORG,
+	                    R_ITEM.SND_ITEM_NET_KGS AS SND_ITEM_NET_KGS_ORG,
+	                    R_ITEM.SND_ITEM_NET_LBS AS SND_ITEM_NET_LBS_ORG,
+	                    R_ITEM.DMG_PKGUNIT,
+	                    ISNULL(R_ITEM.DMG_PKGQTY,
+	                    0) AS DMG_PKGQTY,
+	                    R_ITEM.DMG_EA_QTY,
+	                    R_ITEM.DMG_ITEM_CBM,
+	                    R_ITEM.DMG_ITEM_CBF,
+	                    R_ITEM.DMG_ITEM_GRS_KGS,
+	                    R_ITEM.DMG_ITEM_GRS_LBS,
+	                    R_ITEM.DMG_ITEM_NET_KGS,
+	                    R_ITEM.DMG_ITEM_NET_LBS,
+	                    I_ITEM.UNLOAD_INBOUND_LOC_CD,
+	                    R_ITEM.INBOUND_LOC_CD AS INBOUND_LOC_CD_RCV,
+	                    R_ITEM.DMG_LOC_CD,
+	                    CASE 
+	                        WHEN R_ITEM.WIB_IN_NO IS NULL THEN ISNULL(I_ITEM.ITEM_RCV_EA_QTY,
+	                        0) 
+	                        ELSE ISNULL(R_ITEM.IN_ITEM_EA_QTY,
+	                        0) 
+	                    END AS IN_ITEM_EA_QTY,
+	                    R_ITEM.OS_ITEM_EA_QTY AS RCV_OS_ITEM_EA_QTY,
+	                    I_ITEM.MBL_NO,
+	                    I_ITEM.HBL_NO,
+	                    ISNULL(R_ITEM.IN_ITEM_CBM,
+	                    I_ITEM.ITEM_CBM) AS ITEM_CBM,
+	                    ISNULL(R_ITEM.IN_ITEM_CBF,
+	                    I_ITEM.ITEM_CBF) AS ITEM_CBF,
+	                    ISNULL(R_ITEM.IN_ITEM_GRS_KGS,
+	                    I_ITEM.ITEM_GRS_KGS) AS ITEM_GRS_KGS,
+	                    ISNULL(R_ITEM.IN_ITEM_GRS_LBS,
+	                    I_ITEM.ITEM_GRS_LBS) AS ITEM_GRS_LBS,
+	                    ISNULL(R_ITEM.IN_ITEM_NET_KGS,
+	                    I_ITEM.ITEM_NET_KGS) AS ITEM_NET_KGS,
+	                    ISNULL(R_ITEM.IN_ITEM_NET_LBS,
+	                    I_ITEM.ITEM_NET_LBS) AS ITEM_NET_LBS,
+	                    ISNULL(R_ITEM.LOT_ID,
+	                    I_ITEM.FIX_LOT_ID) AS LOT_ID,
+	                    I_ITEM.FIX_LOT_ID,
+	                    I_ITEM.INBOUND_DT AS INBOUND_DT_IB,
+	                    I_ITEM.LOT_NO AS LOT_NO_IB,
+	                    I_ITEM.EXP_DT AS EXP_DT_IB,
+	                    I_ITEM.LOT_04 AS LOT_04_IB,
+	                    I_ITEM.LOT_05 AS LOT_05_IB,
+	                    I_ITEM.CURR_CD,
+	                    I_ITEM.UNIT_PRICE,
+	                    R_ITEM.IN_ITEM_PE_QTY AS IN_ITEM_PE_QTY_RCV,
+	                    I_ITEM.INVALID_YN              /*vis 에서 들어온경우 유효성검사전일경우 관련 필드 시작 */              ,
+	                    CASE 
+	                        WHEN I_ITEM.INVALID_YN = 'Y' THEN I_ITEM.ITEM_SYS_NO 
+	                        ELSE '' 
+	                    END AS ORG_ITEM_SYS_NO               ,
+	                    CASE 
+	                        WHEN I_ITEM.INVALID_YN = 'Y' THEN (                                                       
+	                        SELECT
+	                            MAX(IT.ITEM_SYS_NO) /*OVER (PARTITION 
+	                        BY
+	                            IT.ITEM_CD 
+	                        ORDER BY
+	                            IT.ITEM_SYS_NO)*/ AS ITEM_SYS_NO                                                                                                           
+	                        FROM
+	                            TL_CTRT_CUST_ITEM IT                                                         
+	                        WHERE
+	                            IT.ITEM_CD = I_ITEM.ITEM_CD                                                          
+	                            AND IT.CTRT_NO = IB.CTRT_NO                                                          
+	                            AND IT.ITEM_USE_FLG = 'Y'                                                  )                   
+	                        ELSE '' 
+	                    END AS CHG_ITEM_SYS_NO              /*vis 에서 들어온경우 유효성검사전일경우 관련 필드 종료 */              ,
+	                    I_ITEM.CNTR_REF_NO,
+	                    I_ITEM.CUSTMS_REF_NO,
+	                    I_ITEM.UNLOAD_GATE_NO,
+	                    WH_LOC.LABEL_UNIT,
+	                    I_ITEM.BX_LABEL_QTY,
+	                    I_ITEM.BX_LABEL_QTY AS BX_LABEL_QTY_ORG,
+	                    IB.SRC_CD,
+	                    R_ITEM.RCV_STS_CD,
+	                    R_ITEM.ITEM_SER_NO,
+	                    R_ITEM.LIC_PLAT_NO                 
+	                FROM
+	                    TL_WH_IB IB                    
+	                LEFT JOIN
+	                    TL_WH_IB_ITEM I_ITEM   
+	                        ON IB.WIB_BK_NO = I_ITEM.WIB_BK_NO                    
+	                LEFT JOIN
+	                    TL_WH_RCV_ITEM R_ITEM  
+	                        ON I_ITEM.WIB_BK_NO = R_ITEM.WIB_BK_NO 
+	                        AND I_ITEM.PO_SYS_NO = R_ITEM.PO_SYS_NO                                                 
+	                        AND I_ITEM.ITEM_SYS_NO = R_ITEM.ITEM_SYS_NO                                                
+	                        AND I_ITEM.ITEM_SEQ = R_ITEM.ITEM_SEQ                    
+	                LEFT JOIN
+	                    TL_CTRT_WH_LOC WH_LOC 
+	                        ON IB.CTRT_NO = WH_LOC.CTRT_NO 
+	                        AND IB.WH_CD = WH_LOC.LOC_CD                
+	                WHERE
+	                    1 = 1      
+	                   <isNotEmpty property="wib_bk_no">            
+		               AND IB.WIB_BK_NO = #wib_bk_no#
+		               </isNotEmpty> 
+		               <isEmpty property="wib_bk_no">  
+					   		<isNotEmpty property="cust_ord_no">              	
+		               		AND IB.CUST_ORD_NO = #cust_ord_no#
+		               		</isNotEmpty>
+		               </isEmpty>
+		               <isNotEmpty property="f_item_cd">
+	           		   AND I_ITEM.ITEM_CD = #f_item_cd#
+		               </isNotEmpty>  
+		               <isNotEmpty property="rvs_item_cd">
+	           		   AND I_ITEM.ITEM_CD not in ($rvs_item_cd$)
+		               </isNotEmpty>  
+	                ) T        ) TT        
+	        LEFT JOIN
+	            TL_CTRT_CUST_ITEM CI 
+	                ON TT.ITEM_SYS_NO =  CI.ITEM_SYS_NO 
+	                AND TT.CTRT_NO = CI.CTRT_NO        
+	        LEFT JOIN
+	            TL_CTRT_CUST_ITEM_WH IT_WH 
+	                ON TT.CTRT_NO     = IT_WH.CTRT_NO 
+	                AND TT.ITEM_SYS_NO = IT_WH.ITEM_SYS_NO 
+	                AND TT.WH_CD = IT_WH.WH_CD        
+	        LEFT JOIN
+	            TL_CTRT_CUST_ITEM_LOT LOT 
+	                ON TT.CTRT_NO = LOT.CTRT_NO 
+	                AND TT.ITEM_SYS_NO =  LOT.ITEM_SYS_NO 
+	                AND TT.LOT_ID = LOT.LOT_ID       
+	            ) TTT   
+	      WHERE 1 = 1
+	      <isNotEmpty property="eff_fr_dt">
+			AND TTT.INBOUND_DT BETWEEN #eff_fr_dt# AND #eff_to_dt#
+	      </isNotEmpty>
+	      <isNotEmpty property="f_lpNo_prop">
+			AND isnull(TTT.LIC_PLAT_NO,'') != '' 
+			<!-- AND TTT.PKG_LV3_UNIT_CD = #unit_cd2# -->
+	      </isNotEmpty>
+	      <isNotEmpty property="f_unitCd">
+			AND isnull(TTT.LIC_PLAT_NO,'') != '' 
+			AND TTT.PKG_LV3_UNIT_CD = #unit_cd2#
+	      </isNotEmpty>
+		GROUP BY
+			TTT.CTRT_NO
+			<isNotEmpty property="f_unitCd">
+			,TTT.LIC_PLAT_NO
+			</isNotEmpty>
+ 	</select>
+ 	
+ 	<!-- Container 및 Truck QTY정보 취득 -->
+	<select id="searchWHInItemTrkCntrList" resultClass="Grd02WHInMgmtVO">
+		/* WHInbk.searchWHInItemTrkCntrList */	
+			SELECT <!-- COUNT(I_ITEM.EQ_TP_CD) trk_cntr_cnt , -->
+				   I_ITEM.EQ_NO, I_ITEM.EQ_TPSZ_CD
+		    FROM
+                   TL_WH_IB IB                                      
+                LEFT JOIN TL_WH_IB_ITEM I_ITEM                             
+                        ON IB.WIB_BK_NO = I_ITEM.WIB_BK_NO                                      
+                LEFT JOIN TL_WH_RCV_ITEM R_ITEM                            
+                        ON I_ITEM.WIB_BK_NO = R_ITEM.WIB_BK_NO                           
+                        AND I_ITEM.PO_SYS_NO = R_ITEM.PO_SYS_NO                                                                           
+                        AND I_ITEM.ITEM_SYS_NO = R_ITEM.ITEM_SYS_NO                                                                          
+                        AND I_ITEM.ITEM_SEQ = R_ITEM.ITEM_SEQ                                      
+                LEFT JOIN TL_CTRT_WH_LOC WH_LOC                           
+                        ON IB.CTRT_NO = WH_LOC.CTRT_NO                           
+                        AND IB.WH_CD = WH_LOC.LOC_CD                                  
+			WHERE 1 = 1                                    
+                AND IB.WIB_BK_NO =  #wib_bk_no#   
+                <!-- AND IB.CUST_ORD_NO =  #wib_bk_no# -->   
+				AND I_ITEM.EQ_TPSZ_CD = #eq_tpsz_cd#  
+			GROUP BY I_ITEM.EQ_NO, I_ITEM.EQ_TPSZ_CD
+ 	</select>
+ 	
+ 	<!-- Attachment 정보 조회 -->
+	<select id="searchWHInFileList" resultClass="WHInbkAttachmentVO">
+		/* WHInbk.searchWHInFileList */
+		SELECT R.DOC_NO
+		      ,R.FILE_ORG_NM
+		      ,R.FILE_PATH
+		      ,R.FILE_SYS_NM
+		      ,R.FILE_SIZE
+		      ,CONVERT(VARCHAR(8),R.RGST_SYS_DT, 112) AS UPLOAD_DATE
+		  FROM TL_FILE_REP R
+		 WHERE 1 = 1
+		   AND R.DOC_REF_NO = (SELECT T.WIB_BK_NO
+		                         FROM TL_WH_IB T
+		                        WHERE 
+		                        <isNotEmpty property="wib_bk_no">   
+								   	T.WIB_BK_NO = #wib_bk_no#
+								  </isNotEmpty>
+								  <isEmpty property="wib_bk_no">
+								 	 <isNotEmpty property="cust_ord_no">   
+									   T.WIB_BK_NO = (select Max(WIB_BK_NO) from TL_WH_IB where CUST_ORD_NO = #cust_ord_no#)
+									 </isNotEmpty>
+								  </isEmpty>
+								  AND T.BK_STS_CD != 'C'
+		                        )
+		   AND R.DOC_REF_TP_CD = 'WIB'
+		   AND R.SVC_TP_CD = 'WB'
+		   AND R.DOC_TP_CD = 'WIB'
+	</select>
+ 	
+ 	<!-- Freight 정보 조회 -->
+	<select id="searchWHInFreightList" resultClass="Grd02RTDetailListVO">
+		/* WHInbk.searchWHInFreightList */
+		SELECT frt.WIB_BK_NO
+			  ,frt.CUST_ORD_NO
+		      ,frt.WH_CD
+		      ,frt.CTRT_NO
+		      ,frt.WIB_BK_FRT_SEQ
+		      ,frt.OFC_CD
+		      ,frt.CUST_CD
+		      ,dbo.TL_GET_CUST_NM(frt.CUST_CD) AS CUST_NM
+		      <!-- ,frt.RATE_TP_CD -->
+		      ,'IN' AS RATE_TP_CD
+		      ,frt.FRT_CD
+		      ,frt.FRT_NM
+		      ,frt.UNIT_CD
+		      ,frt.UNIT_CD2
+		      ,frt.CURR_CD
+		      ,frt.UNIT_PRICE
+		      ,frt.QTY
+		      ,frt.INV_AMT
+		      ,frt.INV_TTL_AMT
+		      ,frt.ITEM_CD
+		      ,frt.STS_CD
+		      ,frt.CLS_NO
+		      ,frt.CLS_DT
+		      ,inv.INV_NO 
+		      ,inv.INV_SEQ
+		      ,frt.SELL_BUY_TP_CD
+		      ,frt.FRT_SEQ
+		      ,frt.RATING_FLG
+		      ,frt.USE_FLG
+		      ,frt.DELT_FLG
+		      ,frt.RGST_USRID
+		      ,frt.RGST_OFC_CD
+		      ,frt.RGST_TMS
+		      ,frt.MODI_USRID
+		      ,frt.MODI_OFC_CD
+		      ,frt.MODI_TMS
+		      <!-- #3388-[BINEX WMS4.0] RATE IN & OUT MINIMUM CHARGE - Vien.Cao -->
+		      ,frt.RMK
+		  FROM TL_CTRT_CUST_FRT frt
+ 			   LEFT OUTER JOIN TB_INV_DTL inv          
+            	ON frt.INV_SEQ = inv.INV_SEQ   
+		 WHERE 1=1
+	 		<isNotEmpty property="wib_bk_no">   
+			AND frt.WIB_BK_NO = #wib_bk_no#
+			</isNotEmpty>
+			<isEmpty property="wib_bk_no">
+			 	 <isNotEmpty property="cust_ord_no">   
+				 AND frt.CUST_ORD_NO = #cust_ord_no#
+				 </isNotEmpty>
+			</isEmpty>
+		   AND frt.USE_FLG = 'Y'
+		   AND frt.DELT_FLG = 'N'
+		   <isEqual property="s_rating_cd" compareValue="N">
+		   AND frt.RATING_FLG != 'Y'
+		   </isEqual>
+		   <isEqual property="type" compareValue="IN">
+		   AND frt.RATE_TP_CD IN ('IN','IAO')
+		   </isEqual>
+		   <isEqual property="type" compareValue="OUT">
+		   AND frt.RATE_TP_CD IN ('OUT','IAO')
+		   </isEqual>
+		 ORDER BY frt.WIB_BK_FRT_SEQ
+	</select>
+    
+    <!-- Header 등록 -->
+	<insert id="addWHInMgmtInfo">
+	/* WHInbk.addWHInMgmtInfo */
+		INSERT INTO TL_WH_IB
+		(
+		    WIB_BK_NO
+		   ,SO_NO
+		   ,CTRT_NO
+		   ,RTP_NO
+		   ,WH_CD
+		   ,BK_DATE
+		   ,BK_STS_CD/*I로넣고 후에 상태값 업데이트*/
+		   ,EST_IN_DT
+		   ,EST_IN_HM
+		   ,ORD_TP_CD
+		   ,LOAD_TP_CD
+		   ,FWD_DIR 
+		   ,ORDER_REL
+		   ,OWNER_CD
+		   ,OWNER_ADDR1
+		   ,OWNER_ADDR2
+		   ,OWNER_ADDR3
+		   ,OWNER_ADDR4
+		   ,OWNER_ADDR5
+		   ,SUPP_CD
+		   ,SUPP_ADDR1
+		   ,SUPP_ADDR2
+		   ,SUPP_ADDR3
+		   ,SUPP_ADDR4
+		   ,SUPP_ADDR5
+		   ,BUYER_CD/*NULL*/
+		   ,BUYER_ADDR1/*NULL*/
+		   ,BUYER_ADDR2/*NULL*/
+		   ,BUYER_ADDR3/*NULL*/
+		   ,BUYER_ADDR4/*NULL*/
+		   ,BUYER_ADDR5/*NULL*/
+		   ,CUST_ORD_NO/*NULL*/
+		   ,COMMC_INV_NO
+		   ,DLV_ORD_NO
+		   ,JOB_NO/*NULL*/
+		   ,RMK
+		   ,VSL_CD
+		   ,VSL_NM
+		   ,VOY
+		   ,CARRIER_CD
+		   ,HBL_NO
+		   ,MBL_NO
+		   ,POL
+		   ,POD
+		   ,DEL
+		   ,ETD
+		   ,ETA
+		   ,DEL_DT/*NULL*/
+		   ,EST_CMPL_DT/*NULL*/
+		   ,SRC_CD/*NULL DEFAULT-N*/
+		   ,IN_STS_CD/*NULL로넣고 후에 상태값 업데이트*/
+		   ,SRC_TP_CD /*NULL*/
+		   ,TGT_CD
+		   ,REF_NO
+		   ,TLO_FLG
+		   ,TRUCKER_CD
+		   ,TRUCKER_NM
+		   ,EQ_TP_CD
+		   ,EQ_TPSZ_CD
+		   ,EQ_NO
+		   ,SEAL_NO
+		   ,INBOUND_DT
+		   ,INBOUND_HM
+		   ,INBOUND_PL_QTY
+		   ,INBOUND_BX_QTY
+		   ,INBOUND_EA_QTY
+		   ,INBOUND_SQFT
+		   ,INBOUND_CBM
+		   ,INBOUND_CBF/*NULL*/
+		   ,INBOUND_GRS_KGS
+		   ,INBOUND_GRS_LBS/*NULL*/
+		   ,INBOUND_NET_KGS
+		   ,INBOUND_NET_LBS/*NULL*/
+		   ,TRADE_TP_CD
+		   ,FWD_TP_CD		   
+		   ,RGST_ID
+		   ,RGST_OFC_CD
+		   ,RGST_SYS_DT
+		   ,RGST_LOC_DT
+		   ,MODI_ID
+		   ,MODI_OFC_CD
+		   ,MODI_SYS_DT
+		   ,MODI_LOC_DT
+		)
+		VALUES
+		(
+		    #wib_bk_no#
+		   ,#so_no#
+		   ,#ctrt_no#
+		   ,#rtp_no#
+		   ,#wh_cd#
+		   ,REPLACE (#bk_date#, '-', '')
+		   ,'I'
+		   ,REPLACE (#est_in_dt#, '-', '')
+		   ,REPLACE (#est_in_hm#, ':', '')
+		   ,#ord_tp_cd#
+		   ,#load_tp_cd#
+		   ,CASE WHEN #trade_tp_cd# = 'IMP' AND #fwd_tp_cd# = 'OWN' THEN 'I'
+                        WHEN #trade_tp_cd# = 'EXP' AND #fwd_tp_cd# = 'OWN' THEN 'E'
+                        ELSE 'G'
+                   END
+		   ,'P' /* Domestic Only */
+		   ,#owner_cd#
+		   ,#owner_addr1#
+		   ,#owner_addr2#
+		   ,#owner_addr3#
+		   ,#owner_addr4#
+		   ,#owner_addr5#
+		   ,#supp_cd#
+		   ,#supp_addr1#
+		   ,#supp_addr2#
+		   ,#supp_addr3#
+		   ,#supp_addr4#
+		   ,#supp_addr5#
+		   ,NULL
+		   ,NULL
+		   ,NULL
+		   ,NULL
+		   ,NULL
+		   ,NULL
+		   ,#cust_ord_no#
+		   ,#commc_inv_no#
+		   ,#dlv_ord_no#
+		   ,NULL
+		   ,#rmk#
+		   ,#vsl_cd#
+		   ,#vsl_nm#
+		   ,#voy#
+		   ,#carrier_cd#
+		   ,#hbl_no#
+		   ,#mbl_no#
+		   ,#pol#
+		   ,#pod#
+		   ,#del#
+		   ,REPLACE (#etd#, '-', '')
+		   ,REPLACE (#eta#, '-', '')
+		   ,NULL
+		   ,NULL
+		   ,'M'
+		   ,NULL
+		   ,NULL
+		   ,NULL
+		   ,#ref_no#
+		   ,NULL
+		   ,#trucker_cd#
+		   ,#trucker_nm#
+		   ,#eq_tp_cd#
+		   ,#eq_tpsz_cd#
+		   ,#eq_no#
+		   ,#seal_no#
+		   ,REPLACE (#inbound_dt#, '-', '')
+		   ,REPLACE (#inbound_hm#, ':', '')
+		   ,CONVERT(NUMERIC(15), ISNULL(CAST(REPLACE(#inbound_pl_qty#, 	',', '') AS FLOAT),0))
+		   ,CONVERT(NUMERIC(15), ISNULL(CAST(REPLACE(#inbound_bx_qty#, 	',', '') AS FLOAT),0))
+		   ,CONVERT(NUMERIC(15), ISNULL(CAST(REPLACE(#inbound_ea_qty#, 	',', '') AS FLOAT),0))
+		   ,CONVERT(NUMERIC(15,5), ISNULL(CAST(REPLACE(#inbound_sqft#, 	',', '') AS FLOAT),0))
+		   ,CONVERT(NUMERIC(15,5), ISNULL(CAST(REPLACE(#inbound_cbm#, 	',', '') AS FLOAT),0))
+		   ,0
+		   ,CONVERT(NUMERIC(15,5), ISNULL(CAST(REPLACE(#inbound_grs_kgs#, 	',', '') AS FLOAT),0))
+		   ,0
+		   ,CONVERT(NUMERIC(15,5), ISNULL(CAST(REPLACE(#inbound_net_kgs#, 	',', '') AS FLOAT),0))
+		   ,0
+		   ,#trade_tp_cd#
+		   ,#fwd_tp_cd#
+		   ,#rgst_id#
+	       ,#rgst_ofc_cd#
+	       ,GETDATE()
+	       ,CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	       ,#rgst_id#
+	       ,#rgst_ofc_cd#
+	       ,GETDATE()
+	       ,CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+		)	
+	</insert>	
+	
+	<!-- <select id="selectPoSysNoCnt" resultMap="poSysNoDto">
+		/* WHInbk.selectPoSysNoCnt */
+		SELECT MAX(PO_SYS_NO) PO_SYS_NO
+		     , COUNT(*) AS PO_SYS_CNT
+		  FROM TL_WH_IB_ITEM
+		 WHERE WIB_BK_NO =  #wib_bk_no#	
+		   AND PO_NO = #po_no#
+	</select> -->
+	
+	<select id="seartItemSeq" parameterClass="com.clt.apps.fis.wms.inboundmanagement.dto.Grd02WHInMgmtVO" resultClass="String">
+	
+	 SELECT
+	 		 /* WHInbkSql.xml : WHInbk.seartItemSeq*/ 
+	 	ISNULL(MAX(ITEM_SEQ),0)+1
+       FROM TL_WH_IB_ITEM
+      WHERE WIB_BK_NO = #wib_bk_no#
+        <!-- AND PO_SYS_NO = #po_sys_no# -->
+        AND ITEM_SYS_NO = #item_sys_no#
+	</select>
+	
+	<insert id="saveWHInMgmForIbItem">
+	/*WHInbk.saveWHInMgmForIbItem*/
+	INSERT INTO TL_WH_IB_ITEM
+	     ( WIB_BK_NO
+	     , PO_SYS_NO
+	     , ITEM_SYS_NO
+	     , ITEM_SEQ
+	     , PO_NO
+	     , ITEM_CD
+	     , ITEM_NM
+	     , ITEM_EA_QTY
+	     , ITEM_PKGQTY
+	     , ITEM_PKGUNIT
+	     , ITEM_CBM
+	     , ITEM_CBF
+	     , ITEM_GRS_KGS
+	     , ITEM_GRS_LBS
+	     , ITEM_NET_KGS
+	     , ITEM_NET_LBS
+	     , EQ_TP_CD
+	     , EQ_TPSZ_CD
+	     , EQ_NO
+	     , SEAL_NO
+	     , INBOUND_DT
+	     , LOT_NO
+	     , EXP_DT
+	     , LOT_04
+	     , LOT_05
+	     , FIX_LOT_ID
+	     , CNTR_REF_NO
+	     , HBL_NO
+	     , MBL_NO
+	     , POL
+	     , POD
+	     , DEL
+	     , ETD
+	     , ETA
+	     , CARRIER_CD
+	     , VSL_CD
+	     , VSL_NM
+	     , VOY
+	     , UNLOAD_INBOUND_LOC_CD
+	     , CURR_CD
+	     , UNIT_PRICE
+	     , BX_LABEL_QTY
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     , RGST_TIMESTAMP
+	     ) VALUES
+	     ( #wib_bk_no#
+	     , #po_sys_no#
+	     , #item_sys_no#
+	     , #item_seq#
+	     , #po_no#
+	     , #item_cd#
+	     , #item_nm#
+	     , CONVERT(NUMERIC(15), #item_ea_qty#)
+	     , CONVERT(NUMERIC(15), #item_pkgqty#)
+	     , #item_pkgunit#
+	     , CONVERT(NUMERIC(15,5), #item_cbm#)
+	     , CONVERT(NUMERIC(15,5), #item_cbf#)
+	     , CONVERT(NUMERIC(15,5), #item_grs_kgs#)
+	     , CONVERT(NUMERIC(15,5), #item_grs_lbs#)
+	     , CONVERT(NUMERIC(15,5), #item_net_kgs#)
+	     , CONVERT(NUMERIC(15,5), #item_net_lbs#)
+	     , #eq_tp_cd#
+	     , #eq_tpsz_cd#
+	     , #eq_no#
+	     , #seal_no#
+	     , REPLACE (#inbound_dt#, '-', '')
+	     , #lot_no#
+	     , #exp_dt#
+	     , #lot_04#
+	     , #lot_05#
+	     , #lot_id#
+	     , NULL /*CNTR_REF_NO*/
+	     , #hbl_no#
+	     , #mbl_no#
+	     , #pol#
+	     , #pod#
+	     , #del#
+	     , REPLACE (#etd#, '-', '')
+	     , REPLACE (#eta#, '-', '')
+	     , #carrier_cd#
+	     , #vsl_cd#
+	     , #vsl_nm#
+	     , #voy#	   
+	     <isNotEqual property="inbound_loc_cd" compareValue="">
+	     <!-- #1675 Contract item entry fixed location 지정 관련 요청       
+	     	, ISNULL((SELECT MAX(ISNULL(W.FIX_LOC_CD,W.DEF_LOC_CD))
+                              FROM TL_CTRT_CUST_ITEM_WH W
+                             WHERE W.CTRT_NO = #ctrt_no#
+                               AND W.ITEM_SYS_NO = #item_sys_no#
+                               AND W.WH_CD = #wh_cd#),'QC010101') -->	
+		 ,(SELECT ISNULL(MAX(
+						CASE ISNULL(W.FIX_LOC_CD, '') WHEN ''
+					 		THEN /* 디폴트 설정 없을 경우 */ 
+								CASE ISNULL(W.DEF_LOC_CD, '') WHEN '' 
+									THEN /* SYSTEM CODE 처리 */ 
+										'QC010101'
+									ELSE /* 입고 BOOKING 시 LOC 정보 */ 
+										W.DEF_LOC_CD
+								END 
+							ELSE /* 고정 설정 값으로 처리 */ 
+								W.FIX_LOC_CD
+						END 
+				),'QC010101')
+			FROM TL_CTRT_CUST_ITEM_WH W
+            WHERE W.CTRT_NO = #ctrt_no#
+              AND W.ITEM_SYS_NO = #item_sys_no#
+              AND W.WH_CD = #wh_cd#	
+				)    
+	     </isNotEqual>
+	     <isEqual property="inbound_loc_cd" compareValue="">
+	     	<!-- #1675 Contract item entry fixed location 지정 관련 요청
+	         , #inbound_loc_cd# -->
+	     	, NULL
+	     </isEqual>
+	     , #curr_cd#
+	     , #unit_price#
+	     , #bx_label_qty#
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     , GETDATE()
+	     )
+    </insert>
+    
+    <update id="modifyWHInMgmtInfo">
+	/* WHInbk.modifyWHInMgmtInfo */
+		UPDATE TL_WH_IB
+		   SET CUST_ORD_NO  = #cust_ord_no#
+		     , BK_DATE      = REPLACE (#bk_date#, '-', '')
+		     , INBOUND_DT   = REPLACE (#inbound_dt#, '-', '')
+		     , INBOUND_HM   = REPLACE (#inbound_hm#, ':', '')
+		     , EST_IN_HM    = REPLACE (#est_in_hm#, ':', '')
+		     , BK_STS_CD    = (CASE WHEN BK_STS_CD = 'N' THEN 'I' ELSE BK_STS_CD END)
+		<isEqual property="bk_sts_cd" compareValue="N">     		     	      
+		     , EST_IN_DT   = REPLACE (#est_in_dt#, '-', '')
+		     , ORD_TP_CD   = #ord_tp_cd#
+		     , LOAD_TP_CD  = #load_tp_cd#
+		     , TRADE_TP_CD = #trade_tp_cd#
+		     , FWD_TP_CD   = #fwd_tp_cd#
+		     , FWD_DIR = (CASE WHEN #trade_tp_cd# = 'IMP' AND #fwd_tp_cd# = 'OWN' THEN 'I'
+                               WHEN #trade_tp_cd# = 'EXP' AND #fwd_tp_cd# = 'OWN' THEN 'E'
+                               ELSE 'G'
+                          END)
+		</isEqual>	
+		<isEqual property="rcv_cnt" compareValue="0">
+			<isNotEqual property="bk_sts_cd" compareValue="N">
+             , EST_IN_DT   = REPLACE (#est_in_dt#, '-', '')
+		     , ORD_TP_CD   = #ord_tp_cd#
+		     , LOAD_TP_CD  = #load_tp_cd#
+			</isNotEqual>
+		</isEqual>		     
+		     , OWNER_ADDR1  = #owner_addr1#
+		     , OWNER_ADDR2  = #owner_addr2#
+		     , OWNER_ADDR3  = #owner_addr3#
+		     , OWNER_ADDR4  = #owner_addr4#
+		     , OWNER_ADDR5  = #owner_addr5#
+		     , SUPP_CD   	= #supp_cd#
+		     , SUPP_ADDR1   = #supp_addr1#
+		     , SUPP_ADDR2   = #supp_addr2#
+		     , SUPP_ADDR3   = #supp_addr3#
+		     , SUPP_ADDR4   = #supp_addr4#
+		     , SUPP_ADDR5   = #supp_addr5#
+		     , COMMC_INV_NO = #commc_inv_no#
+		     , DLV_ORD_NO   = #dlv_ord_no#	
+		     , RMK          = #rmk#
+		<isEqual property="sel_tab" compareValue="02">
+		     , TRUCKER_CD = #trucker_cd#
+		     , TRUCKER_NM = #trucker_nm#
+		</isEqual>
+		     , EQ_TP_CD        = #eq_tp_cd#
+		     , EQ_TPSZ_CD      = #eq_tpsz_cd#
+		     , EQ_NO           = #eq_no#
+		     , SEAL_NO         = #seal_no#
+		     , INBOUND_PL_QTY  = CONVERT(NUMERIC(15),  CAST(REPLACE(#inbound_pl_qty#, 	',', '') AS FLOAT))
+		     , INBOUND_BX_QTY  = CONVERT(NUMERIC(15), CAST(REPLACE(#inbound_bx_qty#, 	',', '') AS FLOAT))
+		     , INBOUND_EA_QTY  = CONVERT(NUMERIC(15), CAST(REPLACE(#inbound_ea_qty#, 	',', '') AS FLOAT))
+		     , INBOUND_SQFT    = CONVERT(NUMERIC(15), CAST(REPLACE(#inbound_sqft#, 	',', '') AS FLOAT))
+		     , INBOUND_CBM     = CONVERT(NUMERIC(15, $wms_cbm_point_count$), CAST(REPLACE(#inbound_cbm#, 	',', '') AS FLOAT))
+		     , INBOUND_GRS_KGS = CONVERT(NUMERIC(15,3), CAST(REPLACE(#inbound_grs_kgs#, 	',', '') AS FLOAT))	 	     	      
+		     , INBOUND_NET_KGS = CONVERT(NUMERIC(15,3), CAST(REPLACE(#inbound_net_kgs#, 	',', '') AS FLOAT))
+		     , VSL_CD          = #vsl_cd#
+		     , VSL_NM          = #vsl_nm#
+		     , VOY             = #voy#
+		     , CARRIER_CD      = #carrier_cd#
+		     , HBL_NO          = #hbl_no#
+		     , MBL_NO          = #mbl_no#
+		     , POL             = #pol#
+		     , POD             = #pod#
+		     , DEL             = #del#
+		     , ETD             = REPLACE (#etd#, '-', '')
+		     , ETA             = REPLACE (#eta#, '-', '')     
+		     , MODI_ID         = #modi_id#
+		     , MODI_OFC_CD     = #modi_ofc_cd#
+		     , MODI_SYS_DT     = GETDATE()
+		     , MODI_LOC_DT     = CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+		     , REF_NO          = #ref_no#
+		 WHERE WIB_BK_NO       = #wib_bk_no#	
+	</update>
+	
+	<update id="modifyWHInMgmForIbItemLabelQty">
+	/*WHInbk.modifyWHInMgmForIbItemLabelQty*/
+		UPDATE TL_WH_IB_ITEM
+		   SET BX_LABEL_QTY          = #bx_label_qty#
+		     , MODI_ID               = #modi_id#
+	         , MODI_OFC_CD           = #modi_ofc_cd#
+	         , MODI_SYS_DT           = GETDATE()
+	         , MODI_LOC_DT           = CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     WHERE WIB_BK_NO             = #wib_bk_no#
+	       AND PO_SYS_NO             = #po_sys_no#
+	       AND ITEM_SYS_NO           = #item_sys_no#
+	       AND ITEM_SEQ              = #item_seq#
+	</update>
+	
+	<update id="modifyWHInMgmForRcvItem" >
+	/*WHInbk.modifyWHInMgmForRcvItem*/
+	UPDATE TL_WH_RCV_ITEM
+	   SET EQ_TP_CD              = #eq_tp_cd#
+	     , EQ_TPSZ_CD            = #eq_tpsz_cd#
+	     , EQ_NO                 = #eq_no#
+	     , SEAL_NO               = #seal_no#
+	     , IN_ITEM_PE_QTY	     = #in_item_pe_qty#
+	     , OS_ITEM_EA_QTY		 = #os_item_ea_qty#
+	     , MODI_ID               = #modi_id#
+	     , MODI_OFC_CD           = #modi_ofc_cd#
+	     , MODI_SYS_DT           = GETDATE()
+	     , MODI_LOC_DT           = CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	 WHERE WIB_IN_NO             = #wib_in_no# 
+	   AND WIB_BK_NO             = #wib_bk_no#
+	   AND PO_SYS_NO             = #po_sys_no#
+	   AND ITEM_SYS_NO           = #item_sys_no#
+	   AND ITEM_SEQ              = #item_seq#
+	</update>
+	
+	<update id="modifyWHICIbInStsCd" >
+	/*WHIC.modifyWHICIbInStsCd*/
+	UPDATE TL_WH_IB
+	   SET IN_STS_CD = #in_sts_cd#
+	     , MODI_ID = #modi_id#
+	     , MODI_OFC_CD = #modi_ofc_cd#
+	     , MODI_SYS_DT = GETDATE()
+	     , MODI_LOC_DT = CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	 WHERE WIB_BK_NO =  #wib_bk_no#
+	</update>	
+	
+	<update id="modifyWHIbBkStsCd" >
+	/*WHInbk.modifyWHIbBkStsCd*/
+	UPDATE TL_WH_IB
+	   SET BK_STS_CD = #bk_sts_cd#
+	     , INBOUND_DT = NULL
+	     , INBOUND_HM = NULL
+	     , INBOUND_PL_QTY = NULL     
+	     , INBOUND_BX_QTY = NULL 
+	     , INBOUND_EA_QTY = NULL 
+	     , INBOUND_SQFT = NULL 
+	     , INBOUND_CBM = NULL 
+	     , INBOUND_CBF = NULL 
+	     , INBOUND_GRS_KGS = NULL 
+	     , INBOUND_GRS_LBS = NULL 
+	     , INBOUND_NET_KGS = NULL 
+	     , INBOUND_NET_LBS = NULL 
+	     , MODI_ID = #modi_id#
+	     , MODI_OFC_CD = #modi_ofc_cd#
+	     , MODI_SYS_DT = GETDATE()
+	     , MODI_LOC_DT = CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(WH_CD)),120)
+	 WHERE WIB_BK_NO =  #wib_bk_no#
+	</update>
+	
+	<delete id="removeAutoLP">
+      DELETE A FROM TL_WH_IB_ITEM A
+		WHERE A.WIB_BK_NO = #wib_bk_no# 
+		AND EXISTS(
+		SELECT 'X' FROM TL_WH_IB_ITEM B 
+			WHERE B.WIB_BK_NO = A.WIB_BK_NO
+				AND B.ITEM_CD = A.ITEM_CD
+				AND B.ITEM_PKGUNIT = A.ITEM_PKGUNIT
+				AND ITEM_EA_QTY > 0
+		)
+		AND ITEM_EA_QTY = 0
+    </delete>
+    
+	<update id="modifyWHUnloadShtClear">
+	/*WHInbk.modifyWHUnloadShtClear*/
+	UPDATE TL_WH_UNLOAD_SHT
+	   SET SUPV_NM = NULL 
+	     , UNLOAD_DT = NULL 
+	     , UNLOAD_HM_FR = NULL 
+	     , UNLOAD_HM_TO = NULL 
+	     , UNLOAD_BY = NULL   
+	     , INSP_BY = NULL 
+	     , INSP_HM_FR = NULL 
+	     , INSP_HM_TO = NULL 
+	     , MSG_TO_INSP = NULL 
+	     , GATE_IN_HM = NULL 
+	     , GATE_OUT_HM = NULL 
+	     , DRIVER_NM = NULL 
+	     , DRIVER_LIC_NO = NULL 
+	     , GATE_NO = NULL 
+	     , UNLOAD_LOC = NULL 
+	     , MODI_ID = #modi_id#
+	     , MODI_OFC_CD = #modi_ofc_cd#
+	     , MODI_SYS_DT = GETDATE()
+	     , MODI_LOC_DT = CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT((SELECT WH_CD FROM TL_WH_IB WHERE WIB_BK_NO =  #wib_bk_no#))),120)
+	 WHERE WIB_BK_NO =  #wib_bk_no#
+	</update>
+	
+	<update id="modifyWHIbUnloadInboundLocCd">
+	/*WHInbk.modifyWHIbUnloadInboundLocCd*/
+	UPDATE TL_WH_IB_ITEM
+	   SET UNLOAD_INBOUND_LOC_CD =(ISNULL((SELECT MAX(ISNULL(W.FIX_LOC_CD,W.DEF_LOC_CD))
+				                          FROM TL_CTRT_CUST_ITEM_WH W
+				                         WHERE W.CTRT_NO = (SELECT CTRT_NO FROM TL_WH_IB WHERE WIB_BK_NO =  #sel_wib_bk_no#)
+				                           AND W.ITEM_SYS_NO = TL_WH_IB_ITEM.ITEM_SYS_NO
+				                           AND W.WH_CD = (SELECT WH_CD FROM TL_WH_IB WHERE WIB_BK_NO =  #sel_wib_bk_no#)
+				                        ),'QC010101')
+				                   )
+	     , ITEM_RCV_PKGQTY = NULL
+	     , ITEM_RCV_EA_QTY = NULL
+	     , WP_INBOUND_DT = NULL
+	     , WP_LOT_NO = NULL
+	     , WP_EXP_DT = NULL
+	     , WP_LOT_04 = NULL
+	     , WP_LOT_05 = NULL
+	     , MODI_ID = #modi_id#
+	     , MODI_OFC_CD = #modi_ofc_cd#
+	     , MODI_SYS_DT = GETDATE()
+	     , MODI_LOC_DT = CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT((SELECT WH_CD FROM TL_WH_IB WHERE WIB_BK_NO =  #sel_wib_bk_no#))),120)
+	 WHERE (WIB_BK_NO +  PO_SYS_NO + ITEM_SYS_NO + CONVERT(CHAR,ITEM_SEQ)) IN (SELECT WIB_BK_NO + PO_SYS_NO + ITEM_SYS_NO + CONVERT(CHAR, ITEM_SEQ)
+	                                                           FROM TL_WH_RCV_ITEM 
+	                                                          WHERE WIB_BK_NO =   #sel_wib_bk_no#
+	                                                       )
+	</update>
+	
+		<!-- Doc Detail 정보 조회 -->
+	<typeAlias alias="WHInbkDocVO" type="com.clt.apps.fis.wms.whinbooking.dto.WHInbkDocVO"/>
+	<select id="searchWHInDocList" parameterClass="java.util.HashMap" resultClass="WHInbkDocVO" >
+		/* WHInbk.searchWHInDocList */	
+        SELECT 
+        FIELD_NAME, FIELD_VAL, DOC_TYPE
+        ,RGST_ID ,RGST_LOC_DT ,RGST_SYS_DT	<!-- #3890 [BNX WMS] MOBILE REQUIREMENTS -->
+          FROM (
+          		SELECT DISTINCT 'Inbound Booking' AS FIELD_NAME,
+                                 B.WIB_BK_NO AS FIELD_VAL,
+                                'IB' AS DOC_TYPE,
+                                '1' AS DISP
+                                
+                                ,B.RGST_ID, B.RGST_LOC_DT, B.RGST_SYS_DT  <!-- #3890 [BNX WMS] MOBILE REQUIREMENTS -->
+                  FROM TL_WH_IB B
+                <isNotEmpty property="wib_bk_no">   
+				   WHERE B.WIB_BK_NO = #wib_bk_no#
+				</isNotEmpty>
+				 <isEmpty property="wib_bk_no">
+				 	 <isNotEmpty property="cust_ord_no">   
+					   WHERE B.WIB_BK_NO = (select Max(WIB_BK_NO) from TL_WH_IB where CUST_ORD_NO = #cust_ord_no#)
+					 </isNotEmpty>
+				 </isEmpty>
+				 AND B.BK_STS_CD != 'C'
+                UNION
+          		SELECT DISTINCT 'Inbound Complete' AS FIELD_NAME,
+                                R.WIB_IN_NO AS FIELD_VAL,
+                                'IC' AS DOC_TYPE,
+                                '1' AS DISP
+                                
+                                ,R.MODI_ID AS RGST_ID ,R.MODI_LOC_DT AS RGST_LOC_DT	,R.MODI_SYS_DT AS RGST_SYS_DT  <!-- #3890 [BNX WMS] MOBILE REQUIREMENTS -->
+                  FROM TL_WH_IB B, TL_WH_RCV R
+                 WHERE B.WIB_BK_NO = R.WIB_BK_NO
+                 AND B.BK_STS_CD != 'C'
+                  <isNotEmpty property="wib_bk_no">   
+				   	AND B.WIB_BK_NO = #wib_bk_no#
+				  </isNotEmpty>
+				  <isEmpty property="wib_bk_no">
+				 	 <isNotEmpty property="cust_ord_no">   
+					   AND B.WIB_BK_NO = (select Max(WIB_BK_NO) from TL_WH_IB where CUST_ORD_NO = #cust_ord_no#)
+					 </isNotEmpty>
+				  </isEmpty>
+                UNION
+                SELECT DISTINCT 'Putaway' AS FIELD_NAME,
+                                R.WIB_IN_NO AS FIELD_VAL,
+                                'PA' AS DOC_TYPE,
+                                '2' AS DISP
+                                
+                                ,P.MODI_ID AS RGST_ID, P.MODI_LOC_DT AS RGST_LOC_DT, P.MODI_SYS_DT AS RGST_SYS_DT <!-- #3890 [BNX WMS] MOBILE REQUIREMENTS -->
+                  FROM TL_WH_IB B, TL_WH_RCV R, TL_WH_PUTAWAY P
+                 WHERE B.WIB_BK_NO = R.WIB_BK_NO
+                   AND R.WIB_IN_NO = P.WIB_IN_NO
+                   AND B.BK_STS_CD != 'C'
+                  <isNotEmpty property="wib_bk_no">   
+				   	AND B.WIB_BK_NO = #wib_bk_no#
+				  </isNotEmpty>
+				  <isEmpty property="wib_bk_no">
+				 	 <isNotEmpty property="cust_ord_no">   
+					   AND B.WIB_BK_NO = (select Max(WIB_BK_NO) from TL_WH_IB where CUST_ORD_NO = #cust_ord_no#)
+					 </isNotEmpty>
+				  </isEmpty>
+                <!-- TinLuong Modify: not use table : TL_EO_WO
+                UNION
+                SELECT DISTINCT 'Work Order No' AS FIELD_NAME,
+                                W.WO_NO AS FIELD_VAL,
+                                'WO' AS DOC_TYPE,
+                                '3' AS DISP
+                  FROM TL_WH_IB B, TL_EO_WO W
+                 WHERE B.WIB_BK_NO = W.RCV_BK_NO 
+                   <![CDATA[ AND ISNULL(W.CR_FLG, 'N') <> 'Y' ]]>
+                   AND B.WIB_BK_NO = #c_wib_bk_no# -->
+               ) AS TMP
+         ORDER BY DISP, FIELD_VAL
+ 	</select>
+ 	
+ 	<select id="searchWHInMgmtExcelList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.wms.inboundmanagement.dto.Grd05WHInMgmtVO">
+ 		/*WHInbk.searchWHInMgmtExcelList*/	
+SELECT TTT.WIB_BK_NO AS MERGE_KEY
+     , ROW_NUMBER() OVER (          
+										ORDER BY TTT.WIB_IN_NO desc       
+									 )  AS SEQ
+     , TTT.*
+	 	 <![CDATA[
+	 , CASE WHEN TTT.WIB_IN_NO IS NOT NULL THEN TTT.IN_ITEM_PE_QTY_RCV
+	        WHEN TTT.BK_STS_CD = 'I' AND ISNULL(TTT.IN_ITEM_EA_QTY, 0) > 0 THEN /*엑셀업로드로 들어온경우*/
+	             (
+	             CASE WHEN TTT.PE_QTY < 0  THEN 1
+	                  WHEN TTT.PE_QTY > TTT.IN_ITEM_EA_QTY THEN 1
+	                  ELSE CEILING(TTT.IN_ITEM_EA_QTY / TTT.PE_QTY) END	
+	             )
+	        ELSE 0		     
+	        END AS IN_ITEM_PE_QTY /* Rcv정보가 없고 부킹만있을경우는 0 */
+	 , CASE WHEN ISNULL(TTT.IN_ITEM_EA_QTY, 0) > 0 THEN ISNULL(TTT.RCV_OS_ITEM_EA_QTY, ISNULL(TTT.IN_ITEM_EA_QTY, 0)-TTT.ITEM_EA_QTY) 
+	        WHEN TTT.WIB_IN_NO IS NULL AND (TTT.BK_STS_CD_ORG = 'X' AND LEN(ISNULL(TTT.ITEM_INBOUND_DT, '')) > 0) THEN (0-TTT.ITEM_EA_QTY)
+	        ELSE 0 
+	        END AS OS_ITEM_EA_QTY ]]> 
+  FROM (     
+		SELECT TT.*     
+		     , CASE WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_01 ELSE TT.INBOUND_DT_IB END  AS ITEM_INBOUND_DT
+             , CASE WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_02 ELSE TT.LOT_NO_IB END      AS LOT_NO
+             , CASE WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_03 ELSE TT.EXP_DT_IB END      AS EXP_DT
+             , CASE WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_04 ELSE TT.LOT_04_IB END      AS LOT_04
+             , CASE WHEN TT.WIB_IN_NO IS NOT NULL THEN LOT.LOT_ATTRIB_05 ELSE TT.LOT_05_IB END      AS LOT_05     
+             , ISNULL (TT.ITEM_NM_ORG, CI.ITEM_NM) AS ITEM_NM
+             , ISNULL(ISNULL(INBOUND_LOC_CD_RCV, IT_WH.FIX_LOC_CD), UNLOAD_INBOUND_LOC_CD) AS INBOUND_LOC_CD    
+             , DBO.TL_GET_WH_LOC_NM(TT.WH_CD, ISNULL(ISNULL(INBOUND_LOC_CD_RCV, IT_WH.FIX_LOC_CD), UNLOAD_INBOUND_LOC_CD)) AS  INBOUND_LOC_NM
+             , DBO.TL_GET_WH_LOC_NM(TT.WH_CD, TT.DMG_LOC_CD) AS DMG_LOC_NM
+             
+             , DBO.TL_GET_WH_PACK_MST_INFO(CI.PKG_LV1_QTY, CI.PKG_LV1_UNIT_CD, CI.ITEM_PKGBASEQTY, CI.ITEM_PKGUNIT
+                                     , CI.PKG_LV3_QTY, CI.PKG_LV3_UNIT_CD, CI.PKG_LV4_QTY, CI.PKG_LV4_UNIT_CD) AS PKG_INFO
+             , (CASE WHEN CI.PKG_LV1_UNIT_CD = 'PE' THEN CI.PKG_LV1_QTY
+        		     WHEN CI.ITEM_PKGUNIT    = 'PE' THEN CI.ITEM_PKGBASEQTY
+        			 WHEN CI.PKG_LV3_UNIT_CD = 'PE' THEN CI.PKG_LV3_QTY
+        			 WHEN CI.PKG_LV4_UNIT_CD = 'PE' THEN CI.PKG_LV4_QTY
+        			 ELSE -1
+        	    END
+        		) AS PE_QTY
+        		
+             
+			 /*VIS에서 넘어온경우는 EA_QTY가 0으로 넘어올수있으므로 재계산 */
+		     , CASE WHEN TT.INVALID_YN = 'Y' AND SU_VALID_YN = 'Y' THEN  TT.ITEM_PKGQTY * (CASE WHEN CI.PKG_LV1_UNIT_CD = TT.ITEM_PKGUNIT THEN PKG_LV1_QTY
+		                                                                                        WHEN CI.ITEM_PKGUNIT    = TT.ITEM_PKGUNIT THEN ITEM_PKGBASEQTY
+		                                                                                        WHEN CI.PKG_LV3_UNIT_CD = TT.ITEM_PKGUNIT THEN PKG_LV3_QTY
+		                                                                                        WHEN CI.PKG_LV4_UNIT_CD = TT.ITEM_PKGUNIT THEN PKG_LV4_QTY
+		                                                                                        ELSE 0 
+		                                                                                        END 
+		                                                                                 )
+		
+		            ELSE O_ITEM_EA_QTY END AS ITEM_EA_QTY
+		  FROM (
+		        SELECT T.* 			 
+					 /*VIS에서 넘어온경우는 실제 ITEM_CD가 유효할경우 ITEM_SYS_NO를 다시 가져온다*/
+		             , CASE WHEN T.INVALID_YN = 'Y' THEN T.CHG_ITEM_SYS_NO ELSE O_ITEM_SYS_NO END AS ITEM_SYS_NO 
+		             /*VIS에서 넘어온경우는 실제 ITEM_CD가 유효할경우 FLAG값을 'Y'로 셋팅한다*/
+		             , CASE WHEN T.INVALID_YN = 'Y' AND T.CHG_ITEM_SYS_NO IS NOT NULL THEN 'Y' ELSE '' END AS SU_VALID_YN
+		          FROM (
+		            SELECT IB.WIB_BK_NO
+		                 , CONVERT(VARCHAR(10),CAST(IB.RGST_SYS_DT AS DATE), 110) AS RGST_SYS_DT
+                         , IB.SO_NO     
+                         , IB.WH_CD
+                         , DBO.TL_GET_LOC_NM(IB.WH_CD) AS WH_NM     
+                         ,(CASE IB.BK_DATE WHEN '' THEN  '' ELSE  SUBSTRING(IB.BK_DATE, 5, 2) + '-' + SUBSTRING(IB.BK_DATE, 7, 2) + '-' + SUBSTRING(IB.BK_DATE, 1, 4) END) AS BK_DATE 
+                         , DBO.TL_GET_COMM_NM('WB5', CASE WHEN IB.BK_STS_CD = 'N' AND IB.IN_STS_CD IS NULL THEN 'N'
+                                                      WHEN IB.BK_STS_CD = 'I' AND IB.IN_STS_CD IS NULL THEN 'I'
+                                                      WHEN IB.IN_STS_CD IS NOT NULL THEN 'X' ELSE '' END) AS BK_STS_CD    /*Partial도 Complete로 */ 
+                         , CASE WHEN IB.BK_STS_CD = 'N' AND IB.IN_STS_CD IS NULL THEN 'N'
+                                WHEN IB.BK_STS_CD = 'I' AND IB.IN_STS_CD IS NULL THEN 'I'
+                                WHEN IB.IN_STS_CD IS NOT NULL THEN 'X' ELSE '' END AS BK_STS_CD_ORG
+                         , ISNULL(IB.CUST_ORD_NO, '') AS CUST_ORD_NO
+                         , ISNULL(DBO.TL_GET_COMM_NM('WB3',IB.ORD_TP_CD), ' ') AS  ORD_TP_CD
+                         ,(CASE IB.EST_IN_DT WHEN '' THEN  '' ELSE  SUBSTRING(IB.EST_IN_DT, 5, 2) + '-' + SUBSTRING(IB.EST_IN_DT, 7, 2) + '-' + SUBSTRING(IB.EST_IN_DT, 1, 4) END) AS EST_IN_DT 
+                         , CASE IB.EST_IN_HM WHEN '' THEN '' ELSE SUBSTRING (IB.EST_IN_HM, 1, 2) + ':' + SUBSTRING (IB.EST_IN_HM, 3, 2) END AS EST_IN_HM    
+                         , IB.CTRT_NO
+                         , DBO.TL_GET_CTRT_NM(IB.CTRT_NO) AS CTRT_NM
+                         , IB.RTP_NO
+                         ,(CASE IB.INBOUND_DT WHEN '' THEN  '' ELSE  SUBSTRING(IB.INBOUND_DT, 5, 2) + '-' + SUBSTRING(IB.INBOUND_DT, 7, 2) + '-' + SUBSTRING(IB.INBOUND_DT, 1, 4) END) AS INBOUND_DT 
+                         , CASE   IB.INBOUND_HM when '' then '' else  SUBSTRING (IB.INBOUND_HM, 1, 2) + ':' + SUBSTRING (IB.INBOUND_HM, 3, 2) end AS INBOUND_HM
+                         , ISNULL(IB.INBOUND_PL_QTY, 0) AS INBOUND_PL_QTY
+					     , ISNULL(IB.INBOUND_BX_QTY, 0) AS INBOUND_BX_QTY
+					     , ISNULL(IB.INBOUND_EA_QTY, 0) AS INBOUND_EA_QTY
+					     , ISNULL(IB.INBOUND_SQFT, 0) AS INBOUND_SQFT
+					     , ISNULL(IB.INBOUND_CBM, 0) AS INBOUND_CBM
+					     , ISNULL(IB.INBOUND_CBF, 0) AS INBOUND_CBF
+					     , ISNULL(IB.INBOUND_GRS_KGS, 0) AS INBOUND_GRS_KGS
+					     , ISNULL(IB.INBOUND_GRS_LBS, 0) AS INBOUND_GRS_LBS
+					     , ISNULL(IB.INBOUND_NET_KGS, 0) AS INBOUND_NET_KGS
+					     , ISNULL(IB.INBOUND_NET_LBS, 0) AS INBOUND_NET_LBS
+                         , ISNULL(IB.EQ_TPSZ_CD, ' ') AS EQ_TPSZ_CD
+                         , ISNULL(IB.EQ_NO, ' ') AS EQ_NO
+                         , ISNULL(IB.SEAL_NO, ' ') AS SEAL_NO
+                         , ISNULL(IB.DLV_ORD_NO, ' ') AS DLV_ORD_NO
+                         , ISNULL(DBO.TL_GET_COMM_NM('WB4',IB.LOAD_TP_CD), ' ') AS  LOAD_TP_CD
+                         , ISNULL(DBO.TL_GET_COMM_NM('TL3',IB.TRADE_TP_CD), ' ') AS TRADE_TP_CD
+                         , ISNULL(DBO.TL_GET_COMM_NM('TL4',IB.FWD_TP_CD), ' ') AS FWD_TP_CD
+                         , ISNULL(IB.MBL_NO, ' ') AS MBL_NO
+                         , ISNULL(IB.HBL_NO, ' ') AS HBL_NO
+                         , ISNULL(IB.REF_NO, ' ') AS REF_NO
+                         , ISNULL(IB.COMMC_INV_NO, ' ') AS COMMC_INV_NO
+                         , ISNULL(IB.RMK, ' ') AS RMK
+                         , ISNULL(IB.OWNER_CD, ' ') AS OWNER_CD
+                         , ISNULL(IB.OWNER_ADDR1, ' ') AS OWNER_ADDR1
+                         , ISNULL(IB.OWNER_ADDR2, ' ') AS OWNER_ADDR2
+                         , ISNULL(IB.OWNER_ADDR3, ' ') AS OWNER_ADDR3
+                         , ISNULL(IB.OWNER_ADDR4, ' ') AS OWNER_ADDR4
+                         , ISNULL(IB.OWNER_ADDR5, ' ') AS OWNER_ADDR5
+                         , ISNULL(IB.SUPP_CD, ' ') AS SUPP_CD
+                         , ISNULL(IB.SUPP_ADDR1, ' ') AS SUPP_ADDR1
+                         , ISNULL(IB.SUPP_ADDR2, ' ') AS SUPP_ADDR2
+                         , ISNULL(IB.SUPP_ADDR3, ' ') AS SUPP_ADDR3
+                         , ISNULL(IB.SUPP_ADDR4, ' ') AS SUPP_ADDR4
+                         , ISNULL(IB.SUPP_ADDR5, ' ') AS SUPP_ADDR5
+                         , ISNULL(IB.VSL_CD, ' ') AS VSL_CD
+                         , ISNULL(IB.VSL_NM, ' ') AS VSL_NM
+                         , ISNULL(IB.VOY, ' ') AS VOY
+                         , ISNULL(IB.CARRIER_CD, ' ') AS CARRIER_CD
+                         , ISNULL(DBO.TL_GET_CUST_NM (IB.CARRIER_CD), ' ') AS  CARRIER_NM
+                         , ISNULL(IB.POL, ' ') AS POL
+                         , ISNULL(IB.POD, ' ') AS POD
+                         , ISNULL(IB.DEL, ' ') AS DEL
+
+                         , CASE WHEN IB.ETD IS NOT NULL THEN CONVERT (VARCHAR(10),IB.ETD,120) ELSE IB.ETD END AS ETD
+                         , CASE WHEN IB.ETA IS NOT NULL THEN CONVERT (VARCHAR(10),IB.ETA,120) ELSE IB.ETA END AS ETA
+
+		                 , R_ITEM.WIB_IN_NO
+		                 , I_ITEM.RGST_TIMESTAMP
+		                 , I_ITEM.PO_SYS_NO
+		                 , I_ITEM.ITEM_SYS_NO AS O_ITEM_SYS_NO	
+		                 , I_ITEM.ITEM_SEQ
+		                 , I_ITEM.PO_NO
+		                 , I_ITEM.ITEM_CD
+		                 , I_ITEM.ITEM_NM  AS ITEM_NM_ORG              
+		                 , I_ITEM.ITEM_PKGUNIT
+		                 , I_ITEM.ITEM_EA_QTY AS O_ITEM_EA_QTY
+		                 , I_ITEM.ITEM_PKGQTY
+		                 , CASE WHEN R_ITEM.WIB_IN_NO IS NULL THEN ISNULL(I_ITEM.ITEM_RCV_PKGQTY, 0) 
+		                        ELSE ISNULL(R_ITEM.SND_PKGQTY,0) END AS RCV_PKGQTY
+		                 , ISNULL(R_ITEM.DMG_PKGQTY,0) AS DMG_PKGQTY
+		                 , CASE WHEN R_ITEM.WIB_IN_NO IS NULL AND ISNULL(I_ITEM.ITEM_RCV_PKGQTY, 0) > 0 THEN I_ITEM.ITEM_PKGUNIT
+                                ELSE R_ITEM.SND_PKGUNIT END AS SND_PKGUNIT
+		                 , R_ITEM.DMG_PKGUNIT
+		                 , I_ITEM.UNLOAD_INBOUND_LOC_CD
+		                 , R_ITEM.INBOUND_LOC_CD AS INBOUND_LOC_CD_RCV
+		                 , R_ITEM.DMG_LOC_CD
+		                 , CASE WHEN R_ITEM.WIB_IN_NO IS NULL THEN ISNULL(I_ITEM.ITEM_RCV_EA_QTY, 0) ELSE ISNULL(R_ITEM.IN_ITEM_EA_QTY, 0) END AS IN_ITEM_EA_QTY				  
+		                 , R_ITEM.OS_ITEM_EA_QTY AS RCV_OS_ITEM_EA_QTY                              
+		                 , I_ITEM.MBL_NO AS ITEM_MBL_NO 
+		                 , I_ITEM.HBL_NO AS ITEM_HBL_NO 
+		                 , ISNULL(CAST(R_ITEM.IN_ITEM_CBM AS NUMERIC(18,5)),  I_ITEM.ITEM_CBM) AS ITEM_CBM
+		                 , ISNULL(CAST(R_ITEM.IN_ITEM_CBF AS NUMERIC(18,5)),  I_ITEM.ITEM_CBF) AS ITEM_CBF
+		                 , ISNULL(CAST(R_ITEM.IN_ITEM_GRS_KGS AS NUMERIC(18,5)),  I_ITEM.ITEM_GRS_KGS) AS ITEM_GRS_KGS
+		                 , ISNULL(CAST(R_ITEM.IN_ITEM_GRS_LBS AS NUMERIC(18,5)),  I_ITEM.ITEM_GRS_LBS) AS ITEM_GRS_LBS
+		                 , ISNULL(CAST(R_ITEM.IN_ITEM_NET_KGS AS NUMERIC(18,5)),  I_ITEM.ITEM_NET_KGS) AS ITEM_NET_KGS
+		                 , ISNULL(CAST(R_ITEM.IN_ITEM_NET_LBS AS NUMERIC(18,5)),  I_ITEM.ITEM_NET_LBS) AS ITEM_NET_LBS
+		                 , ISNULL(R_ITEM.LOT_ID, I_ITEM.FIX_LOT_ID) AS LOT_ID 
+		                 , I_ITEM.FIX_LOT_ID 
+		                 , I_ITEM.INBOUND_DT AS INBOUND_DT_IB
+		                 , I_ITEM.LOT_NO AS LOT_NO_IB
+		                 , I_ITEM.EXP_DT AS EXP_DT_IB
+		                 , I_ITEM.LOT_04 AS LOT_04_IB
+		                 , I_ITEM.LOT_05 AS LOT_05_IB         
+		                 , I_ITEM.CURR_CD
+		                 , I_ITEM.UNIT_PRICE     
+		                 , R_ITEM.IN_ITEM_PE_QTY AS IN_ITEM_PE_QTY_RCV
+		                 , I_ITEM.INVALID_YN
+		       			 /*vis 에서 들어온경우 유효성검사전일경우 관련 필드 시작 */
+		       			 , CASE WHEN I_ITEM.INVALID_YN = 'Y' THEN I_ITEM.ITEM_SYS_NO ELSE '' END AS ORG_ITEM_SYS_NO 
+		       			 , CASE WHEN I_ITEM.INVALID_YN = 'Y' THEN (
+		       			                                          SELECT MAX(IT.ITEM_SYS_NO) OVER (PARTITION BY IT.ITEM_SYS_NO) AS ITEM_SYS_NO    			                                           
+		           			                                        FROM TL_CTRT_CUST_ITEM IT 
+		           			                                       WHERE IT.ITEM_CD = I_ITEM.ITEM_CD
+		           			                                         AND IT.CTRT_NO = IB.CTRT_NO
+		           			                                         AND IT.ITEM_USE_FLG = 'Y'
+		       			                                     )
+		       			      ELSE '' END AS CHG_ITEM_SYS_NO
+		       			 /*vis 에서 들어온경우 유효성검사전일경우 관련 필드 종료 */
+		       			 , I_ITEM.CNTR_REF_NO
+		       			 , I_ITEM.CUSTMS_REF_NO
+		       			 , I_ITEM.UNLOAD_GATE_NO
+		       			 , I_ITEM.BX_LABEL_QTY 
+		              FROM TL_WH_IB IB
+		             
+		                 , TL_WH_IB_ITEM I_ITEM
+		                   LEFT JOIN TL_WH_RCV_ITEM R_ITEM ON I_ITEM.WIB_BK_NO = R_ITEM.WIB_BK_NO 
+														AND I_ITEM.PO_SYS_NO = R_ITEM.PO_SYS_NO AND I_ITEM.ITEM_SYS_NO = R_ITEM.ITEM_SYS_NO
+														AND I_ITEM.ITEM_SEQ = R_ITEM.ITEM_SEQ
+		             WHERE IB.WIB_BK_NO = I_ITEM.WIB_BK_NO
+			            <isNotEmpty property="sel_wib_bk_no_in">
+			              AND IB.WIB_BK_NO IN <iterate property="sel_wib_bk_no_in" conjunction="," close=")" open="(" >  #sel_wib_bk_no_in[]#  </iterate>
+			            </isNotEmpty>
+			            <isEmpty property="sel_wib_bk_no_in">
+			            	<isNotEmpty property="list_wh_cd">
+							   AND IB.WH_CD = #list_wh_cd#
+							</isNotEmpty>
+							<isNotEmpty property="list_ctrt_no">
+							   AND IB.CTRT_NO = #list_ctrt_no#
+							</isNotEmpty>
+							
+							<isEqual property="list_bk_sts_cd" compareValue="ALL">
+							   AND IB.BK_STS_CD != 'C'
+							</isEqual>
+							<isEqual property="list_bk_sts_cd" compareValue="C">
+							   AND IB.BK_STS_CD = 'C'
+							</isEqual>
+							<isNotEqual property="list_bk_sts_cd" compareValue="ALL">
+								<isNotEqual property="list_bk_sts_cd" compareValue="C">
+									AND (CASE WHEN IB.BK_STS_CD = 'I' AND LTRIM(IB.IN_STS_CD) IS NULL THEN 'I' /* Issue */
+								            WHEN IB.BK_STS_CD = 'I' AND LTRIM(IB.IN_STS_CD) IS NOT NULL THEN 'X' /*Partial, Complete */
+								            ELSE IB.BK_STS_CD /* Initial, Cancel */
+								            END) = #list_bk_sts_cd# /*조건-status*/
+								</isNotEqual>
+							</isNotEqual>
+							
+							<isNotEmpty property="list_in_no">
+								<isEqual property="list_in_search_tp" compareValue="WIB_BK_NO">
+							   		AND IB.WIB_BK_NO = #list_in_no#
+								</isEqual>
+								<isEqual property="list_in_search_tp" compareValue="CUST_ORD_NO">
+							   		AND IB.CUST_ORD_NO = #list_in_no#
+								</isEqual>
+							</isNotEmpty>
+							
+							<isNotEmpty property="list_fm_date">
+								<isEqual property="list_in_date_tp" compareValue="BK_DATE">
+							   		AND IB.BK_DATE BETWEEN REPLACE(#list_fm_date#, '-', '')  AND REPLACE(#list_to_date#, '-','')
+								</isEqual>
+								<isEqual property="list_in_date_tp" compareValue="EST_IN_DT">
+							   		AND IB.EST_IN_DT BETWEEN REPLACE(#list_fm_date#, '-', '')  AND REPLACE(#list_to_date#, '-','')
+								</isEqual>
+								<isEqual property="list_in_date_tp" compareValue="RGST_LOC_DT">
+							   		AND TO_CHAR(IB.RGST_LOC_DT, 'YYYYMMDD') BETWEEN REPLACE(#list_fm_date#, '-', '')  AND REPLACE(#list_to_date#, '-','')
+								</isEqual>
+							</isNotEmpty>
+							<isNotEqual property="list_ord_tp_cd" compareValue="ALL">
+							   AND IB.ORD_TP_CD = #list_ord_tp_cd#
+							</isNotEqual>
+			            </isEmpty>
+		             ) T
+		     ) TT
+		     LEFT JOIN TL_CTRT_CUST_ITEM CI ON TT.CTRT_NO = CI.CTRT_NO AND TT.ITEM_SYS_NO =  CI.ITEM_SYS_NO  
+		     LEFT JOIN TL_CTRT_CUST_ITEM_WH IT_WH ON TT.CTRT_NO = IT_WH.CTRT_NO AND TT.ITEM_SYS_NO = IT_WH.ITEM_SYS_NO AND TT.WH_CD = IT_WH.WH_CD									
+		     LEFT JOIN TL_CTRT_CUST_ITEM_LOT LOT ON TT.CTRT_NO = LOT.CTRT_NO AND TT.ITEM_SYS_NO =  LOT.ITEM_SYS_NO AND TT.LOT_ID = LOT.LOT_ID
+      ) TTT
+ ORDER BY TTT.RGST_SYS_DT ASC, TTT.WH_CD ASC, TTT.CUST_ORD_NO ASC, TTT.EST_IN_DT ASC, TTT.RGST_TIMESTAMP ASC, TTT.ITEM_CD ASC, TTT.ITEM_SEQ ASC, TTT.WIB_IN_NO ASC
+ 		
+ 	</select>
+ 	
+ 	<insert id="saveWHInMgmForRcv">
+	/*WHInbk.saveWHInMgmForRcv*/
+	INSERT INTO TL_WH_RCV
+	     ( WIB_IN_NO
+	     , WIB_BK_NO
+	     , WH_CD
+	     , INBOUND_DT
+	     , INBOUND_HM
+	     , FREETIME_DAY
+	     , LASTFREE_DT
+	     , CUSTMS_REF_NO
+	     , FIX_RCV_FLG
+	     , RMK
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     )
+	VALUES
+	     ( #wib_in_no#
+	     , #wib_bk_no#
+	     , #wh_cd#
+	     , #inbound_dt#
+	     , #inbound_hm#
+	     , ISNULL((SELECT MAX(LOC_FREEDAYS)
+			    FROM TL_CTRT_WH_LOC
+			   WHERE CTRT_NO = #ctrt_no#
+			     AND LOC_CD  = #wh_cd#
+			     AND OFC_CD  = #ofc_cd#
+			),0) 
+	     , CASE WHEN (
+	  		  			ISNULL((SELECT MAX(LOC_FREEDAYS)
+						       FROM TL_CTRT_WH_LOC
+						      WHERE CTRT_NO = #ctrt_no#
+						       AND LOC_CD  = #wh_cd#
+						       AND OFC_CD  = #ofc_cd#),0)
+	                 ) = 0 THEN #inbound_dt#
+	            ELSE CONVERT (VARCHAR(10),(CASE WHEN #inbound_dt# IS NOT NULL THEN CONVERT (VARCHAR(10),#inbound_dt#,120) ELSE #inbound_dt# END) + (
+	                 		(
+	  		  				   ISNULL((SELECT MAX(LOC_FREEDAYS)
+						       FROM TL_CTRT_WH_LOC
+						       WHERE CTRT_NO = #ctrt_no#
+						       AND LOC_CD  = #wh_cd#
+						       AND OFC_CD  = #ofc_cd#),0)
+	                 ) - 1),120)
+	            END
+	     , #custms_ref_no#
+	     , #fix_rcv_flg#
+	     , #rmk#
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     )
+	</insert>
+	
+	<insert id="saveWHInMgmForRcvItem">
+	/*WHInbk.saveWHInMgmForRcvItem*/
+	INSERT INTO TL_WH_RCV_ITEM
+	     ( WIB_IN_NO
+	     , WIB_BK_NO
+	     , PO_SYS_NO
+	     , ITEM_SYS_NO
+	     , ITEM_SEQ
+	     , PO_NO
+	     , ITEM_CD
+	     , ITEM_NM
+	     , LOT_ID
+	     , RCV_STS_CD <!-- S:Sound / D:Damage -->
+	     , ITEM_SER_NO
+	     , LIC_PLAT_NO
+	     , SND_PKGUNIT
+	     , SND_PKGQTY
+	     , SND_EA_QTY
+	     , DMG_PKGUNIT
+	     , DMG_PKGQTY
+	     , DMG_EA_QTY
+	     , IN_ITEM_EA_QTY
+	     , OS_ITEM_EA_QTY
+	     , IN_ITEM_PE_QTY
+	     , IN_ITEM_CBM
+	     , IN_ITEM_CBF
+	     , IN_ITEM_GRS_KGS
+	     , IN_ITEM_GRS_LBS
+	     , IN_ITEM_NET_KGS
+	     , IN_ITEM_NET_LBS
+	     , INBOUND_LOC_CD
+	     , EQ_TP_CD
+	     , EQ_TPSZ_CD
+	     , EQ_NO
+	     , SEAL_NO
+	     , RMK
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     , INV_CHG_FLG /*INVENTORY 변경 여부. 최초입력시 : Y*/
+	     , RGST_TIMESTAMP
+	     , DMG_LOC_CD
+	     , SND_ITEM_CBM
+	     , SND_ITEM_CBF
+	     , SND_ITEM_GRS_KGS
+	     , SND_ITEM_GRS_LBS
+	     , SND_ITEM_NET_KGS
+	     , SND_ITEM_NET_LBS
+	     , DMG_ITEM_CBM
+	     , DMG_ITEM_CBF
+	     , DMG_ITEM_GRS_KGS
+	     , DMG_ITEM_GRS_LBS
+	     , DMG_ITEM_NET_KGS
+	     , DMG_ITEM_NET_LBS
+	     )
+	VALUES
+	     ( #wib_in_no#
+	     , #wib_bk_no#
+	     , #po_sys_no#
+	     , #item_sys_no#
+	     , #item_seq#
+	     , #po_no#
+	     , #item_cd#
+	     , #item_nm#
+	     , #lot_id#
+	     , #rcv_sts_cd# <!-- S:Sound / D:Damage -->
+	     , #item_ser_no#
+	     , #lic_plat_no#
+	     /* SND */
+	     , CASE WHEN CAST (#snd_ea_qty# AS INT) = 0 THEN '' ELSE #snd_pkgunit# END
+	     , CONVERT(NUMERIC(15),  CAST(#rcv_pkgqty# AS FLOAT)) 
+	     , CONVERT(NUMERIC(15),  CAST(#snd_ea_qty# AS FLOAT)) 
+         /* DMG */
+	     , CASE WHEN CAST (#dmg_ea_qty# AS INT) = 0 THEN '' ELSE #dmg_pkgunit# END
+	     , CONVERT(NUMERIC(15),  CAST(#dmg_pkgqty# AS FLOAT))
+	     , CONVERT(NUMERIC(15),  CAST(#dmg_ea_qty# AS FLOAT))
+	     , CONVERT(NUMERIC(15),  CAST(#in_item_ea_qty# AS FLOAT))
+	     , CONVERT(NUMERIC(15),  CAST(#os_item_ea_qty# AS FLOAT))
+	     , CONVERT(NUMERIC(15),  CAST(#in_item_pe_qty# AS FLOAT))
+	     , CONVERT(NUMERIC(15,5),  CAST(#item_cbm# AS FLOAT))
+	     , CONVERT(NUMERIC(15,5),  CAST(#item_cbf# AS FLOAT))
+	     , CONVERT(NUMERIC(15,3),  CAST(#item_grs_kgs# AS FLOAT))
+	     , CONVERT(NUMERIC(15,3),  CAST(#item_grs_lbs# AS FLOAT))
+	     , CONVERT(NUMERIC(15,3),  CAST(#item_net_kgs# AS FLOAT))
+	     , CONVERT(NUMERIC(15,3),  CAST(#item_net_lbs# AS FLOAT))
+	     , #inbound_loc_cd#
+	     , #eq_tp_cd#
+	     , #eq_tpsz_cd#
+	     , #eq_no#
+	     , #seal_no#
+	     , ''
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     , 'Y'
+	     , GETDATE()
+	     , CASE WHEN CAST (#dmg_ea_qty# AS INT) = 0 THEN '' ELSE #dmg_loc_cd# END 
+	     , CONVERT(NUMERIC(15,5),  CAST(#snd_item_cbm# AS FLOAT))
+		 , CONVERT(NUMERIC(15,5),  CAST(#snd_item_cbf# AS FLOAT))
+		 , CONVERT(NUMERIC(15,3),  CAST(#snd_item_grs_kgs# AS FLOAT))
+		 , CONVERT(NUMERIC(15,3),  CAST(#snd_item_grs_lbs# AS FLOAT))
+		 , CONVERT(NUMERIC(15,3),  CAST(#snd_item_net_kgs# AS FLOAT))
+		 , CONVERT(NUMERIC(15,3),  CAST(#snd_item_net_lbs# AS FLOAT))
+		 , CONVERT(NUMERIC(15,5),  CAST(#dmg_item_cbm# AS FLOAT))
+		 , CONVERT(NUMERIC(15,5),  CAST(#dmg_item_cbf# AS FLOAT))
+		 , CONVERT(NUMERIC(15,3),  CAST(#dmg_item_grs_kgs# AS FLOAT))
+		 , CONVERT(NUMERIC(15,3),  CAST(#dmg_item_grs_lbs# AS FLOAT))
+		 , CONVERT(NUMERIC(15,3),  CAST(#dmg_item_net_kgs# AS FLOAT))
+		 , CONVERT(NUMERIC(15,3),  CAST(#dmg_item_net_lbs# AS FLOAT))
+	     )
+	</insert>
+	
+	<select id="searchLotId" parameterClass="com.clt.apps.fis.wms.whinbooking.dto.WHICCtrtCustItemLotVO" resultClass="java.lang.String">
+	/*WHIC.searchLotId*/
+	SELECT MAX(LOT_ID) AS LOT_ID 
+	  FROM TL_CTRT_CUST_ITEM_LOT A 
+	 WHERE CTRT_NO = #ctrt_no#
+	   AND ITEM_SYS_NO = #item_sys_no#
+	   AND WH_CD = #wh_cd#
+
+	<isEqual property="lot_attrib_01" compareValue="">
+		AND LOT_ATTRIB_01 = ''
+	</isEqual>
+	<isNotEqual property="lot_attrib_01" compareValue=""> 
+		AND LOT_ATTRIB_01 = #lot_attrib_01#
+	</isNotEqual>
+	<isEqual property="lot_attrib_02" compareValue="">
+		AND LOT_ATTRIB_02 = ''
+	</isEqual>
+	<isNotEqual property="lot_attrib_02" compareValue=""> 
+		AND LOT_ATTRIB_02 = #lot_attrib_02#
+	</isNotEqual>
+	<isEqual property="lot_attrib_03" compareValue="">
+		AND LOT_ATTRIB_03 = ''
+	</isEqual>
+	<isNotEqual property="lot_attrib_03" compareValue=""> 
+		AND LOT_ATTRIB_03 = #lot_attrib_03#
+	</isNotEqual>
+	<isEqual property="lot_attrib_04" compareValue="">
+		AND LOT_ATTRIB_04 = ''
+	</isEqual>
+	<isNotEqual property="lot_attrib_04" compareValue=""> 
+		AND LOT_ATTRIB_04 = #lot_attrib_04#
+	</isNotEqual>
+	<isEqual property="lot_attrib_05" compareValue="">
+		AND LOT_ATTRIB_05 = ''
+	</isEqual>
+	<isNotEqual property="lot_attrib_05" compareValue=""> 
+		AND LOT_ATTRIB_05 = #lot_attrib_05#
+	</isNotEqual>
+	</select>	
+	
+	<insert id="saveCtrtCustItemLot">
+	/*WHIC.saveCtrtCustItemLot*/
+	INSERT INTO TL_CTRT_CUST_ITEM_LOT
+	     ( CTRT_NO
+	     , ITEM_SYS_NO
+	     , LOT_ID
+	     , LOT_ATTRIB_01
+	     , LOT_ATTRIB_02
+	     , LOT_ATTRIB_03
+	     , LOT_ATTRIB_04
+	     , LOT_ATTRIB_05
+	     , RGST_ID
+	     , RGST_OFC_CD
+	     , RGST_SYS_DT
+	     , RGST_LOC_DT
+	     , MODI_ID
+	     , MODI_OFC_CD
+	     , MODI_SYS_DT
+	     , MODI_LOC_DT
+	     , WH_CD
+	     )
+	VALUES
+	     ( #ctrt_no#
+	     , #item_sys_no#
+	     , #lot_id#
+	     , #lot_attrib_01#
+	     , #lot_attrib_02#
+	     , #lot_attrib_03#
+	     , #lot_attrib_04#
+	     , #lot_attrib_05#
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     , #rgst_id#
+	     , #rgst_ofc_cd#
+	     , GETDATE()
+	     , CONVERT(VARCHAR(23) , (dbo.TL_GET_TM_ZONE_DATE_DT(#wh_cd#)),120)
+	     , #wh_cd#
+	     )
+	</insert>
+	
+	<!-- Freight Tab Info -->
+	<update id="delWHInMgmForFreight">
+	/*WHInbk.delWHInMgmForFreight*/
+		UPDATE TL_CTRT_CUST_FRT
+		   SET DELT_FLG          	 = 'Y'
+		     , USE_FLG          	 = 'N'
+		     , MODI_USRID            = #modi_usrid#
+	         , MODI_OFC_CD           = #modi_ofc_cd#
+	         , MODI_TMS           	 = GETUTCDATE()
+	     WHERE WIB_BK_NO             = #wib_bk_no#
+	       AND WH_CD             	 = #wh_cd#
+	       AND CTRT_NO           	 = #ctrt_no#
+	       AND RATING_FLG			 = 'Y'
+	</update>
+	<update id="modifyWHInMgmForFreightDel">
+	/*WHInbk.modifyWHInMgmForFreightDel*/
+		UPDATE TL_CTRT_CUST_FRT
+		   SET DELT_FLG          	 = 'Y'
+		     , USE_FLG          	 = 'N'
+		     , MODI_USRID            = #modi_usrid#
+	         , MODI_OFC_CD           = #modi_ofc_cd#
+	         , MODI_TMS           	 = GETUTCDATE()
+	     WHERE WIB_BK_NO             = #wib_bk_no#
+	       AND WH_CD             	 = #wh_cd#
+	       AND CTRT_NO           	 = #ctrt_no#
+	       <isNotEmpty property="wib_bk_frt_seq">
+		       AND WIB_BK_FRT_SEQ        = #wib_bk_frt_seq#
+	       </isNotEmpty>
+	</update>
+	
+	<insert id="insertWHInMgmForFreight">
+	/*WHInbk.insertWHInMgmForFreight*/
+	INSERT INTO TL_CTRT_CUST_FRT
+           (WIB_BK_NO
+           ,CUST_ORD_NO
+           ,WH_CD
+           ,CTRT_NO
+           ,WIB_BK_FRT_SEQ
+           ,OFC_CD
+           ,CUST_CD
+           ,RATE_TP_CD
+           ,FRT_CD
+           ,FRT_NM
+           ,UNIT_CD
+           ,UNIT_CD2
+           ,CURR_CD
+           ,UNIT_PRICE
+           ,QTY
+           ,INV_AMT
+           ,INV_TTL_AMT
+           ,ITEM_CD
+           ,STS_CD
+           ,CLS_NO
+           ,CLS_DT
+           ,INV_SEQ
+           ,SELL_BUY_TP_CD
+           ,FRT_SEQ
+           ,RATING_FLG
+           ,USE_FLG
+           ,DELT_FLG
+           ,RGST_USRID
+           ,RGST_OFC_CD
+           ,RGST_TMS
+           ,MODI_USRID
+           ,MODI_OFC_CD
+           <!-- #3388-[BINEX WMS4.0] RATE IN & OUT MINIMUM CHARGE - Vien.Cao -->
+           ,MODI_TMS
+           ,RMK)
+     VALUES
+           (#wib_bk_no#
+           ,#cust_ord_no#
+           ,#wh_cd#
+           ,#ctrt_no#
+           ,(SELECT isnull(MAX(WIB_BK_FRT_SEQ),0) + 1 
+           	 FROM TL_CTRT_CUST_FRT 
+		     WHERE WIB_BK_NO             = #wib_bk_no#
+		       AND WH_CD             	 = #wh_cd#
+		       AND CTRT_NO           	 = #ctrt_no#  )
+           ,#ofc_cd#
+           ,#cust_cd#
+           ,#rate_tp_cd#
+           ,#frt_cd#
+           ,#frt_nm#
+           ,#unit_cd#
+           ,#unit_cd2#
+           ,#curr_cd#
+           ,(SELECT CONVERT(NUMERIC(20, 8), CAST(REPLACE(#unit_price#,',','') AS FLOAT)))
+           ,(SELECT CONVERT(NUMERIC(20, 8), CAST(REPLACE(#qty#,',','') AS FLOAT)))
+           ,(SELECT CONVERT(NUMERIC(20, 8), CAST(REPLACE(#inv_amt#,',','') AS FLOAT)))
+           ,(SELECT CONVERT(NUMERIC(20, 8), CAST(REPLACE(#inv_ttl_amt#,',','') AS FLOAT)))
+           ,#item_cd#
+           ,#sts_cd#
+           ,#cls_no#
+           ,#cls_dt#
+           ,#inv_seq#
+           ,#sell_buy_tp_cd#
+           ,(SELECT CONVERT(NUMERIC(12, 0), CAST(REPLACE(#frt_seq#,',','') AS FLOAT)))
+           ,#rating_flg#
+           ,'Y'
+           ,'N'
+           ,#rgst_usrid#
+           ,#rgst_ofc_cd#
+           ,GETDATE()
+           ,#modi_usrid#
+           ,#modi_ofc_cd#
+           ,GETUTCDATE()
+           <!-- #3388-[BINEX WMS4.0] RATE IN & OUT MINIMUM CHARGE - Vien.Cao -->
+           ,#rmk#
+           )
+    </insert>
+    
+	<update id="modifyWHInMgmForFreightUp">
+		/*WHInbk.modifyWHInMgmForFreightUp*/
+		UPDATE TL_CTRT_CUST_FRT
+		   SET wib_bk_no = #wib_bk_no#
+		   	  <!-- #4806 ** [Korex] WMS Be able to add Freight Items when In/Outbound file is "Booked" -->
+		   	  ,cust_ord_no = #cust_ord_no# 
+		      ,wh_cd = #wh_cd#
+		      ,ctrt_no = #ctrt_no#
+		      ,wib_bk_frt_seq = (SELECT CONVERT(NUMERIC(4, 0), CAST(REPLACE(#wib_bk_frt_seq#,',','') AS FLOAT)))
+		      ,ofc_cd = #ofc_cd#
+		      ,cust_cd = #cust_cd#
+		      ,rate_tp_cd = #rate_tp_cd#
+		      ,frt_cd = #frt_cd#
+		      ,frt_nm = #frt_nm#
+		      ,unit_cd = #unit_cd#
+		      ,unit_cd2 = #unit_cd2#
+		      ,curr_cd = #curr_cd#
+		      ,unit_price = (SELECT CONVERT(NUMERIC(20, 8), CAST(REPLACE(#unit_price#,',','') AS FLOAT)))
+		      ,qty = (SELECT CONVERT(NUMERIC(20, 8), CAST(REPLACE(#qty#,',','') AS FLOAT)))
+		      ,inv_amt = (SELECT CONVERT(NUMERIC(20, 8), CAST(REPLACE(#inv_amt#,',','') AS FLOAT)))
+		      ,inv_ttl_amt = (SELECT CONVERT(NUMERIC(20, 8), CAST(REPLACE(#inv_ttl_amt#,',','') AS FLOAT)))
+		      ,item_cd = #item_cd#
+		      ,sts_cd = #sts_cd#
+		      ,cls_no = #cls_no#
+		      ,cls_dt = #cls_dt#
+		      ,inv_seq = #inv_seq#
+		      ,sell_buy_tp_cd = #sell_buy_tp_cd#
+		      ,frt_seq = (SELECT CONVERT(NUMERIC(12, 0), CAST(REPLACE(#frt_seq#,',','') AS FLOAT)))
+		      ,rating_flg = #rating_flg#
+		      <!-- ,use_flg = #use_flg#
+		      ,delt_flg = #delt_flg# -->
+		      ,rgst_usrid = #rgst_usrid#
+		      ,rgst_ofc_cd = #rgst_ofc_cd#
+		      ,rgst_tms = GETDATE()
+		      ,modi_usrid = #modi_usrid#
+		      ,modi_ofc_cd = #modi_ofc_cd#
+		      ,modi_tms = GETUTCDATE()
+		      <!-- #3388-[BINEX WMS4.0] RATE IN & OUT MINIMUM CHARGE - Vien.Cao -->
+		      ,rmk = #rmk#
+	     WHERE WIB_BK_NO             = #wib_bk_no#
+	       AND WH_CD             	 = #wh_cd#
+	       AND CTRT_NO           	 = #ctrt_no#
+	       <isNotEmpty property="wib_bk_frt_seq">
+		       AND WIB_BK_FRT_SEQ        = #wib_bk_frt_seq#
+	       </isNotEmpty>
+	</update>
+	<select id="checkDuplicateOrderNo" parameterClass="java.util.HashMap" resultClass="String">
+		/* WHInbk.checkDuplicateOrderNo */
+		SELECT TOP 1 CUST_ORD_NO from TL_WH_IB WHERE CUST_ORD_NO = #cust_ord_no# AND WH_CD = #wh_cd# AND CTRT_NO = #ctrt_no# AND BK_STS_CD != 'C'
+	</select>
+	
+	<select id="checkWMSFreightInfo" parameterClass="java.util.HashMap" resultClass="String">
+		/* WHInbk.checkWMSFreightInfo */
+		SELECT count(CUST_ORD_NO) 
+		FROM TL_CTRT_CUST_FRT 
+		WHERE CUST_ORD_NO = #cust_ord_no#
+		  AND USE_FLG = 'Y'
+		  AND DELT_FLG = 'N'
+		  <!-- #5142 [Binex Tor] Inbound C.Cancel error -->
+		  <isNotEmpty property="wib_bk_no"> 
+		  AND WIB_BK_NO = #wib_bk_no#
+		  </isNotEmpty>
+		  <isNotEmpty property="wob_bk_no"> 
+		  AND WOB_BK_NO = #wob_bk_no#
+		  </isNotEmpty>
+	</select>
+	
+	<select id="getBkgStatusCd" parameterClass="java.util.HashMap" resultClass="String">
+	/* WHInbk.getBkgStatusCd */
+	SELECT BK_STS_CD FROM TL_WH_IB WHERE WIB_BK_NO = #wib_bk_no#
+	</select>
+	<update id="modifyBkgStatusCd" >
+	/*WHIC.modifyBkgStatusCd*/
+	UPDATE TL_WH_IB
+	   SET BK_STS_CD = #bk_sts_cd#
+	     , MODI_ID = #user_id#
+	     , MODI_OFC_CD = #org_cd#
+	     , MODI_SYS_DT = GETDATE()
+	 WHERE WIB_BK_NO =  #wib_bk_no#
+	</update>
+	<update id="modifyIBItemPO">
+		/*WHInbk.modifyIBItem*/
+		UPDATE TL_WH_IB_ITEM
+		   SET PO_NO          	 	 = #po_no#
+	     WHERE WIB_BK_NO             = #wib_bk_no#
+	       AND PO_SYS_NO             = #po_sys_no#
+	       AND ITEM_SYS_NO           = #item_sys_no#
+	       AND ITEM_SEQ				 = #item_seq#
+	</update>
+	
+	<!-- #1882 [BINEX WMS4.0] INBOUND COMPLETE CANCEL DELETES SAVED SERIAL # -->
+	<update id="modifyIBItemLPAndSerial">
+		/*WHInbk.modifyIBItemLPAndSerial*/
+		UPDATE TL_WH_IB_ITEM
+		   SET LIC_PLAT_NO		 	 = #lic_plat_no#
+		   	 , ITEM_SER_NO 			 = #item_ser_no#
+	     WHERE WIB_BK_NO             = #wib_bk_no#
+	       AND PO_SYS_NO             = #po_sys_no#
+	       AND ITEM_SYS_NO           = #item_sys_no#
+	       AND ITEM_SEQ				 = #item_seq#
+	</update>
+</sqlMap>

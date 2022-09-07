@@ -1,0 +1,48 @@
+<script>
+	function getCookieVal(offset)
+	{
+	    var endstr = document.cookie.indexOf (";", offset);
+	    if (endstr == -1) endstr = document.cookie.length;
+	    return unescape(document.cookie.substring(offset, endstr));
+	}
+	
+	function GetCookie(name)
+	{
+	    var arg = name + "=";
+	    var alen = arg.length;
+	    var clen = document.cookie.length;
+	    var i = 0;
+	    while (i < clen) //while open
+	    {
+	        var j = i + alen;
+	        if (document.cookie.substring(i, j) == arg)
+	            return getCookieVal (j);
+	        i = document.cookie.indexOf(" ", i) + 1;
+	        if (i == 0) break;
+	    } //while close
+	    return null;
+	}
+		
+	var fs_chk = GetCookie('fs_chk');
+	
+	if(fs_chk == 'Y' ){
+		window.open('./Login.usr','Opus_Forwarding','toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1024,height=768,channelmode=yes');
+		
+		if(navigator.appVersion.indexOf("MSIE 7.0") >= 0 ){  //익스플로러 체크
+	    	window.open("","_self").close();
+	    }else if(navigator.appVersion.indexOf("MSIE 8.0") >= 0 || navigator.appVersion.indexOf("MSIE 9.0") || navigator.appVersion.indexOf("MSIE 10.0") >= 0){    //보안 alert! 방지
+	        window.open("","_self").close();
+	    }else{
+	        self.close();
+	    }
+		
+	}else{
+		location.href = './Login.usr';
+	}
+	
+    
+    /*	//Lotte Version Source
+    window.open('./Index.usr','opusfwd','toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1024,height=768,channelmode=yes');
+	this.close();
+    */
+</script>

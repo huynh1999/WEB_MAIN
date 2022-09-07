@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.code.status">
+	
+	<!-- Trade cargo status List pop select    -->
+    <select id="selectCMM_POP_0130_LIST" resultClass="com.clt.apps.fis.mdm.code.status.dto.ComCdVO">
+       
+		SELECT 
+			com_cd,	cd_val, cd_nm
+		FROM tb_com_cd_dtl
+		WHERE use_flg ='Y'
+		AND   delt_flg = 'N'
+		AND   com_cd = 'S001'
+		
+		<dynamic prepend="AND">
+		
+		<isNotNull prepend="AND" property="s_cargo_code">
+			cd_val like #s_cargo_code#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_cargo_name">
+			cd_nm like #s_cargo_name#
+		</isNotNull>
+			
+		</dynamic>
+		
+		ORDER  BY cd_val
+		
+	</select>
+	
+	<!-- Trade cargo status List pop select count    -->
+    <select id="selectCMM_POP_0130_CNT" resultClass="Integer">
+        SELECT  	count(*)
+		FROM tb_com_cd_dtl
+		WHERE use_flg ='Y'
+		AND   delt_flg = 'N'
+		AND   com_cd = 'S001'
+		
+		<dynamic prepend="AND">
+		
+		<isNotNull prepend="AND" property="s_cargo_code">
+			cd_val like #s_cargo_code#
+		</isNotNull>
+		<isNotNull prepend="AND" property="s_cargo_name">
+			cd_nm like #s_cargo_name#
+		</isNotNull>
+			
+		</dynamic>
+		
+	</select>
+	
+</sqlMap>

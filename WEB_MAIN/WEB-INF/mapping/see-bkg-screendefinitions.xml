@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+    
+    <!--#### Consolidation Start ####-->
+    
+    <screen name="SEE_BKG_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0010.jsp" />
+    </screen>
+    
+    <screen name="SEE_BKG_0010GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0010GS.jsp" />
+    </screen>
+    
+    <screen name="SEE_BKG_0010_1GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0010_1GS.jsp" />
+    </screen>
+    
+    <screen name="SEE_BKG_0010_2GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0010_2GS.jsp" />
+    </screen> 
+    
+    <screen name="SEE_BKG_0010_3GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0010_3GS.jsp" />
+    </screen> 
+    
+    <screen name="SEE_BKG_0010_AJ" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0010AJ.jsp" />
+    </screen> 
+    
+    <screen name="SEE_BKG_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0020.jsp" />
+    </screen>
+    
+    <screen name="SEE_BKG_0020GS" template="templateIBSheet" >
+        <parameter key="body"    value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0020GS.jsp" />
+    </screen>   
+    
+    <!--#### Consolidation End ####-->
+    
+<!-- #1432 [PATENT] 0215_16 BOOKING SPLIT-COMBINE FUNCTION -->
+    <!-- Booking Split -->
+    <screen name="SEE_BKG_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0030.jsp" /> 
+    </screen>    
+    <screen name="SEE_BKG_0030GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0030GS.jsp"/>
+    </screen>
+    <screen name="SEE_BKG_0030_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0030_2GS.jsp"/>
+    </screen>    
+    <screen name="SEE_BKG_0030_3GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0030_3GS.jsp"/>
+    </screen>   
+    <screen name="SEE_BKG_0030_4GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0030_4GS.jsp"/>
+    </screen>    
+    <screen name="SEE_BKG_0030_5GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0030_5GS.jsp"/>
+    </screen>   
+    <!-- Booking Combine -->
+    <screen name="SEE_BKG_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0040.jsp" /> 
+    </screen>    
+    <screen name="SEE_BKG_0040GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/bmd/booking/jsp/SEE_BKG_0040GS.jsp"/>
+    </screen>     
+    
+</screen-definitions>

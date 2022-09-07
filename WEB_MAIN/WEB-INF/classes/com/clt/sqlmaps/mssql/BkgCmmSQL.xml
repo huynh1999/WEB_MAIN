@@ -1,0 +1,904 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bkg.cmm"> 
+    
+
+    <!-- Booking Split   -->
+ <select id="getBkgSplitChk" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* BkgCmmSQL.xml > getBkgSplitChk */
+		SELECT * from TB_BKG BKG where BKG_NO = #f_bkg_no#
+			AND  BKG.BKG_STS_CD in ('CR','RD','CF')
+            <isEqual property="f_biz_clss_cd" compareValue="M">
+		        AND NOT EXISTS (
+					SELECT *
+					FROM TB_CLP
+					WHERE BKG_SEQ = BKG.BKG_SEQ 
+				)
+		    </isEqual>
+            <isEqual property="f_biz_clss_cd" compareValue="H">
+		        AND NOT EXISTS (
+					SELECT *
+					FROM TB_BKG_RLT
+					WHERE BKG_SEQ = BKG.BKG_SEQ 
+				)
+		    </isEqual>	
+		    AND DELT_FLG = 'N'
+  </select>
+    <select id="searchBkgSpit" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingVO">
+		/* BkgCmmSQL.xml > searchBkgSpit */
+        SELECT TOP 1
+               BKG.BKG_NO 
+		      ,BKG.BKG_SEQ 
+		      ,BKG.BIZ_CLSS_CD
+		      <!--,BKG.INTG_BL_SEQ
+		      ,BL.INTG_BL_SEQ
+		      ,BL.BL_NO -->
+		      ,BKG.ACT_SHPR_TRDP_CD 
+		      ,BKG.ACT_SHPR_TRDP_NM 
+		      <!--, ,BKG.BKG_DT_TM 
+		      ,BKG.PO_NO 
+		      ,BKG.LC_NO 
+		      ,BKG.PRNR_TRDP_CD 
+		      ,BKG.PRNR_TRDP_NM 
+		      ,BKG.ACT_SHPR_TRDP_CD 
+		      ,BKG.ACT_SHPR_TRDP_NM 
+		      ,BKG.SHPR_TRDP_CD 
+		      ,BKG.SHPR_TRDP_NM 
+		      ,BKG.SHPR_TRDP_ADDR 
+		      ,BKG.CNEE_TRDP_CD 
+		      ,BKG.CNEE_TRDP_NM 
+		      ,BKG.CNEE_TRDP_ADDR 
+		      ,BKG.NTFY_TRDP_CD 
+		      ,BKG.NTFY_TRDP_NM 
+		      ,BKG.NTFY_TRDP_ADDR 
+		      ,BKG.EXP_REF_NO 
+		      ,BKG.PU_TRDP_CD 
+		      ,BKG.PU_TRDP_NM 
+		      ,BKG.CGO_PU_TRDP_CD 
+		      ,BKG.CGO_PU_TRDP_NM 
+		      ,BKG.CGO_PU_TRDP_ADDR 
+		      ,BKG.RCV_WH_CD 
+		      ,BKG.RCV_WH_NM 
+		      ,BKG.TRK_TRDP_CD 
+		      ,BKG.TRK_TRDP_NM 
+		      ,BKG.CUST_REF_NO 
+		      ,BKG.CNTR_INFO 
+		      -->
+		      ,BKG.TRNK_VSL_CD 
+		      ,BKG.TRNK_VSL_NM 
+		      ,BKG.TRNK_VOY 
+		      ,BKG.POR_CD 
+		      ,BKG.POR_NOD_CD 
+		      ,BKG.POR_NM 
+		      ,BKG.POL_CD 
+		      ,BKG.POL_NOD_CD 
+		      ,BKG.POL_NM 
+		      ,BKG.POD_CD 
+		      ,BKG.POD_NOD_CD 
+		      ,BKG.POD_NM 
+		      ,BKG.DEL_CD 
+		      ,BKG.DEL_NOD_CD 
+		      ,BKG.DEL_NM 
+		      ,BKG.LNR_TRDP_CD 
+		      ,BKG.LNR_TRDP_NM 
+		      <!-- 
+		      ,BKG.FNL_DEST_LOC_CD 
+		      ,BKG.FNL_DEST_NOD_CD 
+		      ,BKG.FNL_DEST_LOC_NM 
+		      ,BKG.LNR_TRDP_CD 
+		      ,BKG.LNR_TRDP_NM 
+		      ,BKG.LNR_BKG_NO 
+		      ,BKG.ETD_DT_TM 
+		      ,BKG.ETA_DT_TM 
+		      ,BKG.ETD_POR_TM 
+		      ,BKG.SHP_MOD_CD 
+		      ,BKG.REP_CMDT_CD 
+		      ,BKG.REP_CMDT_NM 
+		       -->
+		      ,BKG.PCK_QTY 
+		      ,BKG.PCK_UT_CD 
+		      ,unit.pck_nm 		as PCK_UT_NM
+		      ,BKG.GRS_WGT_UT_CD 
+		      ,BKG.GRS_WGT 
+		      ,BKG.GRS_WGT1 
+		      ,BKG.MEAS_UT_CD 
+		      ,BKG.MEAS 
+		      ,BKG.MEAS1 
+		      ,BKG.BKG_STS_CD
+		      <!-- 
+		      ,BKG.FM_SVC_TERM_CD 
+		      ,BKG.TO_SVC_TERM_CD 
+		      ,BKG.CARGO_TP_CD 
+		      ,BKG.CUT_OFF_DT 
+		      ,BKG.RAIL_CUT_OFF_DT 
+		      ,BKG.WH_CUT_OFF_DT 
+		      ,BKG.DOC_CUT_OFF_DT 
+		      ,BKG.SLS_OFC_CD 
+		      ,BKG.SLS_DEPT_CD 
+		      ,BKG.SLS_USRID 
+		      ,BKG.SLS_USR_NM 
+		      ,BKG.RMK 
+		      ,BKG.DEPT_CD 
+		      ,BKG.DELT_FLG 
+		      ,BKG.LNR_CTRT_NO
+        	  ,BKG.FRT_TERM_CD
+        	  ,BKG.PORT_OPEN_DT
+        	  ,BKG.VGM_CUT_OFF_DT
+        	  ,BKG.BKG_STS_CD
+			  ,BKG.PORT_OPEN_DT
+        	  ,BKG.VGM_CUT_OFF_DT
+		      ,BKG.RGST_USRID
+		      ,BKG.RGST_OFC_CD
+		      ,CONVERT(VARCHAR(10),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),BKG.RGST_TMS ),112) + REPLACE(CONVERT(VARCHAR(8),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),BKG.RGST_TMS ),108),':','')  AS RGST_TMS      
+		      ,BKG.MODI_USRID
+		      ,BKG.MODI_OFC_CD
+		      ,CONVERT(VARCHAR(10),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),BKG.MODI_TMS ),112) + REPLACE(CONVERT(VARCHAR(8),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),BKG.MODI_TMS ),108),':','')  AS MODI_TMS     
+	          ,BKG.HBL_TP_CD
+	          ,BKG.NOMI_FLG   		 	       
+        		,CARI.BKG_SEQ AS CARRIER_BKG_SEQ
+        		,CARI.BKG_NO  AS CARRIER_BKG_NO
+        		,BKG.VNDR_TRDP_CD
+        		,BKG.VNDR_TRDP_NM
+        		,BKG.VNDR_TRDP_ADDR
+        		 -->
+		  FROM TB_BKG BKG
+		  LEFT  OUTER JOIN tb_pck_ut_cd unit 
+		    ON bkg.pck_ut_cd = unit.pck_ut_cd AND unit.use_flg = 'Y'	   		   
+		 WHERE 1 = 1
+		   AND BKG.DELT_FLG = 'N'
+		   AND BKG.BIZ_CLSS_CD = #f_biz_clss_cd#
+		   AND BKG.BKG_STS_CD in ('CR','RD','CF')
+        <dynamic>
+        	<isNotEmpty property="f_bkg_no">
+                AND BKG.BKG_NO = #f_bkg_no#
+            </isNotEmpty>
+            <isNotEmpty property="f_bkg_seq">
+                AND BKG.BKG_SEQ = #f_bkg_seq#
+            </isNotEmpty> 
+            <!-- Validation 주석 2017-04-26 요청 #1892 [PATENT] BKG SPLIT/COMBINE 점검항목
+            <isEqual property="f_biz_clss_cd" compareValue="M">
+		        AND NOT EXISTS (
+					SELECT *
+					FROM TB_CLP
+					WHERE BKG_SEQ = BKG.BKG_SEQ 
+				)
+		    </isEqual>
+            <isEqual property="f_biz_clss_cd" compareValue="H">
+		        AND NOT EXISTS (
+					SELECT *
+					FROM TB_BKG_RLT
+					WHERE BKG_SEQ = BKG.BKG_SEQ 
+				)
+		    </isEqual>	
+		     -->	    
+        </dynamic>
+    </select>
+   <select id="searchBkgCntr" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingVO">
+	   SELECT cntr_seq, cntr_tpsz_cd
+		   FROM TB_BKG_CNTR
+		   WHERE DELT_FLG = 'N'
+	   	   AND BKG_SEQ = #f_bkg_seq#
+	   	   ORDER BY CNTR_TPSZ_CD DESC, CNTR_SEQ ASC
+   </select>
+    <select id="searchBkgSplitCntrQty" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingCntrVO" remapResults="true">
+    /* BkgCmmSQL.xml > searchBkgSplitCntrQty */
+		SELECT * FROM (
+			SELECT 
+			$cntrSql$
+			,  QTY    
+			 FROM TB_BKG_CNTR a
+			WHERE DELT_FLG = 'N'
+			AND BKG_SEQ = #f_bkg_seq#
+			) as a
+		PIVOT   (SUM(QTY) FOR CNTR_SEQ IN ($cntrSeqList$)) AS PVT 
+    </select>
+   <select id="searchBkgCntrList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingVO">
+	   SELECT cntr_seq, cntr_no
+		   FROM TB_BKG_CNTR_LIST
+		   WHERE DELT_FLG = 'N'
+	   	   AND BKG_SEQ = #f_bkg_seq#
+	   	   ORDER BY CNTR_TPSZ_CD DESC, CNTR_SEQ ASC, CNTR_NO DESC
+   </select>
+   <select id="getBkgSpitCntrHdr" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+   /* BkgCmmSQL.xml > getBkgSpitCntrHdr */
+	   SELECT cntr_seq, cntr_tpsz_cd
+		   FROM TB_BKG_CNTR
+		   WHERE DELT_FLG = 'N'
+	   	   AND BKG_SEQ = #f_bkg_seq#
+	   	   ORDER BY CNTR_TPSZ_CD DESC, CNTR_SEQ ASC
+   </select>
+   <select id="getBkgSpitCntrListHdr" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    /* BkgCmmSQL.xml > getBkgSpitCntrListHdr */
+	   SELECT cntr_seq, cntr_tpsz_cd, cntr_no, RANK() over (partition by CNTR_TPSZ_CD ORDER BY CNTR_TPSZ_CD DESC, CNTR_SEQ ASC)  as rowcnt
+		   FROM TB_BKG_CNTR_LIST
+		   WHERE DELT_FLG = 'N'
+	   	   AND BKG_SEQ = #f_bkg_seq#
+	   	   ORDER BY CNTR_TPSZ_CD DESC, CNTR_SEQ ASC, CNTR_NO DESC
+   </select>  
+    <select id="searchBkgSplitCntrList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingCntrVO" remapResults="true">
+    /* BkgCmmSQL.xml > searchBkgSplitCntrList */
+		SELECT * FROM (
+			SELECT 
+			$cntrLSql$
+			,  CNTR_TPSZ_CD    
+			 FROM TB_BKG_CNTR_LIST a
+			WHERE DELT_FLG = 'N'
+			AND BKG_SEQ = #f_bkg_seq#
+			) as a
+		PIVOT   (MAX(CNTR_TPSZ_CD) FOR CNTR_SEQ IN ($cntrLSeqList$)) AS PVT 
+    </select>    
+    <select id="selectBkgSplit_PO" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingVO">
+     /* BkgCmmSQL.xml > selectBkgSplit_PO */
+		SELECT  bkg.bkg_seq,
+				bkg.po_sys_no,
+				po.cust_po_no,
+				bkg.po_cmdt_seq,
+				bkg.cust_itm_id,
+				custitm.item_nm 	as cust_itm_nm,
+				bkg.pck_ut_cd 		as cmdt_pck_ut_cd,
+				unit.pck_nm 		as cmdt_pck_ut_nm, 
+				bkg.pck_inr_qty 	as cmdt_pck_inr_qty,
+		        bkg.pck_qty 		as cmdt_pck_qty,
+		        bkg.ea_cnt 			as cmdt_ea_cnt,
+		        bkg.ttl_qty 		as cmdt_ttl_qty,
+		        bkg.cmdt_kgs_wgt,
+		        bkg.cmdt_lbs_wgt,		        
+		        bkg.cmdt_cbm_meas,
+		        bkg.cmdt_cft_meas
+		        ,'' as sel_bkg
+		  FROM  tb_bkg_po bkg
+		 INNER  JOIN tb_po po ON bkg.po_sys_no = po.po_sys_no AND po.delt_flg = 'N'
+		  LEFT  OUTER JOIN tb_po_cmdt po_cmdt ON bkg.po_sys_no = po_cmdt.po_sys_no AND bkg.po_cmdt_seq = po_cmdt.po_cmdt_seq AND po_cmdt.delt_flg = 'N'
+	      LEFT  OUTER JOIN tl_ctrt_cust_item custitm ON po_cmdt.ctrt_no = custitm.ctrt_no AND po_cmdt.item_sys_no = custitm.item_sys_no AND po_cmdt.cust_itm_id = custitm.item_cd AND custitm.item_use_flg = 'Y'
+		  LEFT  OUTER JOIN tb_pck_ut_cd unit ON bkg.pck_ut_cd = unit.pck_ut_cd AND unit.use_flg = 'Y'
+		 WHERE  bkg.bkg_seq = #f_bkg_seq# 
+		   AND  bkg.delt_flg = 'N'
+	  ORDER BY  bkg.po_sys_no, bkg.po_cmdt_seq ASC
+    </select>
+    <insert id="insertSplitBKG" parameterClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingVO">
+	    /** BkgCmmSQL.xml > insertSplitBKG **/
+		INSERT INTO TB_BKG (
+		           BKG_NO           ,BKG_SEQ           ,INTG_BL_SEQ           ,BKG_DT_TM           ,PO_NO
+		           ,LC_NO           ,PRNR_TRDP_CD      ,PRNR_TRDP_NM          ,ACT_SHPR_TRDP_CD    ,ACT_SHPR_TRDP_NM
+		           ,SHPR_TRDP_CD    ,SHPR_TRDP_NM      ,SHPR_TRDP_ADDR        ,CNEE_TRDP_CD        ,CNEE_TRDP_NM
+		           ,CNEE_TRDP_ADDR  ,NTFY_TRDP_CD      ,NTFY_TRDP_NM          ,NTFY_TRDP_ADDR      ,EXP_REF_NO
+		           ,PU_TRDP_CD      ,PU_TRDP_NM        ,CGO_PU_TRDP_CD        ,CGO_PU_TRDP_NM      ,CGO_PU_TRDP_ADDR
+		           ,RCV_WH_CD       ,RCV_WH_NM         ,TRK_TRDP_CD           ,TRK_TRDP_NM         ,CUST_REF_NO
+		           ,CNTR_INFO       ,TRNK_VSL_CD       ,TRNK_VSL_NM           ,TRNK_VOY            ,POR_CD
+		           ,POR_NOD_CD      ,POR_NM            ,POL_CD                ,POL_NOD_CD          ,POL_NM
+		           ,POD_CD          ,POD_NOD_CD        ,POD_NM                ,DEL_CD              ,DEL_NOD_CD
+		           ,DEL_NM          ,FNL_DEST_LOC_CD   ,FNL_DEST_NOD_CD       ,FNL_DEST_LOC_NM     ,LNR_TRDP_CD
+		           ,LNR_TRDP_NM     ,LNR_BKG_NO        ,ETD_DT_TM             ,ETA_DT_TM           ,ETD_POR_TM
+		           ,SHP_MOD_CD      ,REP_CMDT_CD       ,REP_CMDT_NM           ,PCK_QTY             ,PCK_UT_CD
+		           ,GRS_WGT_UT_CD   ,GRS_WGT           ,GRS_WGT1              ,MEAS_UT_CD          ,MEAS
+		           ,MEAS1           ,FM_SVC_TERM_CD    ,TO_SVC_TERM_CD        ,CARGO_TP_CD         ,CUT_OFF_DT
+		           ,RAIL_CUT_OFF_DT ,WH_CUT_OFF_DT     ,DOC_CUT_OFF_DT        ,SLS_OFC_CD          ,SLS_DEPT_CD
+		           ,SLS_USRID       ,SLS_USR_NM        ,RMK                   ,DEPT_CD             ,RGST_USRID
+		           ,RGST_OFC_CD     ,RGST_TMS          ,MODI_USRID            ,MODI_OFC_CD         ,MODI_TMS
+		           ,DELT_FLG        ,LNR_CTRT_NO       ,FRT_TERM_CD           ,BIZ_CLSS_CD         ,FWRD_AGN_TRDP_CD
+		           ,FWRD_AGN_TRDP_NM,FWRD_AGN_TRDP_ADDR,ETA_DEL_DT_TM         ,ETA_FNL_DEST_DT_TM  ,BKG_AGN_TRDP_CD
+		           ,BKG_AGN_TRDP_NM ,BKG_AGN_TRDP_ADDR ,BKG_STS_CD            ,PORT_OPEN_DT        ,VGM_CUT_OFF_DT
+		           ,SVC_LANE_NM     ,HBL_TP_CD         ,NOMI_FLG              ,CFM_USRID           ,CFM_DT
+		           ,VNDR_TRDP_CD    ,VNDR_TRDP_NM      ,VNDR_TRDP_ADDR        ,ISS_USRID           ,ASGN_USRID
+		           ,INTER_RMK_TXT    ,CSTMS_SVC_FLG     ,TRKG_SVC_FLG          ,CMB_BKG_SEQ         ,OBL_TP_CD
+		           ,CSTMS_CUT_OFF_DT           
+		           )
+		SELECT 
+		           #bkg_no#         ,#bkg_seq#         ,INTG_BL_SEQ           ,BKG_DT_TM           ,PO_NO
+		           ,LC_NO           ,PRNR_TRDP_CD      ,PRNR_TRDP_NM          ,ACT_SHPR_TRDP_CD    ,ACT_SHPR_TRDP_NM
+		           ,SHPR_TRDP_CD    ,SHPR_TRDP_NM      ,SHPR_TRDP_ADDR        ,CNEE_TRDP_CD        ,CNEE_TRDP_NM
+		           ,CNEE_TRDP_ADDR  ,NTFY_TRDP_CD      ,NTFY_TRDP_NM          ,NTFY_TRDP_ADDR      ,EXP_REF_NO
+		           ,PU_TRDP_CD      ,PU_TRDP_NM        ,CGO_PU_TRDP_CD        ,CGO_PU_TRDP_NM      ,CGO_PU_TRDP_ADDR
+		           ,RCV_WH_CD       ,RCV_WH_NM         ,TRK_TRDP_CD           ,TRK_TRDP_NM         ,CUST_REF_NO
+		           ,CNTR_INFO       ,TRNK_VSL_CD       ,TRNK_VSL_NM           ,TRNK_VOY            ,POR_CD
+		           ,POR_NOD_CD      ,POR_NM            ,POL_CD                ,POL_NOD_CD          ,POL_NM
+		           ,POD_CD          ,POD_NOD_CD        ,POD_NM                ,DEL_CD              ,DEL_NOD_CD
+		           ,DEL_NM          ,FNL_DEST_LOC_CD   ,FNL_DEST_NOD_CD       ,FNL_DEST_LOC_NM     ,LNR_TRDP_CD
+		           ,LNR_TRDP_NM     ,LNR_BKG_NO        ,ETD_DT_TM             ,ETA_DT_TM           ,ETD_POR_TM
+		           ,SHP_MOD_CD      ,REP_CMDT_CD       ,REP_CMDT_NM           ,#pck_qty#           ,#pck_ut_cd#
+		           ,GRS_WGT_UT_CD   ,#grs_wgt#         ,#grs_wgt1#            ,MEAS_UT_CD          ,#meas#
+		           ,#meas1#         ,FM_SVC_TERM_CD    ,TO_SVC_TERM_CD        ,CARGO_TP_CD         ,CUT_OFF_DT
+		           ,RAIL_CUT_OFF_DT ,WH_CUT_OFF_DT     ,DOC_CUT_OFF_DT        ,SLS_OFC_CD          ,SLS_DEPT_CD
+		           ,SLS_USRID       ,SLS_USR_NM        ,RMK                   ,DEPT_CD             ,#proc_usrid#
+		           ,#proc_ofccd#    ,getdate()         ,#proc_usrid#          ,#proc_ofccd#         ,GETUTCDATE()
+		           ,'N'             ,LNR_CTRT_NO       ,FRT_TERM_CD           ,BIZ_CLSS_CD         ,FWRD_AGN_TRDP_CD
+		           ,FWRD_AGN_TRDP_NM,FWRD_AGN_TRDP_ADDR,ETA_DEL_DT_TM         ,ETA_FNL_DEST_DT_TM  ,BKG_AGN_TRDP_CD
+		           ,BKG_AGN_TRDP_NM ,BKG_AGN_TRDP_ADDR ,BKG_STS_CD            ,PORT_OPEN_DT        ,VGM_CUT_OFF_DT
+		           ,SVC_LANE_NM     ,HBL_TP_CD         ,NOMI_FLG              ,CFM_USRID           ,CFM_DT
+		           ,VNDR_TRDP_CD    ,VNDR_TRDP_NM      ,VNDR_TRDP_ADDR        ,ISS_USRID           ,ASGN_USRID
+		           ,INTER_RMK_TXT    ,CSTMS_SVC_FLG     ,TRKG_SVC_FLG          ,#origin_bkg_seq#    ,OBL_TP_CD
+		           ,CSTMS_CUT_OFF_DT
+		FROM TB_BKG           
+		WHERE BKG_SEQ = #origin_bkg_seq#         
+    </insert> 
+    <update id="updateSplitOriginBKG" parameterClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingVO">
+     /** BkgCmmSQL.xml > updateSplitOriginBKG **/
+        UPDATE  tb_bkg SET  
+        	pck_qty      = #pck_qty#,    
+        	meas      	 = #meas#,   
+        	meas1     	 = #meas1#,   
+        	grs_wgt      = #grs_wgt#,   
+        	grs_wgt1     = #grs_wgt1#,
+            modi_usrid = #proc_usrid#,
+            modi_ofc_cd = #proc_ofccd#,
+            modi_tms   = GETUTCDATE()     	           
+         WHERE  bkg_seq = #origin_bkg_seq# 
+    </update>
+    <update id="updateSplitOriginCNTR" parameterClass="HashMap">
+     /** BkgCmmSQL.xml > updateSplitOriginCNTR **/
+	    UPDATE tb_bkg_cntr SET
+		    qty = #cntrQty#,
+		    modi_usrid = #proc_usrid#,
+            modi_ofc_cd = #proc_ofccd#,
+            modi_tms   = GETUTCDATE()  
+		WHERE bkg_seq = #origin_bkg_seq#  
+		and cntr_seq =#cntr_seq#
+    </update>
+    <update id="updateSplitOriginCNTR_LIST" parameterClass="HashMap">
+    /** BkgCmmSQL.xml > updateSplitOriginCNTR_LIST **/
+	    UPDATE tb_bkg_cntr_list SET
+		    qty = #cntrQty#,
+		    modi_usrid = #proc_usrid#,
+            modi_ofc_cd = #proc_ofccd#,
+            modi_tms   = GETUTCDATE()  
+		WHERE bkg_seq = #origin_bkg_seq#  
+		and cntr_seq =#cntr_seq#
+    </update>   
+    <update id="updateSplitOrigin_PO" parameterClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingVO">
+	/* BkgCmmSQL.xml > updateSplitOrigin_PO */ 	
+		<!--UPDATE tb_bkg_po SET  
+				delt_flg='Y'	, 	
+			 	cust_itm_id = #cust_itm_id#,	 			 	
+				ea_cnt = #cmdt_ea_cnt#,		  		
+				ttl_qty = #cmdt_ttl_qty#,
+		        modi_usrid = #proc_usrid#,
+           	 	modi_ofc_cd = #proc_ofccd#,
+            	modi_tms   = GETUTCDATE()   -->
+        DELETE FROM  tb_bkg_po   	
+        WHERE bkg_seq = #origin_bkg_seq#  
+        and po_sys_no = #po_sys_no#
+        and po_cmdt_seq = #po_cmdt_seq#           
+    </update> 
+    <insert id="insertSplitCNTR" parameterClass="HashMap">
+     /** BkgCmmSQL.xml > insertSplitCNTR **/
+		INSERT INTO tb_bkg_cntr(
+				bkg_seq,     	 	cntr_tpsz_cd,		qty,			 	
+		        rgst_usrid,      	rgst_ofc_cd,     	rgst_tms,
+                modi_usrid,      	modi_ofc_cd,     	modi_tms,      		delt_flg
+		)
+		SELECT 
+                #bkg_seq#,    	cntr_tpsz_cd,		#cntrQty#,	
+				#proc_usrid#,    	#proc_ofccd#,    	getdate(),
+                #proc_usrid#,    	#proc_ofccd#,    	GETUTCDATE(),     	'N'
+		FROM tb_bkg_cntr
+		WHERE bkg_seq = #origin_bkg_seq#  
+		and cntr_seq =#cntr_seq#
+    </insert> 
+    <insert id="insertSplitCNTR_LIST" parameterClass="HashMap">
+     /** BkgCmmSQL.xml > insertSplitCNTR_LIST **/
+		INSERT INTO TB_BKG_CNTR_LIST(
+			BKG_SEQ             ,CNTR_NO             ,CNTR_TPSZ_CD    ,SEAL_NO
+     		,MTY_OUT_DT_TM      ,FULL_RTN_DT_TM      ,RGST_USRID      ,RGST_OFC_CD      ,RGST_TMS
+     		,MODI_USRID      	,MODI_OFC_CD      	 ,MODI_TMS        ,DELT_FLG      	,MTY_OUT_LOC_CD
+      		,MTY_OUT_LOC_NM     ,FULL_RTN_LOC_CD     ,FULL_RTN_LOC_NM ,CNTR_REF_NO      ,CLP_NO
+      		,CNTR_INSTR_TXT     ,CGO_PCK_UT_CD       ,CGO_PGK_QTY     ,CGO_KGS_WGT      ,CGO_LBS_WGT
+      		,CGO_CBM_QTY      	,CGO_CFT_QTY      	,CLP_CNTR_SEQ
+		)
+		SELECT 
+			#bkg_seq#       	,CNTR_NO      		,CNTR_TPSZ_CD      ,SEAL_NO
+    	  	,MTY_OUT_DT_TM      ,FULL_RTN_DT_TM     ,#proc_usrid#      ,#proc_ofccd#     ,getdate()
+     	 	,#proc_usrid#    	,#proc_ofccd#       ,GETUTCDATE()      ,'N'     		 ,MTY_OUT_LOC_CD
+     	 	,MTY_OUT_LOC_NM     ,FULL_RTN_LOC_CD    ,FULL_RTN_LOC_NM   ,CNTR_REF_NO      ,CLP_NO
+     	 	,CNTR_INSTR_TXT     ,CGO_PCK_UT_CD      ,CGO_PGK_QTY       ,CGO_KGS_WGT      ,CGO_LBS_WGT
+     	 	,CGO_CBM_QTY      	,CGO_CFT_QTY        ,CLP_CNTR_SEQ
+		FROM TB_BKG_CNTR_LIST
+		WHERE bkg_seq = #origin_bkg_seq#  
+		and cntr_seq =#cntr_seq#
+    </insert> 
+    <insert id="insertBkgSplit_PO" parameterClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingVO">
+	/* BkgCmmSQL.xml > insertBkgSplit_PO */ 	
+		INSERT INTO tb_bkg_po(
+				bkg_seq,     	 	po_sys_no,		  	po_cmdt_seq,
+				cust_itm_id,	 	pck_ut_cd,		  	pck_inr_qty,
+				pck_qty,		 	ea_cnt,		  		ttl_qty,
+				cmdt_kgs_wgt,	 	cmdt_lbs_wgt,    	cmdt_cbm_meas,
+				cmdt_cft_meas,
+		        rgst_usrid,      	rgst_ofc_cd,     	rgst_tms,
+                modi_usrid,      	modi_ofc_cd,     	modi_tms,      		delt_flg
+                )VALUES(
+                #bkg_seq#,   	  #po_sys_no#, 	  	#po_cmdt_seq#,
+                #cust_itm_id#,	 	#pck_ut_cd#,	    #cmdt_pck_inr_qty#,
+				#cmdt_pck_qty#,		    #cmdt_ea_cnt#,	        #cmdt_ttl_qty#,
+				#cmdt_kgs_wgt#,	 	#cmdt_lbs_wgt#,  	#cmdt_cbm_meas#,
+				#cmdt_cft_meas#,
+				#proc_usrid#,    	#proc_ofccd#,    	getdate(),
+                #proc_usrid#,    	#proc_ofccd#,    	GETUTCDATE(),     	'N'
+                )
+                
+	<!-- 	SELECT
+                #bkg_seq#,   	  #po_sys_no#, 	  	#po_cmdt_seq#,
+                #cust_itm_id#,	 	#pck_ut_cd#,	    #pck_inr_qty#,
+				#pck_qty#,		    #cmdt_ea_cnt#,	        #cmdt_ttl_qty#,
+				#cmdt_kgs_wgt#,	 	#cmdt_lbs_wgt#,  	#cmdt_cbm_meas#,
+				#cmdt_cft_meas#,
+				#proc_usrid#,    	#proc_ofccd#,    	getdate(),
+                #proc_usrid#,    	#proc_ofccd#,    	GETUTCDATE(),     	'N'
+		FROM tb_bkg_po
+		WHERE bkg_seq = #origin_bkg_seq#   
+			and po_sys_no = #po_sys_no#
+	        and po_cmdt_seq = #po_cmdt_seq#    
+	         -->             
+    </insert>   
+    <select id="searchBkgCntrInfo" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingVO">
+	    /* BkgCmmSQL.xml > searchBkgCntrInfo */
+	    SELECT CNTR_TPSZ_CD, SUM(QTY)as cntr_qty
+			FROM TB_BKG_CNTR
+			WHERE BKG_SEQ = #bkg_seq#
+			AND   delt_flg='N' 
+			GROUP BY CNTR_TPSZ_CD
+		UNION ALL
+		SELECT CNTR_TPSZ_CD, COUNT(CNTR_TPSZ_CD) as cntr_qty
+			FROM TB_BKG_CNTR_LIST
+			WHERE BKG_SEQ = #bkg_seq#
+			AND   delt_flg='N' 
+			GROUP BY CNTR_TPSZ_CD
+    </select>    
+    <select id="searchBkgCombine_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.see.bmd.booking.dto.SeeBookingVO">
+		/* BkgCmmSQL.xml > searchBkgCombine_LIST */
+       SELECT 
+               BKG.BKG_NO 
+		      ,BKG.BKG_SEQ 
+		      ,BKG.BIZ_CLSS_CD
+		      ,BL.INTG_BL_SEQ
+        	  ,BL.BL_NO
+        	  ,BL.REF_NO
+		      ,BKG.BKG_DT_TM 
+		      ,BKG.PRNR_TRDP_CD 
+		      ,BKG.PRNR_TRDP_NM 
+		      ,(SELECT a.eng_addr FROM tb_trdp a WHERE a.trdp_cd = BKG.PRNR_TRDP_CD ) AS PRNR_TRDP_ADDR
+		      ,BKG.SHPR_TRDP_CD 
+		      ,BKG.SHPR_TRDP_NM 
+		      ,BKG.SHPR_TRDP_ADDR 
+		      ,BKG.CNEE_TRDP_CD 
+		      ,BKG.CNEE_TRDP_NM 
+		      ,BKG.CNEE_TRDP_ADDR 
+		      ,BKG.NTFY_TRDP_CD 
+		      ,BKG.NTFY_TRDP_NM 
+		      ,BKG.NTFY_TRDP_ADDR
+	          ,BKG.ACT_SHPR_TRDP_CD <!-- #1153 [Binex-Visibility]Carrier Booking Status 수정 -->
+	          ,BKG.ACT_SHPR_TRDP_NM 			       
+		      ,BKG.CUST_REF_NO 
+		      ,BKG.CNTR_INFO 
+		      ,BKG.TRNK_VSL_CD 
+		      ,BKG.TRNK_VSL_NM 
+		      ,BKG.TRNK_VOY 
+		      ,BKG.POR_CD 
+		      ,BKG.POR_NM 
+		      ,BKG.POL_CD 
+		      ,BKG.POL_NM 
+		      ,BKG.POD_CD 
+		      ,BKG.POD_NM 
+		      ,BKG.DEL_CD 
+		      ,BKG.DEL_NM 
+		      ,BKG.FNL_DEST_LOC_CD 
+		      ,BKG.FNL_DEST_LOC_NM 
+		      ,BKG.LNR_TRDP_CD 
+		      ,BKG.LNR_TRDP_NM 
+		      ,BKG.LNR_BKG_NO 
+		      ,BKG.ETD_DT_TM 
+		      ,BKG.ETA_DT_TM 
+		      ,BKG.ETD_POR_TM 
+		      ,BKG.ETA_DEL_DT_TM 
+		      ,BKG.ETA_FNL_DEST_DT_TM 
+		      ,BKG.REP_CMDT_CD 
+		      ,BKG.REP_CMDT_NM 
+		      ,BKG.PCK_QTY 
+		      ,BKG.PCK_UT_CD 
+		      ,unit.pck_nm 		as PCK_UT_NM
+		      ,BKG.GRS_WGT_UT_CD 
+		      ,BKG.GRS_WGT 
+		      ,BKG.GRS_WGT1 
+		      ,BKG.MEAS_UT_CD 
+		      ,BKG.MEAS 
+		      ,BKG.MEAS1 
+		      ,BKG.FM_SVC_TERM_CD 
+		      ,BKG.TO_SVC_TERM_CD 
+		      ,BKG.CARGO_TP_CD 
+		      ,BKG.RMK 
+		      ,BKG.DEPT_CD 
+		      ,BKG.RGST_USRID 
+		      ,BKG.RGST_OFC_CD 
+		      <!--  ,CONVERT(VARCHAR,BKG.RGST_TMS,112) AS RGST_TMS -->
+		      <!--  ,CONVERT(VARCHAR,DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), BKG.RGST_TMS ),112) AS RGST_TMS -->
+		      ,CONVERT(VARCHAR(10),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),BKG.RGST_TMS ),112) + REPLACE(CONVERT(VARCHAR(8),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),BKG.RGST_TMS ),108),':','')  AS RGST_TMS
+		      ,BKG.MODI_USRID 
+		      ,BKG.MODI_OFC_CD 
+		      <!--  ,CONVERT(VARCHAR,DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')), BKG.MODI_TMS ),112) AS MODI_TMS -->
+		      ,CONVERT(VARCHAR(10),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),BKG.MODI_TMS ),112) + REPLACE(CONVERT(VARCHAR(8),DATEADD(MINUTE,60*CONVERT( float,isnull (ccd.RMK ,'0')),BKG.MODI_TMS ),108),':','')  AS MODI_TMS
+		      ,BKG.DELT_FLG 
+		      ,BKG.LNR_CTRT_NO
+        	  ,BKG.FRT_TERM_CD
+        	  ,BKG.FRT_TERM_CD
+        	  ,BKG.FWRD_AGN_TRDP_CD
+        	  ,BKG.FWRD_AGN_TRDP_NM
+        	  ,BKG.FWRD_AGN_TRDP_ADDR
+        	  ,BKG.BKG_AGN_TRDP_CD AS CARR_TRDP_CD
+        	  ,BKG.BKG_AGN_TRDP_NM AS CARR_TRDP_NM
+        	  ,BKG.BKG_AGN_TRDP_ADDR AS CARR_TRDP_ADDR
+        	  ,BKG.BKG_STS_CD
+        	  ,BKG.SVC_LANE_NM  <!--  #943  [PATENT] Lane 추가  -->
+        	  <!-- ,(SELECT RSN_TXT 
+			      FROM (SELECT RSN_TXT, ROW_NUMBER() OVER (ORDER BY RGST_TMS DESC) ROWNO 
+						  FROM TB_BKG_STS_HIS HIS 
+						 WHERE HIS.BKG_SEQ = BKG.BKG_SEQ) INVAL 
+				 WHERE BKG_STS_CD IN ('RJ','CN')
+				   AND ROWNO = 1) AS RSN_TXT -->
+			<!-- #1024 [PATENT] Booking Entry 개선 및 Quotation Audit 기능 개발 -->	   
+           ,BKG.sls_usrid       
+           ,BKG.sls_ofc_cd
+           ,BKG.rcv_wh_cd
+           ,BKG.rcv_wh_nm
+           ,BKG.pu_trdp_cd
+           ,BKG.pu_trdp_nm
+           ,BKG.vgm_cut_off_dt
+           ,BKG.doc_cut_off_dt
+           ,BKG.rail_cut_off_dt
+           ,BKG.cut_off_dt
+           ,BKG.port_open_dt
+           ,BKG.shp_mod_cd   				   
+           ,BKG.nomi_flg   				   
+           ,BKG.hbl_tp_cd   
+           ,isnull((select count(*) from  tb_bkg_cntr_list where bkg_seq =   BKG.bkg_Seq and delt_flg = 'N'),0) as cntr_qty  				   
+		  FROM TB_BKG BKG
+		  LEFT OUTER JOIN TB_ADD_INFO_BND BND ON BKG.BKG_SEQ = BND.INTG_BKG_SEQ AND BND.DELT_FLG = 'N'
+		  LEFT OUTER JOIN TB_INTG_BL BL ON BND.INTG_BL_SEQ = BL.INTG_BL_SEQ AND BL.DELT_FLG = 'N' 
+		  LEFT OUTER JOIN TB_OFC TOF ON BKG.RGST_OFC_CD = TOF.OFC_CD      
+		  LEFT OUTER JOIN TB_COM_CD_DTL CCD ON CCD.COM_CD = 'TIMEZN' AND TOF.TIME_ZONE = CCD.CD_VAL   
+		  LEFT OUTER JOIN tb_pck_ut_cd unit ON bkg.pck_ut_cd = unit.pck_ut_cd AND unit.use_flg = 'Y'     
+		 WHERE 1 = 1
+		   AND BKG.DELT_FLG = 'N'	
+		   AND BKG.BKG_STS_CD in ('CR','RD','CF')
+		    <isNotEmpty property="f_bkg_no">
+			    AND  BKG.BKG_NO LIKE  #f_bkg_no# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="f_bkg_strdt">
+			   AND  BKG.BKG_DT_TM BETWEEN #f_bkg_strdt# AND #f_bkg_enddt#
+			</isNotEmpty>
+			<isNotEmpty property="f_prnr_trdp_nm">
+			   AND  BKG.PRNR_TRDP_NM LIKE  #f_prnr_trdp_nm# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="f_shpr_trdp_nm">
+			   AND  BKG.SHPR_TRDP_NM LIKE  #f_shpr_trdp_nm# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="f_cnee_trdp_nm">
+			   AND  BKG.CNEE_TRDP_NM LIKE  #f_cnee_trdp_nm# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="f_ntfy_trdp_nm">
+			   AND  BKG.NTFY_TRDP_NM LIKE  #f_ntfy_trdp_nm# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="f_ahpr_trdp_nm">
+			   AND  BKG.ACT_SHPR_TRDP_NM LIKE  #f_ahpr_trdp_nm# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="f_shp_mod_cd">
+			   AND  BKG.SHP_MOD_CD = #f_shp_mod_cd#
+			</isNotEmpty>
+			<isNotEmpty property="f_mbl_no">
+			   AND  BL.BL_NO = #f_mbl_no#
+			</isNotEmpty>
+			<isNotEmpty property="f_hbl_no">
+			   AND  BL.BL_NO = #f_hbl_no#
+			</isNotEmpty>
+			<isNotEmpty property="f_pol_cd">
+			   AND  BKG.POL_CD = #f_pol_cd#
+			</isNotEmpty>
+			<isNotEmpty property="f_pol_nm">
+			   AND  BKG.POL_NM LIKE  #f_pol_nm# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="f_po_no">
+			   AND  EXISTS (SELECT 1 
+			   			    FROM  TB_BKG_PO BKGPO 
+			   			    INNER JOIN TB_PO PO ON BKGPO.PO_SYS_NO = PO.PO_SYS_NO AND PO.DELT_FLG = 'N'
+			   			    WHERE BKG.BKG_SEQ = BKGPO.BKG_SEQ 
+			   			    AND   BKGPO.DELT_FLG = 'N' 
+			   			    AND   PO.CUST_PO_NO LIKE  #f_po_no# + '%')
+			</isNotEmpty>
+			<isNotEmpty property="f_lc_no">
+			   AND  BKG.LC_NO = #f_lc_no#
+			</isNotEmpty>
+			<isNotEmpty property="f_bkg_sts_cd">
+			   AND  BKG.BKG_STS_CD = #f_bkg_sts_cd#
+			</isNotEmpty>
+			<isNotEmpty property="f_ofc_cd">
+			   AND  BKG.RGST_OFC_CD = #f_ofc_cd#
+			</isNotEmpty>
+			<isNotEmpty property="f_lnr_bkg_no">
+			   AND  BKG.LNR_BKG_NO LIKE  #f_lnr_bkg_no# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="f_pod_cd">
+			   AND  BKG.POD_CD = #f_pod_cd#
+			</isNotEmpty>
+			<isNotEmpty property="f_pod_nm">
+			   AND  BKG.POD_NM LIKE  #f_pod_nm# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="f_trnk_vsl_nm">
+			   AND  BKG.TRNK_VSL_NM LIKE  #f_trnk_vsl_nm# + '%'
+			</isNotEmpty>
+			<isNotEmpty property="f_biz_clss_cd">
+				AND  BKG.BIZ_CLSS_CD = #f_biz_clss_cd#
+			</isNotEmpty>
+             <isNotNull prepend="AND" property="f_opr_usrid"> 
+		        <isEqual property="f_isb_pic_sel_cd" compareValue="ISB">
+		             BKG.RGST_USRID = #f_opr_usrid#
+		        </isEqual>
+		        <isEqual property="f_isb_pic_sel_cd" compareValue="PIC">
+		             BKG.SLS_USRID = #f_opr_usrid#
+		        </isEqual> 
+		        <isEqual property="f_isb_pic_sel_cd" compareValue="OR">
+		             (BKG.RGST_USRID = #f_opr_usrid# OR BKG.SLS_USRID = #f_opr_usrid#)
+		        </isEqual>  	
+	        </isNotNull>
+	        <!-- Validation 주석 2017-04-26 요청 #1892 [PATENT] BKG SPLIT/COMBINE 점검항목
+	        <isEqual property="f_biz_clss_cd" compareValue="M">
+		        AND NOT EXISTS (
+					SELECT *
+					FROM TB_CLP
+					WHERE BKG_SEQ = BKG.BKG_SEQ 
+				)
+		    </isEqual>
+            <isEqual property="f_biz_clss_cd" compareValue="H">
+		        AND NOT EXISTS (
+					SELECT *
+					FROM TB_BKG_RLT
+					WHERE BKG_SEQ = BKG.BKG_SEQ 
+				)
+		    </isEqual>	
+		     -->
+    </select>	
+    <select id="getBkgCombinChk" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* BkgCmmSQL.xml > getBkgCombinChk */
+       SELECT DISTINCT 
+			BKG.BIZ_CLSS_CD        
+	        ,BKG.BKG_DT_TM 
+		    <isEqual property="f_biz_clss_cd" compareValue="H">
+		     ,BKG.LNR_BKG_NO  
+		    </isEqual>	
+		    ,BKG.LNR_TRDP_CD           
+	        ,BKG.CNEE_TRDP_CD 
+	        ,BKG.SHPR_TRDP_CD     
+	        ,BKG.ACT_SHPR_TRDP_CD  
+	        ,BKG.TRNK_VSL_NM
+	        ,BKG.TRNK_VOY 
+	        ,BKG.POR_CD
+	        ,BKG.POL_CD 
+	        ,BKG.POD_CD  
+	        ,BKG.DEL_CD 
+	        ,BKG.ETD_DT_TM   
+	        ,BKG.ETA_DT_TM  
+	        ,BKG.shp_mod_cd     
+	        ,BKG.nomi_flg                  				   
+		  FROM TB_BKG BKG  
+		 WHERE 1 = 1
+		   AND BKG.DELT_FLG = 'N'	
+		   AND BKG.BKG_STS_CD in ('CR','RD','CF')
+		    <isNotEmpty property="sqlChkSeq">
+			    AND  BKG.BKG_SEQ in ($sqlChkSeq$)
+			</isNotEmpty>
+			<isNotEmpty property="f_biz_clss_cd">
+				AND  BKG.BIZ_CLSS_CD = #f_biz_clss_cd#
+			</isNotEmpty>		
+    </select>
+    <update id="updateMainBkg" parameterClass="HashMap">
+  		/* BkgCmmSQL.xml > updateMainBkg */  
+        UPDATE  tb_bkg SET  
+        	pck_qty      = #pck_qty#,    
+        	meas      	 = #meas#,   
+        	meas1     	 = #meas1#,   
+        	grs_wgt      = #grs_wgt#,   
+        	grs_wgt1     = #grs_wgt1#,
+            modi_usrid = #proc_usrid#,
+            modi_ofc_cd = #proc_ofccd#,
+            modi_tms   = GETUTCDATE()     	           
+         WHERE  bkg_seq = #bkg_seq# 
+    </update>
+    <update id="updateOriginbkg" parameterClass="HashMap">
+  		/* BkgCmmSQL.xml > updateOriginbkg */  
+        UPDATE  tb_bkg SET  
+        	delt_flg   = 'Y',
+			CMB_BKG_SEQ = #main_bkg_seq#,
+            modi_usrid = #proc_usrid#,
+            modi_ofc_cd = #proc_ofccd#,
+            modi_tms   = GETUTCDATE()     	           
+         WHERE  bkg_seq = #bkg_seq# 
+    </update>  
+    <update id="updateOriginbkg_CNTR" parameterClass="HashMap">
+  		/* BkgCmmSQL.xml > updateOriginbkg_CNTR */  
+        UPDATE  tb_bkg_cntr SET  
+        	delt_flg   = 'Y',
+            modi_usrid = #proc_usrid#,
+            modi_ofc_cd = #proc_ofccd#,
+            modi_tms   = GETUTCDATE()     	           
+         WHERE  bkg_seq = #bkg_seq# 
+        <isNotEmpty property="cntr_seq">
+		 AND  cntr_seq= #cntr_seq#
+		</isNotEmpty>
+    </update> 
+    <update id="updateOriginbkg_CNTR_LIST" parameterClass="HashMap">
+  		/* BkgCmmSQL.xml > updateOriginbkg_CNTR_LIST */  
+        UPDATE  tb_bkg_cntr_list SET  
+        	delt_flg   = 'Y',
+            modi_usrid = #proc_usrid#,
+            modi_ofc_cd = #proc_ofccd#,
+            modi_tms   = GETUTCDATE()     	           
+         WHERE  bkg_seq = #bkg_seq# 
+        <isNotEmpty property="cntr_seq">
+		 AND  cntr_seq= #cntr_seq#
+		</isNotEmpty>         
+    </update>     
+    <update id="updateOriginbkg_PO" parameterClass="HashMap">
+  		/* BkgCmmSQL.xml > updateOriginbkg_PO */  
+        UPDATE  tb_bkg_po SET  
+        	delt_flg   = 'Y',
+            modi_usrid = #proc_usrid#,
+            modi_ofc_cd = #proc_ofccd#,
+            modi_tms   = GETUTCDATE()     	           
+         WHERE  bkg_seq = #bkg_seq# 
+    </update> 
+    <update id="updateOriginbkg_FRT" parameterClass="HashMap">
+  		/* BkgCmmSQL.xml > updateOriginbkg_FRT */  
+        UPDATE  TB_FRT_BKG SET  
+        	delt_flg   = 'Y',
+            modi_usrid = #proc_usrid#,
+            modi_ofc_cd = #proc_ofccd#,
+            modi_tms   = GETUTCDATE()     	           
+         WHERE  bkg_seq = #bkg_seq# 
+    </update>     
+	<insert id="insertBkgCombine_CNTR" parameterClass="HashMap">
+	/* BkgCmmSQL.xml > insertBkgCombine_CNTR */ 
+		INSERT INTO tb_bkg_cntr(
+				bkg_seq,     	 	cntr_tpsz_cd,		qty,			 	
+		        rgst_usrid,      	rgst_ofc_cd,     	rgst_tms,
+                modi_usrid,      	modi_ofc_cd,     	modi_tms,      		delt_flg
+		)
+		SELECT 
+                #main_bkg_seq#,    	cntr_tpsz_cd,		qty,	
+				#proc_usrid#,    	#proc_ofccd#,    	getdate(),
+                #proc_usrid#,    	#proc_ofccd#,    	GETUTCDATE(),     	'N'
+		FROM tb_bkg_cntr
+		WHERE bkg_seq = #bkg_seq#   
+		AND   delt_flg='N' 
+    </insert>    
+    <!-- CNTR을 입력함  -->
+    <insert id="insertBkgCombine_CNTR_LIST" parameterClass="HashMap">
+	/* BkgCmmSQL.xml > insertBkgCombine_CNTR_LIST */ 	
+		INSERT  tb_bkg_cntr_list(
+				bkg_seq,     	 	cntr_no,			cntr_tpsz_cd,
+				seal_no,			mty_out_dt_tm,		full_rtn_dt_tm,	
+                cntr_ref_no	,	cgo_pck_ut_cd,	cgo_pgk_qty,
+				cgo_kgs_wgt,	cgo_lbs_wgt ,cgo_cbm_qty,
+				cgo_cft_qty,
+		        rgst_usrid,      	rgst_ofc_cd,     	rgst_tms,
+                modi_usrid,      	modi_ofc_cd,     	modi_tms,      		delt_flg
+                )
+		SELECT #main_bkg_seq#, cntr_no,			MAX(cntr_tpsz_cd),
+                	MAX(seal_no),			MAX(mty_out_dt_tm),		MAX(full_rtn_dt_tm),	
+                	MAX(cntr_ref_no),		MAX(cgo_pck_ut_cd),	SUM(cgo_pgk_qty),
+					SUM(cgo_kgs_wgt),	SUM(cgo_lbs_wgt),		SUM(cgo_cbm_qty),
+					SUM(cgo_cft_qty),
+					#proc_usrid#,    	#proc_ofccd#,    	getdate(),
+                	#proc_usrid#,    	#proc_ofccd#,    	GETUTCDATE(),     	'N' 
+		  FROM tb_bkg_cntr_list 
+		 WHERE BKG_SEQ IN (  SELECT BKG_SEQ 
+							  FROM TB_BKG 
+							 WHERE CMB_BKG_SEQ = #main_bkg_seq# OR BKG_SEQ = #main_bkg_seq#
+							 )
+				AND ISNULL(CNTR_NO, '') != '' 
+				GROUP BY CNTR_NO
+		UNION ALL
+		SELECT  #main_bkg_seq#, cntr_no,			cntr_tpsz_cd,
+                	seal_no,			mty_out_dt_tm,	full_rtn_dt_tm,	
+                	cntr_ref_no,	cgo_pck_ut_cd,	cgo_pgk_qty,
+					cgo_kgs_wgt,	cgo_lbs_wgt,		cgo_cbm_qty,
+					cgo_cft_qty, 
+					#proc_usrid#,    	#proc_ofccd#,    	getdate(),
+                	#proc_usrid#,    	#proc_ofccd#,    	GETUTCDATE(),     	'N'
+		FROM tb_bkg_cntr_list
+		WHERE BKG_SEQ IN (  SELECT BKG_SEQ 
+							  FROM TB_BKG 
+							 WHERE CMB_BKG_SEQ = #main_bkg_seq# OR BKG_SEQ = #main_bkg_seq#
+							 )
+		AND ISNULL(CNTR_NO, '') = '' 
+    </insert>
+    
+	<!-- insert id="insertBkgCombine_CNTR_LIST" parameterClass="HashMap">
+	/* BkgCmmSQL.xml > insertBkgCombine_CNTR_LIST */ 	
+		INSERT  tb_bkg_cntr_list(
+				bkg_seq,     	 	cntr_no,			cntr_tpsz_cd,
+				seal_no,			mty_out_dt_tm,		full_rtn_dt_tm,	
+                cntr_ref_no,
+		        rgst_usrid,      	rgst_ofc_cd,     	rgst_tms,
+                modi_usrid,      	modi_ofc_cd,     	modi_tms,      		delt_flg
+                )
+		SELECT
+                #main_bkg_seq#,   	 	cntr_no,			cntr_tpsz_cd,
+                seal_no,			mty_out_dt_tm,	full_rtn_dt_tm,	
+                cntr_ref_no,
+				#proc_usrid#,    	#proc_ofccd#,    	getdate(),
+                #proc_usrid#,    	#proc_ofccd#,    	GETUTCDATE(),     	'N'
+		FROM tb_bkg_cntr_list
+		WHERE bkg_seq = #bkg_seq#  
+		AND   delt_flg='N'
+    </insert-->
+    <!-- PO을 입력함  -->
+	<insert id="insertBkgCombine_PO" parameterClass="HashMap">
+	/* BkgCmmSQL.xml > insertBkgCombine_PO */ 	
+		INSERT INTO tb_bkg_po(
+				bkg_seq,     	 	po_sys_no,		  	po_cmdt_seq,
+				cust_itm_id,	 	pck_ut_cd,		  	pck_inr_qty,
+				pck_qty,		 	ea_cnt,		  		ttl_qty,
+				cmdt_kgs_wgt,	 	cmdt_lbs_wgt,    	cmdt_cbm_meas,
+				cmdt_cft_meas,
+		        rgst_usrid,      	rgst_ofc_cd,     	rgst_tms,
+                modi_usrid,      	modi_ofc_cd,     	modi_tms,      		delt_flg
+                )
+		SELECT
+                #main_bkg_seq#,   	po_sys_no, 	  	po_cmdt_seq,
+                cust_itm_id,	 	pck_ut_cd,	    pck_inr_qty,
+				pck_qty,		    ea_cnt,	        ttl_qty,
+				cmdt_kgs_wgt,	 	cmdt_lbs_wgt,  	cmdt_cbm_meas,
+				cmdt_cft_meas,
+				#proc_usrid#,    	#proc_ofccd#,    	getdate(),
+                #proc_usrid#,    	#proc_ofccd#,    	GETUTCDATE(),     	'N'
+		FROM tb_bkg_po
+		WHERE bkg_seq = #bkg_seq# 
+		AND   delt_flg='N'                 
+    </insert>  
+    <!-- Freight를 입력함  -->
+	<insert id="insertBkgCombine_FRT" parameterClass="HashMap">
+	/* BkgCmmSQL.xml > insertBkgCombine_FRT */ 	
+		INSERT INTO TB_FRT_BKG ( 
+			   	   intg_bl_seq      ,inv_seq          ,mbl_no           ,hbl_no           ,bkg_no
+		           ,wo_no           ,frt_cd           ,air_sea_clss_cd  ,bnd_clss_cd      ,sell_buy_tp_cd
+		           ,trdp_cd         ,rat_curr_cd      ,aply_ut_cd       ,cntr_tpsz_cd     ,qty
+		           ,scg_incl_flg    ,frt_term_cd      ,ru				,vat_rt           ,vat_amt
+		           ,inv_curr_cd     ,inv_xcrt         ,inv_amt          ,inv_vat_amt      ,perf_curr_cd
+		           ,perf_xcrt       ,perf_amt         ,perf_vat_amt     ,locl_curr_cd     ,locl_xcrt
+		           ,locl_amt        ,locl_vat_amt     ,frt_ask_clss_cd  ,frt_biz_clss_cd  ,inv_sts_cd
+		           ,cfm_flg         ,inv_iss_flg      ,frt_divd_flg     ,finc_ofc_cd      ,sls_ofc_cd
+		           ,auto_trf_flg    ,trf_ctrt_no      ,trf_dtl_seq      ,rgst_usrid       ,rgst_ofc_cd
+		           ,rgst_tms        ,modi_usrid       ,modi_ofc_cd      ,modi_tms         ,delt_flg
+		           ,dflt_flg        ,inv_sum_amt      ,trf_cur_sum_amt  ,pay_amt          ,spls_amt
+		           ,inv_xcrt_dt     ,ref_no           ,inv_post_dt      ,agent_ru         ,agent_amt
+		           ,frt_cd_nm       ,oth_seq          ,cr_amt           ,intg_bl_seq_2    ,reserve_field01
+		           ,reserve_field02 ,reserve_field03  ,reserve_field04  ,reserve_field05  ,reserve_field06
+		           ,reserve_field07 ,wms_seq          ,whld_vat_rt      ,bkg_seq
+			   )
+		SELECT 
+			 	   intg_bl_seq      ,inv_seq          ,mbl_no           ,hbl_no           ,#main_bkg_no#
+		           ,wo_no           ,frt_cd           ,air_sea_clss_cd  ,bnd_clss_cd      ,sell_buy_tp_cd
+		           ,trdp_cd         ,rat_curr_cd      ,aply_ut_cd       ,cntr_tpsz_cd     ,qty
+		           ,scg_incl_flg    ,frt_term_cd      ,ru				,vat_rt           ,vat_amt
+		           ,inv_curr_cd     ,inv_xcrt         ,inv_amt          ,inv_vat_amt      ,perf_curr_cd
+		           ,perf_xcrt       ,perf_amt         ,perf_vat_amt     ,locl_curr_cd     ,locl_xcrt
+		           ,locl_amt        ,locl_vat_amt     ,frt_ask_clss_cd  ,frt_biz_clss_cd  ,inv_sts_cd
+		           ,cfm_flg         ,inv_iss_flg      ,frt_divd_flg     ,finc_ofc_cd      ,sls_ofc_cd
+		           ,auto_trf_flg    ,trf_ctrt_no      ,trf_dtl_seq      ,#proc_usrid#     ,#proc_ofccd#
+		           ,getdate()       ,#proc_usrid#     ,#proc_ofccd#     ,GETUTCDATE()     ,delt_flg
+		           ,dflt_flg        ,inv_sum_amt      ,trf_cur_sum_amt  ,pay_amt          ,spls_amt
+		           ,inv_xcrt_dt     ,ref_no           ,inv_post_dt      ,agent_ru         ,agent_amt
+		           ,frt_cd_nm       ,oth_seq          ,cr_amt           ,intg_bl_seq_2    ,reserve_field01
+		           ,reserve_field02 ,reserve_field03  ,reserve_field04  ,reserve_field05  ,reserve_field06
+		           ,reserve_field07 ,wms_seq          ,whld_vat_rt      ,#main_bkg_seq#
+		FROM TB_FRT_BKG
+		WHERE bkg_seq = #bkg_seq#     
+		AND   delt_flg='N' 
+    </insert>     
+    <update id="updateCombineBkg" parameterClass="HashMap">
+  		/* BkgCmmSQL.xml > updateCombineBkg */  
+        UPDATE  tb_bkg SET  
+        	cmb_bkg_seq   = #main_bkg_seq#,
+            modi_usrid = #proc_usrid#,
+            modi_ofc_cd = #proc_ofccd#,
+            modi_tms   = GETUTCDATE()     	           
+         WHERE  bkg_seq = #bkg_seq# 
+    </update> 
+</sqlMap>

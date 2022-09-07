@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="HST">
+	<!-- #2753 [LOA WMS3.0] LOADING FOREVER -with(nolock) mod -->
+	<select id="searchCustList" resultClass="com.clt.apps.fis.whm.history.dto.HistoryVO">      
+      /*searchCustList */
+      SELECT RS.WH_CD,
+				RS.CUST_CD AS cust_id
+				, dbo.TL_GET_CUST_NM(RS.CUST_CD) AS CUST_NM
+				, RS.ST_DT AS ST_DT
+				, MAX(H.DATE) AS cl_dt
+		FROM (
+			SELECT 
+				RS.WH_CD,
+				RS.CUST_CD
+				, Min(SUBSTRING (RS.RCV_SHP_DT, 0, 9)) AS ST_DT
+			FROM WHM_RCV_SHP RS with(nolock)
+			WHERE 1=1
+				and RS.RCV_SHP_FLG = 'Y'
+				and RS.WH_CD = #wh_cd#
+			GROUP BY RS.WH_CD, RS.CUST_CD
+		) RS LEFT JOIN WHM_HST H with(nolock) ON H.CUST_CD = RS.CUST_CD AND RS.WH_CD = H.WH_CD AND H.DELT_FLG = 'N'
+		GROUP BY RS.WH_CD, RS.CUST_CD, RS.ST_DT
+      
+      <!--20160518 - Tu.nguyen turning  SELECT T.* FROM (
+					SELECT 
+						RS.WH_CD,
+						RS.CUST_CD AS cust_id
+						, dbo.TL_GET_CUST_NM(RS.CUST_CD) AS CUST_NM
+						, CONVERT(DATETIME, SUBSTRING(RS.RCV_SHP_DT, 0, 9)) AS ST_DT
+						, ROW_NUMBER() OVER(PARTITION BY RS.CUST_CD ORDER BY H.DATE DESC, CONVERT (DATE, SUBSTRING (RS.RCV_SHP_DT, 0, 9)) ASC) AS IDX 
+						, H.DATE AS cl_dt
+					FROM WHM_RCV_SHP RS LEFT JOIN WHM_HST H ON H.CUST_CD = RS.CUST_CD AND RS.WH_CD = H.WH_CD AND H.DELT_FLG = 'N'
+					WHERE 1=1
+						and RS.RCV_SHP_FLG = 'Y'
+						and RS.WH_CD = #wh_cd#
+				) AS T
+ 				WHERE T.IDX = 1
+				
+				ORDER BY T.cust_id -->
+     </select>
+    
+    <!-- #2753 [LOA WMS3.0] LOADING FOREVER -with(nolock) mod --> 
+	<select id="searchClosingHst" resultClass="com.clt.apps.fis.whm.history.dto.HistoryVO">      
+      /*HistorySql.xml > searchClosingHst */
+      SELECT T.* FROM (
+      	SELECT ROW_NUMBER() OVER (ORDER BY  DATE DESC) as ROWNUM,
+      	 DATE AS DATESHEET,
+      		 CONVERT(varchar(20), RATE, 1) AS RATESHEET,
+      		 sum(CBF_QTY) as qty,
+			 ROUND(sum(CBF_QTY)*RATE, 2) as amount
+    	FROM WHM_HST with(nolock)
+		WHERE 1 = 1
+		AND WH_CD = #wh_cd#
+		AND CUST_CD = #cust_id#
+		AND DELT_FLG = 'N'
+		GROUP BY DATE, RATE
+      ) AS T
+		<![CDATA[ where T.ROWNUM > #beginIdx# AND T.ROWNUM <= #topCnt# ]]>
+     </select>
+     
+	<select id="searchClosingHstCnt" resultClass="java.lang.Integer">      
+      /*searchClosingHstCnt */
+      SELECT COUNT(*) FROM (
+			SELECT DISTINCT DATE AS CNT FROM WHM_HST with(nolock) WHERE WH_CD =  #wh_cd#
+		        AND CUST_CD =  #cust_id#
+		        AND DELT_FLG = 'N'
+		) AS T
+     </select>
+     
+     <select id = "searchWarehouseCdList" resultClass="com.clt.apps.fis.whm.warehouse.list.dto.WhLstVO">
+		/* searchWarehouseCdList */
+		SELECT 
+		   WH_CD,
+		   WH_NM		  
+		FROM WHM_WH
+		WHERE USE_FLG = 'Y'
+	</select>
+	
+	<update id="delClosingData" >
+		/*delClosingData */
+		UPDATE WHM_HST
+		SET    DELT_FLG = #use_flg#
+			  ,UPD_DT = GETDATE()
+			  ,UPD_USR_ID = #user_id#
+		WHERE 1=1
+		AND WH_CD = #wh_cd#
+		AND CUST_CD = #cust_id#
+		<![CDATA[
+		AND DATE >= #date#
+		 ]]> 
+	</update>
+	
+	<parameterMap class="com.clt.apps.fis.whm.history.dto.HistoryVO" id="closingData_Map">
+	 <parameter property="wh_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="cust_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="rate"  javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="use_flg" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="day_st" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="day_end" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="diffInDays" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+    <!-- Cancel 프로시저 호출 -->
+    <procedure id="closingData" parameterMap="closingData_Map">
+		 { CALL dbo.PKG_INSERT_HIS_DAY_BY_DAY (? ,? ,? ,?, ?, ?, ?, ?,?,?) }
+	</procedure>
+	
+	<select id="countDate" resultClass="com.clt.apps.fis.whm.history.dto.HistoryVO">
+	SELECT COUNT(T.ROWNUM) as fre_cnt 
+		FROM (
+		      	SELECT ROW_NUMBER() OVER (ORDER BY  DATE DESC) as ROWNUM,
+		      	 DATE AS DATESHEET,
+		      		 CONVERT(varchar(20), RATE, 1) AS RATESHEET,
+		      		 sum(INV_QTY*CBF_QTY) as qty,
+					 ROUND(sum(INV_QTY*CBF_QTY)*RATE, 2) as amount
+		    	FROM WHM_HST
+				WHERE 1 = 1
+				 AND WH_CD = #wh_cd#      
+		         AND CUST_CD = #cust_id#
+		 AND DATE BETWEEN CONVERT(VARCHAR(10),CAST(#fm_date# AS datetime),112 ) AND CONVERT(VARCHAR(10),CAST(#to_date# AS datetime),112 )
+		AND DELT_FLG = 'N'
+		GROUP BY DATE, RATE
+      ) AS T
+	</select>
+</sqlMap>

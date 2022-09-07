@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### 코드 관리Start ####  -->
+
+    <!--  Container Type Size    -->
+    <screen name="MDM_MCM_0080">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/container/jsp/MDM_MCM_0080.jsp"/>
+    </screen>
+
+    <!--  Container Type Size    -->
+    <screen name="MDM_MCM_0080GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/container/jsp/MDM_MCM_0080GS.jsp"/>
+    </screen>
+    
+    <!-- Commodity Code   -->
+    <screen name="MDM_MCM_0120">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/commodity/jsp/MDM_MCM_0120.jsp"/>
+    </screen>
+
+    <!-- Commodity Code   -->
+    <screen name="MDM_MCM_0120GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/commodity/jsp/MDM_MCM_0120GS.jsp"/>
+    </screen>
+    
+    <!--  Packages Code    -->
+    <screen name="MDM_MCM_0130">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/packages/jsp/MDM_MCM_0130.jsp"/>
+    </screen>
+
+    <!--  Packages Code    -->
+    <screen name="MDM_MCM_0130GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/packages/jsp/MDM_MCM_0130GS.jsp"/>
+    </screen>
+    
+    <!--  Vessel Code    -->
+    <screen name="MDM_MCM_0140">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/vessel/jsp/MDM_MCM_0140.jsp"/>
+    </screen>
+
+    <!--  Vessel Code    -->
+    <screen name="MDM_MCM_0140GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/vessel/jsp/MDM_MCM_0140GS.jsp"/>
+    </screen>
+    
+    <!--  Freight Code    -->
+    <screen name="MDM_MCM_0160">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/MDM_MCM_0160.jsp"/>
+    </screen>
+
+    <!--  Freight Code    -->
+    <screen name="MDM_MCM_0160GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/MDM_MCM_0160GS.jsp"/>
+    </screen>
+    <screen name="MDM_MCM_0161GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/MDM_MCM_0161GS.jsp"/>
+    </screen>
+    
+    <!--  Vat Rate    -->
+    <screen name="MDM_MCM_0170">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/vat/jsp/MDM_MCM_0170.jsp"/>
+    </screen>
+
+    <!--  Vat Rate    -->
+    <screen name="MDM_MCM_0170GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/vat/jsp/MDM_MCM_0170GS.jsp"/>
+    </screen>
+    
+    <!--  Warehouse Rate    -->
+    <screen name="MDM_MCM_0180">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/warehouse/jsp/MDM_MCM_0180.jsp"/>
+    </screen>
+
+    <!--  Warehouse Rate    -->
+    <screen name="MDM_MCM_0180GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/warehouse/jsp/MDM_MCM_0180GS.jsp"/>
+    </screen>
+
+	
+	<!-- AIF 추가, 2011/10/07 Kim,Jin-Hyuk   -->    
+    <!--  Gl Code    -->
+    <screen name="MDM_MCM_0300">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/MDM_MCM_0300.jsp"/>
+    </screen>
+
+    <!--  Gl Code    -->
+    <screen name="MDM_MCM_0300GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/MDM_MCM_0300GS.jsp"/>
+    </screen>
+    <screen name="MDM_MCM_0321GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/MDM_MCM_0321GS.jsp"/>
+    </screen>
+
+    <!--  Gl Group Code    -->
+    <screen name="MDM_MCM_0301">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/MDM_MCM_0301.jsp"/>
+    </screen>
+    <screen name="MDM_MCM_0301GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/MDM_MCM_0301GS.jsp"/>
+    </screen>
+    
+    <!--vinh.vo 07/13/2015 (S)  -->
+    <!--Truck Type & Size  -->
+    
+    <screen name="MDM_MCM_0350">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/trucksizetype/jsp/MDM_MCM_0350.jsp"/>
+    </screen>
+    
+    <screen name="MDM_MCM_0350GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/trucksizetype/jsp/MDM_MCM_0350GS.jsp"/>
+    </screen>
+    
+    <screen name="MDM_MCM_0350_01GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/trucksizetype/jsp/MDM_MCM_0350_01GS.jsp"/>
+    </screen>
+    <!--vinh.vo 07/13/2015 (S)  -->
+    
+    <!--  NEW  GL Code - Thoa Dien / Dou Networks 2017.12.28 (S)   -->
+    <screen name="MDM_MCM_0300_NEW">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/MDM_MCM_0300_NEW.jsp"/>
+    </screen>
+
+    <!-- NEW GL Code  -->
+    <screen name="MDM_MCM_0300_NEWGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/MDM_MCM_0300_NEWGS.jsp"/>
+    </screen>
+     <screen name="MDM_MCM_0300_NEW_LOCALGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/MDM_MCM_0300_NEW_LOCALGS.jsp"/>
+    </screen>
+     <screen name="MDM_MCM_0300_NEW_HISGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/gl/jsp/MDM_MCM_0300_NEW_HISGS.jsp"/>
+    </screen>
+    <!-- NEW GL Code - Thoa Dien / Dou Networks 2017.12.28  (E)   -->
+    
+     <!-- Duc.Nguyen 2017-12-27 (S) -->
+    <!--  Freight Code    -->
+    <screen name="MDM_MCM_0160_NW">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/MDM_MCM_0160_NW.jsp"/>
+    </screen>
+    <!--  Freight Code    -->
+    <screen name="MDM_MCM_0160_NWGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/MDM_MCM_0160_NWGS.jsp"/>
+    </screen>
+    <screen name="MDM_MCM_0161_NWGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/MDM_MCM_0161_NWGS.jsp"/>
+    </screen>
+    <screen name="MDM_MCM_0162_NWGS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mdm/code/freight/jsp/MDM_MCM_0162_NWGS.jsp"/>
+    </screen>
+	<!-- Duc.Nguyen 2017-12-27 (E) -->
+</screen-definitions>

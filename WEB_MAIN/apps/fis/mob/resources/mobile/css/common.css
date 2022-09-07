@@ -1,0 +1,74 @@
+@charset "utf-8";
+html, body {height:100%;}
+html {overflow-y:scroll;}
+html, body {width:100%; height:100%; _height:auto;min-height:100%;height:auto;}
+* {-webkit-text-size-adjust:none;}
+* {padding:0; margin:0;}
+body {color:#555; line-height:14px; font-size:16px; -webkit-text-size-adjust:none;}
+*,body, input, textarea, select, button,radio {color:#555;line-height:22px; font-family: 'Malgun Gothic','맑은 고딕',Dotum,돋움, sans-serif, AppleGothic, Gulim,굴림, Arial, Helvetica;}
+header, footer, nav, aside, section, article {display:block;}
+fieldset, img {border:0;}
+img {-ms-interpolation-mode:bicubic !important; border:0}
+/*img{image-rendering:-o-crisp-edges;image-rendering:webkit-optimize-contrast;image-rendering:-moz-crisp-edges;}*/
+table {border-collapse: separate; border-spacing: 0;}
+a {color:inherit;}
+a, a:link {color:inherit; text-decoration:none;}
+a:visited { color:#555; }
+a:hover, a:active { color:#000; text-decoration:none; }
+h2,h3, dt, dl { margin:0px; padding:0px}
+img {max-width:100%}
+ul,ol {list-style:none;}
+em {font-style:normal}
+fieldset {border:0 none}
+legend {display:block; position:absolute; width:0; height:0; left:0; top:0; overflow:hidden; font:0;}
+input, textarea, select {vertical-align:middle;}
+
+.tcenter { text-align:center}
+.overfl { overflow:hidden; margin:0px; padding:0px;}
+.flLeft { float:left}
+.flRight { float:right}
+
+
+.cir_red { background:#f36000 ;-webkit-border-radius: 8px; -moz-border-radius: 8px;border-radius: 8px;}
+.boderT1 { border-top:1px solid #32819a}
+.boderB1 { border-bottom:1px solid #32819a}
+
+.boderG {border-top:1px solid #c3c3c3}
+.ui_postion_rel { position:relative}
+.all_relative { position:relative}
+
+.text_red{color:#d2463b}
+.text_blue{color:#1f6cb3}
+
+/*space*/
+.pd5 { padding:5px}
+.pdT10 { padding-top:10px}
+.pdB10 { padding-bottom:10px}
+.pdB20 { padding-bottom:20px}
+
+.mgT5 { margin-top:5px}
+.mgT10 { margin-top:10px}
+.mgT15 { margin-top:15px !important}
+.mgT20 { margin-top:20px; word-break:break-all;}
+.mgT30 { margin-top:30px}
+.mgT50 { margin-top:50px}
+.mg8 { margin:8px}
+.mg10 { margin:10px}
+
+.mgL_m45 { margin-left:-100px}
+.mgT_m3 { margin-top:-3px}
+.mgT_m10 { margin-top:-10px}
+.mgT_m50 { margin-top:-50px}
+
+.mgB_m10{margin-bottom:-10px}
+.mgR5 { margin-right:5px}
+.mgR10 { margin-right:10px}
+.mgR30 { margin-right:30px}
+.mgR50 { margin-right:50px}
+
+.mgL5{ margin-left:5px}
+.mgL10 { margin-left:10px}
+.mgL5{ margin-left:10px}
+.mgB10 { margin-bottom:10px}
+.mgB20 { margin-bottom:20px}
+.mgB30 { margin-bottom:30px}

@@ -1,0 +1,2573 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.mcm.partner">
+	<!-- Trade Partner MDM_MCM_0070 Search   -->
+	<select id="selectMDM_MCM_0070_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TrdpVO">
+    /* MdmMcmPartnerSQL > selectMDM_MCM_0070_LIST */
+        SELECT  a.trdp_cd,        a.trdp_tp_cd,       (select CD_NM from tb_com_cd_dtl where cd_val = a.trdp_tp_cd and com_cd = 'C033') as trdp_tp_nm,
+		        a.locl_nm,        a.eng_nm,a.lgl_addr,       a.eng_addr,
+		        a.ceo_nm,         a.url,   a.cnt_cd,         b.cnt_locl_nm AS cnt_nm,
+		        a.curr_cd,        c.cd_nm AS curr_nm,
+		        a.tax_iss_addr,   a.cr_term_cd,       a.cr_term_dt,     a.corp_no,
+		        a.biz_no,         a.bztp_val,         a.biz_itm_val,    a.grp_id_cd,
+		        a.rep_phn,        a.rep_fax,          a.rep_zip,        a.rep_eml,
+		        a.sls_ofc_cd,     d.ofc_eng_nm AS sls_ofc_nm,
+		        a.rmk, a.shrt_nm,          a.full_nm,
+		        a.rgst_tp_cd,     a.sls_usrid,        e.locl_usr_nm AS sls_usrnm,  a.curr_tp_cd,
+		        a.sts_cd,		  a.sls_gp_cd,		  a.crd_lmt_amt,
+		        <!-- #660 - [BINEX] CURRENT BALANCE, OVER LIMIT LOGIC (2017.01.12) -->
+		        <!-- a.cur_lmt_amt, -->
+		        (SELECT SUM(CASE WHEN INV.SELL_BUY_TP_CD = 'C' THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END) AS CUR_LMT_AMT
+				FROM TB_INV INV
+				JOIN TB_INV_DTL IDT ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N' AND (IDT.INV_DT <![CDATA[ <= ]]> GETDATE()) AND IDT.INV_APLY_CURR_CD = 'USD'
+				WHERE 1=1
+				AND INV.TRDP_CD = A.TRDP_CD
+				AND INV.SELL_BUY_TP_CD IN ('S','D','C')
+				AND INV.DELT_FLG = 'N') AS CUR_LMT_AMT,
+		        a.state_cd,		  a.city_cd,		  a.city_nm,		a.iata_cd,		a.scac_cd,
+		        a.bill_to_agent,  a.tax_type,		  a.prefix,			a.acct_cd,
+		        a.rgst_usrid,     a.rgst_ofc_cd,
+		        a.modi_usrid,     a.modi_ofc_cd,
+		        <!-- #1472 [ZEN] MODIFIED DATE SHOWING "FUTURE DATE" -->
+		        <!-- CONVERT(VARCHAR, (SELECT DATEADD(MINUTE, 60*CONVERT( float, isnull ( ( select RMK from TB_COM_CD_DTL where COM_CD = 'TIMEZN' and CD_VAL = (select TIME_ZONE from tb_ofc where OFC_CD =  a.rgst_ofc_cd)),'0')), a.rgst_tms)), 110) AS rgst_dt, -->
+		        CONVERT(VARCHAR, a.rgst_tms , 110) AS rgst_dt,
+		        CONVERT(VARCHAR, (SELECT DATEADD(MINUTE, 60*CONVERT( float, isnull ( ( select RMK from TB_COM_CD_DTL where COM_CD = 'TIMEZN' and CD_VAL = (select TIME_ZONE from tb_ofc where OFC_CD =  a.modi_ofc_cd)),'0')), a.modi_tms)), 110) AS modi_dt,
+		        a.delt_flg,
+		        (select ar_vat_line from tb_trdp_vat_opt where trdp_cd = a.trdp_cd) as ar_vat_line,
+		        (select ap_vat_line from tb_trdp_vat_opt	 where trdp_cd = a.trdp_cd) as ap_vat_line,
+		        cmdt_cd,
+		        (SELECT cmdt_nm FROM tb_cmdt_cd WHERE cmdt_cd = a.cmdt_cd AND delt_flg = 'N' ) AS cmdt_nm,
+		        case when (select count(*) from tb_trdp where trdp_cd like '%DEFAULT' and trdp_cd = a.trdp_cd) > 0 or (select count(*) from tb_trdp where trdp_cd like '%MAINCMP' and trdp_cd = a.trdp_cd) > 0
+		        then 'Y' else 'N' end as default_maincmp_yn
+		        , a.reserve_field01
+		        , a.reserve_field02
+		        , a.reserve_field03
+		        , a.reserve_field04
+		        , a.reserve_field05
+		        , a.reserve_field06
+		        , a.reserve_field07
+		        , a.reserve_field08
+		        , a.reserve_field09
+		        , a.reserve_field10
+		        , a.smt_id
+		        , a.edi_cust_id
+		        , a.vis_id
+		        , a.oi_ref_prfx
+				, a.oi_ref_seq_no
+				, a.oe_ref_prfx
+				, a.oe_ref_seq_no
+				, a.ai_ref_prfx
+				, a.ai_ref_seq_no
+				, a.ae_ref_prfx
+				, a.ae_ref_seq_no
+				, a.ae_awb_prfx
+				, a.ae_awb_seq_no
+				, a.oe_hbl_prfx
+				, a.oe_hbl_seq_no
+				, a.clm_flg
+				, a.dcnsl_cd
+				, a.ofc_hr
+				, a.profit_share
+				, a.an_bond_no
+			  	, a.an_bond_exp_dt
+				, a.an_bond_entr_usrid
+				, (select usr.eng_usr_nm from tb_usr usr where usr.usrid = a.an_bond_entr_usrid) as an_bond_entr_usrnm
+			  	, a.an_bond_pur_cd
+			  	, (SELECT x.eng_nm FROM tb_trdp x where x.trdp_cd = a.an_bond_pur_cd) AS an_bond_pur_nm
+				, a.an_bond_pur_dt
+				, a.tp_grp
+				, a.crd_appr_dt
+				, a.cbsa_scac_cd
+                ,edi_cnfg.edi_vndr_cd as spi_edi_vndr_cd
+                ,edi_cnfg.vndr_mapg_cd as spi_vndr_mapg_cd
+                <!-- #1476	[IMPEX] CANNOT SAVE CONTRACT NO. ON TRADE PARTNER ENTRY (2017.04.20) -->
+                ,ISNULL((SELECT COUNT(CTRT_NO) FROM TL_CTRT WHERE CTRT_USE_FLG = 'Y' AND CONVERT(VARCHAR(8), GETDATE(), 112) BETWEEN EFF_FR_DT AND EFF_TO_DT AND CTRT_CUST_CD = a.trdp_cd), 0) as ctrt_no
+                <!-- OFVFOUR-7241 [V4] Delivery time on Trade Partner Entry showing incorrect -->
+                ,CASE WHEN ISNULL(A.OFC_FM_HR, '') = '' THEN '' ELSE SUBSTRING(ISNULL(A.OFC_FM_HR, ''), 1, 2)+':'+SUBSTRING(ISNULL(A.OFC_FM_HR, ''), 3, 2) END  AS OFC_FM_HR
+	   			,CASE WHEN ISNULL(A.OFC_TO_HR, '') = '' THEN '' ELSE SUBSTRING(ISNULL(A.OFC_TO_HR, ''), 1, 2)+':'+SUBSTRING(ISNULL(A.OFC_TO_HR, ''), 3, 2) END  AS OFC_TO_HR
+	   			<!-- #3355 [JTC]Dock Receipt 수정 -->
+	   			,a.dock_rcpt_rmk, a.agt_edi_cd, agt_edi_msg_tp_cd, a.shpr_cd
+	   			<!-- OFVFOUR-7976: [MATRIX] ADDING CS PIC ON ALL B/L ENTRY AND TRADE PARTNER ENTRY SCREEN -->
+	   			,a.cs_usrid , f.locl_usr_nm AS cs_usrnm
+		  FROM  tb_trdp a
+LEFT OUTER JOIN tb_cnt b
+		    ON  a.cnt_cd = b.cnt_cd
+LEFT OUTER JOIN tb_com_cd_dtl c
+			ON  a.curr_cd = c.cd_val
+		   AND  c.com_cd = 'C010'  AND c.use_flg = 'Y' AND c.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_ofc d
+			 ON a.sls_ofc_cd = d.ofc_cd
+
+LEFT OUTER JOIN tb_usr e
+			 ON e.usr_tp = 'I' AND a.sls_usrid = e.usrid
+<!-- OFVFOUR-7976: [MATRIX] ADDING CS PIC ON ALL B/L ENTRY AND TRADE PARTNER ENTRY SCREEN -->
+LEFT OUTER JOIN tb_usr f
+			ON f.usr_tp = 'I' AND a.cs_usrid = f.usrid
+LEFT OUTER JOIN	TB_TRDP_EDI_CNFG edi_cnfg
+			on a.TRDP_CD = edi_cnfg.trdp_cd AND edi_clss_cd = 'SPI'
+		WHERE a.trdp_cd = #s_trdp_cd#
+		ORDER BY  a.trdp_cd ASC
+    </select>
+
+	<!-- #25711 [SUNWAY]Sales Man 자동 설정    -->
+	<select id="selectSalsePerson" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TrdpVO">
+    /* MdmMcmPartnerSQL > selectSalsePerson */
+		SELECT DISTINCT
+			   CASE WHEN isNull(a.sls_usrid,'') = '' THEN #user_id# ELSE a.sls_usrid END AS sls_usrid,
+			   e.eng_usr_nm AS sls_usrnm,
+			   CASE WHEN isNull(a.sls_ofc_cd,'') = '' THEN e.ofc_cd ELSE a.sls_ofc_cd END AS sls_ofc_cd,
+			   e.dept_cd AS dept_cd,
+			   isNull(a.sls_usrid,'')   AS sls_usrid_opt,
+			   isNull(a.sls_ofc_cd,'')  AS sls_ofc_cd_opt,
+			   (select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'BL_SALES_MAN_DFLT_BLANK') as opt_val,
+			   <!-- OFVFOUR-7976: [MATRIX] ADDING CS PIC ON ALL B/L ENTRY AND TRADE PARTNER ENTRY SCREEN -->
+			   (select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'BL_CS_MAN_DFLT_BLANK') as opt_val_cs,
+				CASE WHEN isNull(a.cs_usrid,'') = '' THEN #user_id# ELSE a.cs_usrid END AS cs_usrid,
+				f.eng_usr_nm AS cs_usrnm,
+				isNull(a.cs_usrid,'')   AS cs_usrid_opt
+		FROM   tb_trdp a
+		LEFT OUTER JOIN tb_cnt b ON  a.cnt_cd = b.cnt_cd
+		LEFT OUTER JOIN tb_com_cd_dtl c ON  a.curr_cd = c.cd_val AND  c.com_cd = 'C010'  AND c.use_flg = 'Y' AND c.delt_flg = 'N'
+		LEFT OUTER JOIN tb_ofc d ON a.sls_ofc_cd = d.ofc_cd
+		LEFT OUTER JOIN tb_usr e ON e.usr_tp = 'I' AND (CASE WHEN isNull(a.sls_usrid,'') = '' THEN #user_id# ELSE a.sls_usrid END) = e.usrid
+		<!-- OFVFOUR-7976: [MATRIX] ADDING CS PIC ON ALL B/L ENTRY AND TRADE PARTNER ENTRY SCREEN -->
+		LEFT OUTER JOIN tb_usr f ON f.usr_tp = 'I' AND (CASE WHEN isNull(a.cs_usrid,'') = '' THEN #user_id# ELSE a.cs_usrid END) = f.usrid
+		WHERE a.trdp_cd = #s_code#
+    </select>
+	<!-- Trade Partner MDM_MCM_0070 copy Search   -->
+	<select id="selectMDM_MCM_0070_LIST_copy" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TrdpVO">
+    /* MdmMcmPartnerSQL > selectMDM_MCM_0070_LIST_COPY */
+        SELECT  a.trdp_tp_cd,       (select CD_NM from tb_com_cd_dtl where cd_val = a.trdp_tp_cd and com_cd = 'C033') as trdp_tp_nm,
+		        a.lgl_addr,
+		        a.eng_addr,
+		        a.ceo_nm,
+		        a.cnt_cd,         b.cnt_locl_nm AS cnt_nm,
+		        a.tax_iss_addr,
+		        a.rep_zip,
+		        a.state_cd,		  a.city_cd,    a.city_nm,
+		        a.bill_to_agent,
+		        (select ar_vat_line from tb_trdp_vat_opt where trdp_cd = a.trdp_cd) as ar_vat_line,
+		        (select ap_vat_line from tb_trdp_vat_opt	 where trdp_cd = a.trdp_cd) as ap_vat_line,
+		        cmdt_cd,
+		        (SELECT cmdt_nm FROM tb_cmdt_cd WHERE cmdt_cd = a.cmdt_cd AND delt_flg = 'N' ) AS cmdt_nm
+		        ,a.tp_grp
+		  FROM  tb_trdp a
+LEFT OUTER JOIN tb_cnt b
+		    ON  a.cnt_cd = b.cnt_cd
+LEFT OUTER JOIN tb_com_cd_dtl c
+			ON  a.curr_cd = c.cd_val
+		   AND  c.com_cd = 'C010'  AND c.use_flg = 'Y' AND c.delt_flg = 'N'
+
+LEFT OUTER JOIN tb_ofc d
+			 ON a.sls_ofc_cd = d.ofc_cd
+
+LEFT OUTER JOIN tb_usr e
+			 ON e.usr_tp = 'I' AND a.sls_usrid = e.usrid
+		WHERE a.trdp_cd = #s_trdp_cd#
+    </select>
+
+    <select id="selectTRDP_CD_SEQ" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT ISNULL(count(trdp_cd), 0) + 1
+		  FROM tb_trdp
+    </select>
+
+    <!-- Trade Partner 정보 수정 Update   -->
+    <update id="updateTRDP_INFO" parameterClass="java.util.HashMap">
+    /* MdmMcmPartnerSQL > updateTRDP_INFO */
+		UPDATE tb_trdp
+		   SET trdp_tp_cd= #trdp_tp_cd#,
+		       locl_nm   = #locl_nm#,      eng_nm   = #eng_nm#,
+		       lgl_addr  = #lgl_addr#,     eng_addr = #eng_addr#,
+		       ceo_nm    = #ceo_nm#,       url      = #url#,
+		       cnt_cd    = #cnt_cd#,       curr_cd  = #curr_cd#,        acct_cd = #acct_cd#,
+		       biz_no    = #biz_no#,       bztp_val = #bztp_val#,       biz_itm_val = #biz_itm_val#,    grp_id_cd = #grp_id_cd#,
+		       rep_phn   = #rep_phn#,      rep_fax  = #rep_fax#,        rep_zip     = #rep_zip#,
+		       rep_eml   = #rep_eml#,      sls_ofc_cd = #sls_ofc_cd#,   rmk = #rmk#,
+		       shrt_nm   = #shrt_nm#,      full_nm = #eng_nm#,          rgst_tp_cd = #rgst_tp_cd#,      sls_usrid = #sls_usrid#,
+		       curr_tp_cd= #curr_tp_cd#,   sts_cd = #s_sts_cd#,
+		       state_cd = #state_cd#,	   city_cd = #city_cd#,			city_nm = #city_nm#,			tax_type = #tax_type#,			prefix = #prefix#,
+		       iata_cd = #iata_cd#,		   scac_cd = #scac_cd#,
+		       bill_to_agent = CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END,
+		       modi_usrid= #modi_usrid#,   modi_ofc_cd = #modi_ofc_cd#, modi_tms = GETUTCDATE(), delt_flg = #delt_flg#,
+		       tax_iss_addr = #tax_iss_addr#, corp_no = #corp_no#,
+		       cmdt_cd = #cmdt_cd#
+		       , reserve_field01 = #reserve_field01#
+		       , reserve_field02 = #reserve_field02#
+		       , reserve_field03 = #reserve_field03#
+		       , reserve_field04 = #reserve_field04#
+		       , reserve_field05 = #reserve_field05#
+		       , reserve_field06 = #reserve_field06#
+		       , reserve_field07 = #reserve_field07#
+		       , reserve_field08 = #reserve_field08#
+		       , reserve_field09 = #reserve_field09#
+		       , reserve_field10 = #reserve_field10#
+		       , smt_id = #smt_id#
+		       , edi_cust_id = #edi_cust_id#
+		       , vis_id = #vis_id#
+		       , oi_ref_prfx   = #oi_ref_prfx#
+			   , oi_ref_seq_no = #oi_ref_seq_no#
+			   , oe_ref_prfx   = #oe_ref_prfx#
+			   , oe_ref_seq_no = #oe_ref_seq_no#
+			   , ai_ref_prfx   = #ai_ref_prfx#
+			   , ai_ref_seq_no = #ai_ref_seq_no#
+			   , ae_ref_prfx   = #ae_ref_prfx#
+			   , ae_ref_seq_no = #ae_ref_seq_no#
+			   , ae_awb_prfx   = #ae_awb_prfx#
+			   , ae_awb_seq_no = #ae_awb_seq_no#
+			   , oe_hbl_prfx   = #oe_hbl_prfx#
+			   , oe_hbl_seq_no = #oe_hbl_seq_no#
+			   , clm_flg = #clm_flg#
+			   , profit_share = #profit_share#
+			   , dcnsl_cd = #dcnsl_cd#
+			   , ofc_hr = #ofc_hr#
+			   , an_bond_no = #an_bond_no#
+			   , an_bond_exp_dt = #an_bond_exp_dt#
+			   , an_bond_entr_usrid = #an_bond_entr_usrid#
+			   , an_bond_pur_cd = #an_bond_pur_cd#
+			   , an_bond_pur_dt = #an_bond_pur_dt#
+			   , tp_grp = #tp_grp#
+			   , crd_appr_dt = #crd_appr_dt#
+			   , cbsa_scac_cd = #cbsa_scac_cd#
+			   , ofc_fm_hr = #ofc_fm_hr#
+			   , ofc_to_hr = #ofc_to_hr#
+			   <!-- #3355 [JTC]Dock Receipt 수정 -->
+			   , dock_rcpt_rmk = #dock_rcpt_rmk#
+			   , agt_edi_cd = #agt_edi_cd#
+				, agt_edi_msg_tp_cd = #agt_edi_msg_tp_cd#
+				, shpr_cd = #shpr_cd#
+				<!-- OFVFOUR-7976: [MATRIX] ADDING CS PIC ON ALL B/L ENTRY AND TRADE PARTNER ENTRY SCREEN -->
+				,cs_usrid = #cs_usrid#
+	 	 WHERE trdp_cd = #i_trdp_cd#
+    </update>
+
+    <!-- Trade Partner 정보 수정 Update   -->
+    <update id="updateTRDP_INFO_TYPE2" parameterClass="java.util.HashMap">
+    /* MdmMcmPartnerSQL > updateTRDP_INFO_TYPE2 */
+		UPDATE tb_trdp
+		   SET
+		       locl_nm   = #locl_nm#,
+		       eng_nm   = SUBSTRING( #eng_nm# , 1, 50),
+		       eng_addr   = #eng_addr#,
+		       tax_iss_addr   = #tax_iss_addr#,
+		       cnt_cd    = #cnt_cd#,
+		       sls_ofc_cd = #sls_ofc_cd#,
+		       sls_usrid = #sls_usrid#,
+		       shrt_nm   = SUBSTRING( #shrt_nm# , 1, 50),
+		       lgl_addr  = #lgl_addr#,
+		       rep_zip     = #rep_zip#,
+		       state_cd = #state_cd#,
+		       modi_usrid= #modi_usrid#,
+		       modi_ofc_cd = #modi_ofc_cd#,
+		       iata_cd = #i_iata_cd#,
+		       modi_tms = GETUTCDATE()
+	 	 WHERE trdp_cd = #i_trdp_cd#
+    </update>
+
+    <!-- Trade Partner MDM_MCM_0070 insert    -->
+    <insert id="insertTRDP_INFO" parameterClass="java.util.HashMap">
+    /* MdmMcmPartnerSQL > insertTRDP_INFO */
+        INSERT INTO tb_trdp(
+ trdp_cd,       trdp_tp_cd,    locl_nm,      eng_nm,
+			lgl_addr,      eng_addr,
+			ceo_nm,        url,
+			cnt_cd,        curr_cd,
+			biz_no,        bztp_val,      biz_itm_val,  grp_id_cd,
+			rep_phn,       rep_fax,       rep_zip,
+			rep_eml,       sls_ofc_cd,    rmk,
+			shrt_nm,       full_nm,       acct_cd,
+		    rgst_tp_cd,    sls_usrid,
+			curr_tp_cd,    sts_cd,		  sls_gp_cd,	crd_lmt_amt,
+			rgst_usrid,    rgst_ofc_cd,   rgst_tms,
+			modi_usrid,    modi_ofc_cd,   modi_tms,     delt_flg,
+			tax_iss_addr,  cr_term_cd,    cr_term_dt,   corp_no,
+			state_cd,	   city_cd,		  city_nm,		tax_type,		prefix,
+			iata_cd,	   scac_cd,		  bill_to_agent, cmdt_cd
+			, reserve_field01
+			, reserve_field02
+			, reserve_field03
+			, reserve_field04
+			, reserve_field05
+			, reserve_field06
+			, reserve_field07
+			, reserve_field08
+			, reserve_field09
+			, reserve_field10
+			, smt_id
+			, edi_cust_id
+			, vis_id
+			, oi_ref_prfx
+			, oi_ref_seq_no
+			, oe_ref_prfx
+			, oe_ref_seq_no
+			, ai_ref_prfx
+			, ai_ref_seq_no
+			, ae_ref_prfx
+			, ae_ref_seq_no
+			, ae_awb_prfx
+			, ae_awb_seq_no
+			, oe_hbl_prfx
+			, oe_hbl_seq_no
+			, clm_flg
+			, profit_share
+			, dcnsl_cd
+			, ofc_hr
+			, an_bond_no
+			, an_bond_exp_dt
+			, an_bond_entr_usrid
+			, an_bond_pur_cd
+			, an_bond_pur_dt
+			, tp_grp
+			, crd_appr_dt
+			, cbsa_scac_cd
+			, ofc_fm_hr
+			, ofc_to_hr
+			, shpr_cd
+			<!-- OFVFOUR-7976: [MATRIX] ADDING CS PIC ON ALL B/L ENTRY AND TRADE PARTNER ENTRY SCREEN -->
+			, cs_usrid
+        )VALUES(
+ #i_trdp_cd#,   #trdp_tp_cd#,  #locl_nm#,   SUBSTRING( #eng_nm# , 1, 50),
+		    #lgl_addr#,    #eng_addr#,
+		    #ceo_nm#,      #url#,
+		    #cnt_cd#,      #curr_cd#,
+		    #biz_no#,      #bztp_val#,    #biz_itm_val#, #grp_id_cd#,
+		    #rep_phn#,     #rep_fax#,     #rep_zip#,
+		    #rep_eml#,     #sls_ofc_cd#,  #rmk#,
+		    SUBSTRING( #shrt_nm# , 1, 50),     SUBSTRING( #eng_nm# , 1, 50), 	  #acct_cd#,
+		    #rgst_tp_cd#,  #sls_usrid#,
+		    #curr_tp_cd#,  #s_sts_cd#,	  #s_sls_gp_cd#, #s_crd_lmt_amt#,
+		    #rgst_usrid#,  #rgst_ofc_cd#, getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#, GETUTCDATE(), #delt_flg#,
+		    #tax_iss_addr#, #cr_term_cd#, #cr_term_dt#, #corp_no#,
+		    #state_cd#,	   #city_cd#,	  #city_nm#,	#tax_type#,	#prefix#,
+			#iata_cd#,	   #scac_cd#,	  CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END, #cmdt_cd#
+			, #reserve_field01#
+			, #reserve_field02#
+			, #reserve_field03#
+			, #reserve_field04#
+			, #reserve_field05#
+			, #reserve_field06#
+			, #reserve_field07#
+			, #reserve_field08#
+			, #reserve_field09#
+			, #reserve_field10#
+			, #smt_id#
+			, #edi_cust_id#
+			, #vis_id#
+			, #oi_ref_prfx#
+			, #oi_ref_seq_no#
+			, #oe_ref_prfx#
+			, #oe_ref_seq_no#
+			, #ai_ref_prfx#
+			, #ai_ref_seq_no#
+			, #ae_ref_prfx#
+			, #ae_ref_seq_no#
+			, #ae_awb_prfx#
+			, #ae_awb_seq_no#
+			, #oe_hbl_prfx#
+			, #oe_hbl_seq_no#
+			, #clm_flg#
+			, #profit_share#
+			, #dcnsl_cd#
+			, #ofc_hr#
+			, #an_bond_no#
+			, #an_bond_exp_dt#
+			, #an_bond_entr_usrid#
+			, #an_bond_pur_cd#
+			, #an_bond_pur_dt#
+			, #tp_grp#
+			, #crd_appr_dt#
+			, #cbsa_scac_cd#
+			, #ofc_fm_hr#
+			, #ofc_to_hr#
+			, #shpr_cd#
+			<!-- OFVFOUR-7976: [MATRIX] ADDING CS PIC ON ALL B/L ENTRY AND TRADE PARTNER ENTRY SCREEN -->
+			, #cs_usrid#
+        )
+    </insert>
+
+    <!-- Trade Partner SI BKG EDI Info insert    -->
+    <insert id="insertTRDP_EDI_CNFG" parameterClass="java.util.HashMap">
+    INSERT INTO TB_TRDP_EDI_CNFG
+(TRDP_CD
+,EDI_CLSS_CD
+,EDI_VNDR_CD
+,VNDR_MAPG_CD
+,RGST_USRID
+,RGST_OFC_CD
+,RGST_TMS
+,MODI_USRID
+,MODI_OFC_CD
+,MODI_TMS)
+     VALUES
+           (
+           #i_trdp_cd#
+           ,#edi_clss_cd#
+           ,#edi_vndr_cd#
+           ,#vndr_mapg_cd#
+           ,#rgst_usrid#
+           ,#rgst_ofc_cd#
+           ,getdate()
+           ,#modi_usrid#
+           ,#modi_ofc_cd#
+           ,GETUTCDATE()
+           )
+    </insert>
+
+   <!-- Trade Partner SI BKG EDI Info update    -->
+    <update id="updateTRDP_EDI_CNFG" parameterClass="java.util.HashMap">
+    /* MdmMcmPartnerSQL > updateTRDP_EDI_CNFG */
+		UPDATE TB_TRDP_EDI_CNFG
+		   SET EDI_VNDR_CD = #edi_vndr_cd#
+		      ,VNDR_MAPG_CD = #vndr_mapg_cd#
+		      ,MODI_USRID = #modi_usrid#
+		      ,MODI_OFC_CD = #modi_ofc_cd#
+		      ,MODI_TMS = GETUTCDATE()
+	    WHERE trdp_cd = #i_trdp_cd#
+    </update>
+
+    <delete id="deleteTRDP_EDI_CNFG" parameterClass="java.util.HashMap">
+    /* MdmMcmPartnerSQL > deleteTRDP_EDI_CNFG */
+		DELETE FROM TB_TRDP_EDI_CNFG
+	    WHERE trdp_cd = #i_trdp_cd#
+	      AND EDI_CLSS_CD = #edi_clss_cd#
+    </delete>
+
+
+
+    <!-- Trade Partner 정보 조회    -->
+    <select id="selectTRDP_PRNR_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+        SELECT  a.trdp_cd	   AS trdp_cd,
+		        ( SELECT c.cd_nm  FROM tb_com_cd_dtl c
+				   WHERE c.cd_val = a.trdp_tp_cd AND c.com_cd = 'C033') AS trdp_tp_cd,
+		        a.locl_nm	   AS locl_nm,        a.eng_nm  AS eng_nm,
+		        a.biz_no	   AS biz_no,         a.ceo_nm  AS ceo_nm,
+		        b.cnt_locl_nm  AS cnt_locl_nm,    a.rep_phn AS rep_phn,
+		        a.shrt_nm	   AS shrt_nm,        a.rep_fax AS rep_fax, cmdt_cd,
+		        (SELECT cmdt_nm FROM tb_cmdt_cd WHERE cmdt_cd = a.cmdt_cd AND delt_flg = 'N' ) AS cmdt_nm
+		  FROM  tb_trdp a, tb_cnt b
+		 WHERE  a.cnt_cd = b.cnt_cd
+		   AND  a.delt_flg = 'N'
+		<isNotNull property="s_trdp_nm">
+			AND a.locl_nm LIKE '%'+#s_trdp_nm#+'%'
+		</isNotNull>
+		<isNotNull property="s_trdp_cd">
+			AND a.trdp_cd LIKE '%'+#s_trdp_cd#+'%'
+		</isNotNull>
+		<isNotNull property="s_trdp_tp_cd">
+			AND a.trdp_tp_cd = #s_trdp_tp_cd#
+		</isNotNull>
+		<isNotNull property="s_cnt_cd">
+			AND a.cnt_cd LIKE '%'+#s_cnt_cd#+'%'
+		</isNotNull>
+		<isNotNull property="s_locl_nm">
+			AND a.locl_nm LIKE '%'+#s_locl_nm#+'%'
+		</isNotNull>
+		<isNotNull property="s_eng_nm">
+			AND a.eng_nm LIKE '%'+#s_eng_nm#+'%'
+		</isNotNull>
+		ORDER BY  trdp_cd ASC
+    </select>
+
+    <!-- Trade Partner 정보 조회    -->
+    <select id="selectTRDP_PRNR_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT count(a.trdp_cd)
+		  FROM tb_trdp a, tb_cnt b
+		 WHERE a.cnt_cd = b.cnt_cd
+		   AND a.delt_flg = 'N'
+        <isNotNull property="s_trdp_nm">
+ AND a.locl_nm LIKE '%'+#s_trdp_nm#+'%'
+        </isNotNull>
+        <isNotNull property="s_trdp_cd">
+ AND a.trdp_cd LIKE '%'+#s_trdp_cd#+'%'
+        </isNotNull>
+        <isNotNull property="s_trdp_tp_cd">
+ AND a.trdp_tp_cd = #s_trdp_tp_cd#
+        </isNotNull>
+        <isNotNull property="s_cnt_cd">
+ AND a.cnt_cd LIKE '%'+#s_cnt_cd#+'%'
+        </isNotNull>
+        <isNotNull property="s_locl_nm">
+ AND a.locl_nm LIKE '%'+#s_locl_nm#+'%'
+        </isNotNull>
+        <isNotNull property="s_eng_nm">
+ AND a.eng_nm LIKE '%'+#s_eng_nm#+'%'
+        </isNotNull>
+	</select>
+
+    <!-- Trade PartnerList Remove    -->
+    <insert id="deleteMDM_MCM_0250" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+        UPDATE tb_trdp
+        SET delt_flg = 'Y'
+        	, modi_usrid = #modi_usrid#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, modi_tms = GETUTCDATE()
+        WHERE  trdp_cd = #trdp_cd#
+    </insert>
+
+    <!-- Trade PartnerList pop select    -->
+    <!-- #3344 [IMPEX] AE HAWB LIST, TRADE PARTNER SEARCH POP UP SPEED -->
+    <select id="selectPOP_TRDP_LIST" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+    /* MdmMcmPartnerSQL > selectPOP_TRDP_LIST */
+	<!-- OFVFOUR-7911 [AIF] MANAGING/ALERT CUSTOMER'S OUTSTANDING (OVERDUE) -->
+    <!-- with overdue as(SELECT
+		trdp_cd
+		,SUM(summ.over_1_30_amt) + SUM(summ.over_31_60_amt) + SUM(summ.over_61_90_amt) + SUM(summ.over_91_amt) AS overdue_total
+	FROM
+    (
+			SELECT
+				disp.trdp_cd
+				,disp.INV_NO
+				,ISNULL(SUM(disp.pay_amt), 0) AS pay_amt
+				,disp.over_dt
+				,ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) AS inv_sum_amt
+				,CASE WHEN disp.over_dt <![CDATA[ < ]]> 1 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS current_amt
+				,CASE WHEN disp.over_dt <![CDATA[ > ]]> 0 AND disp.over_dt <![CDATA[ < ]]> 31 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_1_30_amt
+				,CASE WHEN disp.over_dt <![CDATA[ > ]]> 30 AND disp.over_dt <![CDATA[ < ]]> 61 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_31_60_amt
+				,CASE WHEN disp.over_dt <![CDATA[ > ]]> 60 AND disp.over_dt <![CDATA[ < ]]> 91 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_61_90_amt
+				,CASE WHEN disp.over_dt <![CDATA[ > ]]> 90 THEN ISNULL(disp.inv_sum_amt, 0) - ISNULL(SUM(disp.pay_amt), 0) ELSE 0 END AS over_91_amt
+			FROM
+				(
+				SELECT
+					dtl.trdp_cd
+					,dtl.INV_NO
+					,(
+						CASE WHEN dtl.sell_buy_tp_cd = 'B' THEN sum(dtl.inv_sum_amt) * -1 ELSE sum(dtl.inv_sum_amt) END
+					) * (
+						CASE WHEN dtl.INV_APLY_CURR_CD = dtl.option_curr THEN 1 ELSE ISNULL( DD_EX_RT_INV.XCH_RT_UT, ISNULL( MM_EX_RT_INV.XCH_RT_UT, ISNULL( DD_INV_EX_RT_INV.XCH_RT_UT, ISNULL(MM_INV_EX_RT_INV.XCH_RT_UT, 0) ) ) ) END
+					) AS inv_sum_amt
+					,max(
+						dtl.pay_amt * ( CASE WHEN dtl.INV_APLY_CURR_CD = dtl.option_curr THEN 1 ELSE ISNULL( DD_EX_RT_JNR.XCH_RT_UT, ISNULL( MM_EX_RT_JNR.XCH_RT_UT, ISNULL( DD_INV_EX_RT_JNR.XCH_RT_UT, ISNULL(MM_INV_EX_RT_JNR.XCH_RT_UT, 0) ) ) ) END )
+					) AS pay_amt
+					,dtl.inv_dt
+					,dtl.post_dt
+					,dtl.over_dt
+					,dtl.sell_buy_tp_cd
+				FROM
+					(
+						SELECT
+							trdp.trdp_cd
+							,idt.INV_NO
+							,CASE
+								WHEN frt.sell_buy_tp_cd = 'C' THEN frt.cr_amt * -1
+								ELSE frt.inv_sum_amt
+							END AS inv_sum_amt
+							,inv.sell_buy_tp_cd
+							,CASE
+								WHEN jms.post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+								AND NOT ( jms.VOID_YN = 'Y' AND jms.VOID_DT <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112) )
+								THEN
+									CASE
+										WHEN inv.sell_buy_tp_cd IN ('C', 'B')
+										THEN jdt.pay_amt * -1
+										ELSE jdt.pay_amt
+									END
+								ELSE 0
+							END AS pay_amt
+							,jdt.jnr_no
+							,idt.inv_dt
+							,jms.post_dt
+							,DATEDIFF( "D", CONVERT(DATETIME, idt.inv_due_dt), CONVERT(DATETIME, CONVERT(VARCHAR, getDate(), 112)) ) AS over_dt
+							,inv_aply_curr_cd
+							,( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' ) AS option_curr
+						FROM
+							tb_trdp trdp
+							LEFT OUTER JOIN tb_trdp_cntc_pson ctp ON ctp.trdp_cd = trdp.trdp_cd
+							AND ctp.rep_flg = 'Y'
+							AND ctp.delt_flg = 'N'
+							JOIN tb_inv inv ON inv.trdp_cd = trdp.trdp_cd
+							AND inv.delt_flg = 'N'
+							AND(
+								1 = 2
+								OR inv.sell_buy_tp_cd = 'D'
+								OR (
+									inv.sell_buy_tp_cd = 'S'
+									AND inv.air_sea_clss_cd != 'G'
+								)
+								OR inv.sell_buy_tp_cd = 'C'
+								OR (
+									inv.sell_buy_tp_cd = 'B'
+									AND inv.air_sea_clss_cd != 'G'
+								)
+								OR (
+									inv.sell_buy_tp_cd = 'B'
+									AND inv.air_sea_clss_cd = 'G'
+								)
+								OR (
+									inv.sell_buy_tp_cd = 'S'
+									AND inv.air_sea_clss_cd = 'G'
+								)
+							)
+							AND(
+								1 = 2
+								OR inv.inv_dept_cd IN ('SIM', 'SIH')
+								OR inv.inv_dept_cd IN ('SOM', 'SOH')
+								OR inv.inv_dept_cd IN ('OTH')
+								OR inv.inv_dept_cd IN ('AIM', 'AIH')
+								OR inv.inv_dept_cd IN ('AOM', 'AOH')
+								OR inv.inv_dept_cd IN ('GNR')
+								OR inv.inv_dept_cd IN ('WMS')
+							)
+							JOIN tb_inv_dtl idt ON idt.inv_seq = inv.inv_seq
+							AND idt.delt_flg = 'N'
+							LEFT OUTER JOIN (
+								SELECT
+									D.JNR_NO,
+									D.INV_SEQ,
+									SUM(D.pay_amt) AS pay_amt
+								FROM
+									TB_JNR_DTL D,
+									TB_JNR_MST M
+								WHERE
+									D.JNR_NO = M.JNR_NO
+									AND ISNULL(D.DELT_FLG, 'N') = 'N'
+									AND ISNULL(M.DELT_FLG, 'N') = 'N'
+								GROUP BY
+									D.JNR_NO,
+									D.INV_SEQ
+							) JDT ON JDT.INV_SEQ = INV.INV_SEQ
+							LEFT OUTER JOIN TB_JNR_MST JMS ON JMS.JNR_NO = JDT.JNR_NO
+							AND JMS.DELT_FLG = 'N'
+							JOIN tb_frt frt ON frt.inv_seq = inv.inv_seq
+							AND frt.delt_flg = 'N'
+						WHERE
+							1 = 1
+							AND frt.inv_post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+						UNION
+						ALL
+						SELECT
+							trdp.trdp_cd
+							,idt.INV_NO
+							,CASE
+								WHEN ( SELECT OPT_VAL FROM TB_SYS_OPT WHERE OPT_KEY = 'BINEX_SHOW_AGING_REPORT' ) = 'Y'
+								THEN
+									CASE
+										WHEN frt.sell_buy_tp_cd = 'C' THEN frt.cr_amt * -1
+										ELSE frt.inv_sum_amt
+									END
+								ELSE 0
+							END AS inv_sum_amt
+							,inv.sell_buy_tp_cd
+							,CASE
+								WHEN jms.post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+								AND NOT (
+									jms.VOID_YN = 'Y'
+									AND jms.VOID_DT <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+								) THEN CASE
+									WHEN inv.sell_buy_tp_cd IN ('C', 'B') THEN jdt.pay_amt * -1
+									ELSE jdt.pay_amt
+								END
+								ELSE 0
+							END AS pay_amt
+							,jdt.jnr_no
+							,idt.inv_dt
+							,jms.post_dt
+							,DATEDIFF(
+								"D",
+								CONVERT(DATETIME, idt.inv_due_dt),
+								CONVERT(DATETIME, CONVERT(VARCHAR, getDate(), 112))
+							) AS over_dt
+							,inv_aply_curr_cd
+							,(
+								select
+									OPT_VAL
+								from
+									TB_SYS_OPT
+								where
+									OPT_KEY = 'TP_OVER_AMT_FLG'
+							) AS option_curr
+						FROM
+							tb_trdp trdp
+							LEFT OUTER JOIN tb_trdp_cntc_pson ctp ON ctp.trdp_cd = trdp.trdp_cd
+							AND ctp.rep_flg = 'Y'
+							AND ctp.delt_flg = 'N'
+							JOIN tb_inv inv ON inv.trdp_cd = trdp.trdp_cd
+							AND inv.delt_flg = 'N'
+							AND(
+								1 = 2
+								OR inv.sell_buy_tp_cd = 'D'
+								OR (
+									inv.sell_buy_tp_cd = 'S'
+									AND inv.air_sea_clss_cd != 'G'
+								)
+								OR inv.sell_buy_tp_cd = 'C'
+								OR (
+									inv.sell_buy_tp_cd = 'B'
+									AND inv.air_sea_clss_cd != 'G'
+								)
+								OR (
+									inv.sell_buy_tp_cd = 'B'
+									AND inv.air_sea_clss_cd = 'G'
+								)
+								OR (
+									inv.sell_buy_tp_cd = 'S'
+									AND inv.air_sea_clss_cd = 'G'
+								)
+							)
+							AND(
+								1 = 2
+								OR inv.inv_dept_cd IN ('SIM', 'SIH')
+								OR inv.inv_dept_cd IN ('SOM', 'SOH')
+								OR inv.inv_dept_cd IN ('OTH')
+								OR inv.inv_dept_cd IN ('AIM', 'AIH')
+								OR inv.inv_dept_cd IN ('AOM', 'AOH')
+								OR inv.inv_dept_cd IN ('GNR')
+								OR inv.inv_dept_cd IN ('WMS')
+							)
+							JOIN tb_inv_dtl idt ON idt.inv_seq = inv.inv_seq
+							AND ISNULL(idt.delt_flg, 'N') = 'N'
+							JOIN (
+								SELECT
+									JNR_NO,
+									INV_SEQ,
+									SUM(pay_amt) AS pay_amt
+								FROM
+									tb_jnr_dtl
+								WHERE
+									ISNULL(delt_flg, 'N') = 'N'
+								GROUP BY
+									JNR_NO,
+									INV_SEQ
+							) jdt ON jdt.inv_seq = inv.inv_seq
+							JOIN tb_jnr_mst jms ON jms.jnr_no = jdt.jnr_no
+							JOIN tb_frt frt ON frt.inv_seq = inv.inv_seq
+							AND frt.delt_flg = 'N'
+						WHERE
+							1 = 1
+							AND frt.inv_post_dt <![CDATA[ > ]]> CONVERT(VARCHAR, getDate(), 112)
+							AND jms.post_dt <![CDATA[ <= ]]> CONVERT(VARCHAR, getDate(), 112)
+							AND jms.delt_flg = 'N'
+					) dtl
+					/* DD EX RT INV */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT DD_EX_RT_INV WITH(NOLOCK) ON DD_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_EX_RT_INV.DELT_FLG = 'N'
+				AND DD_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_EX_RT_INV.DT_CLSS_CD = 'D'
+				AND DD_EX_RT_INV.APLY_FM_DT = dtl.inv_dt
+				/* MM EX RT INV */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT MM_EX_RT_INV WITH(NOLOCK) ON MM_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND MM_EX_RT_INV.DELT_FLG = 'N'
+				AND MM_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND MM_EX_RT_INV.DT_CLSS_CD = 'M'
+				AND SUBSTRING(MM_EX_RT_INV.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+				/* DD EX RT JNR */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT DD_EX_RT_JNR WITH(NOLOCK) ON DD_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_EX_RT_JNR.DELT_FLG = 'N'
+				AND DD_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_EX_RT_JNR.DT_CLSS_CD = 'D'
+				AND DD_EX_RT_JNR.APLY_FM_DT = dtl.inv_dt
+				/* MM EX RT JNR */
+				LEFT OUTER JOIN TB_FINC_PERF_XCRT MM_EX_RT_JNR WITH(NOLOCK) ON MM_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND MM_EX_RT_JNR.DELT_FLG = 'N'
+				AND MM_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND MM_EX_RT_JNR.DT_CLSS_CD = 'M'
+				AND SUBSTRING(MM_EX_RT_JNR.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+				/* DD INV EX RT INV */
+				LEFT OUTER JOIN TB_INV_XCRT DD_INV_EX_RT_INV WITH(NOLOCK) ON DD_INV_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_INV_EX_RT_INV.DELT_FLG = 'N'
+				AND DD_INV_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_INV_EX_RT_INV.DT_CLSS_CD = 'D'
+				AND DD_INV_EX_RT_INV.CURR_TP_CD = 'S'
+				AND DD_INV_EX_RT_INV.APLY_FM_DT = dtl.inv_dt
+				/* MM INV EX RT INV */
+				LEFT OUTER JOIN TB_INV_XCRT MM_INV_EX_RT_INV WITH(NOLOCK) ON DD_INV_EX_RT_INV.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_INV_EX_RT_INV.DELT_FLG = 'N'
+				AND DD_INV_EX_RT_INV.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_INV_EX_RT_INV.CURR_TP_CD = 'S'
+				AND DD_INV_EX_RT_INV.DT_CLSS_CD = 'M'
+				AND SUBSTRING(DD_INV_EX_RT_INV.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+				/* DD INV EX RT JNR */
+				LEFT OUTER JOIN TB_INV_XCRT DD_INV_EX_RT_JNR WITH(NOLOCK) ON DD_INV_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND DD_INV_EX_RT_JNR.DELT_FLG = 'N'
+				AND DD_INV_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND DD_INV_EX_RT_JNR.DT_CLSS_CD = 'D'
+				AND DD_INV_EX_RT_JNR.CURR_TP_CD = 'S'
+				AND DD_INV_EX_RT_JNR.APLY_FM_DT = dtl.inv_dt
+				/* MM INV EX RT JNR */
+				LEFT OUTER JOIN TB_INV_XCRT MM_INV_EX_RT_JNR WITH(NOLOCK) ON MM_INV_EX_RT_JNR.FM_CURR_CD = dtl.INV_APLY_CURR_CD
+				AND MM_INV_EX_RT_JNR.DELT_FLG = 'N'
+				AND MM_INV_EX_RT_JNR.TO_CURR_CD = ( select OPT_VAL from TB_SYS_OPT where OPT_KEY = 'TP_OVER_AMT_FLG' )
+				AND MM_INV_EX_RT_JNR.CURR_TP_CD = 'S'
+				AND MM_INV_EX_RT_JNR.DT_CLSS_CD = 'M'
+				AND SUBSTRING(MM_INV_EX_RT_JNR.APLY_FM_DT, 1, 6) = SUBSTRING(dtl.inv_dt, 1, 6)
+				group by
+					dtl.trdp_cd
+					,dtl.INV_NO
+					,dtl.inv_dt
+					,dtl.post_dt
+					,dtl.over_dt
+					,dtl.sell_buy_tp_cd
+					,dtl.jnr_no
+					,dtl.inv_aply_curr_cd
+					,dd_ex_rt_inv.xch_rt_ut
+					,mm_ex_rt_inv.xch_rt_ut
+					,dd_inv_ex_rt_inv.xch_rt_ut
+					,mm_inv_ex_rt_inv.xch_rt_ut
+					,dtl.option_curr
+				) disp
+			GROUP BY
+				disp.trdp_cd
+				,disp.INV_NO
+				,disp.inv_sum_amt
+				,disp.inv_dt
+				,disp.over_dt
+			) summ
+		GROUP BY
+			summ.trdp_cd
+		HAVING
+			SUM(summ.inv_sum_amt) != 0
+		)  -->
+	    SELECT a1.*,
+	    0 as overdue_total
+	    FROM (
+	   	 SELECT  ROW_NUMBER() OVER (ORDER BY  a.trdp_cd) as ROWNUM,
+				<dynamic>
+	        	<isNotEmpty property="o_eng_name">
+					 CASE WHEN CHARINDEX(#o_eng_name#,a.eng_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_name#,a.eng_nm) END  o_eng_nm,
+					 CASE WHEN CHARINDEX(#o_eng_name#,a.locl_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_name#,a.locl_nm) END  o_locl_nm,
+					 CASE WHEN CHARINDEX(#o_eng_name#,a.shrt_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_name#,a.shrt_nm) END o_shrt_nm,
+		</isNotEmpty>
+	 </dynamic>
+	a.trdp_cd, a.eng_addr, a.cnt_cd, a.locl_nm, cnt.cnt_eng_nm AS cnt_nm,
+	a.shrt_nm,
+	a.acct_cd, a.full_nm, a.trdp_tp_cd, a.rmk AS cmp_rmk, a.eng_nm,
+	b.pic_nm, b.pic_phn, b.pic_mphn, b.pic_fax, b.pic_eml, b.pic_desc,
+	a.rep_zip, a.sls_gp_cd, isnull(a.crd_lmt_amt,0) as crd_lmt_amt,
+	<!-- #660 - [BINEX] CURRENT BALANCE, OVER LIMIT LOGIC (2017.01.12) -->
+	<!-- a.cur_lmt_amt, -->
+	a.lgl_addr, a.tax_iss_addr,
+	a.cr_term_cd, a.cr_term_dt, a.city_nm, a.state_cd, a.prefix, a.iata_cd,
+	a.biz_no,
+	a.cmdt_cd,
+	a.tp_grp,
+	a.sls_usrid,
+	d.locl_usr_nm AS sls_usrnm,
+	(SELECT cmdt_nm FROM tb_cmdt_cd WHERE cmdt_cd = a.cmdt_cd AND HS_GRP_CD IN ('SB','HS') AND delt_flg = 'N' ) AS cmdt_nm,
+	case when ISNULL(a.city_nm , '') = '' then ISNULL(a.lgl_addr, '')
+	else ISNULL(a.lgl_addr, '') + char(13)+char(10) + ISNULL(a.city_nm , '')+
+	', ' + ISNULL(c.state_cd, '') + ' ' + ISNULL(a.rep_zip, '')
+	end AS trdp_addr,
+	ISNULL(a.tax_iss_addr, '') AS trdp_addr2,
+	a.tax_type,
+	a.RESERVE_FIELD09,
+	a.PROFIT_SHARE,
+	ISNULL(INV.CUR_LMT_AMT,0) AS CUR_LMT_AMT,
+	ISNULL(INV.OVER_DUE,0) AS OVER_DUE,
+	ISNULL(INV.OVER_LIMIT,0) - ISNULL(a.CRD_LMT_AMT, 0) AS OVER_LIMIT,
+	ISNULL(INV.GRAND_TOTAL,0) AS GRAND_TOTAL
+	<!-- (SELECT SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT),
+	CONVERT(DATETIME,GETDATE())) > 0
+	THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+	THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT 	END) ELSE 0
+	END) AS OVER_DUE
+	FROM TB_TRDP TRDP
+	JOIN TB_INV INV
+	ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+	JOIN TB_INV_DTL IDT
+	ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+	AND (IDT.INV_DT <= GETDATE())
+	AND IDT.INV_APLY_CURR_CD = 'USD'
+	WHERE 1=1
+	AND TRDP.TRDP_CD = a.trdp_cd ) AS OVER_DUE
+	,(SELECT SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE()))  < 1
+    THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+    THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END) ELSE 0 END) - MAX(ISNULL(TRDP.CRD_LMT_AMT, 0))  AS OVER_LIMIT
+	FROM TB_TRDP TRDP
+	JOIN TB_INV INV
+	ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+	JOIN TB_INV_DTL IDT
+	ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+	AND (IDT.INV_DT <= GETDATE())
+	AND IDT.INV_APLY_CURR_CD = 'USD'
+	WHERE 1=1
+	AND TRDP.TRDP_CD = a.trdp_cd) AS OVER_LIMIT
+	,(SELECT SUM(IDT.BAL_AMT)
+	FROM TB_TRDP TRDP
+	JOIN TB_INV INV
+	ON INV.TRDP_CD = TRDP.TRDP_CD AND INV.DELT_FLG = 'N'
+	JOIN TB_INV_DTL IDT
+	ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N'
+	AND (IDT.INV_DT <= GETDATE())
+	AND IDT.INV_APLY_CURR_CD = 'USD'
+	WHERE 1=1
+	AND TRDP.TRDP_CD = a.trdp_cd ) AS GRAND_TOTAL -->
+	,A.AN_BOND_NO
+	<![CDATA[
+	,CASE WHEN LEN( A.AN_BOND_EXP_DT) > 0 THEN  CONVERT(VARCHAR(10),CONVERT(DATETIME, SUBSTRING(ISNULL( A.AN_BOND_EXP_DT, ''), 1, 8)), 110)  ELSE '' END  AN_BOND_EXP_DT
+	]]>
+	,ISNULL(A.LGL_ADDR,'') +
+	 (CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+	  	   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ' ' + A.STATE_CD
+		   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13)+CHAR(10) + A.CITY_NM
+		   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ', ' + A.REP_ZIP
+		   ELSE '' END) AS DFLT_ADDR
+	,CASE WHEN ISNULL(A.OFC_FM_HR, '') = '' THEN '' ELSE SUBSTRING(ISNULL(A.OFC_FM_HR, ''), 1, 2)+':'+SUBSTRING(ISNULL(A.OFC_FM_HR, ''), 2, 2) END  AS OFC_FM_HR
+	,CASE WHEN ISNULL(A.OFC_TO_HR, '') = '' THEN '' ELSE SUBSTRING(ISNULL(A.OFC_TO_HR, ''), 1, 2)+':'+SUBSTRING(ISNULL(A.OFC_TO_HR, ''), 2, 2) END  AS OFC_TO_HR
+	FROM tb_trdp a with(nolock)
+	LEFT OUTER JOIN tb_cnt cnt with(nolock) ON a.cnt_cd = cnt.cnt_cd AND cnt.delt_flg = 'N'
+	LEFT OUTER JOIN tb_trdp_cntc_pson b with(nolock) ON a.trdp_cd=b.trdp_cd AND b.rep_flg = 'Y' AND b.delt_flg = 'N'
+	LEFT OUTER JOIN TB_STATE c with(nolock) ON a.STATE_CD = c.STATE_CD AND a.CNT_CD = c.CNT_CD AND c.use_flg = 'Y'
+	LEFT OUTER JOIN tb_usr d with(nolock) ON d.usr_tp = 'I' AND a.sls_usrid = d.usrid
+	LEFT OUTER JOIN (SELECT INV.TRDP_CD,
+				 SUM(CASE WHEN INV.SELL_BUY_TP_CD IN ('S','D','C') THEN CASE WHEN INV.SELL_BUY_TP_CD = 'C' THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END ELSE 0 END) AS CUR_LMT_AMT,
+						    SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT),CONVERT(DATETIME,GETDATE())) <![CDATA[ > ]]> 0
+								     THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+											    THEN IDT.BAL_AMT * -1
+											    ELSE IDT.BAL_AMT
+										   END)
+							 	     ELSE 0
+								END) AS OVER_DUE,
+						    SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE())) <![CDATA[ < ]]> 1
+								     THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+											    THEN IDT.BAL_AMT * -1
+											    ELSE IDT.BAL_AMT
+										   END)
+								     ELSE 0 END) AS OVER_LIMIT,
+						    SUM(IDT.BAL_AMT) AS GRAND_TOTAL
+					 FROM TB_INV INV with(nolock)
+					 JOIN TB_INV_DTL IDT with(nolock) ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N' AND (IDT.INV_DT <![CDATA[ <= ]]> GETDATE()) AND IDT.INV_APLY_CURR_CD = 'USD'
+					 WHERE 1 = 1
+					 AND INV.DELT_FLG = 'N'
+					 GROUP BY INV.TRDP_CD) INV ON A.TRDP_CD = INV.TRDP_CD
+	WHERE a.delt_flg = 'N'
+		<dynamic prepend="AND">
+		<!-- jsjang 2013.8.6 #18801 trade partner 조회조건 변경
+			<isNotNull prepend="AND" property="s_tp_name">
+				a.locl_nm LIKE #s_tp_name#
+			</isNotNull>]
+		-->
+		<!-- #308 [Impex] T/P CODE SEARCH -->
+			<isNotEmpty prepend="AND" property="s_tp_code">
+				a.trdp_cd LIKE #s_tp_code#
+			</isNotEmpty>
+
+			<isNotNull prepend="AND" property="s_eng_name">
+				( a.shrt_nm LIKE #s_eng_name# or a.eng_nm LIKE #s_eng_name# or a.locl_nm LIKE #s_eng_name# )
+			</isNotNull>
+			<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+			<isNotNull prepend="AND" property="s_tp_name">
+				a.locl_nm LIKE #s_tp_name#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_short_name">
+				a.shrt_nm LIKE #s_short_name#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_trdp_tp_cd">
+				a.trdp_tp_cd = #s_trdp_tp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_iata_cd">
+				isnull(a.iata_cd, '') != ''  and a.trdp_tp_cd != 'AC'
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_iata_nm">
+				a.iata_cd = #s_iata_nm#
+			</isNotNull>
+			<isEqual prepend="AND" property="s_default_maincmp_yn" compareValue="Y">
+				a.trdp_cd not like '%DEFAULT' and a.trdp_cd not like '%MAINCMP'
+			</isEqual>
+			<isNotNull prepend="AND" property="s_tp_grp">
+				a.tp_grp like '%'+#s_tp_grp#+'%'
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_pic_phn">
+	 (REPLACE(b.pic_phn, '-', '') LIKE REPLACE(#s_pic_phn#, '-', '')
+	 OR REPLACE(b.pic_mphn, '-', '') LIKE REPLACE(#s_pic_phn#, '-', ''))
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_city_nm">
+	 a.city_nm LIKE #s_city_nm#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_cnt_cd">
+	 a.cnt_cd = #s_cnt_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_state_cd">
+	 a.state_cd = #s_state_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_sls_usrid">
+	 a.sls_usrid = #s_sls_usrid#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_sls_usrnm">
+	 d.locl_usr_nm LIKE #s_sls_usrnm#
+			</isNotNull>
+		</dynamic>
+		 ) a1
+		 <!-- left outer join overdue ovd on ovd.TRDP_CD = a1.TRDP_CD  -->
+
+<![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]>
+
+		<dynamic>
+	    <isNotEmpty property="o_eng_name">
+		order by o_shrt_nm, o_eng_nm, o_locl_nm
+		</isNotEmpty>
+		</dynamic>
+	OPTION(MAXDOP 1)
+	</select>
+
+	<!-- Trade PartnerList pop select    -->
+	<!-- #3344 [IMPEX] AE HAWB LIST, TRADE PARTNER SEARCH POP UP SPEED -->
+    <select id="selectPOP_TRDP_CNT" resultClass="Integer">
+         SELECT  count(*)
+FROM  tb_trdp a with(nolock)
+LEFT OUTER JOIN tb_trdp_cntc_pson b with(nolock)
+			ON  a.trdp_cd=b.trdp_cd
+			AND b.rep_flg = 'Y'
+			AND b.delt_flg = 'N'
+		   LEFT OUTER JOIN tb_usr d with(nolock)
+    		ON d.usr_tp = 'I' AND a.sls_usrid = d.usrid
+          WHERE  a.delt_flg = 'N'
+		<dynamic prepend="AND">
+		<!-- jsjang 2013.8.6 #18801 trade partner 조회조건 변경
+			<isNotNull prepend="AND" property="s_tp_name">
+				a.locl_nm LIKE #s_tp_name#
+			</isNotNull>
+		-->
+		<!-- #308 [Impex] T/P CODE SEARCH -->
+			<isNotEmpty prepend="AND" property="s_tp_code">
+				a.trdp_cd LIKE #s_tp_code#
+			</isNotEmpty>
+
+			<isNotNull prepend="AND" property="s_eng_name">
+				( a.shrt_nm LIKE #s_eng_name# or a.eng_nm LIKE #s_eng_name# or a.locl_nm LIKE #s_eng_name# )
+			</isNotNull>
+			<!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+			<isNotNull prepend="AND" property="s_tp_name">
+				a.locl_nm LIKE #s_tp_name#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_short_name">
+				a.shrt_nm LIKE #s_short_name#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_trdp_tp_cd">
+				a.trdp_tp_cd = #s_trdp_tp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_iata_cd">
+				isnull(a.iata_cd, '') != ''  and a.trdp_tp_cd != 'AC'
+			</isNotNull>
+			<isEqual prepend="AND" property="s_default_maincmp_yn" compareValue="Y">
+				a.trdp_cd not like '%DEFAULT' and a.trdp_cd not like '%MAINCMP'
+			</isEqual>
+			<isNotNull prepend="AND" property="s_tp_grp">
+				a.tp_grp like '%'+#s_tp_grp#+'%'
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_city_nm">
+	 a.city_nm LIKE #s_city_nm#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_pic_phn">
+	 (REPLACE(b.pic_phn, '-', '') LIKE REPLACE(#s_pic_phn#, '-', '')
+	  OR REPLACE(b.pic_mphn, '-', '') LIKE REPLACE(#s_pic_phn#, '-', ''))
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_city_nm">
+	 a.city_nm LIKE #s_city_nm#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_cnt_cd">
+	 a.cnt_cd = #s_cnt_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_state_cd">
+	 a.state_cd = #s_state_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_sls_usrid">
+	 a.sls_usrid = #s_sls_usrid#
+			</isNotNull>
+			<isNotNull prepend="AND" property="s_sls_usrnm">
+	 d.locl_usr_nm LIKE #s_sls_usrnm#
+			</isNotNull>
+		</dynamic>
+	</select>
+
+
+
+	<!-- Contact Info. List조회   -->
+    <select id="selectMDM_MCM_0071_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+        SELECT a.trdp_cd, a.cntc_seq,
+		       (
+				SELECT b.pic_nm
+				FROM tb_trdp_cntc_pson b
+				WHERE a.sls_pson_pic = b.cntc_pson_seq
+				AND b.delt_flg = 'N'
+				AND b.trdp_cd = #trdp_cd#
+			   ) AS sls_pson_pic,
+		       a.sls_his_tit,     a.sls_his_flat_url,     a.sls_his_flat_nm,
+		       a.sls_his_ctnt,
+		       a.rgst_usrid,      a.rgst_ofc_cd,          a.rgst_tms,
+		       a.modi_usrid,      a.modi_ofc_cd,          a.modi_tms,a.delt_flg,   'sheet1' AS sheet1
+		 FROM  tb_trdp_cntc a
+	    WHERE  delt_flg = 'N'
+		  AND  a.trdp_cd = #trdp_cd#
+		<isNotNull prepend="AND" property="cntc_seq">
+			a.cntc_seq = #cntc_seq#
+		</isNotNull>
+		ORDER BY  cntc_seq DESC
+    </select>
+
+    <!-- Contact Info. List건수 조회   -->
+    <select id="selectMDM_MCM_0071_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT  count(trdp_cd)
+		  FROM  tb_trdp_cntc
+		 WHERE  delt_flg = 'N'
+		   AND  trdp_cd  = #trdp_cd#
+    </select>
+
+    <select id="selectMDM_MCM_0071_PK" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT  ISNULL(max(cntc_seq)+1, 1)
+		  FROM  tb_trdp_cntc
+		 WHERE  trdp_cd = #trdp_cd#
+    </select>
+
+    <insert id="insertMDM_MCM_0071" parameterClass="java.util.HashMap">
+    	INSERT INTO tb_trdp_cntc (
+		  trdp_cd,cntc_seq,          sls_pson_pic,   sls_his_tit,
+		  sls_his_flat_url,  sls_his_flat_nm,   sls_his_ctnt,
+		  rgst_usrid,        rgst_ofc_cd,       rgst_tms,
+          modi_usrid,        modi_ofc_cd,       modi_tms,       delt_flg
+		) VALUES (
+		  #trdp_cd#,         #cntc_seq#,        #sls_pson_pic#, #sls_his_tit#,
+		  #sls_his_flat_url#,#sls_his_flat_nm#, #sls_his_ctnt#,
+		  #rgst_usrid#,      #rgst_ofc_cd#,     getdate(),
+		  #modi_usrid#,      #modi_ofc_cd#,     GETUTCDATE(),          'N'
+		)
+    </insert>
+
+    <update id="updateMDM_MCM_0071" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcVO">
+    	UPDATE  tb_trdp_cntc
+		   SET  sls_pson_pic     = #sls_pson_pic#,      sls_his_tit     = #sls_his_tit#,
+		        sls_his_flat_url = #sls_his_flat_url#,  sls_his_flat_nm = #sls_his_flat_nm#,
+		        sls_his_ctnt     = #sls_his_ctnt#,      modi_usrid      = #modi_usrid#,
+		        modi_ofc_cd      = #modi_ofc_cd#,       modi_tms = GETUTCDATE(),        delt_flg = #delt_flg#
+		 WHERE  trdp_cd = #trdp_cd# AND cntc_seq = #cntc_seq#
+    </update>
+
+    <!-- Trade Partner 계좌정보 조회  -->
+    <select id="selectMDM_MCM_0073_Account_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+        SELECT trdp_cd,     acct_no,      acct_dpsr_nm,
+		       bank_cd,     acct_desc,
+		       rgst_usrid,  rgst_ofc_cd,  rgst_tms,
+		       modi_usrid,  modi_ofc_cd,  modi_tms,      delt_flg,
+		       'sheet3' AS sheet3
+		 FROM  tb_trdp_acct
+		WHERE  delt_flg = 'N'
+		  AND  trdp_cd = #trdp_cd#
+	 ORDER BY  bank_cd ASC
+    </select>
+
+    <!-- Trade Partner 계좌정보 전체건수 조회  -->
+    <select id="selectMDM_MCM_0073_Account_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT count(trdp_cd)
+		  FROM tb_trdp_acct
+		 WHERE delt_flg = 'N'
+		   AND trdp_cd = #trdp_cd#
+    </select>
+
+    <!-- Trade Partner 계좌정보 등록  -->
+    <insert id="insertMDM_MCM_0073_Account" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	INSERT INTO tb_trdp_acct(
+      		trdp_cd,     acct_no,       acct_dpsr_nm,
+		    acct_desc,   bank_cd,
+		    rgst_usrid,  rgst_ofc_cd,   rgst_tms,
+		    modi_usrid,  modi_ofc_cd,   modi_tms,        delt_flg
+		) VALUES (
+		   #trdp_cd#,    #acct_no#,     #acct_dpsr_nm#,
+		   #acct_desc#,  #bank_cd#,
+		   #rgst_usrid#, #rgst_ofc_cd#, getdate(),
+		   #modi_usrid#, #modi_ofc_cd#, GETUTCDATE(),          'N'
+		)
+    </insert>
+
+	<!-- Trade Partner 계좌정보 수정  -->
+    <update id="updateMDM_MCM_0073_Account" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+    	UPDATE tb_trdp_acct
+		   SET acct_dpsr_nm = #acct_dpsr_nm#,  acct_desc =   #acct_desc#,
+		       bank_cd =      #bank_cd#,
+		       modi_usrid =   #modi_usrid#,    modi_ofc_cd = #modi_ofc_cd#,    modi_tms = GETUTCDATE(),
+		       delt_flg = #delt_flg#
+		 WHERE trdp_cd =  #trdp_cd#
+		   AND acct_no =  #acct_no#
+    </update>
+
+    <!-- Trade Partner Account Info Search    -->
+    <select id="selectMDM_MCM_0073_Contact_Person_LIST" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+        SELECT trdp_cd
+			, cntc_pson_seq
+			, pic_nm
+			, trd_div_nm
+			, pic_phn
+			, pic_fax
+			, pic_eml
+			, pic_desc
+			, rep_flg
+			, rgst_usrid
+			, rgst_ofc_cd
+			, rgst_tms
+			, modi_usrid
+			, modi_ofc_cd
+			, modi_tms
+			, delt_flg
+			, 'sheet4' as sheet4
+			FROM tb_trdp_cntc_pson
+		WHERE delt_flg = 'N'
+		AND trdp_cd = #trdp_cd#
+		ORDER BY  cntc_pson_seq ASC
+    </select>
+    <!-- Trade Partner Contact Info Count    -->
+    <select id="selectMDM_MCM_0073_Contact_Person_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+        SELECT count(trdp_cd)
+		FROM tb_trdp_cntc_pson
+		WHERE delt_flg = 'N'
+		AND trdp_cd = #trdp_cd#
+    </select>
+
+    <select id="selectMDM_MCM_0073_Contact_Person_PK" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT ISNULL(max(cntc_pson_seq)+1, 1)
+		  FROM tb_trdp_cntc_pson
+		 WHERE trdp_cd = #trdp_cd#
+    </select>
+
+    <insert id="insertMDM_MCM_0073_Contact_Person" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	INSERT INTO tb_trdp_cntc_pson (
+      		trdp_cd,       cntc_pson_seq,
+		    pic_nm,        trd_div_nm,
+		    pic_phn,       pic_fax,         pic_eml,
+		    pic_desc,      rep_flg,
+		    rgst_usrid,    rgst_ofc_cd,     rgst_tms,
+		    modi_usrid,    modi_ofc_cd,     modi_tms, delt_flg
+		) VALUES (
+			#trdp_cd#,     #cntc_pson_seq#,
+		    #pic_nm#,      #trd_div_nm#,
+		    #pic_phn#,     #pic_fax#,        #pic_eml#,
+		    #pic_desc#,    #rep_flg#,
+		    #rgst_usrid#,  #rgst_ofc_cd#,    getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#,    GETUTCDATE(), 'N'
+		)
+    </insert>
+    <update id="updateMDM_MCM_0073_Contact_Person" parameterClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpCntcPsonVO">
+    	UPDATE tb_trdp_cntc_pson
+		SET pic_nm = #pic_nm#
+			, trd_div_nm = #trd_div_nm#
+			, pic_phn = #pic_phn#
+			, pic_fax = #pic_fax#
+			, pic_eml = #pic_eml#
+			, pic_desc = #pic_desc#
+			, rep_flg = #rep_flg#
+			, modi_usrid = #modi_usrid#
+			, modi_ofc_cd = #modi_ofc_cd#
+			, modi_tms = GETUTCDATE()
+			, delt_flg = #delt_flg#
+		WHERE trdp_cd = #trdp_cd#
+		AND cntc_pson_seq = #cntc_pson_seq#
+    </update>
+    <select id="selectMDM_MCM_0073_ACCOUNT_NO" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.sal.tpm.tradepartner.dto.TrdpAcctVO">
+        SELECT acct_no
+		FROM tb_trdp_acct
+		WHERE acct_no = #s_acct_no#
+    </select>
+
+    <select id="selectMDM_MCM_0070_MAX_SEQ" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT  ISNULL(MAX(CAST(trdp.trdp_cd AS int)), 0) + 1 AS trdp_cd
+		  FROM  tb_trdp trdp
+		 WHERE  trdp.trdp_cd NOT IN ('DEFAULT', 'MAINCMP')
+    </select>
+
+    <!-- Trade Partner CMM_POP_0010 insert    -->
+    <insert id="insertTRDP_INFO_POP" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+        INSERT INTO tb_trdp(
+ trdp_cd,       trdp_tp_cd,    locl_nm,      eng_nm,
+			lgl_addr,      eng_addr,
+			ceo_nm,
+			cnt_cd,
+			biz_no,        bztp_val,      biz_itm_val,  grp_id_cd,
+			sls_ofc_cd,    rmk,
+			shrt_nm,       full_nm,       acct_cd,
+		    rgst_tp_cd,    sls_usrid,
+			curr_tp_cd,    sts_cd,		  sls_gp_cd,	crd_lmt_amt,
+			rgst_usrid,    rgst_ofc_cd,   rgst_tms,
+			modi_usrid,    modi_ofc_cd,   modi_tms,     delt_flg,
+			tax_iss_addr,  cr_term_cd,    cr_term_dt,   corp_no,
+			state_cd,	   city_nm,		  tax_type,		prefix,
+			tp_grp,
+			iata_cd,	   scac_cd,		  bill_to_agent,
+			agt_edi_cd,    agt_edi_msg_tp_cd
+        )VALUES(
+ #trdp_cd#,     #trdp_tp_cd#,  #locl_nm#,     #eng_nm#,
+		    #lgl_addr#,    #eng_addr#,
+		    #ceo_nm#,
+		    #cnt_cd#,
+		    #biz_no#,      #bztp_val#,    #biz_itm_val#, #grp_id_cd#,
+		    #sls_ofc_cd#,  #rmk#,
+		    #shrt_nm#,     #eng_nm#, 	  #acct_cd#,
+		    #rgst_tp_cd#,  #sls_usrid#,
+		    #curr_tp_cd#,  'BU',	  	  'CR',  	    0,
+		    #rgst_usrid#,  #rgst_ofc_cd#, getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#, GETUTCDATE(),    'N',
+		    #tax_iss_addr#,#cr_term_cd#,  #cr_term_dt#, #corp_no#,
+		    #state_cd#,	   #city_nm#,	  #tax_type#,	#prefix#,
+		    #tp_grp#,
+			#iata_cd#,	   #scac_cd#,	  CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END
+		    ,#agt_edi_cd#,    #agt_edi_msg_tp_cd#
+        )
+    </insert>
+
+    <update id="updateTRDP_INFO_POP" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+        UPDATE tb_trdp
+		   SET trdp_tp_cd = #trdp_tp_cd#
+		     , tp_grp = #tp_grp#
+		     , locl_nm = #locl_nm#
+		     , eng_nm = #eng_nm#
+		     , lgl_addr = #lgl_addr#
+			 , cnt_cd = #cnt_cd#
+			 , shrt_nm = #shrt_nm#
+			 , acct_cd = #acct_cd#
+			 , tax_iss_addr = #tax_iss_addr#
+			 , iata_cd = #iata_cd#
+			 , eng_addr = #eng_addr#
+			 , agt_edi_cd = #agt_edi_cd#
+			 , agt_edi_msg_tp_cd = #agt_edi_msg_tp_cd#
+         WHERE trdp_cd = #trdp_cd#
+    </update>
+
+	<!-- OFVFOUR-7767: [PQC][OEH B/L Entry] The phone number on 'To' field on Shipping Advice show wrong in case user checked from record 2 at Contract Person -->
+	<!-- OFVFOUR-7890:[URGENT][JH Logistics] Authority To Make Entry - 180-31421854 -->
+	<update id="updateTRDP_INFO_POP_PIC" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+		UPDATE tb_trdp_cntc_pson
+		   SET rep_flg = CASE
+							WHEN (cntc_pson_seq = (SELECT MIN(b.cntc_pson_seq)
+												 FROM tb_trdp_cntc_pson b
+												 WHERE  b.delt_flg = 'N' AND
+														b.pic_nm = #pic_nm# AND
+														b.pic_phn = #pic_phn# AND
+														b.pic_fax = #pic_fax#)) then 'Y'
+		   					ELSE 'N'
+		   					END
+		   	WHERE trdp_cd = #trdp_cd#
+	</update>
+
+    <!-- Other Operation Code    -->
+    <select id="selectOtherOperCodeList" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.OthCdVO">
+		SELECT	oth_tp,				rmk,				oth_prfx,
+				oth_no,				use_flg
+		  FROM	tb_oth_cd
+		ORDER BY oth_tp ASC
+	</select>
+
+    <!-- Get Max Other Operation Code    -->
+    <select id="getMaxOtherOperCodeNo" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.OthCdVO" resultClass="String">
+		SELECT	isnull(max(oth_no), 0) as oth_no
+		FROM	tb_oth_cd
+		WHERE	1 = 1
+		AND		oth_tp = #oth_tp#
+	</select>
+
+	<insert id="insertOtherOperCode" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.OthCdVO">
+		INSERT INTO tb_oth_cd (
+			oth_tp,				rmk,				oth_prfx,
+			oth_no,				use_flg,
+			rgst_usrid,			rgst_ofc_cd,		rgst_tms,
+			modi_usrid,			modi_ofc_cd,		modi_tms
+		) VALUES (
+			#oth_tp#,			#rmk#,				#oth_prfx#,
+			#oth_no#,			#use_flg#,
+			#rgst_usrid#,		#rgst_ofc_cd#,		getdate(),
+			#modi_usrid#,		#modi_ofc_cd#,		GETUTCDATE()
+		)
+	</insert>
+
+	<update id="updateOtherOperCode" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.OthCdVO">
+		UPDATE	tb_oth_cd
+		   SET	rmk = #rmk#,					oth_prfx = #oth_prfx#,
+		   		oth_no = #oth_no#,				use_flg = #use_flg#,
+		   		modi_usrid = #modi_usrid#,		modi_ofc_cd = #modi_ofc_cd#,
+		   		modi_tms = GETUTCDATE()
+		 WHERE	oth_tp = #oth_tp#
+	</update>
+
+	<select id="selectAcctCdList" resultClass="String">
+		SELECT	acct_cd
+		  FROM	tb_trdp
+		 WHERE	delt_flg = 'N'
+		   AND	isnull(acct_cd,'') != ''
+		GROUP BY acct_cd
+		ORDER BY acct_cd
+	</select>
+
+	<!-- Trade ContactPersonList pop select    -->
+    <select id="selectPOP_TRDP_CNTC_PSON_LIST" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+		SELECT	TOP $topCnt$
+				trdp.trdp_cd,			trdp.shrt_nm,			trdp.eng_nm,
+				ctp.pic_nm,				ctp.pic_eml, 		ctp.pic_fax,
+				<!-- OFVFOUR-7137 [JAPT] Add Remark Column when sending mail Arrival Notice -->
+				ctp.pic_desc
+
+		  FROM	tb_trdp trdp
+
+		  JOIN  tb_trdp_cntc_pson ctp
+			ON	ctp.trdp_cd = trdp.trdp_cd AND ctp.delt_flg = 'N'
+
+		 WHERE	trdp.delt_flg = 'N'
+
+		<isNotNull property="s_short_name">
+			AND trdp.shrt_nm LIKE '%'+#s_short_name#+'%'
+		</isNotNull>
+		<isNotNull property="s_eng_name">
+			AND trdp.eng_nm LIKE '%'+#s_eng_name#+'%'
+		</isNotNull>
+		<isNotNull property="s_pic_name">
+			AND ctp.pic_nm LIKE '%'+#s_pic_name#+'%'
+		</isNotNull>
+	</select>
+
+	<!-- Trade ContactPersonList pop select    -->
+    <select id="selectPOP_TRDP_CNTC_PSON_CNT" resultClass="Integer">
+         SELECT	COUNT(*)
+
+		  FROM	tb_trdp trdp
+
+		  JOIN  tb_trdp_cntc_pson ctp
+			ON	ctp.trdp_cd = trdp.trdp_cd AND ctp.delt_flg = 'N'
+
+		 WHERE	trdp.delt_flg = 'N'
+
+		<isNotNull property="s_short_name">
+			AND trdp.shrt_nm LIKE '%'+#s_short_name#+'%'
+		</isNotNull>
+		<isNotNull property="s_eng_name">
+			AND trdp.eng_nm LIKE '%'+#s_eng_name#+'%'
+		</isNotNull>
+		<isNotNull property="s_pic_name">
+			AND ctp.pic_nm LIKE '%'+#s_pic_name#+'%'
+		</isNotNull>
+	</select>
+
+
+	<insert id="insertInterfaceTRDP_INFO_JP" parameterClass="java.util.HashMap">
+        INSERT INTO [fwdaif-JP].dbo.tb_trdp(
+ trdp_cd,       trdp_tp_cd,    locl_nm,      eng_nm,
+			lgl_addr,      eng_addr,
+			ceo_nm,        url,
+			cnt_cd,        curr_cd,
+			biz_no,        bztp_val,      biz_itm_val,  grp_id_cd,
+			rep_phn,       rep_fax,       rep_zip,
+			rep_eml,       sls_ofc_cd,    rmk,
+			shrt_nm,       full_nm,       acct_cd,
+		    rgst_tp_cd,    sls_usrid,
+			curr_tp_cd,    sts_cd,		  sls_gp_cd,	crd_lmt_amt,
+			rgst_usrid,    rgst_ofc_cd,   rgst_tms,
+			modi_usrid,    modi_ofc_cd,   modi_tms,     delt_flg,
+			tax_iss_addr,  cr_term_cd,    cr_term_dt,   corp_no,
+			state_cd,	   city_nm,		  tax_type,		prefix,
+			iata_cd,	   scac_cd,		  bill_to_agent
+			, reserve_field01
+			, reserve_field02
+			, reserve_field03
+			, reserve_field04
+			, reserve_field05
+			, reserve_field06
+			, reserve_field07
+			, reserve_field08
+			, reserve_field09
+			, reserve_field10
+        )VALUES(
+ #i_trdp_cd#,   #trdp_tp_cd#,  #locl_nm#,     #eng_nm#,
+		    #lgl_addr#,    #eng_addr#,
+		    #ceo_nm#,      #url#,
+		    #cnt_cd#,      #curr_cd#,
+		    #biz_no#,      #bztp_val#,    #biz_itm_val#, #grp_id_cd#,
+		    #rep_phn#,     #rep_fax#,     #rep_zip#,
+		    #rep_eml#,     #sls_ofc_cd#,  #rmk#,
+		    #shrt_nm#,     #eng_nm#, 	  #acct_cd#,
+		    #rgst_tp_cd#,  #sls_usrid#,
+		    #curr_tp_cd#,  #s_sts_cd#,	  #s_sls_gp_cd#, #s_crd_lmt_amt#,
+		    #rgst_usrid#,  #rgst_ofc_cd#, getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#, GETUTCDATE(), #delt_flg#,
+		    #tax_iss_addr#, #cr_term_cd#, #cr_term_dt#, #corp_no#,
+		    #state_cd#,	   #city_nm#,	  #tax_type#,	#prefix#,
+			#iata_cd#,	   #scac_cd#,	  CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END
+			, #reserve_field01#
+			, #reserve_field02#
+			, #reserve_field03#
+			, #reserve_field04#
+			, #reserve_field05#
+			, #reserve_field06#
+			, #reserve_field07#
+			, #reserve_field08#
+			, #reserve_field09#
+			, #reserve_field10#
+        )
+    </insert>
+
+    <insert id="insertInterfaceTRDP_INFO_IT" parameterClass="java.util.HashMap">
+        INSERT INTO [fwdaif-IT].dbo.tb_trdp(
+ trdp_cd,       trdp_tp_cd,    locl_nm,      eng_nm,
+			lgl_addr,      eng_addr,
+			ceo_nm,        url,
+			cnt_cd,        curr_cd,
+			biz_no,        bztp_val,      biz_itm_val,  grp_id_cd,
+			rep_phn,       rep_fax,       rep_zip,
+			rep_eml,       sls_ofc_cd,    rmk,
+			shrt_nm,       full_nm,       acct_cd,
+		    rgst_tp_cd,    sls_usrid,
+			curr_tp_cd,    sts_cd,		  sls_gp_cd,	crd_lmt_amt,
+			rgst_usrid,    rgst_ofc_cd,   rgst_tms,
+			modi_usrid,    modi_ofc_cd,   modi_tms,     delt_flg,
+			tax_iss_addr,  cr_term_cd,    cr_term_dt,   corp_no,
+			state_cd,	   city_nm,		  tax_type,		prefix,
+			iata_cd,	   scac_cd,		  bill_to_agent
+			, reserve_field01
+			, reserve_field02
+			, reserve_field03
+			, reserve_field04
+			, reserve_field05
+			, reserve_field06
+			, reserve_field07
+			, reserve_field08
+			, reserve_field09
+			, reserve_field10
+        )VALUES(
+ #i_trdp_cd#,   #trdp_tp_cd#,  #locl_nm#,     #eng_nm#,
+		    #lgl_addr#,    #eng_addr#,
+		    #ceo_nm#,      #url#,
+		    #cnt_cd#,      #curr_cd#,
+		    #biz_no#,      #bztp_val#,    #biz_itm_val#, #grp_id_cd#,
+		    #rep_phn#,     #rep_fax#,     #rep_zip#,
+		    #rep_eml#,     #sls_ofc_cd#,  #rmk#,
+		    #shrt_nm#,     #eng_nm#, 	  #acct_cd#,
+		    #rgst_tp_cd#,  #sls_usrid#,
+		    #curr_tp_cd#,  #s_sts_cd#,	  #s_sls_gp_cd#, #s_crd_lmt_amt#,
+		    #rgst_usrid#,  #rgst_ofc_cd#, getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#, GETUTCDATE(), #delt_flg#,
+		    #tax_iss_addr#, #cr_term_cd#, #cr_term_dt#, #corp_no#,
+		    #state_cd#,	   #city_nm#,	  #tax_type#,	#prefix#,
+			#iata_cd#,	   #scac_cd#,	  CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END
+			, #reserve_field01#
+			, #reserve_field02#
+			, #reserve_field03#
+			, #reserve_field04#
+			, #reserve_field05#
+			, #reserve_field06#
+			, #reserve_field07#
+			, #reserve_field08#
+			, #reserve_field09#
+			, #reserve_field10#
+        )
+    </insert>
+
+    <insert id="insertInterfaceTRDP_INFO_FR" parameterClass="java.util.HashMap">
+        INSERT INTO [fwdaif-FR].dbo.tb_trdp(
+ trdp_cd,       trdp_tp_cd,    locl_nm,      eng_nm,
+			lgl_addr,      eng_addr,
+			ceo_nm,        url,
+			cnt_cd,        curr_cd,
+			biz_no,        bztp_val,      biz_itm_val,  grp_id_cd,
+			rep_phn,       rep_fax,       rep_zip,
+			rep_eml,       sls_ofc_cd,    rmk,
+			shrt_nm,       full_nm,       acct_cd,
+		    rgst_tp_cd,    sls_usrid,
+			curr_tp_cd,    sts_cd,		  sls_gp_cd,	crd_lmt_amt,
+			rgst_usrid,    rgst_ofc_cd,   rgst_tms,
+			modi_usrid,    modi_ofc_cd,   modi_tms,     delt_flg,
+			tax_iss_addr,  cr_term_cd,    cr_term_dt,   corp_no,
+			state_cd,	   city_nm,		  tax_type,		prefix,
+			iata_cd,	   scac_cd,		  bill_to_agent
+			, reserve_field01
+			, reserve_field02
+			, reserve_field03
+			, reserve_field04
+			, reserve_field05
+			, reserve_field06
+			, reserve_field07
+			, reserve_field08
+			, reserve_field09
+			, reserve_field10
+        )VALUES(
+ #i_trdp_cd#,   #trdp_tp_cd#,  #locl_nm#,     #eng_nm#,
+		    #lgl_addr#,    #eng_addr#,
+		    #ceo_nm#,      #url#,
+		    #cnt_cd#,      #curr_cd#,
+		    #biz_no#,      #bztp_val#,    #biz_itm_val#, #grp_id_cd#,
+		    #rep_phn#,     #rep_fax#,     #rep_zip#,
+		    #rep_eml#,     #sls_ofc_cd#,  #rmk#,
+		    #shrt_nm#,     #eng_nm#, 	  #acct_cd#,
+		    #rgst_tp_cd#,  #sls_usrid#,
+		    #curr_tp_cd#,  #s_sts_cd#,	  #s_sls_gp_cd#, #s_crd_lmt_amt#,
+		    #rgst_usrid#,  #rgst_ofc_cd#, getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#, GETUTCDATE(), #delt_flg#,
+		    #tax_iss_addr#, #cr_term_cd#, #cr_term_dt#, #corp_no#,
+		    #state_cd#,	   #city_nm#,	  #tax_type#,	#prefix#,
+			#iata_cd#,	   #scac_cd#,	  CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END
+			, #reserve_field01#
+			, #reserve_field02#
+			, #reserve_field03#
+			, #reserve_field04#
+			, #reserve_field05#
+			, #reserve_field06#
+			, #reserve_field07#
+			, #reserve_field08#
+			, #reserve_field09#
+			, #reserve_field10#
+        )
+    </insert>
+
+    <insert id="insertInterfaceTRDP_INFO_DE" parameterClass="java.util.HashMap">
+        INSERT INTO [fwdaif-DE].dbo.tb_trdp(
+ trdp_cd,       trdp_tp_cd,    locl_nm,      eng_nm,
+			lgl_addr,      eng_addr,
+			ceo_nm,        url,
+			cnt_cd,        curr_cd,
+			biz_no,        bztp_val,      biz_itm_val,  grp_id_cd,
+			rep_phn,       rep_fax,       rep_zip,
+			rep_eml,       sls_ofc_cd,    rmk,
+			shrt_nm,       full_nm,       acct_cd,
+		    rgst_tp_cd,    sls_usrid,
+			curr_tp_cd,    sts_cd,		  sls_gp_cd,	crd_lmt_amt,
+			rgst_usrid,    rgst_ofc_cd,   rgst_tms,
+			modi_usrid,    modi_ofc_cd,   modi_tms,     delt_flg,
+			tax_iss_addr,  cr_term_cd,    cr_term_dt,   corp_no,
+			state_cd,	   city_nm,		  tax_type,		prefix,
+			iata_cd,	   scac_cd,		  bill_to_agent
+			, reserve_field01
+			, reserve_field02
+			, reserve_field03
+			, reserve_field04
+			, reserve_field05
+			, reserve_field06
+			, reserve_field07
+			, reserve_field08
+			, reserve_field09
+			, reserve_field10
+        )VALUES(
+ #i_trdp_cd#,   #trdp_tp_cd#,  #locl_nm#,     #eng_nm#,
+		    #lgl_addr#,    #eng_addr#,
+		    #ceo_nm#,      #url#,
+		    #cnt_cd#,      #curr_cd#,
+		    #biz_no#,      #bztp_val#,    #biz_itm_val#, #grp_id_cd#,
+		    #rep_phn#,     #rep_fax#,     #rep_zip#,
+		    #rep_eml#,     #sls_ofc_cd#,  #rmk#,
+		    #shrt_nm#,     #eng_nm#, 	  #acct_cd#,
+		    #rgst_tp_cd#,  #sls_usrid#,
+		    #curr_tp_cd#,  #s_sts_cd#,	  #s_sls_gp_cd#, #s_crd_lmt_amt#,
+		    #rgst_usrid#,  #rgst_ofc_cd#, getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#, GETUTCDATE(), #delt_flg#,
+		    #tax_iss_addr#, #cr_term_cd#, #cr_term_dt#, #corp_no#,
+		    #state_cd#,	   #city_nm#,	  #tax_type#,	#prefix#,
+			#iata_cd#,	   #scac_cd#,	  CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END
+			, #reserve_field01#
+			, #reserve_field02#
+			, #reserve_field03#
+			, #reserve_field04#
+			, #reserve_field05#
+			, #reserve_field06#
+			, #reserve_field07#
+			, #reserve_field08#
+			, #reserve_field09#
+			, #reserve_field10#
+        )
+    </insert>
+
+    <insert id="insertInterfaceTRDP_INFO_US" parameterClass="java.util.HashMap">
+        INSERT INTO [fwdaif-US].dbo.tb_trdp(
+ trdp_cd,       trdp_tp_cd,    locl_nm,      eng_nm,
+			lgl_addr,      eng_addr,
+			ceo_nm,        url,
+			cnt_cd,        curr_cd,
+			biz_no,        bztp_val,      biz_itm_val,  grp_id_cd,
+			rep_phn,       rep_fax,       rep_zip,
+			rep_eml,       sls_ofc_cd,    rmk,
+			shrt_nm,       full_nm,       acct_cd,
+		    rgst_tp_cd,    sls_usrid,
+			curr_tp_cd,    sts_cd,		  sls_gp_cd,	crd_lmt_amt,
+			rgst_usrid,    rgst_ofc_cd,   rgst_tms,
+			modi_usrid,    modi_ofc_cd,   modi_tms,     delt_flg,
+			tax_iss_addr,  cr_term_cd,    cr_term_dt,   corp_no,
+			state_cd,	   city_nm,		  tax_type,		prefix,
+			iata_cd,	   scac_cd,		  bill_to_agent
+			, reserve_field01
+			, reserve_field02
+			, reserve_field03
+			, reserve_field04
+			, reserve_field05
+			, reserve_field06
+			, reserve_field07
+			, reserve_field08
+			, reserve_field09
+			, reserve_field10
+        )VALUES(
+ #i_trdp_cd#,   #trdp_tp_cd#,  #locl_nm#,     #eng_nm#,
+		    #lgl_addr#,    #eng_addr#,
+		    #ceo_nm#,      #url#,
+		    #cnt_cd#,      #curr_cd#,
+		    #biz_no#,      #bztp_val#,    #biz_itm_val#, #grp_id_cd#,
+		    #rep_phn#,     #rep_fax#,     #rep_zip#,
+		    #rep_eml#,     #sls_ofc_cd#,  #rmk#,
+		    #shrt_nm#,     #eng_nm#, 	  #acct_cd#,
+		    #rgst_tp_cd#,  #sls_usrid#,
+		    #curr_tp_cd#,  #s_sts_cd#,	  #s_sls_gp_cd#, #s_crd_lmt_amt#,
+		    #rgst_usrid#,  #rgst_ofc_cd#, getdate(),
+		    #modi_usrid#,  #modi_ofc_cd#, GETUTCDATE(), #delt_flg#,
+		    #tax_iss_addr#, #cr_term_cd#, #cr_term_dt#, #corp_no#,
+		    #state_cd#,	   #city_nm#,	  #tax_type#,	#prefix#,
+			#iata_cd#,	   #scac_cd#,	  CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END
+			, #reserve_field01#
+			, #reserve_field02#
+			, #reserve_field03#
+			, #reserve_field04#
+			, #reserve_field05#
+			, #reserve_field06#
+			, #reserve_field07#
+			, #reserve_field08#
+			, #reserve_field09#
+			, #reserve_field10#
+        )
+    </insert>
+
+    <update id="updateInterfaceTRDP_INFO_JP" parameterClass="java.util.HashMap">
+		UPDATE [fwdaif-JP].dbo.tb_trdp
+		   SET trdp_tp_cd= #trdp_tp_cd#,
+		       locl_nm   = #locl_nm#,      eng_nm   = #eng_nm#,
+		       lgl_addr  = #lgl_addr#,     eng_addr = #eng_addr#,
+		       ceo_nm    = #ceo_nm#,       url      = #url#,
+		       cnt_cd    = #cnt_cd#,       curr_cd  = #curr_cd#,        acct_cd = #acct_cd#,
+		       biz_no    = #biz_no#,       bztp_val = #bztp_val#,       biz_itm_val = #biz_itm_val#,    grp_id_cd = #grp_id_cd#,
+		       rep_phn   = #rep_phn#,      rep_fax  = #rep_fax#,        rep_zip     = #rep_zip#,
+		       rep_eml   = #rep_eml#,      sls_ofc_cd = #sls_ofc_cd#,   rmk = #rmk#,
+		       shrt_nm   = #shrt_nm#,      full_nm = #eng_nm#,          rgst_tp_cd = #rgst_tp_cd#,      sls_usrid = #sls_usrid#,
+		       curr_tp_cd= #curr_tp_cd#,   sts_cd = #s_sts_cd#,		    sls_gp_cd = #s_sls_gp_cd#,		crd_lmt_amt = #s_crd_lmt_amt#,
+		       state_cd = #state_cd#,	   city_nm = #city_nm#,			tax_type = #tax_type#,			prefix = #prefix#,
+		       iata_cd = #iata_cd#,		   scac_cd = #scac_cd#,
+		       bill_to_agent = CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END,
+		       modi_usrid= #modi_usrid#,   modi_ofc_cd = #modi_ofc_cd#, modi_tms = GETUTCDATE(), delt_flg = #delt_flg#,
+		       tax_iss_addr = #tax_iss_addr#, cr_term_cd = #cr_term_cd#, cr_term_dt = #cr_term_dt#, corp_no = #corp_no#
+		       , reserve_field01 = #reserve_field01#
+			   , reserve_field02 = #reserve_field02#
+			   , reserve_field03 = #reserve_field03#
+			   , reserve_field04 = #reserve_field04#
+			   , reserve_field05 = #reserve_field05#
+			   , reserve_field06 = #reserve_field06#
+			   , reserve_field07 = #reserve_field07#
+			   , reserve_field08 = #reserve_field08#
+			   , reserve_field09 = #reserve_field09#
+			   , reserve_field10 = #reserve_field10#
+	 	 WHERE trdp_cd = #i_trdp_cd#
+    </update>
+
+    <update id="updateInterfaceTRDP_INFO_IT" parameterClass="java.util.HashMap">
+		UPDATE [fwdaif-IT].dbo.tb_trdp
+		   SET trdp_tp_cd= #trdp_tp_cd#,
+		       locl_nm   = #locl_nm#,      eng_nm   = #eng_nm#,
+		       lgl_addr  = #lgl_addr#,     eng_addr = #eng_addr#,
+		       ceo_nm    = #ceo_nm#,       url      = #url#,
+		       cnt_cd    = #cnt_cd#,       curr_cd  = #curr_cd#,        acct_cd = #acct_cd#,
+		       biz_no    = #biz_no#,       bztp_val = #bztp_val#,       biz_itm_val = #biz_itm_val#,    grp_id_cd = #grp_id_cd#,
+		       rep_phn   = #rep_phn#,      rep_fax  = #rep_fax#,        rep_zip     = #rep_zip#,
+		       rep_eml   = #rep_eml#,      sls_ofc_cd = #sls_ofc_cd#,   rmk = #rmk#,
+		       shrt_nm   = #shrt_nm#,      full_nm = #eng_nm#,          rgst_tp_cd = #rgst_tp_cd#,      sls_usrid = #sls_usrid#,
+		       curr_tp_cd= #curr_tp_cd#,   sts_cd = #s_sts_cd#,		    sls_gp_cd = #s_sls_gp_cd#,		crd_lmt_amt = #s_crd_lmt_amt#,
+		       state_cd = #state_cd#,	   city_nm = #city_nm#,			tax_type = #tax_type#,			prefix = #prefix#,
+		       iata_cd = #iata_cd#,		   scac_cd = #scac_cd#,
+		       bill_to_agent = CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END,
+		       modi_usrid= #modi_usrid#,   modi_ofc_cd = #modi_ofc_cd#, modi_tms = GETUTCDATE(), delt_flg = #delt_flg#,
+		       tax_iss_addr = #tax_iss_addr#, cr_term_cd = #cr_term_cd#, cr_term_dt = #cr_term_dt#, corp_no = #corp_no#
+		       , reserve_field01 = #reserve_field01#
+			   , reserve_field02 = #reserve_field02#
+			   , reserve_field03 = #reserve_field03#
+			   , reserve_field04 = #reserve_field04#
+			   , reserve_field05 = #reserve_field05#
+			   , reserve_field06 = #reserve_field06#
+			   , reserve_field07 = #reserve_field07#
+			   , reserve_field08 = #reserve_field08#
+			   , reserve_field09 = #reserve_field09#
+			   , reserve_field10 = #reserve_field10#
+	 	 WHERE trdp_cd = #i_trdp_cd#
+    </update>
+
+    <update id="updateInterfaceTRDP_INFO_FR" parameterClass="java.util.HashMap">
+		UPDATE [fwdaif-FR].dbo.tb_trdp
+		   SET trdp_tp_cd= #trdp_tp_cd#,
+		       locl_nm   = #locl_nm#,      eng_nm   = #eng_nm#,
+		       lgl_addr  = #lgl_addr#,     eng_addr = #eng_addr#,
+		       ceo_nm    = #ceo_nm#,       url      = #url#,
+		       cnt_cd    = #cnt_cd#,       curr_cd  = #curr_cd#,        acct_cd = #acct_cd#,
+		       biz_no    = #biz_no#,       bztp_val = #bztp_val#,       biz_itm_val = #biz_itm_val#,    grp_id_cd = #grp_id_cd#,
+		       rep_phn   = #rep_phn#,      rep_fax  = #rep_fax#,        rep_zip     = #rep_zip#,
+		       rep_eml   = #rep_eml#,      sls_ofc_cd = #sls_ofc_cd#,   rmk = #rmk#,
+		       shrt_nm   = #shrt_nm#,      full_nm = #eng_nm#,          rgst_tp_cd = #rgst_tp_cd#,      sls_usrid = #sls_usrid#,
+		       curr_tp_cd= #curr_tp_cd#,   sts_cd = #s_sts_cd#,		    sls_gp_cd = #s_sls_gp_cd#,		crd_lmt_amt = #s_crd_lmt_amt#,
+		       state_cd = #state_cd#,	   city_nm = #city_nm#,			tax_type = #tax_type#,			prefix = #prefix#,
+		       iata_cd = #iata_cd#,		   scac_cd = #scac_cd#,
+		       bill_to_agent = CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END,
+		       modi_usrid= #modi_usrid#,   modi_ofc_cd = #modi_ofc_cd#, modi_tms = GETUTCDATE(), delt_flg = #delt_flg#,
+		       tax_iss_addr = #tax_iss_addr#, cr_term_cd = #cr_term_cd#, cr_term_dt = #cr_term_dt#, corp_no = #corp_no#
+		       , reserve_field01 = #reserve_field01#
+			   , reserve_field02 = #reserve_field02#
+			   , reserve_field03 = #reserve_field03#
+			   , reserve_field04 = #reserve_field04#
+			   , reserve_field05 = #reserve_field05#
+			   , reserve_field06 = #reserve_field06#
+			   , reserve_field07 = #reserve_field07#
+			   , reserve_field08 = #reserve_field08#
+			   , reserve_field09 = #reserve_field09#
+			   , reserve_field10 = #reserve_field10#
+	 	 WHERE trdp_cd = #i_trdp_cd#
+    </update>
+
+    <update id="updateInterfaceTRDP_INFO_DE" parameterClass="java.util.HashMap">
+		UPDATE [fwdaif-DE].dbo.tb_trdp
+		   SET trdp_tp_cd= #trdp_tp_cd#,
+		       locl_nm   = #locl_nm#,      eng_nm   = #eng_nm#,
+		       lgl_addr  = #lgl_addr#,     eng_addr = #eng_addr#,
+		       ceo_nm    = #ceo_nm#,       url      = #url#,
+		       cnt_cd    = #cnt_cd#,       curr_cd  = #curr_cd#,        acct_cd = #acct_cd#,
+		       biz_no    = #biz_no#,       bztp_val = #bztp_val#,       biz_itm_val = #biz_itm_val#,    grp_id_cd = #grp_id_cd#,
+		       rep_phn   = #rep_phn#,      rep_fax  = #rep_fax#,        rep_zip     = #rep_zip#,
+		       rep_eml   = #rep_eml#,      sls_ofc_cd = #sls_ofc_cd#,   rmk = #rmk#,
+		       shrt_nm   = #shrt_nm#,      full_nm = #eng_nm#,          rgst_tp_cd = #rgst_tp_cd#,      sls_usrid = #sls_usrid#,
+		       curr_tp_cd= #curr_tp_cd#,   sts_cd = #s_sts_cd#,		    sls_gp_cd = #s_sls_gp_cd#,		crd_lmt_amt = #s_crd_lmt_amt#,
+		       state_cd = #state_cd#,	   city_nm = #city_nm#,			tax_type = #tax_type#,			prefix = #prefix#,
+		       iata_cd = #iata_cd#,		   scac_cd = #scac_cd#,
+		       bill_to_agent = CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END,
+		       modi_usrid= #modi_usrid#,   modi_ofc_cd = #modi_ofc_cd#, modi_tms = GETUTCDATE(), delt_flg = #delt_flg#,
+		       tax_iss_addr = #tax_iss_addr#, cr_term_cd = #cr_term_cd#, cr_term_dt = #cr_term_dt#, corp_no = #corp_no#
+		       , reserve_field01 = #reserve_field01#
+			   , reserve_field02 = #reserve_field02#
+			   , reserve_field03 = #reserve_field03#
+			   , reserve_field04 = #reserve_field04#
+			   , reserve_field05 = #reserve_field05#
+			   , reserve_field06 = #reserve_field06#
+			   , reserve_field07 = #reserve_field07#
+			   , reserve_field08 = #reserve_field08#
+			   , reserve_field09 = #reserve_field09#
+			   , reserve_field10 = #reserve_field10#
+	 	 WHERE trdp_cd = #i_trdp_cd#
+    </update>
+
+    <update id="updateInterfaceTRDP_INFO_US" parameterClass="java.util.HashMap">
+		UPDATE [fwdaif-US].dbo.tb_trdp
+		   SET trdp_tp_cd= #trdp_tp_cd#,
+		       locl_nm   = #locl_nm#,      eng_nm   = #eng_nm#,
+		       lgl_addr  = #lgl_addr#,     eng_addr = #eng_addr#,
+		       ceo_nm    = #ceo_nm#,       url      = #url#,
+		       cnt_cd    = #cnt_cd#,       curr_cd  = #curr_cd#,        acct_cd = #acct_cd#,
+		       biz_no    = #biz_no#,       bztp_val = #bztp_val#,       biz_itm_val = #biz_itm_val#,    grp_id_cd = #grp_id_cd#,
+		       rep_phn   = #rep_phn#,      rep_fax  = #rep_fax#,        rep_zip     = #rep_zip#,
+		       rep_eml   = #rep_eml#,      sls_ofc_cd = #sls_ofc_cd#,   rmk = #rmk#,
+		       shrt_nm   = #shrt_nm#,      full_nm = #eng_nm#,          rgst_tp_cd = #rgst_tp_cd#,      sls_usrid = #sls_usrid#,
+		       curr_tp_cd= #curr_tp_cd#,   sts_cd = #s_sts_cd#,		    sls_gp_cd = #s_sls_gp_cd#,		crd_lmt_amt = #s_crd_lmt_amt#,
+		       state_cd = #state_cd#,	   city_nm = #city_nm#,			tax_type = #tax_type#,			prefix = #prefix#,
+		       iata_cd = #iata_cd#,		   scac_cd = #scac_cd#,
+		       bill_to_agent = CASE WHEN #bill_to_agent# IS NOT NULL THEN 'Y' ELSE 'N' END,
+		       modi_usrid= #modi_usrid#,   modi_ofc_cd = #modi_ofc_cd#, modi_tms = GETUTCDATE(), delt_flg = #delt_flg#,
+		       tax_iss_addr = #tax_iss_addr#, cr_term_cd = #cr_term_cd#, cr_term_dt = #cr_term_dt#, corp_no = #corp_no#
+		       , reserve_field01 = #reserve_field01#
+			   , reserve_field02 = #reserve_field02#
+			   , reserve_field03 = #reserve_field03#
+			   , reserve_field04 = #reserve_field04#
+			   , reserve_field05 = #reserve_field05#
+			   , reserve_field06 = #reserve_field06#
+			   , reserve_field07 = #reserve_field07#
+			   , reserve_field08 = #reserve_field08#
+			   , reserve_field09 = #reserve_field09#
+			   , reserve_field10 = #reserve_field10#
+	 	 WHERE trdp_cd = #i_trdp_cd#
+    </update>
+
+
+
+    <select id="selectTRDP_VAT_OPT" resultClass="String" parameterClass="java.util.HashMap">
+		SELECT trdp_cd
+		  FROM TB_TRDP_VAT_OPT
+		 WHERE trdp_cd = #s_trdp_cd#
+	</select>
+
+	<update id="updateTRDP_VAT_OPT" parameterClass="java.util.HashMap">
+		UPDATE TB_TRDP_VAT_OPT
+		   SET AR_VAT_LINE 	= CASE WHEN #ar_vat_line# IS NOT NULL THEN 'Y' ELSE 'N' END
+		      ,AP_VAT_LINE 	= CASE WHEN #ap_vat_line# IS NOT NULL THEN 'Y' ELSE 'N' END
+		      ,MODI_USRID	= #modi_usrid#
+			  ,MODI_OFC_CD	= #modi_ofc_cd#
+			  ,MODI_TMS		= GETUTCDATE()
+		 WHERE TRDP_CD = #i_trdp_cd#
+	</update>
+
+	<update id="insertTRDP_VAT_OPT" parameterClass="java.util.HashMap">
+		INSERT INTO TB_TRDP_VAT_OPT(
+				TRDP_CD
+			   ,AR_VAT_LINE
+			   ,AP_VAT_LINE
+			   ,RGST_USRID
+			   ,RGST_OFC_CD
+			   ,RGST_TMS
+			   ,MODI_USRID
+			   ,MODI_OFC_CD
+			   ,MODI_TMS
+		)VALUES(
+				#i_trdp_cd#
+			   ,CASE WHEN #ar_vat_line# IS NOT NULL THEN 'Y' ELSE 'N' END
+			   ,CASE WHEN #ap_vat_line# IS NOT NULL THEN 'Y' ELSE 'N' END
+			   ,#rgst_usrid#
+			   ,#rgst_ofc_cd#
+			   ,getdate()
+			   ,#modi_usrid#
+			   ,#modi_ofc_cd#
+			   ,GETUTCDATE()
+		)
+	</update>
+
+
+	<!-- Visibility ID 정보 삭제 -->
+	<delete id="deleteUSR4VIS" parameterClass="java.util.HashMap">
+	/* MdmMcmPartnerSQL > deleteUSR4VIS */
+		DELETE FROM TB_USR
+		 WHERE USRID = (SELECT VIS_ID FROM TB_TRDP WHERE TRDP_CD = #i_trdp_cd#)
+	</delete>
+    <select id="selectCtrtCustItemAttr" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.CtrtCustItemAttrVO" parameterClass="java.util.HashMap">
+		SELECT /* MdmMcmPartnerSQL.xml : selectCtrtCustItemAttr */
+			A.CTRT_NO,
+			A.ITEM_SYS_NO,
+			A.ITEM_ATRR_SEQ,
+			ITEM_NM,
+			ATTR_NM,
+			VSBL_FLG,
+			VAR_NM,
+			LBL_NM,
+			PCK_TP_NM,
+			SZ_NM,
+			NET_KGS_WGT,
+			NET_LBS_WGT,
+			GRS_KGS_WGT,
+			GRS_LBS_WGT,
+			INV_AMT
+			,STUFF((SELECT '|' + D.ITEM_DTL_CD FROM TL_CTRT_CUST_ITEM_DTL_CD D WHERE B.CTRT_NO = D.CTRT_NO AND B.ITEM_SYS_NO = D.ITEM_SYS_NO AND D.ITEM_DTL_CD_TP='V' AND D.DELT_FLG = 'N'  FOR XML PATH ('')), 1, 1, '') AS DTLCD_V
+			,STUFF((SELECT '|' + D.ITEM_DTL_CD FROM TL_CTRT_CUST_ITEM_DTL_CD D WHERE B.CTRT_NO = D.CTRT_NO AND B.ITEM_SYS_NO = D.ITEM_SYS_NO AND D.ITEM_DTL_CD_TP='L' AND D.DELT_FLG = 'N'  FOR XML PATH ('')), 1, 1, '') AS DTLCD_L
+			,STUFF((SELECT '|' + D.ITEM_DTL_CD FROM TL_CTRT_CUST_ITEM_DTL_CD D WHERE B.CTRT_NO = D.CTRT_NO AND B.ITEM_SYS_NO = D.ITEM_SYS_NO AND D.ITEM_DTL_CD_TP='P' AND D.DELT_FLG = 'N'  FOR XML PATH ('')), 1, 1, '') AS DTLCD_P
+			,STUFF((SELECT '|' + D.ITEM_DTL_CD FROM TL_CTRT_CUST_ITEM_DTL_CD D WHERE B.CTRT_NO = D.CTRT_NO AND B.ITEM_SYS_NO = D.ITEM_SYS_NO AND D.ITEM_DTL_CD_TP='S' AND D.DELT_FLG = 'N'  FOR XML PATH ('')), 1, 1, '') AS DTLCD_S
+		FROM
+			TL_CTRT C
+		INNER JOIN
+	        TL_CTRT_CUST_ITEM_ATTR A
+	    ON
+	    	C.CTRT_NO = A.CTRT_NO
+		INNER JOIN
+			TL_CTRT_CUST_ITEM B
+		ON
+			A.CTRT_NO = B.CTRT_NO
+		AND
+			A.ITEM_SYS_NO = B.ITEM_SYS_NO
+		WHERE
+			1=1
+		<isNotEmpty property="shpr_cd">
+		AND
+			C.CTRT_CUST_CD = #shpr_cd#
+		</isNotEmpty>
+		<isNotEmpty property="ctrt_no">
+		AND
+			A.CTRT_NO = #ctrt_no#
+		</isNotEmpty>
+		<isNotEmpty property="item_sys_no">
+		AND
+			A.ITEM_SYS_NO = #item_sys_no#
+		</isNotEmpty>
+		AND
+			A.DELT_FLG = 'N'
+	</select>
+	<select id="selectCtrtCustItemAttrSEQ"  parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.CtrtCustItemAttrVO" resultClass="String">
+		SELECT /* MdmMcmPartnerSQL.xm : selectCtrtCustItemAttrSEQ */
+			count(1) + 1
+		FROM
+			TL_CTRT_CUST_ITEM_ATTR A
+		WHERE
+			A.CTRT_NO = #ctrt_no#
+		AND
+			A.ITEM_SYS_NO = #item_sys_no#
+	</select>
+	<insert id="insertCtrtCustItemAttr"  parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.CtrtCustItemAttrVO">
+		INSERT /* MdmMcmPartnerSQL.xm : insertCtrtCustItemAttr */
+			INTO TL_CTRT_CUST_ITEM_ATTR
+				(CTRT_NO
+				,ITEM_SYS_NO
+				,ITEM_ATRR_SEQ
+				,ATTR_NM
+				,VSBL_FLG
+				,VAR_NM
+				,LBL_NM
+				,PCK_TP_NM
+				,SZ_NM
+				,NET_KGS_WGT
+				,NET_LBS_WGT
+				,GRS_KGS_WGT
+				,GRS_LBS_WGT
+				,INV_AMT
+				,DELT_FLG
+				,RGST_USRID
+				,RGST_OFC_CD
+				,RGST_TMS
+				,MODI_USRID
+				,MODI_OFC_CD
+				,MODI_TMS)
+			VALUES
+				(#ctrt_no#
+				,#item_sys_no#
+				,#item_atrr_seq#
+				,#attr_nm#
+				,#vsbl_flg#
+				,#var_nm#
+				,#lbl_nm#
+				,#pck_tp_nm#
+				,#sz_nm#
+				,case when #net_kgs_wgt# = '' then null else #net_kgs_wgt# end 
+				,case when #net_lbs_wgt# = '' then null else #net_lbs_wgt# end 
+				,case when #grs_kgs_wgt# = '' then null else #grs_kgs_wgt# end 
+				,case when #grs_lbs_wgt# = '' then null else #grs_lbs_wgt# end 
+				,case when #inv_amt# = '' then null else #inv_amt# end         
+				,'N'
+				,#userInfo.usrid#
+				,#userInfo.ofc_cd#
+				,getdate()
+				,#userInfo.usrid#
+				,#userInfo.ofc_cd#
+				,getdate())
+	</insert>
+	<update id="updateCtrtCustItemAttr"  parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.CtrtCustItemAttrVO">
+		UPDATE /* MdmMcmPartnerSQL.xm : updateCtrtCustItemAttr */
+			TL_CTRT_CUST_ITEM_ATTR
+		SET
+			ATTR_NM = #attr_nm#
+			,VAR_NM = #var_nm#
+			,VSBL_FLG = #vsbl_flg#
+			,LBL_NM = #lbl_nm#
+			,PCK_TP_NM = #pck_tp_nm#
+			,SZ_NM = #sz_nm#
+			,NET_KGS_WGT = case when #net_kgs_wgt# = '' then null else #net_kgs_wgt# end
+			,NET_LBS_WGT = case when #net_lbs_wgt# = '' then null else #net_lbs_wgt# end
+			,GRS_KGS_WGT = case when #grs_kgs_wgt# = '' then null else #grs_kgs_wgt# end
+			,GRS_LBS_WGT = case when #grs_lbs_wgt# = '' then null else #grs_lbs_wgt# end
+			,INV_AMT     = case when #inv_amt# = '' then null else #inv_amt# end 
+			,MODI_USRID = #userInfo.usrid#
+			,MODI_OFC_CD = #userInfo.ofc_cd#
+			,MODI_TMS = getdate()
+		WHERE
+			CTRT_NO = #ctrt_no#
+		AND
+			ITEM_SYS_NO = #item_sys_no#
+		AND
+			ITEM_ATRR_SEQ = #item_atrr_seq#
+	</update>
+
+	<delete id="deleteCtrtCustItemAttr"  parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.CtrtCustItemAttrVO">
+		UPDATE /* MdmMcmPartnerSQL.xm : updateCtrtCustItemAttr */
+			TL_CTRT_CUST_ITEM_ATTR
+		SET
+			DELT_FLG = 'Y'
+			,MODI_USRID = #userInfo.usrid#
+			,MODI_OFC_CD = #userInfo.ofc_cd#
+			,MODI_TMS = getdate()
+		WHERE
+			CTRT_NO = #ctrt_no#
+		AND
+			ITEM_SYS_NO = #item_sys_no#
+		AND
+			ITEM_ATRR_SEQ = #item_atrr_seq#
+	</delete>
+
+	<!--  //#2827 : [BINEX]Fresh Cargo C/I & P/L 기능 수정    START -->
+    <select id="selectItemDetailCodeSetComCdList" resultClass="com.clt.apps.fis.mdm.code.status.dto.ComCdVO">
+		SELECT /* MdmMcmPartnerSQL.xml : selectItemDetailCodeSetComCdList */
+			COM_CD,
+			CD_VAL,
+			CD_NM
+		FROM TB_COM_CD_DTL
+		WHERE USE_FLG = 'Y'
+			AND DELT_FLG = 'N'
+			AND COM_CD = 'I001'
+		ORDER BY SRT_SEQ
+	</select>
+
+    <select id="selectCtrtCustItemDetailCodeList" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.CtrtCustItemDtlCdVO" parameterClass="java.util.HashMap">
+		SELECT /* MdmMcmPartnerSQL.xml : selectCtrtCustItemDetailCodeSet */
+			A.CTRT_NO,
+			A.ITEM_SYS_NO,
+			B.ITEM_NM,
+			A.ITEM_DTL_CD_SEQ,
+			A.ITEM_DTL_CD_TP,
+			D.CD_NM AS ITEM_DTL_CD_TP_NM,
+			A.ITEM_DTL_CD,
+			A.SRT_SEQ,
+			A.DELT_FLG,
+			/*
+			RGST_USRID,
+			RGST_OFC_CD,
+			RGST_TMS,
+			MODI_USRID,
+			MODI_OFC_CD,
+			MODI_TMS,
+			*/
+			CASE A.ITEM_DTL_CD_TP WHEN 'V' THEN '1' ELSE '0' END AS IS_V,
+			CASE A.ITEM_DTL_CD_TP WHEN 'L' THEN '1' ELSE '0' END AS IS_L,
+			CASE A.ITEM_DTL_CD_TP WHEN 'P' THEN '1' ELSE '0' END AS IS_P,
+			CASE A.ITEM_DTL_CD_TP WHEN 'S' THEN '1' ELSE '0' END AS IS_S
+		FROM TL_CTRT C
+		INNER JOIN TL_CTRT_CUST_ITEM_DTL_CD A ON C.CTRT_NO = A.CTRT_NO
+		INNER JOIN TL_CTRT_CUST_ITEM B ON A.CTRT_NO = B.CTRT_NO AND A.ITEM_SYS_NO = B.ITEM_SYS_NO
+		INNER JOIN TB_COM_CD_DTL D ON D.COM_CD = 'I001' AND A.ITEM_DTL_CD_TP = D.CD_VAL AND D.DELT_FLG = 'N'
+		WHERE 1 = 1
+		<dynamic>
+		<isNotEmpty property="ctrt_no">
+		AND A.CTRT_NO = #ctrt_no#
+		</isNotEmpty>
+		<isNotEmpty property="item_sys_no">
+		AND A.ITEM_SYS_NO = #item_sys_no#
+		</isNotEmpty>
+		<isNotEmpty property="item_dtl_cd_tp">
+		AND A.ITEM_DTL_CD_TP = #item_dtl_cd_tp#
+		</isNotEmpty>
+		</dynamic>
+		AND A.DELT_FLG = 'N'
+		ORDER BY D.SRT_SEQ, A.SRT_SEQ
+	</select>
+
+	<select id="selectCtrtCustItemDetailCodeSEQ"  parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.CtrtCustItemDtlCdVO" resultClass="String">
+		SELECT /* MdmMcmPartnerSQL.xm : selectCtrtCustItemAttrSEQ */
+			count(1) + 1
+		FROM
+			TL_CTRT_CUST_ITEM_DTL_CD A
+		WHERE
+			A.CTRT_NO = #ctrt_no#
+		AND
+			A.ITEM_SYS_NO = #item_sys_no#
+	</select>
+
+	<insert id="insertCtrtCustItemDetailCodeSet"  parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.CtrtCustItemDtlCdVO">
+		 INSERT INTO TL_CTRT_CUST_ITEM_DTL_CD
+		           (CTRT_NO
+		           ,ITEM_SYS_NO
+		           ,ITEM_DTL_CD_SEQ
+		           ,ITEM_DTL_CD_TP
+		           ,ITEM_DTL_CD
+		           ,SRT_SEQ
+		           ,DELT_FLG
+		           ,RGST_USRID
+		           ,RGST_OFC_CD
+		           ,RGST_TMS
+		           ,MODI_USRID
+		           ,MODI_OFC_CD
+		           ,MODI_TMS)
+		     VALUES
+		           (#ctrt_no#
+		           ,#item_sys_no#
+		           ,#item_dtl_cd_seq#
+		           ,#item_dtl_cd_tp#
+		           ,#item_dtl_cd#
+		           ,#srt_seq#
+		           ,'N'
+		           ,#userInfo.usrid#
+		           ,#userInfo.ofc_cd#
+		           ,getdate()
+		           ,#userInfo.usrid#
+		           ,#userInfo.ofc_cd#
+		           ,getdate())
+	</insert>
+	<update id="updateCtrtCustItemDetailCodeSet"  parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.CtrtCustItemDtlCdVO">
+		UPDATE /* MdmMcmPartnerSQL.xml : updateCtrtCustItemDetailCodeSet */
+			TL_CTRT_CUST_ITEM_DTL_CD
+		SET ITEM_DTL_CD_TP = #item_dtl_cd_tp#,
+			ITEM_DTL_CD = #item_dtl_cd#,
+			SRT_SEQ = #srt_seq#,
+			MODI_USRID = #userInfo.usrid#,
+			MODI_OFC_CD = #userInfo.ofc_cd#,
+			MODI_TMS = getdate()
+		WHERE CTRT_NO = #ctrt_no#
+			AND CTRT_NO = #ctrt_no#
+			AND ITEM_SYS_NO = #item_sys_no#
+			AND ITEM_DTL_CD_SEQ = #item_dtl_cd_seq#
+	</update>
+
+	<delete id="deleteCtrtCustItemDetailCodeSet"  parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.CtrtCustItemDtlCdVO">
+		UPDATE /* MdmMcmPartnerSQL.xml : deleteCtrtCustItemDetailCodeSet */
+			TL_CTRT_CUST_ITEM_DTL_CD
+		SET DELT_FLG = 'Y',
+			MODI_USRID = #userInfo.usrid#,
+			MODI_OFC_CD = #userInfo.ofc_cd#,
+			MODI_TMS = getdate()
+		WHERE CTRT_NO = #ctrt_no#
+			AND CTRT_NO = #ctrt_no#
+			AND ITEM_SYS_NO = #item_sys_no#
+			AND ITEM_DTL_CD_SEQ = #item_dtl_cd_seq#
+	</delete>
+	<!--  //#2827 : [BINEX]Fresh Cargo C/I & P/L 기능 수정      END -->
+
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+    <select id="selectCmbFrtList" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+    /*  MdmMcmPartnerSQL.xml > selectCmbFrtList */
+		 SELECT
+		 		fr.frt_seq
+		 		,inv.cmb_inv_seq
+		 		,inv.inv_seq
+				 <isEqual property="f_type" compareValue="AR">
+				 	,cmb.inv_no      as cmb_inv_no
+				 </isEqual>
+				 <isEqual property="f_type" compareValue="AP">
+				 	,cmb.cmb_inv_seq  as cmb_inv_no
+				 </isEqual>
+           FROM  tb_frt    fr
+
+			LEFT OUTER JOIN  tb_inv_dtl idt
+			             ON  fr.inv_seq = idt.inv_seq AND idt.DELT_FLG = 'N'
+
+			LEFT OUTER JOIN tb_inv inv
+			            ON  fr.inv_seq = inv.inv_seq AND inv.DELT_FLG = 'N'
+			LEFT OUTER JOIN TB_CMB_INV cmb
+			            ON  cmb.CMB_INV_SEQ  = inv.CMB_INV_SEQ  AND cmb.DELT_FLG = 'N'
+
+
+          WHERE  fr.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+            AND  fr.trdp_cd     = #fr_trdp_cd#
+            AND  inv.cmb_inv_seq is null
+            <isEqual property="f_type" compareValue="AR">
+            	AND  fr.sell_buy_tp_cd  = 'S'
+            </isEqual>
+            <isEqual property="f_type" compareValue="AP">
+            	AND  fr.sell_buy_tp_cd  = 'B'
+            </isEqual>
+
+            AND  fr.delt_flg = 'N'
+  	   ORDER BY  fr.frt_seq ASC
+    </select>
+
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+	<select id="selectCmbInvSeq" parameterClass="java.util.HashMap" resultClass="String">
+	/*  MdmMcmPartnerSQL.xml > selectCmbInvSeq */
+	    SELECT
+	        CMB_INV_SEQ
+	    FROM TB_INV
+		where INV_SEQ  =  (select INV_SEQ from tb_frt where frt_seq = #p_fr_seq# )
+
+	</select>
+
+
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+	<select id="selectMaxFrtList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	/*  MdmMcmPartnerSQL.xml > selectMaxFrtList */
+
+		SELECT fr.frt_seq
+			   ,inv.inv_seq
+			   ,cmb.cmb_inv_seq
+	    from tb_frt fr
+	    LEFT OUTER JOIN
+	        tb_inv_dtl idt
+	            ON  fr.inv_seq = idt.inv_seq
+	            AND idt.DELT_FLG = 'N'
+	    LEFT OUTER JOIN
+	        tb_inv inv
+	            ON  fr.inv_seq = inv.inv_seq
+	            AND inv.DELT_FLG = 'N'
+	    LEFT OUTER JOIN
+	        TB_CMB_INV cmb
+	            ON  cmb.CMB_INV_SEQ  = inv.CMB_INV_SEQ
+	            AND cmb.DELT_FLG = 'N'
+	    WHERE fr.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+	      AND fr.trdp_cd     = #fr_trdp_cd#
+            <isEqual property="f_type" compareValue="AR">
+            	AND  fr.sell_buy_tp_cd  = 'S'
+				and  cmb.inv_no         = #max_no#
+            </isEqual>
+            <isEqual property="f_type" compareValue="AP">
+            	AND  fr.sell_buy_tp_cd  = 'B'
+            	and  cmb_inv_seq        = #max_no#
+            </isEqual>
+
+	</select>
+
+
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+	<select id="selectTbFrtMaxARCmbNo" parameterClass="java.util.HashMap" resultClass="String">
+	/*  MdmMcmPartnerSQL.xml > selectTbFrtMaxARCmbNo */
+
+		SELECT MAX(cmb.inv_no)
+		from tb_frt fr
+
+	    LEFT OUTER JOIN
+	        tb_inv_dtl idt
+	            ON  fr.inv_seq = idt.inv_seq
+	            AND idt.DELT_FLG = 'N'
+	    LEFT OUTER JOIN
+	        tb_inv inv
+	            ON  fr.inv_seq = inv.inv_seq
+	            AND inv.DELT_FLG = 'N'
+	    LEFT OUTER JOIN
+	        TB_CMB_INV cmb
+	            ON  cmb.CMB_INV_SEQ  = inv.CMB_INV_SEQ
+	            AND cmb.DELT_FLG = 'N'
+	    WHERE fr.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+            <isEqual property="f_type" compareValue="AR">
+            	AND  fr.sell_buy_tp_cd  = 'S'
+            </isEqual>
+            <isEqual property="f_type" compareValue="AP">
+            	AND  fr.sell_buy_tp_cd  = 'B'
+            </isEqual>
+
+            <isNotNull property="p_fr_trdp_cd">
+            	 and fr.trdp_cd     = #p_fr_trdp_cd#
+            </isNotNull>
+
+	</select>
+
+
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+	<select id="selectfrtSumCmbInv" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	/*  MdmMcmPartnerSQL.xml > selectfrtSumCmbInv */
+			SELECT
+					sum(frt.inv_amt)  	      as inv_amt
+					,sum(frt.inv_sum_amt)  	  as inv_sum_amt
+					,sum(frt.inv_vat_amt)  	  as inv_vat_amt
+					,sum(frt.perf_amt)        as frgn_amt
+					,sum(frt.perf_vat_amt)    as frgn_vat_amt
+					,sum(frt.trf_cur_sum_amt) as frgn_sum_amt
+			FROM TB_frt frt
+			     LEFT OUTER JOIN TB_INV inv on frt.INV_SEQ     = inv.INV_SEQ
+			     LEFT OUTER JOIN TB_INV_DTL dtl on inv.INV_SEQ = dtl.INV_SEQ
+			where frt.FRT_SEQ in (SELECT VALUE FROM FN_SPLIT('$p_fr_seq$',','))
+
+	</select>
+
+
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+	<update id="updateInvCmbSeq" parameterClass="java.util.HashMap">
+	/*  MdmMcmPartnerSQL.xml > updateInvCmbSeq */
+
+		UPDATE TB_INV
+		   <isEqual property="f_type" compareValue="AR">
+		   SET cmb_inv_seq = (select cmb_inv_seq from TB_CMB_INV where INV_NO = #p_debit_note#)
+		   </isEqual>
+		   <isEqual property="f_type" compareValue="AP">
+		   SET cmb_inv_seq = (select cmb_inv_seq from TB_CMB_INV where BUY_INV_NO = #p_ap_no#)
+		   </isEqual>
+		 WHERE inv_seq = #p_inv_seq#
+
+	</update>
+
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+	<update id="updateInvCmbSeqAll" parameterClass="java.util.HashMap">
+	/*  MdmMcmPartnerSQL.xml > updateInvCmbSeqAll */
+
+		UPDATE TB_INV
+		   SET cmb_inv_seq = #p_cmb_inv_seq#
+		 WHERE inv_seq in (SELECT VALUE FROM FN_SPLIT('$p_inv_seq$',','))
+
+	</update>
+
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+	<update id="updateInvCmbSeqAll_seq" parameterClass="java.util.HashMap">
+	/*  MdmMcmPartnerSQL.xml > updateInvCmbSeqAll_seq */
+
+		UPDATE TB_INV
+		   <isEqual property="f_type" compareValue="AR">
+		   SET cmb_inv_seq = (select max(cmb_inv_seq) from TB_CMB_INV where INV_NO = #p_debit_note#)
+		   </isEqual>
+		   <isEqual property="f_type" compareValue="AP">
+		   SET cmb_inv_seq = (select max(cmb_inv_seq) from TB_CMB_INV where BUY_INV_NO = #p_ap_no#)
+		   </isEqual>
+
+		 WHERE inv_seq in (SELECT VALUE FROM FN_SPLIT('$p_inv_seq$',','))
+
+	</update>
+
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+    <update id="updateCmbInv" parameterClass="java.util.HashMap">
+    /*  MdmMcmPartnerSQL.xml > updateCmbInv */
+        UPDATE TB_CMB_INV
+           SET
+				inv_amt       = convert(float,#inv_amt#)
+				,inv_sum_amt  = convert(float,#inv_sum_amt#)
+				,inv_vat_amt  = convert(float,#inv_vat_amt#)
+				,frgn_amt	  = convert(float,#frgn_amt#)
+				,frgn_vat_amt = convert(float,#frgn_vat_amt#)
+				,frgn_sum_amt = convert(float,#frgn_sum_amt#)
+
+        WHERE  cmb_inv_seq = #p_cmb_inv_seq#
+    </update>
+
+	<!-- #2504 [PATENT]Debit Note & AP for billing code based invoices -->
+	<insert id="insertCmbInv" parameterClass="com.clt.apps.fis.mdm.mcm.partner.dto.BlCmbInvVO" >
+		/* MdmMcmPartnerSQL.xml : insertCmbInv */
+		INSERT INTO
+			TB_CMB_INV
+			(	AIR_SEA_CLSS_CD
+	           ,BND_CLSS_CD
+	           ,SELL_BUY_TP_CD
+	           ,FRT_ASK_CLSS_CD
+	           ,INV_NO
+	           ,INV_STS_CD
+	           ,TRDP_CD
+	           ,TAX_BIL_FLG
+	           ,INV_DT
+	           ,CLT_DUE_DT
+	           ,INV_ISS_DT
+	           ,INV_FM_DT
+	           ,INV_TO_DT
+	           ,INV_RMK
+	           ,BUY_INV_NO
+	           ,SLIP_NO
+               ,VCHR_NO
+               ,VCHR_TP_CD
+	           ,INV_APLY_CURR_CD
+	           ,INV_XCRT_DT
+	           ,INV_APLY_XCRT
+	           ,INV_AMT
+	           ,INV_KRW_AMT
+	           ,INV_SUM_AMT
+	           ,INV_VAT_AMT
+	           ,FRGN_CURR_CD
+	           ,FRGN_AMT
+	           ,FRGN_VAT_AMT
+	           ,FRGN_SUM_AMT
+	           ,PAY_AMT
+	           ,PAY_VAT_AMT
+	           ,PAY_FRGN_AMT
+	           ,PAY_FRGN_VAT_AMT
+	           ,BAL_AMT
+	           ,BAL_VAT_AMT
+	           ,BAL_FRGN_AMT
+	           ,BAL_FRGN_VAT_AMT
+	           ,OFC_CD
+	           ,DEPT_CD
+	           ,RGST_USRID
+	           ,RGST_OFC_CD
+	           ,RGST_TMS
+	           ,MODI_USRID
+	           ,MODI_OFC_CD
+	           ,MODI_TMS
+	           ,DELT_FLG
+	          )
+			SELECT
+					max(inv.air_sea_clss_cd)  as air_sea_clss_cd
+					,max(inv.bnd_clss_cd)     as bnd_clss_cd
+					,max(inv.sell_buy_tp_cd)  as sell_buy_tp_cd
+					,max(inv.frt_ask_clss_cd) as frt_ask_clss_cd
+					,#p_debit_note#           as inv_no
+					,max(dtl.inv_sts_cd)  	  as inv_sts_cd
+					,max(inv.trdp_cd)    	  as trdp_cd
+					,max(inv.tax_bil_flg)     as tax_bil_flg
+					,max(dtl.inv_dt)          as inv_dt
+					,max(dtl.inv_due_dt)      as clt_due_dt
+					,CONVERT(VARCHAR, max(dtl.rgst_tms), 112)  	as inv_iss_dt
+					,''  	  				  as inv_fm_dt
+					,''  	  				  as inv_to_dt
+					,#p_rmk#                  as inv_rmk
+					,#p_ap_no#                as buy_inv_no
+					,#p_slip_no#        	  as slip_no
+					,#p_vchr_no#              as vchr_no
+					,#p_vchr_tp_cd#           as vchr_tp_cd
+					,(select locl_curr_cd from tb_ofc where OFC_CD =#rgst_ofc_cd#)  as inv_aply_curr_cd
+					,max(dtl.inv_xcrt_dt)  	  as inv_xcrt_dt
+					,max(dtl.inv_aply_xcrt)   as inv_aply_xcrt
+					,sum(frt.inv_amt)  	      as inv_amt
+					,null  	  				  as inv_krw_amt
+					,sum(frt.inv_sum_amt)  	  as inv_sum_amt
+					,sum(frt.inv_vat_amt)  	  as inv_vat_amt
+					,''  	  				  as frgn_curr_cd
+					,sum(frt.perf_amt)        as frgn_amt
+					,sum(frt.perf_vat_amt)    as frgn_vat_amt
+					,sum(frt.trf_cur_sum_amt) as frgn_sum_amt
+					,null  	  				  as pay_amt
+					,null  	  				  as pay_vat_amt
+					,null  	  				  as pay_frgn_amt
+					,null  	  			      as pay_frgn_vat_amt
+					,max(dtl.bal_amt)  	      as bal_amt
+					,max(dtl.bal_vat_amt)  	  as bal_vat_amt
+					,max(dtl.bal_frgn_amt)    as bal_frgn_amt
+					,max(dtl.bal_frgn_vat_amt) as bal_frgn_vat_amt
+					,#p_ofc_cd#  	  	       as ofc_cd		<!-- #2670 수정 max(inv.ofc_cd) -->
+					,''  	  				   as dept_cd
+                    ,#rgst_usrid#          	   as rgst_usrid
+                    ,#rgst_ofc_cd#         	   as rgst_ofc_cd
+                    ,getdate()                 as rgst_tms
+                    ,#rgst_usrid#          	   as modi_usrid
+                    ,#rgst_ofc_cd#         	   as modi_ofc_cd
+                    ,getdate()            	   as modi_tms
+                    ,'N'            	       as delt_flg
+
+			FROM TB_frt frt
+			     LEFT OUTER JOIN TB_INV inv on frt.INV_SEQ     = inv.INV_SEQ
+			     LEFT OUTER JOIN TB_INV_DTL dtl on inv.INV_SEQ = dtl.INV_SEQ
+			where frt.FRT_SEQ in (SELECT VALUE FROM FN_SPLIT('$p_fr_seq$',','))
+
+			<selectKey resultClass="int" keyProperty="id">
+				<!-- SELECT SCOPE_IDENTITY() as id -->
+				SELECT IDENT_CURRENT('TB_CMB_INV') as id
+
+			</selectKey>
+	</insert>
+
+	<!-- bl copy시 속도 이슈 -->
+    <select id="selectPOP_TRDP_LISTonChkCOD" resultClass="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO">
+    /* MdmMcmPartnerSQL > selectPOP_TRDP_LISTonChkCOD */
+	    SELECT top 1 a1.*
+	    FROM (
+	   	 SELECT  ROW_NUMBER() OVER (ORDER BY  a.trdp_cd) as ROWNUM,
+				<dynamic>
+	        	<isNotEmpty property="o_eng_name">
+					 CASE WHEN CHARINDEX(#o_eng_name#,a.eng_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_name#,a.eng_nm) END  o_eng_nm,
+					 CASE WHEN CHARINDEX(#o_eng_name#,a.locl_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_name#,a.locl_nm) END  o_locl_nm,
+					 CASE WHEN CHARINDEX(#o_eng_name#,a.shrt_nm) = 0 THEN 99999999 ELSE CHARINDEX(#o_eng_name#,a.shrt_nm) END o_shrt_nm,
+		</isNotEmpty>
+	 </dynamic>
+	a.trdp_cd, a.eng_addr, a.cnt_cd, a.locl_nm, cnt.cnt_eng_nm AS cnt_nm,
+	a.shrt_nm,
+	a.acct_cd, a.full_nm, a.trdp_tp_cd, a.rmk AS cmp_rmk, a.eng_nm,
+	b.pic_nm, b.pic_phn, b.pic_mphn, b.pic_fax, b.pic_eml, b.pic_desc,
+	a.rep_zip, a.sls_gp_cd, isnull(a.crd_lmt_amt,0) as crd_lmt_amt,
+	<!-- OFVFOUR-7736 [SENKO USA] Consignee and Delivery Location -->
+	isnull(a.lgl_addr, '') as lgl_addr, a.tax_iss_addr,
+	a.cr_term_cd, a.cr_term_dt, a.city_nm, a.state_cd, a.prefix, a.iata_cd,
+	a.biz_no,
+	a.cmdt_cd,
+	a.tp_grp,
+	a.sls_usrid,
+	d.locl_usr_nm AS sls_usrnm,
+	(SELECT cmdt_nm FROM tb_cmdt_cd WHERE cmdt_cd = a.cmdt_cd AND delt_flg = 'N' ) AS cmdt_nm,
+	case when ISNULL(a.city_nm , '') = '' then ISNULL(a.lgl_addr, '')
+	else ISNULL(a.lgl_addr, '') + char(13)+char(10) + ISNULL(a.city_nm , '')+
+	', ' + ISNULL(c.state_cd, '') + ' ' + ISNULL(a.rep_zip, '')
+	end AS trdp_addr,
+	ISNULL(a.tax_iss_addr, '') AS trdp_addr2,
+	a.tax_type,
+	a.RESERVE_FIELD09,
+	a.PROFIT_SHARE,
+	ISNULL(INV.CUR_LMT_AMT,0) AS CUR_LMT_AMT,
+	ISNULL(INV.OVER_DUE,0) AS OVER_DUE,
+	ISNULL(INV.OVER_LIMIT,0) - ISNULL(a.CRD_LMT_AMT, 0) AS OVER_LIMIT,
+	ISNULL(INV.GRAND_TOTAL,0) AS GRAND_TOTAL
+	,A.AN_BOND_NO
+	<![CDATA[
+	,CASE WHEN LEN( A.AN_BOND_EXP_DT) > 0 THEN  CONVERT(VARCHAR(10),CONVERT(DATETIME, SUBSTRING(ISNULL( A.AN_BOND_EXP_DT, ''), 1, 8)), 110)  ELSE '' END  AN_BOND_EXP_DT
+	]]>
+	,ISNULL(A.LGL_ADDR,'') +
+	 (CASE WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ', ' + A.STATE_CD + ' ' + A.REP_ZIP
+	  	   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') != '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ' ' + A.STATE_CD
+		   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') = '' THEN CHAR(13)+CHAR(10) + A.CITY_NM
+		   WHEN ISNULL(A.CITY_NM,'') != '' AND ISNULL(A.STATE_CD,'') = '' AND ISNULL(A.REP_ZIP,'') != '' THEN CHAR(13)+CHAR(10) + A.CITY_NM + ', ' + A.REP_ZIP
+		   ELSE '' END) AS DFLT_ADDR
+	FROM tb_trdp a
+	LEFT OUTER JOIN tb_cnt cnt ON a.cnt_cd = cnt.cnt_cd AND cnt.delt_flg = 'N'
+	LEFT OUTER JOIN tb_trdp_cntc_pson b ON a.trdp_cd=b.trdp_cd AND b.rep_flg = 'Y' AND b.delt_flg = 'N'
+	LEFT OUTER JOIN TB_STATE c ON a.STATE_CD = c.STATE_CD AND a.CNT_CD = c.CNT_CD AND c.use_flg = 'Y'
+	LEFT OUTER JOIN tb_usr d ON d.usr_tp = 'I' AND a.sls_usrid = d.usrid
+	LEFT OUTER JOIN (SELECT INV.TRDP_CD,
+				 SUM(CASE WHEN INV.SELL_BUY_TP_CD IN ('S','D','C') THEN CASE WHEN INV.SELL_BUY_TP_CD = 'C' THEN IDT.BAL_AMT * -1 ELSE IDT.BAL_AMT END ELSE 0 END) AS CUR_LMT_AMT,
+						    SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME, IDT.INV_DUE_DT),CONVERT(DATETIME,GETDATE())) <![CDATA[ > ]]> 0
+								     THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+											    THEN IDT.BAL_AMT * -1
+											    ELSE IDT.BAL_AMT
+										   END)
+							 	     ELSE 0
+								END) AS OVER_DUE,
+						    SUM(CASE WHEN DATEDIFF("D", CONVERT(DATETIME,IDT.INV_DUE_DT), CONVERT(DATETIME,GETDATE())) <![CDATA[ < ]]> 1
+								     THEN (CASE WHEN INV.SELL_BUY_TP_CD IN ('C','B')
+											    THEN IDT.BAL_AMT * -1
+											    ELSE IDT.BAL_AMT
+										   END)
+								     ELSE 0 END) AS OVER_LIMIT,
+						    SUM(IDT.BAL_AMT) AS GRAND_TOTAL
+					 FROM TB_INV INV
+					 JOIN TB_INV_DTL IDT ON IDT.INV_SEQ = INV.INV_SEQ AND IDT.DELT_FLG = 'N' AND (IDT.INV_DT <![CDATA[ <= ]]> GETDATE()) AND IDT.INV_APLY_CURR_CD = 'USD'
+					 WHERE 1 = 1
+					 AND INV.DELT_FLG = 'N'
+					 GROUP BY INV.TRDP_CD) INV ON A.TRDP_CD = INV.TRDP_CD
+	WHERE a.delt_flg = 'N'
+	AND a.trdp_cd = #s_tp_code#
+		 ) a1
+	</select>
+
+</sqlMap>

@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="equ.mst">
+
+<typeAlias alias="AgmtVO"   type="com.clt.apps.fis.equ.mst.agreement.dto.AgmtVO"/><!-- Agreement 등록 및 조회 정보   -->
+<typeAlias alias="AgmtDtlVO"   type="com.clt.apps.fis.equ.mst.agreement.dto.AgmtDtlVO"/><!-- Agreement Detail 등록 및 조회 정보   -->
+<typeAlias alias="CntrMstVO"   type="com.clt.apps.fis.equ.mst.master.dto.CntrMstVO"/><!-- Container Master 등록 및 조회 정보   -->
+<typeAlias alias="TracMgmtVO"   type="com.clt.apps.fis.equ.mst.tracing.dto.TracMgmtVO"/><!-- Tracing Master 등록 및 조회 정보   -->
+<typeAlias alias="RouteVO"   type="com.clt.apps.fis.equ.mst.route.dto.RouteVO"/><!-- Route 등록 및 조회 정보   -->
+	
+	<!-- Agreement List    -->
+    <select id="selectAgmtList" resultClass="AgmtVO">
+		SELECT	a.agmt_no,	a.agmt_ofc,		a.ref_no,
+				a.lstm_cd,	a.lr_trdp_cd,	agmt_dt,
+				a.dur_mon,	a.curr_cd,		a.eff_dt,
+				a.rmk,		z.ENG_NM lr_trdp_nm
+  		FROM	tb_cntr_agmt a
+  				JOIN TB_TRDP z ON a.lr_trdp_cd = z.TRDP_CD 
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="lr_trdp_cd">
+				a.lr_trdp_cd = #lr_trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="agmt_ofc">
+				a.agmt_ofc = #agmt_ofc#
+			</isNotNull>
+			<isNotNull prepend="AND" property="agmt_no">
+				a.agmt_no = #agmt_no#
+			</isNotNull>
+			<isNotNull prepend="AND" property="fm_agmt_dt">
+				<![CDATA[ CONVERT(VARCHAR, a.agmt_dt, 112) >= #fm_agmt_dt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="to_agmt_dt">
+				<![CDATA[ CONVERT(VARCHAR, a.agmt_dt, 112) < #to_agmt_dt# ]]>
+			</isNotNull>
+		</dynamic>
+		ORDER BY agmt_no
+	</select>
+	
+	<!-- Agreement Detail List    -->
+    <select id="selectAgmtDtlList" resultClass="AgmtDtlVO">
+		SELECT	a.agmt_dtl_seq,	a.agmt_no,		a.cntr_tpsz_cd,	a.qty,
+				a.port_loc_cd,	a.port_loc_nm,	a.port_nod_cd,	b.NOD_ENG_NM port_nod_nm,
+				a.amt
+  		FROM	tb_cntr_agmt_dtl a
+  				JOIN TB_NOD b ON a.port_nod_cd = b.nod_cd
+		WHERE	a.agmt_no = #agmt_no#
+	    ORDER BY a.agmt_dtl_seq
+	</select>
+	
+	<!-- Agreement Insert    -->
+	<insert id="insertAgreementMaster" parameterClass="AgmtVO">
+		INSERT INTO tb_cntr_agmt(
+			agmt_no,	agmt_ofc,	ref_no,
+			lstm_cd,	lr_trdp_cd,		agmt_dt,
+			dur_mon,	curr_cd,	eff_dt,
+			rmk
+		)	VALUES	(
+			#agmt_no#,	#agmt_ofc#,	#ref_no#,
+			#lstm_cd#,	#lr_trdp_cd#,	#agmt_dt#,
+			#dur_mon#,	#curr_cd#,	#eff_dt#,
+			#rmk#
+		)
+	</insert>
+	
+	<!-- Agreement Delete    -->
+	<insert id="deleteAgreementMaster" parameterClass="AgmtVO">
+		DELETE FROM tb_cntr_agmt
+		WHERE	agmt_no = #agmt_no#
+	</insert>
+	
+	<!-- Agreement Detail Insert    -->
+	<insert id="insertAgreementDetail" parameterClass="AgmtDtlVO">
+		INSERT INTO tb_cntr_agmt_dtl(
+			agmt_dtl_seq,	agmt_no,		cntr_tpsz_cd,	qty,
+			port_loc_cd,	port_nod_cd,	port_loc_nm,	amt
+		)	VALUES	(
+			#agmt_dtl_seq#,	#agmt_no#,	#cntr_tpsz_cd#,	#qty#,
+			#port_loc_cd#,	#port_nod_cd#,	#port_loc_nm#,	#amt#
+		)
+	</insert>
+	<!-- Agreement Detail  Update    -->
+	<update id="updateAgreementDetail" parameterClass="AgmtDtlVO">
+		UPDATE  tb_cntr_agmt_dtl
+		   SET  cntr_tpsz_cd	= #cntr_tpsz_cd#,
+		        port_nod_cd		= #port_nod_cd#,
+		        port_loc_nm		= #port_loc_nm#,
+		        port_loc_cd		= #port_loc_cd#,
+		        qty				= #qty#,
+		        amt				= #amt#
+		 WHERE  agmt_no			= #agmt_no#
+		   AND	agmt_dtl_seq	= #agmt_dtl_seq#   
+	</update>
+	
+	<!-- Agreement Detail Delete    -->
+	<delete id="deleteAgreementDetail" parameterClass="java.util.HashMap">
+		DELETE	FROM  tb_cntr_agmt_dtl
+		 WHERE  agmt_no			= #agmt_no#
+		 <isNotNull property="agmt_dtl_seq">
+		   AND	agmt_dtl_seq	= #agmt_dtl_seq#   
+		 </isNotNull>
+	</delete>
+
+	
+	<!-- Container Master List    -->
+    <select id="selectCntrMstList" resultClass="CntrMstVO">
+		SELECT	a.cntr_no,		a.agmt_no,		a.cntr_tpsz_cd,
+				a.cntr_sts_cd,	a.cntr_trac_nod_cd,	a.lr_trdp_cd,
+				a.pkup_nod_cd,	a.buy_amt,		a.rgst_usrid,
+				a.rgst_ofc_cd,	a.lstm_cd,		a.inv_no,
+				c.bkg_no,		c.sr_no,		c.bl_no,
+				d.seal_no1,		d.seal_no2,		
+				f.trdp_cd cs_trdp_cd,	f.trdp_nm cs_trdp_nm,
+				x.NOD_ENG_NM cntr_trac_nod_nm,
+				y.NOD_ENG_NM pkup_nod_nm,
+				z.ENG_NM lr_trdp_nm
+		  FROM	tb_cntr_mst a
+		  JOIN	TB_EQ_INV_DTL b ON  a.cntr_no = b.cntr_no
+					
+		  JOIN	TB_INTG_BL C ON  B.INTG_BL_SEQ = C.INTG_BL_SEQ
+					
+		  JOIN	TB_CNTR_LIST D ON  C.INTG_BL_SEQ = D.INTG_BL_SEQ and a.cntr_no = d.cntr_no
+		  
+		  LEFT OUTER JOIN	TB_BL_PRNR f
+				  ON	b.intg_bl_seq = f.intg_bl_seq  AND f.bl_trdp_tp_cd = 'S02' AND f.delt_flg = 'N'
+					
+		  LEFT OUTER JOIN TB_NOD x ON  a.pkup_nod_cd = x.nod_cd
+				
+		  LEFT OUTER JOIN TB_NOD y ON  a.pkup_nod_cd = y.nod_cd
+					
+		  LEFT OUTER JOIN TB_TRDP z ON  a.lr_trdp_cd = z.TRDP_CD
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="fm_etd_dt">
+				<![CDATA[ CONVERT(VARCHAR, c.etd_dt_tm, 112) >= #fm_etd_dt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="to_etd_dt">
+				<![CDATA[ CONVERT(VARCHAR, c.etd_dt_tm, 112) < #to_etd_dt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="bkg_no">
+				c.bkg_no = #bkg_no#
+			</isNotNull>
+			<isNotNull prepend="AND" property="sr_no">
+				c.sr_no = #sr_no#
+			</isNotNull>
+			<isNotNull prepend="AND" property="cs_trdp_cd">
+				f.trdp_cd = #cs_trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="lr_trdp_cd">
+				a.lr_trdp_cd = #lr_trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="cntr_no">
+				a.cntr_no LIKE '%'+#cntr_no#+'%'
+			</isNotNull>
+			<isNotNull prepend="AND" property="pkup_nod_cd">
+				a.pkup_nod_cd = #pkup_nod_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="cntr_sts_cd">
+				a.cntr_sts_cd = #cntr_sts_cd#
+			</isNotNull>
+		</dynamic>
+		ORDER BY a.inv_no
+	</select>
+	
+	<!-- Container Master Insert    -->
+	<insert id="insertContainerMaster" parameterClass="CntrMstVO">
+		INSERT INTO tb_cntr_mst(
+			cntr_no,	    cntr_tpsz_cd,		lstm_cd,
+			cntr_sts_cd,    cntr_trac_nod_cd,	lr_trdp_cd,
+			agmt_no,	    pkup_nod_cd,		buy_amt,	  inv_no,
+			rgst_usrid,	    rgst_ofc_cd,		rgst_tms,
+			modi_usrid,	    modi_ofc_cd,		modi_tms
+		      
+		)VALUES(
+			#cntr_no#,		#cntr_tpsz_cd#,		#lstm_cd#,
+			#cntr_sts_cd#,	#cntr_trac_nod_cd#,	#lr_trdp_cd#,
+			#agmt_no#,		#pkup_nod_cd#,		#buy_amt#,	  #inv_no#,
+			#rgst_usrid#,	#rgst_ofc_cd#,		getDate(),
+			#modi_usrid#,	#modi_ofc_cd#,		GETUTCDATE()
+		)
+	</insert>
+	
+	<!-- Container Master Update    -->
+	<update id="updateContainerMaster" parameterClass="CntrMstVO">
+		UPDATE  tb_cntr_mst
+		   SET  cntr_trac_nod_cd= #cntr_trac_nod_cd#,	pkup_nod_cd	= #pkup_nod_cd#,
+		        lstm_cd			= #lstm_cd#,			cntr_sts_cd	= #cntr_sts_cd#,
+		        agmt_no			= #agmt_no#,			modi_usrid	= #modi_usrid#,
+		        modi_ofc_cd		= #modi_ofc_cd#,		modi_tms	= GETUTCDATE()
+		 WHERE  cntr_no			= #cntr_no#
+	</update>
+	
+	<!-- Container Master Update    -->
+	<update id="updateInvoiceDetail" parameterClass="CntrMstVO">
+		UPDATE  top(1) tb_eq_inv_dtl
+		   SET  cntr_no	= #cntr_no#
+		        ,intg_bl_seq	= #intg_bl_seq#
+		 WHERE  inv_no	= #inv_no#
+		   AND	cntr_no	= 'X'
+		   AND	cntr_tpsz_cd = #cntr_tpsz_cd#
+		<isNotNull property="inv_smry_seq">
+		   AND	inv_smry_seq = #inv_smry_seq#
+        </isNotNull>
+	</update>
+	
+	<!-- Tracing Master List    -->
+    <select id="selectTracingMstList" resultClass="TracMgmtVO">
+		SELECT	bl.intg_bl_seq,			bl.trnk_vsl_cd,		bl.trnk_vsl_nm, 
+				list.cntr_no,			list.cntr_tpsz_cd,	ship.trdp_cd ship_trdp_cd,	ship.TRDP_ADDR ship_trdp_nm,	
+				bl.pol_cd,				bl.pol_nm,			cnee.trdp_cd cnee_trdp_cd,	cnee.trdp_nm cnee_trdp_nm,		
+				bl.pod_cd,				bl.pod_nm,			bl.etd_dt_tm,				bl.eta_dt_tm,
+				trac.dis_dt_tm,         trac.n1st_wgn_no,   trac.eta_bod_dt_tm,         trac.act_dis_dt_tm,
+				trac.etd_bod_dt_tm,		trac.n2nd_wgn_no,	trac.cur_sts_cd,			trac.cur_loc_cd,
+				cloc.LOC_NM cur_loc_nm,
+				trac.ata_bod_dt_tm,		trac.trac_rmk,		mst.LSTM_CD,				comcd.CD_NM lstm_nm,
+				bl.fnl_dest_loc_cd,     loc.LOC_NM fnl_dest_loc_nm, trac.eta_fd_dt_tm,  trac.ata_fd_dt_tm, 
+				ashp.trdp_cd ac_ship_cd,ashp.trdp_nm ac_ship_nm,
+				prnr.trdp_cd,			prnr.trdp_nm,		ISNULL(mst.cntr_no, 'N') mst_flg,
+				                CASE WHEN trac.ata_fd_dt_tm IS NOT NULL THEN DATEDIFF("D", CONVERT(VARCHAR(8),bl.ETD_DT_TM, 112), CONVERT(VARCHAR(8),trac.ata_fd_dt_tm, 112))
+                     ELSE DATEDIFF("D", CONVERT(VARCHAR(8),bl.ETD_DT_TM, 120), CONVERT(VARCHAR(8),trac.ETA_FD_DT_TM, 112)) END as tot_tm
+		FROM	TB_INTG_BL bl
+		JOIN	TB_BL_PRNR ship
+		  ON	bl.intg_bl_seq = ship.intg_bl_seq  AND ship.bl_trdp_tp_cd = 'S01' AND ship.delt_flg = 'N'		
+		JOIN	TB_CNTR_LIST list
+		  ON	bl.intg_bl_seq = list.intg_bl_seq  
+		JOIN	TB_TRAC_MGMT trac
+		  ON	bl.intg_bl_seq = trac.intg_bl_seq  and list.cntr_no = trac.cntr_no
+		JOIN	TB_INTG_BL_RLT rlt
+		  ON	bl.INTG_BL_SEQ = rlt.INTG_BL_SEQ
+		JOIN	tb_bl_prnr cnee
+          ON	rlt.rlt_intg_bl_seq = cnee.intg_bl_seq  AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+        LEFT OUTER JOIN	TB_CNTR_MST mst
+          ON	trac.CNTR_NO = mst.CNTR_NO
+        LEFT OUTER JOIN	TB_COM_CD_DTL comcd
+          ON	comcd.COM_CD =  'C058' AND comcd.CD_VAL = mst.LSTM_CD 
+		LEFT OUTER JOIN	TB_BL_PRNR ashp
+		  ON	bl.intg_bl_seq = ashp.intg_bl_seq  AND ashp.bl_trdp_tp_cd = 'S02' AND ashp.delt_flg = 'N'
+		LEFT OUTER JOIN	TB_BL_PRNR prnr
+		  ON	bl.intg_bl_seq = prnr.intg_bl_seq  AND prnr.bl_trdp_tp_cd = 'P01' AND prnr.delt_flg = 'N'
+		LEFT OUTER JOIN TB_LOC loc
+		  ON	bl.FNL_DEST_LOC_CD = loc.LOC_CD
+		LEFT OUTER JOIN TB_LOC cloc
+          ON    trac.cur_loc_cd = cloc.LOC_CD
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="fm_etd_dt">
+				<![CDATA[ CONVERT(VARCHAR, bl.etd_dt_tm, 112) >= #fm_etd_dt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="to_etd_dt">
+				<![CDATA[ CONVERT(VARCHAR, bl.etd_dt_tm, 112) < #to_etd_dt# ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="bkg_no">
+				bl.bkg_no = #bkg_no#
+			</isNotNull>
+			<isNotNull prepend="AND" property="mbl_no">
+				rlt.rlt_intg_bl_seq = #mbl_no#
+			</isNotNull>
+			<isNotNull prepend="AND" property="trnk_vsl_cd">
+				bl.trnk_vsl_cd = #trnk_vsl_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="ship_trdp_cd">
+				ashp.trdp_cd = #ship_trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="lr_trdp_cd">
+				cnee.trdp_cd = #lr_trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="trdp_cd">
+				prnr.trdp_cd = #trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="cntr_no">
+				list.cntr_no in ($cntr_no$) 
+			</isNotNull>
+			<isNotNull prepend="AND" property="cnt_cd">
+				loc.CNT_CD = #cnt_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="pol_cd">
+				bl.pol_cd = #pol_cd#
+			</isNotNull>
+		</dynamic>
+		ORDER BY bl.intg_bl_seq
+	</select>
+	
+	<!-- Tracing Update    -->
+	<update id="updateTracingMaster" parameterClass="TracMgmtVO">
+		UPDATE  TB_TRAC_MGMT
+		   SET  dis_dt_tm		= #dis_dt_tm#,		n1st_wgn_no   = #n1st_wgn_no#,
+				eta_bod_dt_tm	= #eta_bod_dt_tm#,	etd_bod_dt_tm = #etd_bod_dt_tm#,
+				ata_bod_dt_tm   = #ata_bod_dt_tm#,
+				n2nd_wgn_no		= #n2nd_wgn_no#,	act_dis_dt_tm = #act_dis_dt_tm#,
+				eta_fd_dt_tm	= #eta_fd_dt_tm#,	ata_fd_dt_tm  = #ata_fd_dt_tm#,
+				trac_rmk		= #trac_rmk#,		cur_loc_cd    = #cur_loc_cd#
+		 WHERE  intg_bl_seq		= cast(#intg_bl_seq# as varchar)
+		   AND	cntr_no			= #cntr_no#
+	</update>
+	
+	<!-- container current location Update    -->
+	<update id="updateCntrLocation" parameterClass="TracMgmtVO">
+		UPDATE  tb_cntr_mst
+		   SET  cntr_trac_nod_cd= #cur_loc_cd#,			modi_usrid	= #modi_usrid#,
+		        modi_ofc_cd		= #modi_ofc_cd#,		modi_tms	= GETUTCDATE()
+		 WHERE  cntr_no           = #cntr_no#
+	</update>
+	
+	<!-- Route List    -->
+    <select id="selectRouteList" resultClass="RouteVO">
+		SELECT	a.pol_cd,		a.pod_cd,		a.fd_cd,
+		        a.to_dis_day,	a.to_bod_day,	a.to_fd_day,
+		        x.LOC_NM pol_nm,y.LOC_NM pod_nm,z.CNT_ENG_NM fd_nm
+		FROM	tb_rout_mst a
+		  		JOIN TB_LOC x ON a.pol_cd = x.loc_cd
+		  		JOIN TB_LOC y ON a.pod_cd = y.loc_cd
+		  		JOIN TB_CNT z ON a.fd_cd = z.CNT_CD	
+		<isNotNull property="pol_cd">
+		WHERE	a.pol_cd = #pol_cd#
+		</isNotNull>
+		ORDER BY a.pol_cd
+	</select>
+	
+	<!-- Route Update    -->
+	<update id="updateRouteMaster" parameterClass="RouteVO">
+		UPDATE  tb_rout_mst
+		   SET  to_dis_day	= #to_dis_day#,
+		        to_bod_day	= #to_bod_day#,
+		        to_fd_day	= #to_fd_day#
+		 WHERE  pol_cd		= #pol_cd#
+		   AND	pod_cd		= #pod_cd#
+		   AND  fd_cd		= #fd_cd#
+	</update>
+	<!-- Route Delete    -->
+	<delete id="deleteRouteMaster" parameterClass="RouteVO">
+		DELETE FROM tb_rout_mst
+		WHERE  pol_cd		= #pol_cd#
+		   AND	pod_cd		= #pod_cd#
+		   AND  fd_cd		= #fd_cd#
+		   AND	to_dis_day	= #to_dis_day#
+		   AND	to_bod_day	= #to_bod_day#
+		   AND	to_fd_day	= #to_fd_day#
+	</delete>
+	
+	<!-- Route Insert    -->
+	<insert id="insertRouteMaster" parameterClass="RouteVO">
+		INSERT INTO tb_rout_mst(
+			pol_cd,		pod_cd,		fd_cd,          
+			to_dis_day,	to_bod_day,	to_fd_day      
+		)	VALUES	(
+			#pol_cd#,		#pod_cd#,		#fd_cd#,
+			#to_dis_day#,	#to_bod_day#,	#to_fd_day#
+		)
+	</insert>
+	
+	<!-- Inventory List   -->
+    <select id="selectInventoryList" resultClass="CntrMstVO">
+<![CDATA[ 
+		SELECT	a.lr_trdp_cd, z.ENG_NM lr_trdp_nm, b.loc_cd, a.lstm_cd, a.lstm_nm,
+				SUM(CASE WHEN a.cntr_tpsz_cd = 20 then a.cntr_cnt else 0 end) n1st,
+				SUM(CASE WHEN a.cntr_tpsz_cd = 40 then a.cntr_cnt else 0 end) n2nd,
+				SUM(CASE WHEN a.cntr_tpsz_cd = 45 then a.cntr_cnt else 0 end) n3rd,
+				SUM(CASE WHEN a.cntr_tpsz_cd = 'REFFER' then a.cntr_cnt else 0 end) n4th
+		  FROM	(
+		
+				SELECT	a.lr_trdp_cd, a.cntr_trac_nod_cd, c.cd_nm lstm_nm, a.lstm_cd
+						, CONVERT(VARCHAR, CASE WHEN SUBSTRING(a.cntr_tpsz_cd, 1, 2) = 43 THEN 40 ELSE SUBSTRING(a.cntr_tpsz_cd, 1, 2) END) cntr_tpsz_cd
+						, COUNT(*) cntr_cnt
+				  FROM	TB_CNTR_MST a
+						JOIN (SELECT cntr_tpsz_cd FROM TB_CNTR_TPSZ	WHERE cntr_tpsz_cd <> 'ETC' AND	n2st_rsv_cntr_cd = 'DRY'
+							  GROUP BY cntr_tpsz_cd
+							 ) b ON a.cntr_tpsz_cd = b.cntr_tpsz_cd
+						JOIN tb_com_cd_dtl c ON c.com_cd = 'C058' AND a.lstm_cd = c.cd_val
+ ]]>
+			<dynamic prepend="WHERE">
+				<isNotNull prepend="AND" property="fm_rgst_dt">
+                <![CDATA[ CONVERT(VARCHAR, a.rgst_tms, 112) >= #fm_rgst_dt# ]]>
+	            </isNotNull>
+	            <isNotNull prepend="AND" property="to_rgst_dt">
+	                <![CDATA[ CONVERT(VARCHAR, a.rgst_tms, 112) <= #to_rgst_dt# ]]>
+	            </isNotNull>
+			</dynamic>
+				GROUP BY CASE WHEN SUBSTRING(a.cntr_tpsz_cd, 1, 2) = 43 THEN 40 ELSE SUBSTRING(a.cntr_tpsz_cd, 1, 2) END, a.lr_trdp_cd, a.cntr_trac_nod_cd, a.lstm_cd,c.cd_nm
+				UNION ALL
+<![CDATA[ 
+				SELECT	a.lr_trdp_cd, a.cntr_trac_nod_cd, c.cd_nm lstm_nm, a.lstm_cd
+						, 'REFFER' cntr_tpsz_cd
+						, COUNT(*) cntr_cnt
+				  FROM	TB_CNTR_MST a
+						JOIN (SELECT cntr_tpsz_cd FROM	tb_cntr_tpsz WHERE cntr_tpsz_cd <> 'ETC' AND n2st_rsv_cntr_cd = 'REFFER'
+							  GROUP BY CNTR_TPSZ_CD
+							 ) b ON a.cntr_tpsz_cd = b.cntr_tpsz_cd
+						JOIN tb_com_cd_dtl c ON c.com_cd = 'C058' AND a.lstm_cd = c.cd_val
+]]>
+            <dynamic prepend="WHERE">
+                <isNotNull prepend="AND" property="fm_rgst_dt">
+                <![CDATA[ CONVERT(VARCHAR, a.rgst_tms, 112) >= #fm_rgst_dt# ]]>
+                </isNotNull>
+                <isNotNull prepend="AND" property="to_rgst_dt">
+                    <![CDATA[ CONVERT(VARCHAR, a.rgst_tms, 112) <= #to_rgst_dt# ]]>
+                </isNotNull>
+            </dynamic>
+				GROUP BY a.lr_trdp_cd, a.cntr_trac_nod_cd, a.lstm_cd,c.cd_nm
+				) a
+				JOIN TB_NOD b ON a.cntr_trac_nod_cd = b.nod_cd AND b.USE_FLG = 'Y'
+				JOIN TB_TRDP z ON a.lr_trdp_cd = z.TRDP_CD
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="lr_trdp_cd">
+				a.lr_trdp_cd = #lr_trdp_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="loc_cd">
+				b.loc_cd = #loc_cd#
+			</isNotNull>
+			<isNotNull prepend="AND" property="lstm_cd">
+				a.lstm_cd IN ($lstm_cd$)
+			</isNotNull>
+		</dynamic>
+		GROUP BY a.lr_trdp_cd, z.ENG_NM, b.loc_cd, a.lstm_cd, a.lstm_nm
+		ORDER BY a.lr_trdp_cd, z.ENG_NM, b.loc_cd, a.lstm_cd, a.lstm_nm
+	</select>
+	
+	<!-- Inventory List   -->
+    <select id="selectInventoryDtlList" resultClass="CntrMstVO">
+		SELECT	z.ENG_NM as lr_trdp_nm, a.lr_trdp_cd,	c.bkg_no,
+				a.cntr_no,	a.cntr_tpsz_cd,	b.intg_bl_seq,
+				c.sr_no, c.bl_no, b.amt
+		  FROM	TB_CNTR_MST a
+				JOIN TB_EQ_INV_DTL b ON a.CNTR_NO = b.CNTR_NO
+				JOIN TB_INTG_BL c ON b.INTG_BL_SEQ = c.INTG_BL_SEQ
+				JOIN tb_com_cd_dtl d ON d.com_cd = 'C058' AND a.lstm_cd = d.cd_val
+				JOIN TB_NOD e ON a.cntr_trac_nod_cd = e.nod_cd AND e.USE_FLG = 'Y'
+				JOIN TB_TRDP z ON a.LR_TRDP_CD = z.TRDP_CD
+		<isNotEqual property="cntr_tpsz_cd" compareValue="REFFER">
+		<![CDATA[
+				JOIN (SELECT cntr_tpsz_cd FROM TB_CNTR_TPSZ	WHERE cntr_tpsz_cd <> 'ETC' AND	n2st_rsv_cntr_cd = 'DRY'
+					  GROUP BY cntr_tpsz_cd) f ON a.CNTR_TPSZ_CD = f.CNTR_TPSZ_CD
+		 WHERE	CASE WHEN SUBSTRING(a.cntr_tpsz_cd, 1, 2) = 43 THEN 40 ELSE SUBSTRING(a.cntr_tpsz_cd, 1, 2) END = #cntr_tpsz_cd#
+		   AND	a.lr_trdp_cd = #lr_trdp_cd#
+		   AND	d.cd_val = #lstm_cd#
+		   AND	e.loc_cd = #loc_cd#
+		   
+		]]>
+		<isNotNull prepend="AND" property="fm_rgst_dt">
+            <![CDATA[ CONVERT(VARCHAR, a.rgst_tms, 112) >= #fm_rgst_dt# ]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="to_rgst_dt">
+            <![CDATA[ CONVERT(VARCHAR, a.rgst_tms, 112) <= #to_rgst_dt# ]]>
+        </isNotNull>
+		</isNotEqual>
+		<isEqual property="cntr_tpsz_cd" compareValue="REFFER">
+		<![CDATA[ 
+				JOIN (SELECT cntr_tpsz_cd FROM TB_CNTR_TPSZ	WHERE cntr_tpsz_cd <> 'ETC' AND	n2st_rsv_cntr_cd = 'REFFER'
+					  GROUP BY cntr_tpsz_cd) f ON a.CNTR_TPSZ_CD = f.CNTR_TPSZ_CD
+		 WHERE	a.lr_trdp_cd = #lr_trdp_cd#
+		   AND	d.cd_val = #lstm_cd#
+		   AND	e.loc_cd = #loc_cd#
+ 		]]>
+ 		<isNotNull prepend="AND" property="fm_rgst_dt">
+            <![CDATA[ CONVERT(VARCHAR, a.rgst_tms, 112) >= #fm_rgst_dt# ]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="to_rgst_dt">
+            <![CDATA[ CONVERT(VARCHAR, a.rgst_tms, 112) <= #to_rgst_dt# ]]>
+        </isNotNull>
+		</isEqual>
+		ORDER BY a.lr_trdp_cd, c.bkg_no, c.sr_no, c.bl_no, a.cntr_tpsz_cd, a.cntr_no
+	</select>
+	
+	<!-- Master Code combo pop select    -->
+    <select id="selectTerm_POP_LIST" resultClass="com.clt.apps.fis.mdm.code.currency.dto.ComCdDtlVO">
+			 SELECT  	cd_val,		cd_nm
+			   FROM  	tb_com_cd_dtl 
+			  WHERE 	delt_flg = 'N'	AND   use_flg  = 'Y'
+			    AND 	com_cd = 'C058'
+	</select>
+	
+	<!-- agreement NO MAX 값 가져오기   -->
+    <select id="selectAgmtMax" resultClass="String">
+		SELECT	MAX(maxInv) as maxInv
+		FROM   	(
+		   		SELECT	CASE	WHEN MAX(SUBSTRING(agmt_no,5,4)) = SUBSTRING(CONVERT(VARCHAR, getdate(),12),1,4)
+								THEN 'AGMT'+SUBSTRING(CAST(SUBSTRING(agmt_no,5,8)+100000001 as VARCHAR), 2, 8)
+						ELSE	'AGMT'+ SUBSTRING(CONVERT(VARCHAR, getdate(),12),1,4)+'0001' END 
+						AS maxInv
+				FROM 	tb_cntr_agmt
+				GROUP BY agmt_no
+				union all
+				select 'AGMT'+ SUBSTRING(CONVERT(VARCHAR, getdate(),12),1,4)+'0001' as maxInv
+				) a
+    </select>
+    	
+	<!-- cnrt code 조회   -->
+	<select id="selectCntrCode" resultClass="com.clt.apps.opusbase.system.systemcode.dto.ComCdDtlVO">
+		SELECT	cntr_tpsz_cd cd_val, cntr_tpsz_cd cd_nm
+		  FROM	tb_cntr_tpsz
+		 WHERE	use_flg = 'Y'
+		   AND	delt_flg = 'N'
+	  ORDER BY	cntr_tpsz_cd ASC
+	</select>
+	<!-- Mapping code 조회   -->
+	<select id="selectMappingCode" resultClass="CntrMstVO">
+        SELECT  smry.INV_SMRY_SEQ, 
+                smry.CNTR_TPSZ_CD,
+                dtl.AMT,
+                dtl.cnt tpsz_cnt,                
+                convert(varchar, smry.INV_SMRY_SEQ)+'. '+convert(varchar, smry.CNTR_TPSZ_CD)+' : '+convert(varchar, convert(numeric(20, 2), dtl.AMT))+' '+convert(varchar, dtl.cnt)+'EA' tpsz_amt
+          FROM  TB_EQ_INV_SMRY smry
+          JOIN  (SELECT dtl.INV_NO, INV_SMRY_SEQ, MAX(dtl.AMT) AMT, count(dtl.INV_SMRY_SEQ) cnt
+                   FROM TB_EQ_INV_DTL dtl
+                  WHERE CNTR_NO = 'X'
+                 GROUP BY dtl.INV_NO, dtl.INV_SMRY_SEQ) dtl
+            ON  smry.INV_NO = dtl.INV_NO AND smry.INV_SMRY_SEQ = dtl.INV_SMRY_SEQ
+       WHERE  smry.inv_no = #inv_no#
+       <isNotNull property="cntr_tpsz_cd">
+         AND  smry.cntr_tpsz_cd = #cntr_tpsz_cd#
+       </isNotNull>
+      ORDER BY  smry.INV_SMRY_SEQ ASC
+	</select>
+	<!-- Container no code 조회   -->
+	<select id="selectCntrNoCode" parameterClass="HashMap" resultClass="CntrMstVO">
+        SELECT CNTR_NO,     CNTR_TPSZ_CD,       cntr_sprl_trdp_cd , soc_flg,
+               cmp.eng_nm AS cntr_sprl_trdp_nm, cntr.intg_bl_seq
+          FROM TB_CNTR_LIST cntr
+          JOIN tb_trdp cmp ON cmp.trdp_cd = cntr.cntr_sprl_trdp_cd
+         WHERE cntr.DELT_FLG = 'N'
+           AND cntr.RGST_CNTR_YN != 'Y'
+       <isNotNull property="f_cntr_tpsz_cd">
+           AND cntr.cntr_tpsz_cd = #f_cntr_tpsz_cd#
+       </isNotNull>
+       <isNotNull property="f_cntr_sprl_trdp_cd">
+           AND cntr.cntr_sprl_trdp_cd = #f_cntr_sprl_trdp_cd#
+       </isNotNull>
+      ORDER BY  cntr.CNTR_NO ASC
+	</select>
+	
+	<!-- Container no code 조회   -->
+	<select id="selectCntrNoCodeCnt" parameterClass="HashMap" resultClass="Integer">
+        SELECT count(cntr_no)
+          FROM TB_CNTR_LIST cntr
+          JOIN tb_trdp cmp ON cmp.trdp_cd = cntr.cntr_sprl_trdp_cd
+         WHERE cntr.DELT_FLG = 'N'
+           AND cntr.RGST_CNTR_YN != 'Y'
+       <isNotNull property="f_cntr_tpsz_cd">
+           AND cntr.cntr_tpsz_cd = #f_cntr_tpsz_cd#
+       </isNotNull>
+       <isNotNull property="f_cntr_sprl_trdp_cd">
+           AND cntr.cntr_sprl_trdp_cd = #f_cntr_sprl_trdp_cd#
+       </isNotNull>
+	</select>
+	
+	<!-- Container no solo 조회   -->
+	<select id="selectCntrNoSolo" resultClass="CntrMstVO">
+        SELECT CNTR_NO, CNTR_TPSZ_CD, cntr_sprl_trdp_cd AS lr_trdp_cd, soc_flg AS lstm_cd
+		  FROM TB_CNTR_LIST cntr
+         WHERE cntr.DELT_FLG = 'N'
+           AND cntr.RGST_CNTR_YN != 'Y'
+           AND cntr.INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+      ORDER BY  cntr.CNTR_NO ASC
+	</select>
+	
+	<!-- Container no solo 조회   -->
+	<select id="selectCntrNoUseYN" resultClass="String">
+        SELECT top(1) intg_bl_seq from TB_CNTR_LIST
+		 WHERE RGST_CNTR_YN != 'Y'
+		   AND DELT_FLG = 'N'
+		   AND CNTR_NO =  #cntr_no#
+	</select>
+</sqlMap>

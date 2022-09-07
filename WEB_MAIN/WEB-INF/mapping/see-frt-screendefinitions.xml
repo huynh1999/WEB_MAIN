@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+<!--#### See Freight 관련 프로그램  Start ####  -->
+    <!-- Sea Export House BL Freight   -->
+    <screen name="SEE_FRT_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/see/frt/freight/jsp/SEE_FRT_0010.jsp" />
+    </screen>
+	
+	<!--Type/Size 그룹 조회   -->
+    <screen name="SEE_FRT_0010GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/frt/freight/jsp/SEE_FRT_0010GS.jsp" />
+    </screen>
+
+    <!--Freight 목록 조회   -->
+    <screen name="SEE_FRT_0010_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/frt/freight/jsp/SEE_FRT_0010_1GS.jsp" />
+    </screen>
+    
+    <!--Freight 목록 조회   -->
+    <screen name="SEE_FRT_0010_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/frt/freight/jsp/SEE_FRT_0010_2GS.jsp" />
+    </screen>
+	
+    <!-- Invoice Create 팝업   -->
+    <screen name="SEE_FRT_0011">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/see/frt/freight/jsp/SEE_FRT_0011.jsp" />
+    </screen>
+    <!-- Sea Export House BL Freight End   -->
+	
+    <!-- Sea Export Master BL Freight   -->
+    <screen name="SEE_FRT_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/see/frt/freight/jsp/SEE_FRT_0020.jsp" />
+    </screen>
+    
+    <!--Type/Size 그룹 조회   -->
+    <screen name="SEE_FRT_0020GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/frt/freight/jsp/SEE_FRT_0020GS.jsp" />
+    </screen>
+
+    <!--House BL 목록 조회   -->
+    <screen name="SEE_FRT_0020_1GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/frt/freight/jsp/SEE_FRT_0020_1GS.jsp" />
+    </screen>
+	
+    <!--Freight 목록 조회   -->
+    <screen name="SEE_FRT_0020_2GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/see/frt/freight/jsp/SEE_FRT_0020_2GS.jsp" />
+    </screen>
+<!-- Sea Export Master BL Freight End   -->
+	<!-- Sea Import House BL Freight   -->
+    <screen name="SEI_FRT_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sei/frt/freight/jsp/SEI_FRT_0010.jsp"/>
+    </screen>
+
+    <!-- Sea Import Master BL Freight   -->
+    <screen name="SEI_FRT_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sei/frt/freight/jsp/SEI_FRT_0020.jsp"/>
+    </screen>
+<!--#### See Freight 관련 프로그램 End ####  -->
+	
+	
+	
+<!--#### Air Freight 관련 프로그램  Start ####  -->
+    <!-- Air Export House BL Freight   -->
+    <screen name="AIE_FRT_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/aie/frt/freight/jsp/AIE_FRT_0010.jsp"/>
+    </screen>
+
+    <!-- Air Export Master BL Freight   -->
+    <screen name="AIE_FRT_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/aie/frt/freight/jsp/AIE_FRT_0020.jsp"/>
+    </screen>
+	
+    <!-- Air Import House BL Freight   -->
+    <screen name="AII_FRT_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/aii/frt/freight/jsp/AII_FRT_0010.jsp"/>
+    </screen>
+
+    <!-- Air Import Master BL Freight   -->
+    <screen name="AII_FRT_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/aii/frt/freight/jsp/AII_FRT_0020.jsp"/>
+    </screen>
+	
+<!--#### Air Freight 관련 프로그램 End ####  -->
+</screen-definitions>

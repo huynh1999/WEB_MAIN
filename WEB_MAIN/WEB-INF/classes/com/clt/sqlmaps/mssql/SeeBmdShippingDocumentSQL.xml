@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd"> 
+<sqlMap namespace="see.bmd.shippingdoc">
+
+	<typeAlias alias="ShippingDocumentVO" 	type="com.clt.apps.fis.see.bmd.shippingdoc.dto.ShippingDocumentVO"/>
+	<typeAlias alias="TradePartnerManagementVO" 	type="com.clt.apps.fis.mdm.mcm.partner.dto.TradePartnerManagementVO"/>
+	<typeAlias alias="SecPaltShpDocVO" 	type="com.clt.apps.fis.see.bmd.shippingdoc.dto.PaltShpDocVO"/>
+
+	<!-- B/L info select    -->
+    <select id="selectBL_PRNR_INFO" parameterClass="java.util.HashMap" resultClass="SecPaltShpDocVO">
+		SELECT  a.intg_bl_seq,     a.bl_no AS house_bl_no,   
+       		    (SELECT  bl_no  
+		           FROM  tb_intg_bl  WHERE  delt_flg = 'N' 
+			        AND  intg_bl_seq = (SELECT  rlt_intg_bl_seq	
+					                      FROM  tb_intg_bl_rlt	
+		                                 WHERE  intg_bl_seq = a.intg_bl_seq	)		
+		        ) AS master_bl_no
+		  FROM  tb_intg_bl a   
+		 WHERE  a.intg_bl_seq = cast(#intg_bl_seq# as varchar) AND a.delt_flg = 'N'
+	</select>
+	
+	<!-- Shipping Document select    -->
+    <select id="selectSEE_BMD_0051_LIST" parameterClass="java.util.HashMap" resultClass="SecPaltShpDocVO">
+        SELECT  a.palt_doc_seq,         a.intg_bl_seq,          a.palt_trdp_cd,     
+                a.palt_trdp_pic_nm,     a.palt_trdp_pic_fax,    a.palt_trdp_pic_phn,    
+                a.palt_doc_tp_cd,       a.palt_doc_nm,          a.palt_doc_no,      
+                a.palt_doc_img_url,     a.palt_doc_img_nm,
+                a.palt_doc_pdf_url,     a.palt_doc_pdf_nm,  
+                a.palt_doc_msg,         a.palt_doc_rmk,			isnull(a.palt_ext_flg, 'N') AS palt_ext_flg,
+                a.rgst_usrid,           a.rgst_ofc_cd,          CONVERT(VARCHAR(8), a.rgst_tms, 112) AS rgst_tms,
+                b.bl_no AS house_bl_no,
+               (SELECT  bl_no FROM  tb_intg_bl
+                 WHERE  delt_flg = 'N' 
+                   AND  intg_bl_seq =(SELECT  rlt_intg_bl_seq  
+                                        FROM  tb_intg_bl_rlt
+                                       WHERE  intg_bl_seq = a.intg_bl_seq  )
+               ) AS master_bl_no
+         FROM  tb_palt_shp_doc a
+         LEFT OUTER JOIN  tb_intg_bl b
+          ON  a.intg_bl_seq  = b.intg_bl_seq
+         
+        WHERE 1=1
+          AND  a.delt_flg = 'N'
+          AND  a.palt_doc_tp_cd NOT IN ('AN','DO')
+		<dynamic>
+			<isNotNull property="s_palt_doc_seq">
+				AND a.palt_doc_seq =#s_palt_doc_seq#
+			</isNotNull>
+			<isNotNull property="intg_bl_seq">
+				AND a.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+    <!-- Shipping Document Mail Receiver 조회   -->
+    <select id="selectMAILRCV_LIST" parameterClass="java.util.HashMap" resultClass="TradePartnerManagementVO">
+        SELECT  a.trdp_cd, a.pic_nm,    a.pic_eml
+          FROM  tb_trdp_cntc_pson a,
+             (
+                SELECT  palt_trdp_cd FROM tb_palt_shp_doc 
+                 WHERE  intg_bl_seq  = #s_intg_bl_seq# AND delt_flg = 'N'
+              GROUP BY  palt_trdp_cd
+             )b
+         WHERE a.trdp_cd = b.palt_trdp_cd
+           AND a.rep_flg = 'Y' AND a.delt_flg = 'N'
+    </select>
+	
+    <!-- Shipping Document메일전송 마스터테이블 PK생성  -->
+    <select id="selectPALT_EML_SND_MKPK" resultClass="String">
+        SELECT ISNULL(MAX(palt_seq),0)+1
+        FROM tb_palt_eml_snd
+    </select>
+
+    <!-- Shipping Document메일전송 마스터테이블 데이터 입력  -->
+	<insert id="insertPALT_EML_SND" parameterClass="com.clt.apps.fis.see.bmd.shippingdoc.dto.PaltEmlSndVO">
+		INSERT INTO tb_palt_eml_snd
+		(  
+            palt_seq,    intg_bl_seq,  
+            eml_to_addr, eml_cc_addr,  eml_tit, eml_msg, 
+            snd_dt_tm,   prog_sts_cd,
+            rgst_usrid,  rgst_ofc_cd,  rgst_tms,
+            modi_usrid,  modi_ofc_cd,  modi_tms, delt_flg 
+		)VALUES(
+            #palt_seq#,    #intg_bl_seq#,  
+            #eml_to_addr#, #eml_cc_addr#,  #eml_tit#, #eml_msg#, 
+            #snd_dt_tm#,   #prog_sts_cd#,
+			#proc_usrid#,  #proc_ofccd#,   getdate(),
+			#proc_usrid#,  #proc_ofccd#,   GETUTCDATE(), 'N'		      
+		)
+	</insert>
+	
+    <!-- Shipping Document메일 첨부파일 정보테이블 데이터 입력  -->
+    <insert id="insertPALT_EML_DOC" parameterClass="com.clt.apps.fis.see.bmd.shippingdoc.dto.PaltEmlSndVO">
+		INSERT INTO tb_palt_eml_doc
+		(
+			palt_seq,         doc_seq,   
+			palt_doc_seq,     palt_doc_tp_cd,   palt_doc_nm,  palt_doc_no,
+			rgst_usrid,       rgst_ofc_cd,      rgst_tms,
+			modi_usrid,       modi_ofc_cd,       modi_tms, delt_flg 
+		)SELECT   #palt_seq#,    #doc_seq#,   
+		          palt_doc_seq,  palt_doc_tp_cd,   palt_doc_nm,  palt_doc_no,
+				  #proc_usrid#,  #proc_ofccd#,   getdate(),
+				  #proc_usrid#,  #proc_ofccd#,   GETUTCDATE(), 'N'
+		   FROM   tb_palt_shp_doc
+		  WHERE   palt_doc_seq = #palt_doc_seq#
+    </insert>	
+	
+	
+	<select id="selectPALT_SHP_DOC_FILELIST" resultClass="SecPaltShpDocVO">
+		SELECT  palt_doc_img_url,  palt_doc_img_nm, 
+		        palt_doc_pdf_url,  palt_doc_pdf_nm
+		  FROM  tb_palt_shp_doc
+		 WHERE  palt_doc_seq IN (<iterate conjunction=",">#[]#</iterate>)
+		 ORDER  BY palt_doc_seq
+	</select>
+	
+	
+	<!-- PK생성  -->
+    <select id="selectSEE_BMD_0051_MkPK" resultClass="String">
+        SELECT ISNULL(MAX(PALT_DOC_SEQ),0)+1
+  		FROM tb_palt_shp_doc
+    </select>
+	
+	<!--  등록   -->
+    <insert id="insertSEE_BMD_0051" parameterClass="SecPaltShpDocVO">    
+        INSERT INTO tb_palt_shp_doc
+			(
+			palt_doc_seq,       	intg_bl_seq,          palt_trdp_cd, 		palt_mnu_cd,
+			palt_trdp_pic_nm,   	palt_trdp_pic_fax,    palt_trdp_pic_phn,	opr_no, 
+			palt_doc_tp_cd,     	palt_doc_nm,          palt_doc_no, 
+			palt_doc_msg,           palt_doc_rmk,         palt_ext_flg,
+			palt_doc_img_url,       palt_doc_img_nm,
+		    palt_doc_pdf_url,       palt_doc_pdf_nm,	  
+			rgst_usrid,          	rgst_ofc_cd,          rgst_tms,
+			modi_usrid,          	modi_ofc_cd,          modi_tms, delt_flg 
+			)
+		VALUES 
+		(
+			#palt_doc_seq#,         #intg_bl_seq#,			#palt_trdp_cd#,		#palt_mnu_cd#,
+			#palt_trdp_pic_nm#,   	#palt_trdp_pic_fax#,    #palt_trdp_pic_phn#, 	 #opr_no#,
+			#palt_doc_tp_cd#,     	#palt_doc_nm#,          #palt_doc_no#, 
+			#palt_doc_msg#,         #palt_doc_rmk#,         #palt_ext_flg#,
+		    #palt_doc_img_url#,     #palt_doc_img_nm#,
+		    #palt_doc_pdf_url#,     #palt_doc_pdf_nm#,
+			#proc_usrid#,			#proc_ofccd#,			getdate(),
+			#proc_usrid#,			#proc_ofccd#,			GETUTCDATE(), 'N'
+		)
+    </insert>
+	
+	<!-- 수정   -->
+    <update id="updateSEE_BMD_0051" parameterClass="SecPaltShpDocVO">
+      UPDATE tb_palt_shp_doc
+		SET palt_trdp_cd 	 = #palt_trdp_cd#,
+			palt_trdp_pic_nm = #palt_trdp_pic_nm#,  palt_trdp_pic_fax = #palt_trdp_pic_fax#,  palt_trdp_pic_phn = #palt_trdp_pic_phn#,
+			palt_doc_tp_cd 	 = #palt_doc_tp_cd#,    palt_doc_nm 	  = #palt_doc_nm#,        palt_doc_no 		= #palt_doc_no#,
+			palt_doc_msg 	 = #palt_doc_msg#,      palt_doc_rmk 	  = #palt_doc_rmk#,		  palt_ext_flg		= #palt_ext_flg#,
+			palt_doc_img_url = #palt_doc_img_url#,  palt_doc_img_nm   = #palt_doc_img_nm#,  
+			palt_doc_pdf_url = #palt_doc_pdf_url#,  palt_doc_pdf_nm   = #palt_doc_pdf_nm#,
+			modi_usrid 		 = #proc_usrid#,
+			modi_ofc_cd 	 = #proc_ofccd#,
+			modi_tms 		 =  GETUTCDATE()
+		WHERE palt_doc_seq 	= #palt_doc_seq#
+		AND   intg_bl_seq 	= cast(#intg_bl_seq# as varchar)
+    </update>
+	
+    <!-- 삭제  -->
+    <update id="removeSEE_BMD_0051" parameterClass="SecPaltShpDocVO">
+       UPDATE tb_palt_shp_doc
+		SET modi_ofc_cd 	= #proc_usrid#,		modi_usrid 	= #proc_ofccd#,
+			modi_tms 		= GETUTCDATE(),		delt_flg = 'Y'
+		WHERE palt_doc_seq = #palt_doc_seq#
+    </update>
+	
+</sqlMap>

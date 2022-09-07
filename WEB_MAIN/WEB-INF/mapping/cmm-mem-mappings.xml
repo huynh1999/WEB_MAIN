@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <url-mapping url="CMM_MEM_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.cmm.mem.event.CMM_MEM_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="CMM_MEM_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="CMM_MEM_0010GS.clt" screen="CMM_MEM_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.cmm.mem.event.CMM_MEM_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.cmm.mem.event.CmmMemEvent</event-class>
+        <service-action-class>com.clt.apps.fis.cmm.mem.CmmMemSC</service-action-class>
+    </event-mapping>
+    
+    
+</mappings>

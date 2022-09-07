@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="whm.item.all">
+<typeAlias alias="itementryVO" 	type="com.clt.apps.fis.whm.item.itementry.dto.itementryVO"/>
+<typeAlias alias="itementrysupVO" 	type="com.clt.apps.fis.whm.item.itementry.dto.itementrysupVO"/>
+<typeAlias alias="itemlistVO" 	type="com.clt.apps.fis.whm.item.itemlist.dto.itemlistVO"/>
+<!--  <select id="searchItemEntryRSQL" parameterClass="java.util.HashMap" resultClass="itementryVO">
+/* WhmItemEntrySQL.xml > searchItemEntryRSQL.Query */
+SELECT 
+ CI.CUST_ITM_ID,
+ CI.CUST_CD,
+ (SELECT TP.LOCL_NM 
+	FROM TB_TRDP TP 
+	WHERE TP.RGST_OFC_CD = CI.RGST_OFC_CD 
+	AND TP.TRDP_CD = CI.CUST_CD 
+	AND ISNULL(TP.DELT_FLG, 'N') = 'N') AS CUST_NM,
+ CI.RGST_OFC_CD,
+ CI.ITM_CD,
+ CI.ITM_NM,
+ CI.ITM_HTS_CD,
+ CI.ITM_UT_CD,
+ ISNULL(CI.ITM_INR_QTY, 0) ITM_INR_QTY,
+ ISNULL(CI.ITM_WGT, 0) ITM_WGT,
+ ISNULL(CI.ITM_VOL, 0) ITM_VOL,
+ ISNULL(CI.ITM_WDT, 0) ITM_WDT,
+ ISNULL(CI.ITM_HGT, 0) ITM_HGT,
+ ISNULL(CI.ITM_LEN, 0) ITM_LEN,
+ ISNULL(CI.ITM_PRC_AMT, 0) ITM_PRC_AMT, 
+ CI.ITM_CURR_CD,
+ ISNULL(CI.USE_FLG,'N') USE_FLG, 
+ 
+ SI.SPLR_CD,
+ (SELECT TP.LOCL_NM 
+	FROM TB_TRDP TP 
+	WHERE TP.RGST_OFC_CD = SI.RGST_OFC_CD 
+	AND TP.TRDP_CD = SI.SPLR_CD 
+	AND ISNULL(TP.DELT_FLG, 'N') = 'N') AS SPLR_NM,
+ SI.SPLR_ITM_CD
+ 
+FROM
+	WHM_CUST_ITM CI LEFT OUTER JOIN WHM_SPLR_ITM SI
+on CI.CUST_ITM_ID = SI.CUST_ITM_ID
+WHERE
+	1 = 1
+AND	CI.CUST_ITM_ID = #cust_itm_id#
+</select> -->
+ <!-- Warehouse Internal Code dup check    -->
+<select id="whm.item.all.checkDuplicateInternalCd" parameterClass="java.util.HashMap" resultClass="String">
+    	SELECT COUNT(*)
+		FROM WHM_CUST_ITM
+		WHERE 1 = 1
+		AND CUST_ITM_ID = #cust_itm_id#
+		   
+</select>
+
+<!-- Vinh.Vo 2015-1-9 (S) -->
+
+<select id="checkDuplicateCustAndCdUsedByCust" parameterClass="java.util.HashMap" resultClass="String">
+    SELECT COUNT(*)
+	FROM WHM_CUST_ITM	
+	WHERE 1=1
+	<isNotEmpty property="cust_itm_id">
+		AND CUST_ITM_ID not in(#cust_itm_id#)
+	</isNotEmpty>
+		AND ITM_CD = #itm_cd#
+		AND CUST_CD = #cust_cd#
+</select>
+
+<!-- Vinh.Vo 2015-1-9 (E) -->
+
+<select id="whm.item.all.GetRegisterOfficeCode" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT RGST_OFC_CD from TB_TRDP WHERE 1 = 1 AND TRDP_CD = #cust_cd#
+</select>
+
+<select id="searchItemEntryMasterRSQL" parameterClass="HashMap" resultClass="itementryVO">
+	SELECT 
+	 CI.CUST_ITM_ID,
+	 CI.CUST_CD,
+	 (SELECT TOP 1 TP.LOCL_NM 
+		FROM TB_TRDP TP 
+		WHERE TP.TRDP_CD = CI.CUST_CD
+		<!-- 
+		WHERE TP.RGST_OFC_CD = CI.RGST_OFC_CD 
+		AND TP.TRDP_CD = CI.CUST_CD 
+		AND ISNULL(TP.DELT_FLG, 'N') = 'N' -->
+	) AS CUST_NM,
+	 CI.RGST_OFC_CD,
+	 CI.ITM_CD,
+	 CI.ITM_NM,
+	 CI.ITM_HTS_CD,
+	 CI.ITM_UT_CD,
+	 ISNULL(CI.ITM_INR_QTY, 0) ITM_INR_QTY,
+	 ISNULL(CI.ITM_WGT, 0) ITM_WGT,
+	 ISNULL(CI.ITM_VOL, 0) ITM_VOL,
+	 ISNULL(CI.ITM_WDT, 0) ITM_WDT,
+	 ISNULL(CI.ITM_HGT, 0) ITM_HGT,
+	 ISNULL(CI.ITM_LEN, 0) ITM_LEN,
+	 ISNULL(CI.ITM_PRC_AMT, 0) ITM_PRC_AMT, 
+	 ISNULL(CI.ITM_WGT_LBS, 0) ITM_WGT_LBS, 
+	 ISNULL(CI.ITM_VOL_CFT, 0) ITM_VOL_CFT, 
+	 ISNULL(CI.ITM_WDT_INCH, 0) ITM_WDT_INCH, 
+	 ISNULL(CI.ITM_HGT_INCH, 0) ITM_HGT_INCH, 
+	 ISNULL(CI.ITM_LEN_INCH, 0) ITM_LEN_INCH, 
+	 CI.ITM_CURR_CD,
+	 ISNULL(CI.USE_FLG,'N') USE_FLG
+	 
+	FROM
+		WHM_CUST_ITM CI 
+	WHERE 1 = 1
+	AND	CI.CUST_ITM_ID = #cust_itm_id#
+</select>
+
+<select id="searchItemEntryDetailRSQL" parameterClass="HashMap" resultClass="itementrysupVO">
+	SELECT 
+	  SI.SPLR_CD,
+	 (SELECT TOP 1 TP.LOCL_NM 
+		 FROM TB_TRDP TP 
+		 WHERE TP.TRDP_CD = SI.SPLR_CD
+		 <!-- WHERE TP.RGST_OFC_CD = SI.RGST_OFC_CD 
+		 AND TP.TRDP_CD = SI.SPLR_CD 
+		 AND ISNULL(TP.DELT_FLG, 'N') = 'N' -->
+	 ) AS SPLR_NM,
+	 SI.SPLR_ITM_CD,SI.RGST_OFC_CD
+	 
+	FROM
+	 WHM_CUST_ITM CI, WHM_SPLR_ITM SI
+	WHERE 1 = 1
+	AND CI.CUST_ITM_ID = #cust_itm_id#
+	AND CI.CUST_ITM_ID = SI.CUST_ITM_ID
+</select>
+
+<select id="searchItemListRSQL" parameterClass="java.util.HashMap" resultClass="itemlistVO">
+/* WhmItemListSQL.xml > searchItemListRSQL.Query */
+SELECT 
+ CI.CUST_ITM_ID,
+ CI.CUST_CD,
+ (SELECT TOP 1 TP.LOCL_NM 
+ FROM TB_TRDP TP 
+ WHERE 1=1 
+ AND TP.TRDP_CD = CI.CUST_CD 
+ <!-- AND ISNULL(TP.DELT_FLG, 'N') = 'N' -->
+ ) AS CUST_NM,
+ CI.RGST_OFC_CD,
+ CI.ITM_CD,
+ CI.ITM_NM,
+ CI.ITM_HTS_CD,
+ CI.ITM_UT_CD,
+ ISNULL(CI.ITM_INR_QTY, 0) ITM_INR_QTY,
+ ISNULL(CI.ITM_WGT, 0) ITM_WGT,
+ ISNULL(CI.ITM_VOL, 0) ITM_VOL,
+ ISNULL(CI.ITM_WDT, 0) ITM_WDT,
+ ISNULL(CI.ITM_HGT, 0) ITM_HGT,
+ ISNULL(CI.ITM_LEN, 0) ITM_LEN,
+ ISNULL(CI.ITM_PRC_AMT, 0) ITM_PRC_AMT,
+ ISNULL(CI.ITM_WGT_LBS, 0) ITM_WGT_LBS, 
+ ISNULL(CI.ITM_VOL_CFT, 0) ITM_VOL_CFT, 
+ ISNULL(CI.ITM_WDT_INCH, 0) ITM_WDT_INCH, 
+ ISNULL(CI.ITM_HGT_INCH, 0) ITM_HGT_INCH, 
+ ISNULL(CI.ITM_LEN_INCH, 0) ITM_LEN_INCH,  
+ CI.ITM_CURR_CD,
+ ISNULL(CI.USE_FLG,'N') USE_FLG
+ 
+<isEmpty property="splr_cd">
+ FROM WHM_CUST_ITM CI
+ WHERE 1 = 1 
+</isEmpty>
+<isNotEmpty property="splr_cd">
+ FROM WHM_CUST_ITM CI, WHM_SPLR_ITM SI
+ WHERE 1 = 1
+ AND CI.CUST_ITM_ID = SI.CUST_ITM_ID
+ AND SI.SPLR_CD = #splr_cd# 
+</isNotEmpty>
+
+ <isNotEmpty property="cust_cd">
+  AND CI.CUST_CD = #cust_cd# 
+ </isNotEmpty>
+ <isNotEmpty property="use_flg">
+  AND CI.USE_FLG    = #use_flg# 
+ </isNotEmpty>
+ <isNotEmpty property="itm_cd">
+  AND CI.ITM_CD LIKE  '%'+#itm_cd# +'%'
+ </isNotEmpty>
+ <isNotEmpty property="cust_itm_id">
+  AND CI.CUST_ITM_ID LIKE '%'+#cust_itm_id# +'%'
+ </isNotEmpty>
+ <isNotEmpty property="itm_nm">
+  AND CI.ITM_NM LIKE  '%'+#itm_nm# +'%'
+ </isNotEmpty>
+
+</select>
+
+<insert id="insertItemEntryRSQL" parameterClass="itementryVO">
+/* WhmItemEntrySQL.xml > insertItemEntryRSQL.Query */
+
+INSERT
+INTO WHM_CUST_ITM
+  (
+	 CUST_ITM_ID,
+	 CUST_CD,
+	 RGST_OFC_CD,
+	 ITM_CD,
+	 ITM_NM,
+	 ITM_HTS_CD,
+	 ITM_UT_CD,
+	 ITM_INR_QTY,
+	 ITM_WGT,
+	 ITM_VOL,
+
+	 ITM_WDT,
+	 ITM_HGT,
+	 ITM_LEN,
+	 ITM_PRC_AMT,
+	 ITM_CURR_CD,
+	 USE_FLG,
+	 CRE_DT,
+	 CRE_USR_ID,
+	 UPD_DT,
+	 UPD_USR_ID,
+	 ITM_WGT_LBS,
+	 ITM_VOL_CFT,
+	 ITM_WDT_INCH,
+	 ITM_HGT_INCH,
+	 ITM_LEN_INCH
+  )
+  VALUES
+  (
+    #cust_itm_id#,
+	#cust_cd#,
+	#rgst_ofc_cd#,
+	#itm_cd#,
+	#itm_nm#,
+	#itm_hts_cd#,
+	#itm_ut_cd#,
+	#itm_inr_qty#,
+	#itm_wgt#,
+	#itm_vol#,
+
+	#itm_wdt#,
+	#itm_hgt#,
+	#itm_len#,
+	#itm_prc_amt#,
+	#itm_curr_cd#,
+	#use_flg#,
+	getdate(),
+	#cre_usr_id#,
+	getdate(),
+	#upd_usr_id#,
+	#itm_wgt_lbs#,
+	#itm_vol_cft#,
+	#itm_wdt_inch#,
+	#itm_hgt_inch#,
+	#itm_len_inch#
+  )
+</insert>
+
+<update id="updateItemEntryUSQL" parameterClass="itementryVO">
+/* WhmItemEntrySQL.xml > updateItemEntryUSQL.Query */
+UPDATE WHM_CUST_ITM
+SET 
+	 CUST_CD 		= #cust_cd#,
+	 RGST_OFC_CD 	= #rgst_ofc_cd#,
+	 ITM_CD			= #itm_cd#,
+	 ITM_NM			= #itm_nm#,
+	 ITM_HTS_CD		= #itm_hts_cd#,
+	 ITM_UT_CD		= #itm_ut_cd#,
+	 ITM_INR_QTY	= #itm_inr_qty#,
+	 ITM_WGT		= #itm_wgt#,
+	 ITM_VOL		= #itm_vol#,
+	 ITM_WDT		= #itm_wdt#,
+	 ITM_HGT		= #itm_hgt#,
+	 ITM_LEN		= #itm_len#,
+	 ITM_PRC_AMT	= #itm_prc_amt#,
+	 ITM_CURR_CD	= #itm_curr_cd#,
+	 USE_FLG		= #use_flg#,
+	 UPD_DT			= getdate(),
+	 UPD_USR_ID		= #upd_usr_id#,
+	 ITM_WGT_LBS	= #itm_wgt_lbs#,
+	 ITM_VOL_CFT	= #itm_vol_cft#,
+	 ITM_WDT_INCH	= #itm_wdt_inch#,
+	 ITM_HGT_INCH	= #itm_hgt_inch#,
+	 ITM_LEN_INCH	= #itm_len_inch#
+WHERE 1 = 1
+AND	CUST_ITM_ID   = #cust_itm_id#
+</update>
+
+<insert id="insertItemEntrySupplierCSQL" parameterClass="itementryVO">
+/* WhmItemEntrySQL.xml > insertItemEntrySupplierCSQL.Query */
+INSERT INTO 
+	WHM_SPLR_ITM 
+	(
+	CUST_ITM_ID,
+	SPLR_CD,
+	RGST_OFC_CD,
+	SPLR_ITM_CD,
+	CRE_DT,
+	CRE_USR_ID,
+	UPD_DT,
+	UPD_USR_ID
+	)
+VALUES(
+	#cust_itm_id#,
+	#splr_cd#,
+	#rgst_ofc_cd#,
+	#splr_itm_cd#,
+	getdate(),
+	#cre_usr_id#,
+	getdate(),
+	#upd_usr_id#
+)
+</insert>
+
+<update id="updateItemEntrySupplierUSQL" parameterClass="itementryVO">
+/* WhmItemEntrySQL.xml > updateItemEntrySupplierUSQL.Query */
+UPDATE WHM_SPLR_ITM
+SET	
+	SPLR_ITM_CD = #splr_itm_cd#,
+	UPD_DT 		= getdate(),
+	UPD_USR_ID  = #upd_usr_id#
+WHERE 1 = 1
+AND	CUST_ITM_ID = #cust_itm_id#
+AND SPLR_CD 	= #splr_cd#
+AND RGST_OFC_CD = #rgst_ofc_cd#
+</update>
+
+<delete id="deleteItemEntrySupplierDSQL" parameterClass="itementryVO">
+/* WhmItemEntrySQL.xml > deleteItemEntrySupplierDSQL.Query */
+DELETE WHM_SPLR_ITM 
+WHERE 1 = 1 
+AND	CUST_ITM_ID = #cust_itm_id#
+AND SPLR_CD  = #splr_cd#
+AND RGST_OFC_CD = #rgst_ofc_cd#
+</delete>
+
+<select id="searchInfo_Item_byCtrtNo_UnitCd" parameterClass="java.util.HashMap" resultClass="String">
+	/* ITEMSql.xml > searchInfo_Item_byCtrtNo_UnitCd*/
+		
+		SELECT 
+		<!--20151028#1190: getValue() default by EA Level  -->
+		<!-- ((CASE WHEN #unit_cd# = I.PKG_LV1_UNIT_CD THEN LTRIM(RTRIM(CONVERT(DECIMAL(10, 0),  ISNULL(I.PKG_LV1_QTY,0)))) 	    			 
+				  WHEN #unit_cd# = I.ITEM_PKGUNIT    THEN LTRIM(RTRIM(CONVERT(DECIMAL(10,  0), ISNULL(I.ITEM_PKGBASEQTY,0)))) 
+				  WHEN #unit_cd# = I.PKG_LV3_UNIT_CD THEN LTRIM(RTRIM(CONVERT(DECIMAL(10, 0),  ISNULL(I.PKG_LV3_QTY,0)))) 
+				  ELSE LTRIM(RTRIM(CONVERT(DECIMAL(10, 0),  ISNULL(I.PKG_LV4_QTY,0)))) END )	    		 Inner QTY 							 
+	 			
+	 			+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 2),  ISNULL(I.LV1_WIDTH,0))))			    			 (Inch)	 
+					+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 2),  ISNULL(I.LV1_LENGTH,0))))  		    			 (Inch) 
+					+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 2), ISNULL(I.LV1_HEIGHT,0)))) 						 (Inch)	 
+					+'|'+ LTRIM( RTRIM( CONVERT ( DECIMAL (10, 3), ISNULL(I.LV1_GRS_KGS,0) ) ) )    			Weight Dim (KG)
+					+'|'+ LTRIM( RTRIM( CONVERT (DECIMAL (10, 3),  ISNULL(I.LV1_NET_KGS,0) ) ) )    			Weight act (KG)
+					+'|'+ LTRIM( RTRIM( CONVERT (DECIMAL(10, 5), ISNULL(I.LV1_CBM,0)) ) )	   					V (CBM)
+	       	) AS PKG_LV1_QTY  -->
+        	
+        	 ( CASE WHEN #unit_cd# = I.PKG_LV1_UNIT_CD 
+        				THEN LTRIM(RTRIM(CONVERT(DECIMAL(10, 0),  ISNULL(I.PKG_LV1_QTY,0)))) 	    		 <!-- Inner QTY --> 			 
+				 			  +'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 2),  ISNULL(I.LV1_WIDTH,0))))			 <!-- (Inch)     -->	 
+        					  +'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 2),  ISNULL(I.LV1_LENGTH,0))))  		 <!-- (Inch) 	 --> 
+        					  +'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 2), ISNULL(I.LV1_HEIGHT,0)))) 			 <!-- (Inch)	 --> 
+        					  +'|'+ LTRIM( RTRIM( CONVERT ( DECIMAL (10, 3), ISNULL(I.LV1_GRS_KGS,0) ) ) )   <!-- Weight Dim (KG) -->
+        					  +'|'+ LTRIM( RTRIM( CONVERT (DECIMAL (10, 3),  ISNULL(I.LV1_NET_KGS,0) ) ) )   <!-- Weight act (KG) -->
+        					  +'|'+ LTRIM( RTRIM( CONVERT (DECIMAL(10, 5), ISNULL(I.LV1_CBM,0)) ) )	   		 <!-- V (CBM) -->
+						WHEN #unit_cd# = I.ITEM_PKGUNIT 
+						THEN LTRIM(RTRIM(CONVERT(DECIMAL(10,  0), ISNULL(I.ITEM_PKGBASEQTY,0)))) 
+							+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10,2), ISNULL(I.ITEM_WIDTH,0)))) 
+        					+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10,  2),  ISNULL(I.ITEM_LENGTH,0)))) 
+        					+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10,  2),  ISNULL(I.ITEM_HEIGHT,0)))) 
+        					+'|'+ LTRIM(RTRIM( CONVERT (DECIMAL(10, 3), ISNULL(I.ITEM_KGS,0)) ) )
+        					+'|'+ LTRIM(RTRIM( CONVERT (DECIMAL (10, 3),ISNULL(I.ITEM_NET_WGT,0) ) ) )
+        					+'|'+ LTRIM(RTRIM( CONVERT (DECIMAL(10, 5), ISNULL(I.ITEM_CBM,0)) ) )
+						
+						WHEN #unit_cd# = I.PKG_LV3_UNIT_CD 
+							THEN LTRIM(RTRIM(CONVERT(DECIMAL(10, 0),  ISNULL(I.PKG_LV3_QTY,0)))) 
+							 +'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 2), ISNULL(I.LV3_WIDTH,0)))) 
+        					+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 2), ISNULL(I.LV3_LENGTH,0)))) 
+        					+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 2), ISNULL(I.LV3_HEIGHT,0)))) 
+        					+'|'+ LTRIM(RTRIM( CONVERT (DECIMAL (10, 3),ISNULL(I.LV3_GRS_KGS,0) ) ) )
+        					+'|'+ LTRIM(RTRIM( CONVERT (DECIMAL (10, 3), ISNULL(I.LV3_NET_KGS,0) ) ) )
+        					+'|'+ LTRIM(RTRIM( CONVERT (DECIMAL(10, 5), ISNULL(I.LV3_CBM,0))	) ) 
+						
+						WHEN #unit_cd# = I.PKG_LV4_UNIT_CD 
+							THEN LTRIM(RTRIM(CONVERT(DECIMAL(10, 0),  ISNULL(I.PKG_LV4_QTY,0))))
+						ELSE ''
+				
+				<!-- #561 [LOA] registered item info does not come together when searching item -->
+					END +'|'+ ISNULL(LEN_UT_CD, '') )AS PKG_LV1_QTY 
+		FROM TL_CTRT_CUST_ITEM I     
+		WHERE I.CTRT_NO      =  #ctrt_no#                                 
+		  AND I.ITEM_USE_FLG = 'Y'                            
+		  AND I.ITEM_CD      =  #itm_cd# 
+	</select>
+	
+	<select id="getWHItem" parameterClass="java.util.HashMap" resultClass="String">
+		/* ITEMSql.xml > getWHItem */	
+		 
+		  SELECT ISNULL(C.ITEM_CD, '')
+		  		+'|'+ ISNULL(C.ITEM_NM, '')
+		  		+'|'+ ISNULL(C.CTRT_NO, '')
+		  		+'|'+ ISNULL(C.ITEM_SYS_NO, '')
+		  		+'|'+ ISNULL(C.LOT_NO, '')
+		  		+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 0), ISNULL(C.ITEM_PKGBASEQTY,0))))
+		  		+'|'+ ISNULL(C.ITEM_PKGUNIT, '')
+		  		+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 0), ISNULL(C.PKG_LV1_QTY,0))))
+		  		+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 5), ISNULL (C.LV1_CBM, 0))))
+		  		+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 5), ISNULL (C.LV1_CBF, 0))))
+		  		+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 3), ISNULL (C.LV1_GRS_KGS, 0))))
+		  		+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 3), ISNULL (C.LV1_GRS_LBS, 0))))
+		  		+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 3), ISNULL (C.LV1_NET_KGS, 0))))
+		  		+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 3), ISNULL (C.LV1_NET_LBS, 0))))
+		  		+'|'+ ISNULL(C.ITEM_REMARK, '')
+		  		+'|'+ ISNULL(C.PKG_LV1_UNIT_CD, '')
+		  		+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 0),ISNULL(C.PKG_LV3_QTY,0))))
+		  		+'|'+ ISNULL(C.PKG_LV3_UNIT_CD, '')
+		  		+'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 0),ISNULL(C.PKG_LV4_QTY,0))))
+		  		+'|'+ ISNULL(C.PKG_LV4_UNIT_CD, '')
+		  		+'|'+ ISNULL(dbo.TL_GET_WH_PACK_MST_INFO(C.PKG_LV1_QTY, C.PKG_LV1_UNIT_CD, C.ITEM_PKGBASEQTY, C.ITEM_PKGUNIT , C.PKG_LV3_QTY, C.PKG_LV3_UNIT_CD, C.PKG_LV4_QTY, C.PKG_LV4_UNIT_CD) , '')
+                +'|'+ ISNULL(UNIT_CURR_CD, '')
+                +'|'+ LTRIM(RTRIM(CONVERT(DECIMAL(10, 0), ISNULL(UNIT_PRICE, 0))))
+		    FROM TL_CTRT_CUST_ITEM C
+		   WHERE 1 = 1
+		 <isNotEmpty property="ctrt_no">		
+		     AND C.CTRT_NO = #ctrt_no#
+		 </isNotEmpty>
+		     AND C.ITEM_USE_FLG = 'Y'
+		     AND C.ITEM_CD IS NOT NULL <![CDATA[  AND C.ITEM_CD <> '' ]]>
+	     <isNotEmpty property="itm_cd">		     
+		     AND C.ITEM_CD = UPPER(#itm_cd#)
+		 </isNotEmpty>
+	
+	</select>
+	
+</sqlMap>

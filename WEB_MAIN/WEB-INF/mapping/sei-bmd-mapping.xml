@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--  A/N, D/O 등록 및 수정     -->
+    <url-mapping url="SEI_DOC_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sei.bmd.arrivalnotice.event.SEI_DOC_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEI_DOC_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <!-- housebl search HB/L의 화면필드정보를 그리드로 통신한다.  -->
+    <url-mapping url="SEI_DOC_0030GS.clt" screen="SEI_DOC_0030GS.screen" >
+        <web-action-class>com.clt.apps.fis.sei.bmd.arrivalnotice.event.SEI_DOC_0030HTMLAction</web-action-class>
+    </url-mapping> 
+    
+    <url-mapping url="SEI_DOC_0031.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sei.bmd.arrivalnotice.event.SEI_DOC_0031HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEI_DOC_0031.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="SEI_DOC_0032.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sei.bmd.arrivalnotice.event.SEI_DOC_0032HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+          <handler-result result="SUCCESS" screen="SEI_DOC_0032.screen"/>
+          <handler-result result="FAIL"    screen="FailIndex.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    
+    <!-- Ocean Import > House BL > Release Order/Turnover   -->
+    <url-mapping url="SEI_DOC_1080.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sei.bmd.arrivalnotice.event.SEI_DOC_1080HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEI_DOC_1080.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    
+    
+    <!-- Air Import > House BL > Release Order/Turnover   -->
+    <url-mapping url="SEI_DOC_1081.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.sei.bmd.arrivalnotice.event.SEI_DOC_1081HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="SEI_DOC_1081.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.sei.bmd.arrivalnotice.event.SeiArrivalEvent</event-class>
+        <service-action-class>com.clt.apps.fis.sei.bmd.arrivalnotice.SeiArrivalSC</service-action-class>
+    </event-mapping>
+</mappings>

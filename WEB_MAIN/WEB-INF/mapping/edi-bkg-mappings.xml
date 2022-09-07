@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <url-mapping url="EDI_BKG_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.bkg.event.EDI_BKG_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_BKG_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="EDI_BKG_0010GS.clt" screen="EDI_BKG_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.bkg.event.EDI_BKG_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="EDI_BKG_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.edi.bkg.event.EDI_BKG_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EDI_BKG_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+	
+    <url-mapping url="EDI_BKG_0020GS.clt" screen="EDI_BKG_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.edi.bkg.event.EDI_BKG_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.edi.bkg.event.EdiBkgEvent</event-class>
+        <service-action-class>com.clt.apps.fis.edi.bkg.EdiBkgSC</service-action-class>
+    </event-mapping>
+    
+</mappings>

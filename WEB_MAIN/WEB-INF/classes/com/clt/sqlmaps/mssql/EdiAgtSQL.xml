@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="edi.agt">
+	
+	<select id="searchEdiAgtList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.agt.dto.EdiAgtVO">
+		/* EdiAgtSQL.xml > searchEdiAgtList */
+		SELECT a.MBL_NO,	a.HBL_NO,	a.REF_NO,	a.AGT_NM,	a.INTG_BL_SEQ,	a.MBL_INTG_BL_SEQ,	a.SND_FLG
+		       ,tr.agt_edi_cd , tr.agt_edi_msg_tp_cd  
+  		  FROM (
+				SELECT  bl.BL_NO as MBL_NO, hbl.BL_NO as HBL_NO, bl.REF_NO as REF_NO
+					        , agt.TRDP_NM AS AGT_NM, hbl.INTG_BL_SEQ as INTG_BL_SEQ, bl.INTG_BL_SEQ as MBL_INTG_BL_SEQ
+					        , (SELECT CASE WHEN COUNT(*) > 0 THEN 'Y' ELSE 'N' END FROM TB_EDI_SND_HIS  WHERE EDI_MSG_NO LIKE 'AGT%' AND EDI_MSG_TXT LIKE '%' + bl.INTG_BL_SEQ + '%' ) AS SND_FLG
+					        <!-- #5087 Agent EDI Version 1.0, Version 2.0 관리로 인한 로직 변경 -->
+            				   <!-- ,isnull( cn.TRDP_CD, agt.trdp_cd  ) trdp_cd -->
+            				   ,agt.trdp_cd AS trdp_cd
+				 FROM   tb_intg_bl bl
+					         JOIN   tb_add_info_bnd bnd
+					           ON   bl.intg_bl_seq = bnd.intg_bl_seq AND bnd.bnd_clss_cd = 'O'   AND bnd.delt_flg = 'N'
+					LEFT OUTER JOIN tb_bl_prnr agt
+					           ON   bl.intg_bl_seq = agt.intg_bl_seq  AND agt.bl_trdp_tp_cd = 'P01' AND agt.delt_flg = 'N'
+					LEFT OUTER JOIN tb_bl_prnr cn
+					           ON   bl.intg_bl_seq = cn.intg_bl_seq  AND cn.bl_trdp_tp_cd = 'C01' AND cn.delt_flg = 'N'
+					
+					LEFT OUTER JOIN tb_intg_bl_rlt rlt
+					            ON  bl.intg_bl_seq = rlt.rlt_intg_bl_seq AND rlt.delt_flg = 'N'
+					LEFT OUTER JOIN tb_intg_bl hbl
+					            ON  rlt.intg_bl_seq = hbl.intg_bl_seq AND hbl.biz_clss_cd = 'H' AND hbl.delt_flg = 'N'
+				WHERE bl.delt_flg = 'N' AND bl.biz_clss_cd = 'M' 
+				   AND bl.air_sea_clss_cd = 'S'
+		           AND bl.TRNK_VSL_NM = #trnk_vsl_nm# 
+				   AND bl.TRNK_VOY = #trnk_voy#
+				   AND bl.DELT_FLG = 'N'
+				   <isNotEmpty property="trdp_cd">
+		                AND agt.TRDP_CD = #trdp_cd#
+		            </isNotEmpty>
+		       ) A
+		       join tb_trdp tr on a.trdp_cd = tr.TRDP_CD
+		       and tr.agt_edi_cd is not null
+		 WHERE 1=1
+		 <isNotEmpty property="send_yn">
+		   AND A.SND_FLG = #send_yn#
+		 </isNotEmpty>
+	     <isNotEmpty property="f_mbl_no">
+	       AND A.mbl_no = #f_mbl_no#
+	     </isNotEmpty>		 
+		 <isNotEmpty property="f_hbl_no">            
+           AND A.hbl_no = #f_hbl_no#
+		 </isNotEmpty>            		 
+		 ORDER BY A.REF_NO DESC 
+	</select>
+	
+	<select id="searchEdiAgtMblInfo" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.agt.dto.EdiAgtMblInfoVO">
+		/* EdiAgtSQL.xml > searchEdiAgtMblInfo */
+		SELECT TOP 1  bl.bl_no as mbl_no, bl.shp_mod_cd
+					, bl.fm_svc_term_cd, bl.to_svc_term_cd
+					, bl.por_cd, bl.por_nm
+					, bl.pol_cd, bl.pol_nm
+					, bl.pod_cd,  bl.pod_nm
+					, bl.del_cd, bl.del_nm
+				    , bl.fnl_dest_loc_cd, bl.fnl_dest_loc_nm
+				    , bl.trnk_vsl_nm, bl.trnk_voy
+				    , bl.etd_dt_tm, bl.eta_dt_tm
+				    , bl.ref_no, bl.express_tp_cd
+				    , bl.shp_mod_cd
+				    , bl.intg_bl_seq
+				    , lnr.trdp_nm AS lnr_trdp_nm
+				    , lnrX.scac_cd AS lnr_scac_cd
+				    , prnr.trdp_nm AS prnr_trdp_nm
+				    , prnrX.CNT_CD AS prnr_cnt_cd
+				    , bl.rep_cmdt_nm
+				    <!-- #5087 Agent EDI Version 1.0, Version 2.0 관리로 인한 로직 변경 -->
+            		    <!-- , isnull(prnr.trdp_cd, agt.TRDP_CD ) as mbl_dest_trdp_cd -->
+            		    ,agt.TRDP_CD AS mbl_dest_trdp_cd
+				    , bl.grs_wgt ,bl.meas ,bl.pck_qty ,bl.pck_ut_cd
+				    ,tpor.UN_LOC_CD as por_un_loc_cd
+				    ,tpol.UN_LOC_CD as pol_un_loc_cd
+				    ,tpod.UN_LOC_CD as pod_un_loc_cd
+				    ,tdel.UN_LOC_CD as del_un_loc_cd 
+				    ,bl.frt_term_cd  
+				    ,bl.grs_wgt1 ,bl.meas1 
+				    
+				    <!-- BL Agent EDI 연동방식 변경관련 추가 ( AGENT - SMART LINK - AGENT ) -->
+				    ,SHPRX.SMT_ID AS SNDR_AGT_ID  <!-- SHPR TP : SMART LINK ID -->
+				    ,AGTX.SMT_ID AS RCVR_AGT_ID	  <!-- DEST AGT TP : SMART LINK ID -->
+				    
+				    <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+				    ,ISNULL(shp.trdp_cd, '') AS shpr_trdp_cd
+				    ,ISNULL(shp.trdp_nm, '') AS shpr_trdp_nm
+				    ,ISNULL(shp.trdp_addr, '') AS shpr_trdp_addr
+				    <!-- V4.7.07은 SPCE에서만 사용(업무적으로 처리 안함) 
+				    ,ISNULL(org_agt.trdp_nm, '') AS agent_trdp_nm
+				    ,ISNULL(org_agt.trdp_addr, '') AS agent_trdp_addr -->
+				    ,'' AS agent_trdp_nm
+				    ,'' AS agent_trdp_addr
+				    ,ISNULL(cnee.trdp_cd, '') AS cnee_trdp_cd
+				    ,ISNULL(cnee.trdp_nm, '') AS cnee_trdp_nm
+				    ,ISNULL(cnee.trdp_addr, '') AS cnee_trdp_addr
+				    
+		FROM tb_intg_bl bl
+		JOIN tb_add_info_bnd bnd
+		ON bl.intg_bl_seq = bnd.intg_bl_seq AND bnd.bnd_clss_cd = 'O'
+		AND bnd.delt_flg = 'N'
+		LEFT OUTER JOIN tb_bl_prnr lnr
+		ON bl.intg_bl_seq = lnr.intg_bl_seq AND lnr.bl_trdp_tp_cd = 'L01' AND lnr.delt_flg = 'N'
+		LEFT OUTER JOIN tb_trdp lnrX 
+		ON lnr.trdp_cd = lnrX.trdp_cd AND lnrX.delt_flg = 'N'
+		LEFT OUTER JOIN tb_bl_prnr prnr
+		ON bl.intg_bl_seq = prnr.intg_bl_seq AND prnr.bl_trdp_tp_cd = 'C01' AND prnr.delt_flg = 'N'
+		LEFT OUTER JOIN tb_trdp prnrX 
+		ON prnr.trdp_cd = prnrX.trdp_cd AND prnrX.delt_flg = 'N'
+		LEFT OUTER JOIN tb_bl_prnr agt                 
+		ON   bl.intg_bl_seq = agt.intg_bl_seq  AND agt.bl_trdp_tp_cd = 'P01' AND agt.delt_flg = 'N'
+		
+		<!-- BL Agent EDI 연동방식 변경관련 추가 ( AGENT - SMART LINK - AGENT ) -->
+		LEFT OUTER JOIN TB_TRDP AGTX 
+		ON AGT.TRDP_CD = AGTX.TRDP_CD AND AGTX.DELT_FLG = 'N'
+		
+		LEFT OUTER JOIN TB_BL_PRNR SHPR
+		ON   BL.INTG_BL_SEQ = SHPR.INTG_BL_SEQ  AND SHPR.BL_TRDP_TP_CD = 'S01' AND SHPR.DELT_FLG = 'N'
+		LEFT OUTER JOIN TB_TRDP SHPRX 
+		ON 	 SHPR.TRDP_CD = SHPRX.TRDP_CD AND SHPRX.DELT_FLG = 'N'
+		
+		<!-- Agent EDI Spec 추가 사항 2018.12.10 -->		
+		LEFT OUTER JOIN tb_bl_prnr shp
+        ON   bl.intg_bl_seq = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+		LEFT OUTER JOIN tb_bl_prnr org_agt
+		ON   bl.intg_bl_seq = org_agt.intg_bl_seq  AND org_agt.bl_trdp_tp_cd = 'A01' AND org_agt.delt_flg = 'N'
+		LEFT OUTER JOIN tb_bl_prnr cnee
+		ON bl.intg_bl_seq = cnee.intg_bl_seq AND cnee.bl_trdp_tp_cd = 'C01' AND cnee.delt_flg = 'N'
+		
+	    LEFT JOIN TB_LOC TPOR ON BL.POR_CD = TPOR.LOC_CD
+		LEFT JOIN TB_LOC TPOL ON BL.POL_CD = TPOL.LOC_CD
+		LEFT JOIN TB_LOC TPOD ON BL.POD_CD = TPOD.LOC_CD
+		LEFT JOIN TB_LOC TDEL ON BL.DEL_CD = TDEL.LOC_CD
+		WHERE bl.delt_flg = 'N' AND bl.biz_clss_cd = 'M' 
+			<isNotEmpty property="intg_bl_seq">
+				AND bl.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+			</isNotEmpty>
+			<isNotEmpty property="ref_no">
+				AND bl.ref_no = #ref_no#
+			</isNotEmpty>
+    </select>
+    
+    <select id="searchEdiAgtCntrList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.agt.dto.EdiAgtCntrVO">
+    	/* searchEdiAgtCntrList */
+       	SELECT A.CNTR_NO, A.CNTR_TPSZ_CD, B.ISO_CNTR_CD, A.CGO_WGT, A.CGO_MEAS, A.CGO_PCK_QTY, A.CGO_PCK_UT, A.SEAL_NO1
+      	 FROM TB_CNTR_LIST A
+           LEFT OUTER JOIN TB_CNTR_TPSZ B ON A.CNTR_TPSZ_CD = B.CNTR_TPSZ_CD AND B.DELT_FLG = 'N'
+     	WHERE INTG_BL_SEQ = cast(#intg_bl_seq# as varchar)
+       	AND A.DELT_FLG = 'N'
+    </select>
+    
+    <select id="searchEdiAgtFrtList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.agt.dto.EdiAgtFrtVO">
+	    /* searchEdiAgtFrtList */
+	    SELECT	 fr.frt_seq,         fr.sell_buy_tp_cd,          fr.rat_curr_cd,	fr.inv_curr_cd,
+			         ISNULL((SELECT MP_VAL FROM TB_EDI_DATA_MP WHERE MP_TP = 'AGT' + 'A01' AND MP_CD = fr.frt_cd), 'ODOC') as frt_cd,     
+			         fr.frt_cd_nm    ,
+					 fr.trdp_cd, 
+					 fr.aply_ut_cd,      fr.cntr_tpsz_cd,            CAST(CAST(fr.qty AS float )  AS varchar) AS qty,       
+	                 fr.scg_incl_flg,    fr.frt_term_cd,             fr.ru,
+			  		 fr.inv_xcrt,        fr.inv_xcrt_dt,    		 fr.inv_amt,        fr.inv_vat_amt,     fr.inv_sum_amt,
+			         fr.perf_curr_cd,    fr.perf_xcrt,               fr.perf_amt,       fr.perf_vat_amt,   
+			         fr.frt_biz_clss_cd,     
+			         fr.vat_rt,          fr.vat_amt,                 fr.intg_bl_seq,    fr.frt_ask_clss_cd,
+			         fr.trf_ctrt_no,     fr.trf_dtl_seq,             fr.auto_trf_flg,
+					 fr.inv_sts_cd,
+					 fr.trf_cur_sum_amt,
+					 fr.inv_seq,
+					 fr.oth_seq
+	           FROM  tb_frt    fr           
+	          WHERE  fr.delt_flg 		= 'N'
+	            AND 	fr.frt_term_cd = 'CC'
+	          	AND fr.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	  	   ORDER BY  fr.frt_seq ASC
+	</select>
+	
+	<select id="searchEdiAgtHblInfoList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.agt.dto.EdiAgtHblInfoVO">
+		/* searchEdiAgtHblInfoList  */
+		SELECT  bl.intg_bl_seq,        bl.bl_no,      bl.bl_no as hbl_no,        
+	                bl.fm_svc_term_cd,     bl.to_svc_term_cd, bl.rep_cmdt_nm, bl.ams_no,
+	                bl.por_cd,             bl.por_nm,             bl.pol_cd,                 bl.pol_nod_cd,    bl.pol_nm,                 
+	                bl.pod_cd,             bl.pod_nod_cd,         bl.pod_nm,             bl.del_cd,                 '' AS del_nod_cd,    bl.del_nm,
+	                bl.etd_dt_tm,          bl.eta_dt_tm, bl.mk_txt,             bl.desc_txt,
+	                bl.fnl_dest_loc_cd,    bl.fnl_dest_loc_nm,	bl.express_tp_cd,   
+	                <!-- #560 [Binex] Agent EDI sending is not working on OEM B/L List -->
+	                ISNULL(shp.trdp_cd, '') AS shpr_trdp_cd,      ISNULL(shp.trdp_nm, '') AS shpr_trdp_nm,      ISNULL(shp.trdp_addr, '') AS shpr_trdp_addr,
+                	ISNULL(cne.trdp_cd, '') AS cnee_trdp_cd,      ISNULL(cne.trdp_nm, '') AS cnee_trdp_nm,      ISNULL(cne.trdp_addr, '') AS cnee_trdp_addr,
+               	 	ISNULL(ntf.trdp_cd, '') AS ntfy_trdp_cd,      ISNULL(ntf.trdp_nm, '') AS ntfy_trdp_nm,      ISNULL(ntf.trdp_addr, '') AS ntfy_trdp_addr,
+               	 	(SELECT CNT_CD FROM TB_TRDP WHERE TRDP_CD = shp.trdp_cd ) AS shpr_trdp_cnt_cd,
+               	 	(SELECT CNT_CD FROM TB_TRDP WHERE TRDP_CD = cne.trdp_cd ) AS cnee_trdp_cnt_cd,
+               	 	(SELECT CNT_CD FROM TB_TRDP WHERE TRDP_CD = ntf.trdp_cd ) AS ntfy_trdp_cnt_cd   
+               	 	, bl.grs_wgt ,bl.meas ,bl.pck_qty ,bl.pck_ut_cd  
+               	 	, ptr.TRDP_CD as prnr_trdp_cd
+				    ,tpor.UN_LOC_CD as por_un_loc_cd
+				    ,tpol.UN_LOC_CD as pol_un_loc_cd
+				    ,tpod.UN_LOC_CD as pod_un_loc_cd
+				    ,tdel.UN_LOC_CD as del_un_loc_cd
+				    ,bl.frt_term_cd
+				    ,bl.grs_wgt1 ,bl.meas1 
+				    <!-- Agent EDI Spec 추가 사항 2018.12.10 -->
+				    ,bl.isf_no as isf_no
+	         FROM   tb_intg_bl bl
+	         JOIN   tb_add_info_bnd bnd
+	           ON   bl.intg_bl_seq = bnd.intg_bl_seq AND bnd.bnd_clss_cd = 'O'   AND bnd.delt_flg = 'N'
+	           	LEFT OUTER JOIN tb_bl_prnr shp
+           			ON   bl.intg_bl_seq = shp.intg_bl_seq  AND shp.bl_trdp_tp_cd = 'S01' AND shp.delt_flg = 'N'
+				LEFT OUTER JOIN tb_bl_prnr cne
+			        ON   bl.intg_bl_seq = cne.intg_bl_seq  AND cne.bl_trdp_tp_cd = 'C01' AND cne.delt_flg = 'N'
+				LEFT OUTER JOIN tb_bl_prnr ntf
+			        ON   bl.intg_bl_seq = ntf.intg_bl_seq  AND ntf.bl_trdp_tp_cd = 'N01' AND ntf.delt_flg = 'N'
+				LEFT OUTER JOIN tb_bl_prnr ptr          
+			        ON   bl.intg_bl_seq = ptr.intg_bl_seq  AND ptr.bl_trdp_tp_cd = 'P01' AND ptr.delt_flg = 'N'
+			    LEFT JOIN TB_LOC TPOR ON BL.POR_CD = TPOR.LOC_CD
+				LEFT JOIN TB_LOC TPOL ON BL.POL_CD = TPOL.LOC_CD
+				LEFT JOIN TB_LOC TPOD ON BL.POD_CD = TPOD.LOC_CD
+				LEFT JOIN TB_LOC TDEL ON BL.DEL_CD = TDEL.LOC_CD			        
+	        WHERE bl.delt_flg = 'N' AND bl.biz_clss_cd = 'H' AND bl.air_sea_clss_cd = 'S'
+	        AND bl.intg_bl_seq IN
+							(SELECT intg_bl_seq 
+							   FROM tb_intg_bl_rlt 
+							  WHERE rlt_intg_bl_seq = cast(#intg_bl_seq# as varchar))
+			and ptr.trdp_cd = #prnr_trdp_cd#		-- mbl 의 trdp cd		  
+	</select>
+    <select id="searchEdiAgtDbtCrdtFrtList" parameterClass="HashMap" resultClass="com.clt.apps.fis.edi.agt.dto.EdiAgtFrtVO">
+	    /* searchEdiAgtDbtCrdtFrtList */
+	    SELECT	 fr.frt_seq,         fr.sell_buy_tp_cd,          fr.rat_curr_cd,	fr.inv_curr_cd,
+			         FR.frt_cd,     
+			         fr.frt_cd_nm    ,
+					 fr.trdp_cd, 
+					 fr.aply_ut_cd,      fr.cntr_tpsz_cd,            CAST(CAST(fr.qty AS float )  AS varchar) AS qty,       
+	                 fr.scg_incl_flg,    fr.frt_term_cd,             fr.ru,
+			  		 fr.inv_xcrt,        fr.inv_xcrt_dt,    		 fr.inv_amt,        fr.inv_vat_amt,     fr.inv_sum_amt,
+			         fr.perf_curr_cd,    fr.perf_xcrt,               fr.perf_amt,       fr.perf_vat_amt,   
+			         fr.frt_biz_clss_cd,     
+			         fr.vat_rt,          fr.vat_amt,                 fr.intg_bl_seq,    fr.frt_ask_clss_cd,
+			         fr.trf_ctrt_no,     fr.trf_dtl_seq,             fr.auto_trf_flg,
+					 fr.inv_sts_cd,
+					 fr.trf_cur_sum_amt,
+					 fr.inv_seq,
+					 fr.oth_seq,
+					 fr.agent_amt,
+					 case when fr.frt_term_cd = 'CC' then fr.cr_amt else 0 end as credit_amt,
+					 fr.inv_amt as debit_amt
+	           FROM  tb_frt    fr      
+	                 JOIN TB_TRDP TR ON FR.TRDP_CD = TR.TRDP_CD  AND TR.AGT_EDI_CD IS NOT NULL      
+	          WHERE  fr.delt_flg 		= 'N'
+	            AND  fr.SELL_BUY_TP_CD in ('D','C')
+	          	AND fr.intg_bl_seq = cast(#intg_bl_seq# as varchar)
+	          	AND fr.trdp_cd = #prnr_trdp_cd#
+	          	AND fr.inv_seq is not null
+	  	   ORDER BY  fr.frt_seq ASC
+	</select>	
+</sqlMap>

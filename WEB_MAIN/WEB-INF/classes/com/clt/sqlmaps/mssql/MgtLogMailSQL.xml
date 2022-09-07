@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mgt.log.mail">
+
+	<typeAlias alias="MailVO" type="com.clt.apps.fis.mgt.log.mail.dto.MailVO"/>
+
+	<insert id="insertMailLog" parameterClass="MailVO">
+		INSERT INTO tb_mail_log
+		(
+		title, contents, recipient, sender, send_type, status, 
+		rgst_usrid, rgst_ofc_cd, rgst_tms 
+		)
+		VALUES
+		(
+		#title#, #contents#, #recipient#, #sender#, #send_type#, #status#, 
+		#rgst_usrid#, #rgst_ofc_cd#, GETDATE() 
+		)
+	</insert>
+	
+	<select id="selectLogMail" parameterClass="java.util.HashMap" resultClass="MailVO">
+		SELECT title, contents, recipient, sender, send_type, status, CONVERT(VARCHAR, rgst_tms, 20) AS rgst_tms
+		  FROM tb_mail_log
+		<![CDATA[
+		 WHERE CONVERT(VARCHAR, rgst_tms, 112) >= #f_fm_date#
+		   AND CONVERT(VARCHAR, rgst_tms, 112) <= #f_to_date#
+		]]>
+	  ORDER BY rgst_tms DESC
+	</select>
+	
+</sqlMap>

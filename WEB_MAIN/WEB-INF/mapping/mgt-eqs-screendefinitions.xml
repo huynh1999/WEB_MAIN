@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+   
+    <screen name="MGT_EQS_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/eq/eqmgt/jsp/MGT_EQS_0010.jsp"/>
+    </screen>
+    
+    <screen name="MGT_EQS_0011GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/eq/eqmgt/jsp/MGT_EQS_0011GS.jsp"/>
+    </screen>
+    
+    <screen name="MGT_EQS_0012GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/eq/eqmgt/jsp/MGT_EQS_0012GS.jsp"/>
+    </screen>  
+    
+    <!-- Support > Utility > Service Lane : #26540 추가 SYLEE-->
+    <screen name="MGT_EQS_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/eq/eqmgt/jsp/MGT_EQS_0030.jsp"/>
+    </screen>
+    
+    <screen name="MGT_EQS_0031GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/eq/eqmgt/jsp/MGT_EQS_0031GS.jsp"/>
+    </screen>
+
+    <!-- Support > Utility > Service Lane List : #26540 추가 SYLEE-->
+    <screen name="MGT_EQS_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/mgt/eq/eqmgt/jsp/MGT_EQS_0040.jsp"/>
+    </screen>
+    
+    <screen name="MGT_EQS_0041GS" template="templateIBSheet">
+        <parameter key="body"  value="/apps/fis/mgt/eq/eqmgt/jsp/MGT_EQS_0041GS.jsp"/>
+    </screen>
+    
+</screen-definitions>

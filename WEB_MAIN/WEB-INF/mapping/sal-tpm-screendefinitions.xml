@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen-definitions xmlns="http://www.cyberlogictec.com/fw/screen-definitions">
+
+    <!--#### MDM관련 프로그램  Start ####  -->
+    <screen name="SAL_TPM_0010">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0010.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0010GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0010GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0010AJ" template="templateIBSheet">
+    	<parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0010AJ.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0011GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0011GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0012GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0012GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0013GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0013GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0014" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0011.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0014GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0014GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0016GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0016GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TPM_0017GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0017GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0018GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0018GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0019GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0019GS.jsp" />
+    </screen> 
+    <screen name="SAL_TPM_0020">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0020.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0020GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0020GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0021GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0021GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0011" template="templatePop">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0011.jsp" />
+    </screen>
+    <!--#### MDM관련 프로그램 End ####  -->
+    
+    <screen name="SAL_TPM_0050">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0050.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0050GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0050GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TPM_0070">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0070.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0070GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0070GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0070AJ" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0070AJ.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0070_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0070_1GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TPM_0080">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0080.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0080GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0080GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0090">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0090.jsp" />
+    </screen>
+    
+    <screen name="SAL_TPM_0100">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0100.jsp" />
+    </screen>
+    
+    <screen name="SAL_TPM_0100GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0100GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TPM_0100GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0100GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TPM_0110">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0110.jsp" />
+    </screen>
+    
+    <screen name="SAL_TPM_0110GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0110GS.jsp" />
+    </screen>
+    
+        
+    <screen name="SAL_TPM_0030">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0030.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0030GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0030GS.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0031GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0031GS.jsp" />
+    </screen>   
+        
+    <screen name="SAL_TPM_0040">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0040.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0040GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0040GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TPM_0120">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0120.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0120GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0120GS.jsp" />
+    </screen>
+    
+    <screen name="SAL_TPM_0130">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0130.jsp" />
+    </screen>
+    <screen name="SAL_TPM_0130GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0130GS.jsp" />
+    </screen>
+     
+    <!-- Trade Partner Free Day Entry -->
+    <screen name="SAL_TPM_0140">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0140.jsp" />
+    </screen>
+    
+    <!-- Trade Partner Free Day Entry - Header Grid -->
+    <screen name="SAL_TPM_0140_1GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0140_1GS.jsp" />
+    </screen> 
+
+    <!-- Trade Partner Free Day Entry - Detail Grid -->    
+    <screen name="SAL_TPM_0140_2GS" template="templateIBSheet">
+        <parameter key="title" value="FIS" direct="true"/>
+        <parameter key="body"  value="/apps/fis/sal/tpm/tradepartner/jsp/SAL_TPM_0140_2GS.jsp" />
+    </screen> 
+</screen-definitions>

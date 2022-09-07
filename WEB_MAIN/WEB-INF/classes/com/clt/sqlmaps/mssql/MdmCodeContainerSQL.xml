@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mdm.code.container">
+	
+	<!-- Trade container List pop select    -->
+    <select id="selectCMM_POP_0080_LIST" resultClass="com.clt.apps.fis.mdm.code.container.dto.CntrTpszVO">
+        SELECT  cntr_tpsz_cd,	iso_cntr_cd,	descr, cntr_grp_cd
+		  FROM  tb_cntr_tpsz
+		 WHERE  use_flg = 'Y'
+		   AND   delt_flg = 'N'
+      ORDER BY cntr_tpsz_cd ASC		
+	</select>
+	
+	<!-- Trade container List Edi Ocean pop select    -->
+    <select id="selectCMM_POP_0081_LIST" resultClass="com.clt.apps.fis.mdm.code.container.dto.CntrTpszVO">
+        SELECT  cntr_tpsz_cd,	cstms_cntr_cd,	descr
+		  FROM  tb_cntr_tpsz
+		 WHERE  use_flg = 'Y'
+		   AND   delt_flg = 'N'
+      ORDER BY cntr_tpsz_cd ASC		
+	</select>
+	
+	<!-- Trade container List pop select count    -->
+    <select id="selectCMM_POP_0080_CNT" resultClass="Integer">
+        SELECT  count(*)
+		  FROM  tb_cntr_tpsz
+		 WHERE  use_flg = 'Y'
+	  	   AND  delt_flg = 'N'
+	</select>
+	
+	<!-- Trade container List pop select    -->
+    <select id="selectCONTAINERCODE_LIST" resultClass="com.clt.apps.fis.mdm.code.container.dto.CntrTpszVO">
+		/** MdmCodeContainerSQL.xm > selectCONTAINERCODE_LIST **/
+        SELECT TOP $topCnt$   
+		       CNTR_TPSZ_CD
+		      ,CNTR_GRP_CD
+              ,TEU
+		      ,ISO_CNTR_CD
+		      ,AMS_CNTR_CD
+		      ,CSTMS_CNTR_CD
+		      ,N1ST_RSV_CNTR_CD
+		      ,N2ST_RSV_CNTR_CD
+		      ,DESCR
+		      ,USE_FLG
+		      ,RGST_USRID
+		      ,RGST_OFC_CD
+		      ,RGST_TMS
+		      ,MODI_USRID
+		      ,MODI_OFC_CD
+		      ,MODI_TMS
+		      ,(CASE DELT_FLG  WHEN 'Y' THEN 1  
+		                       WHEN 'N' THEN 0 
+					           ELSE 0 END) AS DELT_FLG
+			  ,'Y' AS DB_VALUE
+			  <!-- #47 #52766 - [ZEN] Mark & Desc Tab SAY 항목 Long Name 지정 -->
+			  , ISNULL(CNTR_TPSZ_NM, 'CNTR(S)') AS CNTR_TPSZ_NM
+			  , AFR_CNTR_SZ_CD
+			  , AFR_CNTR_TP_CD
+			  <!-- #1543 [LBS] Container Type/Size Reefer, Ventill 항목 관리  -->
+			  , TEMP_FLG
+			  , VENT_FLG
+		  FROM TB_CNTR_TPSZ
+		 ORDER BY CNTR_TPSZ_CD ASC
+	</select>
+	
+	<!-- Trade container List pop select count    -->
+    <select id="selectCONTAINERCODE_CNT" resultClass="Integer">
+        SELECT count(*)
+		  FROM tb_cntr_tpsz
+		 WHERE use_flg = 'Y'
+	</select>
+	
+	<update id="updateMDM_MCM_0080" parameterClass="com.clt.apps.fis.mdm.code.container.dto.CntrTpszVO">
+		/** MdmCodeContainerSQL.xm > updateMDM_MCM_0080 **/
+		UPDATE tb_cntr_tpsz
+		   SET iso_cntr_cd = #iso_cntr_cd#
+		      ,cntr_grp_cd = #cntr_grp_cd#
+              ,teu = #teu#
+			  ,ams_cntr_cd = #ams_cntr_cd#
+			  ,cstms_cntr_cd = #cstms_cntr_cd#
+			  ,n1st_rsv_cntr_cd = #n1st_rsv_cntr_cd#
+			  ,n2st_rsv_cntr_cd = #n2st_rsv_cntr_cd#
+			  ,descr = #descr#
+			  ,modi_usrid = #modi_usrid#
+			  ,modi_ofc_cd = #modi_ofc_cd#
+			  ,modi_tms = GETUTCDATE()
+			  ,use_flg = #use_flg#
+			  ,cntr_tpsz_nm = (case when #cntr_tpsz_nm# = '' then 'CNTR(S)' else isnull(#cntr_tpsz_nm#, 'CNTR(S)') end)
+			  ,afr_cntr_sz_cd = #afr_cntr_sz_cd#
+			  ,afr_cntr_tp_cd = #afr_cntr_tp_cd#
+			  , temp_flg = #temp_flg#
+			  , vent_flg = #vent_flg#
+		WHERE cntr_tpsz_cd = #cntr_tpsz_cd#
+	</update>
+	
+	<insert id="insertMDM_MCM_0080" parameterClass="com.clt.apps.fis.mdm.code.container.dto.CntrTpszVO">
+		/** MdmCodeContainerSQL.xm > insertMDM_MCM_0080 **/
+		INSERT INTO tb_cntr_tpsz (
+		  	  cntr_tpsz_cd
+		  	, cntr_grp_cd
+            , teu
+			, iso_cntr_cd
+			, ams_cntr_cd
+			, cstms_cntr_cd
+			, n1st_rsv_cntr_cd
+			, n2st_rsv_cntr_cd
+			, descr
+			, use_flg
+			, rgst_usrid
+			, rgst_ofc_cd
+			, rgst_tms
+			, modi_usrid
+			, modi_ofc_cd
+			, modi_tms
+			, delt_flg
+			, cntr_tpsz_nm
+			, afr_cntr_sz_cd
+			, afr_cntr_tp_cd
+			, temp_flg
+			, vent_flg
+		) VALUES (
+			  #cntr_tpsz_cd#
+			, #cntr_grp_cd#
+            , (case when #teu# = '' then 0 else isnull(#teu#,0) end)
+			, #iso_cntr_cd#
+			, #ams_cntr_cd#
+			, #cstms_cntr_cd#
+			, #n1st_rsv_cntr_cd#
+			, #n2st_rsv_cntr_cd#
+			, #descr#
+			, 'Y'
+			, #rgst_usrid#
+			, #rgst_ofc_cd#
+			, getdate()
+			, #modi_usrid#
+			, #modi_ofc_cd#
+			, GETUTCDATE()
+			, 'N'
+			, (case when #cntr_tpsz_nm# = '' then 'CNTR(S)' else isnull(#cntr_tpsz_nm#, 'CNTR(S)') end)
+			, #afr_cntr_sz_cd#
+			, #afr_cntr_tp_cd#
+			, #temp_flg#
+			, #vent_flg#
+		)
+	</insert>
+	
+	<select id="selectMDM_MCM_0080_CODE" parameterClass="java.util.HashMap" resultClass="String">
+        SELECT cntr_tpsz_cd
+		FROM tb_cntr_tpsz
+		WHERE cntr_tpsz_cd = #s_cntr_tpsz_cd#
+	</select>
+</sqlMap>

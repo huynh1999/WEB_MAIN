@@ -1,0 +1,1147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="SupplierBooking">
+
+	<typeAlias alias="SBMgtEtcVO" type="com.clt.apps.fis.wms.whinbooking.dto.SBMgtEtcVO"/>
+	<select id="existsWO" resultClass="SBMgtEtcVO">
+		SELECT 	COUNT(*) WO_CNT,
+				MAX(W.WO_STS_CD) WO_STS_CD,
+				MAX(W.WO_NO) WO_NO      
+    	FROM 	TL_WO      W          
+  		WHERE 	W.RCV_BK_NO = #sb_no#
+  		<![CDATA[AND    	W.WO_STS_CD <> 'X'    ]]>
+  		<isEqual property="flag" compareValue="CR">
+	  		AND ISNULL(W.CR_FLG,'N')    = 'Y'
+	        AND W.WO_ACT_TP_CD       = 'CR'  		
+  		</isEqual>
+  		<isEqual property="flag" compareValue="WO">
+  			<![CDATA[AND ISNULL(W.CR_FLG,'N') <> 'Y'	  ]]>
+  		</isEqual>
+  		<isEqual property="flag" compareValue="CP">
+              AND ISNULL(W.CR_FLG,'N')    = 'Y'
+              AND W.WO_ACT_TP_CD       = 'CP'          
+        </isEqual>  		
+	</select>	
+	
+</sqlMap>
+
+<!-- 	Supplier Booking Management, Header tab 조회
+	<resultMap type="com.clt.business.oms.supplierbooking.dto.SBMgtSBInfoDto" id="SBMgtSBInfoDto">		
+	</resultMap>
+	
+	<select id="searchSBInfo" resultMap="SBMgtSBInfoDto">
+		SELECT 	S.SB_NO,
+		       	S.SO_NO,
+		       	S.CTRT_NO,
+		       	TL_GET_CTRT_NM(S.CTRT_NO) AS CTRT_NM,
+		       	TL_GET_CTRT_CUST_CD(S.CTRT_NO) AS CTRT_CUST_CD,
+		       	S.RTP_NO,
+		       	S.SALES_OFC_CD,
+		       	TL_GET_ORG_NM(S.SALES_OFC_CD) AS SALES_OFC_NM,
+		       	S.SALES_PIC_ID,
+		       	TL_GET_PIC_NM(S.SALES_PIC_ID) AS SALES_PIC_NM,
+		       	TL_GET_SVO_MAIN_SVC_TYPE(S.SO_NO) AS MAIN_SVC_TYPE,
+		       	TL_GET_COMM_NM('FG', TL_GET_SVO_MAIN_SVC_TYPE(S.SO_NO)) AS MAIN_SVC_TP_NM,
+		       	TL_GET_CTRT_ORD_TP_NM(S.CTRT_NO, S.RTP_NO) AS CTRT_ORD_TP_NM,
+       			S.SUPP_CD,
+       			S.SUPP_NM,
+       			S.SUPP_ADDR1,
+       			S.SUPP_ADDR2,
+       			S.SUPP_ADDR3,
+       			S.SUPP_ADDR4,
+       			S.SUPP_ADDR5,
+       			DECODE(S.SUPP_CD, '', '', 'S') AS SUPP_TYPE,
+       			S.BUYER_CD,
+       			S.BUYER_NM,
+       			S.BUYER_ADDR1,
+       			S.BUYER_ADDR2,
+       			S.BUYER_ADDR3,
+       			S.BUYER_ADDR4,
+       			S.BUYER_ADDR5,
+       			DECODE(S.BUYER_CD, '', '', 'S') AS BUYER_TYPE,
+       			S.NTFY_CD,
+       			S.NTFY_NM,
+       			S.NTFY_ADDR1,
+       			S.NTFY_ADDR2,
+       			S.NTFY_ADDR3,
+       			S.NTFY_ADDR4,
+       			S.NTFY_ADDR5,
+       			S.POR,
+       			TL_GET_LOC_NM(S.POR) AS POR_NM,
+       			S.POL,
+       			TL_GET_LOC_NM(S.POL) AS POL_NM,
+       			S.POD,
+       			TL_GET_LOC_NM(S.POD) AS POD_NM,
+       			S.DEL,
+       			TL_GET_LOC_NM(S.DEL) AS DEL_NM,
+       			NVL2(S.CG_RD_DT, TO_CHAR(TO_DATE(S.CG_RD_DT,'YYYYMMDD'), 'YYYY-MM-DD'), S.CG_RD_DT) AS CG_RD_DT,
+       			S.RCV_LOC_CD,
+       			S.RCV_LOC_NM,
+       			S.RCV_LOC_ADDR1,
+       			S.RCV_LOC_ADDR2,
+       			S.RCV_LOC_ADDR3,
+       			S.RCV_LOC_ADDR4,
+       			S.RCV_LOC_ADDR5,
+       			S.VSL_CD,
+       			S.VSL_NM,
+       			S.VOY,
+       			S.CARRIER_CD,
+       			TL_GET_CUST_NM(S.CARRIER_CD) AS CARRIER_NM,
+       			S.ONBOARD_DT,
+       			S.BK_STFF_ID,
+       			TL_GET_USER_NM(S.BK_STFF_ID) AS BK_STFF_NM,
+       			(	SELECT 	T.TEL 
+       				FROM 	TL_USER T 
+       				WHERE 	T.USER_ID = S.BK_STFF_ID) AS BK_STFF_TEL,
+       			(	SELECT 	T.FAX 
+       				FROM 	TL_USER T 
+       				WHERE 	T.USER_ID = S.BK_STFF_ID) AS BK_STFF_FAX,
+       			S.BK_STFF_OFC_CD,
+       			TL_GET_ORG_NM(S.BK_STFF_OFC_CD) AS BK_STFF_OFC_NM,
+       			NVL2(S.BK_DATE, TO_CHAR(TO_DATE(S.BK_DATE,'YYYYMMDD'), 'YYYY-MM-DD'), S.BK_DATE) AS BK_DATE,
+       			S.BK_STS_CD,
+       			S.EXP_REF_NO,
+       			S.FREIGHTTERM_CD, 
+       			TL_GET_COMM_NM('BA', S.FREIGHTTERM_CD) AS PAYTERM_NM,
+       			NVL2(S.CG_RCV_DT, TO_CHAR(TO_DATE(S.CG_RCV_DT,'YYYYMMDD'), 'YYYY-MM-DD'), S.CG_RCV_DT) AS CG_RCV_DT,
+       			S.REEFER_TEMP,
+       			S.REEFER_VENT,
+       			S.DG_CD,
+       			S.DG_CLSS_CD,
+       			S.REMARK,
+       			S.LOCAL_SVC_DESC,
+       			NVL2(S.POL_ETD, TO_CHAR(TO_DATE(S.POL_ETD,'YYYYMMDD'), 'YYYY-MM-DD'), S.POL_ETD) AS POL_ETD,
+       			NVL2(S.POD_ETA, TO_CHAR(TO_DATE(S.POD_ETA,'YYYYMMDD'), 'YYYY-MM-DD'), S.POD_ETA) AS POD_ETA,
+       			NVL2(S.DEL_ETA, TO_CHAR(TO_DATE(S.DEL_ETA,'YYYYMMDD'), 'YYYY-MM-DD'), S.DEL_ETA) AS DEL_ETA,
+    			(	SELECT 	DECODE(MAX(I.LOAD_FLG), 'Y', 'Y', 'N', 'N', '') AS LOAD_FLG
+          			FROM 	TL_SB_ITEM I
+         			WHERE 	I.SB_NO = S.SB_NO) AS LOAD_FLG,
+       			'' AS HBL_NO,
+       			S.CUST_REF_NO,
+       			NVL2(S.EST_IN_DT, TO_CHAR(TO_DATE(S.EST_IN_DT,'YYYYMMDD'), 'YYYY-MM-DD'), S.EST_IN_DT) AS EST_IN_DT
+  		FROM 	TL_SB S
+  		WHERE 	S.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}
+  		
+	</select>	
+	Supplier Booking Management, Header tab 조회 END
+	
+	
+	
+	
+	
+	
+	
+	
+
+	Supplier Booking Management, PO/Item tab 조회
+	<resultMap type="com.clt.business.oms.supplierbooking.dto.SBMgtSBItemDto" id="SBMgtSBItemDto">			
+	</resultMap>
+	
+	<select id="searchSBItemList" resultMap="SBMgtSBItemDto">
+		SELECT 	DISTINCT
+    			BK.PO_SYS_NO 										AS PO_SYS_NO,
+       			BK.PO_NO                                           	AS PO_NO,
+       			BK.ITEM_SYS_NO                                     	AS ITEM_SYS_NO,
+       			PI.ITEM_CD                                     		AS ITEM_CD,
+       			PI.ITEM_NM                                        	AS ITEM_NM,
+       			PI.ITEM_QTY                                    		AS PO_QTY,
+       			PI.ITEM_PKGQTY                                 		AS PO_PKGQTY,
+       			PI.ITEM_PKGUNIT                                		AS PO_PKGUNIT,
+       			PI.ITEM_CBM                                    		AS PO_CBM,
+       			PI.ITEM_KGS                                     	AS PO_KGS, 
+       			NVL(PI.ITEM_QTY, 0)     - NVL(BK.TOT_QTY ,0)       	AS ETC_QTY,
+       			NVL(PI.ITEM_PKGQTY, 0)  - NVL(BK.TOT_PKGQTY ,0)    	AS ETC_PKGQTY,
+       			PI.ITEM_PKGUNIT                                    	AS ETC_PKGUNIT,
+       			NVL(PI.ITEM_CBM, 0)     - NVL(BK.TOT_CBM ,0)      	AS ETC_CBM,
+       			NVL(PI.ITEM_KGS, 0)     - NVL(BK.TOT_KGS ,0)       	AS ETC_KGS, 		
+      		 	BK.ITEM_LENGTH                                     	AS ITEM_LENGTH,
+       			BK.ITEM_HEIGHT                                     	AS ITEM_HEIGHT,
+       			BK.ITEM_WIDTH                                      	AS ITEM_WIDTH,
+       			BK.QTY                                             	AS BK_QTY,
+       			BK.PKGQTY                                          	AS BK_PKGQTY,
+       			BK.PKGUNIT                                         	AS BK_PKGUNIT,
+       			BK.CBM                                             	AS BK_CBM,
+       			BK.KGS                                             	AS BK_KGS, 
+       			DECODE(PI.ITEM_PKGQTY , 0 , 0 , PI.ITEM_QTY / PI.ITEM_PKGQTY ) AS BASE_PACK, 
+       			DECODE(PI.ITEM_QTY, 0, 0, PI.ITEM_CBM / PI.ITEM_QTY)           AS BASE_CBM,
+       			DECODE(PI.ITEM_QTY, 0, 0, PI.ITEM_KGS / PI.ITEM_QTY)           AS BASE_KGS, 			       
+       			P.ORI_LOC_CD                                   		AS ORI_LOC_CD,                        
+       			P.DEST_LOC_CD                                  		AS DEST_LOC_CD,		       
+       			BK.QTY                                         		AS ORG_BK_QTY,
+              	P.ESD                                          		AS ESD,
+       			P.LSD                                          		AS LSD,
+        		BK.LOAD_FLG											AS LOAD_FLG,
+        		CI.ITEM_REMARK                                      AS ITEM_REMARK     
+		FROM   	TL_PO P, 
+       			TL_PO_ITEM PI, 
+       			TL_CTRT_CUST_ITEM CI,
+       			(	SELECT 	CUR_BK.SB_NO,                           
+               				CUR_BK.BUYER_CD,                           
+               				CUR_BK.SUPP_CD ,  
+               				CUR_BK.PO_SYS_NO ,                        
+               				CUR_BK.PO_NO ,   
+      						CUR_BK.ITEM_SYS_NO,                      
+               				CUR_BK.ITEM_CD  ,
+               				TOT_BK.ITEM_QTY        AS TOT_QTY,
+               				TOT_BK.ITEM_PKGQTY     AS TOT_PKGQTY,
+               				TOT_BK.ITEM_CBM        AS TOT_CBM,
+               				TOT_BK.ITEM_KGS        AS TOT_KGS,
+      						CUR_BK.ITEM_LENGTH ,
+      						CUR_BK.ITEM_HEIGHT ,
+      						CUR_BK.ITEM_WIDTH ,
+			               	CUR_BK.ITEM_QTY        AS QTY,
+			               	CUR_BK.ITEM_PKGQTY     AS PKGQTY,
+			               	CUR_BK.ITEM_PKGUNIT    AS PKGUNIT,
+			               	CUR_BK.ITEM_CBM        AS CBM,
+			               	CUR_BK.ITEM_KGS        AS KGS,
+      						CUR_BK.LOAD_FLG
+        			FROM   (	SELECT 	TL_SB.BUYER_CD               AS BUYER_CD,
+                       					TL_SB.SUPP_CD                AS SUPP_CD,
+                       					TL_SB_ITEM.PO_SYS_NO         AS PO_SYS_NO,
+                       					TL_SB_ITEM.PO_NO             AS PO_NO,   
+        								TL_SB_ITEM.ITEM_SYS_NO       AS ITEM_SYS_NO,
+                       					TL_SB_ITEM.ITEM_CD           AS ITEM_CD,
+                       					SUM(TL_SB_ITEM.ITEM_QTY )    AS ITEM_QTY,
+				                       	SUM(TL_SB_ITEM.ITEM_PKGQTY ) AS ITEM_PKGQTY,
+				                       	SUM(TL_SB_ITEM.ITEM_CBM )    AS ITEM_CBM,
+				                       	SUM(TL_SB_ITEM.ITEM_KGS )    AS ITEM_KGS
+                				FROM   	TL_SB, TL_SB_ITEM
+                				WHERE  	TL_SB.SB_NO   = TL_SB_ITEM.SB_NO
+                				<![CDATA[AND    	TL_SB.BK_STS_CD  <> 'C']]>
+                				GROUP BY 	TL_SB.BUYER_CD ,
+                         					TL_SB.SUPP_CD ,
+				                         	TL_SB_ITEM.PO_SYS_NO,
+				                         	TL_SB_ITEM.PO_NO,
+       										TL_SB_ITEM.ITEM_SYS_NO,
+                         					TL_SB_ITEM.ITEM_CD                               
+                			) TOT_BK,                         
+               				(	SELECT 	TL_SB.SB_NO ,
+                       					TL_SB.BUYER_CD ,
+				                       	TL_SB.SUPP_CD,
+				                       	TL_SB_ITEM.PO_SYS_NO ,  
+				                       	TL_SB_ITEM.PO_NO , 
+        								TL_SB_ITEM.ITEM_SYS_NO,
+                       					TL_SB_ITEM.ITEM_CD ,
+							        	TL_SB_ITEM.ITEM_LENGTH ,
+							        	TL_SB_ITEM.ITEM_HEIGHT ,
+							        	TL_SB_ITEM.ITEM_WIDTH ,
+			                       		TL_SB_ITEM.ITEM_QTY ,
+			                       		TL_SB_ITEM.ITEM_PKGQTY,
+			                       		TL_SB_ITEM.ITEM_PKGUNIT,
+			                       		TL_SB_ITEM.ITEM_CBM,
+			                       		TL_SB_ITEM.ITEM_KGS,
+        								TL_SB_ITEM.LOAD_FLG
+			                	FROM   	TL_SB, TL_SB_ITEM
+			                	WHERE  	TL_SB.SB_NO = TL_SB_ITEM.SB_NO
+			                	AND    	TL_SB.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}         
+               				) CUR_BK
+        			WHERE 	TOT_BK.BUYER_CD   =  CUR_BK.BUYER_CD                           
+        			AND   	TOT_BK.SUPP_CD   =  CUR_BK.SUPP_CD                           
+        			AND   	TOT_BK.PO_SYS_NO   =  CUR_BK.PO_SYS_NO   
+   					AND   	TOT_BK.ITEM_SYS_NO =  CUR_BK.ITEM_SYS_NO  
+  				) BK       
+		WHERE	P.PO_SYS_NO       = PI.PO_SYS_NO
+		AND    	P.PO_SYS_NO       = BK.PO_SYS_NO
+		//AND    	P.SUPP_CD         = BK.SUPP_CD    2013.08.21주석 처리
+		AND    	PI.ITEM_SYS_NO    = CI.ITEM_SYS_NO
+		AND    	PI.ITEM_SYS_NO    = BK.ITEM_SYS_NO      
+		ORDER BY 	BK.PO_SYS_NO , PI.ITEM_CD
+	</select>
+	Supplier Booking Management, PO/Item tab 조회 END
+	
+	
+	
+	
+	
+	
+	
+	
+	Supplier Booking Management, Doc Detail tab 조회
+	<resultMap type="com.clt.business.oms.supplierbooking.dto.SBMgtSBDocDto" id="SBMgtSBDocDto">
+		<result property="fieldName"       	column="FIELD_NAME" />
+		<result property="fieldVal"   		column="FIELD_VAL" />
+		<result property="docType"   		column="DOC_TYPE" />
+		
+	</resultMap>
+	
+	<select id="searchSBDocList" resultMap="SBMgtSBDocDto">
+		SELECT 	FIELD_NAME, FIELD_VAL, DOC_TYPE
+		FROM 	(     
+					SELECT 	DISTINCT 
+							'House B/L No (Ocean)' 	AS FIELD_NAME, 
+							E.HBL_NO 				AS FIELD_VAL, 
+							'HBL' 					AS DOC_TYPE, 
+							'1' 					AS DISP
+  					FROM 	TL_SB S, 
+  							TL_EO_SFWD E
+ 					WHERE 	S.SO_NO = E.SO_NO
+   					AND 	S.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}
+   					AND 	E.HBL_NO IS NOT NULL
+					UNION	
+					SELECT 	DISTINCT 
+							'Master B/L No (Ocean)' AS FIELD_NAME, 
+							E.MBL_NO 				AS FIELD_VAL, 
+							'MBL' 					AS DOC_TYPE, 
+							'2' 					AS DISP
+  					FROM 	TL_SB S, 
+  							TL_EO_SFWD E
+ 					WHERE 	S.SO_NO = E.SO_NO
+   					AND 	S.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}
+   					AND 	E.MBL_NO IS NOT NULL
+					UNION
+					SELECT 	DISTINCT 
+							'HAWB No (AIR)' 		AS FIELD_NAME, 
+							E.HAWB_NO 				AS FIELD_VAL, 
+							'HAWB' 					AS DOC_TYPE, 
+							'3' 					AS DISP
+  					FROM 	TL_SB S, 
+  							TL_EO_AFWD E
+	 				WHERE 	S.SO_NO = E.SO_NO
+				   	AND 	S.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}
+				   	AND 	E.HAWB_NO IS NOT NULL
+					UNION
+					SELECT 	DISTINCT 
+							'MAWB No (AIR)' 		AS FIELD_NAME, 
+							E.MAWB_NO 				AS FIELD_VAL, 
+							'MAWB' 					AS DOC_TYPE, 
+							'4' AS DISP
+				  	FROM 	TL_SB S, 
+				  			TL_EO_AFWD E
+				 	WHERE 	S.SO_NO = E.SO_NO
+				   	AND 	S.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}
+				   	AND 	E.MAWB_NO IS NOT NULL
+					UNION
+					SELECT 	DISTINCT 
+							'Inbound Complete' 		AS FIELD_NAME, 
+							T.WO_NO 				AS FIELD_VAL, 
+							'CR' 					AS DOC_TYPE, 
+							'5' 					AS DISP
+				  	FROM 	 TL_SB S, TL_EO_WO T
+         			WHERE 	S.SB_NO = T.RCV_BK_NO
+           			<![CDATA[ AND 	T.CR_FLG = 'Y'	]]>
+				   	AND 	S.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}
+					UNION
+					SELECT 	DISTINCT 
+							'FCR' 					AS FIELD_NAME, 
+							T.FCR_NO 				AS FIELD_VAL, 
+							'FCR' 					AS DOC_TYPE, 
+							'6' 					AS DISP
+				  	FROM 	TL_SB S, TL_EO_FCR T
+         			WHERE 	S.SB_NO = T.SB_NO
+				   	AND 	S.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}
+					UNION
+					SELECT 	DISTINCT 
+							'Work Order No' 		AS FIELD_NAME, 
+							T.WO_NO 				AS FIELD_VAL, 
+							'WO' 					AS DOC_TYPE, 
+							'7' 					AS DISP
+				  	FROM 	 TL_SB S, TL_EO_WO T
+         			WHERE 	S.SB_NO = T.RCV_BK_NO
+           			<![CDATA[ AND 	T.CR_FLG <> 'Y'	]]>
+				   	AND 	S.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}
+					UNION
+					SELECT 	DISTINCT 
+							'CLP No' 				AS FIELD_NAME, 
+							T.CLP_NO 				AS FIELD_VAL, 
+							'CLP' 					AS DOC_TYPE, 
+							'8' 					AS DISP
+				  	FROM 	TL_SB S, 
+				  			TL_EO_SB_ITEM I, 
+				  			TL_EO_CNTR_ITEM T
+				 	WHERE 	S.SB_NO = I.SB_NO
+				   	AND 	S.SB_NO = T.SB_NO
+				   	AND 	I.PO_SYS_NO = T.PO_SYS_NO
+				   	AND 	S.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}
+					UNION
+					SELECT 	DISTINCT 
+							'Container No' 			AS FIELD_NAME, 
+							C.CNTR_NO 				AS FIELD_VAL, 
+							'CNTR' 					AS DOC_TYPE, 
+							'9' 					AS DISP
+				  	FROM 	TL_SB S, 
+				  			TL_EO_SB_ITEM I, 
+				  			TL_EO_CNTR C, 
+				  			TL_EO_CNTR_ITEM T
+				 	WHERE 	S.SB_NO = I.SB_NO
+				   	AND 	S.SO_NO = C.SO_NO
+				   	AND 	S.SB_NO = T.SB_NO 
+				   	AND 	I.PO_SYS_NO = T.PO_SYS_NO
+				   	AND 	C.EO_CNTR_NO = T.EO_CNTR_NO
+				   	AND 	S.SB_NO = #{in_sb_no,	javaType=String, jdbcType=VARCHAR}
+				   	AND 	C.CNTR_NO IS NOT NULL
+					) 
+		ORDER BY DISP, FIELD_VAL
+	</select>
+	Supplier Booking Management, Doc Detail tab 조회 END
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	Supplier Booking Management, PO/Item Tab에서 Load클릭 POPUP 조회
+
+	<resultMap type="com.clt.business.oms.supplierbooking.dto.SBPoItemDto" id="SBPoItemDto">
+		
+	</resultMap>
+	
+	<parameterMap id="OMS_ProcedureMap_searchPOItemList" type="com.clt.business.oms.supplierbooking.dto.SBPoItemDto">
+		<parameter property="in_cnee" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="in_shipper" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="in_con_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="po_no" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    
+	    <parameter property="item_cd" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="in_itm_nm" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="fm_po_dt" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="to_po_dt" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    
+	     <parameter property="fm_esd" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="to_esd" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="fm_lsd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="to_lsd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    
+	     <parameter property="fm_dlv_dt" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="to_dlv_dt" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="fm_cg_rd_dt" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="to_cg_rd_dt" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	</parameterMap>
+	
+	<select id="searchPOItemList" parameterMap="OMS_ProcedureMap_searchPOItemList"  resultMap="SBPoItemDto">
+		SELECT 	PO.PO_SYS_NO
+      			,PO.ITEM_SYS_NO
+      			,PO.PO_NO
+      			,PO.BUYER_CD
+      			,PO.SUPP_CD
+      			,PO.ORI_LOC_CD
+		      	,PO.DEST_LOC_CD
+		      	,PO.ESD
+		      	,PO.LSD
+		      	,PO.ITEM_CD
+		      	,PO.ITEM_NM
+		      	,PO.ITEM_QTY AS OD_QTY
+		      	,PO.ITEM_PKGQTY AS OD_PKGQTY
+		      	,PO.ITEM_PKGUNIT AS OD_PKGUNIT
+		      	,PO.ITEM_CBM AS OD_CBM
+		      	,PO.ITEM_KGS AS OD_KGS
+		      	,PO.ITEM_NET_WGT AS OD_NWT
+		      	,NVL(SB.QTY, 0) AS BK_QTY
+		      	,NVL(SB.PKGQTY, 0) AS BK_PKGQTY
+		      	,SB.PKGUNIT AS BK_PKGUNIT
+		      	,NVL(SB.CBM, 0) AS BK_CBM
+		      	,NVL(SB.KGS, 0) AS BK_KGS
+		      	,NVL(SB.ITEM_NET_WGT, 0) AS BK_NWT
+      			,PO.ITEM_QTY - NVL(SB.QTY, 0) AS ITEM_QTY
+      			,PO.ITEM_PKGQTY - NVL(SB.PKGQTY, 0) AS ITEM_PKGQTY
+      			,PO.ITEM_PKGUNIT AS ITEM_PKGUNIT
+      			,PO.ITEM_CBM - NVL(SB.CBM, 0) AS ITEM_CBM 
+      			,PO.ITEM_KGS - NVL(SB.KGS, 0) AS ITEM_KGS
+      			,PO.ITEM_NET_WGT - NVL(SB.ITEM_NET_WGT,0 ) AS ITEM_NWT
+      			,CI.ITEM_PKGBASEQTY AS BASE_PACK
+      			,CI.ITEM_PKGUNIT AS BASE_UNIT
+      			,CI.ITEM_CBM  AS BASE_CBM
+      			,CI.ITEM_KGS  AS BASE_KGS
+      			,CI.ITEM_NET_WGT AS BASE_NWT
+      			,TL_GET_CUST_NM(PO.BUYER_CD) AS BUYER_NM
+      			,TL_GET_CUST_NM(PO.SUPP_CD) AS SUPP_NM
+      			,CI.ITEM_REMARK
+      			,PO.CG_RD_DT
+		      	,PO.DLV_DT
+		FROM 	(	SELECT 	P.PO_SYS_NO
+            				,P.PO_NO
+            				,P.CTRT_NO
+            				,P.ORI_LOC_CD
+            				,P.DEST_LOC_CD
+            				,P.ESD
+            				,P.LSD
+            				,P.SUPP_CD
+            				,P.BUYER_CD
+            				,P.CUST_CD
+            				,P.PO_DT
+            				,P.PO_SRC_CD
+            				,I.ITEM_SYS_NO
+            				,I.ITEM_CD
+            				,I.ITEM_NM
+            				,I.ITEM_QTY
+            				,I.ITEM_PKGQTY
+            				,I.ITEM_PKGUNIT
+            				,I.ITEM_CBM
+            				,I.ITEM_KGS
+            				,I.ITEM_REMARK
+            				,I.ITEM_NET_WGT
+            				,P.CG_RD_DT
+                            ,P.DLV_DT
+        			FROM 	TL_PO P, 
+             				TL_PO_ITEM I
+       				WHERE 	P.PO_SYS_NO =I.PO_SYS_NO(+)
+         			AND 	P.PO_STS_CD = 'A'	) PO,
+     			(	SELECT  C.CTRT_NO
+             				,C.CTRT_CUST_CD AS CUST_CD
+             				,A.ITEM_SYS_NO
+             				,A.ITEM_CD
+             				,A.ITEM_CBM
+             				,A.ITEM_KGS
+             				,A.ITEM_PKGUNIT
+             				,A.ITEM_PKGBASEQTY
+             				,A.ITEM_NET_WGT
+             				,A.ITEM_REMARK
+        			FROM 	TL_CTRT C,
+             				TL_CTRT_CUST_ITEM A
+       				WHERE 	C.CTRT_NO = A.CTRT_NO    )CI,
+     			(	SELECT 	BK.CTRT_NO
+            				,BK.SUPP_CD
+            				,BK.BUYER_CD
+            				,BI.PO_SYS_NO
+            				,BI.ITEM_SYS_NO
+            				,BI.PO_NO
+            				,BI.ITEM_CD
+            				,SUM(BI.ITEM_QTY) AS QTY
+            				,SUM(BI.ITEM_PKGQTY) AS PKGQTY
+            				,MAX(BI.ITEM_PKGUNIT) AS PKGUNIT
+            				,SUM(BI.ITEM_CBM) AS CBM
+            				,SUM(BI.ITEM_KGS) AS KGS
+            				
+            <if test="popup_flag == 'SB' "> 
+                            ,0 AS ITEM_NET_WGT
+        			FROM 	TL_SB BK
+            				,TL_SB_ITEM BI 
+       				WHERE 	BK.SB_NO = BI.SB_NO
+       		</if>
+       		<if test="popup_flag == 'WB' "> 
+       						,SUM(BI.ITEM_NET_WGT) AS ITEM_NET_WGT
+        			FROM 	TL_WB BK
+            				,TL_WB_ITEM BI 
+       				WHERE 	BK.WB_NO = BI.WB_NO
+       		</if>
+       				AND		1=1
+       				<if test="in_cnee != '' ">
+         			AND 	BK.BUYER_CD = #{in_cnee}
+         			</if>
+         			<if test="in_shipper != '' ">
+         			AND 	BK.SUPP_CD = #{in_shipper}
+         			</if>
+         			<![CDATA[ AND 	NVL(BK.BK_STS_CD, ' ') <> 'C'  ]]>       
+       				GROUP BY 	BK.CTRT_NO
+            					,BK.SUPP_CD
+            					,BK.BUYER_CD
+            					,BI.PO_SYS_NO
+            					,BI.ITEM_SYS_NO
+            					,BI.PO_NO
+            					,BI.ITEM_CD		)SB  
+ 		WHERE 	PO.CTRT_NO = CI.CTRT_NO
+   		AND 	PO.CUST_CD = CI.CUST_CD
+   		AND 	PO.ITEM_SYS_NO = CI.ITEM_SYS_NO
+  		AND 	PO.CTRT_NO = SB.CTRT_NO(+)
+   		AND 	PO.PO_SYS_NO = SB.PO_SYS_NO(+)
+   		AND 	PO.PO_NO = SB.PO_NO(+)
+   		AND 	PO.SUPP_CD = SB.SUPP_CD(+)
+   		AND 	PO.ITEM_SYS_NO = SB.ITEM_SYS_NO(+)
+   		<![CDATA[AND NVL(PO.PO_SRC_CD,'N') <> 'A']]>  
+   		
+   		<if test="in_con_no != '' ">
+  		AND 	PO.CTRT_NO = #{in_con_no}
+  		</if>
+  		<if test="in_cnee != '' ">
+   		AND 	PO.BUYER_CD = #{in_cnee}
+   		</if>
+   		<if test="in_shipper != '' ">
+   		AND 	PO.SUPP_CD  = #{in_shipper}
+   		</if>
+   		<if test="in_po_no != '' ">
+   		AND     PO.PO_NO IN (
+   						<foreach collection="in_po_no_arr" item="po_no" separator=",">#{po_no}</foreach>
+                               )
+   		</if>
+   		<if test="in_itm != '' ">
+        AND     PO.ITEM_CD IN (
+   						<foreach collection="in_itm_arr" item="item_cd" separator=",">#{item_cd}</foreach>
+                               )
+        </if>
+        <if test="in_itm_nm != '' ">
+        AND     PO.ITEM_NM LIKE '%'||#{in_itm_nm}||'%'
+        </if>
+        <if test="fm_po_dt != '' ">
+        <![CDATA[AND     PO.PO_DT >= ]]>  REPLACE(#{fm_po_dt},'-','')
+        </if>
+        <if test="to_po_dt != '' ">  
+        <![CDATA[AND     PO.PO_DT <= ]]>  REPLACE(#{to_po_dt},'-','')
+        </if>
+        <if test="fm_esd != '' ">   
+        <![CDATA[AND     PO.ESD >= ]]>  REPLACE(#{fm_esd},'-','')
+        </if>
+        <if test="to_esd != '' ">
+        <![CDATA[AND     PO.ESD <= ]]>  REPLACE(#{to_esd},'-','')
+        </if>
+        <if test="fm_lsd != '' "> 
+        <![CDATA[AND     PO.LSD >= ]]>  REPLACE(#{fm_lsd},'-','')
+        </if>
+        <if test="to_lsd != '' ">   
+        <![CDATA[AND     PO.LSD <= ]]>  REPLACE(#{to_lsd},'-','')
+        </if> 
+        <if test="fm_esd != '' ">   
+        <![CDATA[AND     PO.ESD >= ]]>  REPLACE(#{fm_esd},'-','')
+        </if>
+        <if test="to_esd != '' ">
+        <![CDATA[AND     PO.ESD <= ]]>  REPLACE(#{to_esd},'-','')
+        </if>
+        <if test="fm_dlv_dt != '' ">   
+        <![CDATA[AND     PO.DLV_DT >= ]]>  REPLACE(#{fm_dlv_dt},'-','')
+        </if>
+        <if test="to_dlv_dt != '' ">
+        <![CDATA[AND     PO.DLV_DT <= ]]>  REPLACE(#{to_dlv_dt},'-','')
+        </if>
+        <if test="fm_cg_rd_dt != '' ">   
+        <![CDATA[AND     PO.CG_RD_DT >= ]]>  REPLACE(#{fm_cg_rd_dt},'-','')
+        </if>
+        <if test="to_cg_rd_dt != '' ">
+        <![CDATA[AND     PO.CG_RD_DT <= ]]>  REPLACE(#{to_cg_rd_dt},'-','')
+        </if>
+        
+      	<![CDATA[AND 	 PO.ITEM_QTY - NVL(SB.QTY, 0) > 0  ]]>   
+      	<if test="popup_flag == 'SB' ">   
+      	AND NOT EXISTS ( SELECT 'X'
+                           FROM TL_EO_WB W
+                               ,TL_EO_WB_ITEM WI
+                          WHERE W.EO_WB_NO = WI.EO_WB_NO
+                          AND W.CTRT_NO = PO.CTRT_NO
+                          AND WI.PO_SYS_NO = PO.PO_SYS_NO ) 
+   		ORDER BY 	PO.PO_SYS_NO, PO.ITEM_CD    
+   		</if>
+   		<if test="popup_flag == 'WB' ">   
+      	AND NOT EXISTS ( SELECT 'X'
+                           FROM TL_EO_SB W
+                               ,TL_EO_SB_ITEM WI
+                          WHERE W.EO_SB_NO = WI.EO_SB_NO
+                          AND W.CTRT_NO = PO.CTRT_NO
+                          AND WI.PO_SYS_NO = PO.PO_SYS_NO ) 
+   		ORDER BY 	PO.PO_SYS_NO, PO.ITEM_CD    
+   		</if>
+   		<if test="fwd_dir == 'E'.toString() ">  
+   		AND NOT EXISTS (SELECT 'X'
+                     FROM TL_EO_WB      WB
+                         ,TL_EO_WB_ITEM WBI
+                    WHERE WB.EO_WB_NO = WBI.EO_WB_NO
+                      AND WB.FWD_DIR = 'G'
+                      AND WBI.PO_SYS_NO = PO.PO_SYS_NO)
+   		 
+   		</if>
+   		<if test="fwd_dir == 'G'.toString() ">  
+   		AND NOT EXISTS (SELECT 'X'
+                     FROM TL_EO_WB      WB
+                         ,TL_EO_WB_ITEM WBI
+                    WHERE WB.EO_WB_NO = WBI.EO_WB_NO
+                      AND WB.FWD_DIR = 'E'
+                      AND WBI.PO_SYS_NO = PO.PO_SYS_NO)
+   		</if>
+	</select>
+	Supplier Booking Management, PO/Item Tab에서 Load클릭 POPUP 조회 END
+	
+	
+	
+	
+	Supplier Booking Management, SB No 채번	
+	<select id="searchSBNo" resultType="String">
+		SELECT 'HJLT'||SUBSTR(#{org_cd,javaType=String,jdbcType=VARCHAR},3,3) ||'S'||TO_CHAR(SYSDATE,'YMM')||LPAD(BOOKING_SEQ.NEXTVAL,4,'0') AS SB_NO
+		FROM   DUAL		
+	</select>	
+	Supplier Booking Management, SB No 채번 END
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<insert id="addSBInfo">
+		INSERT INTO TL_SB
+  		(	SB_NO,
+   			SO_NO,
+   			CTRT_NO,
+   			RTP_NO,
+		   	SALES_OFC_CD,
+		   	SALES_PIC_ID,
+		   	SUPP_CD,
+		   	SUPP_NM,
+		   	SUPP_ADDR1,
+		   	SUPP_ADDR2,
+		   	SUPP_ADDR3,
+		   	SUPP_ADDR4,
+		   	SUPP_ADDR5,
+		   	BUYER_CD,
+		   	BUYER_NM,
+		   	BUYER_ADDR1,
+		   	BUYER_ADDR2,
+		   	BUYER_ADDR3,
+		   	BUYER_ADDR4,
+		   	BUYER_ADDR5,
+		   	NTFY_CD,
+		   	NTFY_NM,
+		   	NTFY_ADDR1,
+		   	NTFY_ADDR2,
+		   	NTFY_ADDR3,
+		   	NTFY_ADDR4,
+		   	NTFY_ADDR5,
+		   	POR,
+		   	POL,
+		   	POL_ETD,
+		   	POD,
+		   	POD_ETA,
+		   	DEL,
+		   	DEL_ETA,
+		   	CG_RD_DT,
+		   	RCV_LOC_CD,
+		   	RCV_LOC_NM,
+		   	RCV_LOC_ADDR1,
+		   	RCV_LOC_ADDR2,
+		   	RCV_LOC_ADDR3,
+		   	RCV_LOC_ADDR4,
+		   	RCV_LOC_ADDR5,
+		   	VSL_CD,
+		   	VSL_NM,
+		   	VOY,
+		   	CARRIER_CD,
+		   	ONBOARD_DT,
+		   	BK_STFF_ID,
+		   	BK_STFF_OFC_CD,
+		   	BK_DATE,
+		   	BK_STS_CD,
+		   	EXP_REF_NO,
+		   	FREIGHTTERM_CD,
+		   	CG_RCV_DT,
+		   	REEFER_TEMP,
+		   	REEFER_VENT,
+		   	DG_CD,
+		   	DG_CLSS_CD,
+		   	REMARK,
+		   	LOCAL_SVC_DESC,
+		   	CUST_REF_NO,
+		   	EST_IN_DT,
+		   	RGST_ID,
+		   	RGST_SYS_DT,
+		   	MODI_ID,
+		   	MODI_SYS_DT)
+		VALUES                                     
+  		(   #{sb_no, 			javaType=String, jdbcType=VARCHAR} ,                                
+		    #{so_no, 			javaType=String, jdbcType=VARCHAR} ,                                
+		    #{ctrt_no, 			javaType=String, jdbcType=VARCHAR} ,                              
+		    #{rtp_no, 			javaType=String, jdbcType=VARCHAR} ,                               
+		    #{sales_ofc_cd, 	javaType=String, jdbcType=VARCHAR} ,                         
+		    #{sales_pic_id, 	javaType=String, jdbcType=VARCHAR} ,                         
+		    #{supp_cd, 			javaType=String, jdbcType=VARCHAR} ,                              
+		    #{supp_nm, 			javaType=String, jdbcType=VARCHAR} ,                              
+		    #{supp_addr1, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{supp_addr2, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{supp_addr3, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{supp_addr4, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{supp_addr5, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{buyer_cd, 		javaType=String, jdbcType=VARCHAR} ,                             
+		    #{buyer_nm, 		javaType=String, jdbcType=VARCHAR} ,                             
+		    #{buyer_addr1, 		javaType=String, jdbcType=VARCHAR} ,                          
+		    #{buyer_addr2, 		javaType=String, jdbcType=VARCHAR} ,                          
+		    #{buyer_addr3, 		javaType=String, jdbcType=VARCHAR} ,                          
+		    #{buyer_addr4, 		javaType=String, jdbcType=VARCHAR} ,                          
+		    #{buyer_addr5, 		javaType=String, jdbcType=VARCHAR} ,                          
+		    #{ntfy_cd, 			javaType=String, jdbcType=VARCHAR} ,                              
+		    #{ntfy_nm, 			javaType=String, jdbcType=VARCHAR} ,                              
+		    #{ntfy_addr1, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{ntfy_addr2, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{ntfy_addr3, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{ntfy_addr4, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{ntfy_addr5, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{por, 				javaType=String, jdbcType=VARCHAR} ,                                  
+		    #{pol, 				javaType=String, jdbcType=VARCHAR} ,                                  
+		    REPLACE(#{pol_etd, 	javaType=String, jdbcType=VARCHAR} ,'-','') ,                              
+		    #{pod, 				javaType=String, jdbcType=VARCHAR} ,                                  
+		    REPLACE(#{pod_eta, 	javaType=String, jdbcType=VARCHAR} ,'-','') ,                              
+		    #{del, 				javaType=String, jdbcType=VARCHAR} ,                                  
+		    REPLACE(#{del_eta, 	javaType=String, jdbcType=VARCHAR} ,'-','') ,                              
+		    REPLACE(#{cg_rd_dt, javaType=String, jdbcType=VARCHAR} ,'-','') ,                             
+		    #{rcv_loc_cd, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{rcv_loc_nm, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{rcv_loc_addr1, 	javaType=String, jdbcType=VARCHAR} ,                        
+		    #{rcv_loc_addr2, 	javaType=String, jdbcType=VARCHAR} ,                        
+		    #{rcv_loc_addr3, 	javaType=String, jdbcType=VARCHAR} ,                        
+		    #{rcv_loc_addr4, 	javaType=String, jdbcType=VARCHAR} ,                        
+		    #{rcv_loc_addr5, 	javaType=String, jdbcType=VARCHAR} ,                        
+		    #{vsl_cd, 			javaType=String, jdbcType=VARCHAR} ,                               
+		    #{vsl_nm, 			javaType=String, jdbcType=VARCHAR} ,                               
+		    #{voy, 					javaType=String, jdbcType=VARCHAR} ,                                  
+		    #{carrier_cd, 			javaType=String, jdbcType=VARCHAR} ,                           
+		    REPLACE(#{onboard_dt,	javaType=String, jdbcType=VARCHAR} ,'-','') ,      
+		    #{bk_stff_id, 			javaType=String, jdbcType=VARCHAR} ,                           
+		    #{bk_stff_ofc_cd, 		javaType=String, jdbcType=VARCHAR} ,                       
+		    REPLACE(#{bk_date, 	javaType=String, jdbcType=VARCHAR} ,'-','') ,                              
+		    DECODE(#{issue},'Y','I',#{bk_sts_cd}),                            
+		    #{exp_ref_nm, 		javaType=String, jdbcType=VARCHAR} ,                                                           
+		    #{freightterm_cd,	javaType=String, jdbcType=VARCHAR} ,                                                    
+		    REPLACE(#{cg_rcv_dt,javaType=String, jdbcType=VARCHAR} ,'-','') ,                           
+		    TO_NUMBER(#{reefer_temp, 	javaType=String, jdbcType=VARCHAR}) ,               
+		    TO_NUMBER(#{reefer_vent, 	javaType=String, jdbcType=VARCHAR}) ,               
+		    #{dg_cd, 			javaType=String, jdbcType=VARCHAR} ,                                
+		    #{dg_clss_cd, 		javaType=String, jdbcType=VARCHAR} ,                           
+		    #{remark, 			javaType=String, jdbcType=VARCHAR} ,                               
+		    #{local_svc_desc, 	javaType=String, jdbcType=VARCHAR} ,
+		    #{cust_ref_no, 		javaType=String, jdbcType=VARCHAR} ,    
+		    REPLACE(#{est_in_dt, javaType=String, jdbcType=VARCHAR} ,'-','') ,                                 
+		    #{user_id, 			javaType=String, jdbcType=VARCHAR} ,                              
+		    SYSDATE,                               
+		    #{user_id, 			javaType=String, jdbcType=VARCHAR} ,                            
+		    SYSDATE	)
+	</insert>
+	
+	
+	
+	
+	
+	<update id="modifySBInfo">
+		UPDATE 	TL_SB
+   		SET		SO_NO 			= #{so_no, 			javaType=String, jdbcType=VARCHAR},
+       			CTRT_NO 		= #{ctrt_no, 		javaType=String, jdbcType=VARCHAR},
+       			RTP_NO 			= #{rtp_no, 		javaType=String, jdbcType=VARCHAR},
+		       	SALES_OFC_CD 	= #{sales_ofc_cd, 	javaType=String, jdbcType=VARCHAR},
+		       	SALES_PIC_ID 	= #{sales_pic_id, 	javaType=String, jdbcType=VARCHAR},
+		       	SUPP_CD 		= #{supp_cd, 		javaType=String, jdbcType=VARCHAR},
+		       	SUPP_NM 		= #{supp_nm, 		javaType=String, jdbcType=VARCHAR},
+		       	SUPP_ADDR1 		= #{supp_addr1, 	javaType=String, jdbcType=VARCHAR},
+		       	SUPP_ADDR2 		= #{supp_addr2, 	javaType=String, jdbcType=VARCHAR},
+		       	SUPP_ADDR3 		= #{supp_addr3, 	javaType=String, jdbcType=VARCHAR},
+		       	SUPP_ADDR4 		= #{supp_addr4, 	javaType=String, jdbcType=VARCHAR},
+		       	SUPP_ADDR5 		= #{supp_addr5, 	javaType=String, jdbcType=VARCHAR},
+		       	BUYER_CD 		= #{buyer_cd, 		javaType=String, jdbcType=VARCHAR},
+		       	BUYER_NM 		= #{buyer_nm, 		javaType=String, jdbcType=VARCHAR},
+		       	BUYER_ADDR1 	= #{buyer_addr1, 	javaType=String, jdbcType=VARCHAR},
+		       	BUYER_ADDR2 	= #{buyer_addr2, 	javaType=String, jdbcType=VARCHAR},
+		       	BUYER_ADDR3 	= #{buyer_addr3, 	javaType=String, jdbcType=VARCHAR},
+		       	BUYER_ADDR4 	= #{buyer_addr4, 	javaType=String, jdbcType=VARCHAR},
+		       	BUYER_ADDR5 	= #{buyer_addr5, 	javaType=String, jdbcType=VARCHAR},
+		       	NTFY_CD 		= #{ntfy_cd, 		javaType=String, jdbcType=VARCHAR},
+		       	NTFY_NM 		= #{ntfy_nm, 		javaType=String, jdbcType=VARCHAR},
+		       	NTFY_ADDR1 		= #{ntfy_addr1, 	javaType=String, jdbcType=VARCHAR},
+		       	NTFY_ADDR2 		= #{ntfy_addr2, 	javaType=String, jdbcType=VARCHAR},
+		       	NTFY_ADDR3 		= #{ntfy_addr3, 	javaType=String, jdbcType=VARCHAR},
+		       	NTFY_ADDR4 		= #{ntfy_addr4, 	javaType=String, jdbcType=VARCHAR},
+		       	NTFY_ADDR5 		= #{ntfy_addr5, 	javaType=String, jdbcType=VARCHAR},
+		       	POR 			= #{por, 			javaType=String, jdbcType=VARCHAR},
+		       	POL 			= #{pol, 			javaType=String, jdbcType=VARCHAR},
+		       	POD 			= #{pod, 			javaType=String, jdbcType=VARCHAR},
+		       	DEL 			= #{del, 			javaType=String, jdbcType=VARCHAR},
+		       	CG_RD_DT 		= REPLACE(#{cg_rd_dt, 		javaType=String, jdbcType=VARCHAR},'-',''),
+		       	RCV_LOC_CD 		= #{rcv_loc_cd, 	javaType=String, jdbcType=VARCHAR},
+		       	RCV_LOC_NM 		= #{rcv_loc_nm, 	javaType=String, jdbcType=VARCHAR},
+		       	RCV_LOC_ADDR1 	= #{rcv_loc_addr1, 	javaType=String, jdbcType=VARCHAR},
+		       	RCV_LOC_ADDR2 	= #{rcv_loc_addr2, 	javaType=String, jdbcType=VARCHAR},
+		       	RCV_LOC_ADDR3 	= #{rcv_loc_addr3, 	javaType=String, jdbcType=VARCHAR},
+		       	RCV_LOC_ADDR4 	= #{rcv_loc_addr4, 	javaType=String, jdbcType=VARCHAR},
+		       	RCV_LOC_ADDR5 	= #{rcv_loc_addr5, 	javaType=String, jdbcType=VARCHAR},
+		       	VSL_CD 			= #{vsl_cd, 		javaType=String, jdbcType=VARCHAR},
+		       	VSL_NM 			= #{vsl_nm, 		javaType=String, jdbcType=VARCHAR},
+		       	VOY 			= #{voy, 			javaType=String, jdbcType=VARCHAR},
+		       	CARRIER_CD 		= #{carrier_cd, 	javaType=String, jdbcType=VARCHAR},
+		       	BK_STFF_ID	 	= #{bk_stff_id, 	javaType=String, jdbcType=VARCHAR},
+		       	BK_STFF_OFC_CD 	= #{bk_stff_ofc_cd, javaType=String, jdbcType=VARCHAR},
+		       	BK_DATE 		= REPLACE(#{bk_date, 		javaType=String, jdbcType=VARCHAR},'-',''),
+		       	FREIGHTTERM_CD 	= #{freightterm_cd, javaType=String, jdbcType=VARCHAR},
+		       	CG_RCV_DT 		= REPLACE(#{cg_rcv_dt, 		javaType=String, jdbcType=VARCHAR},'-',''),
+		       	REEFER_TEMP 	= TO_NUMBER(#{reefer_temp, javaType=String, jdbcType=VARCHAR}),
+		       	REEFER_VENT 	= TO_NUMBER(#{reefer_vent, javaType=String, jdbcType=VARCHAR}),
+		       	DG_CD 			= #{dg_cd, 			javaType=String, jdbcType=VARCHAR},
+		       	DG_CLSS_CD 		= #{dg_clss_cd, 	javaType=String, jdbcType=VARCHAR},
+		       	REMARK 			= #{remark, 		javaType=String, jdbcType=VARCHAR},
+		       	LOCAL_SVC_DESC 	= #{local_svc_desc, javaType=String, jdbcType=VARCHAR},
+		       	POL_ETD 		= REPLACE(#{pol_etd, 		javaType=String, jdbcType=VARCHAR},'-',''),
+		       	POD_ETA 		= REPLACE(#{pod_eta, 		javaType=String, jdbcType=VARCHAR},'-',''),
+		       	DEL_ETA 		= REPLACE(#{del_eta, 		javaType=String, jdbcType=VARCHAR},'-',''),
+		       	CUST_REF_NO		= #{cust_ref_no, 	javaType=String, jdbcType=VARCHAR},
+		       	EST_IN_DT 		= REPLACE(#{est_in_dt, 		javaType=String, jdbcType=VARCHAR},'-',''),
+		       	BK_STS_CD		= DECODE(#{issue},'Y','I',#{bk_sts_cd}),
+		    	MODI_ID 		= #{user_id, 		javaType=String, jdbcType=VARCHAR},
+		       	MODI_SYS_DT 	= SYSDATE
+		 WHERE 	SB_NO 			= #{sb_no, 			javaType=String, jdbcType=VARCHAR}
+	</update>
+	
+	
+	
+	
+	
+	<delete id="removeSBItemList">
+		DELETE 
+		FROM 	TL_SB_ITEM
+		WHERE 	SB_NO 		= #{sb_no, 			javaType=String, jdbcType=VARCHAR}
+		AND 	PO_SYS_NO 	= #{po_sys_no, 		javaType=String, jdbcType=VARCHAR} 
+		AND 	ITEM_SYS_NO = #{item_sys_no,	javaType=String, jdbcType=VARCHAR}
+	</delete>
+	
+	
+	
+	
+	
+	
+	
+	<delete id="removePOItemList">
+		DELETE 
+		FROM 	TL_PO_ITEM T
+		WHERE 	T.PO_SYS_NO 	= #{po_sys_no,	javaType=String, jdbcType=VARCHAR} 
+		AND 	T.ITEM_SYS_NO 	= (	SELECT 	I.ITEM_SYS_NO 
+									FROM 	TL_SB_ITEM I
+              						WHERE 	I.SB_NO 		= #{sb_no, 			javaType=String, jdbcType=VARCHAR} 
+              						AND 	I.PO_SYS_NO 	= #{po_sys_no, 		javaType=String, jdbcType=VARCHAR}
+              						AND 	I.ITEM_SYS_NO 	= #{item_sys_no, 	javaType=String, jdbcType=VARCHAR} 
+              						AND 	I.LOAD_FLG 		= 'N'	)
+	</delete>   
+	
+	
+	
+	
+	
+	
+	
+	<delete id="removePO">
+		DELETE 
+		FROM 	TL_PO T
+		WHERE 	T.PO_SYS_NO	= #{po_sys_no,	javaType=String, jdbcType=VARCHAR} 
+		AND 	0 			=	(	SELECT 	COUNT(*) 
+									FROM 	TL_PO_ITEM I
+        							WHERE 	I.PO_SYS_NO = #{po_sys_no,	javaType=String, jdbcType=VARCHAR})
+	</delete>   
+	
+	
+	
+	
+	
+	
+	Supplier Booking Management, PO/Item Tab UPDATE
+	<update id="modifySBItemList">
+		UPDATE 	TL_SB_ITEM
+   		SET 	ITEM_QTY 		= #{bk_qty, 		javaType=String, jdbcType=VARCHAR},
+       			ITEM_CBM 		= #{bk_cbm, 		javaType=String, jdbcType=VARCHAR},
+       			ITEM_KGS 		= #{bk_kgs, 		javaType=String, jdbcType=VARCHAR},
+       			ITEM_PKGQTY 	= #{bk_pkgqty,		javaType=String, jdbcType=VARCHAR},
+       			ITEM_PKGUNIT 	= #{bk_pkgunit,		javaType=String, jdbcType=VARCHAR},
+    			ITEM_LENGTH 	= #{item_length, 	javaType=String, jdbcType=VARCHAR},
+    			ITEM_HEIGHT 	= #{item_height, 	javaType=String, jdbcType=VARCHAR},
+    			ITEM_WIDTH 		= #{item_width, 	javaType=String, jdbcType=VARCHAR},
+      	 		MODI_ID 		= #{user_id, 		javaType=String, jdbcType=VARCHAR},
+       			MODI_SYS_DT 	= SYSDATE
+ 		WHERE 	SB_NO 			= #{sb_no, 			javaType=String, jdbcType=VARCHAR}
+   		AND 	PO_SYS_NO 		= #{po_sys_no, 		javaType=String, jdbcType=VARCHAR}
+   		AND 	ITEM_SYS_NO 	= #{item_sys_no, 	javaType=String, jdbcType=VARCHAR}
+   		
+	</update>
+	Supplier Booking Management, PO/Item Tab UPDATE END
+   
+   
+   
+   
+   
+   
+   
+   
+   	<update id="modifyPOItemList">
+   		UPDATE 	TL_PO_ITEM
+   		SET 	ITEM_CD      	= #{item_cd, 		javaType=String, jdbcType=VARCHAR},
+       			ITEM_NM      	= #{item_nm, 		javaType=String, jdbcType=VARCHAR},
+       			ITEM_QTY     	= #{bk_qty, 		javaType=String, jdbcType=VARCHAR},
+       			ITEM_CBM     	= #{bk_cbm, 		javaType=String, jdbcType=VARCHAR},
+       			ITEM_KGS     	= #{bk_kgs, 		javaType=String, jdbcType=VARCHAR},
+       			ITEM_PKGQTY  	= #{bk_pkgqty, 		javaType=String, jdbcType=VARCHAR},
+       			ITEM_PKGUNIT 	= #{bk_pkgunit,		javaType=String, jdbcType=VARCHAR},
+       			MODI_ID      	= #{user_id, 		javaType=String, jdbcType=VARCHAR},
+       			MODI_SYS_DT  	= SYSDATE
+ 		WHERE 	PO_SYS_NO 		= #{po_sys_no, 		javaType=String, jdbcType=VARCHAR}
+   		AND 	ITEM_SYS_NO 	= #{item_sys_no,	javaType=String, jdbcType=VARCHAR}
+   	</update>
+   
+   
+   
+   
+   
+   
+   	<update id="modifyPO">
+   		UPDATE 	TL_PO P
+   		SET 	PO_NO 		= #{po_no, 		javaType=String, jdbcType=VARCHAR}
+      			,CTRT_NO 	= #{ctrt_no,	javaType=String, jdbcType=VARCHAR}
+      			,CUST_CD 	= (	SELECT 	CTRT_CUST_CD
+                    			FROM 	TL_CTRT
+                   				WHERE 	CTRT_NO = #{ctrt_no,	javaType=String, jdbcType=VARCHAR} )
+      			,SUPP_CD 	= #{supp_cd,	javaType=String, jdbcType=VARCHAR}
+      			,SUPP_NM 	= #{supp_nm,	javaType=String, jdbcType=VARCHAR}
+      			,SUPP_TEL   = (SELECT TL_CUST.TEL FROM TL_CUST WHERE TL_CUST.CUST_CD = #{supp_cd,	javaType=String, jdbcType=VARCHAR} )
+        		,SUPP_FAX   = (SELECT TL_CUST.FAX FROM TL_CUST WHERE TL_CUST.CUST_CD = #{supp_cd,	javaType=String, jdbcType=VARCHAR} )
+      			,BUYER_CD 	= #{buyer_cd,	javaType=String, jdbcType=VARCHAR}
+      			,BUYER_NM 	= #{buyer_nm,	javaType=String, jdbcType=VARCHAR}
+      			,BUYER_TEL  = (SELECT TL_CUST.TEL FROM TL_CUST WHERE TL_CUST.CUST_CD = #{buyer_cd,javaType=String, jdbcType=VARCHAR})
+        		,BUYER_FAX  = (SELECT TL_CUST.FAX FROM TL_CUST WHERE TL_CUST.CUST_CD = #{buyer_cd,javaType=String, jdbcType=VARCHAR})
+      			,ORI_LOC_CD = $ORI_LOC_CD
+      			,DEST_LOC_CD = $DEST_LOC_CD
+      			,ESD = $ESD
+      			,LSD = $LSD
+      			,MODI_ID 	= #{user_id,	javaType=String, jdbcType=VARCHAR}
+      			,MODI_SYS_DT = SYSDATE
+ 		WHERE 	1 = 1 
+ 	    AND     PO_SYS_NO = #{po_sys_no}
+   		AND 	EXISTS (	SELECT 	X
+          					FROM 	TL_SB_ITEM I
+         					WHERE 	I.SB_NO 	= #{sb_no,	javaType=String, jdbcType=VARCHAR}
+           					AND 	I.PO_SYS_NO = P.PO_SYS_NO)
+	</update>
+	
+	
+	
+	
+		
+	<resultMap type="com.clt.business.oms.supplierbooking.dto.SBMgtEtcDto" id="SBMgtEtcDto1">
+	</resultMap>
+	
+	<parameterMap id="OMS_ProcedureMap_existsFCR" type="com.clt.business.oms.supplierbooking.dto.Grd00SBMgtSBInfoDto">
+		<parameter property="sb_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	</parameterMap>
+	<select id="existsFCR" resultMap="SBMgtEtcDto1">
+		SELECT 	FCR_NO
+  		FROM 	TL_FCR 
+ 		WHERE 	FCR_NO 	= #{sb_no, 	javaType=String, jdbcType=VARCHAR}
+   		<![CDATA[AND 	FCR_STS_CD 	<> 'C']]>
+	</select>	
+	<select id="existsFCR" parameterMap="OMS_ProcedureMap_existsFCR" resultMap="SBMgtEtcDto1">
+		SELECT 	FCR_NO
+  		FROM 	TL_FCR 
+ 		WHERE 	FCR_NO 	= #{sb_no}
+   		<![CDATA[AND 	FCR_STS_CD 	<> 'C']]>
+	</select>
+	
+	
+	
+	
+		
+	<resultMap type="com.clt.business.oms.supplierbooking.dto.SBListInfoDto" id="SBListInfoDto">
+	</resultMap>
+	
+	<select id="searchSBList" resultMap="SBListInfoDto">
+		SELECT '*' AS SEQ, SB_NO, BK_STS_CD, BK_DATE, SO_NO, MBL_NO, HBL_NO, CTRT_NO, SALES_OFC_CD,
+		       SUPP_CD, SUPP_NM, BUYER_CD, POL, POD, POL_ETD, POD_ETA, RCV_LOC_CD, CG_RD_DT, CG_RCV_DT, VSL_CD, VSL_NM, VOY
+		      ,TL_GET_COMM_NM('FG',PNL_SVC_TP_CD) AS PNL_SVC_TP_NM
+              ,TL_GET_CTRT_NM(CTRT_NO) AS CTRT_NM
+              ,TL_GET_CUST_NM(BUYER_CD) AS BUYER_NM 
+		  FROM (
+			SELECT DISTINCT (BK.SB_NO) AS SB_NO,
+			                CASE
+			                  WHEN BK.BK_STS_CD = 'N' THEN
+			                   'Booked'
+			                  WHEN BK.BK_STS_CD = 'I' THEN
+			                   'Issued'
+			                  WHEN BK.BK_STS_CD = 'C' THEN
+			                   'Cancel'
+			                END AS BK_STS_CD,
+			                BK.BK_DATE,    
+			                BK.SO_NO,
+			                BK.CTRT_NO,
+			                BK.SALES_OFC_CD,
+			                BK.SUPP_CD,
+			                TL_GET_CUST_NM(BK.SUPP_CD) AS SUPP_NM,
+			                BK.BUYER_CD,
+			                BK.POL,
+			                BK.POD,          
+			                BK.POL_ETD,
+			                BK.POD_ETA,
+			                BK.RCV_LOC_CD, 
+			                BK.CG_RD_DT,
+			                BK.CG_RCV_DT,
+			                SE.MBL_NO,
+			                SE.HBL_NO,
+	                        BK.VSL_CD,
+	                        BK.VSL_NM,
+	                        BK.VOY,
+	                        SE.PNL_SVC_TP_CD
+			  FROM TL_SB BK, 
+			       TL_SB_ITEM BI,
+			       TL_EO_SFWD SE
+			 WHERE BK.SB_NO = BI.SB_NO(+)
+			   AND BK.SO_NO = SE.SO_NO
+			  <if test="fm_bk_date != '' ">
+			   AND BK.BK_DATE BETWEEN REPLACE(#{fm_bk_date, javaType=String, jdbcType=VARCHAR},'-','') AND REPLACE(#{to_bk_date, javaType=String, jdbcType=VARCHAR},'-','')
+			  </if>
+			  <if test="fm_pol_etd != '' ">
+			   AND BK.POL_ETD BETWEEN REPLACE(#{fm_pol_etd, javaType=String, jdbcType=VARCHAR},'-','') AND REPLACE(#{to_pol_etd, javaType=String, jdbcType=VARCHAR},'-','')
+			  </if>
+			  <if test="fm_pod_eta != '' ">
+			   AND BK.POD_ETA BETWEEN REPLACE(#{fm_pod_eta, javaType=String, jdbcType=VARCHAR},'-','') AND REPLACE(#{to_pod_eta, javaType=String, jdbcType=VARCHAR},'-','')
+			  </if>
+			  <if test="fm_cg_rd_dt != '' ">
+			   AND BK.CG_RD_DT BETWEEN REPLACE(#{fm_cg_rd_dt, javaType=String, jdbcType=VARCHAR},'-','') AND REPLACE(#{to_cg_rd_dt, javaType=String, jdbcType=VARCHAR},'-','')
+			  </if>
+			  <if test="fm_cg_rcv_dt != '' ">
+			   AND BK.CG_RCV_DT BETWEEN REPLACE(#{fm_cg_rcv_dt, javaType=String, jdbcType=VARCHAR},'-','') AND REPLACE(#{to_cg_rcv_dt, javaType=String, jdbcType=VARCHAR},'-','')
+			  </if>
+			  <if test="bk_sts_cd != '' ">	
+			   AND BK.BK_STS_CD = #{bk_sts_cd}
+			  </if>
+			  <if test="sb_no != '' ">
+			   AND BK.SB_NO LIKE #{sb_no, javaType=String, jdbcType=VARCHAR}||'%'
+			  </if>	
+			  <if test="ctrt_no != '' ">
+			   AND BK.CTRT_NO = #{ctrt_no, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="so_no != '' ">
+			   AND BK.SO_NO LIKE #{so_no, javaType=String, jdbcType=VARCHAR}||'%'
+			  </if>	
+			  <if test="liner_bkg_no != '' ">
+			   AND SE.LINER_BKG_NO = #{liner_bkg_no, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="hbl_no != '' ">
+			   AND SE.HBL_NO = #{hbl_no, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="mbl_no != '' ">
+			   AND SE.MBL_NO = #{mbl_no, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="po_no != '' ">
+			   AND BI.PO_NO = #{po_no, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="item_cd != '' ">
+			   AND BI.ITEM_CD LIKE #{item_cd, javaType=String, jdbcType=VARCHAR}||'%'
+			  </if>	
+			  <if test="por != '' ">
+			   AND BK.POR = #{por, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="pol != '' ">
+			   AND BK.POL = #{pol, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="pod != '' ">
+			   AND BK.POD = #{pod, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="del != '' ">
+			   AND BK.DEL = #{del, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="rcv_loc_cd != '' ">
+			   AND BK.RCV_LOC_CD = #{rcv_loc_cd, javaType=String, jdbcType=VARCHAR}
+			  </if>		
+			  <if test="supp_cd != '' ">
+			   AND BK.SUPP_CD LIKE #{supp_cd, javaType=String, jdbcType=VARCHAR}||'%'
+			  </if>			
+			  <if test="buyer_cd != '' ">
+			   AND BK.BUYER_CD LIKE #{buyer_cd, javaType=String, jdbcType=VARCHAR}||'%'
+			  </if>	
+			  <if test="bk_stff_ofc_cd != '' ">
+			   AND BK.BK_STFF_OFC_CD = #{bk_stff_ofc_cd, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="sales_ofc_cd != '' ">
+			   AND BK.SALES_OFC_CD = #{sales_ofc_cd, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="vsl_cd != '' ">
+			   AND BK.VSL_CD = #{vsl_cd, javaType=String, jdbcType=VARCHAR}
+			  </if>	
+			  <if test="vsl_nm != '' ">
+			   AND BK.VSL_NM LIKE #{vsl_nm, javaType=String, jdbcType=VARCHAR}||'%'
+			  </if>
+			  <if test="voy != '' ">
+			   AND BK.VOY = #{voy, javaType=String, jdbcType=VARCHAR}
+			  </if>
+			   
+			 ORDER BY BK.SB_NO ) 
+	</select>	
+	
+</mapper>  -->

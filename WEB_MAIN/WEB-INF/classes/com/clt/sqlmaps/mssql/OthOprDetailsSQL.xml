@@ -1,0 +1,1205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="oth.opr.details">
+    <!-- Other Sales Details    -->
+    <select id="typeOtherSalesDetails" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthDetailsVO">
+		SELECT	oth_tp,			oth_prfx,		rmk
+		  FROM	TB_OTH_CD
+		 WHERE  USE_FLG = 'Y'
+	  ORDER BY  oth_tp ASC
+	</select>
+	
+	
+	<select id="selectOTH_SEQ_PK" parameterClass="java.util.HashMap" resultClass="String">
+		SELECT isnull(MAX(OTH_SEQ),0) + 1
+  		  FROM TB_OTH_SALES
+	</select>
+	
+	<select id="selectREF_NO_PK" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT
+			convert(VARCHAR, max(
+				CASE WHEN 
+					cast((ISNULL(a.OTH_NO, 0) + 1) as int) > (
+						CASE WHEN 
+							ISNUMERIC(Substring(B.ref_no, LEN(A.oth_prfx) + 1, LEN(B.ref_no) - LEN(A.oth_prfx)))= 1 
+							AND LEN(Substring(B.ref_no, LEN(A.oth_prfx) + 1, LEN(B.ref_no) - LEN(A.oth_prfx)))= 7 
+						THEN cast(ISNULL(Substring(B.ref_no, LEN(A.oth_prfx) + 1, LEN(B.ref_no) - LEN(A.oth_prfx)), 0) as int)
+						ELSE 0 END
+				)
+				THEN cast((ISNULL(a.OTH_NO, 0) + 1) as int) 
+				ELSE (
+					CASE WHEN 
+						ISNUMERIC(Substring(B.ref_no, LEN(A.oth_prfx) + 1, LEN(B.ref_no) - LEN(A.oth_prfx)))= 1 
+						AND LEN(Substring(B.ref_no, LEN(A.oth_prfx) + 1, LEN(B.ref_no) - LEN(A.oth_prfx)))= 7 
+					THEN cast((ISNULL(cast((Substring(B.ref_no, LEN(A.oth_prfx) + 1, LEN(B.ref_no) - LEN(A.oth_prfx))) as int), 0) + 1) as int) 
+					ELSE 0 END 
+				) 
+				END
+			)) AS last_oth_no
+			, max(ISNULL(a.oth_prfx, '')) as oth_prfx 
+		FROM
+			TB_OTH_CD a
+		LEFT OUTER JOIN TB_OTH_SALES b ON b.REF_NO like a.oth_prfx + '%' AND b.DELT_FLG = 'N'
+		WHERE 1 = 1 AND a.OTH_TP = #type#      
+	</select>
+	
+	<update id="updateOtherCdOthNo" parameterClass="java.util.HashMap">
+		UPDATE TB_OTH_CD
+		   SET OTH_NO = isnull(OTH_NO, 0) + 1
+		 WHERE OTH_TP = #type#
+	</update>
+	
+    <!-- OTH_DETAIL 조회   -->
+    <select id="selectOtherSalesDetails" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthDetailsVO">
+		SELECT	ref_no,			ofc_cd,			type,			mbl_no,				hbl_no,				vsl_flt,
+				cust_cd,		cust_nm,		cust_ref_no,	shpr_nm,			cnee_nm,			cmdt_cd,
+				cmdt_nm,		loc_nm,			cntr_info,		pol_cd,				pol_nm,				etd_dt_tm,
+				pod_cd,			pod_nm,			eta_dt_tm,		fnl_dest_loc_cd,	fnl_dest_loc_nm,	feta_dt_tm,
+				pck_qty,		pck_ut_cd,		grs_wgt_l,		grs_wgt_k,			meas_m,				meas_f,
+				post_dt,		int_memo,		ext_memo,		delt_flg,			sls_usrid,			sls_ofc_cd,
+				curr_cd,		oth.oth_seq,    ISNULL(BLCK.STS_CD1, OTH.STS_CD) AS STS_CD,
+				issued_by AS opr_usrid,
+				pu_loc_cd, 		    pu_loc_nm, 		    door_loc_cd,  door_loc_nm,   ctrb_ofc_cd,		ctrb_ratio_yn,
+				ctrb_dept_cd,		ctrb_mgn,
+				<!--#680 [STARWAY] 214, 210 EDI RESULT / STATUS TO SHOW ON OPUS FWD  -->
+				shpr_trdp_cd,
+				cnee_trdp_cd,
+				<!--#680 [STARWAY] 214, 210 EDI RESULT / STATUS TO SHOW ON OPUS FWD  -->
+				
+				<!-- #873 [STARWAY] LOAD DATE, DATE OF RECEIPT FIELDS TO BE ADDED -->
+				lod_dt_tm,
+				
+				<!-- #657 [OCEAN BLUE, IMPEX] B/L SELECTION FLAG TO SHOW ON VISIBILITY PORTAL -->
+				inter_use_flag,
+				<!-- #6359 [FFN] Local Transport internal memo (Zen#2308) -->
+				memo_txt,
+				<!-- OFVFOUR-7101: [BNX] Adding Sales Option in Misc Operation Entry (Other BL Entry) -->
+				nomi_flg
+		  FROM	tb_oth_sales oth
+		  LEFT  OUTER JOIN (SELECT OTH_SEQ AS OTH_SEQ1, STS_CD AS STS_CD1 FROM TB_OTH_SALES_BLCK) BLCK ON OTH.OTH_SEQ = BLCK.OTH_SEQ1
+		 WHERE  delt_flg = 'N'
+		 <isNotNull property="oth_seq">
+           AND  OTH.OTH_SEQ = #oth_seq#
+       	 </isNotNull>
+       	 <isNotNull property="ref_no">
+           AND  OTH.REF_NO = #ref_no#
+       	 </isNotNull>
+	  ORDER BY  ref_no ASC
+	</select>
+	
+	
+    <!-- 52320 [COMMON] Transaction 변경처리시 Block Date 까지 Check 하도록 수정 -->
+    <select id="searchOthSalesModiTms" resultClass="java.lang.String" parameterClass="java.util.HashMap">
+		/*  searchOthSalesModiTms  */
+		SELECT MAX(MODI_TMS) AS MODI_TMS
+		FROM (
+			SELECT MODI_TMS
+			  FROM tb_oth_sales
+			 WHERE OTH_SEQ = #oth_seq#
+			 
+			union all
+			 
+			 SELECT MODI_TMS
+			  FROM TB_OTH_SALES_BLCK  
+			 WHERE OTH_SEQ = #oth_seq#
+			 
+			 
+		) INVAL
+    </select>
+    	
+	
+	<!-- OTH_DETAIL 저장후 조회   -->
+	<select id="selectOtherSalesDetailsInfo" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthDetailsVO">
+		SELECT	 ref_no 	AS g_ref_no
+				,type  		AS g_type
+				,mbl_no		AS g_mbl_no
+				,hbl_no		AS g_hbl_no
+				,oth_seq	AS g_oth_seq
+		  FROM	tb_oth_sales
+		 WHERE  ref_no = #ref_no#
+		   AND  delt_flg = 'N'
+	</select>
+	
+	<select id="selectOtherSalesDetailsList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthDetailsVO">
+		SELECT	cntr_no,			cntr_seq,				cntr_tpsz_cd,				seal_no1
+		  FROM	tb_oth_sales_cntr
+		 WHERE  ref_no = #ref_no#
+	  ORDER BY  ref_no ASC
+	</select>
+	
+	<insert id="insertOtherSalesDetails" parameterClass="java.util.HashMap">
+	/* OthOprDetailsSQL.xml >  insertOtherSalesDetails */
+		INSERT INTO tb_oth_sales( 
+				oth_seq,
+				ref_no,				ofc_cd,				type,				mbl_no,				hbl_no,				vsl_flt,
+				cust_cd,			cust_nm,			cust_ref_no,		shpr_nm,			cnee_nm,			cmdt_cd,
+				cmdt_nm,			loc_nm,				cntr_info,			pol_cd,				pol_nm,				etd_dt_tm,
+				pod_cd,				pod_nm,				eta_dt_tm,			feta_dt_tm,			pck_qty,			pck_ut_cd,
+				grs_wgt_l,			grs_wgt_k,			meas_m,				meas_f,				post_dt,			int_memo,
+				ext_memo,			delt_flg,			sls_usrid,			sls_ofc_cd,						
+				fnl_dest_loc_cd,	fnl_dest_loc_nm,	curr_cd,
+				rgst_usrid,			rgst_ofc_cd,		rgst_tms,			sts_cd,
+				modi_usrid,			modi_ofc_cd,		modi_tms,
+				pu_loc_cd, 		    pu_loc_nm, 		    door_loc_cd,  		door_loc_nm, 		ctrb_ofc_cd,		ctrb_ratio_yn,
+				ctrb_dept_cd,		ctrb_mgn,    		issued_by,          shpr_trdp_cd,       cnee_trdp_cd,
+				<!-- #873 [STARWAY] LOAD DATE, DATE OF RECEIPT FIELDS TO BE ADDED -->
+				lod_dt_tm,
+				<!-- #657 [OCEAN BLUE, IMPEX] B/L SELECTION FLAG TO SHOW ON VISIBILITY PORTAL -->
+				inter_use_flag,
+				<!-- #6359 [FFN] Local Transport internal memo (Zen#2308) -->
+				memo_txt,
+				nomi_flg
+				
+		) VALUES (
+			#oth_seq#,
+			#ref_no#,			#ofc_cd#,			#type#,				#mbl_no#,			#hbl_no#,			#vsl_flt#,
+			#cust_cd#,			#cust_nm#,			#cust_ref_no#,		#shpr_nm#,			#cnee_nm#,			#cmdt_cd#,
+			#cmdt_nm#,			#loc_nm#,			#cntr_info#,		#pol_cd#,			#pol_nm#,			#etd_dt_tm#,
+			#pod_cd#,			#pod_nm#,			#eta_dt_tm#,		#feta_dt_tm#,		#pck_qty#,			#pck_ut_cd#,
+			#grs_wgt_l#,		#grs_wgt_k#,		#meas_m#,			#meas_f#,			#post_dt#,			#int_memo#,
+			#ext_memo#,			'N',				#sls_usrid#,		#sls_ofc_cd#,		
+			#fnl_dest_loc_cd#,	#fnl_dest_loc_nm#,	#curr_cd#,
+			#proc_usrid#,		#proc_ofccd#,		getdate(),			'O',
+			#proc_usrid#,		#proc_ofccd#,		GETUTCDATE(),
+			#pu_loc_cd#, 		#pu_loc_nm#, 		#door_loc_cd#,  	#door_loc_nm# , 	#ctrb_ofc_cd#,		#ctrb_ratio_yn#,
+			#ctrb_dept_cd#,		#ctrb_mgn#,         #opr_usrid#,        #shpr_trdp_cd#,     #cnee_trdp_cd#,
+			<!-- #873 [STARWAY] LOAD DATE, DATE OF RECEIPT FIELDS TO BE ADDED -->
+			#lod_dt_tm#,
+			<!-- #657 [OCEAN BLUE, IMPEX] B/L SELECTION FLAG TO SHOW ON VISIBILITY PORTAL -->
+			#inter_use_flag#,
+			<!-- #6359 [FFN] Local Transport internal memo (Zen#2308) -->
+			#memo_txt#,
+			#nomi_flg#
+		)
+	</insert>
+	
+	<update id="updateOtherSalesDetails" parameterClass="java.util.HashMap">
+		/* OthOprDetailsSQL.xml >  updateOtherSalesDetails */
+		UPDATE	tb_oth_sales
+		   SET	ref_no = #ref_no#,				ofc_cd = #ofc_cd#,			type = #type#,				mbl_no = #mbl_no#,
+				hbl_no = #hbl_no#,				vsl_flt = #vsl_flt#,		cust_cd = #cust_cd#,		cust_nm = #cust_nm#,
+				cust_ref_no = #cust_ref_no#,	shpr_nm = #shpr_nm#,		cnee_nm = #cnee_nm#,		cmdt_cd = #cmdt_cd#,
+				cmdt_nm = #cmdt_nm#,			loc_nm = #loc_nm#,			cntr_info = #cntr_info#,	pol_cd = #pol_cd#,
+				pol_nm = #pol_nm#,				etd_dt_tm = #etd_dt_tm#,	pod_cd = #pod_cd#,			pod_nm = #pod_nm#,
+				eta_dt_tm = #eta_dt_tm#,		feta_dt_tm = #feta_dt_tm#,	pck_qty = #pck_qty#,		pck_ut_cd = #pck_ut_cd#,
+				grs_wgt_l = #grs_wgt_l#,		grs_wgt_k = #grs_wgt_k#,	meas_m = #meas_m#,			meas_f = #meas_f#,
+				post_dt = #post_dt#,			int_memo = #int_memo#,		ext_memo = #ext_memo#,		sls_usrid = #sls_usrid#,
+				sls_ofc_cd = #sls_ofc_cd#,		
+				curr_cd = #curr_cd#,
+				fnl_dest_loc_cd = #fnl_dest_loc_cd#,
+				fnl_dest_loc_nm = #fnl_dest_loc_nm#,
+				pu_loc_cd = #pu_loc_cd#,
+				pu_loc_nm = #pu_loc_nm#,
+				door_loc_cd = #door_loc_cd#,
+				door_loc_nm = #door_loc_nm#,
+				ctrb_ofc_cd = #ctrb_ofc_cd#,
+				ctrb_ratio_yn = #ctrb_ratio_yn#,
+				ctrb_dept_cd = #ctrb_dept_cd#,
+				ctrb_mgn= #ctrb_mgn#,				
+				modi_ofc_cd 	= #proc_ofccd#,
+				modi_usrid 		= #modi_usrid#,
+				issued_by 		= #opr_usrid#,
+		   		modi_tms 		= GETUTCDATE(),
+		   		shpr_trdp_cd    = #shpr_trdp_cd#,
+		   		cnee_trdp_cd    = #cnee_trdp_cd#,
+		   		<!-- #873 [STARWAY] LOAD DATE, DATE OF RECEIPT FIELDS TO BE ADDED -->
+		   		lod_dt_tm       = #lod_dt_tm#,
+				<!-- #657 [OCEAN BLUE, IMPEX] B/L SELECTION FLAG TO SHOW ON VISIBILITY PORTAL -->
+				inter_use_flag = #inter_use_flag#,
+				<!-- #6359 [FFN] Local Transport internal memo (Zen#2308) -->
+				memo_txt = #memo_txt#,
+				nomi_flg = #nomi_flg#
+
+		 WHERE	oth_seq = #oth_seq#
+	</update>
+	
+	<update id="updateOtherFrtInvPostDt" parameterClass="java.util.HashMap">
+		UPDATE  tb_frt 
+		   SET  inv_post_dt = #post_dt#
+		 WHERE  <![CDATA[inv_seq <> '']]>
+		   AND  frt_seq IN (
+				SELECT  frt.frt_seq
+				  FROM  tb_frt frt
+	   LEFT OUTER JOIN  tb_inv_dtl idtl ON frt.inv_seq = idtl.inv_seq
+	   LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, INV_NO AS INV_NO1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_DTL_BLCK) BLCK ON IDTL.INV_SEQ = BLCK.INV_SEQ1 AND IDTL.INV_NO = BLCK.INV_NO1 
+				 WHERE  frt.oth_seq = #oth_seq#
+				   AND  ISNULL(ISNULL(BLCK.CLT_CMPL_FLG1, IDTL.CLT_CMPL_FLG), 'N') = 'N'
+				   AND  ISNULL(idtl.pay_amt, 0) = 0
+		   		)
+	</update>
+	
+	<update id="updateOtherInvDtlInvPostDt" parameterClass="java.util.HashMap">
+		UPDATE  tb_inv_dtl
+		   SET  inv_post_dt = #post_dt#
+			   ,inv_dt = CASE WHEN y.post_dt_inv = 'POST' 
+		                      THEN #post_dt#
+		                      ELSE inv_dt
+		                 END     
+		 	   ,inv_due_dt = CASE WHEN y.post_dt_inv = 'POST' 
+		                      	  THEN y.due_dt
+		                          ELSE inv_due_dt
+		                     END
+		       ,modi_usrid 	= #proc_usrid#
+		       ,modi_ofc_cd	= #proc_ofccd#              
+			   ,modi_tms	= GETUTCDATE()
+		  FROM  tb_inv_dtl dtl
+		      , (SELECT inv.inv_seq,
+		                (select post_dt_inv from tb_ofc where ofc_cd = inv.ofc_cd) AS post_dt_inv,
+						CONVERT(VARCHAR
+		                       ,case when trdp.cr_term_cd = 'A' 
+								     then dateadd(d, convert(int, trdp.cr_term_dt), #post_dt#)
+								     when trdp.cr_term_cd = 'B' 
+								     then dateadd(month,1,#post_dt#)-(day(#post_dt#))
+								     when trdp.cr_term_cd = 'C' 
+								     then dateadd(month,2,#post_dt#)-(day(#post_dt#))
+								     when trdp.cr_term_cd = 'D' 
+								     then dateadd(d, convert(int, trdp.cr_term_dt), dateadd(month,1,#post_dt#)-(day(#post_dt#)))
+								end
+							   ,112) AS due_dt
+					FROM tb_inv inv
+						 JOIN tb_inv_dtl dtl ON inv.inv_seq = dtl.inv_seq
+						 LEFT OUTER JOIN tb_trdp trdp ON inv.trdp_cd = trdp.trdp_cd 
+						 LEFT OUTER JOIN (SELECT INV_SEQ AS INV_SEQ1, INV_NO AS INV_NO1, CLT_CMPL_FLG AS CLT_CMPL_FLG1 FROM TB_INV_DTL_BLCK) BLCK ON DTL.INV_SEQ = BLCK.INV_SEQ1 AND DTL.INV_NO = BLCK.INV_NO1 
+				   WHERE inv.inv_seq IN (
+										SELECT  frt.inv_seq
+										  FROM  tb_frt frt
+										 WHERE  ISNULL(frt.inv_seq, '') != ''
+										   AND  frt.oth_seq = #oth_seq#
+									 	 GROUP BY  frt.inv_seq
+										) 
+				     AND ISNULL(ISNULL(BLCK.CLT_CMPL_FLG1, DTL.CLT_CMPL_FLG), 'N') = 'N'
+			         AND ISNULL(dtl.pay_amt, 0) = 0   								
+				) y						
+			WHERE dtl.inv_seq = y.inv_seq
+	</update>
+	
+	
+	<!-- OTH CONTAINER 등록   -->
+	<insert id="insertOtherSalesCntrList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthCntrVO">
+		<!-- MSSQL 2008 Ver
+		INSERT INTO TB_OTH_SALES_CNTR(
+			 OTH_SEQ
+			,CNTR_SEQ
+			,REF_NO
+			,CNTR_NO
+			,CNTR_TPSZ_CD
+			,SEAL_NO1
+			,CGO_PCK_QTY
+			,RGST_USRID
+			,RGST_OFC_CD
+			,RGST_TMS
+			,MODI_USRID
+			,MODI_OFC_CD
+			,MODI_TMS
+		)VALUES(
+			 #oth_seq#
+			,(SELECT isnull(MAX(cntr_seq) ,0) + 1 FROM TB_OTH_SALES_CNTR)
+			,#ref_no#
+			,#cntr_no#
+			,#cntr_tpsz_cd#
+			,#seal_no1#
+			,#cgo_pck_qty#
+			,#proc_usrid#
+			,#proc_ofccd#
+			,getdate()
+			,#proc_usrid#
+			,#proc_ofccd#
+			,getdate()
+		) 
+		-->    	
+    	<!-- 2013.06.05 LHK, MSSQL 2005 version 으로 Query 수정 (Insert into () values()구문에 하위 쿼리 사용할 수 없슴) -->
+		INSERT INTO TB_OTH_SALES_CNTR(
+			 OTH_SEQ
+			,CNTR_SEQ
+			,REF_NO
+			,CNTR_NO
+			,CNTR_TPSZ_CD
+			,SEAL_NO1
+			,CGO_PCK_QTY
+			,CGO_WGT
+			,CGO_WGT1
+			,CGO_MEAS
+			,CGO_MEAS1
+			,CNTR_REF_NO
+			,RGST_USRID
+			,RGST_OFC_CD
+			,RGST_TMS
+			,MODI_USRID
+			,MODI_OFC_CD
+			,MODI_TMS
+			,PKUP_NO
+			,LST_FREE_DT
+		) SELECT
+			 #oth_seq#
+			,(SELECT isnull(MAX(cntr_seq) ,0) + 1 FROM TB_OTH_SALES_CNTR)
+			,#ref_no#
+			,#cntr_no#
+			,#cntr_tpsz_cd#
+			,#seal_no1#
+			,#cgo_pck_qty#
+			,#cgo_wgt#
+			,#cgo_wgt1#
+			,#cgo_meas#	
+			,#cgo_meas1#
+			,#cntr_ref_no#
+			,#proc_usrid#
+			,#proc_ofccd#
+			,getdate()
+			,#proc_usrid#
+			,#proc_ofccd#
+			,GETUTCDATE()
+		 	,#pkup_no#
+		 	,#lst_free_dt#
+	</insert>
+	
+	<!-- OTH CONTAINER 수정   -->
+	<update id="updateOtherSalesCntrList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthCntrVO">
+		UPDATE TB_OTH_SALES_CNTR
+		   SET   CNTR_NO		= #cntr_no#
+				,CNTR_TPSZ_CD	= #cntr_tpsz_cd#
+				,SEAL_NO1		= #seal_no1#
+				,CGO_PCK_QTY	= #cgo_pck_qty#
+				,CGO_WGT		= #cgo_wgt#
+				,CGO_WGT1		= #cgo_wgt1#
+				,CGO_MEAS		= #cgo_meas#
+				,CGO_MEAS1		= #cgo_meas1#
+				,CNTR_REF_NO	= #cntr_ref_no#
+				,MODI_USRID		= #proc_usrid#
+				,MODI_OFC_CD	= #proc_ofccd#
+				,MODI_TMS		= GETUTCDATE()
+				,PKUP_NO		= #pkup_no#
+				,LST_FREE_DT	= #lst_free_dt#
+		 WHERE OTH_SEQ  = #oth_seq#
+		 <!-- AND REF_NO   = #ref_no# -->
+		   AND CNTR_SEQ = #cntr_seq#
+	</update>
+	
+	
+	<!-- OTH CONTAINER update  -->
+	<update id="updateOtherRefNoCntrList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthCntrVO">
+	/* OtherOprDetailsSQL.xml   updateOtherRefNoCntrList */	
+		UPDATE TB_OTH_SALES_CNTR
+		   SET REF_NO	= #ref_no#
+		WHERE  OTH_SEQ  = #oth_seq#
+		AND    REF_NO   = #old_ref_no#
+	</update>
+	
+	<!-- OTH CONTAINER LIST 조회   -->
+	<select id="selectOtherSalesCntrList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthCntrVO">
+		SELECT   OTH_SEQ
+				,CNTR_SEQ
+				,REF_NO
+				,CNTR_NO
+				,CNTR_TPSZ_CD
+				,SEAL_NO1
+				,CGO_PCK_QTY
+				,CGO_WGT
+				,CGO_WGT1
+				,CGO_MEAS
+				,CGO_MEAS1
+				,CNTR_REF_NO
+				,PKUP_NO 
+	   			,LST_FREE_DT
+		  FROM TB_OTH_SALES_CNTR
+		 WHERE OTH_SEQ = #oth_seq#
+	</select>
+	
+	
+	<!-- OTH CONTAINER LIST 조회   -->
+	<select id="selectOtherSalesCntrList_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT COUNT(OTH_SEQ)
+		  FROM TB_OTH_SALES_CNTR
+		 WHERE OTH_SEQ = #oth_seq#
+	</select>
+	
+	
+	
+	<update id="deleteOtherSalesCntrList" parameterClass="com.clt.apps.fis.oth.opr.details.dto.OthCntrVO">
+		DELETE FROM TB_OTH_SALES_CNTR
+		 WHERE OTH_SEQ  = #oth_seq#
+		<!-- AND REF_NO   = #ref_no# -->
+		   AND CNTR_SEQ = #cntr_seq#
+	</update>
+	
+	<update id="removeOtherSalesDetails" parameterClass="java.util.HashMap">
+		UPDATE	tb_oth_sales
+		   SET	delt_flg = 'Y',
+		   		MODI_TMS=GETUTCDATE(),
+		   		MODI_USRID=#proc_usrid#,
+		   		MODI_OFC_CD=#proc_ofccd#
+		 WHERE	oth_seq = #oth_seq#
+	</update>
+	
+	
+	<update id="removePurchaseOrder" parameterClass="java.util.HashMap">
+		UPDATE	tb_po
+		   SET	delt_flg = 'Y'
+				,modi_usrid 	= #proc_usrid#
+				,modi_ofc_cd	= #proc_ofccd#              
+				,modi_tms		= GETUTCDATE()
+		 WHERE	po_sys_no = #po_sys_no#
+	</update>
+	
+	<!-- ZOOT::TODO=NoPaging 처리  -->
+    <select id="selectOtherSalesList_NOPAGING_MAX" parameterClass="java.util.HashMap" resultClass="HashMap">
+           /* selectOtherSalesList_NOPAGING_MAX */
+	        SELECT MIN(post_dt) post_dt_start, MAX(post_dt) post_dt_end 
+	        	FROM (
+			        SELECT  TOP $topCnt$
+				         			post_dt
+							  FROM  tb_oth_sales oth with(nolock)
+							 WHERE  oth.delt_flg = 'N' 
+							<isNotEmpty property="ofc_cd">
+							   AND  oth.ofc_cd = #ofc_cd#
+							</isNotEmpty>
+							<!-- #657 [OCEAN BLUE, IMPEX] B/L SELECTION FLAG TO SHOW ON VISIBILITY PORTAL -->
+							   AND (OTH.INTER_USE_FLAG IS NULL OR OTH.INTER_USE_FLAG = 'N')
+			 			    ORDER BY oth.post_dt DESC, oth.modi_tms DESC
+			 	) A
+		 	
+    </select>
+    <!-- ZOOT::TODO=NoPaging 처리  -->
+    <!-- ZOOT::TODO=LIST PAGE AR_AP_DC STAUS PROCESS -->
+    <select id="selectOtherSalesList_NOPAGING" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.list.dto.OthListVO">
+           /* selectOtherSalesList_NOPAGING */
+           
+             select 
+					z.ref_no,
+			        z.post_dt,
+			        z.ofc_cd,
+			        z.mbl_no,
+			        z.hbl_no,
+			        z.vsl_flt,
+			        z.cust_cd,
+			        z.cust_nm,
+			        z.shpr_nm,
+			        z.cnee_nm,
+			        z.cust_ref_no,
+			        z.op_useid,
+			        z.oth_seq,
+			        z.sts_cd,
+			        z.pol_cd,
+	        		z.pol_nm,
+	        		z.pod_cd,
+	        		z.pod_nm,
+					z.ETA_DT_TM	,
+					z.ETD_DT_TM,
+			        z.MODI_TMS,
+			        z.AR_CHK,
+			        z.AP_CHK,
+			        z.DC_CHK,
+			        z.CNTR_NO +  (case when z.CNTR_CNT > 0  then ' + ' +convert(varchar,z.CNTR_CNT) else '' end) as CNTR_NO,
+			        z.CNTR_CNT,
+			        z.sls_usrid,
+			        Z.op_usenm,
+			        z.sls_usrnm ,
+			        z.feta_dt_tm,
+			        z.lod_dt_tm,
+			        z.feta_tm,
+			        z.lod_tm,
+			         <!-- #4980 [Best Ocean] Created Time and Last Modify Time columns add to BL List-->
+            		z.RGST_TMS,
+            		z.modi_usr_nm,
+            		z.modi_tms_local,
+            		<!-- #6837 : [JAPT] B/L Type column add request on BL List -->	
+			        z.oth_type,
+			        <!-- OFVFOUR-7597 [StarCluster-Mex] Adding G.WGT(KG) / G.WGT(LB) column in BL list -->
+			        z.grs_wgt_l,
+			        z.grs_wgt_k
+			  from
+			  (
+            	SELECT  TOP $topCnt$ 
+		         			oth.ref_no, 
+			                oth.post_dt, 
+			                oth.ofc_cd, 
+			                oth.mbl_no, 
+			                oth.hbl_no, 
+			                oth.vsl_flt, 
+			                oth.cust_cd, 
+			                oth.cust_nm, 
+			                oth.shpr_nm, 
+			                oth.cnee_nm, 
+			                oth.cust_ref_no, 
+			                oth.issued_by  AS op_useid, 
+			                oth.oth_seq, 
+			                <!-- oth.sts_cd,  -->
+			                isnull(blck.sts_cd1,oth.sts_cd) as sts_cd,
+			                oth.POL_CD,
+							oth.POL_NM,
+							oth.POD_CD,
+							oth.POD_NM,	
+			                oth.ETD_DT_TM, 
+			                oth.ETA_DT_TM,
+							oth.MODI_TMS as MODI_TMS
+							,ISNULL(oth.AR_CHK,'X') AS AR_CHK
+							,ISNULL(oth.AP_CHK,'X') AS AP_CHK
+							,ISNULL(oth.DC_CHK,'X') AS DC_CHK
+							,(SELECT  top 1 X.CNTR_NO FROM TB_OTH_SALES_CNTR X WHERE  X.OTH_SEQ = oth.OTH_SEQ ) AS CNTR_NO
+				            ,(SELECT COUNT(X.CNTR_NO)-1  FROM   TB_OTH_SALES_CNTR X  WHERE X.OTH_SEQ = oth.OTH_SEQ ) AS CNTR_CNT 
+				            ,oth.sls_usrid
+				            ,(select X.ENG_USR_NM from TB_USR X where X.USRID = oth.issued_by)  AS op_usenm
+							,(select X.ENG_USR_NM from TB_USR X where X.USRID = oth.sls_usrid)  AS sls_usrnm
+						    ,oth.feta_dt_tm
+						    ,substring(oth.feta_dt_tm, 9,2)+substring(oth.feta_dt_tm, 11,2) as feta_tm
+						    ,oth.lod_dt_tm
+						    ,substring(oth.lod_dt_tm, 9,2)+substring(oth.lod_dt_tm, 11,2) as lod_tm
+						    <!-- #4980 [Best Ocean] Created Time and Last Modify Time columns add to BL List-->
+            				,oth.RGST_TMS
+            				,(select usr.eng_usr_nm from tb_usr usr where usr.usrid = oth.modi_usrid) as modi_usr_nm
+            				<!-- #6837 : [JAPT] B/L Type column add request on BL List -->
+            				,DATEADD(HH, DATEDIFF(HH,GETUTCDATE(),GETDATE()), oth.MODI_TMS ) AS MODI_TMS_LOCAL, oth.[type] oth_type
+            				<!-- OFVFOUR-7597 [StarCluster-Mex] Adding G.WGT(KG) / G.WGT(LB) column in BL list -->
+            				,oth.grs_wgt_l
+            				,oth.grs_wgt_k
+
+					  FROM  tb_oth_sales oth with(nolock)			
+					  LEFT OUTER JOIN (select oth_seq as oth_seq1, sts_cd as sts_cd1 from tb_oth_sales_blck) blck ON oth.oth_seq = blck.oth_seq1		 
+					  WHERE oth.delt_flg = 'N'
+			   		<isNotEmpty property="ofc_cd">
+					   AND  oth.ofc_cd = #ofc_cd#
+					</isNotEmpty>
+					<!-- #657 [OCEAN BLUE, IMPEX] B/L SELECTION FLAG TO SHOW ON VISIBILITY PORTAL -->
+					   AND (OTH.INTER_USE_FLAG IS NULL OR OTH.INTER_USE_FLAG = 'N')
+					ORDER BY  
+					<isNotEmpty property="f_orderByInfo">
+					$f_orderByInfo$
+					</isNotEmpty>
+					<isEmpty property="f_orderByInfo"> 
+					oth.POST_DT DESC, oth.MODI_TMS DESC        
+					</isEmpty>
+                
+                 ) z      
+    </select>
+    
+	<!-- Other Sales List    -->
+   <!-- ZOOT::TODO=LIST PAGE AR_AP_DC STAUS PROCESS -->
+    <select id="selectOtherSalesList" parameterClass="java.util.HashMap" resultClass="com.clt.apps.fis.oth.opr.list.dto.OthListVO">
+	/* OthOprDetailsSQL.xml > selectOtherSalesList */
+	
+	
+		  select
+	        z.ref_no,
+	        z.post_dt,
+	        z.ofc_cd,
+	        z.mbl_no,
+	        z.hbl_no,
+	        z.vsl_flt,
+	        z.cust_cd,
+	        z.cust_nm,
+	        z.shpr_nm,
+	        z.cnee_nm,
+	        z.cust_ref_no,
+	        z.op_useid,
+	        z.oth_seq,
+	        z.sts_cd,
+	        z.pol_cd,
+	        z.pol_nm,
+	        z.pod_cd,
+	        z.pod_nm,
+			z.ETA_DT_TM	,
+			z.ETD_DT_TM,		        
+	        z.MODI_TMS        ,
+	        z.AR_CHK,
+	        z.AP_CHK,
+	        z.DC_CHK,
+	        z.CNTR_NO +  (case 
+	            when z.CNTR_CNT > 0  then ' + ' +convert(varchar,
+	            z.CNTR_CNT) 
+	            else '' 
+	        end) as CNTR_NO,
+	        z.CNTR_CNT,
+	        z.sls_usrid,
+	        z.op_usenm,
+	        z.sls_usrnm,
+	        z.feta_dt_tm,
+	        z.lod_dt_tm,
+	        z.feta_tm,
+	        z.lod_tm,
+			<!-- #4980 [Best Ocean] Created Time and Last Modify Time columns add to BL List-->
+            z.RGST_TMS,
+            z.modi_usr_nm,
+            z.MODI_TMS_LOCAL,	
+            <!-- #6837 : [JAPT] B/L Type column add request on BL List -->
+	        z.oth_type,
+	        <!-- OFVFOUR-7597 [StarCluster-Mex] Adding G.WGT(KG) / G.WGT(LB) column in BL list -->
+	        z.grs_wgt_l,
+	        z.grs_wgt_k
+	    	from
+	    	(
+    	  		SELECT a1.*
+				  FROM (
+				  		SELECT  ROW_NUMBER() OVER (ORDER BY oth.MODI_TMS DESC) as ROWNUM,
+								 oth.ref_no
+								,oth.post_dt
+								,oth.ofc_cd
+								,oth.mbl_no
+								,oth.hbl_no
+								,oth.vsl_flt
+								,oth.cust_cd
+								,oth.cust_nm
+								,oth.shpr_nm
+								,oth.cnee_nm
+								,oth.cust_ref_no
+								,oth.issued_by		AS op_useid
+								,oth.oth_seq
+								<!-- ,oth.sts_cd -->
+								,isnull(blck.sts_cd1,oth.sts_cd) as sts_cd
+								,oth.POL_CD
+								,oth.POL_NM
+								,oth.POD_CD
+								,oth.POD_NM	
+								,oth.ETA_DT_TM	
+								,oth.ETD_DT_TM	
+								,oth.MODI_TMS as MODI_TMS
+								,ISNULL(oth.AR_CHK,'X') AS AR_CHK
+								,ISNULL(oth.AP_CHK,'X') AS AP_CHK
+								,ISNULL(oth.DC_CHK,'X') AS DC_CHK	
+								,(SELECT
+					                top 1 X.CNTR_NO 
+					            FROM
+					                TB_OTH_SALES_CNTR X 
+					            WHERE
+					                X.OTH_SEQ = oth.OTH_SEQ ) AS CNTR_NO                 ,
+					            (SELECT
+					                COUNT(X.CNTR_NO)-1  
+					            FROM
+					                TB_OTH_SALES_CNTR X  
+					            WHERE
+					                X.OTH_SEQ = oth.OTH_SEQ ) AS CNTR_CNT       
+					            ,oth.sls_usrid
+					            ,(select X.ENG_USR_NM from TB_USR X where X.USRID = oth.issued_by)  AS op_usenm
+							    ,(select X.ENG_USR_NM from TB_USR X where X.USRID = oth.sls_usrid)  AS sls_usrnm
+							    ,oth.feta_dt_tm
+							    ,substring(oth.feta_dt_tm, 9,2)+substring(oth.feta_dt_tm, 11,2) as feta_tm
+							    ,oth.lod_dt_tm
+							    ,substring(oth.lod_dt_tm, 9,2)+substring(oth.lod_dt_tm, 11,2) as lod_tm
+							    <!-- #4980 [Best Ocean] Created Time and Last Modify Time columns add to BL List-->
+            					,oth.RGST_TMS
+            					,(select usr.eng_usr_nm from tb_usr usr where usr.usrid = oth.modi_usrid) as modi_usr_nm
+            					<!-- #6837 : [JAPT] B/L Type column add request on BL List -->
+            					,DATEADD(HH, DATEDIFF(HH,GETUTCDATE(),GETDATE()),MODI_TMS ) AS MODI_TMS_LOCAL, oth.[TYPE] oth_type
+            					<!-- OFVFOUR-7597 [StarCluster-Mex] Adding G.WGT(KG) / G.WGT(LB) column in BL list -->
+            					,oth.grs_wgt_l
+            					,oth.grs_wgt_k
+						  FROM	tb_oth_sales oth
+						  LEFT OUTER JOIN (select oth_seq as oth_seq1, sts_cd as sts_cd1 from tb_oth_sales_blck) blck ON oth.oth_seq = blck.oth_seq1
+						WHERE oth.delt_flg = 'N'
+						  <isNotEmpty property="post_frmdt"> 
+							<isNotEmpty property="post_todt">
+						  		AND oth.post_dt BETWEEN #post_frmdt# AND #post_todt#
+							</isNotEmpty>
+						  </isNotEmpty>
+						  <isNotEmpty property="eta_strdt"> 
+							<isNotEmpty property="eta_enddt">
+						  		AND oth.ETA_DT_TM BETWEEN #eta_strdt# AND #eta_enddt#
+							</isNotEmpty>
+						  </isNotEmpty>
+						  <isNotEmpty property="etd_strdt"> 
+							<isNotEmpty property="etd_enddt">
+						  		AND oth.ETD_DT_TM BETWEEN #etd_strdt# AND #etd_enddt#
+							</isNotEmpty>
+						  </isNotEmpty>
+							<!-- OFVFOUR-8056: [BNX-LA] Adding Search option in AR/AP list and OIH List screen -->
+						  <isNotEmpty property="f_cmdt_nm">
+								AND  oth.cmdt_nm LIKE #f_cmdt_nm#+'%'
+						  </isNotEmpty>
+						  <isNotNull prepend="AND" property="cust_cd"> 
+						  	oth.cust_cd = #cust_cd#
+						  </isNotNull>
+				          <isNotNull prepend="AND" property="cust_nm"> 
+				            oth.cust_nm LIKE #cust_nm#+'%'
+				          </isNotNull>
+				          <isNotNull prepend="AND" property="shpr_nm"> 
+				            oth.shpr_nm LIKE #shpr_nm#+'%'
+				          </isNotNull>
+				          <isNotNull prepend="AND" property="cnee_nm"> 
+				            oth.cnee_nm LIKE #cnee_nm#+'%'
+				          </isNotNull>
+						  <isNotNull prepend="AND" property="ofc_cd"> 
+						  	oth.ofc_cd = #ofc_cd#
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="hbl_no"> 
+						  	oth.hbl_no LIKE '%'+#hbl_no#+'%'
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="mbl_no"> 
+						  	oth.mbl_no LIKE '%'+#mbl_no#+'%'
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="ref_no"> 
+						  	oth.ref_no LIKE '%'+#ref_no#+'%'
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="f_pol_cd"> 
+						  	oth.POL_CD = #f_pol_cd#
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="f_pod_cd"> 
+						  	oth.POD_CD = #f_pod_cd#
+						  </isNotNull>
+						  
+						  <isNotNull prepend="AND" property="f_pol_nm"> 
+						  	UPPER(oth.POL_NM) like ( '%' + UPPER(#f_pol_nm#) + '%')
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="f_pod_nm"> 
+						  	UPPER(oth.POD_NM) like ( '%' + UPPER(#f_pod_nm#) + '%')
+						  </isNotNull>
+						  
+						  <isNotNull prepend="AND" property="cntr_no">
+						  	exists (select 1 from tb_oth_sales_cntr cntr where oth.OTH_SEQ = cntr.OTH_SEQ and cntr.CNTR_NO LIKE '%'+#cntr_no#+'%') 
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="vsl_flt"> 
+						  	oth.vsl_flt LIKE '%'+#vsl_flt#+'%'
+						  </isNotNull>
+                        
+                        <isNotNull prepend="AND" property="f_opr_usrid"> 
+					        <isEqual property="f_isb_pic_sel_cd" compareValue="ISB">
+					             oth.issued_by = #f_opr_usrid#
+					        </isEqual>
+					        <isEqual property="f_isb_pic_sel_cd" compareValue="PIC">
+					             oth.sls_usrid = #f_opr_usrid#
+					        </isEqual> 
+					        <isEqual property="f_isb_pic_sel_cd" compareValue="OR">
+					             (oth.issued_by = #f_opr_usrid# OR oth.sls_usrid = #f_opr_usrid#)
+					        </isEqual>  	
+				        </isNotNull>					  
+				  ) a1
+		  <![CDATA[ where a1.ROWNUM > #beginIdx# AND a1.ROWNUM <= #topCnt#	]]>  
+                 ) z 		
+                  ORDER BY   
+                  
+					<isNotEmpty property="f_orderByInfo">
+					$f_orderByInfo$
+					</isNotEmpty>
+					<isEmpty property="f_orderByInfo"> 
+					z.POST_DT DESC, z.MODI_TMS DESC       
+					</isEmpty>
+								                  
+	</select>
+	
+	<!-- Other Sales List    -->
+    <select id="selectOtherSalesList_CNT" parameterClass="java.util.HashMap" resultClass="Integer">
+    /* OthOprDetailsSQL.xml > selectOtherSalesList_CNT */        	
+        	SELECT  COUNT(oth.oth_seq)
+			  FROM	tb_oth_sales oth
+			  LEFT OUTER JOIN (select oth_seq as oth_seq1, sts_cd as sts_cd1 from tb_oth_sales_blck) blck ON oth.oth_seq = blck.oth_seq1
+			  WHERE oth.delt_flg = 'N'
+			  <isNotEmpty property="post_frmdt"> 
+				<isNotEmpty property="post_todt">
+			  		AND oth.post_dt BETWEEN #post_frmdt# AND #post_todt#
+				</isNotEmpty>
+			  </isNotEmpty>
+			  <isNotEmpty property="eta_strdt"> 
+				<isNotEmpty property="eta_enddt">
+			  		AND oth.ETA_DT_TM BETWEEN #eta_strdt# AND #eta_enddt#
+				</isNotEmpty>
+			  </isNotEmpty>
+			  <isNotEmpty property="etd_strdt"> 
+				<isNotEmpty property="etd_enddt">
+			  		AND oth.ETD_DT_TM BETWEEN #etd_strdt# AND #etd_enddt#
+				</isNotEmpty>
+			  </isNotEmpty>
+			  <isNotNull prepend="AND" property="cust_cd"> 
+			  	cust_cd = #cust_cd#
+			  </isNotNull>
+	          <isNotNull prepend="AND" property="cust_nm"> 
+	            cust_nm LIKE #cust_nm#+'%'
+	          </isNotNull>
+	          <isNotNull prepend="AND" property="shpr_nm"> 
+	            shpr_nm LIKE #shpr_nm#+'%'
+	          </isNotNull>
+	          <isNotNull prepend="AND" property="cnee_nm"> 
+	            cnee_nm LIKE #cnee_nm#+'%'
+	          </isNotNull>
+			  <isNotNull prepend="AND" property="ofc_cd"> 
+			  	ofc_cd = #ofc_cd#
+			  </isNotNull>
+			  <isNotNull prepend="AND" property="hbl_no"> 
+			  	hbl_no LIKE '%'+#hbl_no#+'%'
+			  </isNotNull>
+			  <isNotNull prepend="AND" property="mbl_no"> 
+			  	mbl_no LIKE '%'+#mbl_no#+'%'
+			  </isNotNull>
+			  <isNotNull prepend="AND" property="ref_no"> 
+			  	ref_no LIKE '%'+#ref_no#+'%'
+			  </isNotNull>
+			  <isNotNull prepend="AND" property="f_pol_cd"> 
+			  	oth.POL_CD = #f_pol_cd#
+			  </isNotNull>
+			  <isNotNull prepend="AND" property="f_pod_cd"> 
+			  	oth.POD_CD = #f_pod_cd#
+			  </isNotNull>
+			  
+			  <isNotNull prepend="AND" property="f_pol_nm"> 
+			  	UPPER(oth.POL_NM) like ( '%' + UPPER(#f_pol_nm#) + '%')
+			  </isNotNull>
+			  <isNotNull prepend="AND" property="f_pod_nm"> 
+			  	UPPER(oth.POD_NM) like ( '%' + UPPER(#f_pod_nm#) + '%')
+			  </isNotNull>
+			  
+			  <isNotNull prepend="AND" property="cntr_no">
+				exists (select 1 from tb_oth_sales_cntr cntr where oth.OTH_SEQ = cntr.OTH_SEQ and cntr.CNTR_NO LIKE '%'+#cntr_no#+'%') 
+			  </isNotNull>
+	 		  <isNotNull prepend="AND" property="vsl_flt"> 
+			  	oth.vsl_flt LIKE '%'+#vsl_flt#+'%'
+			  </isNotNull>
+	            <isNotNull prepend="AND" property="f_opr_usrid"> 
+			        <isEqual property="f_isb_pic_sel_cd" compareValue="ISB">
+			             oth.issued_by = #f_opr_usrid#
+			        </isEqual>
+			        <isEqual property="f_isb_pic_sel_cd" compareValue="PIC">
+			             oth.sls_usrid = #f_opr_usrid#
+			        </isEqual>
+ 					<isEqual property="f_isb_pic_sel_cd" compareValue="OR">
+					             (oth.issued_by = #f_opr_usrid# OR oth.sls_usrid = #f_opr_usrid#)
+					</isEqual>  	
+		        </isNotNull>			  
+	</select>
+		<!-- Other Sales List Excel All    -->
+		<!-- Other Sales List Excel All    -->
+    <select id="selectOtherSalesListExcel" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	/* OthOprDetailsSQL.xml > selectOtherSalesListExcel */
+ 	
+		  select
+		    z.ROWNUM as seq,
+		    (case when sts_cd='B' then 'Y' end) as block_flag,
+	        z.ref_no,
+	        z.post_dt,
+	        z.ofc_cd,
+	        z.mbl_no,
+	        z.hbl_no,
+	        z.vsl_flt,
+	        z.cust_cd,
+	        z.cust_nm,
+	        z.shpr_nm,
+	        z.cnee_nm,
+	        z.cust_ref_no,
+	        z.op_useid,
+	        z.oth_seq,
+	        z.sts_cd,
+	        z.pol_cd,
+	        z.pol_nm,
+	        z.pod_cd,
+	        z.pod_nm,
+			z.eta_dt_tm	,
+			z.etd_dt_tm,		        
+	        z.modi_tms        ,
+	        z.ar_chk,
+	        z.ap_chk,
+	        z.dc_chk,
+	        z.cntr_no +  (case 
+	            when z.cntr_cnt > 0  then ' + ' +convert(varchar,
+	            z.cntr_cnt) 
+	            else '' 
+	        end) as cntr_no,
+	        z.cntr_cnt,
+	        z.sls_usrid,
+	        z.op_usenm,
+	        z.sls_usrnm,
+	        z.feta_dt_tm,
+	        z.lod_dt_tm,
+	        z.feta_tm,
+	        z.lod_tm,   
+	        <!-- #4980 [Best Ocean] Created Time and Last Modify Time columns add to BL List-->
+            z.rgst_tms,
+            z.modi_usr_nm	 
+            <!-- #6837 : [JAPT] B/L Type column add request on BL List -->
+            , z.oth_type
+            <!-- OFVFOUR-7597 [StarCluster-Mex] Adding G.WGT(KG) / G.WGT(LB) column in BL list -->
+            , z.grs_wgt_k
+            , z.grs_wgt_l
+	    	from
+	    	(
+    	  		
+				  		SELECT  ROW_NUMBER() OVER (ORDER BY oth.POST_DT DESC, oth.MODI_TMS DESC) as ROWNUM,
+								 oth.ref_no
+								,case when oth.post_dt != '' then substring(oth.post_dt, 5,2)+ '-' + substring(oth.post_dt, 7,2) + '-' + substring(oth.post_dt, 0,5) else oth.post_dt end as post_dt
+								,oth.post_dt as post_dt1
+								,oth.ofc_cd
+								,oth.mbl_no
+								,oth.hbl_no
+								,oth.vsl_flt
+								,oth.cust_cd
+								,oth.cust_nm
+								,oth.shpr_nm
+								,oth.cnee_nm
+								,oth.cust_ref_no
+								,oth.issued_by		AS op_useid
+								,oth.oth_seq
+								,isnull(blck.sts_cd1,oth.sts_cd) as sts_cd
+								,oth.POL_CD
+								,oth.POL_NM
+								,oth.POD_CD
+								,oth.POD_NM	
+								,case when oth.ETA_DT_TM != '' then substring(oth.ETA_DT_TM, 5,2)+ '-' + substring(oth.ETA_DT_TM, 7,2) + '-' + substring(oth.ETA_DT_TM, 0,5) else oth.ETA_DT_TM end as ETA_DT_TM	
+								,case when oth.ETD_DT_TM != '' then substring(oth.ETD_DT_TM, 5,2)+ '-' + substring(oth.ETD_DT_TM, 7,2) + '-' + substring(oth.ETD_DT_TM, 0,5) else oth.ETD_DT_TM end as ETD_DT_TM
+								,(case when oth.modi_tms = '' THEN '' when ISNULL(oth.modi_tms,'') = '' then '' 
+								else CONVERT(varchar(10), DATEADD(HH, DATEDIFF(HH,GETUTCDATE(),GETDATE()),oth.modi_tms), 110) + ' ' + CONVERT(varchar(5), DATEADD(HH, DATEDIFF(HH,GETUTCDATE(),GETDATE()),oth.modi_tms), 108) END) as modi_tms							
+								,ISNULL(oth.AR_CHK,'X') AS AR_CHK
+								,ISNULL(oth.AP_CHK,'X') AS AP_CHK
+								,ISNULL(oth.DC_CHK,'X') AS DC_CHK	
+								,(SELECT
+					                top 1 X.CNTR_NO 
+					            FROM
+					                TB_OTH_SALES_CNTR X 
+					            WHERE
+					                X.OTH_SEQ = oth.OTH_SEQ ) AS CNTR_NO                 ,
+					            (SELECT
+					                COUNT(X.CNTR_NO)-1  
+					            FROM
+					                TB_OTH_SALES_CNTR X  
+					            WHERE
+					                X.OTH_SEQ = oth.OTH_SEQ ) AS CNTR_CNT  
+					           ,oth.sls_usrid        
+								,(select X.ENG_USR_NM from TB_USR X where X.USRID = oth.issued_by)  AS op_usenm
+								,(select X.ENG_USR_NM from TB_USR X where X.USRID = oth.sls_usrid)  AS sls_usrnm	
+								,case when oth.feta_dt_tm != '' then substring(oth.feta_dt_tm, 5,2)+ '-' + substring(oth.feta_dt_tm, 7,2) + '-' + substring(oth.feta_dt_tm, 0,5) else oth.feta_dt_tm end as feta_dt_tm
+						        ,substring(oth.feta_dt_tm, 9,2)+ Case when substring(oth.feta_dt_tm, 9,2) != '' then ':' else '' end + substring(oth.feta_dt_tm, 11,2) as feta_tm
+						        ,case when oth.lod_dt_tm != '' then substring(oth.lod_dt_tm, 5,2)+ '-' + substring(oth.lod_dt_tm, 7,2) + '-' + substring(oth.lod_dt_tm, 0,5) else oth.lod_dt_tm end as lod_dt_tm
+						        ,substring(oth.lod_dt_tm, 9,2)+ + Case when substring(oth.lod_dt_tm, 9,2) != '' then ':' else '' end  + substring(oth.lod_dt_tm, 11,2) as lod_tm				               	   					
+							    <!-- #4980 [Best Ocean] Created Time and Last Modify Time columns add to BL List-->
+            					,(case when oth.rgst_tms = '' THEN '' when ISNULL(oth.rgst_tms,'') = '' then '' 
+								else CONVERT(varchar(10), oth.rgst_tms, 110) + ' ' + CONVERT(varchar(5), oth.rgst_tms, 108) END) as rgst_tms
+            				    ,(select usr.eng_usr_nm from tb_usr usr where usr.usrid = oth.modi_usrid) as modi_usr_nm
+                                <!-- #6837 : [JAPT] B/L Type column add request on BL List -->
+                                , oth.type oth_type
+                                <!-- OFVFOUR-7597 [StarCluster-Mex] Adding G.WGT(KG) / G.WGT(LB) column in BL list -->
+                                , oth.grs_wgt_k
+                                , oth.grs_wgt_l
+						  FROM	tb_oth_sales oth
+						   LEFT OUTER JOIN (select oth_seq as oth_seq1, sts_cd as sts_cd1 from tb_oth_sales_blck) blck ON oth.oth_seq = blck.oth_seq1						  
+						WHERE oth.delt_flg = 'N'
+						  <isNotEmpty property="post_frmdt"> 
+							<isNotEmpty property="post_todt">
+						  		AND oth.post_dt BETWEEN #post_frmdt# AND #post_todt#
+							</isNotEmpty>
+						  </isNotEmpty>
+						  <isNotEmpty property="eta_strdt"> 
+							<isNotEmpty property="eta_enddt">
+						  		AND oth.ETA_DT_TM BETWEEN #eta_strdt# AND #eta_enddt#
+							</isNotEmpty>
+						  </isNotEmpty>
+						  <isNotEmpty property="etd_strdt"> 
+							<isNotEmpty property="etd_enddt">
+						  		AND oth.ETD_DT_TM BETWEEN #etd_strdt# AND #etd_enddt#
+							</isNotEmpty>
+						  </isNotEmpty>
+						  <isNotNull prepend="AND" property="cust_cd"> 
+						  	oth.cust_cd = #cust_cd#
+						  </isNotNull>
+				          <isNotNull prepend="AND" property="cust_nm"> 
+				            oth.cust_nm LIKE #cust_nm#+'%'
+				          </isNotNull>
+				          <isNotNull prepend="AND" property="shpr_nm"> 
+				            oth.shpr_nm LIKE #shpr_nm#+'%'
+				          </isNotNull>
+				          <isNotNull prepend="AND" property="cnee_nm"> 
+				            oth.cnee_nm LIKE #cnee_nm#+'%'
+				          </isNotNull>
+						  <isNotNull prepend="AND" property="ofc_cd"> 
+						  	oth.ofc_cd = #ofc_cd#
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="hbl_no"> 
+						  	oth.hbl_no LIKE '%'+#hbl_no#+'%'
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="mbl_no"> 
+						  	oth.mbl_no LIKE '%'+#mbl_no#+'%'
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="ref_no"> 
+						  	oth.ref_no LIKE '%'+#ref_no#+'%'
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="f_pol_cd"> 
+						  	oth.POL_CD = #f_pol_cd#
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="f_pod_cd"> 
+						  	oth.POD_CD = #f_pod_cd#
+						  </isNotNull>
+						  
+						  <isNotNull prepend="AND" property="f_pol_nm"> 
+						  	UPPER(oth.POL_NM) like ( '%' + UPPER(#f_pol_nm#) + '%')
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="f_pod_nm"> 
+						  	UPPER(oth.POD_NM) like ( '%' + UPPER(#f_pod_nm#) + '%')
+						  </isNotNull>
+						  
+						  <isNotNull prepend="AND" property="cntr_no">
+						  	exists (select 1 from tb_oth_sales_cntr cntr where oth.OTH_SEQ = cntr.OTH_SEQ and cntr.CNTR_NO LIKE '%'+#cntr_no#+'%') 
+						  </isNotNull>
+						  <isNotNull prepend="AND" property="vsl_flt"> 
+						  	oth.vsl_flt LIKE '%'+#vsl_flt#+'%'
+						  </isNotNull>
+	                        <isNotNull prepend="AND" property="f_opr_usrid"> 
+						        <isEqual property="f_isb_pic_sel_cd" compareValue="ISB">
+						             oth.issued_by = #f_opr_usrid#
+						        </isEqual>
+						        <isEqual property="f_isb_pic_sel_cd" compareValue="PIC">
+						             oth.sls_usrid = #f_opr_usrid#
+						        </isEqual>
+						        <isEqual property="f_isb_pic_sel_cd" compareValue="OR">
+					             (oth.issued_by = #f_opr_usrid# OR oth.sls_usrid = #f_opr_usrid#)
+					            </isEqual>  	
+					        </isNotNull>					  
+                 ) z 		
+                  ORDER BY   
+                  
+					<isNotEmpty property="f_orderByInfo">
+					$f_orderByInfo$
+					</isNotEmpty>
+					<isEmpty property="f_orderByInfo"> 
+					z.post_dt1 DESC, z.MODI_TMS DESC       
+					</isEmpty>
+								                  
+	</select>	
+	<update id="removeOtherSalesList" parameterClass="java.util.HashMap">
+		UPDATE	tb_oth_sales
+		   SET	delt_flg = 'Y',
+		   		MODI_TMS=GETUTCDATE(),
+		   		MODI_USRID=#proc_usrid#,
+		   		MODI_OFC_CD=#proc_ofccd#
+		 WHERE	oth_seq = #oth_seq#
+	</update>
+	
+	
+	
+	<!-- Ref No 중복체크    -->
+    <select id="checkRefDup" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT REF_NO
+		  FROM TB_OTH_SALES
+		 WHERE REF_NO = #ref_no#
+		   AND DELT_FLG = 'N'
+		   
+    </select>
+    
+    
+    <!-- OTH_DETAIL COPY   -->
+    <select id="selectOtherSalesDetailsCOPY" resultClass="com.clt.apps.fis.oth.opr.details.dto.OthDetailsVO">
+		SELECT	type,			
+				cust_cd,		cust_nm,			shpr_nm,			cnee_nm,			cmdt_cd,
+				cmdt_nm,		loc_nm,				cntr_info,			pol_cd,				pol_nm,				
+				pod_cd,			pod_nm,				fnl_dest_loc_cd,	fnl_dest_loc_nm, 	pck_qty,		
+				pck_ut_cd,		grs_wgt_l,			grs_wgt_k,			meas_m,				meas_f,
+				int_memo,		ext_memo,			curr_cd,		
+				pu_loc_cd, 		    pu_loc_nm, 		door_loc_cd,  		door_loc_nm,			ctrb_ofc_cd,
+				ctrb_ratio_yn,	ctrb_mgn,			ctrb_dept_cd,
+				<!--#4033 [BNX] WRONG SALESMAN ON OTHER OPERATION (3991 reopen)  -->
+				sls_usrid,			sls_ofc_cd,
+				<!--#680 [STARWAY] 214, 210 EDI RESULT / STATUS TO SHOW ON OPUS FWD  -->
+				shpr_trdp_cd,
+				cnee_trdp_cd,
+				nomi_flg
+				<!--#680 [STARWAY] 214, 210 EDI RESULT / STATUS TO SHOW ON OPUS FWD  -->
+		  FROM	tb_oth_sales
+		 WHERE  oth_seq = #oth_seq# 
+		   AND delt_flg = 'N'
+	  ORDER BY  ref_no ASC
+	</select>    
+	
+	<select id="selectOthInvChk" parameterClass="HashMap" resultClass="String">
+		SELECT  CASE WHEN COUNT(*) > 0 THEN 'N' ELSE 'Y' END AS CHKFLG
+           FROM  TB_OTH_SALES OTH
+           JOIN  TB_FRT FRT 
+             ON  OTH.OTH_SEQ = FRT.OTH_SEQ AND OTH.DELT_FLG = 'N' AND FRT.DELT_FLG = 'N'
+           JOIN  TB_INV INV 
+             ON  FRT.INV_SEQ = INV.INV_SEQ AND INV.DELT_FLG = 'N'
+          WHERE  1=1
+            AND  OTH.OTH_SEQ = #oth_seq#
+            <!-- #657 [OCEAN BLUE, IMPEX] B/L SELECTION FLAG TO SHOW ON VISIBILITY PORTAL -->
+            <!-- #4813 [All Green] Other operation file is deleted even though it has invoices -->
+            <!-- #6528 [Tisera] MISC0100006 - Other file has been deleted after invoicing -->
+            <!-- AND (isnull(OTH.INTER_USE_FLAG,'') = '' OR OTH.INTER_USE_FLAG = 'N')  -->
+	</select>    
+	
+	<update id="updateOTH_FRT_SLS_OFC_CD" parameterClass="java.util.HashMap">
+		UPDATE  TB_FRT
+		   SET  SLS_OFC_CD = #ofc_cd#
+			   ,modi_tms   = GETUTCDATE()
+	     WHERE  1=1
+		   AND  FRT_SEQ IN (
+							SELECT  FRT.FRT_SEQ
+							  FROM  TB_FRT FRT
+				                    LEFT OUTER JOIN  TB_INV_DTL IDTL ON FRT.INV_SEQ = IDTL.INV_SEQ
+							 WHERE  FRT.OTH_SEQ = #oth_seq#
+						   )
+		   AND SLS_OFC_CD != #ofc_cd#				   
+    </update>
+    
+    <update id="updateOTH_INV_OFC_CD" parameterClass="java.util.HashMap">
+		UPDATE  TB_INV
+		   SET  OFC_CD = #ofc_cd#
+			   ,modi_tms   = GETUTCDATE()
+	     WHERE  1=1
+		   AND  INV_SEQ IN (
+							SELECT  IDTL.INV_SEQ
+							  FROM  TB_FRT FRT
+				                    JOIN  TB_INV_DTL IDTL ON FRT.INV_SEQ = IDTL.INV_SEQ
+							 WHERE  FRT.OTH_SEQ = #oth_seq#
+							)
+		   AND  OFC_CD != #ofc_cd#						
+    </update>
+    
+    <update id="updateOTH_JNR_DTL_OFC_CD" parameterClass="java.util.HashMap">
+		UPDATE  TB_JNR_DTL
+		   SET  OFC_CD   = #ofc_cd#
+		       ,P_OFC_CD = #ofc_cd#
+			   ,modi_tms   = GETUTCDATE()
+	     WHERE  1=1
+		   AND  INV_SEQ IN (
+							SELECT  IDTL.INV_SEQ
+							  FROM  TB_FRT FRT
+				                    JOIN  TB_INV_DTL IDTL ON FRT.INV_SEQ  = IDTL.INV_SEQ
+							 WHERE  FRT.OTH_SEQ = #oth_seq#
+						   )
+		   AND  OFC_CD != #ofc_cd#					   
+    </update>        
+    
+    <!-- ROLE && INV 체크   -->
+    <select id="selectRoleInvOthChk" parameterClass="HashMap" resultClass="HashMap">
+		SELECT COUNT(*) AS INV_CNT
+			   ,(
+			   		SELECT COUNT(*) AS CNT
+				  FROM TB_USR A
+				  JOIN  TB_ROLE B ON A.ROLE_CD = B.ROLE_CD
+				  LEFT JOIN TB_ROLE_FNC C ON B.ROLE_CD = C.ROLE_CD
+				 WHERE A.USRID = #user_id# 
+				   AND C.ROLE_FNC_CD = #role_fnc_cd#
+				   AND C.USE_FLG = 'Y'  
+			   ) AS ROLE_CNT
+			   	
+          FROM TB_OTH_SALES OTH
+		  JOIN TB_FRT FRT ON OTH.OTH_SEQ = FRT.OTH_SEQ
+		  JOIN TB_INV_DTL INV ON FRT.INV_SEQ = INV.INV_SEQ 
+		 WHERE 1=1  
+		    AND OTH.DELT_FLG ='N'
+		    AND FRT.DELT_FLG ='N'
+		    AND INV.DELT_FLG ='N'
+		   
+		   <isNotEmpty property="ref_no">
+		   AND OTH.REF_NO =   #ref_no#
+		   </isNotEmpty> 
+
+    </select>    
+    
+    <!-- #1600 [STARWAY] MISC. OPERATION ENTRY, MBL, HBL, CONTAINER # DUPLICATE VALIDATION -->
+	<select id="checkBlDup" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT COUNT(*)
+		  FROM TB_OTH_SALES
+		 WHERE 1 = 1
+		<isNotEmpty property="mbl_no">
+			<isNotEmpty property="hbl_no">
+				AND HBL_NO = #hbl_no#
+			</isNotEmpty>
+			<isEmpty property="hbl_no">
+				AND MBL_NO = #mbl_no#
+			</isEmpty>
+		</isNotEmpty>
+		
+		<isEmpty property="mbl_no">
+			<isNotEmpty property="hbl_no">
+				AND HBL_NO = #hbl_no#
+			</isNotEmpty>
+			<isEmpty property="hbl_no">
+				AND 1 = 2
+			</isEmpty>
+		</isEmpty>
+		AND DELT_FLG = 'N'
+	</select>
+    
+</sqlMap>

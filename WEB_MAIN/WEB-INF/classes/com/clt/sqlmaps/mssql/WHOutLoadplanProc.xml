@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+    
+<!-- Khang Dong -->
+	
+<sqlMap namespace="com.clt.business.oms.whoutloadplan.dao.WHOutLoadplanMapper">
+
+	<parameterMap id="OMS_callCONSOLE_CANCEL_PRC" class="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanCancelVO">
+	    <parameter property="consol_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="rtncd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	    <parameter property="rtnmsg" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap> 
+	
+	<procedure id="callCONSOLE_CANCEL_PRC" parameterMap="OMS_callCONSOLE_CANCEL_PRC">
+     {call dbo.PKG_CONSOLE_CANCEL_PRC(?, ?, ?)}
+    </procedure>
+    
+    <parameterMap id="OMS_callAddLPCntrProc" class="com.clt.business.oms.whoutloadplan.dto.LoadPlanAddPkgConDto">
+	    <parameter property="consol_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="eq_tp_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="lp_id" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="lp_id_cnt" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="org_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="user_id" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="rtncd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	    <parameter property="rtnmsg" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap> 
+	
+    <procedure id="callAddLPCntrProc" parameterMap="OMS_callAddLPCntrProc">
+     {call dbo.PKG_CONSOLE_EQ_ADD_PRC(?, ?, ?, ?, ?, ?, ?, ?)}
+    </procedure>
+    
+    <parameterMap class="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanShipListVO" id="callCONSOLE_EQ_DEL_PRC_PARAM">
+	 <parameter property="consol_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="eq_tp_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="lp_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="lp_seq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="usrid" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	
+	 <parameter property="r_rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="r_rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/> 
+	</parameterMap>
+    <procedure id="callCONSOLE_EQ_DEL_PRC" parameterMap="callCONSOLE_EQ_DEL_PRC_PARAM">
+     {call dbo.PKG_CONSOLE_EQ_DEL_PRC(?, ?, ?, ?, ?, ?,?,?)}
+     <!-- exec dbo.PKG_CONSOLE_EQ_DEL_PRC #consol_no#, #eq_tp_cd#, #lp_id#, #lp_seq#, #org_cd#, #usrid# -->
+    </procedure>
+    
+    <update id="update_callCONSOLE_EQ_DEL_PRC" parameterClass="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanShipListVO">
+    	UPDATE TL_WH_PSUDO_LP_SHIP
+                       SET LP_ID        = NULL
+                          ,LP_SEQ       = NULL
+                          ,LP_OLD_ID    = NULL
+                          ,LP_OLD_SEQ   = NULL
+                          ,MODI_ID      = #usrid#
+                          ,MODI_OFC_CD  = #org_cd#
+                          ,MODI_SYS_DT  = GETDATE()
+                          ,MODI_LOC_DT  = dbo.TL_GET_TM_ZONE_DATE_DT((SELECT MAX(O.WH_CD)
+							                      	FROM TL_WH_PSUDO_LP_SHIP S
+							                          ,TL_WH_OB O
+							                     	WHERE S.WOB_BK_NO = O.WOB_BK_NO
+							                       	AND S.CONSOL_NO = #consol_no#))
+                     WHERE CONSOL_NO    = #consol_no#
+                       AND LP_ID = #lp_id#
+                       AND LP_SEQ = CONVERT(NUMERIC(7,0),#lp_seq#)
+    </update>
+    <parameterMap class="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanShipListVO" id="callCONSOLE_DOWN_MOVE_PRC_PARAM">
+	 <parameter property="consol_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="shipno" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="shipno_seq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="seq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="usrid" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="r_rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="r_rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+    
+    <procedure id="callCONSOLE_DOWN_MOVE_PRC" parameterMap="callCONSOLE_DOWN_MOVE_PRC_PARAM">
+     {call dbo.PKG_CONSOLE_DOWN_MOVE_PRC(?, ?, ?, ?, ?, ?, ?, ?, ?)}
+    </procedure>
+    
+    <parameterMap class="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanShipListVO" id="callCONSOLE_UP_MOVE_PRC_PARAM">
+	 <parameter property="consol_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="shipno" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="shipno_seq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="seq" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="usrid" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="r_rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="r_rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+    <procedure id="callCONSOLE_UP_MOVE_PRC" parameterMap="callCONSOLE_UP_MOVE_PRC_PARAM">
+     {call dbo.PKG_CONSOLE_UP_MOVE_PRC(?, ?, ?, ?, ?, ?, ?, ?, ?)}
+    </procedure>
+    
+    <parameterMap id="OMS_callCONSOLE_SHIP_MERGE_PRC" class="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanMergeConVO">
+	    <parameter property="consol_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="shipno" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="shipno_seq" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="org_cd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="user_id" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="rtncd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	    <parameter property="rtnmsg" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap> 	
+    
+    <procedure id="callCONSOLE_SHIP_MERGE_PRC" parameterMap="OMS_callCONSOLE_SHIP_MERGE_PRC">
+     {call dbo.PKG_CONSOLE_SHIP_MERGE_PRC(?, ?, ?, ?, ?, ?, ?)}
+    </procedure>
+    
+    <parameterMap id="OMS_callCONSOLE_TREE_DEL_PRC" class="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanDelConVO">
+	    <parameter property="consol_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="wob_bk_no" 	javaType="java.lang.String" jdbcType="VARCHAR" mode="IN" />
+	    <parameter property="rtncd" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	    <parameter property="rtnmsg" 		javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+	</parameterMap> 
+	
+    <procedure id="callCONSOLE_TREE_DEL_PRC" parameterMap="OMS_callCONSOLE_TREE_DEL_PRC">
+     {call dbo.PKG_CONSOLE_TREE_DEL_PRC(?, ?, ?, ?)}
+    </procedure>
+    
+    
+    <parameterMap class="com.clt.apps.fis.wms.whoutloadplan.dto.LoadPlanShipListVO" id="callCONSOLE_APPLY_PRC_PARAM">
+	 <parameter property="consol_no" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>
+	 <parameter property="org_cd" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="user_id" javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"/>	 
+	 <parameter property="r_rtncd" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	 <parameter property="r_rtnmsg" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT"/>
+	</parameterMap>
+    <procedure id="callCONSOLE_APPLY_PRC" parameterMap="callCONSOLE_APPLY_PRC_PARAM">
+     {call dbo.PKG_CONSOLE_APPLY_PRC(?, ?, ?, ?, ?)}
+    </procedure>
+</sqlMap>

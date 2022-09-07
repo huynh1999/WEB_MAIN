@@ -1,0 +1,74 @@
+@charset "utf-8";
+
+input[type='text'] {outline:none;}
+
+body{position:relative;}
+#wrap{position:relative;}
+#container {min-width:1140px;padding:13px 53px 69px 70px;}
+
+#aside {position:fixed;bottom:6%;right:10px;z-index:100001;margin:-19px 0 0 -89px;}
+#aside > a {display:block;color:#fff;border:0 none;background:#0a5ca9 url('../images/img_sp_common.png') no-repeat -284px 6px;width:38px;height:38px;border-radius:19px;text-align:center;}
+#aside > a > span {display:block;padding-top:14px;}
+
+
+#footer {background:#57585b;padding:30px 0;}
+#footer > p {text-align:center;color:#a1a1a1;}
+#footer > p strong {color:#00aae5;}
+
+
+#login {position:relative;width:1280px;height:730px;margin:0 auto;background:url('../images/theme_default/bg_login.png') no-repeat;}
+#login .login_box {padding:78px 0 0 848px;}
+#login .login_box h2 {font-size:30px;color:#3e5381;}
+#login .login_box > p {color:#3e5381;}
+#login .login_cont {width:340px;margin-top:249px;}
+#login .login_cont form {overflow:hidden;position:relative;margin-top:36px;}
+#login .login_cont form ul {width:240px;}
+#login .login_cont form ul > li + li {margin-top:8px;}
+#login .login_cont form ul > li input {display:block;border:1px solid #dbe4f7;border-radius:3px;width:230px;padding:0 5px;height:34px;line-height:32px;color:#4e6496;}
+#login .login_cont form ul > li input:focus {background:#fffae5 !important;border-color:#ffd153 !important;}
+#login .login_cont form button {position:absolute;top:0;right:0;width:90px;height:80px;border:0 none;border-radius:3px;background:#0a5ca9;color:#fff;font-weight:bold;text-align:center;} 
+
+#login .login_box .help {margin-top:23px;}
+#login .login_box .help a {color:#5fa0df;}
+#login .login_box .help a:hover {text-decoration:underline;}
+
+#logFooter  {position:fixed;bottom:0;left:0;width:100%;background:#57585b;height:70px;line-height:70px;}
+#logFooter > p {text-align:center;color:#a1a1a1;}
+#logFooter > p strong {color:#00aae5;}
+#logFooter > p font {color:#00aae5;}
+
+/* #2047 [Fulltrans][LAX] [CLA+LBS] OPUS // Fulltrans LAX - Shanghai Operation Check Needed */
+#logFooter > p > a {text-align:center;color:#a1a1a1;}
+@media all and (max-height:800px) {
+	#logFooter {position:static;}	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

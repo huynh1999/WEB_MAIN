@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.cyberlogictec.com/fw/mappings">
+
+    <!--####  Equipment Start ####  -->
+    <!-- Agreement 등록 및 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_MST_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.mst.agreement.event.EQU_MST_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_MST_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0010GS.clt" screen="EQU_MST_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.agreement.event.EQU_MST_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0010_1GS.clt" screen="EQU_MST_0010_1GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.agreement.event.EQU_MST_0010HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Agreement popup 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_POP_0010.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.mst.agreement.event.EQU_POP_0010HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_POP_0010.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_POP_0010GS.clt" screen="EQU_POP_0010GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.agreement.event.EQU_POP_0010HTMLAction</web-action-class>
+    </url-mapping>
+
+    <!-- Agreement cntr supply 조회 및 메일발송 Daesoo, Kang(2009.11.05)  -->
+    <url-mapping url="EQU_MST_0012.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.mst.agreement.event.EQU_MST_0012HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_MST_0012.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0012GS.clt" screen="EQU_MST_0012GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.agreement.event.EQU_MST_0012HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- event mapping. Daesoo, Kang(2009.10.07)  -->
+    <event-mapping>
+        <event-class>com.clt.apps.fis.equ.mst.agreement.event.EquAgreementEvent</event-class>
+        <service-action-class>com.clt.apps.fis.equ.mst.agreement.EquAgreementSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Master 등록 및 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_MST_0020.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.mst.master.event.EQU_MST_0020HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_MST_0020.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0020GS.clt" screen="EQU_MST_0020GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.master.event.EQU_MST_0020HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.equ.mst.master.event.EquMasterEvent</event-class>
+        <service-action-class>com.clt.apps.fis.equ.mst.master.EquMasterSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Tracing Management 등록 및 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_MST_0030.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.mst.tracing.event.EQU_MST_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_MST_0030.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0030GS.clt" screen="EQU_MST_0030GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.tracing.event.EQU_MST_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- Tracing Management email 발송. Daesoo, Kang(2009.12.02)  -->
+    <url-mapping url="EQU_MST_0031.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.mst.tracing.event.EQU_MST_0030HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_MST_0031.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0031GS.clt" screen="EQU_MST_0031GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.tracing.event.EQU_MST_0030HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.equ.mst.tracing.event.EquTracingEvent</event-class>
+        <service-action-class>com.clt.apps.fis.equ.mst.tracing.EquTracingSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Route 등록 및 조회. Daesoo, Kang(2009.10.05)  -->
+    <url-mapping url="EQU_MST_0040.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.mst.route.event.EQU_MST_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_MST_0040.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0040GS.clt" screen="EQU_MST_0040GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.route.event.EQU_MST_0040HTMLAction</web-action-class>
+    </url-mapping>
+
+	<!-- Route popup 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_MST_0041.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.mst.route.event.EQU_MST_0040HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_MST_0041.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0041GS.clt" screen="EQU_MST_0041GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.route.event.EQU_MST_0040HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.equ.mst.route.event.EquRouteEvent</event-class>
+        <service-action-class>com.clt.apps.fis.equ.mst.route.EquRouteSC</service-action-class>
+    </event-mapping>
+    
+    <!-- Inventory Inquiry 등록 및 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_MST_0050.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.mst.inventory.event.EQU_MST_0050HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_MST_0050.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0050GS.clt" screen="EQU_MST_0050GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.inventory.event.EQU_MST_0050HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0050_1GS.clt" screen="EQU_MST_0050_1GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.inventory.event.EQU_MST_0050HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <!-- common Code Popup 조회. Daesoo, Kang(2009.10.07)  -->
+    <url-mapping url="EQU_MST_0051.clt" useFlowHandler="true">
+        <web-action-class>com.clt.apps.fis.equ.mst.inventory.event.EQU_MST_0051HTMLAction</web-action-class>
+        <flow-handler class="com.clt.framework.support.controller.html.handlers.WorkflowFlowHandler">
+            <handler-result result="SUCCESS" screen="EQU_MST_0051.screen"/>
+            <handler-result result="ERROR"   screen="Error.screen"/>
+        </flow-handler>
+    </url-mapping>
+    
+    <url-mapping url="EQU_MST_0051GS.clt" screen="EQU_MST_0051GS.screen">
+        <web-action-class>com.clt.apps.fis.equ.mst.inventory.event.EQU_MST_0051HTMLAction</web-action-class>
+    </url-mapping>
+    
+    <event-mapping>
+        <event-class>com.clt.apps.fis.equ.mst.inventory.event.EquInventoryEvent</event-class>
+        <service-action-class>com.clt.apps.fis.equ.mst.inventory.EquInventorySC</service-action-class>
+    </event-mapping>
+    
+</mappings>

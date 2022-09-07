@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="adm.batch">
+	<typeAlias alias="batchVO" type="com.clt.apps.opusbase.system.batch.dto.BatchVO"/>
+
+
+	<select id="searchLastProcessedYear" resultClass="String">
+		/*BatchSQL.xml > searchLastProcessedYear*/
+<!-- 			SELECT TOP 1 CLS_DT
+			FROM TB_SLIP_MST
+			WHERE 1=1
+			AND SLIP_TP='EY'
+			ORDER BY CLS_DT DESC -->
+        SELECT ISNULL(CONVERT(VARCHAR, CONVERT(DATE, MAX(POST_DT),110),110),'')  AS LAST_YEAR_END
+          FROM TB_SLIP_MST
+         WHERE SLIP_TP IN ('EY','BB')
+           AND DT_SEQ IN (99998,99999)
+           AND ISNULL(DELT_FLG,'N') != 'Y'		
+	</select>
+	<select id="searchLastPfitDate" resultClass="batchVO" parameterClass="batchVO">
+		/*BatchSQL.xml > searchLastPfitDate*/
+			SELECT 
+				CONVERT(VARCHAR, (SELECT DATEADD(MINUTE, 60*CONVERT( float, isnull ( ( select RMK from TB_COM_CD_DTL where COM_CD = 'TIMEZN' and CD_VAL = (select TIME_ZONE from tb_ofc where OFC_CD =  #rgst_ofc#)),'0')), PROC_DT)), 110) AS pfit_proc_dt
+				,CONVERT(VARCHAR, (SELECT DATEADD(MINUTE, 60*CONVERT( float, isnull ( ( select RMK from TB_COM_CD_DTL where COM_CD = 'TIMEZN' and CD_VAL = (select TIME_ZONE from tb_ofc where OFC_CD =  #rgst_ofc#)),'0')), RGST_TMS)), 110) AS pfit_rgst_tms
+			FROM (
+				SELECT TOP 1 PROC_DT, RGST_TMS
+				FROM TB_BAT_HIS
+				WHERE 1=1
+				AND BAT_TP = 'PF'
+				ORDER BY RGST_TMS DESC
+			) A
+	</select>
+	<select id="searchLastGLDate" resultClass="batchVO" parameterClass="batchVO">
+		/*BatchSQL.xml > searchLastGLDate*/
+			SELECT 
+				CONVERT(VARCHAR, (SELECT DATEADD(MINUTE, 60*CONVERT( float, isnull ( ( select RMK from TB_COM_CD_DTL where COM_CD = 'TIMEZN' and CD_VAL = (select TIME_ZONE from tb_ofc where OFC_CD =  #rgst_ofc#)),'0')), PROC_DT)), 110) AS gl_proc_dt
+				,CONVERT(VARCHAR, (SELECT DATEADD(MINUTE, 60*CONVERT( float, isnull ( ( select RMK from TB_COM_CD_DTL where COM_CD = 'TIMEZN' and CD_VAL = (select TIME_ZONE from tb_ofc where OFC_CD =  #rgst_ofc#)),'0')), RGST_TMS)), 110) AS gl_rgst_tms
+			FROM (
+				SELECT TOP 1 PROC_DT, RGST_TMS
+				FROM TB_BAT_HIS
+				WHERE 1=1
+				AND BAT_TP = 'GL'
+				ORDER BY RGST_TMS DESC
+			) A
+
+	</select>	
+	<delete id="deleteGlView" parameterClass="batchVO" >
+			/*BatchSQL.xml > deleteGlView*/
+		<isNotEmpty property="proc_dt">
+			DELETE VW_AC_GL
+			where 1=1
+			and POST_DT>=#proc_dt#
+		</isNotEmpty>
+	</delete>
+	<insert id="insertGLView" parameterClass="batchVO">
+		<isNotEmpty property="proc_dt">
+		/*BatchSQL.xml > insertGLView*/
+			INSERT INTO 
+			        VW_AC_GL (
+			            TYPE_1         ,TYPE_2         ,SLIP_SEQ         ,GL_NO         ,GL_TYPE         ,GL_GRP_CD         ,GL_RMK         ,COM_TP         ,COM_CD         ,COM_NM         ,GL_SUB         ,DEBIT         ,CREDIT         ,CURR_CD         ,INV_CURR_CD         ,XCRT         ,TTL_DEBIT         ,TTL_CREDIT         ,SLIP_DESC         ,P_OFC_CD         ,VAT_YN         ,REF_SEQ         ,POST_DT         ,DOC_TYPE         ,DOC_NO         ,SRC_NM         ,AIR_SEA_CLSS_CD         ,INV_SEQ         ,JNR_NO         ,SEQ         ,INV_DT    ,SLIP_NO  ,LOCL_DEBIT  ,LOCL_CREDIT    ,MODI_TMS         ,RGST_USRID         ,RGST_TMS      
+			        )			
+					SELECT TYPE_1         ,TYPE_2         ,SLIP_SEQ         ,GL_NO         ,GL_TYPE         ,GL_GRP_CD         ,GL_RMK         ,COM_TP         ,COM_CD         ,COM_NM         ,GL_SUB         ,DEBIT         ,CREDIT         ,CURR_CD         ,INV_CURR_CD         ,XCRT         ,TTL_DEBIT         ,TTL_CREDIT         ,SLIP_DESC         ,P_OFC_CD         ,VAT_YN         ,REF_SEQ         ,POST_DT         ,DOC_TYPE         ,DOC_NO         ,SRC_NM         ,AIR_SEA_CLSS_CD         ,INV_SEQ         ,JNR_NO         ,SEQ         ,INV_DT   ,SLIP_NO  ,LOCL_DEBIT  ,LOCL_CREDIT      ,GETDATE()         ,'CLTMASTER'         ,GETDATE()
+					FROM VW_AC_GL_ACTUAL
+					WHERE 1=1
+					AND POST_DT >= #proc_dt#
+		</isNotEmpty>
+	</insert>
+
+	<delete id="deleteGLCreateDate">
+		DELETE TB_SEQ WHERE SEQ_TYPE='GL_DATA_CREATE';
+	</delete>
+	<insert id="insertGLCreateDate">
+		INSERT INTO TB_SEQ 
+		(SEQ_TYPE,PRE_FIX,SEQ) 
+		VALUES ('GL_DATA_CREATE','DATE',REPLACE(REPLACE(REPLACE(REPLACE(CONVERT(CHAR(23),CAST(GETUTCDATE() AS datetime) , 25),'-',''),':',''),' ',''),'.',''));			
+	</insert>
+
+	<delete id="deleteVolData" parameterClass="batchVO" >
+			/*BatchSQL.xml > deleteVolData*/
+		<isNotEmpty property="proc_dt">
+			DELETE FROM TB_BL_VOL
+			WHERE 1=1
+			AND POST_DT >=#proc_dt#
+		</isNotEmpty>
+	</delete>
+	<insert id="insertVolData" parameterClass="batchVO">
+	/*BatchSQL.xml > insertVolData*/
+		<isNotEmpty property="proc_dt">
+		INSERT INTO TB_BL_VOL(
+			INTG_BL_SEQ
+		      ,POST_DT
+		      ,AIR_SEA_CLSS_CD
+		      ,BND_CLSS_CD
+		      ,BIZ_CLSS_CD
+		      ,MBL_INTG_BL_SEQ
+		      ,HBL_TP_CD
+		      ,MBL_TP_CD
+		      ,SHP_MOD_CD
+		      ,SUB_MBL_FLG
+		      ,NOMI_FLG
+		      ,ETD_PERIOD_DT
+		      ,ETA_PERIOD_DT
+		      ,MBL_PERIOD_DT
+		      ,REF_OFC_CD
+		      ,MBL_NO
+		      ,BL_NO
+		      ,REF_NO
+		      ,AGENT_CD
+		      ,AGENT_NM
+		      ,SHPR_CD
+		      ,SHPR_NM
+		      ,CNEE_CD
+		      ,CNEE_NM
+		      ,CUST_CD
+		      ,CUST_NM
+		      ,ACC_GRP_ID
+		      ,CARR_CD
+		      ,CARR_NM
+		      ,VSL_FLT
+		      ,POL_CD
+		      ,POL_NM
+		      ,POD_CD
+		      ,POD_NM
+		      ,DEL_CD
+		      ,DEL_NM
+		      ,ETD_DT_TM
+		      ,ETA_DT_TM
+		      ,FNL_DEST_CD
+		      ,FNL_DEST_NM
+		      ,LANE_CD
+		      ,SVC_LANE_NM
+		      ,INCO_CD
+		      ,REP_CMDT_NM
+		      ,CARGO_TP_NM
+		      ,SLS_USR_NM
+		      ,OPR_USR_NM
+		      ,MEAS
+		      ,GRS_WGT
+		      ,CHG_WGT
+		      ,CBM
+		      ,HBL_VOLUME
+		      ,MBL_VOLUME
+		      ,RGST_USRID
+		      ,RGST_TMS
+			  ,CTRB_OFC_CD
+			  ,CTRB_DEPT_CD
+			  ,CTRB_RATIO_YN
+			  ,CTRB_MGN          
+		)
+		SELECT INTG_BL_SEQ
+		      ,POST_DT
+		      ,AIR_SEA_CLSS_CD
+		      ,BND_CLSS_CD
+		      ,BIZ_CLSS_CD
+		      ,MBL_INTG_BL_SEQ
+		      ,HBL_TP_CD
+		      ,MBL_TP_CD
+		      ,SHP_MOD_CD
+		      ,SUB_MBL_FLG
+		      ,NOMI_FLG
+		      ,ETD_PERIOD_DT
+		      ,ETA_PERIOD_DT
+		      ,MBL_PERIOD_DT
+		      ,REF_OFC_CD
+		      ,MBL_NO
+		      ,BL_NO
+		      ,REF_NO
+		      ,AGENT_CD
+		      ,AGENT_NM
+		      ,SHPR_CD
+		      ,SHPR_NM
+		      ,CNEE_CD
+		      ,CNEE_NM
+		      ,CUST_CD
+		      ,CUST_NM
+		      ,ACC_GRP_ID
+		      ,CARR_CD
+		      ,CARR_NM
+		      ,VSL_FLT
+		      ,POL_CD
+		      ,POL_NM
+		      ,POD_CD
+		      ,POD_NM
+		      ,DEL_CD
+		      ,DEL_NM
+		      ,ETD_DT_TM
+		      ,ETA_DT_TM
+		      ,FNL_DEST_CD
+		      ,FNL_DEST_NM
+		      ,LANE_CD
+		      ,SVC_LANE_NM
+		      ,INCO_CD
+		      ,REP_CMDT_NM
+		      ,CARGO_TP_NM
+		      ,SLS_USR_NM
+		      ,OPR_USR_NM
+		      ,MEAS
+		      ,GRS_WGT
+		      ,CHG_WGT
+		      ,CBM
+		      ,HBL_VOLUME
+		      ,MBL_VOLUME
+		      ,'cltmaster'
+		      ,CAST(GETUTCDATE() AS datetime)
+		      ,CTRB_OFC_CD
+			  ,CTRB_DEPT_CD
+			  ,CTRB_RATIO_YN
+			  ,CTRB_MGN          
+		  FROM dbo.VW_BL_VOL_OLD
+		  WHERE 1=1
+		  AND POST_DT  >=#proc_dt#
+		</isNotEmpty>
+	</insert>
+	<delete id="deleteVolLogData">
+		/*BatchSQL.xml > deleteVolLogData*/
+		DELETE FROM TB_BL_VOL_LOG;
+	</delete>
+	<insert id="insertVolLogData">
+		/*BatchSQL.xml > insertVolLogData*/
+		INSERT INTO TB_BL_VOL_LOG (INTG_BL_SEQ, AIR_SEA_CLSS_CD, REF_NO, MODI_USRID, MODI_TMS, RGST_USRID, RGST_TMS)
+			SELECT INTG_BL_SEQ, AIR_SEA_CLSS_CD, REF_NO, MODI_USRID, MODI_TMS,'cltmaster', CAST(GETUTCDATE() AS datetime) FROM TB_INTG_BL
+			UNION 
+			SELECT OTH_SEQ, 'O' AS AIR_SEA_CLSS_CD, REF_NO, MODI_USRID, MODI_TMS,'cltmaster', CAST(GETUTCDATE() AS datetime) FROM TB_OTH_SALES 
+			UNION 
+			SELECT WM_DOC_SEQ, 'W' AS AIR_SEA_CLSS_CD, DOC_REF_NO, MODI_USRID, MODI_TMS,'cltmaster', CAST(GETUTCDATE() AS datetime) FROM TB_WM_DOC_MST  		
+	</insert>
+	<delete id="deletePrfData" parameterClass="batchVO" >
+			/*BatchSQL.xml > deletePrfData*/
+		<isNotEmpty property="proc_dt">
+			DELETE FROM TB_BL_PRF
+			WHERE 1=1
+			AND INV_POST_DT >=#proc_dt#
+		</isNotEmpty>
+	</delete>
+	<insert id="insertPrfData" parameterClass="batchVO">
+		<isNotEmpty property="proc_dt">
+		/*BatchSQL.xml > insertPrfData*/	
+		INSERT INTO TB_BL_PRF(
+			   INTG_BL_SEQ
+		      ,AIR_SEA_CLSS_CD
+		      ,INV_POST_DT
+		      ,INV_CURR_CD
+		      ,POST_DT
+		      ,CLT_CMPL_FLG
+		      ,PFMC_SUM_AR_INV_AMT
+		      ,PFMC_SUM_AP_INV_AMT
+		      ,PFMC_SUM_DB_INV_AMT
+		      ,PFMC_SUM_CR_INV_AMT
+		      ,SUM_AR_INV_AMT
+		      ,SUM_AP_INV_AMT
+		      ,SUM_DB_INV_AMT
+		      ,SUM_CR_INV_AMT
+		      ,PFMC_AR_INV_AMT
+		      ,PFMC_AP_INV_AMT
+		      ,PFMC_DB_INV_AMT
+		      ,PFMC_CR_INV_AMT
+		      ,AR_INV_AMT
+		      ,AP_INV_AMT
+		      ,DB_INV_AMT
+		      ,CR_INV_AMT
+		      ,PFMC_PS_SUM_DB_INV_AMT
+		      ,PFMC_PS_SUM_CR_INV_AMT
+		      ,PFMC_NOT_PS_SUM_DB_INV_AMT
+		      ,PFMC_NOT_PS_SUM_CR_INV_AMT
+		      ,MBL_PFMC_SUM_AR_INV_AMT
+		      ,MBL_PFMC_SUM_AP_INV_AMT
+		      ,MBL_PFMC_SUM_DB_INV_AMT
+		      ,MBL_PFMC_SUM_CR_INV_AMT
+		      ,MBL_SUM_AR_INV_AMT
+		      ,MBL_SUM_AP_INV_AMT
+		      ,MBL_SUM_DB_INV_AMT
+		      ,MBL_SUM_CR_INV_AMT
+		      ,MBL_PFMC_AR_INV_AMT
+		      ,MBL_PFMC_AP_INV_AMT
+		      ,MBL_PFMC_DB_INV_AMT
+		      ,MBL_PFMC_CR_INV_AMT
+		      ,MBL_AR_INV_AMT
+		      ,MBL_AP_INV_AMT
+		      ,MBL_DB_INV_AMT
+		      ,MBL_CR_INV_AMT
+		      ,MBL_PFMC_PS_SUM_DB_INV_AMT
+		      ,MBL_PFMC_PS_SUM_CR_INV_AMT
+		      ,MBL_PFMC_NOT_PS_SUM_DB_INV_AMT
+		      ,MBL_PFMC_NOT_PS_SUM_CR_INV_AMT
+			    ,INV_DT		          
+			    ,INV_XCRT_DT   
+		      ,RGST_USRID
+		      ,RGST_TMS
+		      
+		      <!-- #3593 [JTC]Profit Report & Performance Report 수정 사항 -->
+			  ,LOCL_CURR_CD		      
+		      ,LOCL_PFMC_SUM_AR_INV_AMT
+		      ,LOCL_PFMC_SUM_AP_INV_AMT
+		      ,LOCL_PFMC_SUM_DB_INV_AMT
+		      ,LOCL_PFMC_SUM_CR_INV_AMT
+		      ,LOCL_SUM_AR_INV_AMT
+		      ,LOCL_SUM_AP_INV_AMT
+		      ,LOCL_SUM_DB_INV_AMT
+		      ,LOCL_SUM_CR_INV_AMT
+		      ,LOCL_PFMC_AR_INV_AMT
+		      ,LOCL_PFMC_AP_INV_AMT
+		      ,LOCL_PFMC_DB_INV_AMT
+		      ,LOCL_PFMC_CR_INV_AMT
+		      ,LOCL_AR_INV_AMT
+		      ,LOCL_AP_INV_AMT
+		      ,LOCL_DB_INV_AMT
+		      ,LOCL_CR_INV_AMT
+		      ,LOCL_PFMC_PS_SUM_DB_INV_AMT
+		      ,LOCL_PFMC_PS_SUM_CR_INV_AMT
+		      ,LOCL_PFMC_NOT_PS_SUM_DB_INV_AMT
+		      ,LOCL_PFMC_NOT_PS_SUM_CR_INV_AMT
+		      ,LOCL_MBL_PFMC_SUM_AR_INV_AMT
+		      ,LOCL_MBL_PFMC_SUM_AP_INV_AMT
+		      ,LOCL_MBL_PFMC_SUM_DB_INV_AMT
+		      ,LOCL_MBL_PFMC_SUM_CR_INV_AMT
+		      ,LOCL_MBL_SUM_AR_INV_AMT
+		      ,LOCL_MBL_SUM_AP_INV_AMT
+		      ,LOCL_MBL_SUM_DB_INV_AMT
+		      ,LOCL_MBL_SUM_CR_INV_AMT
+		      ,LOCL_MBL_PFMC_AR_INV_AMT
+		      ,LOCL_MBL_PFMC_AP_INV_AMT
+		      ,LOCL_MBL_PFMC_DB_INV_AMT
+		      ,LOCL_MBL_PFMC_CR_INV_AMT
+		      ,LOCL_MBL_AR_INV_AMT
+		      ,LOCL_MBL_AP_INV_AMT
+		      ,LOCL_MBL_DB_INV_AMT
+		      ,LOCL_MBL_CR_INV_AMT
+		      ,LOCL_MBL_PFMC_PS_SUM_DB_INV_AMT
+		      ,LOCL_MBL_PFMC_PS_SUM_CR_INV_AMT
+		      ,LOCL_MBL_PFMC_NOT_PS_SUM_DB_INV_AMT
+		      ,LOCL_MBL_PFMC_NOT_PS_SUM_CR_INV_AMT		      
+		)
+		SELECT INTG_BL_SEQ
+		      ,AIR_SEA_CLSS_CD
+		      ,INV_POST_DT
+		      ,INV_CURR_CD
+		      ,POST_DT
+		      ,CLT_CMPL_FLG
+		      ,PFMC_SUM_AR_INV_AMT
+		      ,PFMC_SUM_AP_INV_AMT
+		      ,PFMC_SUM_DB_INV_AMT
+		      ,PFMC_SUM_CR_INV_AMT
+		      ,SUM_AR_INV_AMT
+		      ,SUM_AP_INV_AMT
+		      ,SUM_DB_INV_AMT
+		      ,SUM_CR_INV_AMT
+		      ,PFMC_AR_INV_AMT
+		      ,PFMC_AP_INV_AMT
+		      ,PFMC_DB_INV_AMT
+		      ,PFMC_CR_INV_AMT
+		      ,AR_INV_AMT
+		      ,AP_INV_AMT
+		      ,DB_INV_AMT
+		      ,CR_INV_AMT
+		      ,PFMC_PS_SUM_DB_INV_AMT
+		      ,PFMC_PS_SUM_CR_INV_AMT
+		      ,PFMC_NOT_PS_SUM_DB_INV_AMT
+		      ,PFMC_NOT_PS_SUM_CR_INV_AMT
+		      ,MBL_PFMC_SUM_AR_INV_AMT
+		      ,MBL_PFMC_SUM_AP_INV_AMT
+		      ,MBL_PFMC_SUM_DB_INV_AMT
+		      ,MBL_PFMC_SUM_CR_INV_AMT
+		      ,MBL_SUM_AR_INV_AMT
+		      ,MBL_SUM_AP_INV_AMT
+		      ,MBL_SUM_DB_INV_AMT
+		      ,MBL_SUM_CR_INV_AMT
+		      ,MBL_PFMC_AR_INV_AMT
+		      ,MBL_PFMC_AP_INV_AMT
+		      ,MBL_PFMC_DB_INV_AMT
+		      ,MBL_PFMC_CR_INV_AMT
+		      ,MBL_AR_INV_AMT
+		      ,MBL_AP_INV_AMT
+		      ,MBL_DB_INV_AMT
+		      ,MBL_CR_INV_AMT
+		      ,MBL_PFMC_PS_SUM_DB_INV_AMT
+		      ,MBL_PFMC_PS_SUM_CR_INV_AMT
+		      ,MBL_PFMC_NOT_PS_SUM_DB_INV_AMT
+		      ,MBL_PFMC_NOT_PS_SUM_CR_INV_AMT
+			    ,INV_DT		         
+			    ,INV_XCRT_DT        
+		      ,'cltmaster'
+		      ,CAST(GETUTCDATE() AS datetime)
+		      
+		      <!-- #3593 [JTC]Profit Report & Performance Report 수정 사항 -->
+			  ,LOCL_CURR_CD		      
+		      ,LOCL_PFMC_SUM_AR_INV_AMT
+		      ,LOCL_PFMC_SUM_AP_INV_AMT
+		      ,LOCL_PFMC_SUM_DB_INV_AMT
+		      ,LOCL_PFMC_SUM_CR_INV_AMT
+		      ,LOCL_SUM_AR_INV_AMT
+		      ,LOCL_SUM_AP_INV_AMT
+		      ,LOCL_SUM_DB_INV_AMT
+		      ,LOCL_SUM_CR_INV_AMT
+		      ,LOCL_PFMC_AR_INV_AMT
+		      ,LOCL_PFMC_AP_INV_AMT
+		      ,LOCL_PFMC_DB_INV_AMT
+		      ,LOCL_PFMC_CR_INV_AMT
+		      ,LOCL_AR_INV_AMT
+		      ,LOCL_AP_INV_AMT
+		      ,LOCL_DB_INV_AMT
+		      ,LOCL_CR_INV_AMT
+		      ,LOCL_PFMC_PS_SUM_DB_INV_AMT
+		      ,LOCL_PFMC_PS_SUM_CR_INV_AMT
+		      ,LOCL_PFMC_NOT_PS_SUM_DB_INV_AMT
+		      ,LOCL_PFMC_NOT_PS_SUM_CR_INV_AMT
+		      ,LOCL_MBL_PFMC_SUM_AR_INV_AMT
+		      ,LOCL_MBL_PFMC_SUM_AP_INV_AMT
+		      ,LOCL_MBL_PFMC_SUM_DB_INV_AMT
+		      ,LOCL_MBL_PFMC_SUM_CR_INV_AMT
+		      ,LOCL_MBL_SUM_AR_INV_AMT
+		      ,LOCL_MBL_SUM_AP_INV_AMT
+		      ,LOCL_MBL_SUM_DB_INV_AMT
+		      ,LOCL_MBL_SUM_CR_INV_AMT
+		      ,LOCL_MBL_PFMC_AR_INV_AMT
+		      ,LOCL_MBL_PFMC_AP_INV_AMT
+		      ,LOCL_MBL_PFMC_DB_INV_AMT
+		      ,LOCL_MBL_PFMC_CR_INV_AMT
+		      ,LOCL_MBL_AR_INV_AMT
+		      ,LOCL_MBL_AP_INV_AMT
+		      ,LOCL_MBL_DB_INV_AMT
+		      ,LOCL_MBL_CR_INV_AMT
+		      ,LOCL_MBL_PFMC_PS_SUM_DB_INV_AMT
+		      ,LOCL_MBL_PFMC_PS_SUM_CR_INV_AMT
+		      ,LOCL_MBL_PFMC_NOT_PS_SUM_DB_INV_AMT
+		      ,LOCL_MBL_PFMC_NOT_PS_SUM_CR_INV_AMT	
+		      		      
+		  FROM dbo.VW_BL_PRF_OLD
+		  WHERE 1=1
+		  AND INV_POST_DT>=#proc_dt#
+  	</isNotEmpty> 		
+	</insert>
+	<delete id="deletePrfLogData">
+		/*BatchSQL.xml > deletePrfLogData*/
+		DELETE FROM TB_BL_PRF_LOG;
+	</delete>
+	<insert id="insertPrfLogData">
+		/*BatchSQL.xml > insertPrfLogData*/
+		INSERT INTO TB_BL_PRF_LOG (INV_SEQ, INV_DEPT_CD, MODI_USRID, MODI_TMS, RGST_USRID, RGST_TMS)
+		SELECT H.INV_SEQ,H.INV_DEPT_CD,D.MODI_USRID, D.MODI_TMS ,'cltmaster', CAST(GETUTCDATE() AS datetime) 
+								FROM TB_INV H WITH(NOLOCK), TB_INV_DTL D
+								WHERE H.INV_SEQ = D.INV_SEQ;	
+	</insert>
+	<insert id="insertBatchHistory" parameterClass="batchVO">
+	/*BatchSQL.xml > insertBatchHistory*/
+		INSERT INTO TB_BAT_HIS
+			(
+			bat_tp 
+			,proc_dt 
+			,rmk 
+			,rgst_ofc 
+			,rgst_usrid 
+			,rgst_tms 
+			)
+		SELECT
+			#bat_tp#
+			,#proc_dt#
+			,#rmk# 
+			,#rgst_ofc# 
+			,#rgst_usrid# 
+			,GETUTCDATE() 
+				
+	</insert>
+
+
+</sqlMap>
+
+
+
+

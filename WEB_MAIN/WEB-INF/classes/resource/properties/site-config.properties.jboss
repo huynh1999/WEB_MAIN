@@ -1,0 +1,107 @@
+##########################################################
+#	SITE Management CONFIG Variable
+##########################################################
+##########################################################
+# WEBLOGIC,TOMCAT,JBOS
+##########################################################
+PROJECT_WAS_TYPE = JBOS
+
+##########################################################
+# LoggableStatement Variable
+##########################################################
+sqldebug = true
+
+##########################################################
+# Lange ResourBundle Names
+##########################################################
+message.bundles=SysPageComment
+
+##########################################################
+# IBatis Framework SqlMap configuration file location 
+##########################################################
+PROJECT_IBATIS_CONF_URL=/resource/xml/SqlMapConfig.xml
+
+##########################################################
+# Upload File Default Repository
+##########################################################
+#일반파일
+UPLOAD_FILE_REPO=C:/OPUS/opus_repo/fwd_repo/basic/
+
+#파일업로드시 임시파일 경로
+TEMP_FILE_REPO=C:/OPUS/opus_repo/fwd_repo/tmpfile/
+
+#BL관련 파일
+BLFILE_FILE_REPO=C:/OPUS/opus_repo/fwd_repo/blfile/
+
+#Partner관련 파일
+PARTNER_CONTACT_INFO=C:/OPUS/opus_repo/fwd_repo/pafile/
+
+#AMS 관련파일
+AMS_SND_FILE_REPO=C:/OPUS/opus_repo/fwd_repo/ams/send/
+AMS_RCV_FILE_REPO=C:/OPUS/opus_repo/fwd_repo/ams/receive/
+KREDI_SND_FILE_REPO=C:/OPUS/opus_repo/fwd_repo/kredi/send/
+
+
+##########################################################
+# Upload File maximum size
+##########################################################
+UPLOAD_FILE_MAXSIZE=10240000
+
+##########################################################
+# Default Encoding
+##########################################################
+SYS_ENCODING=UTF-8
+
+##########################################################
+# User Temporary Password 
+##########################################################
+USER_TMP_PWD=1111
+
+##########################################################
+# Uploadable file extension 
+##########################################################
+#Shipping Document
+UPLOAD_SHIPDOC_EXT=.gif.tiff.tif.jpg.bmp.png.txt.ppt.doc.xls.zip
+
+#Notice Uploadable Document
+UPLOAD_NOTICE_EXT=.gif.tiff.tif.jpg.bmp.png.txt.ppt.doc.xls.zip
+
+#PDF Changeable file extension
+PDF_CHANGE_EXT=.gif.tiff..tif.jpg.bmp.png
+
+#Trade Partner
+UPLOAD_PARTNER_EXT=.gif.tiff.tif.jpg.bmp.png.txt
+
+#Default DPI
+IMAGE_DPI=100
+
+#Standard Currency. 기준 환률.
+STD_CURRENCY=USD
+
+#Standard Currency. 기준 환률 기준 금액
+STD_RATE_UNIT=1
+
+#Shipping Request에 표시되는 본사 레이블
+CMP_SRTXT=GENERAL LOGISTIC CO., LTD. O/B OF
+
+##########################################################
+# AMS EDI Configuration 
+##########################################################
+EDI_SNDID=
+EDI_RCVID=
+EDI_FORMAT=
+EDI_REFNUM_PRE=
+
+#Forwarder의 SCAC넘 
+EDI_MY_SCAC=
+
+#EDI 서비스 제공자의 FTP 서버 IP  
+EDI_FTP_IP=
+EDI_FTP_PORT=
+EDI_FTP_ID=
+EDI_FTP_PWD=
+EDI_FTP_ACC=
+
+#CTRADEWORLD의 ID, PASS
+CTRADE_ID=
+CTRADE_PASS=
